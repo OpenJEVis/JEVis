@@ -179,7 +179,7 @@ public class DashBoardToolbar extends ToolBar {
 
         helpButton.setOnAction(event -> {
             this.dashboardControl.showTooltips();
-            showAllTooltips(buttonList);
+            //showAllTooltips(buttonList);
         });
 
 

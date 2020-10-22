@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -15,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.widget.ArrowWidget.SHAPE;
 
 import static org.jevis.jeconfig.plugin.dashboard.widget.ArrowWidget.ARROW_ORIENTATION;
 
@@ -22,9 +21,10 @@ public class ArrowConfig {
 
     private static final Logger logger = LogManager.getLogger(ArrowConfig.class);
 
-    ARROW_ORIENTATION orientation = ARROW_ORIENTATION.LEFT_RIGHT;
-
-    ObservableList<ARROW_ORIENTATION> types = FXCollections.observableArrayList(ARROW_ORIENTATION.values());
+    private ARROW_ORIENTATION orientation = ARROW_ORIENTATION.LEFT_RIGHT;
+    private SHAPE shape = SHAPE.ARROW;
+    private final String JSON_ORIENTATION = "orientation";
+    private final String JSON_SHAPE = "shape";
 
     final DashboardControl dashboardControl;
 
@@ -36,12 +36,19 @@ public class ArrowConfig {
         return orientation;
     }
 
+    public SHAPE getShape() {
+        return shape;
+    }
+
     public ArrowConfig(DashboardControl control, JsonNode jsonNode) {
         this.dashboardControl = control;
 
         if (jsonNode != null) {
-            String orientationStrg = jsonNode.get("orientation").asText(ARROW_ORIENTATION.LEFT_RIGHT.toString());
+            String orientationStrg = jsonNode.get(JSON_ORIENTATION).asText(ARROW_ORIENTATION.LEFT_RIGHT.toString());
             orientation = ARROW_ORIENTATION.valueOf(orientationStrg);
+
+            String shapeStrg = jsonNode.get(JSON_SHAPE).asText(SHAPE.ARROW.toString());
+            shape = SHAPE.valueOf(shapeStrg);
         }
     }
 
@@ -111,9 +118,48 @@ public class ArrowConfig {
         orientationTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             orientation = newValue;
         });
+
+        //------------------------------- shape
+
+        Label shapeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation"));
+
+        ComboBox<SHAPE> shapeBox = new ComboBox<>(FXCollections.observableArrayList(SHAPE.values()));
+        Callback<ListView<SHAPE>, ListCell<SHAPE>> shapeCellFactory = new Callback<ListView<SHAPE>, ListCell<SHAPE>>() {
+            @Override
+            public ListCell<SHAPE> call(ListView<SHAPE> param) {
+                return new ListCell<SHAPE>() {
+                    @Override
+                    protected void updateItem(SHAPE item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            switch (item) {
+                                case ARROW:
+                                    setText(I18n.getInstance().getString("plugin.dashboard.arrowwidget.shape.arrow"));
+                                    break;
+                                case LINE:
+                                    setText(I18n.getInstance().getString("plugin.dashboard.arrowwidget.shape.line"));
+                                    break;
+                            }
+
+                        }
+                    }
+                };
+            }
+        };
+        shapeBox.setCellFactory(shapeCellFactory);
+        shapeBox.setButtonCell(shapeCellFactory.call(null));
+
+        shapeBox.getSelectionModel().select(shape);
+
+        shapeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            shape = newValue;
+        });
+
+
         gridPane.addRow(0, limitTypeLabel, orientationTypeBox);
-        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 1, 2, 1);
-        gridPane.add(editorPane, 0, 2, 2, 1);
+        gridPane.addRow(1, shapeLabel, shapeBox);
+        //gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 2, 2, 1);
+        //gridPane.add(editorPane, 0, 3, 2, 1);
 
 
         tab.setContent(gridPane);
@@ -123,7 +169,8 @@ public class ArrowConfig {
 
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-        dataNode.put("orientation", orientation.toString());
+        dataNode.put(JSON_ORIENTATION, orientation.toString());
+        dataNode.put(JSON_SHAPE, shape.toString());
 
         return dataNode;
     }
