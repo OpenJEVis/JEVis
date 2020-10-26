@@ -125,20 +125,31 @@ public class ValueWidget extends Widget implements DataModelWidget {
                     total.set(DataModelDataHandler.getTotal(results, dataModel));
 
                     displayedSample.setValue(total.get());
-                    Platform.runLater(() -> {
-                        if (percent != null && percent.getPercentWidgetID() > 0) {
-                            for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
-                                if (sourceWidget.getConfig().getUuid() == (limit.getLimitWidgetID())) {
-                                    double reference = ((ValueWidget) sourceWidget).displayedSample.get();
-                                    double value = this.displayedSample.get();
-                                    this.label.setText((this.nf.format(total.get())) + " " + unit + " (" + this.nf.format(value / reference) + "%)");
-                                    break;
+                    String valueText = null;
+                    if (percent != null && percent.getPercentWidgetID() > 0) {
+                        for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
+                            if (sourceWidget.getConfig().getUuid() == (percent.getPercentWidgetID())) {
+                                Double reference = ((ValueWidget) sourceWidget).displayedSample.get();
+                                Double value = this.displayedSample.get();
+                                Double result = value / reference * 100;
+                                if (!result.isNaN()) {
+                                    if (value >= 0.01) {
+                                        valueText = this.nf.format(value) + " " + unit + " (" + this.nf.format(result) + "%)";
+                                    } else {
+                                        valueText = this.nf.format(value) + " " + unit + " (<" + this.nf.format(0.01) + "%)";
+                                    }
+                                } else {
+                                    valueText = this.nf.format(total.get()) + " " + unit;
                                 }
+                                break;
                             }
-                        } else {
-                            this.label.setText((this.nf.format(total.get())) + " " + unit);
                         }
-                    });
+                    } else {
+                        valueText = this.nf.format(total.get()) + " " + unit;
+                    }
+
+                    String finalValueText = valueText;
+                    Platform.runLater(() -> this.label.setText(finalValueText));
                     checkLimit();
                 } else {
                     Platform.runLater(() -> {
@@ -267,7 +278,28 @@ public class ValueWidget extends Widget implements DataModelWidget {
                     }
 
                 }
-
+                if (percent != null && percent.getPercentWidgetID() > 0) {
+                    String unit = sampleHandler.getDataModel().get(0).getUnitLabel();
+                    for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
+                        if (sourceWidget.getConfig().getUuid() == (percent.getPercentWidgetID())) {
+                            ((ValueWidget) sourceWidget).getDisplayedSampleProperty().addListener((observable, oldValue, newValue) -> {
+                                Double reference = ((ValueWidget) sourceWidget).displayedSample.get();
+                                Double value = this.displayedSample.get();
+                                Double result = value / reference * 100;
+                                if (!result.isNaN()) {
+                                    if (result >= 0.01) {
+                                        this.label.setText(this.nf.format(result) + " " + unit + " (" + this.nf.format(result) + "%)");
+                                    } else {
+                                        this.label.setText(this.nf.format(value) + " " + unit + " (<" + this.nf.format(0.01) + "%)");
+                                    }
+                                } else {
+                                    this.label.setText(this.nf.format(value) + " " + unit);
+                                }
+                            });
+                            break;
+                        }
+                    }
+                }
             }
         } catch (Exception ex) {
             logger.error("Error while update config: {}|{}", ex.getStackTrace()[0].getLineNumber(), ex);
@@ -420,6 +452,11 @@ public class ValueWidget extends Widget implements DataModelWidget {
         if (limit != null) {
             dashBoardNode
                     .set(LIMIT_NODE_NAME, limit.toJSON());
+        }
+
+        if (percent != null) {
+            dashBoardNode
+                    .set(PERCENT_NODE_NAME, percent.toJSON());
         }
 
 
