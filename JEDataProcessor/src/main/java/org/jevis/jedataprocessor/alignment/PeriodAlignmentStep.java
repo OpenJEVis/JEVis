@@ -93,7 +93,22 @@ public class PeriodAlignmentStep implements ProcessStep {
             DateTime snapToGridEnd = null;
             DateTime date = rawInterval.getDate();
 
-            if (periodCleanData.equals(Period.minutes(15)) && date.getMonthOfYear() == 3 || date.getMonthOfYear() == 10) {
+            if (periodCleanData.equals(Period.minutes(1)) && date.getMonthOfYear() == 3 || date.getMonthOfYear() == 10) {
+                int day = getLastSunday(date.getMonthOfYear(), date.getYear());
+                boolean isLastSunday = date.getDayOfMonth() == day;
+
+                if (isLastSunday && date.getZone().getOffset(date) == 7200000
+                        && date.getMonthOfYear() == 10 && date.getHourOfDay() == 2) {
+                    removeForTimeZoneShift.add(rawInterval);
+                    continue;
+                }
+//                else if (isLastSunday && date.getZone().getOffset(date) == 3600000
+//                        && date.getMonthOfYear() == 3 && date.getHourOfDay() == 3) {
+//                    // TODO: Check in on march again for testing
+//                    removeForTimeZoneShift.add(rawInterval);
+//                    continue;
+//                }
+            } else if (periodCleanData.equals(Period.minutes(15)) && date.getMonthOfYear() == 3 || date.getMonthOfYear() == 10) {
                 int day = getLastSunday(date.getMonthOfYear(), date.getYear());
                 boolean isLastSunday = date.getDayOfMonth() == day;
 
