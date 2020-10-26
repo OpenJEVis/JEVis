@@ -54,10 +54,12 @@ public class ValueWidget extends Widget implements DataModelWidget {
     private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private Limit limit;
+    public static String PERCENT_NODE_NAME = "percent";
     private Interval lastInterval = null;
 
 
     public static String LIMIT_NODE_NAME = "limit";
+    private Percent percent;
 
     public ValueWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -74,7 +76,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*4));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 4));
 
 
         return widgetPojo;
@@ -144,7 +146,18 @@ public class ValueWidget extends Widget implements DataModelWidget {
 //                                new KeyFrame(startValue, new KeyValue(timeSeconds, total.doubleValue())));
 //                        timeline.playFromStart();
 
-                        this.label.setText((this.nf.format(total.get())) + " " + unit);
+                        if (percent != null && percent.getPercentWidgetID() > 0) {
+                            for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
+                                if (sourceWidget.getConfig().getUuid() == (limit.getLimitWidgetID())) {
+                                    double reference = ((ValueWidget) sourceWidget).displayedSample.get();
+                                    double value = this.displayedSample.get();
+                                    this.label.setText((this.nf.format(total.get())) + " " + unit + " (" + this.nf.format(value / reference) + "%)");
+                                    break;
+                                }
+                            }
+                        } else {
+                            this.label.setText((this.nf.format(total.get())) + " " + unit);
+                        }
                     });
                     checkLimit();
                 } else {
@@ -228,6 +241,11 @@ public class ValueWidget extends Widget implements DataModelWidget {
         if (limit != null) {
             widgetConfigDialog.addTab(limit.getConfigTab());
         }
+
+        if (percent != null) {
+            widgetConfigDialog.addTab(percent.getConfigTab());
+        }
+
         widgetConfigDialog.requestFirstTabFocus();
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
@@ -274,7 +292,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
         } catch (Exception ex) {
             logger.error("Error while update config: {}|{}", ex.getStackTrace()[0].getLineNumber(), ex);
         }
-
     }
 
     @Override
@@ -309,6 +326,17 @@ public class ValueWidget extends Widget implements DataModelWidget {
         if (limit == null) {
             logger.error("Limit is null make new: " + config.getUuid());
             this.limit = new Limit(this.control);
+        }
+
+        try {
+            this.percent = new Percent(this.control, this.config.getConfigNode(PERCENT_NODE_NAME));
+        } catch (Exception ex) {
+            logger.error(ex);
+            ex.printStackTrace();
+        }
+        if (percent == null) {
+            logger.error("Percent is null make new: " + config.getUuid());
+            this.percent = new Percent(this.control);
         }
 
         this.label.setPadding(new Insets(0, 8, 0, 8));
