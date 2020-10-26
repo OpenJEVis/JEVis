@@ -199,6 +199,7 @@ public class ResourceManager {
             }
             logger.info("{} intervals calculated", rawIntervals.size());
         }
+
         return rawIntervals;
     }
 

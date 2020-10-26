@@ -18,6 +18,8 @@ import org.jevis.jedataprocessor.workflow.ProcessStep;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,42 @@ import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 public class PeriodAlignmentStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(PeriodAlignmentStep.class);
+
+    public static int getLastSunday(int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, 1);
+        cal.add(Calendar.DATE, -1);
+        cal.add(Calendar.DAY_OF_MONTH, -(cal.get(Calendar.DAY_OF_WEEK) - 1));
+        return cal.get(Calendar.DAY_OF_MONTH);
+    }
+
+    private Double calcAvgSample(List<JEVisSample> currentRawSamples) {
+        if (currentRawSamples.size() > 0) {
+            Double value = 0.0;
+            for (JEVisSample sample : currentRawSamples) {
+                try {
+                    Double valueAsDouble = sample.getValueAsDouble();
+                    value += valueAsDouble;
+                } catch (JEVisException ex) {
+                    logger.error(ex);
+                }
+            }
+            return value / currentRawSamples.size();
+        } else return 0d;
+    }
+
+    private Double calcSumSample(List<JEVisSample> currentRawSamples) {
+        Double value = 0.0;
+        for (JEVisSample sample : currentRawSamples) {
+            try {
+                Double valueAsDouble = sample.getValueAsDouble();
+                value += valueAsDouble;
+            } catch (JEVisException ex) {
+                logger.error(ex);
+            }
+        }
+        return value;
+    }
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
@@ -48,11 +86,47 @@ public class PeriodAlignmentStep implements ProcessStep {
 
         List<JEVisSample> rawSamples = resourceManager.getRawSamplesDown();
         int currentSamplePointer = 0;
+        List<CleanInterval> removeForTimeZoneShift = new ArrayList<>();
         for (CleanInterval rawInterval : rawIntervals) {
             boolean samplesInInterval = true;
             DateTime snapToGridStart = null;
             DateTime snapToGridEnd = null;
             DateTime date = rawInterval.getDate();
+
+            if (periodCleanData.equals(Period.minutes(15)) && date.getMonthOfYear() == 3 || date.getMonthOfYear() == 10) {
+                int day = getLastSunday(date.getMonthOfYear(), date.getYear());
+                boolean isLastSunday = date.getDayOfMonth() == day;
+
+                if (isLastSunday && date.getZone().getOffset(date) == 7200000
+                        && date.getMonthOfYear() == 10 && date.getHourOfDay() == 2
+                        && (date.getMinuteOfHour() == 0 || date.getMinuteOfHour() == 15 || date.getMinuteOfHour() == 30 || date.getMinuteOfHour() == 45)) {
+                    removeForTimeZoneShift.add(rawInterval);
+                    continue;
+                }
+//                else if (isLastSunday && date.getZone().getOffset(date) == 3600000
+//                        && date.getMonthOfYear() == 3 && date.getHourOfDay() == 3
+//                        && (date.getMinuteOfHour() == 0 || date.getMinuteOfHour() == 15 || date.getMinuteOfHour() == 30 || date.getMinuteOfHour() == 45)) {
+//                    // TODO: Check in on march again for testing
+//                    removeForTimeZoneShift.add(rawInterval);
+//                    continue;
+//                }
+            } else if (periodCleanData.equals(Period.hours(1)) && date.getMonthOfYear() == 3 || date.getMonthOfYear() == 10) {
+                int day = getLastSunday(date.getMonthOfYear(), date.getYear());
+                boolean isLastSunday = date.getDayOfMonth() == day;
+
+                if (isLastSunday && date.getZone().getOffset(date) == 7200000
+                        && date.getMonthOfYear() == 10 && date.getHourOfDay() == 2) {
+                    removeForTimeZoneShift.add(rawInterval);
+                    continue;
+                }
+//                else if (isLastSunday && date.getZone().getOffset(date) == 3600000
+//                        && date.getMonthOfYear() == 3 && date.getHourOfDay() == 3) {
+//                    // TODO: Check in on march again for testing
+//                    removeForTimeZoneShift.add(rawInterval);
+//                    continue;
+//                }
+            }
+
             long start = rawInterval.getInterval().getStartMillis();
             long end = rawInterval.getInterval().getEndMillis();
             long halfDiff = (end - start) / 2;
@@ -102,6 +176,8 @@ public class PeriodAlignmentStep implements ProcessStep {
                 }
             }
         }
+
+        rawIntervals.removeAll(removeForTimeZoneShift);
 
         List<JEVisSample> listConversionToDifferential = cleanDataObject.getConversionDifferential();
         Boolean valueIsQuantity = cleanDataObject.getValueIsQuantity();
@@ -290,33 +366,4 @@ public class PeriodAlignmentStep implements ProcessStep {
             }
         }
     }
-
-    private Double calcAvgSample(List<JEVisSample> currentRawSamples) {
-        if (currentRawSamples.size() > 0) {
-            Double value = 0.0;
-            for (JEVisSample sample : currentRawSamples) {
-                try {
-                    Double valueAsDouble = sample.getValueAsDouble();
-                    value += valueAsDouble;
-                } catch (JEVisException ex) {
-                    logger.error(ex);
-                }
-            }
-            return value / currentRawSamples.size();
-        } else return 0d;
-    }
-
-    private Double calcSumSample(List<JEVisSample> currentRawSamples) {
-        Double value = 0.0;
-        for (JEVisSample sample : currentRawSamples) {
-            try {
-                Double valueAsDouble = sample.getValueAsDouble();
-                value += valueAsDouble;
-            } catch (JEVisException ex) {
-                logger.error(ex);
-            }
-        }
-        return value;
-    }
-
 }
