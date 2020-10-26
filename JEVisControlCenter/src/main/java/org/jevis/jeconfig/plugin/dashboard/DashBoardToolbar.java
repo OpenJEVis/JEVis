@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.transform.Rotate;
 import javafx.util.Callback;
 import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
@@ -19,12 +20,12 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.control.ToolTipDocu;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DashBoardToolbar extends ToolBar {
@@ -61,7 +62,10 @@ public class DashBoardToolbar extends ToolBar {
     private ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
     private Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
     private ToggleButton helpButton = GlobalToolBar.buildHelpButton(this.iconSize, this.iconSize);
+    private ToggleButton infoButton = new ToggleButton("", JEConfig.getImage("1404337146_info.png", this.iconSize, this.iconSize));
+
     private boolean disableEventListener = false;
+    private ToolTipDocu toolTipDocu = new ToolTipDocu();
 
     private ArrayList<Object> buttonList = new ArrayList();
 
@@ -93,12 +97,7 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reloadButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(helpButton);
-        Object[] elements = new Object[]{lockIcon, snapToGridIcon, unlockIcon, pauseIcon, playIcon, backgroundButton
-                , runUpdateButton, unlockButton, snapGridButton, showGridButton, treeButton, settingsButton, save, exportPNG
-                , newButton, delete, zoomIn, zoomOut, enlarge, newB, reloadButton, navigator, reloadTooltip, helpButton};
-
-        buttonList.addAll(Arrays.asList(elements));
+        //GlobalToolBar.changeBackgroundOnHoverUsingBinding(helpButton);
 
         reloadButton.setTooltip(reloadTooltip);
 
@@ -177,9 +176,12 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.createNewDashboard();
         });
 
+        infoButton.setOnAction(event -> {
+            this.dashboardControl.toggleWidgetTooltips();
+        });
+
         helpButton.setOnAction(event -> {
-            this.dashboardControl.showTooltips();
-            //showAllTooltips(buttonList);
+            this.dashboardControl.toggleTooltip();
         });
 
 
@@ -197,6 +199,7 @@ public class DashBoardToolbar extends ToolBar {
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.new")));
         runUpdateButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.update")));
         reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.reload")));
+        listAnalysesComboBox.setTooltip(new Tooltip(" List Toolpip"));
 
         Region spacerForRightSide = new Region();
         HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);
@@ -206,11 +209,27 @@ public class DashBoardToolbar extends ToolBar {
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
                 , sep4, save, delete, navigator, exportPNG
-                , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
-                , spacerForRightSide, helpButton);
+                , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton, infoButton
+                , helpButton); //, spacerForRightSide
+
+
+        toolTipDocu.addItems(getItems());
 
 
         updateView(dashboardControl.getActiveDashboard());
+    }
+
+    public void showTooltips(boolean show) {
+        helpButton.setSelected(show);
+        toolTipDocu.showTooltips(show);
+    }
+
+
+    public void hideToolTips() {
+        if (toolTipDocu.isShowingProperty().get()) {
+            helpButton.setSelected(!toolTipDocu.isShowingProperty().getValue());
+            toolTipDocu.toggle();
+        }
     }
 
 
@@ -265,7 +284,8 @@ public class DashBoardToolbar extends ToolBar {
         snapGridButton.setSelected(this.dashboardControl.snapToGridProperty.getValue());
         listZoomLevel.setValue(dashboardControl.getZoomFactory());
         toolBarIntervalSelector.updateView();
-
+        infoButton.setSelected(this.dashboardControl.showWidgetHelpProperty.getValue());
+        toolTipDocu.showTooltips(this.dashboardControl.showHelpProperty.getValue());
 
         updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
     }
@@ -330,6 +350,7 @@ public class DashBoardToolbar extends ToolBar {
             logger.error(ex);
         }
     }
+
 
     public static JFXComboBox<Double> buildZoomLevelListView() {
         ObservableList<Double> zoomLevel = FXCollections.observableArrayList();
@@ -399,18 +420,33 @@ public class DashBoardToolbar extends ToolBar {
                 if (obj instanceof Control) {
                     Control control = (Control) obj;
                     Tooltip tooltip = control.getTooltip();
+                    tooltip.setId("hmmmmmmmmmmmmmmm");
                     if (tooltip != null && !tooltip.getText().isEmpty()) {
                         if (tooltip.isShowing()) Platform.runLater(() -> tooltip.hide());
                         else {
                             Bounds sceneBounds = control.localToScene(control.getBoundsInLocal());
 
                             double x = sceneBounds.getMinX() + 2;
-                            double y = sceneBounds.getMinY() + 4;
+                            double y = sceneBounds.getMinY();// + 25;//4;
 
                             Platform.runLater(() -> {
                                 try {
-                                    tooltip.show(control, x, y);
+                                    tooltip.setGraphic(new Region());
+
+                                    System.out.println("Show tooltip1: " + tooltip);
+                                    //tooltip.getGraphic().resize(tooltip.getWidth(), tooltip.getHeight());
+                                    System.out.println("Show tooltip1: " + tooltip);
+                                    tooltip.show(control, x + 27, y + 60);
+                                    //tooltip.setStyle("-fx-rotate: 90;");
+
+                                    Label parent = (Label) tooltip.getGraphic().getParent();
+                                    parent.getTransforms().add(new Rotate(90));
+
+                                    //tooltip.getStyleableParent().getTransforms().add(new Rotate(90));
+                                    //tooltip.getGraphic().getTransforms().add(new Rotate(90));
+                                    System.out.println("Show tooltip1: " + tooltip);
                                 } catch (Exception ex) {
+                                    ex.printStackTrace();
                                 }
                             });
                         }

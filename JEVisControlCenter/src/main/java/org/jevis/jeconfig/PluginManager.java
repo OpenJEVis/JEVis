@@ -362,12 +362,14 @@ public class PluginManager {
             }
         });
 
-
-        this.tabPane.getSelectionModel().selectedIndexProperty().addListener((ov, oldValue, newValue) -> this.selectedPluginProperty.setValue(this._plugins.get(newValue.intValue())));
-
+        this.tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            this.getSelectedPlugin().lostFocus();
+            this.selectedPluginProperty.setValue(this._plugins.get(newValue.intValue()));
+        });
 
         box.getChildren().addAll(this.tabPane);
         selectedPluginProperty.setValue(_plugins.get(0));
+
 
         return box;
     }

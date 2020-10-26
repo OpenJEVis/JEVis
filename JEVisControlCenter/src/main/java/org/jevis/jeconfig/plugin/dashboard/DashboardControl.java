@@ -73,6 +73,8 @@ public class DashboardControl {
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
     public BooleanProperty snapToGridProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty showWidgetHelpProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty showHelpProperty = new SimpleBooleanProperty(false);
     private DashBoardPane dashboardPane = new DashBoardPane();
     private DashBoardToolbar toolBar;
     private String firstLoadedConfigHash = null;
@@ -920,25 +922,51 @@ public class DashboardControl {
         exporter.toPDF(dashboardPane, activeDashboard.getTitle() + "_" + intervalToString());
     }
 
+    public void toggleTooltip() {
+        this.showHelpProperty.set(!this.showHelpProperty.get());
+        toolBar.showTooltips(showHelpProperty.get());
+    }
 
-    public void showTooltips() {
+    public void hideAllToolTips() {
+        toolBar.hideToolTips();
+
+        if (showWidgetHelpProperty.get()) {
+            showWidgetTooltips(false);
+        }
+
+        if (showHelpProperty.get()) {
+            toggleTooltip();
+        }
+        toolBar.updateView(activeDashboard);
+    }
+
+    public void toggleWidgetTooltips() {
+        showWidgetTooltips(!showWidgetHelpProperty.get());
+    }
+
+    public void showWidgetTooltips(boolean show) {
         for (Widget widget : getWidgets()) {
             try {
                 if (!widget.getTt().getText().equals("")) {
-                    if (widget.getTt().isShowing()) Platform.runLater(() -> widget.getTt().hide());
-                    else {
-                        Bounds sceneBounds = widget.localToScene(widget.getBoundsInLocal());
+                    if (widget.getTt().isShowing() != show) {
+                        if (widget.getTt().isShowing()) Platform.runLater(() -> widget.getTt().hide());
+                        else {
+                            Bounds sceneBounds = widget.localToScene(widget.getBoundsInLocal());
 
-                        double x = sceneBounds.getMinX() + 2;
-                        double y = sceneBounds.getMinY() + 4;
+                            double x = sceneBounds.getMinX() + 2;
+                            double y = sceneBounds.getMinY() + 4;
 
-                        Platform.runLater(() -> widget.getTt().show(widget, x, y));
+                            Platform.runLater(() -> widget.getTt().show(widget, x, y));
+                        }
                     }
+
+
                 }
             } catch (Exception ex) {
                 logger.error("Error while showing tooltip for: {}", widget);
             }
         }
+        showWidgetHelpProperty.set(show);
 
     }
 

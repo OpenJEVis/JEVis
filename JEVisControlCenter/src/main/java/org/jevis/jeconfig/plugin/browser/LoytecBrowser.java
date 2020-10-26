@@ -247,4 +247,8 @@ public class LoytecBrowser implements Plugin {
 
     }
 
+    @Override
+    public void lostFocus() {
+
+    }
 }

@@ -129,6 +129,11 @@ public class ObjectPlugin implements Plugin {
     }
 
     @Override
+    public void lostFocus() {
+
+    }
+
+    @Override
     public void openObject(Object object) {
         try {
 //            tree.getSearchFilterBar().showObject((JEVisObject) object);
@@ -336,9 +341,10 @@ public class ObjectPlugin implements Plugin {
             ToggleButton expandTree = new ToggleButton("", JEConfig.getImage("create_wizard.png", iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(expandTree);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, expandTree, Constants.Plugin.Command.EXPAND);
+            ToggleButton helpButton = GlobalToolBar.buildHelpButton(iconSize, iconSize);
+            helpButton.setOnAction(event -> handleRequest(Constants.Plugin.Command.SHOW_TOOLTIP_DOCU));
 
-
-            toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
+            toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1, helpButton);// addTable, editTable, createWizard);
             initToolbar = true;
         }
 
@@ -362,7 +368,6 @@ public class ObjectPlugin implements Plugin {
 
     private void eventSaveAttributes() {
         _editor.commitAll();
-
     }
 
     @Override
@@ -557,6 +562,9 @@ public class ObjectPlugin implements Plugin {
                     break;
                 case Constants.Plugin.Command.SET_UNITS_AND_PERIODS:
                     TreeHelper.EventSetUnitAndPeriodRecursive(tree);
+                    break;
+                case Constants.Plugin.Command.SHOW_TOOLTIP_DOCU:
+                    _editor.toggleHelp();
                     break;
                 default:
                     logger.info("Unknown command ignore...");

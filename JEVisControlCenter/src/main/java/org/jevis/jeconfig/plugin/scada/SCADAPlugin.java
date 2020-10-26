@@ -270,6 +270,7 @@ public class SCADAPlugin implements Plugin {
             public ListCell<SCADAAnalysis.BGMode> call(ListView<SCADAAnalysis.BGMode> param) {
                 final ListCell<SCADAAnalysis.BGMode> cell = new ListCell<SCADAAnalysis.BGMode>() {
 
+                    @Override
                     protected void updateItem(SCADAAnalysis.BGMode item, boolean empty) {
                         super.updateItem(item, empty);
                         if (item != null && !empty) {
@@ -610,6 +611,11 @@ public class SCADAPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
+    }
+
+    @Override
+    public void lostFocus() {
+
     }
 
     @Override

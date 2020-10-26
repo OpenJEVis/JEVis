@@ -75,6 +75,11 @@ public class RootExtension implements ObjectEditorExtension {
     }
 
     @Override
+    public void showHelp(boolean show) {
+
+    }
+
+    @Override
     public BooleanProperty getValueChangedProperty() {
         return _changed;
     }

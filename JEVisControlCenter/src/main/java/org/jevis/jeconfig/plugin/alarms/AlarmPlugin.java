@@ -1013,7 +1013,6 @@ public class AlarmPlugin implements Plugin {
             });
 
 
-
             this.runningUpdateTaskList.add(task);
             //this.executor.execute(task);
         });
@@ -1107,6 +1106,11 @@ public class AlarmPlugin implements Plugin {
 
 
         Platform.runLater(() -> autoFitTable(tableView));
+    }
+
+    @Override
+    public void lostFocus() {
+
     }
 
     @Override

@@ -287,4 +287,9 @@ public class ClassPlugin implements Plugin {
     public ImageView getIcon() {
         return JEConfig.getImage("1394482166_blueprint_tool.png", 20, 20);
     }
+
+    @Override
+    public void lostFocus() {
+
+    }
 }

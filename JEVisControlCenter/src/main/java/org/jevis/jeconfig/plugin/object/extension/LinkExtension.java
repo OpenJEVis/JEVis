@@ -41,7 +41,6 @@ import org.jevis.jeconfig.plugin.object.relationship.RelationshipTable;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class LinkExtension implements ObjectEditorExtension {
@@ -83,6 +82,11 @@ public class LinkExtension implements ObjectEditorExtension {
                 buildGui(_obj);
             }
         });
+    }
+
+    @Override
+    public void showHelp(boolean show) {
+
     }
 
     private void buildGui(JEVisObject obj) {
