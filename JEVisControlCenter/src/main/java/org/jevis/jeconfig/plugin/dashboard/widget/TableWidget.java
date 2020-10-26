@@ -66,7 +66,7 @@ public class TableWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.tablewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*20,control.getActiveDashboard().xGridInterval*20));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 20, control.getActiveDashboard().xGridInterval * 20));
 
         return widgetPojo;
     }
@@ -113,7 +113,7 @@ public class TableWidget extends Widget {
 
                     tableDatas.add(new TableData(
                             chartDataModel.getObject().getName(),
-                            this.nf.format(DataModelDataHandler.getTotal(results)),
+                            this.nf.format(DataModelDataHandler.getTotal(results, chartDataModel)),
                             chartDataModel.getUnitLabel()));
 
 

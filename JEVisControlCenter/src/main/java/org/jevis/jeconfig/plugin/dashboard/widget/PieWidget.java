@@ -68,7 +68,7 @@ public class PieWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.piewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*12,control.getActiveDashboard().xGridInterval*12));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 12, control.getActiveDashboard().xGridInterval * 12));
 
         return widgetPojo;
     }
@@ -103,7 +103,7 @@ public class PieWidget extends Widget {
         for (ChartDataRow dataModel : this.sampleHandler.getDataModel()) {
             try {
 //                chartDataModel.setAbsolute(true);
-                Double dataModelTotal = DataModelDataHandler.getTotal(dataModel.getSamples());
+                Double dataModelTotal = DataModelDataHandler.getTotal(dataModel.getSamples(), dataModel);
                 total.set(total.get() + dataModelTotal);
                 logger.debug("dataModelTotal: [{}] {}", dataModel.getObject().getName(), dataModelTotal);
             } catch (Exception ex) {
@@ -125,7 +125,7 @@ public class PieWidget extends Widget {
                 if (!hasNoData) {
                     logger.debug("Samples: ({}) {}", dataName, chartDataRow.getSamples());
                     try {
-                        value = DataModelDataHandler.getTotal(chartDataRow.getSamples());
+                        value = DataModelDataHandler.getTotal(chartDataRow.getSamples(), chartDataRow);
                         logger.debug("part.total: [{}] {}", chartDataRow.getObject().getName(), value);
                         double proC = (value / total.get()) * 100;
                         if (Double.isInfinite(proC)) proC = 100;
@@ -149,7 +149,7 @@ public class PieWidget extends Widget {
 
                 legendItemList.add(this.legend.buildLegendItem(
                         dataName, ColorHelper.toColor(chartDataRow.getColor()), this.config.getFontColor(), this.config.getFontSize(),
-                        chartDataRow.getObject(), hasNoData, I18n.getInstance().getString("plugin.dashboard.alert.nodata"),true));
+                        chartDataRow.getObject(), hasNoData, I18n.getInstance().getString("plugin.dashboard.alert.nodata"), true));
 
                 if (!hasNoData) {
                     PieChart.Data pieData = new PieChart.Data(textValue, value);

@@ -116,36 +116,16 @@ public class ValueWidget extends Widget implements DataModelWidget {
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                 List<JEVisSample> results;
+                boolean isQuantity = true;
 
                 String unit = dataModel.getUnitLabel();
 
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
-                    total.set(DataModelDataHandler.getTotal(results));
-//                    total.set(results.get(results.size() - 1).getValueAsDouble());
+                    total.set(DataModelDataHandler.getTotal(results, dataModel));
+
                     displayedSample.setValue(total.get());
                     Platform.runLater(() -> {
-                        /** animation experiment **/
-//                        Timeline timeline = new Timeline();
-//                        DoubleProperty timeSeconds = new SimpleDoubleProperty(0);
-//                        //timeSeconds.set(total.get());
-//
-//                        //this.label.textProperty().bind(timeSeconds.asString());
-//                        timeSeconds.addListener((observable, oldValue, newValue) -> {
-//                            //System.out.println("------New value: "+newValue);
-//                            Platform.runLater(() -> {
-//                                this.label.setText((this.nf.format(newValue)) + " " + unit);
-//                            });
-//
-//                        });
-//                        timeline = new Timeline();
-//
-//                        Duration startValue = Duration.seconds(total.doubleValue()*0.8);//Duration.seconds(15 + 1);
-//                        timeline.setRate(total.doubleValue()/0.1);
-//                        timeline.getKeyFrames().add(
-//                                new KeyFrame(startValue, new KeyValue(timeSeconds, total.doubleValue())));
-//                        timeline.playFromStart();
-
                         if (percent != null && percent.getPercentWidgetID() > 0) {
                             for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
                                 if (sourceWidget.getConfig().getUuid() == (limit.getLimitWidgetID())) {
@@ -380,13 +360,17 @@ public class ValueWidget extends Widget implements DataModelWidget {
                                 row++;
                             }
                         } catch (Exception e) {
-
+                            logger.error("Error while loading calculation", e);
                         }
                     }
+
+                }
+                if (!gp.getChildren().isEmpty()) {
+                    alert.getDialogPane().setContent(gp);
+                    alert.showAndWait();
                 }
 
-                alert.getDialogPane().setContent(gp);
-                alert.showAndWait();
+
             }
         });
     }

@@ -19,6 +19,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
@@ -474,7 +475,17 @@ public class DataModelDataHandler {
         setForcedInterval(true);
     }
 
-    public static Double getTotal(List<JEVisSample> samples) {
+    public static Double getTotal(List<JEVisSample> samples, ChartDataRow dataModel) {
+        boolean isQuantity = true;
+        try {
+            QuantityUnits qu = new QuantityUnits();
+            isQuantity = qu.isQuantityUnit(dataModel.getUnit());
+            isQuantity = qu.isQuantityIfCleanData(dataModel.getAttribute(), isQuantity);
+        } catch (Exception ex) {
+            logger.error("Error in quantity check: {}", ex, ex);
+        }
+
+
         Double total = 0d;
         for (JEVisSample jeVisSample : samples) {
             try {
@@ -483,6 +494,12 @@ public class DataModelDataHandler {
                 ex.printStackTrace();
             }
         }
+
+        if (!isQuantity) {
+            total = total / samples.size();
+        }
+
+
         return total;
 
     }

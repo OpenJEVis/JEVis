@@ -1174,13 +1174,17 @@ public class TreeHelper {
                 CopyObjectDialog dia = new CopyObjectDialog();
                 CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent, mode);
 
+                boolean recursion = dia.isRecursion();
+                boolean isOwnParen = isOwnParentCheck(dragObj, targetParent);
+                recursion = isOwnParen ? false : recursion;
+                logger.warn("Warning recursion detected disable recursion: {}", recursion);
 
                 if (re == CopyObjectDialog.Response.MOVE) {
                     moveObject(dragObj, targetParent);
                 } else if (re == CopyObjectDialog.Response.LINK) {
                     buildLink(dragObj, targetParent, dia.getCreateName());
                 } else if (re == CopyObjectDialog.Response.COPY) {
-                    copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), dia.isRecursion(), dia.getCreateCount());
+                    copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), recursion, dia.getCreateCount());
                 }
             } else {
                 Platform.runLater(() -> {
@@ -1193,6 +1197,30 @@ public class TreeHelper {
         } catch (JEVisException e) {
             logger.error("Could not get jevis data source.", e);
         }
+    }
+
+    /**
+     * Check if target is an parent of the object or self
+     *
+     * @param dragObject   object to copy/move
+     * @param targetParent target parent object
+     * @return true if parent loop
+     */
+    public static boolean isOwnParentCheck(JEVisObject dragObject, JEVisObject targetParent) {
+        if (targetParent.getID().equals(dragObject.getID())) {
+            return true;
+        }
+        try {
+            for (JEVisObject obj : targetParent.getChildren()) {
+                if (isOwnParentCheck(dragObject, obj)) {
+                    return true;
+                }
+            }
+        } catch (Exception ex) {
+            logger.warn("Error in parent check: {}", ex, ex);
+        }
+
+        return false;
     }
 
     public static void copyObjectUnder(JEVisObject toCopyObj, final JEVisObject newParent, String newName,
