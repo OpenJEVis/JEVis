@@ -106,7 +106,7 @@ public class CalculationMethods extends CommonMethods {
 
     public static List<JEVisObject> getAllRawDataRec(JEVisObject parent, JEVisClass rawDataClass) throws JEVisException {
         List<JEVisObject> list = new ArrayList<>();
-        if (parent.getJEVisClass().equals(rawDataClass)) {
+        if (parent.getJEVisClass() != null && parent.getJEVisClass().equals(rawDataClass)) {
             list.add(parent);
         }
         for (JEVisObject child : parent.getChildren()) {
