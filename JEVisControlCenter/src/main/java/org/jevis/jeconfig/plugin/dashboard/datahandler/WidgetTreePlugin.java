@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.dashboard.datahandler;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -48,6 +49,7 @@ public class WidgetTreePlugin implements TreePlugin {
     public static String DATA_MODEL_NODE = "DataModelNode";
     public static String COLUMN_CLEANING = I18n.getInstance().getString("graph.table.cleaning");
     public static String COLUMN_UNIT = I18n.getInstance().getString("graph.table.unit");
+    public static String COLUMN_AXIS = I18n.getInstance().getString("graph.table.axis");
 
     final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
     final String keyTotal = I18n.getInstance().getString("plugin.graph.manipulation.total");
@@ -160,7 +162,8 @@ public class WidgetTreePlugin implements TreePlugin {
                 buildAggregationColumn(),
                 buildDataProcessorColumn(),
                 buildENIPColumn(),
-                buildUnitColumn());
+                buildUnitColumn(),
+                buildAxisColumn());
         list.add(pluginHeader);
 
         return list;
@@ -576,6 +579,93 @@ public class WidgetTreePlugin implements TreePlugin {
             }
         });
 
+        return column;
+    }
+
+    public TreeTableColumn<JEVisTreeRow, Integer> buildAxisColumn() {
+        TreeTableColumn<JEVisTreeRow, Integer> column = new TreeTableColumn(COLUMN_AXIS);
+        column.setPrefWidth(80);
+        column.setMinWidth(70);
+        column.setId(COLUMN_AXIS);
+
+        column.setCellValueFactory(param -> {
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
+            if (dataPoint != null) {
+                return new ReadOnlyObjectWrapper<>(dataPoint.getAxis());
+            } else {
+                return new ReadOnlyObjectWrapper<>(0);
+            }
+
+        });
+
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Integer>, TreeTableCell<JEVisTreeRow, Integer>>() {
+
+            @Override
+            public TreeTableCell<JEVisTreeRow, Integer> call(TreeTableColumn<JEVisTreeRow, Integer> param) {
+
+                TreeTableCell<JEVisTreeRow, Integer> cell = new TreeTableCell<JEVisTreeRow, Integer>() {
+
+                    @Override
+                    public void commitEdit(Integer newValue) {
+                        super.commitEdit(newValue);
+                    }
+
+                    @Override
+                    protected void updateItem(Integer item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
+                        if (!empty) {
+                            try {
+                                boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+                                if (show) {
+                                    StackPane stackPane = new StackPane();
+                                    List<String> axisList = new ArrayList<>();
+
+                                    final String y1 = I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1");
+                                    final String y2 = I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2");
+
+                                    axisList.add(y1);
+                                    axisList.add(y2);
+
+                                    ChoiceBox choiceBox = new ChoiceBox(FXCollections.observableArrayList(axisList));
+
+                                    choiceBox.setMinWidth(40);
+
+                                    choiceBox.getSelectionModel().selectFirst();
+                                    switch (getDataPointNode(getTreeTableRow()).getAxis()) {
+                                        case 0:
+                                            choiceBox.getSelectionModel().selectFirst();
+                                            break;
+                                        case 1:
+                                            choiceBox.getSelectionModel().select(1);
+                                            break;
+                                    }
+
+                                    choiceBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+                                        if (newValue.equals(y1)) {
+                                            getDataPointNode(getTreeTableRow()).setAxis(0);
+                                        } else if (newValue.equals(y2)) {
+                                            getDataPointNode(getTreeTableRow()).setAxis(1);
+                                        }
+                                    });
+
+                                    stackPane.getChildren().add(choiceBox);
+                                    StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
+
+                                    setGraphic(stackPane);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
         return column;
     }
 
