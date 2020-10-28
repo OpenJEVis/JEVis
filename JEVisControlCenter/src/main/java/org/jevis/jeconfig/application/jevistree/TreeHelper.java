@@ -1171,13 +1171,17 @@ public class TreeHelper {
             if (targetParent.getID() != null && tree.getJEVisDataSource().getCurrentUser().canCreate(targetParent.getID())) {
 
                 logger.trace("EventDrop");
+                boolean isOwnChild = isOwnChildCheck(dragObj, targetParent);
+                //boolean isOwnParen = isOwnParentCheck(dragObj, targetParent);
+                logger.error("Is ownChild: {}", isOwnChild);
+
                 CopyObjectDialog dia = new CopyObjectDialog();
                 CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent, mode);
 
                 boolean recursion = dia.isRecursion();
-                boolean isOwnParen = isOwnParentCheck(dragObj, targetParent);
-                recursion = isOwnParen ? false : recursion;
+                recursion = isOwnChild ? false : recursion;
                 logger.warn("Warning recursion detected disable recursion: {}", recursion);
+
 
                 if (re == CopyObjectDialog.Response.MOVE) {
                     moveObject(dragObj, targetParent);
@@ -1206,22 +1210,44 @@ public class TreeHelper {
      * @param targetParent target parent object
      * @return true if parent loop
      */
-    public static boolean isOwnParentCheck(JEVisObject dragObject, JEVisObject targetParent) {
+    /**
+     * public static boolean isOwnParentCheck(JEVisObject dragObject, JEVisObject targetParent) {
+     * if (targetParent.getID().equals(dragObject.getID())) {
+     * return true;
+     * }
+     * <p>
+     * try {
+     * for (JEVisObject obj : dragObject.getChildren()) {
+     * if (isOwnParentCheck(obj, targetParent)) {
+     * return true;
+     * }
+     * }
+     * } catch (Exception ex) {
+     * logger.warn("Error in parent check: {}", ex, ex);
+     * }
+     * <p>
+     * return false;
+     * <p>
+     * }
+     **/
+
+    public static boolean isOwnChildCheck(JEVisObject dragObject, JEVisObject targetParent) {
         if (targetParent.getID().equals(dragObject.getID())) {
             return true;
         }
         try {
-            for (JEVisObject obj : targetParent.getChildren()) {
-                if (isOwnParentCheck(dragObject, obj)) {
+            for (JEVisObject obj : dragObject.getChildren()) {
+                if (isOwnChildCheck(obj, targetParent)) {
                     return true;
                 }
             }
         } catch (Exception ex) {
             logger.warn("Error in parent check: {}", ex, ex);
         }
-
         return false;
+
     }
+
 
     public static void copyObjectUnder(JEVisObject toCopyObj, final JEVisObject newParent, String newName,
                                        boolean includeData, boolean includeValues, boolean recursive) throws JEVisException {

@@ -107,7 +107,7 @@ public class CopyObjectDialog {
                 return Response.CANCEL;
             }
             //Don't allow recursion if the process failed the recursion check
-            this.recursionAllowed = !TreeHelper.isOwnParentCheck(object, newParent);
+            this.recursionAllowed = !TreeHelper.isOwnChildCheck(object, newParent);
             if (!recursionAllowed) {
                 this.recursion.setSelected(false);
             }
