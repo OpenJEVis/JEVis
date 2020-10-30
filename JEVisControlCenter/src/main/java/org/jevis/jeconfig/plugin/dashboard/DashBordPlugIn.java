@@ -201,7 +201,6 @@ public class DashBordPlugIn implements Plugin {
     public boolean supportsRequest(int cmdType) {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
-            case Constants.Plugin.Command.SHOW_TOOLTIP_DOCU:
             case Constants.Plugin.Command.NEW:
             case Constants.Plugin.Command.RELOAD:
                 return true;
@@ -240,9 +239,6 @@ public class DashBordPlugIn implements Plugin {
                 dashboardControl.reload();
                 break;
             case Constants.Plugin.Command.HELP:
-                dashboardControl.toggleTooltip();
-                break;
-            case Constants.Plugin.Command.SHOW_TOOLTIP_DOCU:
                 dashboardControl.toggleTooltip();
                 break;
             default:

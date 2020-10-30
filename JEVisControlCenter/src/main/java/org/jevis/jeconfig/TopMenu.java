@@ -33,6 +33,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.dialog.AboutDialog;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
@@ -317,7 +318,8 @@ public class TopMenu extends MenuBar {
 
         });
         showHelp.setOnAction(event -> {
-            activePlugin.handleRequest(Constants.Plugin.Command.SHOW_TOOLTIP_DOCU);
+            //activePlugin.handleRequest(Constants.Plugin.Command.SHOW_TOOLTIP_HELP);
+            JEVisHelp.getInstance().toggle();
         });
 
 

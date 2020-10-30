@@ -56,6 +56,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.jevistree.*;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.bulkedit.CreateTable;
 import org.jevis.jeconfig.bulkedit.EditTable;
 import org.jevis.jeconfig.dialog.*;
@@ -162,7 +163,8 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public String getName() {
-        return name.get();
+        return PLUGIN_NAME;
+        //return name.get();
     }
 
     @Override
@@ -341,10 +343,23 @@ public class ObjectPlugin implements Plugin {
             ToggleButton expandTree = new ToggleButton("", JEConfig.getImage("create_wizard.png", iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(expandTree);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, expandTree, Constants.Plugin.Command.EXPAND);
-            ToggleButton helpButton = GlobalToolBar.buildHelpButton(iconSize, iconSize);
-            helpButton.setOnAction(event -> handleRequest(Constants.Plugin.Command.SHOW_TOOLTIP_DOCU));
 
-            toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1, helpButton);// addTable, editTable, createWizard);
+            ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+            ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+            infoButton.setOnAction(event -> _editor.toggleHelp());
+
+            save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.save")));
+            newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.new")));
+            delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.delete")));
+            reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.reload")));
+            collapseTree.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.collapse")));
+
+            JEVisHelp.getInstance().addControl(this.getName(), "", JEVisHelp.LAYOUT.VERTICAL, save, newB, delete, reload, collapseTree, sep1, helpButton);
+            toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
+
+            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+
+
             initToolbar = true;
         }
 
@@ -562,9 +577,6 @@ public class ObjectPlugin implements Plugin {
                     break;
                 case Constants.Plugin.Command.SET_UNITS_AND_PERIODS:
                     TreeHelper.EventSetUnitAndPeriodRecursive(tree);
-                    break;
-                case Constants.Plugin.Command.SHOW_TOOLTIP_DOCU:
-                    _editor.toggleHelp();
                     break;
                 default:
                     logger.info("Unknown command ignore...");

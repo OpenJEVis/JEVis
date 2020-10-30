@@ -48,6 +48,7 @@ import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
@@ -733,7 +734,13 @@ public class AlarmPlugin implements Plugin {
             reload.fire();
         });
 
+
         toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, viewComboBox, sep4, checkAllBox);
+
+        JEVisHelp.getInstance().addItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL, toolBar.getItems());
+        ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+        ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
     }
 
     private ComboBox<TimeFrame> getTimeFrameComboBox() {

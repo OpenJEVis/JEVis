@@ -34,6 +34,7 @@ import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
@@ -69,12 +70,15 @@ public class ToolBarView {
     private ToggleButton select;
     private ToggleButton disableIcons;
     private ToggleButton zoomOut;
+    private ToggleButton infoButton;
+    private ToggleButton helpButton;
     private PickerCombo pickerCombo;
     private ComboBox<AnalysisTimeFrame> presetDateBox;
     private JFXDatePicker pickerDateStart;
     private JFXTimePicker pickerTimeStart;
     private JFXDatePicker pickerDateEnd;
     private JFXTimePicker pickerTimeEnd;
+
     private final DateHelper dateHelper = new DateHelper();
     private ToolBar toolBar;
     private Boolean changed = false;
@@ -418,6 +422,11 @@ public class ToolBarView {
                 toolBar.getItems().addAll(showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
             }
 
+            //TODO: the plugin name must be the same the the Plugin.getName() function
+
+            JEVisHelp.getInstance().addItems(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL, toolBar.getItems());
+            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+
             addAnalysisComboBoxListener();
             pickerCombo.addListener();
             startToolbarIconListener();
@@ -693,6 +702,11 @@ public class ToolBarView {
         Tooltip zoomOutTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
         zoomOut.setTooltip(zoomOutTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
+
+
+        helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+        infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+
 
         if (!_initialized) {
             save.setDisable(false);

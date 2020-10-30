@@ -36,6 +36,8 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -159,8 +161,14 @@ public class LoadAnalysisDialog {
 
         updateGridLayout();
 
-        stage.showAndWait();
 
+        stage.showingProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("loadDialog is showing " + newValue);
+            if (newValue) JEVisHelp.getInstance().update();
+        });
+
+        stage.showAndWait();
+        JEVisHelp.getInstance().deactivatePlugin(this.getClass().getSimpleName());
         return response;
     }
 
@@ -439,6 +447,15 @@ public class LoadAnalysisDialog {
         drawOptimization.setOnAction(event -> {
             HiddenConfig.CHART_PRECISION_ON = drawOptimization.isSelected();
         });
+
+        pickerDateStart.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.datestart")));
+        pickerTimeStart.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timestart")));
+        pickerDateEnd.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.dateend")));
+        pickerTimeEnd.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timeend")));
+        analysisListView.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.analysislist")));
+        aggregationBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.aggregation")));
+        mathBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.mathBox")));
+        presetDateBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.presetdate")));
     }
 
     private DisabledItemsComboBox<ManipulationMode> getMathBox() {
@@ -722,6 +739,11 @@ public class LoadAnalysisDialog {
             stage.setScene(scene);
             stage.centerOnScreen();
             addListener();
+
+            JEVisHelp.getInstance().addControl(GraphPluginView.class.getSimpleName(), this.getClass().getSimpleName(),
+                    JEVisHelp.LAYOUT.HORIZONTAL, pickerDateStart, pickerDateEnd, pickerTimeEnd, analysisListView,
+                    aggregationBox, mathBox, presetDateBox);
+            JEVisHelp.getInstance().setActiveSubModule(this.getClass().getSimpleName());
 
         });
     }

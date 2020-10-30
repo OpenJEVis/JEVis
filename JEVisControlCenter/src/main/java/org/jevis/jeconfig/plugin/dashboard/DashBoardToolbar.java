@@ -21,6 +21,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.ToolTipDocu;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 
@@ -61,8 +62,8 @@ public class DashBoardToolbar extends ToolBar {
     private ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
     private ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
     private Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
-    private ToggleButton helpButton = GlobalToolBar.buildHelpButton(this.iconSize, this.iconSize);
-    private ToggleButton infoButton = new ToggleButton("", JEConfig.getImage("1404337146_info.png", this.iconSize, this.iconSize));
+    private ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+    private ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
 
     private boolean disableEventListener = false;
     private ToolTipDocu toolTipDocu = new ToolTipDocu();
@@ -180,9 +181,11 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.toggleWidgetTooltips();
         });
 
-        helpButton.setOnAction(event -> {
-            this.dashboardControl.toggleTooltip();
-        });
+        /**
+         helpButton.setOnAction(event -> {
+         this.dashboardControl.toggleTooltip();
+         });
+         **/
 
 
         Separator sep1 = new Separator();
@@ -209,26 +212,26 @@ public class DashBoardToolbar extends ToolBar {
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
                 , sep4, save, delete, navigator, exportPNG
-                , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton, infoButton
-                , helpButton); //, spacerForRightSide
+                , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
+        );
 
-
-        toolTipDocu.addItems(getItems());
+        JEVisHelp.getInstance().addItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL, getItems());
+        getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
 
         updateView(dashboardControl.getActiveDashboard());
     }
 
     public void showTooltips(boolean show) {
-        helpButton.setSelected(show);
+        //helpButton.setSelected(show);
         toolTipDocu.showTooltips(show);
     }
 
 
     public void hideToolTips() {
         if (toolTipDocu.isShowingProperty().get()) {
-            helpButton.setSelected(!toolTipDocu.isShowingProperty().getValue());
-            toolTipDocu.toggle();
+            //helpButton.setSelected(!toolTipDocu.isShowingProperty().getValue());
+            // toolTipDocu.toggle();
         }
     }
 

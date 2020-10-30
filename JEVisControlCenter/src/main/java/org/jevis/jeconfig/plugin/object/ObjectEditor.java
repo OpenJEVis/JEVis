@@ -313,7 +313,7 @@ public class ObjectEditor {
                         header.add(idField, 2, 2, 1, 1);
 
                         header.add(spacer, 3, 0, 1, 4);
-                        header.add(helpButton, 4, 1, 1, 2);
+                        //header.add(helpButton, 4, 1, 1, 2);
 
                         GridPane.setVgrow(spacer, Priority.ALWAYS);
                         GridPane.setFillWidth(spacer, true);
@@ -372,7 +372,8 @@ public class ObjectEditor {
                             _view.setPinnedSide(Side.RIGHT);
                         }
 
-                        helpButton.setOnAction(event -> _view.setPinnedSide(Side.RIGHT));
+                        //helpButton.setOnAction(event -> _view.setPinnedSide(Side.RIGHT));
+
 
                     } catch (Exception ex) {
                         logger.error("Error while creating help view", ex);
@@ -383,6 +384,7 @@ public class ObjectEditor {
         );
 
     }
+
 
     public void toggleHelp() {
         showWebHelp.setValue(!showWebHelp.getValue());
