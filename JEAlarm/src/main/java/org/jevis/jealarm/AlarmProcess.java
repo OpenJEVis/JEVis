@@ -183,6 +183,7 @@ public class AlarmProcess {
         try {
             EmailNotification emailNotification = new EmailNotification();
             emailNotification.setNotificationObject(getNotificationObject());
+            emailNotification.setIsHTML(true);
 
             StringBuilder sb = new StringBuilder();
 

@@ -25,7 +25,6 @@ import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
 import org.jevis.jenotifier.notifier.Email.EmailServiceProperty;
-import org.jevis.jenotifier.notifier.Notification;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -152,8 +151,9 @@ public class AlarmHandler {
 
             EmailServiceProperty service = getStatusService();
 
-            Notification nofi = new EmailNotification();
+            EmailNotification nofi = new EmailNotification();
             nofi.setNotificationObject(notificationObject);
+            nofi.setIsHTML(true);
 
             JEVisObject notiDriObj = notificationObject.getDataSource().getObject(service.getMailID());
 
