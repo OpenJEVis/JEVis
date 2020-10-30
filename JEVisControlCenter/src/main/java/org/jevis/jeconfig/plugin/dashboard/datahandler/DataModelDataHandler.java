@@ -404,6 +404,7 @@ public class DataModelDataHandler {
                 }
 
                 dataNode.put("color", dataPointNode.getColor().toString());
+                dataNode.put("axis", dataPointNode.getAxis().toString());
                 dataArrayNode.add(dataNode);
             } catch (Exception ex) {
                 logger.error(ex);

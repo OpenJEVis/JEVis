@@ -109,11 +109,11 @@ public class DataPointNode {
         this.chartType = chartType;
     }
 
-    public int getAxis() {
+    public Integer getAxis() {
         return axis;
     }
 
-    public void setAxis(int axis) {
+    public void setAxis(Integer axis) {
         this.axis = axis;
     }
 
