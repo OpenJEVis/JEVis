@@ -71,7 +71,7 @@
     {
       "name": "Beginning",
       "primitiveType": 0,
-      "guiType": "Time",
+      "guiType": "Date Time",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
@@ -80,7 +80,7 @@
     {
       "name": "Ending",
       "primitiveType": 0,
-      "guiType": "Time",
+      "guiType": "Date Time",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
