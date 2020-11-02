@@ -115,6 +115,11 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     }
 
     @Override
+    public void showHelp(boolean show) {
+
+    }
+
+    @Override
     public boolean save() {
         logger.debug("Extensions: {}", _attributesEditor.size());
 

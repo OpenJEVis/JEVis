@@ -265,4 +265,8 @@ public class ISO50001Browser implements Plugin {
 
     }
 
+    @Override
+    public void lostFocus() {
+
+    }
 }

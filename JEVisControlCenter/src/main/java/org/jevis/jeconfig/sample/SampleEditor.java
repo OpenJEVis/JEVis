@@ -64,7 +64,7 @@ public class SampleEditor {
     private JEVisAttribute _attribute;
     private Response response = Response.CANCEL;
     private final BooleanProperty disableEditing = new SimpleBooleanProperty(false);
-    Node header;//new Separator(Orientation.HORIZONTAL),
+    Node header;//new Separator(Orientation.HORIZONTAL_TOP_LEFT),
 
     private SampleEditorExtension activExtensions;
 

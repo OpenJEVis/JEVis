@@ -1559,6 +1559,11 @@ public class MeterPlugin implements Plugin {
     }
 
     @Override
+    public void lostFocus() {
+
+    }
+
+    @Override
     public void openObject(Object object) {
 
     }

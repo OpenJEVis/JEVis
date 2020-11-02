@@ -417,10 +417,10 @@ public class AnalysisDataModel {
     private Orientation parseOrientation(String orientationString) {
         Orientation orientation = Orientation.HORIZONTAL;
         switch (orientationString) {
-            case "HORIZONTAL":
+            case "HORIZONTAL_TOP_LEFT":
                 orientation = Orientation.HORIZONTAL;
                 break;
-            case "VERTICAL":
+            case "VERTICAL_BOT_CENTER":
                 orientation = Orientation.VERTICAL;
                 break;
         }

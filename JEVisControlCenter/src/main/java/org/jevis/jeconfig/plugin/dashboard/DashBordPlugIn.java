@@ -201,31 +201,9 @@ public class DashBordPlugIn implements Plugin {
     public boolean supportsRequest(int cmdType) {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
-                return true;
-            case Constants.Plugin.Command.DELETE:
-                return false;
-            case Constants.Plugin.Command.EXPAND:
-                return false;
             case Constants.Plugin.Command.NEW:
-                return false;
             case Constants.Plugin.Command.RELOAD:
                 return true;
-            case Constants.Plugin.Command.ADD_TABLE:
-                return false;
-            case Constants.Plugin.Command.EDIT_TABLE:
-                return false;
-            case Constants.Plugin.Command.CREATE_WIZARD:
-                return false;
-            case Constants.Plugin.Command.FIND_OBJECT:
-                return false;
-            case Constants.Plugin.Command.PASTE:
-                return false;
-            case Constants.Plugin.Command.COPY:
-                return false;
-            case Constants.Plugin.Command.CUT:
-                return false;
-            case Constants.Plugin.Command.FIND_AGAIN:
-                return false;
             default:
                 return false;
         }
@@ -261,7 +239,7 @@ public class DashBordPlugIn implements Plugin {
                 dashboardControl.reload();
                 break;
             case Constants.Plugin.Command.HELP:
-                dashboardControl.showTooltips();
+                dashboardControl.toggleTooltip();
                 break;
             default:
                 logger.error("unknown PluginCommand: {}", cmdType);
@@ -293,6 +271,11 @@ public class DashBordPlugIn implements Plugin {
             logger.debug("DashBordPlugIn focus.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
 
         }
+    }
+
+    @Override
+    public void lostFocus() {
+        dashboardControl.hideAllToolTips();
     }
 
     public DashBoardPane getDashBoardPane() {

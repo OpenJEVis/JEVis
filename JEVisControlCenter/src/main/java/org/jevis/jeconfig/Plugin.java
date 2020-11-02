@@ -67,6 +67,8 @@ public interface Plugin {
 
     void setHasFocus();
 
+    void lostFocus();
+
     void openObject(Object object);
 
     int getPrefTapPos();
