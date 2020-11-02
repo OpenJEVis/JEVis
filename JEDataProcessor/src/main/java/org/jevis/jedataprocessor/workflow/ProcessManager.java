@@ -13,6 +13,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
+import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.jedataprocessor.aggregation.AggregationAlignmentStep;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
 import org.jevis.jedataprocessor.data.ResourceManager;
@@ -21,6 +22,8 @@ import org.jevis.jedataprocessor.forecast.ForecastStep;
 import org.jevis.jedataprocessor.forecast.PrepareForecast;
 import org.jevis.jedataprocessor.gap.FillGapStep;
 import org.jevis.jedataprocessor.limits.LimitsStep;
+import org.jevis.jedataprocessor.math.MathStep;
+import org.jevis.jedataprocessor.math.PrepareMath;
 import org.jevis.jedataprocessor.save.ImportStep;
 import org.jevis.jedataprocessor.scaling.ScalingStep;
 import org.joda.time.DateTime;
@@ -52,9 +55,11 @@ public class ProcessManager {
 
         JEVisClass cleanDataClass;
         JEVisClass forecastDataClass;
+        JEVisClass mathDataClass;
         try {
             cleanDataClass = cleanObject.getDataSource().getJEVisClass(CleanDataObject.CLASS_NAME);
             forecastDataClass = cleanObject.getDataSource().getJEVisClass(ForecastDataObject.CLASS_NAME);
+            mathDataClass = cleanObject.getDataSource().getJEVisClass(MathDataObject.CLASS_NAME);
 
             if (cleanObject.getJEVisClass().equals(cleanDataClass)) {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
@@ -65,6 +70,13 @@ public class ProcessManager {
                 this.resourceManager.getForecastDataObject().setProcessingSize(processingSize);
                 addForecastSteps();
                 isClean = false;
+                resourceManager.setClean(false);
+            } else if (cleanObject.getJEVisClass().equals(mathDataClass)) {
+                this.resourceManager.setMathDataObject(new MathDataObject(cleanObject, objectHandler));
+                this.resourceManager.getMathDataObject().setProcessingSize(processingSize);
+                addMathSteps();
+                isClean = false;
+                resourceManager.setClean(false);
             } else {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
                 this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
@@ -117,6 +129,18 @@ public class ProcessManager {
         processSteps.add(importStep);
     }
 
+    private void addMathSteps() {
+
+        ProcessStep preparation = new PrepareMath();
+        processSteps.add(preparation);
+
+        ProcessStep math = new MathStep();
+        processSteps.add(math);
+
+        ProcessStep importStep = new ImportStep();
+        processSteps.add(importStep);
+    }
+
     public void setProcessSteps(List<ProcessStep> processSteps) {
         this.processSteps = processSteps;
     }
@@ -141,10 +165,15 @@ public class ProcessManager {
             resourceManager.setSampleCache(null);
             resourceManager.setRawIntervals(null);
             resourceManager.getCleanDataObject().clearLists();
-        } else {
+        } else if (resourceManager.getForecastDataObject() != null) {
             if (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
                 reRun();
                 resourceManager.getForecastDataObject().finishCurrentRun(resourceManager.getForecastDataObject().getForecastDataObject());
+            }
+        } else if (resourceManager.getMathDataObject() != null) {
+            if (resourceManager.getMathDataObject().isReady()) {
+                reRun();
+                resourceManager.getMathDataObject().finishCurrentRun(resourceManager.getMathDataObject().getMathDataObject());
             }
         }
     }
@@ -153,8 +182,10 @@ public class ProcessManager {
 
         if (isClean) {
             resourceManager.getCleanDataObject().reloadAttributes();
-        } else {
+        } else if (resourceManager.getForecastDataObject() != null) {
             resourceManager.getForecastDataObject().reloadAttributes();
+        } else if (resourceManager.getMathDataObject() != null) {
+            resourceManager.getMathDataObject().reloadAttributes();
         }
         for (ProcessStep ps : processSteps) {
 //            if (rerun && ps.getClass().equals(PrepareStep.class)) {

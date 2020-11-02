@@ -15,6 +15,7 @@ import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
+import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.jedataprocessor.workflow.ProcessManager;
@@ -220,8 +221,10 @@ public class Launcher extends AbstractCliApp {
     private List<JEVisObject> getAllCleaningObjects() throws Exception {
         JEVisClass cleanDataClass;
         JEVisClass forecastDataClass;
+        JEVisClass mathDataClass;
         List<JEVisObject> cleanDataObjects;
         List<JEVisObject> forecastDataObjects;
+        List<JEVisObject> mathDataObjects;
         List<JEVisObject> filteredObjects = new ArrayList<>();
 
         try {
@@ -231,6 +234,9 @@ public class Launcher extends AbstractCliApp {
             forecastDataClass = ds.getJEVisClass(ForecastDataObject.CLASS_NAME);
             forecastDataObjects = ds.getObjects(forecastDataClass, false);
             logger.info("Total amount of Forecast Data Objects: {}", forecastDataObjects.size());
+            mathDataClass = ds.getJEVisClass(MathDataObject.CLASS_NAME);
+            mathDataObjects = ds.getObjects(mathDataClass, false);
+            logger.info("Total amount of Math Data Objects: {}", forecastDataObjects.size());
 
             cleanDataObjects.forEach(jeVisObject -> {
                 if (isEnabled(jeVisObject)) {
@@ -241,6 +247,14 @@ public class Launcher extends AbstractCliApp {
                 }
             });
             forecastDataObjects.forEach(object -> {
+                if (isEnabled(object)) {
+                    filteredObjects.add(object);
+                    if (!plannedJobs.containsKey(object.getID())) {
+                        plannedJobs.put(object.getID(), new DateTime());
+                    }
+                }
+            });
+            mathDataObjects.forEach(object -> {
                 if (isEnabled(object)) {
                     filteredObjects.add(object);
                     if (!plannedJobs.containsKey(object.getID())) {

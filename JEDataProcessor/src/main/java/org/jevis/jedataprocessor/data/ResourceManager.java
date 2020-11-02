@@ -11,6 +11,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
+import org.jevis.commons.dataprocessing.MathDataObject;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
@@ -31,11 +32,13 @@ public class ResourceManager {
     public List<CleanInterval> intervals = new ArrayList<>();
     private CleanDataObject cleanDataObject;
     private ForecastDataObject forecastDataObject;
+    private MathDataObject mathDataObject;
     private List<JEVisSample> rawSamplesDown;
     private Map<DateTime, JEVisSample> notesMap;
     private Map<DateTime, JEVisSample> userDataMap;
     private List<JEVisSample> sampleCache = new ArrayList<>();
     private List<CleanInterval> rawIntervals = new ArrayList<>();
+    private Boolean isClean = true;
 
     public List<CleanInterval> getIntervals() {
         return intervals;
@@ -59,6 +62,14 @@ public class ResourceManager {
 
     public void setForecastDataObject(ForecastDataObject forecastDataObject) {
         this.forecastDataObject = forecastDataObject;
+    }
+
+    public MathDataObject getMathDataObject() {
+        return mathDataObject;
+    }
+
+    public void setMathDataObject(MathDataObject mathDataObject) {
+        this.mathDataObject = mathDataObject;
     }
 
     public List<JEVisSample> getRawSamplesDown() {
@@ -205,5 +216,13 @@ public class ResourceManager {
 
     public void setRawIntervals(List<CleanInterval> rawIntervals) {
         this.rawIntervals = rawIntervals;
+    }
+
+    public Boolean isClean() {
+        return isClean;
+    }
+
+    public void setClean(Boolean clean) {
+        isClean = clean;
     }
 }

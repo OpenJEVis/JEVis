@@ -2,13 +2,13 @@ package org.jevis.commons.dataprocessing;
 
 public enum ManipulationMode {
 
-    AVERAGE, MIN, MAX, MEDIAN, RUNNING_MEAN, CENTRIC_RUNNING_MEAN, SORTED_MIN, SORTED_MAX, CUMULATE, NONE;
+    AVERAGE, MIN, MAX, MEDIAN, RUNNING_MEAN, CENTRIC_RUNNING_MEAN, SORTED_MIN, SORTED_MAX, CUMULATE, NONE, GEOMETRIC_MEAN, FORMULA;
 
     public static ManipulationMode get(String modeName) {
         String[] modeArray = modeName.split("_");
         String mode = NONE.name();
         if (modeArray.length == 2) {
-            if (modeArray[0].equals("RUNNING") || modeArray[0].equals("SORTED")) {
+            if (modeArray[0].equals("RUNNING") || modeArray[0].equals("SORTED") || modeArray[0].equals("GEOMETRIC")) {
                 mode = modeName;
             } else {
                 mode = modeArray[1];
@@ -21,9 +21,6 @@ public enum ManipulationMode {
 
     public static ManipulationMode parseManipulation(String manipulation) {
         switch (manipulation) {
-            case ("NONE"):
-            case ("None"):
-                return NONE;
             case ("AVERAGE"):
             case ("Average"):
                 return AVERAGE;
@@ -41,6 +38,11 @@ public enum ManipulationMode {
             case ("Running_Mean"):
             case ("Running Mean"):
                 return RUNNING_MEAN;
+            case ("GEOMETRIC MEAN"):
+            case ("GEOMETRIC_MEAN"):
+            case ("Geometric_Mean"):
+            case ("Geometric Mean"):
+                return GEOMETRIC_MEAN;
             case ("CENTRIC RUNNING MEAN"):
             case ("CENTRIC_RUNNING_MEAN"):
             case ("Centric_Running_Mean"):
@@ -59,6 +61,11 @@ public enum ManipulationMode {
             case ("CUMULATE"):
             case ("Cumulate"):
                 return CUMULATE;
+            case ("FORMULA"):
+            case ("Formula"):
+                return FORMULA;
+            case ("NONE"):
+            case ("None"):
             default:
                 return NONE;
         }

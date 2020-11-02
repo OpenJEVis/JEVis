@@ -21,6 +21,8 @@ package org.jevis.commons.database;
 
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -98,6 +100,38 @@ public class SampleHandler {
         return lastString;
     }
 
+    public AggregationPeriod getLastSample(JEVisObject object, String attributeName, AggregationPeriod defaultValue) {
+        AggregationPeriod lastAggregationPeriod = defaultValue;
+        try {
+            JEVisAttribute attribute = object.getAttribute(attributeName);
+            if (attribute != null) {
+                JEVisSample lastSample = attribute.getLatestSample();
+                if (lastSample != null) {
+                    lastAggregationPeriod = AggregationPeriod.parseAggregation(lastSample.getValueAsString());
+                }
+            }
+        } catch (JEVisException ex) {
+            logger.error(ex);
+        }
+        return lastAggregationPeriod;
+    }
+
+    public ManipulationMode getLastSample(JEVisObject object, String attributeName, ManipulationMode defaultValue) {
+        ManipulationMode lastManipulationMode = defaultValue;
+        try {
+            JEVisAttribute attribute = object.getAttribute(attributeName);
+            if (attribute != null) {
+                JEVisSample lastSample = attribute.getLatestSample();
+                if (lastSample != null) {
+                    lastManipulationMode = ManipulationMode.parseManipulation(lastSample.getValueAsString());
+                }
+            }
+        } catch (JEVisException ex) {
+            logger.error(ex);
+        }
+        return lastManipulationMode;
+    }
+
     public Long getLastSample(JEVisObject object, String attributeName, Long defaultValue) {
         Long lastValue = defaultValue;
         try {
@@ -122,6 +156,22 @@ public class SampleHandler {
                 JEVisSample lastSample = attribute.getLatestSample();
                 if (lastSample != null) {
                     lastValue = getValue(lastSample, defaultValue);
+                }
+            }
+        } catch (JEVisException ex) {
+            logger.error(ex);
+        }
+        return lastValue;
+    }
+
+    public DateTime getLastSample(JEVisObject object, String attributeName, DateTime defaultValue) {
+        DateTime lastValue = defaultValue;
+        try {
+            JEVisAttribute attribute = object.getAttribute(attributeName);
+            if (attribute != null) {
+                JEVisSample lastSample = attribute.getLatestSample();
+                if (lastSample != null) {
+                    lastValue = new DateTime(lastSample.getValueAsString());
                 }
             }
         } catch (JEVisException ex) {
