@@ -43,8 +43,14 @@ public class GraphExportImage {
 
         if (JEConfig.getLastPath() != null) {
             File file = JEConfig.getLastPath();
-            if (file.exists() && file.canRead()) {
-                fileChooser.setInitialDirectory(file);
+
+            try {
+                if (file.exists() && file.canRead()) {
+                    file.getCanonicalPath();
+                    fileChooser.setInitialDirectory(file);
+                }
+            } catch (IOException e) {
+                logger.error("Error while accessing last path", e);
             }
         }
 
