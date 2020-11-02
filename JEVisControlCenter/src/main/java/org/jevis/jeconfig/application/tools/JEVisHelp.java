@@ -107,7 +107,7 @@ public class JEVisHelp {
     }
 
     public void addItems(String plugin, String subModule, LAYOUT layout, List<Node> nodes) {
-        logger.debug("Add Help items for: {}.{}", plugin, subModule);
+        logger.error("Add Help items for: {}.{}", plugin, subModule);
         for (Node node : nodes) {
             try {
                 if (node instanceof Control) {
@@ -197,6 +197,7 @@ public class JEVisHelp {
                 try {
                     Tooltip tooltip = control.getTooltip();
                     if (tooltip != null && !tooltip.getText().isEmpty()) {
+                        logger.error("Show tt: {}", tooltip.getText());
                         if (tooltip.getGraphic() == null) tooltip.setGraphic(new Region());
                         if (tooltip.isShowing() != show) {
                             if (tooltip.isShowing()) Platform.runLater(() -> {

@@ -53,7 +53,7 @@ public class DashBoardToolbar extends ToolBar {
     private ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", this.iconSize, this.iconSize));
     private ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
     private ToggleButton exportPNG = new ToggleButton("", JEConfig.getImage("export-image.png", this.iconSize, this.iconSize));
-    private ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
+    //private ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
     private ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
     private ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
     private ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
@@ -61,7 +61,6 @@ public class DashBoardToolbar extends ToolBar {
     private ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
     private ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
     private ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
-    private Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
     private ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
 
@@ -89,7 +88,7 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(settingsButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPNG);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
+        //GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomIn);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
@@ -100,7 +99,6 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
         //GlobalToolBar.changeBackgroundOnHoverUsingBinding(helpButton);
 
-        reloadButton.setTooltip(reloadTooltip);
 
         listZoomLevel = buildZoomLevelListView();
 
@@ -193,16 +191,25 @@ public class DashBoardToolbar extends ToolBar {
         Separator sep3 = new Separator();
         Separator sep4 = new Separator();
 
-        newButton.setDisable(true);
+        //newButton.setDisable(true);
         delete.setDisable(true);
 
         showGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.showgrid")));
         snapGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.usegrid")));
         unlockButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.unlock")));
-        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.new")));
+        newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.new")));
         runUpdateButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.update")));
         reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.reload")));
-        listAnalysesComboBox.setTooltip(new Tooltip(" List Toolpip"));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.save")));
+        listAnalysesComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.list")));
+        zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
+        zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
+        listZoomLevel.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomlevel")));
+        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.delete")));
+        navigator.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.settings")));
+        exportPNG.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.export")));
+        reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload")));
+
 
         Region spacerForRightSide = new Region();
         HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);

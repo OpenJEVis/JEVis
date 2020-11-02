@@ -6,23 +6,27 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 
 public class ToolBarIntervalSelector extends HBox {
 
     private static final Logger logger = LogManager.getLogger(ToolBarIntervalSelector.class);
     private final TimeFrameEdior timeFrameEdior;
-    Double iconSize = 20d;
-    ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
-    ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
-    TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
-    ObservableList<TimeFrameFactory> timeFrames;
+    private Double iconSize = 20d;
+    private ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
+    private ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
+    private TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
+    private ObservableList<TimeFrameFactory> timeFrames;
     private boolean disableEventListener = false;
     private final DashboardControl controller;
 
@@ -31,7 +35,7 @@ public class ToolBarIntervalSelector extends HBox {
         this.setAlignment(Pos.CENTER_LEFT);
         Button dateButton = new Button("");
         dateButton.setMinWidth(100);
-        this.controller=controller;
+        this.controller = controller;
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(prevButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(nextButton);
@@ -85,12 +89,18 @@ public class ToolBarIntervalSelector extends HBox {
         spacer.setMinWidth(10);
         spacer.setMaxWidth(10);
 
+        timeFactoryBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.timeinterval")));
+        prevButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.previnterval")));
+        dateButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.dateselector")));
+        nextButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.nextvinterval")));
+
         getChildren().addAll(timeFactoryBox, spacer, prevButton, dateButton, nextButton);
+        JEVisHelp.getInstance().addItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL, getChildren());
     }
 
-    public void updateView(){
-        logger.debug("updateView: timeframe: '{}', interval: '{}' date: '{}'",controller.getActiveTimeFrame(),controller.getInterval(),controller.getInterval().getEnd());
-        disableEventListener=true;
+    public void updateView() {
+        logger.debug("updateView: timeframe: '{}', interval: '{}' date: '{}'", controller.getActiveTimeFrame(), controller.getInterval(), controller.getInterval().getEnd());
+        disableEventListener = true;
 
         timeFactoryBox.selectValue(controller.getActiveTimeFrame());
         timeFrameEdior.setTimeFrame(controller.getActiveTimeFrame());
@@ -98,7 +108,7 @@ public class ToolBarIntervalSelector extends HBox {
         timeFrameEdior.setDate(controller.getInterval().getEnd());
 
 
-        disableEventListener=false;
+        disableEventListener = false;
     }
 
 
