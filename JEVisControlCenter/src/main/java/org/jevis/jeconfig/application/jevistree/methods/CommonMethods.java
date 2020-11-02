@@ -105,7 +105,7 @@ public class CommonMethods {
         try {
             JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             if (value != null) {
-                if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
+                if (((object.getJEVisClassName().equals("Clean Data") || object.getJEVisClassName().equals("Math Data")) && cleanData)
                         || (object.getJEVisClassName().equals("Data") && rawData)) {
                     pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
                     value.deleteAllSample();
@@ -123,7 +123,7 @@ public class CommonMethods {
         try {
             JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             if (value != null) {
-                if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
+                if (((object.getJEVisClassName().equals("Clean Data") || object.getJEVisClassName().equals("Math Data")) && cleanData)
                         || (object.getJEVisClassName().equals("Data") && rawData)) {
                     DateTime f = null;
                     if (from == null) {
