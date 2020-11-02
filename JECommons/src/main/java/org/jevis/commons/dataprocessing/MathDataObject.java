@@ -338,7 +338,22 @@ public class MathDataObject {
     public boolean isReady() {
         DateTime nextRun = getEndDate();
 
-        return DateTime.now().withZone(getTimeZone(getMathDataObject())).equals(nextRun) || DateTime.now().isAfter(nextRun);
+
+        try {
+            JEVisSample latestSample = getInputAttribute().getLatestSample();
+
+            if (latestSample != null) {
+                try {
+                    return latestSample.getTimestamp().withZone(getTimeZone(getMathDataObject())).equals(nextRun) || DateTime.now().isAfter(nextRun);
+                } catch (JEVisException e) {
+                    logger.error("Could not check ready state", e);
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     private DateTime getNextRun(AggregationPeriod aggregationPeriod, Long referencePeriodCount, DateTime nextRun) {
