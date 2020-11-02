@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
+import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
@@ -48,11 +49,14 @@ public class ImportStep implements ProcessStep {
                 DateTime lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
                 removeOldForecastSamples(cleanObject, lastDateTimeOfResults);
             }
-        } else {
+        } else if (resourceManager.getForecastDataObject() != null) {
             ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
             cleanObject = forecastDataObject.getForecastDataObject();
             JEVisAttribute attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
             attribute.deleteAllSample();
+        } else if (resourceManager.getMathDataObject() != null) {
+            MathDataObject mathDataObject = resourceManager.getMathDataObject();
+            cleanObject = mathDataObject.getMathDataObject();
         }
 
         JEVisAttribute attribute = null;
@@ -67,7 +71,7 @@ public class ImportStep implements ProcessStep {
         Map<DateTime, JEVisSample> listOldSamples = new HashMap<>();
         DateTime firstDateTimeOfResults = null;
         DateTime lastDateTimeOfResults = null;
-        if (!resourceManager.getIntervals().isEmpty() && !resourceManager.getCleanDataObject().getCleanDataPeriodAlignment().equals(Period.months(1))) {
+        if (resourceManager.isClean() && !resourceManager.getIntervals().isEmpty() && !resourceManager.getCleanDataObject().getCleanDataPeriodAlignment().equals(Period.months(1))) {
             resourceManager.getIntervals().remove(0);
             firstDateTimeOfResults = resourceManager.getIntervals().get(0).getInterval().getStart();
             lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();

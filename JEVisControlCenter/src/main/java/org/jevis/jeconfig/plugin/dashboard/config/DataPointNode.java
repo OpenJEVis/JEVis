@@ -16,6 +16,7 @@ public class DataPointNode {
     private Color color;
     private boolean absolute;
     private String unit;
+    private Integer axis = 0;
 
     public boolean isAbsolute() {
         return this.absolute;
@@ -108,6 +109,14 @@ public class DataPointNode {
         this.chartType = chartType;
     }
 
+    public Integer getAxis() {
+        return axis;
+    }
+
+    public void setAxis(Integer axis) {
+        this.axis = axis;
+    }
+
     @Override
     public String toString() {
         return "DataPointNode{" +
@@ -122,6 +131,7 @@ public class DataPointNode {
                 ", enpi=" + this.enpi +
                 ", unit=" + this.unit +
                 ", calculationID=" + this.calculationID +
+                ", axis=" + this.axis +
                 '}';
     }
 }

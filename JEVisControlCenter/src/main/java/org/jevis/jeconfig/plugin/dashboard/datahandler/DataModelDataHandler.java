@@ -188,7 +188,7 @@ public class DataModelDataHandler {
                         List<Integer> integerList = new ArrayList<>();
                         integerList.add(0);
                         chartDataRow.setSelectedCharts(integerList);
-                        chartDataRow.setAxis(0);
+                        chartDataRow.setAxis(dataPointNode.getAxis());
 
                         if (dataPointNode.getColor() != null) {
                             chartDataRow.setColor(ColorHelper.toRGBCode(dataPointNode.getColor()));
@@ -404,6 +404,7 @@ public class DataModelDataHandler {
                 }
 
                 dataNode.put("color", dataPointNode.getColor().toString());
+                dataNode.put("axis", dataPointNode.getAxis().toString());
                 dataArrayNode.add(dataNode);
             } catch (Exception ex) {
                 logger.error(ex);

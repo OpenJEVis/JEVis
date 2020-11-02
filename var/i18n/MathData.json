@@ -1,0 +1,441 @@
+{
+  "jevisclass": "Math Data",
+  "names": {
+    "de": "Mathe",
+    "ru": "прогноз",
+    "uk": "прогноз",
+    "th": "พยากรณ์",
+    "en": "Math"
+  },
+  "descriptions": {
+    "de": "Die Mathe-Klasse stellt einen Container für eine Reihe von mathematisch manipulierten Werten dar, die auf dem übergeordneten Element basieren.",
+    "ru": "Класс Math Data представляет контейнер для серии предсказанных числовых значений, основанных на родительском элементе.",
+    "uk": "Прогнозовані дані класу являють собою контейнер для серії передбачуваних числових значень, які базуються на батьківському.",
+    "th": "ข้อมูลที่คาดการณ์ระดับหมายถึงภาชนะสำหรับชุดของค่าตัวเลขที่ทำนายซึ่งจะขึ้นอยู่กับผู้ปกครอง",
+    "en": "The class Math Data represents a container for a series of predicted numeric values, which are based on the parent."
+  },
+  "types": [
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Aktiviert/Deaktiviert die Datenbereinigung",
+        "ru": "Включает/выключает очистку данных.",
+        "uk": "Ввімкнути / Вимкнути очищення даних",
+        "th": "เปิดใช้งาน / ปิดใช้งานการล้างข้อมูล",
+        "en": "Enables/Disables the data cleaning"
+      },
+      "names": {
+        "de": "Aktiviert",
+        "ru": "Активированный",
+        "uk": "Увімкнено",
+        "th": "เปิดการใช้งาน",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Value",
+      "descriptions": {
+        "de": "Wert der Datenreihe",
+        "ru": "Значение ряда данных",
+        "uk": "Значення ряду даних",
+        "th": "ค่าของชุดข้อมูล",
+        "en": "Value of the data series"
+      },
+      "names": {
+        "de": "Wert",
+        "ru": "ценность",
+        "uk": "Значення",
+        "th": "ความคุ้มค่า",
+        "en": "Value"
+      }
+    },
+    {
+      "type": "Manipulation",
+      "descriptions": {
+        "de": "Die Manipulation bestimmt, wie die Daten in eine bestimmten Form manipuliert werden.",
+        "ru": "Манипуляция определяет, будут ли данные обрабатываться в определенной форме.",
+        "en": "The manipulation determines how the data is manipulated in a certain form.",
+        "uk": "Маніпуляція визначає, чи дані маніпулюють у певній формі.",
+        "th": "การจัดการกำหนดว่าข้อมูลจะถูกจัดการในรูปแบบที่แน่นอน"
+      },
+      "names": {
+        "de": "Manipulation",
+        "ru": "манипуляция",
+        "en": "Manipulation",
+        "uk": "маніпуляція",
+        "th": "การจัดการ"
+      },
+      "enums": {
+        "NONE": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Keine Manipulation",
+            "en": "No manipulation",
+            "ru": "Никаких манипуляций",
+            "uk": "Ніяких маніпуляцій",
+            "th": "ไม่มีการยักย้ายถ่ายเท"
+          }
+        },
+        "AVERAGE": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Durchschnittswerte",
+            "en": "Average values",
+            "ru": "Сред",
+            "uk": "Середовищ",
+            "th": "ค่าเฉลี่ย"
+          }
+        },
+        "SORTED_MIN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Aufsteigend sortiert",
+            "en": "Sorted by Minimum",
+            "ru": "Сортировка по возрастанию",
+            "uk": "Відсортовано у порядку зростання",
+            "th": "เรียงตามลำดับจากน้อยไปหามาก"
+          }
+        },
+        "SORTED_MAX": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Absteigend sortiert",
+            "en": "Sorted by Maximum",
+            "ru": "Отсортировано по убыванию",
+            "uk": "Відсортовано за спаданням",
+            "th": "เรียงลำดับจากมากไปน้อย"
+          }
+        },
+        "MIN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Minimalwert der Periode",
+            "en": "Minimum value of period",
+            "ru": "Минимальное значение периода",
+            "uk": "Мінімальне значення періоду",
+            "th": "มูลค่าขั้นต่ำของงวด"
+          }
+        },
+        "MAX": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Maximalwert der Periode",
+            "en": "Maximum value of period",
+            "ru": "Максимальное значение периода",
+            "uk": "Максимальне значення періоду",
+            "th": "ค่าสูงสุดของงวด"
+          }
+        },
+        "MEDIAN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Medianwert der Periode",
+            "en": "Median value of period",
+            "ru": "Медиана периода",
+            "uk": "Медіана періоду",
+            "th": "ค่ามัธยฐานของยุคนั้น"
+          }
+        },
+        "CENTRIC_RUNNING_MEAN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Zentrierte Gleitende Mittelwerte",
+            "en": "Centric running mean values",
+            "ru": "Центрированные скользящие средние",
+            "uk": "По центру ковзні середні",
+            "th": "ค่าเฉลี่ยเคลื่อนที่เป็นศูนย์กลาง"
+          }
+        },
+        "RUNNING_MEAN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Gleitende Mittelwerte",
+            "en": "Running mean values",
+            "ru": "Скользящие средние",
+            "uk": "Ковзні середні",
+            "th": "ค่าเฉลี่ยเคลื่อนที่"
+          }
+        },
+        "GEOMETRIC_MEAN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Geometrische Mittelwerte",
+            "en": "Geometric mean values",
+            "ru": "средние геометрические значения",
+            "uk": "середні геометричні значення",
+            "th": "ค่าเฉลี่ยทางเรขาคณิต"
+          }
+        },
+        "FORMULA": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Formel",
+            "en": "Formula",
+            "ru": "формула",
+            "uk": "формула",
+            "th": "สูตร"
+          }
+        }
+      }
+    },
+    {
+      "type": "Formula",
+      "descriptions": {
+        "de": "Die Formel gibt die Berechnungslogik vor, wenn als Manipulation Formel ausgewählt wurde, Eingangswert ist x",
+        "ru": "Формула определяет логику расчета, если формула была выбрана как манипуляция, входное значение - x",
+        "uk": "Формула визначає логіку обчислення, якщо формулу було обрано як маніпуляцію, вхідне значення дорівнює x",
+        "th": "สูตรระบุตรรกะการคำนวณหากเลือกสูตรเป็นการจัดการค่าอินพุตคือ x",
+        "en": "The formula which determines calculation logic, in case of formula selection in manipulation. Input value is x"
+      },
+      "names": {
+        "de": "Formel",
+        "en": "Formula",
+        "ru": "формула",
+        "uk": "формула",
+        "th": "สูตร"
+      }
+    },
+    {
+      "type": "Reference Period",
+      "descriptions": {
+        "de": "Der Bezugszeitraum aus dem die Prognose Daten generiert werden.",
+        "ru": "Базисный период, из которого создаются данные прогноза.",
+        "uk": "Опорний період, з якого формуються прогнозні дані.",
+        "th": "ช่วงเวลาอ้างอิงที่สร้างข้อมูลการพยากรณ์",
+        "en": "The reference period from which the Math data is generated."
+      },
+      "names": {
+        "de": "Bezugszeitraum",
+        "ru": "Учетный период",
+        "uk": "Обліковий період",
+        "th": "ระยะเวลาการอ้างอิง",
+        "en": "Reference Period"
+      },
+      "enums": {
+        "NONE": {
+          "descriptions": null,
+          "names": {
+            "de": "Keine",
+            "en": "No",
+            "ru": "Нет",
+            "uk": "Немає",
+            "th": "ไม่"
+          }
+        },
+        "QUARTER_HOUR": {
+          "descriptions": null,
+          "names": {
+            "de": "Viertelstunde",
+            "en": "Quarter hour",
+            "ru": "четверть часа",
+            "uk": "чверть години",
+            "th": "สี่ของชั่วโมง"
+          }
+        },
+        "HOUR": {
+          "descriptions": null,
+          "names": {
+            "de": "Stunde",
+            "en": "Hour",
+            "ru": "час",
+            "uk": "годину",
+            "th": "ชั่วโมง"
+          }
+        },
+        "DAY": {
+          "descriptions": null,
+          "names": {
+            "de": "Tag",
+            "en": "Day",
+            "ru": "день",
+            "uk": "день",
+            "th": "วัน"
+          }
+        },
+        "WEEK": {
+          "descriptions": null,
+          "names": {
+            "de": "Woche",
+            "en": "Week",
+            "ru": "неделя",
+            "uk": "тиждень",
+            "th": "สัปดาห์"
+          }
+        },
+        "MONTH": {
+          "descriptions": null,
+          "names": {
+            "de": "Monat",
+            "en": "Month",
+            "ru": "месяц",
+            "uk": "місяць",
+            "th": "เดือน"
+          }
+        },
+        "QUARTER": {
+          "descriptions": null,
+          "names": {
+            "de": "Quartal",
+            "en": "Quarter",
+            "ru": "четверть",
+            "uk": "чверть",
+            "th": "ย่าน"
+          }
+        },
+        "YEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Jahr",
+            "en": "Year",
+            "ru": "год",
+            "uk": "рік",
+            "th": "ปี"
+          }
+        },
+        "THREEYEARS": {
+          "descriptions": null,
+          "names": {
+            "de": "3 Jahre",
+            "en": "3 Years",
+            "ru": "3 год",
+            "uk": "3 роки",
+            "th": "3 ปี"
+          }
+        },
+        "FIVEYEARS": {
+          "descriptions": null,
+          "names": {
+            "de": "5 Jahre",
+            "en": "5 Years",
+            "ru": "5 год",
+            "uk": "5 роки",
+            "th": "5 ปี"
+          }
+        },
+        "TENYEARS": {
+          "descriptions": null,
+          "names": {
+            "de": "10 Jahre",
+            "en": "10 Years",
+            "ru": "10 год",
+            "uk": "10 роки",
+            "th": "10 ปี"
+          }
+        }
+      }
+    },
+    {
+      "type": "Reference Period Count",
+      "descriptions": {
+        "de": "Multiplikator für den ausgewählten Bezugszeitraum.",
+        "ru": "Множитель для выбранного отчетного периода.",
+        "uk": "Множник для вибраного еталонного періоду.",
+        "th": "ตัวคูณสำหรับช่วงเวลาอ้างอิงที่เลือก",
+        "en": "Multiplier for the selected reference period."
+      },
+      "names": {
+        "de": "Anzahl Bezugszeitraum",
+        "ru": "Номер отчетного периода",
+        "uk": "Кількість еталонного періоду",
+        "th": "จำนวนระยะเวลาอ้างอิง",
+        "en": "Reference Period Count"
+      }
+    },
+    {
+      "type": "Beginning",
+      "descriptions": {
+        "de": "Der Beginn in der Periode",
+        "ru": "Начало периода",
+        "uk": "Початок періоду",
+        "th": "จุดเริ่มต้นของช่วงเวลา",
+        "en": "The start in the period"
+      },
+      "names": {
+        "de": "Beginn",
+        "ru": "Начало",
+        "uk": "Початок",
+        "th": "จุดเริ่มต้น",
+        "en": "Starting"
+      }
+    },
+    {
+      "type": "Ending",
+      "descriptions": {
+        "de": "Das Ende in der Periode",
+        "ru": "Конец периода",
+        "uk": "Кінець періоду",
+        "th": "สิ้นงวด",
+        "en": "The end in the period"
+      },
+      "names": {
+        "de": "Ende",
+        "ru": "Конец",
+        "uk": "Кінець",
+        "th": "ตอนจบ",
+        "en": "Ending"
+      }
+    },
+    {
+      "type": "Last Run",
+      "descriptions": {
+        "de": "Der letzte Zeitpunkt zu dem die Prognose-Werte gebildet wurden.",
+        "ru": "В последний раз прогнозные значения были сформированы.",
+        "uk": "Востаннє формувалися прогнозні значення.",
+        "th": "ครั้งสุดท้ายที่ค่าการพยากรณ์เกิดขึ้น",
+        "en": "The last time the Math values were formed."
+      },
+      "names": {
+        "de": "Letzter Zyklus",
+        "ru": "Последний цикл",
+        "uk": "Останній цикл",
+        "th": "รอบสุดท้าย",
+        "en": "Last cycle"
+      }
+    },
+    {
+      "type": "Fill Period",
+      "descriptions": {
+        "de": "Aktiviert/Deaktiviert die Periodenbefüllung",
+        "ru": "Активирует / деактивирует заполнение периода",
+        "uk": "Активує / деактивує заповнення періоду",
+        "th": "เปิด / ปิดการใช้งานการเติมช่วงเวลา",
+        "en": "Enables/Disables the period filling"
+      },
+      "names": {
+        "de": "Periodenbefüllung",
+        "ru": "Заполнение периода",
+        "uk": "Заповнення періоду",
+        "th": "การเติมงวด",
+        "en": "Fill Period"
+      }
+    },
+    {
+      "type": "Timezone",
+      "descriptions": {
+        "de": "Bestimmt die Zeitzone für den Zyklus (Server Zeitzone).",
+        "ru": "Указывает часовой пояс для цикла (часовой пояс сервера).",
+        "uk": "Вказує часовий пояс для циклу (часовий пояс сервера).",
+        "th": "ระบุเขตเวลาสำหรับรอบ (เขตเวลาของเซิร์ฟเวอร์)",
+        "en": "Specifies the time zone for the cycle (server time zone)."
+      },
+      "names": {
+        "de": "Zeitzone",
+        "ru": "часовой пояс",
+        "uk": "часовий пояс",
+        "th": "โซนเวลา",
+        "en": "Timezone"
+      }
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "name": "Math Data",
+  "description": "The class Math Data represents a container for a series of mathematic manipulated numeric values, which are based on the parent.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Math Data",
+      "end": "Data",
+      "type": 0
+    },
+    {
+      "start": "Math Data",
+      "end": "Data",
+      "type": 3
+    },
+    {
+      "start": "Math Data",
+      "end": "Clean Data",
+      "type": 3
+    },
+    {
+      "start": "Math Data",
+      "end": "Math Data",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    },
+    {
+      "name": "Manipulation",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    },
+    {
+      "name": "Formula",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    },
+    {
+      "name": "Reference Period",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    },
+    {
+      "name": "Reference Period Count",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    },
+    {
+      "name": "Beginning",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    },
+    {
+      "name": "Ending",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    },
+    {
+      "name": "Last Run",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    },
+    {
+      "name": "Fill Period",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    },
+    {
+      "name": "Timezone",
+      "primitiveType": 0,
+      "guiType": "Time Zone",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Math Data"
+    }
+  ]
+}
