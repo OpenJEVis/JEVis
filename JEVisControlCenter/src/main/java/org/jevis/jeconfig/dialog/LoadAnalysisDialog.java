@@ -10,6 +10,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -71,7 +74,7 @@ public class LoadAnalysisDialog {
     private ComboBox<String> comboBoxCustomPeriods;
     private Button loadButton;
     private Button newButton;
-    private CheckBox drawOptimization;
+    //private CheckBox drawOptimization;
 
 
     public LoadAnalysisDialog(JEVisDataSource ds, AnalysisDataModel data) {
@@ -90,7 +93,6 @@ public class LoadAnalysisDialog {
         }
 
         stage = new Stage();
-
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.UTILITY);
         stage.initOwner(JEConfig.getStage());
@@ -98,6 +100,7 @@ public class LoadAnalysisDialog {
         stage.setResizable(true);
 //        double maxScreenWidth = Screen.getPrimary().getBounds().getWidth();
 //        stage.setWidth(maxScreenWidth - 250);
+
 
         filteredData = new FilteredList<>(analysisDataModel.getObservableListAnalyses(), s -> true);
 
@@ -122,6 +125,13 @@ public class LoadAnalysisDialog {
                 } else {
                     filteredData.setPredicate(s -> (objectRelations.getObjectPath(s) + s.getName()).toLowerCase().contains(filter.toLowerCase()));
                 }
+            }
+        });
+        KeyCombination help = new KeyCodeCombination(KeyCode.F1);
+        filterInput.setOnKeyPressed(event -> {
+            if (help.match(event)) {
+                JEVisHelp.getInstance().toggle();
+                event.consume();
             }
         });
 
@@ -166,6 +176,7 @@ public class LoadAnalysisDialog {
             System.out.println("loadDialog is showing " + newValue);
             if (newValue) JEVisHelp.getInstance().update();
         });
+
 
         stage.showAndWait();
         JEVisHelp.getInstance().deactivatePlugin(this.getClass().getSimpleName());
@@ -444,18 +455,21 @@ public class LoadAnalysisDialog {
 
         });
 
-        drawOptimization.setOnAction(event -> {
-            HiddenConfig.CHART_PRECISION_ON = drawOptimization.isSelected();
-        });
+        /**
+         drawOptimization.setOnAction(event -> {
+         HiddenConfig.CHART_PRECISION_ON = drawOptimization.isSelected();
+         });
+         **/
 
         pickerDateStart.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.datestart")));
-        pickerTimeStart.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timestart")));
+        //pickerTimeStart.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timestart")));
         pickerDateEnd.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.dateend")));
-        pickerTimeEnd.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timeend")));
+        //pickerTimeEnd.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timeend")));
         analysisListView.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.analysislist")));
         aggregationBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.aggregation")));
         mathBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.mathBox")));
         presetDateBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.presetdate")));
+        comboBoxCustomPeriods.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.customdate")));
     }
 
     private DisabledItemsComboBox<ManipulationMode> getMathBox() {
@@ -647,6 +661,7 @@ public class LoadAnalysisDialog {
             Label labelMath = new Label(I18n.getInstance().getString("plugin.graph.manipulation.label"));
             final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
 
+
             Region freeSpace = new Region();
             freeSpace.setPrefWidth(40);
 
@@ -712,9 +727,11 @@ public class LoadAnalysisDialog {
             Region spacer = new Region();
             loadButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.load"));
             newButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.new"));
-            drawOptimization = new CheckBox(I18n.getInstance().getString("plugin.graph.analysis.drawopt"));
-            drawOptimization.setSelected(HiddenConfig.CHART_PRECISION_ON);
+            //drawOptimization = new CheckBox(I18n.getInstance().getString("plugin.graph.analysis.drawopt"));
+            //drawOptimization.setSelected(HiddenConfig.CHART_PRECISION_ON);
 
+            loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
+            newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
             loadButton.setDefaultButton(true);
 
             HBox.setHgrow(loadButton, Priority.NEVER);
@@ -722,9 +739,9 @@ public class LoadAnalysisDialog {
             HBox.setHgrow(spacer, Priority.ALWAYS);
             HBox.setMargin(loadButton, new Insets(10));
             HBox.setMargin(newButton, new Insets(10));
-            HBox.setMargin(drawOptimization, new Insets(10));
+            //HBox.setMargin(drawOptimization, new Insets(10));
 
-            buttonBox.getChildren().setAll(drawOptimization, spacer, loadButton, newButton);
+            buttonBox.getChildren().setAll(spacer, loadButton, newButton);
             VBox root = new VBox();
             Separator sep = new Separator(Orientation.HORIZONTAL);
 
@@ -738,11 +755,13 @@ public class LoadAnalysisDialog {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.centerOnScreen();
+            JEVisHelp.getInstance().registerHotKey(stage);
             addListener();
 
             JEVisHelp.getInstance().addControl(GraphPluginView.class.getSimpleName(), this.getClass().getSimpleName(),
-                    JEVisHelp.LAYOUT.HORIZONTAL, pickerDateStart, pickerDateEnd, pickerTimeEnd, analysisListView,
-                    aggregationBox, mathBox, presetDateBox);
+                    JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, pickerDateStart, pickerDateEnd, pickerTimeEnd, analysisListView,
+                    aggregationBox, mathBox, presetDateBox, loadButton, newButton, comboBoxCustomPeriods);
+
             JEVisHelp.getInstance().setActiveSubModule(this.getClass().getSimpleName());
 
         });

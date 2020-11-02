@@ -152,7 +152,7 @@ public class RootExtension implements ObjectEditorExtension {
 //
 //        yAxis++;
 //
-//        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, yAxis, 2, 1);
+//        gridPane.add(new Separator(Orientation.HORIZONTAL_TOP_LEFT), 0, yAxis, 2, 1);
         for (final JEVisRelationship rel : rootRel) {
             try {
                 HBox groupBox = new HBox(2);

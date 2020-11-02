@@ -5,14 +5,15 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
-import javafx.scene.control.Control;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.transform.Rotate;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -31,10 +32,11 @@ public class JEVisHelp {
     private BooleanProperty isInfoShowing = new SimpleBooleanProperty(false);
     private String activePlugin = "";
     private String activeSubModule = "";
+    private final KeyCombination help = new KeyCodeCombination(KeyCode.F1);
 
     public enum LAYOUT {
-        HORIZONTAL,
-        VERTICAL,
+        HORIZONTAL_TOP_LEFT,
+        VERTICAL_BOT_CENTER,
     }
 
     public JEVisHelp() {
@@ -154,6 +156,24 @@ public class JEVisHelp {
         }
     }
 
+    public void registerHotKey(Stage dialog) {
+        dialog.getScene().setOnKeyPressed(ke -> {
+            if (help.match(ke)) {
+                JEVisHelp.getInstance().toggle();
+                ke.consume();
+            }
+        });
+    }
+
+    public void registerHotKey(Dialog dialog) {
+        dialog.getDialogPane().setOnKeyPressed(ke -> {
+            if (help.match(ke)) {
+                JEVisHelp.getInstance().toggle();
+                ke.consume();
+            }
+        });
+    }
+
     public Node buildSpacerNode() {
         Region spacerForRightSide = new Region();
         HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);
@@ -184,7 +204,7 @@ public class JEVisHelp {
 
     public class ToolTipElement {
 
-        private LAYOUT layout = LAYOUT.VERTICAL;
+        private LAYOUT layout = LAYOUT.VERTICAL_BOT_CENTER;
         private Control control;
 
         public ToolTipElement(LAYOUT layout, Control control) {
@@ -197,7 +217,7 @@ public class JEVisHelp {
                 try {
                     Tooltip tooltip = control.getTooltip();
                     if (tooltip != null && !tooltip.getText().isEmpty()) {
-                        logger.error("Show tt: {}", tooltip.getText());
+                        logger.debug("Show tt: {}", tooltip.getText());
                         if (tooltip.getGraphic() == null) tooltip.setGraphic(new Region());
                         if (tooltip.isShowing() != show) {
                             if (tooltip.isShowing()) Platform.runLater(() -> {
@@ -207,18 +227,29 @@ public class JEVisHelp {
                             });
                             else {
                                 double[] pos = ScreenSize.getAbsoluteScreenPostion(control);
-                                double verticalOffset = control.getWidth() / 2;
-                                verticalOffset = layout == LAYOUT.VERTICAL ? verticalOffset + control.getHeight() / 2 : verticalOffset;
+                                double xPos = pos[0];
+                                double yPos = pos[1];
 
-                                tooltip.show(control, pos[0] + verticalOffset, pos[1] + control.getHeight());
+                                tooltip.show(control, xPos, yPos);
                                 switch (layout) {
-                                    case VERTICAL:
-                                        Label parent = (Label) tooltip.getGraphic().getParent();
+                                    case VERTICAL_BOT_CENTER:
+                                        Node parent = (Node) tooltip.getGraphic().getParent();
                                         parent.getTransforms().add(new Rotate(90));
+                                        System.out.println();
+                                        xPos += -control.getHeight();
+                                        xPos += (control.getWidth() / 2);// + (control.getHeight() / 2);
+                                        yPos += control.getHeight();
                                         break;
-                                    case HORIZONTAL:
+                                    case HORIZONTAL_TOP_LEFT:
+                                        yPos += -36;//-tooltip.getHeight();
+                                        xPos += -8;// magic number
                                         break;
                                 }
+
+                                logger.error("tt pos: {}/{}", xPos / yPos);
+                                tooltip.setX(xPos);
+                                tooltip.setY(yPos);
+
 
                                 logger.debug("done show: {}", control);
 
@@ -227,7 +258,8 @@ public class JEVisHelp {
                     }
 
                 } catch (Exception ex) {
-                    logger.warn(ex);
+                    logger.warn(ex, ex);
+                    ex.getStackTrace();
                 }
             });
         }

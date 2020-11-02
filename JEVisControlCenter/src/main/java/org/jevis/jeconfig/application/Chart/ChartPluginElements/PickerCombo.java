@@ -99,6 +99,11 @@ public class PickerCombo {
         final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
         final String preview = I18n.getInstance().getString("plugin.graph.changedate.preview");
 
+        presetDateBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.presetdate")));
+        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
+        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
+
+
         List<AnalysisTimeFrame> analysisTimeFrameList = new ArrayList<>();
         for (TimeFrame timeFrame : TimeFrame.values()) {
             AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(timeFrame);

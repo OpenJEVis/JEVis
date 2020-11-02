@@ -226,7 +226,7 @@ public class SampleExportExtension implements SampleEditorExtension {
 
         gp.add(new Separator(Orientation.HORIZONTAL), 0, ++y, 2, 1);
 
-//        gp.add(new Separator(Orientation.HORIZONTAL), 0, ++y, 2, 1);
+//        gp.add(new Separator(Orientation.HORIZONTAL_TOP_LEFT), 0, ++y, 2, 1);
         gp.add(lHeader, 0, ++y);
         gp.add(fHeader, 1, y);
 

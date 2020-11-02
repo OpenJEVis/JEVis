@@ -737,7 +737,7 @@ public class AlarmPlugin implements Plugin {
 
         toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, viewComboBox, sep4, checkAllBox);
 
-        JEVisHelp.getInstance().addItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL, toolBar.getItems());
+        JEVisHelp.getInstance().addItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);

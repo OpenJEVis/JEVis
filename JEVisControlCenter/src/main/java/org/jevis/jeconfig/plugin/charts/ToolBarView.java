@@ -196,6 +196,7 @@ public class ToolBarView {
             }
         };
 
+        listAnalysesComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.list")));
         listAnalysesComboBox.setCellFactory(cellFactory);
         listAnalysesComboBox.setButtonCell(cellFactory.call(null));
 
@@ -210,6 +211,7 @@ public class ToolBarView {
                 }
             });
         });
+        JEVisHelp.getInstance().addControl(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, listAnalysesComboBox);
     }
 
     private void loadNewDialog() {
@@ -382,6 +384,8 @@ public class ToolBarView {
             pickerDateEnd = pickerCombo.getEndDatePicker();
             pickerTimeEnd = pickerCombo.getEndTimePicker();
 
+            JEVisHelp.getInstance().addControl(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, presetDateBox, pickerDateStart, pickerTimeStart);
+
             createToolbarIcons();
 
             Separator sep1 = new Separator();
@@ -424,7 +428,7 @@ public class ToolBarView {
 
             //TODO: the plugin name must be the same the the Plugin.getName() function
 
-            JEVisHelp.getInstance().addItems(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL, toolBar.getItems());
+            JEVisHelp.getInstance().addItems(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
             toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
             addAnalysisComboBoxListener();
