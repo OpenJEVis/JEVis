@@ -404,6 +404,23 @@
       }
     },
     {
+      "type": "Period Offset",
+      "descriptions": {
+        "de": "Definiert den Perioden Offset in Zeitperioden des Bezugszeitraums",
+        "ru": "Определяет смещение периода во временных периодах базисного периода",
+        "uk": "Визначає зміщення періоду в часових періодах контрольного періоду",
+        "th": "กำหนดช่วงเวลาชดเชยในช่วงเวลาของช่วงเวลาอ้างอิง",
+        "en": "Defines the period offset in time periods of reference period"
+      },
+      "names": {
+        "de": "Perioden Verzögerung",
+        "ru": "Периоды Задержки",
+        "uk": "Зміщення періоду",
+        "th": "ระยะเวลาล่าช้า",
+        "en": "Period Offset"
+      }
+    },
+    {
       "type": "Fill Period",
       "descriptions": {
         "de": "Aktiviert/Deaktiviert die Periodenbefüllung",

@@ -96,6 +96,15 @@
       "jevisClass": "Math Data"
     },
     {
+      "name": "Period Offset",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
       "name": "Fill Period",
       "primitiveType": 4,
       "guiType": "Check Box",
