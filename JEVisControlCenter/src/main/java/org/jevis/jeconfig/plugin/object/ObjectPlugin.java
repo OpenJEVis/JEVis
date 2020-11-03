@@ -163,8 +163,7 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public String getName() {
-        return PLUGIN_NAME;
-        //return name.get();
+        return name.get();
     }
 
     @Override
@@ -354,11 +353,10 @@ public class ObjectPlugin implements Plugin {
             reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.reload")));
             collapseTree.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.collapse")));
 
-            JEVisHelp.getInstance().addControl(this.getName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, save, newB, delete, reload, collapseTree, sep1, helpButton);
+            //JEVisHelp.getInstance().addControl(ObjectPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, save, newB, delete, reload, collapseTree, sep1, helpButton);
             toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
-
             toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-
+            JEVisHelp.getInstance().addItems(ObjectPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
             initToolbar = true;
         }
