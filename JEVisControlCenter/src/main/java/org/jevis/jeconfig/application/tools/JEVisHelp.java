@@ -246,10 +246,8 @@ public class JEVisHelp {
                                         break;
                                 }
 
-                                logger.error("tt pos: {}/{}", xPos / yPos);
                                 tooltip.setX(xPos);
                                 tooltip.setY(yPos);
-
 
                                 logger.debug("done show: {}", control);
 
