@@ -49,7 +49,53 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.43------\n" +
+            "------Version 3.9.44------\n" +
+                    "JECC - CalculationMethods - fixed null pointer if fake root class\n" +
+                    "JECC - CommonMethods - added math data to clean data category  \n" +
+                    "JECC - ConfigurationPlugin - Fixed the object plugin name\n" +
+                    "JECC - ConfigurationPlugin - Added tooltip translations\n" +
+                    "JECC - DashboardPlugin - Added dashboard tooltips \n" +
+                    "JECC - DashboardPlugin - Fixed an but where an unconfined link opens an empty dashboard\n" +
+                    "JECC - DashboardPlugin - Add quantity handling to all widget types\n" +
+                    "JECC - DashboardPlugin - ValueWidget - Default is quantity now\n" +
+                    "JECC - DashboardPlugin - Automatic quantity settings \n" +
+                    "JECC - DashboardPlugin - doubleclick on widget in locked mode opens \"message\" error\n" +
+                    "JECC - DashboardPlugin - ArrowWidget - fixed shape translation\n" +
+                    "JECC - DashboardPlugin - Add Line and Arrow Widget\n" +
+                    "JECC - DashboardPlugin - ChartWidget - axis setting is not saved\n" +
+                    "JECC - DashboardPlugin - ValueWidget - added missing tab name\n" +
+                    "JECC - DashboardPlugin - ChartWidget - axis column is missing from setting dialog\n" +
+                    "JECC - DashboardPlugin - ValueWidget - added percent config\n" +
+                    "JECC - DashboardPlugin - improve link plugin translation\n" +
+                    "JECC - DashboardPlugin - add hotkey for showing all tooltips\n" +
+                    "JECC - DashboardPlugin - Fixed an error where an dashboard would not overwrite an existing\n" +
+                    "JECC - GraphExportImage - fixed error for broken last path \n" +
+                    "JECC - ReportWizard - on some machines wizard cant create more than one report link before crashing\n" +
+                    "JECC - SaveDialog - missing ukrainian translation  \n" +
+                    "JECC - Implement central help management\n" +
+                    "JECC - Improved help system\n" +
+                    "JECC - 'ß'-char is missing in german translation\n" +
+                    "JECC - improve manual data dialog translation\n" +
+                    "JECC - change password has missing translations e.g. ukrainian\n" +
+                    "JECC - creating an object with substructure und itself creates infinite loop\n" +
+                    "JECC - show all tooltips function\n" +
+                    "\n" +
+                    "JEAlarm - set email notification standard to html\n" +
+                    "\n" +
+                    "JECalc - CalcJobFactory - fixed endtime for async inputs  \n" +
+                    "\n" +
+                    "JEDataProcessor - Time zone shift fix for winter minutely values\n" +
+                    "JEDataProcessor - Time zone shift fix for winter\n" +
+                    "JEDataProcessor - Math Data - added period offset\n" +
+                    "JEDataProcessor - MathDataObject - fixed ready check\n" +
+                    "JEDataProcessor - Math Data - initial commit\n" +
+                    "\n" +
+                    "Classes - MathData.json - added period offset to configuration \n" +
+                    "Classes - Math Data - changed beginning/ending to date time\n" +
+                    "Classes - MathData.json - fixed missing bracket  \n" +
+                    "Classes - Math Data - initial commit\n" +
+                    "Classes - Notification - fixed sent time\n\n" +
+                    "------Version 3.9.43------\n" +
                     "JECC - CalculationExtension - fixed problem with stacked clean data objects\n" +
                     "JECC - CalculationExtension - all zeros should be default to 0\n" +
                     "JECC - DashboardPlugin - Save name is incorrect\n" +
