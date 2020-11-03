@@ -56,6 +56,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.jevistree.*;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.bulkedit.CreateTable;
 import org.jevis.jeconfig.bulkedit.EditTable;
 import org.jevis.jeconfig.dialog.*;
@@ -125,6 +126,11 @@ public class ObjectPlugin implements Plugin {
             logger.error("Empty tree can focus first object", np);
         }
 //        }
+
+    }
+
+    @Override
+    public void lostFocus() {
 
     }
 
@@ -337,8 +343,21 @@ public class ObjectPlugin implements Plugin {
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(expandTree);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, expandTree, Constants.Plugin.Command.EXPAND);
 
+            ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+            ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+            infoButton.setOnAction(event -> _editor.toggleHelp());
 
+            save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.save")));
+            newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.new")));
+            delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.delete")));
+            reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.reload")));
+            collapseTree.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.collapse")));
+
+            //JEVisHelp.getInstance().addControl(ObjectPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, save, newB, delete, reload, collapseTree, sep1, helpButton);
             toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
+            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+            JEVisHelp.getInstance().addItems(ObjectPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+
             initToolbar = true;
         }
 
@@ -362,7 +381,6 @@ public class ObjectPlugin implements Plugin {
 
     private void eventSaveAttributes() {
         _editor.commitAll();
-
     }
 
     @Override

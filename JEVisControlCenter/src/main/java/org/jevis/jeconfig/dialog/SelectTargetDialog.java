@@ -429,7 +429,7 @@ public class SelectTargetDialog {
         buttonPanel.setPadding(new Insets(5));
 
 
-//        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), content, buttonPanel);
+//        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL_TOP_LEFT), content, buttonPanel);
         root.getChildren().setAll(header, content, buttonPanel);
         VBox.setVgrow(header, Priority.NEVER);
         VBox.setVgrow(content, Priority.ALWAYS);

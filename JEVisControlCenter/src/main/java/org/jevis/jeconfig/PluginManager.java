@@ -38,6 +38,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
@@ -61,8 +62,6 @@ public class PluginManager {
     private static final Logger logger = LogManager.getLogger(PluginManager.class);
     private final List<Plugin> _plugins = new ArrayList<>();
     private final JEVisDataSource _ds;
-    private final Plugin _selectedPlugin = null;
-    private final Number _tabPos = 0;
     private final Number _tabPosOld = 0;
     private final AnchorPane toolbar = new AnchorPane();
     private final SimpleObjectProperty selectedPluginProperty = new SimpleObjectProperty();
@@ -347,6 +346,7 @@ public class PluginManager {
                 Platform.runLater(() -> {
 //                        toolbar.getChildren().removeAll();
                     if (newValue != null) {
+
                         Node pluginToolbar = newValue.getToolbar();
 
                         PluginManager.this.toolbar.getChildren().setAll(pluginToolbar);
@@ -356,18 +356,22 @@ public class PluginManager {
                         AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
                         PluginManager.this.menu.setPlugin(newValue);
                         newValue.setHasFocus();
+                        JEVisHelp.getInstance().setActivePlugin(newValue.getClass().getSimpleName());
                     }
 
                 });
             }
         });
 
-
-        this.tabPane.getSelectionModel().selectedIndexProperty().addListener((ov, oldValue, newValue) -> this.selectedPluginProperty.setValue(this._plugins.get(newValue.intValue())));
-
+        this.tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            this.getSelectedPlugin().lostFocus();
+            this.selectedPluginProperty.setValue(this._plugins.get(newValue.intValue()));
+            //JEVisHelp.getInstance().setActivePlugin(this._plugins.get(newValue.intValue()).getName());
+        });
 
         box.getChildren().addAll(this.tabPane);
         selectedPluginProperty.setValue(_plugins.get(0));
+        JEVisHelp.getInstance().setActivePlugin(_plugins.getClass().getSimpleName());
 
         return box;
     }

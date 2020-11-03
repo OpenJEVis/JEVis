@@ -83,6 +83,11 @@ public class RoleExtention implements ObjectEditorExtension {
 
 
     @Override
+    public void showHelp(boolean show) {
+
+    }
+
+    @Override
     public boolean isForObject(JEVisObject obj) {
         try {
             if (obj.getJEVisClassName().equals("User Role")) return true;

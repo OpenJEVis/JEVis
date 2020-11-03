@@ -33,7 +33,7 @@ public class PageWidgetSelection extends Page {
     public Node getNode() {
 
 
-//        final FlowPane widgetListPane = new FlowPane(Orientation.HORIZONTAL, 20, 20);
+//        final FlowPane widgetListPane = new FlowPane(Orientation.HORIZONTAL_TOP_LEFT, 20, 20);
         final TilePane widgetListPane = new TilePane(Orientation.HORIZONTAL, 20, 20);
         widgetListPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
 

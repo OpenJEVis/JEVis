@@ -54,6 +54,11 @@ public class CalculationExtension implements ObjectEditorExtension {
 
 
     @Override
+    public void showHelp(boolean show) {
+
+    }
+
+    @Override
     public Node getView() {
         return view;
     }

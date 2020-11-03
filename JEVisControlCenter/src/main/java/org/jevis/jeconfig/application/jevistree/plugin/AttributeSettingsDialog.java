@@ -145,7 +145,7 @@ public class AttributeSettingsDialog {
         TabPane tabPane = new TabPane();
         tabPane.getTabs().addAll(displayTab, inputTab);
 
-        //new Separator(Orientation.HORIZONTAL)
+        //new Separator(Orientation.HORIZONTAL_TOP_LEFT)
         root.getChildren().setAll(header, tabPane, new Separator(Orientation.HORIZONTAL), buttonPanel);
 
         ok.setOnAction(t -> {

@@ -158,7 +158,7 @@ public class ArrowConfig {
 
         gridPane.addRow(0, limitTypeLabel, orientationTypeBox);
         gridPane.addRow(1, shapeLabel, shapeBox);
-        //gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 2, 2, 1);
+        //gridPane.add(new Separator(Orientation.HORIZONTAL_TOP_LEFT), 0, 2, 2, 1);
         //gridPane.add(editorPane, 0, 3, 2, 1);
 
 

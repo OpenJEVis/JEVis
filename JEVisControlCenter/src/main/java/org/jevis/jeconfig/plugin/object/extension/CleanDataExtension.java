@@ -113,6 +113,11 @@ public class CleanDataExtension implements ObjectEditorExtension {
     }
 
     @Override
+    public void showHelp(boolean show) {
+
+    }
+
+    @Override
     public void setVisible() {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 20, 20));

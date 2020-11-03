@@ -558,6 +558,11 @@ public class BaseDataPlugin implements Plugin {
     }
 
     @Override
+    public void lostFocus() {
+
+    }
+
+    @Override
     public void openObject(Object object) {
 
     }

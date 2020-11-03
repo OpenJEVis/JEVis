@@ -20,6 +20,8 @@
 package org.jevis.jeconfig.plugin.object;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -63,6 +65,9 @@ public class ObjectEditor {
     private String _lastOpenEditor = "";
     private static final Logger logger = LogManager.getLogger(ObjectEditor.class);
     private JEVisTree tree;
+    private SideNode help;
+    private BooleanProperty showWebHelp = new SimpleBooleanProperty(false);
+
 
     private HiddenSidesPane _view;
 
@@ -308,7 +313,7 @@ public class ObjectEditor {
                         header.add(idField, 2, 2, 1, 1);
 
                         header.add(spacer, 3, 0, 1, 4);
-                        header.add(helpButton, 4, 1, 1, 2);
+                        //header.add(helpButton, 4, 1, 1, 2);
 
                         GridPane.setVgrow(spacer, Priority.ALWAYS);
                         GridPane.setFillWidth(spacer, true);
@@ -356,14 +361,19 @@ public class ObjectEditor {
                         }
 
                         sb.append("</body></html>");
-                        SideNode help = new SideNode(
+                        help = new SideNode(
                                 I18nWS.getInstance().getClassName(obj.getJEVisClassName()),
                                 sb.toString(),
                                 Side.RIGHT, _view);
 
-
                         _view.setRight(help);
-                        helpButton.setOnAction(event -> _view.setPinnedSide(Side.RIGHT));
+
+                        if (showWebHelp.getValue()) {
+                            _view.setPinnedSide(Side.RIGHT);
+                        }
+
+                        //helpButton.setOnAction(event -> _view.setPinnedSide(Side.RIGHT));
+
 
                     } catch (Exception ex) {
                         logger.error("Error while creating help view", ex);
@@ -372,6 +382,17 @@ public class ObjectEditor {
                     _view.setContent(pane);
                 }
         );
+
+    }
+
+
+    public void toggleHelp() {
+        showWebHelp.setValue(!showWebHelp.getValue());
+        if (showWebHelp.get()) {
+            _view.setPinnedSide(Side.RIGHT);
+        } else {
+            _view.setPinnedSide(null);
+        }
 
     }
 

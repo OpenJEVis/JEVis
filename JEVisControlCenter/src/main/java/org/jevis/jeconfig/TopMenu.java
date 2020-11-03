@@ -33,6 +33,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.dialog.AboutDialog;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
@@ -301,10 +302,13 @@ public class TopMenu extends MenuBar {
 
         options.getItems().addAll(changePassword, enablePreview, welcome, showPatchNotes, expertMode);
 
+
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 
+        MenuItem showHelp = new MenuItem(I18n.getInstance().getString("menu.showToolTips"));
         MenuItem about = new MenuItem(I18n.getInstance().getString("menu.about"));
-        help.getItems().add(about);
+        help.getItems().addAll(showHelp, about);
+
         about.setOnAction(t -> {
 
             AboutDialog dia = new AboutDialog();
@@ -313,6 +317,12 @@ public class TopMenu extends MenuBar {
                     , JEConfig.PROGRAM_INFO, JEConfig.getImage("JEConfig_mac.png"));
 
         });
+        showHelp.setOnAction(event -> {
+            //activePlugin.handleRequest(Constants.Plugin.Command.SHOW_TOOLTIP_HELP);
+            JEVisHelp.getInstance().toggle();
+        });
+
+
         MenuItem classImport = new MenuItem(I18n.getInstance().getString("menu.system.driver"));
         Menu system = new Menu(I18n.getInstance().getString("menu.system"));
         system.getItems().add(classImport);

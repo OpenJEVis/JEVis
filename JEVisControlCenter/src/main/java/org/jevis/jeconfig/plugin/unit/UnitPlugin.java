@@ -274,4 +274,9 @@ public class UnitPlugin implements Plugin {
     public ImageView getIcon() {
         return JEConfig.getImage("1405444584_measure.png", 20, 20);
     }
+
+    @Override
+    public void lostFocus() {
+
+    }
 }

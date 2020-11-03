@@ -55,6 +55,7 @@ import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
 import org.jevis.jeconfig.application.tools.Holidays;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.Exceptions;
 import org.jevis.jeconfig.tool.PatchNotesPage;
@@ -437,7 +438,7 @@ public class JEConfig extends Application {
                 final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
                 final KeyCombination newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
                 final KeyCombination hiddenSettings = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
-                final KeyCombination help = new KeyCodeCombination(KeyCode.F1, KeyCodeCombination.CONTROL_DOWN);
+                final KeyCombination help = new KeyCodeCombination(KeyCode.F1);
                 scene.setOnKeyPressed(ke -> {
 //                    Platform.runLater(() -> pluginManager.getToolbar().requestFocus());//the most attribute will validate if the lose focus so we do
                     if (saveCombo.match(ke)) {
@@ -453,7 +454,7 @@ public class JEConfig extends Application {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.NEW);
                         ke.consume();
                     } else if (help.match(ke)) {
-                        pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.HELP);
+                        JEVisHelp.getInstance().toggle();
                         ke.consume();
                     } else if (hiddenSettings.match(ke)) {
                         HiddenConfig.showHiddenConfig();

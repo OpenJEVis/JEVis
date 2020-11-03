@@ -78,6 +78,11 @@ public class MemberExtension implements ObjectEditorExtension {
     }
 
     @Override
+    public void showHelp(boolean show) {
+
+    }
+
+    @Override
     public BooleanProperty getValueChangedProperty() {
         return _changed;
     }

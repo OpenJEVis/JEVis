@@ -166,7 +166,7 @@ public class AttributeUnitExtension implements SampleEditorExtension {
             gp.add(l_displayUnit, 5, row, 1, 1);
 
 //            row++;
-//            gp.add(new Separator(Orientation.HORIZONTAL), 1, row, 2, 1);
+//            gp.add(new Separator(Orientation.HORIZONTAL_TOP_LEFT), 1, row, 2, 1);
             Separator sep = new Separator(Orientation.VERTICAL);
             sep.setOpacity(0.3);
             gp.add(sep, 2, 1, 1, 5);

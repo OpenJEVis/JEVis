@@ -108,6 +108,11 @@ public class PermissionExtension implements ObjectEditorExtension {
     }
 
     @Override
+    public void showHelp(boolean show) {
+
+    }
+
+    @Override
     public String getTitle() {
         return TITLE;
     }

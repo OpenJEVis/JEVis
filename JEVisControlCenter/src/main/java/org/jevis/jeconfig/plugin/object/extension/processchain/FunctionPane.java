@@ -64,7 +64,7 @@ public class FunctionPane extends Region {
         //---------------------- body ------------------------
         Label functionName = new Label("ID:");
         TextField nameField = new TextField();
-//        Separator sep = new Separator(Orientation.HORIZONTAL);
+//        Separator sep = new Separator(Orientation.HORIZONTAL_TOP_LEFT);
 
         AnchorPane bodySpcer = new AnchorPane();
 

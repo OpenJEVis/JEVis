@@ -1390,4 +1390,9 @@ public class GraphPluginView implements Plugin {
     public void setZoomed(boolean zoomed) {
         this.zoomed = zoomed;
     }
+
+    @Override
+    public void lostFocus() {
+
+    }
 }

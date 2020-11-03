@@ -57,6 +57,11 @@ public class ChildrenEditorPlugin implements ObjectEditorExtension {
     }
 
     @Override
+    public void showHelp(boolean show) {
+
+    }
+
+    @Override
     public boolean save() {
         return true;
     }

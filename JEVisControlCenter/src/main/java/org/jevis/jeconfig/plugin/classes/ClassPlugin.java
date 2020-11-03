@@ -147,7 +147,7 @@ public class ClassPlugin implements Plugin {
 //            SplitPane sp = SplitPaneBuilder.create()
 //                    .items(left, tree.getEditor().getView())
 //                    .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
-//                    .orientation(Orientation.HORIZONTAL)
+//                    .orientation(Orientation.HORIZONTAL_TOP_LEFT)
 //                    .build();
             sp.setId("mainsplitpane");
             sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
@@ -286,5 +286,10 @@ public class ClassPlugin implements Plugin {
     @Override
     public ImageView getIcon() {
         return JEConfig.getImage("1394482166_blueprint_tool.png", 20, 20);
+    }
+
+    @Override
+    public void lostFocus() {
+
     }
 }
