@@ -348,7 +348,7 @@ public class ReportPlugin implements Plugin {
 
 
         toolBar.getItems().setAll(reload, sep1, pdfButton, xlsxButton, sep2, printButton, sep3, zoomIn, zoomOut, sep4, labelDateTimeComboBox, leftImage, sep5, fileComboBox, sep6, rightImage);
-        JEVisHelp.getInstance().addControl(this.getName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, reload, pdfButton, reload, xlsxButton, printButton, zoomIn, zoomOut, labelDateTimeComboBox);
+        JEVisHelp.getInstance().addHelpControl(this.getName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, reload, pdfButton, reload, xlsxButton, printButton, zoomIn, zoomOut, labelDateTimeComboBox);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);

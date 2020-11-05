@@ -46,14 +46,18 @@ public class ScreenSize {
      * @param control [x,y]
      * @return
      */
-    public static double[] getAbsoluteScreenPostion(Control control) {
-        final Scene scene = control.getScene();
-        final Point2D windowCoordinate = new Point2D(scene.getWindow().getX(), scene.getWindow().getY());
-        final Point2D sceneCoordinate = new Point2D(scene.getX(), scene.getY());
-        final Point2D nodeCoordinate = control.localToScene(0.0, 0.0);
-        final double clickX = Math.round(windowCoordinate.getX() + sceneCoordinate.getX() + nodeCoordinate.getX());
-        final double clickY = Math.round(windowCoordinate.getY() + sceneCoordinate.getY() + nodeCoordinate.getY());
-        return new double[]{clickX, clickY};
+    public static double[] getAbsoluteScreenPosition(Control control) {
+        try {
+            final Scene scene = control.getScene();
+            final Point2D windowCoordinate = new Point2D(scene.getWindow().getX(), scene.getWindow().getY());
+            final Point2D sceneCoordinate = new Point2D(scene.getX(), scene.getY());
+            final Point2D nodeCoordinate = control.localToScene(0.0, 0.0);
+            final double clickX = Math.round(windowCoordinate.getX() + sceneCoordinate.getX() + nodeCoordinate.getX());
+            final double clickY = Math.round(windowCoordinate.getY() + sceneCoordinate.getY() + nodeCoordinate.getY());
+            return new double[]{clickX, clickY};
+        } catch (Exception ex) {
+            return new double[]{0, 0};
+        }
     }
 
 }

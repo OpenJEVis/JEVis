@@ -1,21 +1,24 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.dialog.ChartSelectionDialog;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -49,7 +52,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
     @Override
     public void buildColumn() {
-        TreeTableColumn<JEVisTreeRow, AggregationPeriod> column = new TreeTableColumn(columnName);
+        TreeTableColumn<JEVisTreeRow, AggregationPeriod> column = new TreeTableColumn();
         column.setPrefWidth(130);
         column.setMinWidth(100);
         column.setId(COLUMN_ID);
@@ -135,6 +138,15 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
                 return cell;
             }
+        });
+
+        Platform.runLater(() -> {
+            Label aggregationLabel = new Label(columnName);
+            System.out.println("################################# Table label: " + aggregationLabel);
+            aggregationLabel.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.interval.tip")));
+            aggregationColumn.setGraphic(aggregationLabel);
+            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, aggregationLabel);
+
         });
 
         this.aggregationColumn = column;

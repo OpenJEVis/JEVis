@@ -20,7 +20,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.control.ToolTipDocu;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
@@ -65,7 +64,7 @@ public class DashBoardToolbar extends ToolBar {
     private ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
 
     private boolean disableEventListener = false;
-    private ToolTipDocu toolTipDocu = new ToolTipDocu();
+    //private ToolTipDocu toolTipDocu = new ToolTipDocu();
 
     private ArrayList<Object> buttonList = new ArrayList();
 
@@ -222,7 +221,7 @@ public class DashBoardToolbar extends ToolBar {
                 , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
         );
 
-        JEVisHelp.getInstance().addItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems());
+        JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems());
         getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
 
@@ -231,15 +230,15 @@ public class DashBoardToolbar extends ToolBar {
 
     public void showTooltips(boolean show) {
         //helpButton.setSelected(show);
-        toolTipDocu.showTooltips(show);
+        //toolTipDocu.showHelpTooltips(show);
     }
 
 
     public void hideToolTips() {
-        if (toolTipDocu.isShowingProperty().get()) {
-            //helpButton.setSelected(!toolTipDocu.isShowingProperty().getValue());
-            // toolTipDocu.toggle();
-        }
+        //if (toolTipDocu.isShowingProperty().get()) {
+        //helpButton.setSelected(!toolTipDocu.isShowingProperty().getValue());
+        // toolTipDocu.toggle();
+        //}
     }
 
 
@@ -295,7 +294,7 @@ public class DashBoardToolbar extends ToolBar {
         listZoomLevel.setValue(dashboardControl.getZoomFactory());
         toolBarIntervalSelector.updateView();
         infoButton.setSelected(this.dashboardControl.showWidgetHelpProperty.getValue());
-        toolTipDocu.showTooltips(this.dashboardControl.showHelpProperty.getValue());
+        //toolTipDocu.showHelpTooltips(this.dashboardControl.showHelpProperty.getValue());
 
         updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
     }

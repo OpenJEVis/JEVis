@@ -95,7 +95,7 @@ public class ToolBarIntervalSelector extends HBox {
         nextButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.nextvinterval")));
 
         getChildren().addAll(timeFactoryBox, spacer, prevButton, dateButton, nextButton);
-        JEVisHelp.getInstance().addItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getChildren());
+        JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getChildren());
     }
 
     public void updateView() {

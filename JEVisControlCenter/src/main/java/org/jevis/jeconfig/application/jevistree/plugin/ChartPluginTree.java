@@ -146,6 +146,7 @@ public class ChartPluginTree implements TreePlugin {
         AggregationColumn aggregationColumn = new AggregationColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.interval"));
         aggregationColumn.setGraphDataModel(data);
 
+
         DataProcessorColumn dataProcessorColumn = new DataProcessorColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.cleaning"));
         dataProcessorColumn.setGraphDataModel(data);
 
