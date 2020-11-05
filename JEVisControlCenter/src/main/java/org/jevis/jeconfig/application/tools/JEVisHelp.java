@@ -36,6 +36,7 @@ public class JEVisHelp {
 
     public enum LAYOUT {
         HORIZONTAL_TOP_LEFT,
+        HORIZONTAL_TOP_CENTERED,
         VERTICAL_BOT_CENTER,
     }
 
@@ -173,7 +174,10 @@ public class JEVisHelp {
 
     public void addHelpControl(String plugin, String subModule, LAYOUT layout, Control... elements) {
         addControl(controlsMap, plugin, subModule, layout, elements);
-        if (isHelpShowing.get()) update();
+        //if (isHelpShowing.get()) update();
+        if (isHelpShowing.get()) {
+            showHelpTooltips(true);
+        }
     }
 
     public void addInfoControl(String plugin, String subModule, LAYOUT layout, Control... elements) {
@@ -294,11 +298,10 @@ public class JEVisHelp {
                                 if (pos[0] + pos[1] == 0) return; // in case the parent is not visible anymore
                                 //System.out.println("Pos: " + xPos + "/" + yPos);
                                 tooltip.show(control, xPos, yPos);
+                                Node parent = (Node) tooltip.getGraphic().getParent();
                                 switch (layout) {
                                     case VERTICAL_BOT_CENTER:
-                                        Node parent = (Node) tooltip.getGraphic().getParent();
                                         parent.getTransforms().add(new Rotate(90));
-                                        System.out.println();
                                         xPos += -control.getHeight();
                                         xPos += (control.getWidth() / 2);// + (control.getHeight() / 2);
                                         yPos += control.getHeight();
@@ -306,6 +309,10 @@ public class JEVisHelp {
                                     case HORIZONTAL_TOP_LEFT:
                                         yPos += -36;//-tooltip.getHeight();
                                         xPos += -8;// magic number
+                                        break;
+                                    case HORIZONTAL_TOP_CENTERED:
+                                        yPos += -36;
+                                        xPos += (parent.getLayoutY() / 2) - (tooltip.widthProperty().doubleValue() / 2) - 8;
                                         break;
                                 }
 

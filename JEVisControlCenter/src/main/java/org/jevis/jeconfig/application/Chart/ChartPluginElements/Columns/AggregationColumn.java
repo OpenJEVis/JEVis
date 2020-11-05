@@ -16,9 +16,6 @@ import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
-import org.jevis.jeconfig.application.tools.JEVisHelp;
-import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -142,10 +139,9 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
         Platform.runLater(() -> {
             Label aggregationLabel = new Label(columnName);
-            System.out.println("################################# Table label: " + aggregationLabel);
             aggregationLabel.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.interval.tip")));
             aggregationColumn.setGraphic(aggregationLabel);
-            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, aggregationLabel);
+            //JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, aggregationLabel);
 
         });
 

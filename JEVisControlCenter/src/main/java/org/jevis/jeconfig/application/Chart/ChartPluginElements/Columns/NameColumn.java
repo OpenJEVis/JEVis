@@ -1,20 +1,23 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.dialog.ChartSelectionDialog;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 
 public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> implements ChartPluginColumn {
     private static final Logger logger = LogManager.getLogger(DataProcessorColumn.class);
@@ -47,7 +50,7 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
 
     @Override
     public void buildColumn() {
-        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn(columnName);
+        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn();
         column.setPrefWidth(180);
         column.setEditable(true);
         column.setId(COLUMN_ID);
@@ -111,6 +114,14 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
 
                 return cell;
             }
+        });
+
+        Platform.runLater(() -> {
+            Label label = new Label(columnName);
+            label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.name.tip")));
+            nameColumn.setGraphic(label);
+            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
+
         });
 
         this.nameColumn = column;
