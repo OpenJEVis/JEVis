@@ -68,6 +68,8 @@ public class CommonMethods {
                     try {
                         pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
                         valueAtt.deleteAllSample();
+
+                        allSamplesMathData(object, true);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -76,6 +78,8 @@ public class CommonMethods {
                         pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
                                 + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(from, to);
+
+                        fromToMathData(object, true, from, to);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -83,7 +87,10 @@ public class CommonMethods {
                     try {
                         pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
                                 + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + new DateTime().toString("YYYY-MM-dd HH:mm:ss"));
-                        valueAtt.deleteSamplesBetween(from, new DateTime());
+                        DateTime t = new DateTime();
+                        valueAtt.deleteSamplesBetween(from, t);
+
+                        fromToMathData(object, true, from, t);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -91,7 +98,10 @@ public class CommonMethods {
                     try {
                         pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
                                 + " from " + new DateTime(2001, 1, 1, 0, 0, 0).toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
-                        valueAtt.deleteSamplesBetween(new DateTime(2001, 1, 1, 0, 0, 0), to);
+                        DateTime f = new DateTime(2001, 1, 1, 0, 0, 0);
+                        valueAtt.deleteSamplesBetween(f, to);
+
+                        fromToMathData(object, true, f, to);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -109,6 +119,8 @@ public class CommonMethods {
                         || (object.getJEVisClassName().equals("Data") && rawData)) {
                     pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
                     value.deleteAllSample();
+
+                    allSamplesMathData(object, cleanData);
                 }
             }
             for (JEVisObject child : object.getChildren()) {
@@ -116,6 +128,27 @@ public class CommonMethods {
             }
         } catch (JEVisException e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
+        }
+    }
+
+    private static void allSamplesMathData(JEVisObject object, boolean cleanData) throws JEVisException {
+        if (object.getJEVisClassName().equals("Math Data") && cleanData) {
+            try {
+                JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
+                if (lastRunAttribute != null) {
+                    List<JEVisSample> allSamples = lastRunAttribute.getAllSamples();
+                    if (allSamples.size() > 1) {
+                        allSamples.remove(0);
+                        DateTime finalTS = allSamples.get(0).getTimestamp();
+                        DateTime lastTS = allSamples.get(allSamples.size() - 1).getTimestamp();
+
+                        lastRunAttribute.deleteSamplesBetween(finalTS, lastTS);
+                    }
+                }
+
+            } catch (JEVisException e) {
+                logger.error("Could not get math data last run time: ", e);
+            }
         }
     }
 
@@ -141,6 +174,8 @@ public class CommonMethods {
                     pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
                             + " from " + f.toString("YYYY-MM-dd HH:mm:ss") + " to " + t.toString("YYYY-MM-dd HH:mm:ss"));
                     value.deleteSamplesBetween(f, t);
+
+                    fromToMathData(object, cleanData, f, t);
                 }
             }
             for (JEVisObject child : object.getChildren()) {
@@ -148,6 +183,32 @@ public class CommonMethods {
             }
         } catch (JEVisException e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
+        }
+    }
+
+    private static void fromToMathData(JEVisObject object, boolean cleanData, DateTime f, DateTime t) throws JEVisException {
+        if (object.getJEVisClassName().equals("Math Data") && cleanData) {
+            try {
+                JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
+                if (lastRunAttribute != null) {
+                    List<JEVisSample> allSamples = lastRunAttribute.getAllSamples();
+                    if (allSamples.size() > 0) {
+                        allSamples.remove(0);
+                        DateTime finalTS = null;
+                        for (JEVisSample sample : allSamples) {
+                            if (new DateTime(sample.getValueAsString()).isAfter(f)) {
+                                finalTS = sample.getTimestamp();
+                                break;
+                            }
+                        }
+
+                        lastRunAttribute.deleteSamplesBetween(finalTS, t);
+                    }
+                }
+
+            } catch (JEVisException e) {
+                logger.error("Could not get math data last run time: ", e);
+            }
         }
     }
 
