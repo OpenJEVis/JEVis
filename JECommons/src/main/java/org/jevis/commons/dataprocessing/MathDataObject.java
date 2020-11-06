@@ -47,6 +47,7 @@ public class MathDataObject {
     private JEVisAttribute formulaAttribute;
     private JEVisAttribute referencePeriodAttribute;
     private JEVisAttribute referencePeriodCountAttribute;
+    private JEVisAttribute periodOffsetAttribute;
     private JEVisAttribute fillPeriodAttribute;
     private JEVisAttribute beginningAttribute;
     private JEVisAttribute endingAttribute;
@@ -57,6 +58,7 @@ public class MathDataObject {
 
     private Period inputDataPeriod;
     private AggregationPeriod referencePeriod;
+    private Long periodOffset;
     private Long referencePeriodCount;
     private ManipulationMode manipulationMode;
     private DateTime beginning;
@@ -94,6 +96,10 @@ public class MathDataObject {
             referencePeriodCountAttribute = getMathDataObject().getAttribute(REFERENCE_PERIOD_COUNT.getAttributeName());
         }
 
+        if (periodOffsetAttribute == null) {
+            periodOffsetAttribute = getMathDataObject().getAttribute(PERIOD_OFFSET.getAttributeName());
+        }
+
         if (fillPeriodAttribute == null) {
             fillPeriodAttribute = getMathDataObject().getAttribute(FILL_PERIOD.getAttributeName());
         }
@@ -114,6 +120,7 @@ public class MathDataObject {
         getMathDataObject().getDataSource().reloadAttribute(formulaAttribute);
         getMathDataObject().getDataSource().reloadAttribute(referencePeriodAttribute);
         getMathDataObject().getDataSource().reloadAttribute(referencePeriodCountAttribute);
+        getMathDataObject().getDataSource().reloadAttribute(periodOffsetAttribute);
         getMathDataObject().getDataSource().reloadAttribute(fillPeriodAttribute);
         getMathDataObject().getDataSource().reloadAttribute(beginningAttribute);
         getMathDataObject().getDataSource().reloadAttribute(endingAttribute);
@@ -137,6 +144,13 @@ public class MathDataObject {
             referencePeriodCount = sampleHandler.getLastSample(getMathDataObject(), REFERENCE_PERIOD_COUNT.getAttributeName(), 1L);
         }
         return referencePeriodCount;
+    }
+
+    public Long getPeriodOffset() {
+        if (periodOffset == null) {
+            periodOffset = sampleHandler.getLastSample(getMathDataObject(), PERIOD_OFFSET.getAttributeName(), 0L);
+        }
+        return periodOffset;
     }
 
     public ManipulationMode getManipulationMode() {
@@ -328,11 +342,8 @@ public class MathDataObject {
     }
 
     public DateTime getEndDate() {
-        AggregationPeriod aggregationPeriod = getReferencePeriod();
-        Long referencePeriodCount = getReferencePeriodCount();
-        DateTime lastRun = getLastRun(getMathDataObject());
 
-        return getNextRun(aggregationPeriod, referencePeriodCount, lastRun);
+        return getNextRun();
     }
 
     public boolean isReady() {
@@ -356,35 +367,101 @@ public class MathDataObject {
         return false;
     }
 
-    private DateTime getNextRun(AggregationPeriod aggregationPeriod, Long referencePeriodCount, DateTime nextRun) {
+    public DateTime getNextRunWithOffset() {
+        AggregationPeriod aggregationPeriod = getReferencePeriod();
+        Long referencePeriodCount = getReferencePeriodCount();
+        DateTime start = getStartDate();
+        Long offset = getPeriodOffset();
         for (int i = 0; i < referencePeriodCount; i++) {
             switch (aggregationPeriod) {
                 case NONE:
                     break;
                 case QUARTER_HOURLY:
-                    nextRun = nextRun.plusMinutes(15);
+                    if (offset > 0) {
+                        start = start.plusMinutes(15);
+                    } else if (offset < 0) {
+                        start = start.minusMinutes(15);
+                    }
                     break;
                 case HOURLY:
-                    nextRun = nextRun.plusHours(1);
+                    if (offset > 0) {
+                        start = start.plusHours(1);
+                    } else if (offset < 0) {
+                        start = start.minusHours(1);
+                    }
                     break;
                 case DAILY:
-                    nextRun = nextRun.plusDays(1);
+                    if (offset > 0) {
+                        start = start.plusDays(1);
+                    } else if (offset < 0) {
+                        start = start.minusDays(1);
+                    }
                     break;
                 case WEEKLY:
-                    nextRun = nextRun.plusWeeks(1);
+                    if (offset > 0) {
+                        start = start.plusWeeks(1);
+                    } else if (offset < 0) {
+                        start = start.minusWeeks(1);
+                    }
                     break;
                 case MONTHLY:
-                    nextRun = nextRun.plusMonths(1);
+                    if (offset > 0) {
+                        start = start.plusMonths(1);
+                    } else if (offset < 0) {
+                        start = start.minusMonths(1);
+                    }
                     break;
                 case QUARTERLY:
-                    nextRun = nextRun.plusMonths(3);
+                    if (offset > 0) {
+                        start = start.plusMonths(3);
+                    } else if (offset < 0) {
+                        start = start.minusMonths(3);
+                    }
                     break;
                 case YEARLY:
-                    nextRun = nextRun.plusYears(1);
+                    if (offset > 0) {
+                        start = start.plusYears(1);
+                    } else if (offset < 0) {
+                        start = start.minusYears(1);
+                    }
                     break;
             }
         }
-        return nextRun;
+        return start;
+    }
+
+    public DateTime getNextRun() {
+        AggregationPeriod aggregationPeriod = getReferencePeriod();
+        Long referencePeriodCount = getReferencePeriodCount();
+        DateTime lastRun = getLastRun(getMathDataObject());
+        for (int i = 0; i < referencePeriodCount; i++) {
+            switch (aggregationPeriod) {
+                case NONE:
+                    break;
+                case QUARTER_HOURLY:
+                    lastRun = lastRun.plusMinutes(15);
+                    break;
+                case HOURLY:
+                    lastRun = lastRun.plusHours(1);
+                    break;
+                case DAILY:
+                    lastRun = lastRun.plusDays(1);
+                    break;
+                case WEEKLY:
+                    lastRun = lastRun.plusWeeks(1);
+                    break;
+                case MONTHLY:
+                    lastRun = lastRun.plusMonths(1);
+                    break;
+                case QUARTERLY:
+                    lastRun = lastRun.plusMonths(3);
+                    break;
+                case YEARLY:
+                    lastRun = lastRun.plusYears(1);
+                    break;
+            }
+        }
+        return lastRun;
     }
 
     private DateTimeZone getTimeZone(JEVisObject object) {
@@ -427,8 +504,7 @@ public class MathDataObject {
 
     public void finishCurrentRun(JEVisObject object) {
 
-        DateTime lastRun = getLastRun(object);
-        DateTime nextRun = getNextRun(getReferencePeriod(), getReferencePeriodCount(), lastRun);
+        DateTime nextRun = getNextRun();
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
@@ -450,6 +526,7 @@ public class MathDataObject {
         ENDING("Ending"),
         REFERENCE_PERIOD("Reference Period"),
         REFERENCE_PERIOD_COUNT("Reference Period Count"),
+        PERIOD_OFFSET("Period Offset"),
         FILL_PERIOD("Fill Period");
 
         private final String attributeName;
