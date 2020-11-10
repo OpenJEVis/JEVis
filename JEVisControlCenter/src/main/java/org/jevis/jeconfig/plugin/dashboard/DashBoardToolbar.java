@@ -237,7 +237,7 @@ public class DashBoardToolbar extends ToolBar {
     public void hideToolTips() {
         //if (toolTipDocu.isShowingProperty().get()) {
         //helpButton.setSelected(!toolTipDocu.isShowingProperty().getValue());
-        // toolTipDocu.toggle();
+        // toolTipDocu.toggleHelp();
         //}
     }
 

@@ -355,6 +355,12 @@ public class PluginManager {
                             AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
                             PluginManager.this.menu.setPlugin(newValue);
                             newValue.setHasFocus();
+                            /**
+                             * for now we have to disable the function to keep the status over multiple plugins
+                             *  because the TaskMonitor will make trouble with the tooltips.
+                             */
+                            JEVisHelp.getInstance().showHelpTooltips(false);
+                            JEVisHelp.getInstance().showInfoTooltips(false);
                             JEVisHelp.getInstance().setActivePlugin(newValue.getClass().getSimpleName());
                         } catch (Exception ex) {
                             logger.error("Error while switching plugin: {}", ex, ex);

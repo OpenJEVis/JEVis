@@ -199,6 +199,7 @@ public class ToolBarView {
         listAnalysesComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.list")));
         listAnalysesComboBox.setCellFactory(cellFactory);
         listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+        listAnalysesComboBox.setId("Graph Analysis List");
 
         listAnalysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
@@ -428,8 +429,10 @@ public class ToolBarView {
 
             //TODO: the plugin name must be the same the the Plugin.getName() function
 
-            JEVisHelp.getInstance().addHelpItems(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+
             toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+            System.out.println("Create Graph toolbar");
+            JEVisHelp.getInstance().addHelpItems(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
             addAnalysisComboBoxListener();
             pickerCombo.addListener();

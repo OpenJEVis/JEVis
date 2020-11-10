@@ -130,7 +130,7 @@ public class LoadAnalysisDialog {
         KeyCombination help = new KeyCodeCombination(KeyCode.F1);
         filterInput.setOnKeyPressed(event -> {
             if (help.match(event)) {
-                JEVisHelp.getInstance().toggle();
+                JEVisHelp.getInstance().toggleHelp();
                 event.consume();
             }
         });

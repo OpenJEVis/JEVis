@@ -319,7 +319,7 @@ public class TopMenu extends MenuBar {
         });
         showHelp.setOnAction(event -> {
             //activePlugin.handleRequest(Constants.Plugin.Command.SHOW_TOOLTIP_HELP);
-            JEVisHelp.getInstance().toggle();
+            JEVisHelp.getInstance().toggleHelp();
         });
 
 
