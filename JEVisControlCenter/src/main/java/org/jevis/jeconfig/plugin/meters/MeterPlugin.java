@@ -49,6 +49,7 @@ import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
@@ -514,8 +515,11 @@ public class MeterPlugin implements Plugin {
 
                                                         setText(numberFormat.format(latestSample.getValueAsDouble()) + " " + unitString + " @ " + timeString);
                                                     }
+
+
                                                 }
-                                            } catch (JEVisException e) {
+                                            } catch (Exception e) {
+                                                setText(null);
                                                 e.printStackTrace();
                                             }
                                         }
@@ -528,7 +532,7 @@ public class MeterPlugin implements Plugin {
                     tableView.getColumns().add(lastValueColumn);
                 }
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -566,7 +570,7 @@ public class MeterPlugin implements Plugin {
                     }
                 }
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not determine diff or not", e);
         }
 
@@ -1034,8 +1038,6 @@ public class MeterPlugin implements Plugin {
 
     private void initToolBar() {
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
-        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
-        reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> handleRequest(Constants.Plugin.Command.RELOAD));
@@ -1072,8 +1074,6 @@ public class MeterPlugin implements Plugin {
         Separator sep3 = new Separator(Orientation.VERTICAL);
 
         ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", toolBarIconSize, toolBarIconSize));
-        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
-        printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
         printButton.setOnAction(event -> {
@@ -1131,8 +1131,19 @@ public class MeterPlugin implements Plugin {
             }
         });
 
-        // -delete
+        ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
+        ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
+
+        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip")));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.save.tooltip")));
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.new.tooltip")));
+        replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.replace.tooltip")));
+        printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
+
         toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
+        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+
+        JEVisHelp.getInstance().addHelpItems(MeterPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
 
     @Override

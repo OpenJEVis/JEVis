@@ -12,6 +12,8 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +35,7 @@ public class JEVisHelp {
     private String activePlugin = "";
     private String activeSubModule = "";
     private final KeyCombination help = new KeyCodeCombination(KeyCode.F1);
+    public static final Font font = Font.font("Liberation Mono", FontWeight.SEMI_BOLD, 11);
 
     public enum LAYOUT {
         HORIZONTAL_TOP_LEFT,
@@ -167,6 +170,7 @@ public class JEVisHelp {
         for (Control element : elements) {
             System.out.println("Add Control: " + element.getId());
             map.get(key).add(new ToolTipElement(layout, element));
+            JEVisHelp.setStyle(element.getTooltip());
         }
 
         if (isInfoShowing.get()) update();
@@ -277,13 +281,14 @@ public class JEVisHelp {
         }
 
         public void show(boolean show) {
-            logger.error("Show: {}", control);
+            logger.debug("Show: {}", control);
             isVisible = show;
             Platform.runLater(() -> {
                 try {
                     Tooltip tooltip = control.getTooltip();
                     if (tooltip != null && !tooltip.getText().isEmpty()) {
-                        logger.debug("Show tt: {}", tooltip.getText());
+                        logger.debug("Show tt: {},{} text: {} ", tooltip.getFont().getName(), tooltip.getFont().getSize(), tooltip.getText());
+                        //JEVisHelp.setStyle(tooltip);
                         if (tooltip.getGraphic() == null) tooltip.setGraphic(new Region());
                         if (tooltip.isShowing() != show) {
                             if (tooltip.isShowing()) Platform.runLater(() -> {
@@ -301,10 +306,21 @@ public class JEVisHelp {
                                 Node parent = (Node) tooltip.getGraphic().getParent();
                                 switch (layout) {
                                     case VERTICAL_BOT_CENTER:
-                                        parent.getTransforms().add(new Rotate(90));
-                                        xPos += -control.getHeight();
-                                        xPos += (control.getWidth() / 2);// + (control.getHeight() / 2);
+                                        double ttHeight = tooltip.getHeight(); // after the Rotate the numbers are bad
+
+                                        //logger.error("xPos: {}, controlH: {}, controlW: {}, ttH: {}, ttW; {}", xPos, control.getWidth(), control.getHeight(), tooltip.getHeight(), tooltip.getWidth());
+                                        parent.getTransforms().add(new Rotate(-90));
+                                        //xPos += -control.getHeight() / 2;
+                                        //xPos += (control.getWidth() / 2);// + (control.getHeight() / 2);
+                                        //xPos += control.getWidth() / 2;
+                                        double shadow = 5;
+                                        double ttWithoutShadow = ttHeight - shadow;
+                                        //xPos += -shadow;
+                                        xPos += (control.getWidth() / 2) - (ttWithoutShadow / 2);
+                                        //logger.error("<--> {} | {} result: {}, {},{}", control.getWidth(), tooltip.getHeight(), (control.getWidth() / 2) - (ttWithoutShaow / 2), tooltip.getWidth(), tooltip.getHeight());
+
                                         yPos += control.getHeight();
+
                                         break;
                                     case HORIZONTAL_TOP_LEFT:
                                         yPos += -36;//-tooltip.getHeight();
@@ -332,6 +348,12 @@ public class JEVisHelp {
             });
         }
 
+    }
+
+    public static void setStyle(Tooltip tooltip) {
+        if (tooltip == null) return;
+        tooltip.setFont(font);
+        tooltip.setStyle(" -fx-background-color: rgb(235,235,235,1); -fx-text-fill: black; -fx-font-smoothing-type: lcd;"); //tooltip
     }
 
 }

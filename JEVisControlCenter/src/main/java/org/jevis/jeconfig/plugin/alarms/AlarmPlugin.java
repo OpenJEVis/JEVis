@@ -19,7 +19,6 @@ import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -703,14 +702,14 @@ public class AlarmPlugin implements Plugin {
         startDatePicker.valueProperty().addListener(startDateChangeListener);
         endDatePicker.valueProperty().addListener(endDateChangeListener);
 
-        ComboBox<String> viewComboBox = new ComboBox<>();
+        ComboBox<String> filterBox = new ComboBox<>();
         String showOnlyUncheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showunchecked");
         String showOnlyCheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showchecked");
         String showAllAlarms = I18n.getInstance().getString("plugin.alarm.label.showall");
-        viewComboBox.getItems().addAll(showOnlyUncheckedAlarms, showOnlyCheckedAlarms, showAllAlarms);
-        viewComboBox.getSelectionModel().select(showCheckedAlarms);
+        filterBox.getItems().addAll(showOnlyUncheckedAlarms, showOnlyCheckedAlarms, showAllAlarms);
+        filterBox.getSelectionModel().select(showCheckedAlarms);
 
-        viewComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+        filterBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 showCheckedAlarms = newValue.intValue();
                 updateList();
@@ -719,28 +718,30 @@ public class AlarmPlugin implements Plugin {
 
         Separator sep4 = new Separator(Orientation.VERTICAL);
 
-        HBox checkAllBox = new HBox();
-        checkAllBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
-        checkAllBox.setPadding(new Insets(2));
-        ImageView imageView = new ImageView(checkAllImage);
-        Label checkAllLabel = new Label(I18n.getInstance().getString("plugin.alarm.checkall"));
-        VBox checkAllLabelCenter = new VBox(checkAllLabel);
-        checkAllLabelCenter.setAlignment(Pos.CENTER_LEFT);
 
-        checkAllBox.getChildren().setAll(imageView, checkAllLabelCenter);
-
-        checkAllBox.setOnMouseClicked(event -> {
+        ToggleButton checkAll = new ToggleButton(I18n.getInstance().getString("plugin.alarm.checkall"), JEConfig.getImage("jetxee-check-sign-and-cross-sign-3.png", iconSize, iconSize));
+        checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkAll);
+        checkAll.setOnMouseClicked(event -> {
             getAllAlarmConfigs().forEach(alarmConfiguration -> alarmConfiguration.setChecked(true));
             reload.fire();
         });
 
-
-        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, viewComboBox, sep4, checkAllBox);
-
-        JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+
+        timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
+        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
+        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
+        filterBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.filter.tooltip")));
+        checkAll.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.checkall.tooltip")));
+
+        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, filterBox, sep4, checkAll);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+
+        JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+
+
     }
 
     private ComboBox<TimeFrame> getTimeFrameComboBox() {

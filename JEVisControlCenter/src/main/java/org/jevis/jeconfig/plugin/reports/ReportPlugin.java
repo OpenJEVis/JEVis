@@ -75,8 +75,10 @@ public class ReportPlugin implements Plugin {
     private boolean multipleDirectories;
     private final PDFModel model = new PDFModel();
     private final SimpleDoubleProperty zoomFactor = new SimpleDoubleProperty(0.3);
-    private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
-    private final ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
+    //private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
+    //private final ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
+    private ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
+    private ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
     private boolean newReport = false;
 
     public ReportPlugin(JEVisDataSource ds, String title) {
@@ -198,9 +200,6 @@ public class ReportPlugin implements Plugin {
             service.start();
 
         });
-
-        Separator sep1 = new Separator(Orientation.VERTICAL);
-
         ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
         Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
         pdfButton.setTooltip(pdfTooltip);
@@ -256,7 +255,6 @@ public class ReportPlugin implements Plugin {
             }
         });
 
-        Separator sep2 = new Separator(Orientation.VERTICAL);
 
         ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
         Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
@@ -276,17 +274,14 @@ public class ReportPlugin implements Plugin {
             }
         });
 
-        Separator sep3 = new Separator(Orientation.VERTICAL);
-
         ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
         ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
 
         zoomIn.setOnAction(event -> zoomFactor.set(zoomFactor.get() + 0.05));
         zoomOut.setOnAction(event -> zoomFactor.set(zoomFactor.get() - 0.05));
 
-        Separator sep4 = new Separator(Orientation.VERTICAL);
-        Separator sep5 = new Separator(Orientation.VERTICAL);
-        Separator sep6 = new Separator(Orientation.VERTICAL);
+        zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.zoomin")));
+        zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.zoomout")));
 
         Label labelDateTimeComboBox = new Label(I18n.getInstance().getString("plugin.reports.selectionbox.label"));
         labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
@@ -311,20 +306,26 @@ public class ReportPlugin implements Plugin {
 
         fileComboBox.setCellFactory(cellFactory);
         fileComboBox.setButtonCell(cellFactory.call(null));
+        fileComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.datelist")));
 
-        leftImage.setOnMouseClicked(event -> {
+        prevButton.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i > 0) {
                 fileComboBox.getSelectionModel().select(i - 1);
             }
         });
 
-        rightImage.setOnMouseClicked(event -> {
+        nextButton.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i < sampleMap.size()) {
                 fileComboBox.getSelectionModel().select(i + 1);
             }
         });
+
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(prevButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(nextButton);
+        prevButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.prev")));
+        nextButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.next")));
 
         fileComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && newValue != null && !newValue.equals(oldValue)) {
@@ -347,11 +348,17 @@ public class ReportPlugin implements Plugin {
         });
 
 
-        toolBar.getItems().setAll(reload, sep1, pdfButton, xlsxButton, sep2, printButton, sep3, zoomIn, zoomOut, sep4, labelDateTimeComboBox, leftImage, sep5, fileComboBox, sep6, rightImage);
-        JEVisHelp.getInstance().addHelpControl(this.getName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, reload, pdfButton, reload, xlsxButton, printButton, zoomIn, zoomOut, labelDateTimeComboBox);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+
+        toolBar.getItems().setAll(reload, new Separator(),
+                pdfButton, xlsxButton, new Separator(),
+                printButton, new Separator(),
+                zoomIn, zoomOut, new Separator(),
+                labelDateTimeComboBox, prevButton, fileComboBox, nextButton);
+
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        JEVisHelp.getInstance().addHelpItems(this.getClass().getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
     }
 

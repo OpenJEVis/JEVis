@@ -346,17 +346,19 @@ public class PluginManager {
                 Platform.runLater(() -> {
 //                        toolbar.getChildren().removeAll();
                     if (newValue != null) {
-
-                        Node pluginToolbar = newValue.getToolbar();
-
-                        PluginManager.this.toolbar.getChildren().setAll(pluginToolbar);
-                        AnchorPane.setTopAnchor(pluginToolbar, 0.0);
-                        AnchorPane.setLeftAnchor(pluginToolbar, 0.0);
-                        AnchorPane.setRightAnchor(pluginToolbar, 0.0);
-                        AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
-                        PluginManager.this.menu.setPlugin(newValue);
-                        newValue.setHasFocus();
-                        JEVisHelp.getInstance().setActivePlugin(newValue.getClass().getSimpleName());
+                        try {
+                            Node pluginToolbar = newValue.getToolbar();
+                            PluginManager.this.toolbar.getChildren().setAll(pluginToolbar);
+                            AnchorPane.setTopAnchor(pluginToolbar, 0.0);
+                            AnchorPane.setLeftAnchor(pluginToolbar, 0.0);
+                            AnchorPane.setRightAnchor(pluginToolbar, 0.0);
+                            AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
+                            PluginManager.this.menu.setPlugin(newValue);
+                            newValue.setHasFocus();
+                            JEVisHelp.getInstance().setActivePlugin(newValue.getClass().getSimpleName());
+                        } catch (Exception ex) {
+                            logger.error("Error while switching plugin: {}", ex, ex);
+                        }
                     }
 
                 });
@@ -364,9 +366,12 @@ public class PluginManager {
         });
 
         this.tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            this.getSelectedPlugin().lostFocus();
-            this.selectedPluginProperty.setValue(this._plugins.get(newValue.intValue()));
-            //JEVisHelp.getInstance().setActivePlugin(this._plugins.get(newValue.intValue()).getName());
+            try {
+                this.getSelectedPlugin().lostFocus();
+                this.selectedPluginProperty.setValue(this._plugins.get(newValue.intValue()));
+            } catch (Exception ex) {
+                logger.error("Error in selection model switch: {}", ex, ex);
+            }
         });
 
         box.getChildren().addAll(this.tabPane);

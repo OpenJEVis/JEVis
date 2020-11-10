@@ -316,10 +316,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         AttributeEditor webview = null;
         Label webViewName = null;
 
+        String currentAttribute = "";
         try {
             int coloum = 0;
-
-
             if (!obj.getJEVisClass().getTypes().isEmpty()) {
                 List<JEVisAttribute> attributes = obj.getAttributes();//load once because this function is not cached
                 for (JEVisType type : obj.getJEVisClass().getTypes()) {//loop types not attributes to be sure only no delete type are shown
@@ -327,6 +326,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     if (att == null) {
                         continue;
                     }
+                    currentAttribute = type.getName();
                     AttributeEditor editor = new ErrorEditor();
                     Label name = new Label(I18nWS.getInstance().getAttributeName(att));
                     name.setWrapText(true);
@@ -404,7 +404,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             }
 //
         } catch (Exception ex) {
-            logger.catching(ex);
+            logger.error("Error in Attribute: {}", currentAttribute, ex);
         }
 
         gridPane.setStyle("-fx-background-color: transparent;");
