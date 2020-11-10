@@ -116,7 +116,6 @@ public class ChartSelectionDialog {
 
         double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
         stage.setWidth(maxScreenWidth - 20);
-
         stage.setHeight(ScreenSize.fitScreenHeight(768));
         stage.setWidth(ScreenSize.fitScreenWidth(1980));
         stage.setResizable(true);

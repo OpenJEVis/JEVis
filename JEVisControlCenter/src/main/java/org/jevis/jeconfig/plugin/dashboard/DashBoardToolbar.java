@@ -221,8 +221,8 @@ public class DashBoardToolbar extends ToolBar {
                 , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
         );
 
-        JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems());
         getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems());
 
 
         updateView(dashboardControl.getActiveDashboard());
