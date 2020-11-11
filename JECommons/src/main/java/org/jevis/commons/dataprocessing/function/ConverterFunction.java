@@ -26,6 +26,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,7 @@ public class ConverterFunction implements ProcessFunction {
     public static final String OFFSET = "offset";
     private List<JEVisSample> _result;
     private List<JsonSample> _jsonResult;
+    private JsonSampleGenerator jsonSampleGenerator;
 
     @Override
     public void resetResult() {
@@ -125,6 +127,11 @@ public class ConverterFunction implements ProcessFunction {
 
         }
         return _jsonResult;
+    }
+
+    @Override
+    public void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
     }
 
 }

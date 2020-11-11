@@ -21,6 +21,7 @@ package org.jevis.commons.dataprocessing;
 
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 
 import java.util.List;
 
@@ -54,4 +55,6 @@ public interface ProcessFunction {
     List<ProcessOption> getAvailableOptions();
 
     List<JsonSample> getJsonResult(BasicProcess basicProcess);
+
+    void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator);
 }

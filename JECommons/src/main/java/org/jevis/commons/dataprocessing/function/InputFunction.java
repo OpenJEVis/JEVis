@@ -29,6 +29,7 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class InputFunction implements ProcessFunction {
     public static final int LIMIT = 1000000;
     private List<JEVisSample> _result = null;
     private List<JsonSample> _jsonResult = null;
+    private JsonSampleGenerator jsonSampleGenerator;
 
     public InputFunction() {
     }
@@ -226,7 +228,32 @@ public class InputFunction implements ProcessFunction {
                     DateTime[] startEnd = ProcessOptions.getStartAndEnd(task);
                     logger.info("start: {} end: {}", startEnd[0], startEnd[1]);
 
+                    AggregationPeriod aggregationPeriod = task.getJsonSampleGenerator().getAggregationPeriod();
+                    switch (aggregationPeriod) {
+                        case DAILY:
+                            startEnd[0] = startEnd[0].withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        case WEEKLY:
+                            startEnd[0] = startEnd[0].withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        case MONTHLY:
+                            startEnd[0] = startEnd[0].withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    }
+
+                    if (ProcessOptions.isCustomWorkdayPrev(task)) {
+                        switch (aggregationPeriod) {
+                            case DAILY:
+                            case WEEKLY:
+                            case MONTHLY:
+                            case QUARTERLY:
+                            case YEARLY:
+                            case THREEYEARS:
+                            case FIVEYEARS:
+                            case TENYEARS:
+                                startEnd[0] = startEnd[0].minusDays(1);
+                        }
+                    }
+
                     if (foundUserDataObject && att != null) {
+
                         SortedMap<DateTime, JsonSample> map = new TreeMap<>();
                         for (JsonSample jeVisSample : sql.getSamples(object.getId(), att.getType(), startEnd[0], startEnd[1], LIMIT)) {
                             map.put(new DateTime(jeVisSample.getTs()), jeVisSample);
@@ -265,5 +292,10 @@ public class InputFunction implements ProcessFunction {
             }
         }
         return _jsonResult;
+    }
+
+    @Override
+    public void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
     }
 }

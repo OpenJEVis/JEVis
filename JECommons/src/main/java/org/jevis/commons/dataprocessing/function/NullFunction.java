@@ -25,6 +25,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
@@ -41,8 +42,15 @@ public class NullFunction implements ProcessFunction {
     public static final String NAME = "Null Function";
     private final AggregationPeriod aggregationPeriod;
     private final ManipulationMode mode;
+    private JsonSampleGenerator jsonSampleGenerator;
 
     public NullFunction(ManipulationMode mode, AggregationPeriod aggregationPeriod) {
+        this.mode = mode;
+        this.aggregationPeriod = aggregationPeriod;
+    }
+
+    public NullFunction(JsonSampleGenerator jsonSampleGenerator, ManipulationMode mode, AggregationPeriod aggregationPeriod) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
         this.mode = mode;
         this.aggregationPeriod = aggregationPeriod;
     }
@@ -70,7 +78,7 @@ public class NullFunction implements ProcessFunction {
         }
 
         if (aggregationPeriod != AggregationPeriod.NONE) {
-            BasicProcess aggregationProcess = new BasicProcess();
+            BasicProcess aggregationProcess = new BasicProcess(jsonSampleGenerator);
             aggregationProcess.setJEVisDataSource(mainTask.getJEVisDataSource());
             aggregationProcess.setObject(mainTask.getObject());
             aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, Boolean.toString(isCustomWorkDay)));
@@ -141,7 +149,7 @@ public class NullFunction implements ProcessFunction {
         }
 
         if (aggregationPeriod != AggregationPeriod.NONE) {
-            BasicProcess aggregationProcess = new BasicProcess();
+            BasicProcess aggregationProcess = new BasicProcess(jsonSampleGenerator);
             aggregationProcess.setSQLDataSource(mainTask.getSqlDataSource());
             aggregationProcess.setJsonObject(mainTask.getJsonObject());
             aggregationProcess.setJsonAttribute(mainTask.getJsonAttribute());
@@ -171,7 +179,7 @@ public class NullFunction implements ProcessFunction {
                     break;
                 default:
             }
-            aggregationProcess.setFunction(new AggregatorFunction());
+            aggregationProcess.setFunction(new AggregatorFunction(jsonSampleGenerator));
             aggregationProcess.setID("Aggregation");
 
             aggregationProcess.setSubProcesses(mainTask.getSubProcesses());
@@ -180,6 +188,11 @@ public class NullFunction implements ProcessFunction {
         }
 
         return allSamples;
+    }
+
+    @Override
+    public void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
     }
 
 }

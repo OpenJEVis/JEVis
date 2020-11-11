@@ -29,6 +29,7 @@ import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +54,13 @@ public class BasicProcess implements Process {
     private JsonAttribute _originalSQLAttribute = null;
     private Process _parent;
     private boolean sql = false;
+    private JsonSampleGenerator jsonSampleGenerator;
 
     public BasicProcess() {
+    }
+
+    public BasicProcess(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
     }
 
     public BasicProcess(JEVisDataSource ds, JsonProcess task, Process parentTask) {
@@ -279,5 +285,9 @@ public class BasicProcess implements Process {
 
     public boolean isSql() {
         return sql;
+    }
+
+    public JsonSampleGenerator getJsonSampleGenerator() {
+        return jsonSampleGenerator;
     }
 }
