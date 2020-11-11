@@ -44,6 +44,7 @@ public class JEVisHelp {
     private String activeSubModule = "";
     private final KeyCombination help = new KeyCodeCombination(KeyCode.F1);
     public static final Font font = Font.font("Liberation Mono", FontWeight.SEMI_BOLD, 11);
+    Tooltip helptooltip = new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.help"));
 
     public enum LAYOUT {
         HORIZONTAL_TOP_LEFT,
@@ -52,6 +53,7 @@ public class JEVisHelp {
     }
 
     public JEVisHelp() {
+        JEVisHelp.setStyle(helptooltip);
     }
 
     public void deactivatePluginModule() {
@@ -66,7 +68,7 @@ public class JEVisHelp {
     }
 
     public void setActiveSubModule(String subModule) {
-        logger.error("Set active sub module: {},{}", activePlugin, subModule);
+        logger.debug("Set active sub module: {},{}", activePlugin, subModule);
         //removeAll(activePlugin, subModule);
         this.activeSubModule = subModule;
         //  update();
@@ -81,8 +83,8 @@ public class JEVisHelp {
     }
 
     public void update() {
-        logger.error("------------------Update()-----------------------------");
-        logger.error("Update: {}/{} {}", isHelpShowing.get(), isInfoShowing.get(), toKey(activePlugin, activeSubModule));
+        logger.debug("------------------Update()-----------------------------");
+        logger.debug("Update: {}/{} {}", isHelpShowing.get(), isInfoShowing.get(), toKey(activePlugin, activeSubModule));
 
         //hideAllTooltips(controlsMap);
         if (isHelpShowing.get()) showHelpTooltips(true);
@@ -99,7 +101,7 @@ public class JEVisHelp {
             String key = toKey(activePlugin, activeSubModule);
             if (!key.equals(s)) return;
 
-            logger.error("Use map: {}->{}", key, controls1);
+            logger.debug("Use map: {}->{}", key, controls1);
             for (ToolTipElement obj : controls1) {
                 try {
                     obj.show();
@@ -182,7 +184,6 @@ public class JEVisHelp {
         for (Control element : elements) {
             try {
                 map.get(key).add(new ToolTipElement(layout, element));
-                JEVisHelp.setStyle(element.getTooltip());
             } catch (Exception ex) {
                 //Emlement without tooltip
             }
@@ -252,7 +253,13 @@ public class JEVisHelp {
 
     public ToggleButton buildHelpButtons(double width, double height) {
         ToggleButton helpButton = new ToggleButton("", JEConfig.getImage("1404161580_help_blue.png", height, width));
-        helpButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.help")));
+        helpButton.setId("HelpButton");
+
+        //helpButton.setTooltip(tooltip);
+        Tooltip tooltip = new Tooltip();
+        tooltip.setOpacity(1);
+        //helpButton.setTooltip(new Tooltip(""));
+
         helpButton.setOnAction(event -> JEVisHelp.getInstance().toggleHelp());
         isHelpShowing.addListener((observable, oldValue, newValue) -> {
             helpButton.setSelected(newValue);
@@ -283,8 +290,16 @@ public class JEVisHelp {
             this.layout = layout;
             this.control = control;
 
-            Tooltip tooltip = control.getTooltip();
-            if (tooltip.getGraphic() == null) tooltip.setGraphic(new Region());
+            Platform.runLater(() -> {
+                try {
+                    Tooltip tooltip = control.getTooltip();
+                    JEVisHelp.setStyle(tooltip);
+                } catch (Exception ex) {
+
+                }
+
+            });
+
 
         }
 
@@ -302,21 +317,31 @@ public class JEVisHelp {
         }
 
         private void hide() {
-            Tooltip tooltip = control.getTooltip();
-            logger.debug("Hide: {}, {}", control, tooltip.isShowing());
+            //logger.debug("Hide: {}, {}", control, tooltip.isShowing());
+            Platform.runLater(() -> {
 
-            if (tooltip != null && tooltip.isShowing()) {
-                Platform.runLater(() -> {
+                Tooltip tooltip;
+
+                if (control.getId() != null && control.getId().equals("HelpButton")) {
+                    tooltip = helptooltip;
+                } else {
+                    tooltip = control.getTooltip();
+                }
+
+                if (tooltip != null && tooltip.isShowing()) {
                     try {
+                        //control.setMouseTransparent(false);
                         Node parent = (Node) tooltip.getGraphic().getParent();
                         parent.getTransforms().clear();
+                        //tooltip.setAutoHide(true);
+                        tooltip.setAutoFix(true);
                         tooltip.hide();
 
                     } catch (Exception ex) {
                         logger.error("Error while hiding tooltip; {}", ex);
                     }
-                });
-            }
+                }
+            });
         }
 
         public void show() {
@@ -324,10 +349,25 @@ public class JEVisHelp {
 
             Platform.runLater(() -> {
                 try {
-                    Tooltip tooltip = control.getTooltip();
+                    //control.setMouseTransparent(true);
+                    Tooltip tooltip;
+
+                    if (control.getId() != null && control.getId().equals("HelpButton")) {
+                        tooltip = helptooltip;
+                    } else {
+                        tooltip = control.getTooltip();
+                    }
+
                     if (tooltip != null && !tooltip.getText().isEmpty() && !tooltip.isShowing()) {
                         logger.debug("Show tt: {},{} text: {} ", tooltip.getFont().getName(), tooltip.getFont().getSize(), tooltip.getText());
 
+
+                        if (tooltip.getGraphic() == null) tooltip.setGraphic(new Region());
+
+                        tooltip.setAutoFix(false);
+                        tooltip.setConsumeAutoHidingEvents(true);
+
+                        //tooltip.setAutoHide(false);
                         //if (!tooltip.isShowing()) {
                         double[] pos = ScreenSize.getAbsoluteScreenPosition(control);
                         double xPos = pos[0];
@@ -352,6 +392,7 @@ public class JEVisHelp {
                                 //logger.error("<--> {} | {} result: {}, {},{}", control.getWidth(), tooltip.getHeight(), (control.getWidth() / 2) - (ttWithoutShaow / 2), tooltip.getWidth(), tooltip.getHeight());
 
                                 yPos += control.getHeight();
+                                //tooltip.setMaxHeight(ttHeight);
 
                                 break;
                             case HORIZONTAL_TOP_LEFT:
