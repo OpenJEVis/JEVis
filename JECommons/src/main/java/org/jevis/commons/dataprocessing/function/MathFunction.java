@@ -751,7 +751,7 @@ public class MathFunction implements ProcessFunction {
 
                     logger.info("Result is: {} : {} {}", dateTime, value, UnitManager.getInstance().format(unit));
                 } else {
-                    Aggregate aggregate = new Aggregate(mainTask, null, allSamples, intervals, hasSamples, unit).invoke();
+                    Aggregate aggregate = new Aggregate(mainTask, null, allSamples, intervals, hasSamples, unit).invokeJson();
                     hasSamples = aggregate.getHasSamples();
                     unit = aggregate.getUnit();
                     List<JsonSample> aggregatedSamples = aggregate.getAggregatedJsonSamples();
@@ -811,7 +811,7 @@ public class MathFunction implements ProcessFunction {
 
                     logger.info("Result is: {} : {} {}", dateTime, value, UnitManager.getInstance().format(unit));
                 } else {
-                    Aggregate aggregate = new Aggregate(mainTask, null, allSamples, intervals, hasSamples, unit).invoke();
+                    Aggregate aggregate = new Aggregate(mainTask, null, allSamples, intervals, hasSamples, unit).invokeJson();
                     hasSamples = aggregate.getHasSamples();
                     unit = aggregate.getUnit();
                     List<JsonSample> aggregatedSamples = aggregate.getAggregatedJsonSamples();
@@ -860,7 +860,7 @@ public class MathFunction implements ProcessFunction {
 
                     logger.info("Result is: {} : {} {}", dateTime, value, UnitManager.getInstance().format(unit));
                 } else {
-                    Aggregate aggregate = new Aggregate(mainTask, null, allSamples, intervals, hasSamples, unit).invoke();
+                    Aggregate aggregate = new Aggregate(mainTask, null, allSamples, intervals, hasSamples, unit).invokeJson();
                     hasSamples = aggregate.getHasSamples();
                     unit = aggregate.getUnit();
                     List<JsonSample> aggregatedSamples = aggregate.getAggregatedJsonSamples();
