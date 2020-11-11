@@ -23,6 +23,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.List;
 public class LimitCheckerFunction implements ProcessFunction {
 
     public static final String NAME = "Limit Checker";
+    private JsonSampleGenerator jsonSampleGenerator;
 
     @Override
     public void resetResult() {
@@ -62,6 +64,11 @@ public class LimitCheckerFunction implements ProcessFunction {
     @Override
     public List<JsonSample> getJsonResult(BasicProcess basicProcess) {
         return null;
+    }
+
+    @Override
+    public void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
     }
 
 }

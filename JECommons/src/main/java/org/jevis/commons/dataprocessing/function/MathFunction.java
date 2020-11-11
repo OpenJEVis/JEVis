@@ -32,6 +32,7 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -52,8 +53,15 @@ public class MathFunction implements ProcessFunction {
     public static final String NAME = "Math Processor";
     private AggregationPeriod aggregationPeriod;
     private ManipulationMode mode;
+    private JsonSampleGenerator jsonSampleGenerator;
 
     public MathFunction(ManipulationMode mode, AggregationPeriod aggregationPeriod) {
+        this.mode = mode;
+        this.aggregationPeriod = aggregationPeriod;
+    }
+
+    public MathFunction(JsonSampleGenerator jsonSampleGenerator, ManipulationMode mode, AggregationPeriod aggregationPeriod) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
         this.mode = mode;
         this.aggregationPeriod = aggregationPeriod;
     }
@@ -887,6 +895,11 @@ public class MathFunction implements ProcessFunction {
         }
 
         return result;
+    }
+
+    @Override
+    public void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
     }
 
     private static class Aggregate {

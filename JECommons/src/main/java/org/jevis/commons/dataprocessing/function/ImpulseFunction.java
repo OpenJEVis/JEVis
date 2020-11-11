@@ -26,6 +26,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -45,6 +46,7 @@ public class ImpulseFunction implements ProcessFunction {
     private List<Interval> _durations;
 
     private final DateTime _offset = ProcessOptions.getOffset(null);
+    private JsonSampleGenerator jsonSampleGenerator;
 
     public ImpulseFunction() {
     }
@@ -217,6 +219,11 @@ public class ImpulseFunction implements ProcessFunction {
     @Override
     public List<JsonSample> getJsonResult(BasicProcess basicProcess) {
         return null;
+    }
+
+    @Override
+    public void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
     }
 
 }

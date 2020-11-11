@@ -20,6 +20,7 @@ import javafx.util.Pair;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
@@ -28,6 +29,7 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.BubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -47,12 +49,19 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
     private boolean asDuration = false;
     boolean plotArea = true;
     private final List<XYChartSerie> xyChartSerieList;
+    private WorkDays workDays;
 
     public DataPointTableViewPointer(org.jevis.jeconfig.application.Chart.Charts.Chart chart, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive) {
         this.currentChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) chart;
         this.notActiveCharts = notActive;
         this.asDuration = this.currentChart.isAsDuration();
         this.xyChartSerieList = this.currentChart.getXyChartSerieList();
+
+        for (ChartDataRow chartDataRow : this.currentChart.getChartDataRows()) {
+            workDays = new WorkDays(chartDataRow.getObject());
+            break;
+        }
+
         this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
         EventHandler<MouseEvent> mouseMoveHandler = event -> {
@@ -228,6 +237,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         NumberFormat nf = NumberFormat.getInstance();
         nf.setMinimumFractionDigits(2);
         nf.setMaximumFractionDigits(2);
+        Period period = this.currentChart.getPeriod();
 
         xyChartSerieList.forEach(xyChartSerie -> {
             try {
@@ -240,6 +250,15 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 if (currentChart instanceof LogicalChart) {
                     dateTime = sampleTreeMap.lowerKey(nearest);
                 }
+
+                if (workDays != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())
+                        && (period.equals(Period.days(1))
+                        || period.equals(Period.weeks(1))
+                        || period.equals(Period.months(1))
+                        || period.equals(Period.years(1)))) {
+                    dateTime = dateTime.plusDays(1);
+                }
+
                 DateTime finalDateTime = dateTime;
 
                 JEVisSample sample = sampleTreeMap.get(finalDateTime);
@@ -249,13 +268,13 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 if (!asDuration) {
                     String normalPattern;
 
-                    if (this.currentChart.getPeriod().equals(Period.days(1))) {
+                    if (period.equals(Period.days(1))) {
                         normalPattern = "dd. MMMM yyyy";
-                    } else if (this.currentChart.getPeriod().equals(Period.weeks(1))) {
+                    } else if (period.equals(Period.weeks(1))) {
                         normalPattern = "dd. MMMM yyyy";
-                    } else if (this.currentChart.getPeriod().equals(Period.months(1))) {
+                    } else if (period.equals(Period.months(1))) {
                         normalPattern = "MMMM yyyy";
-                    } else if (this.currentChart.getPeriod().equals(Period.years(1))) {
+                    } else if (period.equals(Period.years(1))) {
                         normalPattern = "yyyy";
                     } else {
                         normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
