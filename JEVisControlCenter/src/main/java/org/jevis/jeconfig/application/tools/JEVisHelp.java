@@ -5,44 +5,57 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Control;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.control.ToolTipDocu;
 import org.jevis.jeconfig.tool.ScreenSize;
 
 import java.util.*;
 
+/**
+ * Central JEVis Control center help system.
+ * <p>
+ * TODO: implement an garbage control
+ */
 public class JEVisHelp {
 
     private static JEVisHelp jevisHelp;
-    private static final Logger logger = LogManager.getLogger(ToolTipDocu.class);
+    private static final Logger logger = LogManager.getLogger(JEVisHelp.class);
     private Map<String, Set<ToolTipElement>> controlsMap = new HashMap<>();
+    private Map<String, Set<ToolTipElement>> controlsInfoMap = new HashMap<>();
     private BooleanProperty isHelpShowing = new SimpleBooleanProperty(false);
     private BooleanProperty isInfoShowing = new SimpleBooleanProperty(false);
     private String activePlugin = "";
     private String activeSubModule = "";
     private final KeyCombination help = new KeyCodeCombination(KeyCode.F1);
+    public static final Font font = Font.font("Liberation Mono", FontWeight.SEMI_BOLD, 11);
+
 
     public enum LAYOUT {
         HORIZONTAL_TOP_LEFT,
+        HORIZONTAL_TOP_CENTERED,
         VERTICAL_BOT_CENTER,
     }
 
     public JEVisHelp() {
     }
 
-    public void deactivatePlugin(String plugin) {
+    public void deactivatePluginModule() {
         activeSubModule = "";
         update();
     }
@@ -54,8 +67,10 @@ public class JEVisHelp {
     }
 
     public void setActiveSubModule(String subModule) {
+        logger.debug("Set active sub module: {},{}", activePlugin, subModule);
+        //removeAll(activePlugin, subModule);
         this.activeSubModule = subModule;
-        update();
+        //  update();
     }
 
 
@@ -67,37 +82,75 @@ public class JEVisHelp {
     }
 
     public void update() {
-        logger.debug("Set ActivePlugin: {}", activePlugin);
-        boolean isShowingNow = isHelpShowing.get();
-        showTooltips(false);
-        if (isShowingNow) showTooltips(true);
+        logger.debug("------------------Update()-----------------------------");
+        logger.debug("Update: {}/{} {}", isHelpShowing.get(), isInfoShowing.get(), toKey(activePlugin, activeSubModule));
+
+        //hideAllTooltips(controlsMap);
+        if (isHelpShowing.get()) showHelpTooltips(true);
+
+        //hideAllTooltips(controlsInfoMap);
+        if (isInfoShowing.get()) showInfoTooltips(true);
+
     }
 
+    private void showToolTips(Map<String, Set<ToolTipElement>> map) {
 
-    public void showTooltips(boolean show) {
-        logger.debug("Show tooltips: {},{}", show, activePlugin);
-
-        controlsMap.forEach((s, controls1) -> {
-            logger.debug("controlsMap: {}", s, activePlugin);
-            //if (!s.startsWith(activePlugin)) return; // if we want plugin and subModule visible at the same time
+        map.forEach((s, controls1) -> {
+            logger.debug("showToolTips.map: {}", s);
             String key = toKey(activePlugin, activeSubModule);
             if (!key.equals(s)) return;
 
-            logger.debug("Is active: {}", s);
-            controls1.forEach(obj -> {
+            logger.debug("Use map: {}->{}", key, controls1);
+            for (ToolTipElement obj : controls1) {
                 try {
-                    obj.show(show);
+                    obj.show();
                 } catch (Exception ex) {
                     logger.warn(ex, ex);
                 }
-            });
+            }
         });
+    }
+
+    public void showInfoTooltips(boolean show) {
+        logger.debug("Show info tooltips: {},{}", show, toKey(activePlugin, activeSubModule));
+        hideAllTooltips(controlsInfoMap);
+        if (show) showToolTips(controlsInfoMap);
+        isInfoShowing.setValue(show);
+    }
+
+    public void showHelpTooltips(boolean show) {
+        logger.debug("Show tooltips: {},{}", show, activePlugin);
+        hideAllTooltips(controlsMap);
+        if (show) showToolTips(controlsMap);
 
         isHelpShowing.setValue(show);
     }
 
-    public void toggle() {
-        showTooltips(!isHelpShowing.get());
+    public void hideAllTooltips(Map<String, Set<ToolTipElement>> map) {
+        logger.debug("Hide All");
+
+        map.forEach((s, toolTipElements) -> {
+            toolTipElements.forEach(toolTipElement -> {
+                try {
+                    toolTipElement.hide();
+                } catch (Exception ex) {
+                    logger.error("hide error: {}", ex, ex);
+                }
+            });
+        });
+
+
+    }
+
+
+    public void toggleHelp() {
+        logger.debug("------------------------- toggleHelp help ---------------------------");
+        showHelpTooltips(!isHelpShowing.get());
+    }
+
+    public void toggleInfo() {
+        logger.debug("------------------------- toggleHelp Info ---------------------------");
+        showInfoTooltips(!isInfoShowing.get());
     }
 
     public ObservableBooleanValue isHelpShowingProperty() {
@@ -108,12 +161,12 @@ public class JEVisHelp {
         return isInfoShowing;
     }
 
-    public void addItems(String plugin, String subModule, LAYOUT layout, List<Node> nodes) {
+    public void addHelpItems(String plugin, String subModule, LAYOUT layout, List<Node> nodes) {
         logger.error("Add Help items for: {}.{}", plugin, subModule);
         for (Node node : nodes) {
             try {
                 if (node instanceof Control) {
-                    addControl(plugin, subModule, layout, (Control) node);
+                    addHelpControl(plugin, subModule, layout, (Control) node);
                 }
             } catch (Exception ex) {
                 logger.warn(ex);
@@ -121,19 +174,36 @@ public class JEVisHelp {
         }
     }
 
-    public void addControl(String plugin, String subModule, LAYOUT layout, Control... elements) {
+    public void addControl(Map<String, Set<ToolTipElement>> map, String plugin, String subModule, LAYOUT layout, Control... elements) {
         String key = toKey(plugin, subModule);
-        logger.debug("AddControls: {},{}", key, elements.length);
-        if (controlsMap.get(key) == null || controlsMap.get(key) == null) {
-            controlsMap.put(key, new HashSet<>());
+        if (map.get(key) == null || map.get(key) == null) {
+            map.put(key, new HashSet<>());
         }
 
         for (Control element : elements) {
-            controlsMap.get(key).add(new ToolTipElement(layout, element));
+            try {
+                map.get(key).add(new ToolTipElement(layout, element));
+            } catch (Exception ex) {
+                //Emlement without tooltip
+            }
         }
+
+        if (isInfoShowing.get()) update();
+    }
+
+    public void addHelpControl(String plugin, String subModule, LAYOUT layout, Control... elements) {
+        addControl(controlsMap, plugin, subModule, layout, elements);
+        //if (isHelpShowing.get()) update();
+        if (isHelpShowing.get()) update();
 
 
     }
+
+    public void addInfoControl(String plugin, String subModule, LAYOUT layout, Control... elements) {
+        addControl(controlsInfoMap, plugin, subModule, layout, elements);
+        if (isInfoShowing.get()) update();
+    }
+
 
     private String toKey(String plugin, String subModule) {
         return plugin + "." + subModule;
@@ -159,7 +229,7 @@ public class JEVisHelp {
     public void registerHotKey(Stage dialog) {
         dialog.getScene().setOnKeyPressed(ke -> {
             if (help.match(ke)) {
-                JEVisHelp.getInstance().toggle();
+                JEVisHelp.getInstance().toggleHelp();
                 ke.consume();
             }
         });
@@ -168,7 +238,7 @@ public class JEVisHelp {
     public void registerHotKey(Dialog dialog) {
         dialog.getDialogPane().setOnKeyPressed(ke -> {
             if (help.match(ke)) {
-                JEVisHelp.getInstance().toggle();
+                JEVisHelp.getInstance().toggleHelp();
                 ke.consume();
             }
         });
@@ -182,10 +252,11 @@ public class JEVisHelp {
 
     public ToggleButton buildHelpButtons(double width, double height) {
         ToggleButton helpButton = new ToggleButton("", JEConfig.getImage("1404161580_help_blue.png", height, width));
-        helpButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.help")));
-        helpButton.setOnAction(event -> JEVisHelp.getInstance().toggle());
+        helpButton.setId("HelpButton");
+        Tooltip tooltip = new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.help"));
+        helpButton.setTooltip(tooltip);
 
-
+        helpButton.setOnAction(event -> JEVisHelp.getInstance().toggleHelp());
         isHelpShowing.addListener((observable, oldValue, newValue) -> {
             helpButton.setSelected(newValue);
         });
@@ -195,6 +266,8 @@ public class JEVisHelp {
 
     public ToggleButton buildInfoButtons(double width, double height) {
         ToggleButton infoButton = new ToggleButton("", JEConfig.getImage("1404337146_info.png", height, width));
+        infoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.info")));
+        infoButton.setOnAction(event -> toggleInfo());
         isInfoShowing.addListener((observable, oldValue, newValue) -> {
             infoButton.setSelected(newValue);
         });
@@ -206,62 +279,114 @@ public class JEVisHelp {
 
         private LAYOUT layout = LAYOUT.VERTICAL_BOT_CENTER;
         private Control control;
+        private boolean isVisible = false;
+        private Tooltip tooltip = new Tooltip();
 
         public ToolTipElement(LAYOUT layout, Control control) {
             this.layout = layout;
             this.control = control;
-        }
 
-        public void show(boolean show) {
+            JEVisHelp.setStyle(tooltip);
+            try {
+                tooltip.setText(control.getTooltip().getText());
+                tooltip.setAutoFix(false);
+                tooltip.setConsumeAutoHidingEvents(true);
+                tooltip.setGraphic(new Region());
+            } catch (Exception ex) {
+
+            }
+
             Platform.runLater(() -> {
                 try {
-                    Tooltip tooltip = control.getTooltip();
-                    if (tooltip != null && !tooltip.getText().isEmpty()) {
-                        logger.debug("Show tt: {}", tooltip.getText());
-                        if (tooltip.getGraphic() == null) tooltip.setGraphic(new Region());
-                        if (tooltip.isShowing() != show) {
-                            if (tooltip.isShowing()) Platform.runLater(() -> {
-                                tooltip.hide();
-                                Label parent = (Label) tooltip.getGraphic().getParent();
-                                parent.getTransforms().clear();
-                            });
-                            else {
-                                double[] pos = ScreenSize.getAbsoluteScreenPostion(control);
-                                double xPos = pos[0];
-                                double yPos = pos[1];
-
-                                tooltip.show(control, xPos, yPos);
-                                switch (layout) {
-                                    case VERTICAL_BOT_CENTER:
-                                        Node parent = (Node) tooltip.getGraphic().getParent();
-                                        parent.getTransforms().add(new Rotate(90));
-                                        System.out.println();
-                                        xPos += -control.getHeight();
-                                        xPos += (control.getWidth() / 2);// + (control.getHeight() / 2);
-                                        yPos += control.getHeight();
-                                        break;
-                                    case HORIZONTAL_TOP_LEFT:
-                                        yPos += -36;//-tooltip.getHeight();
-                                        xPos += -8;// magic number
-                                        break;
-                                }
-
-                                tooltip.setX(xPos);
-                                tooltip.setY(yPos);
-
-                                logger.debug("done show: {}", control);
-
-                            }
-                        }
-                    }
-
+                    JEVisHelp.setStyle(control.getTooltip());
                 } catch (Exception ex) {
-                    logger.warn(ex, ex);
-                    ex.getStackTrace();
+
+                }
+            });
+
+
+        }
+
+        public boolean isVisible() {
+            return isVisible;
+        }
+
+        /**
+         * Simple check if this Control element is still in use
+         *
+         * @return
+         */
+        public boolean toDelete() {
+            return control.getPadding() == null;
+        }
+
+        private void hide() {
+            //logger.debug("Hide: {}, {}", control, tooltip.isShowing());
+            Platform.runLater(() -> {
+
+                if (tooltip != null && tooltip.isShowing()) {
+                    try {
+                        tooltip.hide();
+                    } catch (Exception ex) {
+                        logger.error("Error while hiding tooltip; {}", ex);
+                    }
                 }
             });
         }
 
+        public void show() {
+            logger.debug("Show: {}", control);
+
+            Platform.runLater(() -> {
+                try {
+                    if (tooltip != null && !tooltip.getText().isEmpty() && !tooltip.isShowing()) {
+                        logger.debug("Show tt: {},{} text: {} ", tooltip.getFont().getName(), tooltip.getFont().getSize(), tooltip.getText());
+
+                        double[] pos = ScreenSize.getAbsoluteScreenPosition(control);
+                        double xPos = pos[0];
+                        double yPos = pos[1];
+                        if (pos[0] + pos[1] == 0) return; // in case the parent is not visible anymore
+                        //System.out.println("Pos: " + xPos + "/" + yPos);
+                        tooltip.show(control, xPos, yPos);
+                        Node parent = (Node) tooltip.getGraphic().getParent();
+                        switch (layout) {
+                            case VERTICAL_BOT_CENTER:
+                                double ttHeight = tooltip.getHeight(); // after the Rotate the numbers are bad
+                                parent.getTransforms().add(new Rotate(-90));
+                                double shadow = 5;
+                                double ttWithoutShadow = ttHeight - shadow;
+                                xPos += (control.getWidth() / 2) - (ttWithoutShadow / 2);
+                                yPos += control.getHeight();
+                                break;
+                            case HORIZONTAL_TOP_LEFT:
+                                yPos += -36;//-tooltip.getHeight();
+                                xPos += -8;// magic number
+                                break;
+                            case HORIZONTAL_TOP_CENTERED:
+                                yPos += -36;
+                                xPos += (parent.getLayoutY() / 2) - (tooltip.widthProperty().doubleValue() / 2) - 8;
+                                break;
+                        }
+
+                        tooltip.setX(xPos);
+                        tooltip.setY(yPos);
+
+                        logger.debug("done show: {}", control);
+                    }
+
+                } catch (Exception ex) {
+                    logger.warn(ex, ex);
+                    //ex.getStackTrace();
+                }
+            });
+        }
+
+    }
+
+    public static void setStyle(Tooltip tooltip) {
+        if (tooltip == null) return;
+        tooltip.setFont(font);
+        tooltip.setStyle(" -fx-background-color: rgb(235,235,235,1); -fx-text-fill: black; -fx-font-smoothing-type: lcd;"); //tooltip
     }
 
 }

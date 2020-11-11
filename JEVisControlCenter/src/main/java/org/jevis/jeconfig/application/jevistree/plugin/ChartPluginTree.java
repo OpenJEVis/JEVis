@@ -138,6 +138,8 @@ public class ChartPluginTree implements TreePlugin {
             SelectionColumn selectColumn = new SelectionColumn(jeVisTree, dataSource, colorColumn, getData().getCharts().getListSettings().get(i).getId(), selectionColumns, column);
             selectColumn.setGraphDataModel(data);
             selectionColumns.add(selectColumn.getSelectionColumn());
+
+
         }
 
         ChartTypeColumn chartTypeColumnColumn = new ChartTypeColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.tabs.tab.charttype"));

@@ -6,10 +6,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
@@ -22,7 +19,9 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.tools.TableViewUtils;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
 
 import java.util.Collections;
@@ -150,12 +149,17 @@ public class TableHeader extends TableView<TableEntry> {
                 /**
                  * Table Column 2
                  */
-                periodCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.period"));
+                periodCol = new TableColumn<>();
                 periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
                 periodCol.setStyle("-fx-alignment: CENTER-RIGHT");
                 periodCol.setSortable(false);
                 periodCol.setPrefWidth(100);
                 periodCol.setMinWidth(100);
+
+                Label periodLabel = new Label(I18n.getInstance().getString("plugin.graph.table.period"));
+                periodLabel.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.table.period.tip")));
+                periodCol.setGraphic(periodLabel);
+                JEVisHelp.getInstance().addInfoControl(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, periodLabel);
 
                 /**
                  * Table Column 3
