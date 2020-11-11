@@ -1,20 +1,23 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AxisBox;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.dialog.ChartSelectionDialog;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 
 public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implements ChartPluginColumn {
     public static String COLUMN_ID = "AxisColumn";
@@ -44,7 +47,7 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
 
     @Override
     public void buildColumn() {
-        TreeTableColumn<JEVisTreeRow, Integer> column = new TreeTableColumn(columnName);
+        TreeTableColumn<JEVisTreeRow, Integer> column = new TreeTableColumn();
         column.setPrefWidth(80);
         column.setMinWidth(70);
         column.setId(COLUMN_ID);
@@ -124,6 +127,14 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
 
                 return cell;
             }
+        });
+
+        Platform.runLater(() -> {
+            Label label = new Label(columnName);
+            label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.axis.tip")));
+            axisColumn.setGraphic(label);
+            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
+
         });
 
         this.axisColumn = column;

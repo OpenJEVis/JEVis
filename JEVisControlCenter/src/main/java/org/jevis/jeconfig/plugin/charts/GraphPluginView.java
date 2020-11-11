@@ -973,8 +973,12 @@ public class GraphPluginView implements Plugin {
                                                     if (value != null) {
                                                         Double finalValue = value;
                                                         Platform.runLater(() -> {
-                                                            tp.setText(nf.format(finalValue) + " " + chart.getUnit());
-                                                            tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY());
+                                                            try {
+                                                                tp.setText(nf.format(finalValue) + " " + chart.getUnit());
+                                                                tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY());
+                                                            } catch (NullPointerException np) {
+                                                                logger.warn(np);
+                                                            }
                                                         });
                                                     }
                                                 }

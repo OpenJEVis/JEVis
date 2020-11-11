@@ -130,7 +130,7 @@ public class LoadAnalysisDialog {
         KeyCombination help = new KeyCodeCombination(KeyCode.F1);
         filterInput.setOnKeyPressed(event -> {
             if (help.match(event)) {
-                JEVisHelp.getInstance().toggle();
+                JEVisHelp.getInstance().toggleHelp();
                 event.consume();
             }
         });
@@ -173,13 +173,15 @@ public class LoadAnalysisDialog {
 
 
         stage.showingProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("loadDialog is showing " + newValue);
-            if (newValue) JEVisHelp.getInstance().update();
+            if (newValue) {
+                JEVisHelp.getInstance().setActiveSubModule(this.getClass().getSimpleName());
+                JEVisHelp.getInstance().update();
+            }
         });
 
 
         stage.showAndWait();
-        JEVisHelp.getInstance().deactivatePlugin(this.getClass().getSimpleName());
+        JEVisHelp.getInstance().deactivatePluginModule();
         return response;
     }
 
@@ -758,7 +760,7 @@ public class LoadAnalysisDialog {
             JEVisHelp.getInstance().registerHotKey(stage);
             addListener();
 
-            JEVisHelp.getInstance().addControl(GraphPluginView.class.getSimpleName(), this.getClass().getSimpleName(),
+            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), this.getClass().getSimpleName(),
                     JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, pickerDateStart, pickerDateEnd, pickerTimeEnd, analysisListView,
                     aggregationBox, mathBox, presetDateBox, loadButton, newButton, comboBoxCustomPeriods);
 

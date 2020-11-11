@@ -58,6 +58,7 @@ import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.jevis.jeconfig.tool.ScreenSize;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
@@ -115,7 +116,6 @@ public class ChartSelectionDialog {
 
         double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
         stage.setWidth(maxScreenWidth - 20);
-
         stage.setHeight(ScreenSize.fitScreenHeight(768));
         stage.setWidth(ScreenSize.fitScreenWidth(1980));
         stage.setResizable(true);
@@ -240,7 +240,16 @@ public class ChartSelectionDialog {
             }
         });
 
+
+        stage.showingProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                JEVisHelp.getInstance().setActiveSubModule(ChartSelectionDialog.class.getSimpleName());
+                JEVisHelp.getInstance().update();
+            }
+        });
+
         stage.showAndWait();
+        JEVisHelp.getInstance().deactivatePluginModule();
 
         removeEmptyCharts();
 

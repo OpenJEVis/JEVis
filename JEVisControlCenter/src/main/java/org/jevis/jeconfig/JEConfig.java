@@ -454,7 +454,7 @@ public class JEConfig extends Application {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.NEW);
                         ke.consume();
                     } else if (help.match(ke)) {
-                        JEVisHelp.getInstance().toggle();
+                        JEVisHelp.getInstance().toggleHelp();
                         ke.consume();
                     } else if (hiddenSettings.match(ke)) {
                         HiddenConfig.showHiddenConfig();
