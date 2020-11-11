@@ -27,6 +27,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.CalcMethods;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -246,6 +247,15 @@ public class JEVisImporter implements Importer {
                         }
 
                     }
+
+                    if (overwrite) {
+                        try {
+                            CalcMethods.deleteAllCalculationDependencies(key.getObject(), values.get(0).getTimestamp());
+                        } catch (Exception e) {
+                            logger.error("Failed Calculation dependencies check", e);
+                        }
+                    }
+
                     logger.info("Object: [" + key.getObject().getID() + "] " + key.getObject().getName()
                             + "  Imported: " + values.size() + " LastTS: " + lastTSForAtt);
 
