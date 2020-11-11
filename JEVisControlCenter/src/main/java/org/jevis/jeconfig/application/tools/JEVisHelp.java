@@ -349,6 +349,7 @@ public class JEVisHelp {
                         //System.out.println("Pos: " + xPos + "/" + yPos);
                         tooltip.show(control, xPos, yPos);
                         Node parent = (Node) tooltip.getGraphic().getParent();
+                        parent.getTransforms().clear();
                         switch (layout) {
                             case VERTICAL_BOT_CENTER:
                                 double ttHeight = tooltip.getHeight(); // after the Rotate the numbers are bad
@@ -361,6 +362,7 @@ public class JEVisHelp {
                             case HORIZONTAL_TOP_LEFT:
                                 yPos += -36;//-tooltip.getHeight();
                                 xPos += -8;// magic number
+
                                 break;
                             case HORIZONTAL_TOP_CENTERED:
                                 yPos += -36;
