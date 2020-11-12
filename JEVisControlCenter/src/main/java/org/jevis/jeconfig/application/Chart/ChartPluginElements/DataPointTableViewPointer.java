@@ -20,8 +20,8 @@ import javafx.util.Pair;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
@@ -32,7 +32,6 @@ import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -205,7 +204,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
             if (!notActiveCharts.isEmpty()) {
                 notActiveCharts.forEach(chart -> {
-                    if (!chart.getChartType().equals(ChartType.PIE)
+                    if (chart.getChart() != null && !chart.getChartType().equals(ChartType.PIE)
                             && !chart.getChartType().equals(ChartType.BAR)
                             && !chart.getChartType().equals(ChartType.TABLE)) {
                         chart.getChart().getPlugins().forEach(chartPlugin -> {
@@ -251,39 +250,23 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                     dateTime = sampleTreeMap.lowerKey(nearest);
                 }
 
-                if (workDays != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())
-                        && (period.equals(Period.days(1))
-                        || period.equals(Period.weeks(1))
-                        || period.equals(Period.months(1))
-                        || period.equals(Period.years(1)))) {
+                JEVisSample sample = sampleTreeMap.get(dateTime);
+
+                Note formattedNote = new Note(sample, noteMap.get(sample.getTimestamp()), alarmMap.get(sample.getTimestamp()));
+
+                if (workDays != null && period != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())
+                        && (period.getDays() > 0
+                        || period.getWeeks() > 0
+                        || period.getMonths() > 0
+                        || period.getYears() > 0)) {
                     dateTime = dateTime.plusDays(1);
                 }
 
                 DateTime finalDateTime = dateTime;
 
-                JEVisSample sample = sampleTreeMap.get(finalDateTime);
-
-                Note formattedNote = new Note(sample, noteMap.get(sample.getTimestamp()), alarmMap.get(sample.getTimestamp()));
-
                 if (!asDuration) {
-                    String normalPattern;
-
-                    if (period.equals(Period.days(1))) {
-                        normalPattern = "dd. MMMM yyyy";
-                    } else if (period.equals(Period.weeks(1))) {
-                        normalPattern = "dd. MMMM yyyy";
-                    } else if (period.equals(Period.months(1))) {
-                        normalPattern = "MMMM yyyy";
-                    } else if (period.equals(Period.years(1))) {
-                        normalPattern = "yyyy";
-                    } else {
-                        normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
-                    }
-
-                    Platform.runLater(() -> {
-                        tableEntry.setDate(finalDateTime
-                                .toString(normalPattern));
-                    });
+                    Platform.runLater(() -> tableEntry.setDate(finalDateTime
+                            .toString(PeriodHelper.getStandardPatternForPeriod(period))));
                 } else {
                     Platform.runLater(() -> tableEntry.setDate((finalDateTime.getMillis() -
                             timestampFromFirstSample.getMillis()) / 1000 / 60 / 60 + " h"));

@@ -174,13 +174,49 @@ public class XYChartSerie {
             try {
                 String s = "";
                 try {
-                    JEVisAttribute attribute = samples.get(0).getAttribute();
-                    if (attribute != null && !attribute.getInputSampleRate().equals(Period.ZERO)) {
-                        s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
-                    } else if (attribute != null && attribute.getInputSampleRate().equals(Period.ZERO)) {
-                        s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
-                    } else if (attribute == null) {
-                        s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                    Period period;
+                    switch (singleRow.getAggregationPeriod()) {
+                        case QUARTER_HOURLY:
+                            s = Period.minutes(15).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case HOURLY:
+                            s = Period.hours(1).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case DAILY:
+                            s = Period.days(1).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case WEEKLY:
+                            s = Period.weeks(1).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case MONTHLY:
+                            s = Period.months(1).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case QUARTERLY:
+                            s = Period.hours(3).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case YEARLY:
+                            s = Period.years(1).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case THREEYEARS:
+                            s = Period.years(3).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case FIVEYEARS:
+                            s = Period.years(5).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case TENYEARS:
+                            s = Period.years(10).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            break;
+                        case NONE:
+                        default:
+                            JEVisAttribute attribute = samples.get(0).getAttribute();
+                            if (attribute != null && !attribute.getInputSampleRate().equals(Period.ZERO)) {
+                                s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            } else if (attribute != null && attribute.getInputSampleRate().equals(Period.ZERO)) {
+                                s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
+                            } else if (attribute == null) {
+                                s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                            }
+                            break;
                     }
                 } catch (Exception e) {
                     s = "-";
