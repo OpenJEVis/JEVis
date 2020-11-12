@@ -132,7 +132,7 @@ public class ChartDataRow {
     }
 
     public Map<DateTime, Alarm> getAlarms() {
-        if (alarmMap != null && !somethingChanged) {
+        if (!somethingChanged) {
             return alarmMap;
         }
 

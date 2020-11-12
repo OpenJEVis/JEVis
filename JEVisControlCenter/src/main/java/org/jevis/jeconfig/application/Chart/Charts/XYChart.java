@@ -30,6 +30,7 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
@@ -885,12 +886,49 @@ public class XYChart implements Chart {
         Platform.runLater(() -> dateAxis.setName(""));
 
         if (chartDataRows != null && chartDataRows.size() > 0) {
-
-            if (chartDataRows.get(0).getSamples().size() > 1) {
+            ChartDataRow chartDataRow = chartDataRows.get(0);
+            if (chartDataRow.getSamples().size() > 1) {
                 try {
-                    List<JEVisSample> samples = chartDataRows.get(0).getSamples();
-                    period = new Period(samples.get(0).getTimestamp(),
-                            samples.get(1).getTimestamp());
+                    List<JEVisSample> samples = chartDataRow.getSamples();
+
+                    switch (chartDataRow.getAggregationPeriod()) {
+                        case QUARTER_HOURLY:
+                            period = Period.minutes(15);
+                            break;
+                        case HOURLY:
+                            period = Period.hours(1);
+                            break;
+                        case DAILY:
+                            period = Period.days(1);
+                            break;
+                        case WEEKLY:
+                            period = Period.weeks(1);
+                            break;
+                        case MONTHLY:
+                            period = Period.months(1);
+                            break;
+                        case QUARTERLY:
+                            period = Period.hours(3);
+                            break;
+                        case YEARLY:
+                            period = Period.years(1);
+                            break;
+                        case THREEYEARS:
+                            period = Period.years(3);
+                            break;
+                        case FIVEYEARS:
+                            period = Period.years(5);
+                            break;
+                        case TENYEARS:
+                            period = Period.years(10);
+                            break;
+                        case NONE:
+                        default:
+                            period = new Period(samples.get(0).getTimestamp(),
+                                    samples.get(1).getTimestamp());
+                            break;
+                    }
+
                     timeStampOfFirstSample.set(samples.get(0).getTimestamp());
                     timeStampOfLastSample.set(samples.get(samples.size() - 1).getTimestamp());
                 } catch (Exception e) {
@@ -1008,7 +1046,7 @@ public class XYChart implements Chart {
             nf.setMinimumFractionDigits(2);
             nf.setMaximumFractionDigits(2);
 
-            xyChartSerieList.parallelStream().forEach(serie -> {
+            xyChartSerieList.forEach(serie -> {
                 try {
 
                     TableEntry tableEntry = serie.getTableEntry();
@@ -1025,12 +1063,21 @@ public class XYChart implements Chart {
 
                     Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()), serie.getSingleRow().getAlarms().get(sample.getTimestamp()));
 
+                    if (workDays != null && period != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())
+                            && (period.getDays() > 0
+                            || period.getWeeks() > 0
+                            || period.getMonths() > 0
+                            || period.getYears() > 0)) {
+                        nearest = nearest.plusDays(1);
+                    }
+
                     DateTime finalNearest = nearest;
                     if (!asDuration) {
+
                         Platform.runLater(() -> {
                             if (finalNearest != null) {
                                 tableEntry.setDate(finalNearest
-                                        .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                                        .toString(PeriodHelper.getStandardPatternForPeriod(period)));
                             } else tableEntry.setValue("-");
                         });
                     } else {
@@ -1077,7 +1124,7 @@ public class XYChart implements Chart {
         DateTime lower = new DateTime(lb.longValue());
         DateTime upper = new DateTime(ub.longValue());
 
-        xyChartSerieList.parallelStream().forEach(serie -> {
+        xyChartSerieList.forEach(serie -> {
             try {
 
                 double min = Double.MAX_VALUE;

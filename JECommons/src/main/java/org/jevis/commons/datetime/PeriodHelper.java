@@ -10,17 +10,19 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
 
 /**
  * @author broder
  */
 public class PeriodHelper {
     private static final Logger logger = LogManager.getLogger(PeriodHelper.class);
-    private static String CUSTOM_SCHEDULE_OBJECT_ATTRIBUTE = "Custom Schedule Object";
+    private static final String CUSTOM_SCHEDULE_OBJECT_ATTRIBUTE = "Custom Schedule Object";
 
     public static double transformTimestampsToExcelTime(DateTime cal) {
         if (cal != null) {
@@ -155,5 +157,23 @@ public class PeriodHelper {
             dateHelper.setCustomPeriodObject(cpo);
         }
         return dateHelper;
+    }
+
+    public static String getStandardPatternForPeriod(org.joda.time.Period period) {
+        String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+
+        if (period != null) {
+            if (period.getYears() > 0) {
+                normalPattern = "yyyy";
+            } else if (period.getMonths() > 0) {
+                normalPattern = "MMMM yyyy";
+            } else if (period.getWeeks() > 0) {
+                normalPattern = "dd. MMMM yyyy";
+            } else if (period.getDays() > 0) {
+                normalPattern = "dd. MMMM yyyy";
+            }
+        }
+
+        return normalPattern;
     }
 }
