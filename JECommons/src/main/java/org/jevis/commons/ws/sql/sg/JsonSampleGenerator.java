@@ -50,73 +50,82 @@ public class JsonSampleGenerator {
 
     public List<JsonSample> getAggregatedSamples() {
 
-        BasicProcess basicProcess = new BasicProcess();
+        BasicProcess basicProcess = new BasicProcess(this);
+        BasicProcess input = new BasicProcess(this);
+
         basicProcess.setSQLDataSource(ds);
         try {
-            basicProcess.setJsonObject(ds.getObject(attribute.getObjectID()));
+            JsonObject object = ds.getObject(attribute.getObjectID());
+
+            basicProcess.setJsonObject(object);
             basicProcess.setJsonAttribute(attribute);
+
+            input.setJsonObject(object);
         } catch (JEVisException e) {
             e.printStackTrace();
         }
 
-        BasicProcess input = new BasicProcess();
+
         input.setSQLDataSource(ds);
+
         input.setID("Dynamic Input");
-        input.setFunction(new InputFunction());
+        InputFunction inputFunction = new InputFunction();
+        inputFunction.setJsonSampleGenerator(this);
         input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attribute.getType()));
         input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, String.valueOf(object.getId())));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.OFFSET, ""));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.TS_START, interval.getStart().toString()));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.TS_END, interval.getEnd().toString()));
-        basicProcess.setSubProcesses(Collections.singletonList(input));
+        input.setFunction(inputFunction);
+        basicProcess.getSubProcesses().add(input);
         basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
 
         switch (manipulationMode) {
             case MIN:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.MIN, aggregationPeriod));
+                basicProcess.setFunction(new MathFunction(this, ManipulationMode.MIN, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.MIN.toString());
                 break;
             case MAX:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.MAX, aggregationPeriod));
+                basicProcess.setFunction(new MathFunction(this, ManipulationMode.MAX, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.MAX.toString());
                 break;
             case MEDIAN:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.MEDIAN, aggregationPeriod));
+                basicProcess.setFunction(new MathFunction(this, ManipulationMode.MEDIAN, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.MEDIAN.toString());
                 break;
             case AVERAGE:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.AVERAGE, aggregationPeriod));
+                basicProcess.setFunction(new MathFunction(this, ManipulationMode.AVERAGE, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.AVERAGE.toString());
                 break;
             case RUNNING_MEAN:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.RUNNING_MEAN, aggregationPeriod));
+                basicProcess.setFunction(new MathFunction(this, ManipulationMode.RUNNING_MEAN, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.RUNNING_MEAN.toString());
                 break;
             case CENTRIC_RUNNING_MEAN:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.CENTRIC_RUNNING_MEAN, aggregationPeriod));
+                basicProcess.setFunction(new MathFunction(this, ManipulationMode.CENTRIC_RUNNING_MEAN, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.CENTRIC_RUNNING_MEAN.toString());
                 break;
             case SORTED_MIN:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.SORTED_MIN, aggregationPeriod));
+                basicProcess.setFunction(new MathFunction(this, ManipulationMode.SORTED_MIN, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.SORTED_MIN.toString());
                 break;
             case SORTED_MAX:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.SORTED_MAX, aggregationPeriod));
+                basicProcess.setFunction(new MathFunction(this, ManipulationMode.SORTED_MAX, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.SORTED_MAX.toString());
                 break;
             case CUMULATE:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.CUMULATE, aggregationPeriod));
+                basicProcess.setFunction(new MathFunction(this, ManipulationMode.CUMULATE, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.CUMULATE.toString());
                 break;
             default:
-                basicProcess.setFunction(new NullFunction(manipulationMode, aggregationPeriod));
+                basicProcess.setFunction(new NullFunction(this, manipulationMode, aggregationPeriod));
                 basicProcess.setID("Null");
                 break;
         }
 
 
-        BasicProcess aggregationProcess = new BasicProcess();
+        BasicProcess aggregationProcess = new BasicProcess(this);
         aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
         if (aggregationPeriod == AggregationPeriod.NONE) {
             return basicProcess.getJsonResult();
@@ -155,7 +164,7 @@ public class JsonSampleGenerator {
                     default:
                         return basicProcess.getJsonResult();
                 }
-                aggregationProcess.setFunction(new AggregatorFunction());
+                aggregationProcess.setFunction(new AggregatorFunction(this));
                 aggregationProcess.setID("Aggregation");
 
                 aggregationProcess.setSubProcesses(Collections.singletonList(basicProcess));
@@ -189,5 +198,33 @@ public class JsonSampleGenerator {
                 return basicProcess.getJsonResult();
             }
         }
+    }
+
+    public Interval getInterval() {
+        return interval;
+    }
+
+    public SQLDataSource getDs() {
+        return ds;
+    }
+
+    public JsonAttribute getAttribute() {
+        return attribute;
+    }
+
+    public JsonObject getObject() {
+        return object;
+    }
+
+    public ManipulationMode getManipulationMode() {
+        return manipulationMode;
+    }
+
+    public AggregationPeriod getAggregationPeriod() {
+        return aggregationPeriod;
+    }
+
+    public Boolean getCustomWorkday() {
+        return customWorkday;
     }
 }

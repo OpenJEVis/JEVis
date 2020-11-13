@@ -468,4 +468,18 @@ public class ProcessOptions {
         return confDPs;
     }
 
+    public static boolean isCustomWorkdayPrev(BasicProcess task) {
+        boolean isCustomWorkDay = true;
+        for (ProcessOption option : task.getOptions()) {
+            if (option.getKey().equals(CUSTOM)) {
+                isCustomWorkDay = Boolean.parseBoolean(option.getValue());
+                break;
+            }
+        }
+
+        WorkDays workDays = new WorkDays(task.getSqlDataSource(), task.getJsonObject());
+        workDays.setEnabled(isCustomWorkDay);
+
+        return workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart());
+    }
 }

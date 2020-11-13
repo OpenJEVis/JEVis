@@ -26,6 +26,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ public class CounterFunction implements ProcessFunction {
 
     private List<JEVisSample> _result;
     private List<JsonSample> _jsonResult;
+    private JsonSampleGenerator jsonSampleGenerator;
 
     public enum TS_MODE {
 
@@ -158,6 +160,11 @@ public class CounterFunction implements ProcessFunction {
         }
 
         return _jsonResult;
+    }
+
+    @Override
+    public void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
     }
 
 }

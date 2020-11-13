@@ -20,7 +20,8 @@ import javafx.util.Pair;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
-import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
@@ -28,9 +29,9 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.BubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -47,12 +48,19 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
     private boolean asDuration = false;
     boolean plotArea = true;
     private final List<XYChartSerie> xyChartSerieList;
+    private WorkDays workDays;
 
     public DataPointTableViewPointer(org.jevis.jeconfig.application.Chart.Charts.Chart chart, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive) {
         this.currentChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) chart;
         this.notActiveCharts = notActive;
         this.asDuration = this.currentChart.isAsDuration();
         this.xyChartSerieList = this.currentChart.getXyChartSerieList();
+
+        for (ChartDataRow chartDataRow : this.currentChart.getChartDataRows()) {
+            workDays = new WorkDays(chartDataRow.getObject());
+            break;
+        }
+
         this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
         EventHandler<MouseEvent> mouseMoveHandler = event -> {
@@ -196,7 +204,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
             if (!notActiveCharts.isEmpty()) {
                 notActiveCharts.forEach(chart -> {
-                    if (!chart.getChartType().equals(ChartType.PIE)
+                    if (chart.getChart() != null && !chart.getChartType().equals(ChartType.PIE)
                             && !chart.getChartType().equals(ChartType.BAR)
                             && !chart.getChartType().equals(ChartType.TABLE)) {
                         chart.getChart().getPlugins().forEach(chartPlugin -> {
@@ -228,6 +236,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         NumberFormat nf = NumberFormat.getInstance();
         nf.setMinimumFractionDigits(2);
         nf.setMaximumFractionDigits(2);
+        Period period = this.currentChart.getPeriod();
 
         xyChartSerieList.forEach(xyChartSerie -> {
             try {
@@ -240,31 +249,24 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 if (currentChart instanceof LogicalChart) {
                     dateTime = sampleTreeMap.lowerKey(nearest);
                 }
-                DateTime finalDateTime = dateTime;
 
-                JEVisSample sample = sampleTreeMap.get(finalDateTime);
+                JEVisSample sample = sampleTreeMap.get(dateTime);
 
                 Note formattedNote = new Note(sample, noteMap.get(sample.getTimestamp()), alarmMap.get(sample.getTimestamp()));
 
+                if (workDays != null && period != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())
+                        && (period.getDays() > 0
+                        || period.getWeeks() > 0
+                        || period.getMonths() > 0
+                        || period.getYears() > 0)) {
+                    dateTime = dateTime.plusDays(1);
+                }
+
+                DateTime finalDateTime = dateTime;
+
                 if (!asDuration) {
-                    String normalPattern;
-
-                    if (this.currentChart.getPeriod().equals(Period.days(1))) {
-                        normalPattern = "dd. MMMM yyyy";
-                    } else if (this.currentChart.getPeriod().equals(Period.weeks(1))) {
-                        normalPattern = "dd. MMMM yyyy";
-                    } else if (this.currentChart.getPeriod().equals(Period.months(1))) {
-                        normalPattern = "MMMM yyyy";
-                    } else if (this.currentChart.getPeriod().equals(Period.years(1))) {
-                        normalPattern = "yyyy";
-                    } else {
-                        normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
-                    }
-
-                    Platform.runLater(() -> {
-                        tableEntry.setDate(finalDateTime
-                                .toString(normalPattern));
-                    });
+                    Platform.runLater(() -> tableEntry.setDate(finalDateTime
+                            .toString(PeriodHelper.getStandardPatternForPeriod(period))));
                 } else {
                     Platform.runLater(() -> tableEntry.setDate((finalDateTime.getMillis() -
                             timestampFromFirstSample.getMillis()) / 1000 / 60 / 60 + " h"));

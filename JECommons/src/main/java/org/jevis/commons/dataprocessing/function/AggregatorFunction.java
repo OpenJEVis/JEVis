@@ -32,6 +32,7 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Interval;
@@ -48,6 +49,14 @@ import static org.jevis.commons.dataprocessing.ProcessOptions.*;
 public class AggregatorFunction implements ProcessFunction {
     public static final String NAME = "Aggregator";
     private static final Logger logger = LogManager.getLogger(AggregatorFunction.class);
+    private JsonSampleGenerator jsonSampleGenerator;
+
+    public AggregatorFunction() {
+    }
+
+    public AggregatorFunction(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
+    }
 
     @Override
     public List<JEVisSample> getResult(Process mainTask) {
@@ -262,7 +271,7 @@ public class AggregatorFunction implements ProcessFunction {
             }
         }
 
-        WorkDays workDays = new WorkDays(mainTask.getObject());
+        WorkDays workDays = new WorkDays(mainTask.getSqlDataSource(), mainTask.getJsonObject());
         workDays.setEnabled(isCustomWorkDay);
 
         if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
@@ -371,6 +380,11 @@ public class AggregatorFunction implements ProcessFunction {
 
         return result;
 
+    }
+
+    @Override
+    public void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator) {
+        this.jsonSampleGenerator = jsonSampleGenerator;
     }
 
 

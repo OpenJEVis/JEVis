@@ -93,7 +93,7 @@ public class PluginManager {
      */
     public List<Plugin> getInstalledPlugins() {
         List<Plugin> plugins = new ArrayList<>();
-//        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
+        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(this._ds, I18n.getInstance().getString("plugin.graph.title")));
         plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
         plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
@@ -140,7 +140,7 @@ public class PluginManager {
         /**
          * Workaround, Config is always enabled.
          */
-        this._plugins.add(new ObjectPlugin(this._ds, I18n.getInstance().getString("plugin.object.title")));
+//        this._plugins.add(new ObjectPlugin(this._ds, I18n.getInstance().getString("plugin.object.title")));
 
         try {
             JEVisClass servicesClass = this._ds.getJEVisClass("Service Directory");
@@ -179,7 +179,7 @@ public class PluginManager {
                                     }
                                     JEVisSample value = enabled.getLatestSample();
                                     if (value != null) {
-                                        if (value.getValueAsBoolean()) {
+                                        if (value.getValueAsBoolean() || (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME) && user.isSysAdmin())) {
                                             /** Workaround to manage the dashboard and report access,
                                              *  hide the dashboard/report if the user has no analyses.
                                              */

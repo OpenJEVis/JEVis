@@ -49,7 +49,21 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.44------\n" +
+            "------Version 3.9.45------\n" +
+                    "JECC - ChartPlugin - fixed date value for aggregations bigger one day\n" +
+                    "JECC - ChartPlugin - some problem with data manipulation e.g. centric running mean\n" +
+                    "JECC - Delete Data and Clean Data - added timer reset for math data objects\n" +
+                    "JECC - Fixed an bug where the help tooltips would close if the user mouse over the button\n" +
+                    "JECC - Fixed an bug where the help button tooltip would disappear\n" +
+                    "JECC - Added tooltips\n" +
+                    "JECC - Fixed tooltip handling\n" +
+                    "JECC - Fixed tooltip layout\n" +
+                    "\n" +
+                    "JECommons - JsonSampleGenerator - fixed some problems with custom workdays\n" +
+                    "JECommons - CalcMethods - from jecc without gui components \n" +
+                    "JECommons - CommonMethods - from jecc without gui components\n" +
+                    "JECommons - JEVisImporter - added calculation dependency check for overwritten enabled datasources\n\n" +
+                    "------Version 3.9.44------\n" +
                     "JECC - CalculationMethods - fixed null pointer if fake root class\n" +
                     "JECC - CommonMethods - added math data to clean data category  \n" +
                     "JECC - ConfigurationPlugin - Fixed the object plugin name\n" +
