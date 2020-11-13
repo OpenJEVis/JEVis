@@ -3,13 +3,15 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -179,7 +181,8 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
 
         Platform.runLater(() -> {
             Label label = new Label(columnName);
-            label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.tabs.tab.charttype.tip")));
+            label.setWrapText(true);
+            //label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.tabs.tab.charttype.tip")));
             chartTypeColumn.setGraphic(label);
             JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
 
