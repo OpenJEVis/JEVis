@@ -43,8 +43,10 @@ public class JEVisHelp {
     private String activePlugin = "";
     private String activeSubModule = "";
     private final KeyCombination help = new KeyCodeCombination(KeyCode.F1);
-    public static final Font font = Font.font("Liberation Mono", FontWeight.SEMI_BOLD, 11);
-
+    //public static final Font font = Font.font("Liberation Mono", FontWeight.NORMAL, 12);
+    public static final Font font = Font.font("DejaVu Sans", FontWeight.NORMAL, 13);
+    //public static final Font font = Font.font("Consolas", FontWeight.NORMAL, 12);
+    //public static final Font font = Font.font("EuropeExt Normal", FontWeight.NORMAL, 12);
 
     public enum LAYOUT {
         HORIZONTAL_TOP_LEFT,
@@ -288,10 +290,12 @@ public class JEVisHelp {
 
             JEVisHelp.setStyle(tooltip);
             try {
-                tooltip.setText(control.getTooltip().getText());
+                tooltip.setText(control.getTooltip().getText().replace(" ", "  "));
                 tooltip.setAutoFix(false);
                 tooltip.setConsumeAutoHidingEvents(true);
                 tooltip.setGraphic(new Region());
+                tooltip.setFont(font);
+                //tooltip.setFont(control.getTooltip().getFont());
             } catch (Exception ex) {
 
             }
@@ -350,9 +354,10 @@ public class JEVisHelp {
                         tooltip.show(control, xPos, yPos);
                         Node parent = (Node) tooltip.getGraphic().getParent();
                         parent.getTransforms().clear();
+                        double ttHeight = tooltip.getHeight();
                         switch (layout) {
                             case VERTICAL_BOT_CENTER:
-                                double ttHeight = tooltip.getHeight(); // after the Rotate the numbers are bad
+                                // after the Rotate the numbers are bad
                                 parent.getTransforms().add(new Rotate(-90));
                                 double shadow = 5;
                                 double ttWithoutShadow = ttHeight - shadow;
@@ -360,12 +365,12 @@ public class JEVisHelp {
                                 yPos += control.getHeight();
                                 break;
                             case HORIZONTAL_TOP_LEFT:
-                                yPos += -36;//-tooltip.getHeight();
+                                yPos += -ttHeight;
                                 xPos += -8;// magic number
 
                                 break;
                             case HORIZONTAL_TOP_CENTERED:
-                                yPos += -36;
+                                yPos += -ttHeight;
                                 xPos += (parent.getLayoutY() / 2) - (tooltip.widthProperty().doubleValue() / 2) - 8;
                                 break;
                         }
@@ -387,8 +392,8 @@ public class JEVisHelp {
 
     public static void setStyle(Tooltip tooltip) {
         if (tooltip == null) return;
-        tooltip.setFont(font);
-        tooltip.setStyle(" -fx-background-color: rgb(235,235,235,1); -fx-text-fill: black; -fx-font-smoothing-type: lcd;"); //tooltip
+        //tooltip.setFont(font);
+        //tooltip.setStyle(" -fx-background-color: rgb(235,235,235,1); -fx-text-fill: black; -fx-font-smoothing-type: lcd;"); //tooltip
     }
 
 }

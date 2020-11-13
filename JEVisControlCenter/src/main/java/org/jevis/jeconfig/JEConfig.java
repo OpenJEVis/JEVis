@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig;
 
+import com.sun.javafx.css.StyleManager;
 import de.jollyday.HolidayManager;
 import de.jollyday.ManagerParameters;
 import javafx.application.Application;
@@ -315,9 +316,6 @@ public class JEConfig extends Application {
 //        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
-
-        //Sandbox opctest = new Sandbox();
-        //opctest.connect();
     }
 
 
@@ -545,6 +543,8 @@ public class JEConfig extends Application {
 
         primaryStage.setMaximized(true);
         primaryStage.show();
+
+        StyleManager.getInstance().addUserAgentStylesheet("/styles/ToolTip.css");
 
         jeconfigRoot.getChildren().setAll(login);
         //checkVersion(login.getDataSource());
