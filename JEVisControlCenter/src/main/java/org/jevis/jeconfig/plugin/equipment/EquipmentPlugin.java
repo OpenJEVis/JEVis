@@ -1079,10 +1079,10 @@ public class EquipmentPlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
 
-        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.reload.progress.tooltip")));
-        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.reload.save.tooltip")));
-        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.reload.new.tooltip")));
-        replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.reload.replace.tooltip")));
+        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.reload.tooltip")));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.save.tooltip")));
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.new.tooltip")));
+        replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.replace.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.tooltip.print")));
 
 

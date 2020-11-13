@@ -1,0 +1,7 @@
+.tooltip {
+    -fx-background-color: rgb(235,235,235,1);
+    -fx-text-fill: black;
+    -fx-font-smoothing-type: lcd;
+    /*-fx-font-family: 'sans-serif';*/
+    -fx-font-size: 12;
+}

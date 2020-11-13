@@ -657,8 +657,12 @@ public class PatchNotesPage {
 
     private void storePreference() {
         final boolean rememberIT = remember.isSelected();
-        pref.put("version", JEConfig.class.getPackage().getImplementationVersion());
-        pref.putBoolean("show", !rememberIT);
+        try {
+            pref.put("version", JEConfig.class.getPackage().getImplementationVersion());
+            pref.putBoolean("show", !rememberIT);
+        } catch (Exception ex) {
+            logger.warn("Could not load Preference: {}", ex.getMessage());
+        }
     }
 
 }
