@@ -142,7 +142,7 @@ public class ChartPluginTree implements TreePlugin {
 
         }
 
-        ChartTypeColumn chartTypeColumnColumn = new ChartTypeColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.tabs.tab.charttype"));
+        ChartTypeColumn chartTypeColumnColumn = new ChartTypeColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.charttype"));
         chartTypeColumnColumn.setGraphDataModel(data);
 
         AggregationColumn aggregationColumn = new AggregationColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.interval"));
