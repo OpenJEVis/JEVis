@@ -47,6 +47,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.CommonClasses;
+import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -61,6 +62,7 @@ import org.jevis.jeconfig.bulkedit.CreateTable;
 import org.jevis.jeconfig.bulkedit.EditTable;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.tool.LoadingPane;
+import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -575,6 +577,13 @@ public class ObjectPlugin implements Plugin {
                     break;
                 case Constants.Plugin.Command.SET_UNITS_AND_PERIODS:
                     TreeHelper.EventSetUnitAndPeriodRecursive(tree);
+                    break;
+                case 999:
+                    ProcessManager processManager = new ProcessManager(
+                            selectedObj.getValue().getJEVisObject(),
+                            new ObjectHandler(selectedObj.getValue().getJEVisObject().getDataSource()),
+                            100000);
+                    processManager.start();
                     break;
                 default:
                     logger.info("Unknown command ignore...");

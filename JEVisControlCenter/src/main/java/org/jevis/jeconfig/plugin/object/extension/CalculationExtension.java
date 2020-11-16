@@ -2,26 +2,33 @@ package org.jevis.jeconfig.plugin.object.extension;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
+import org.jevis.commons.calculation.CalcJob;
+import org.jevis.commons.calculation.CalcJobFactory;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController;
 import org.joda.time.DateTime;
+
+import java.util.List;
+import java.util.Optional;
 
 public class CalculationExtension implements ObjectEditorExtension {
 
@@ -139,16 +146,134 @@ public class CalculationExtension implements ObjectEditorExtension {
             Label label = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.enable"));
             Label labelOutput = new Label(I18n.getInstance().getString("plugin.object.calc.output"));
 
+            Button calcNowButton = new Button(I18n.getInstance().getString("plugin.object.calc.recalc"));
+            calcNowButton.setOnAction(bEvent -> {
+
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle(I18n.getInstance().getString("plugin.object.calc.recalc"));
+                alert.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.question"));
+                Optional<ButtonType> option = alert.showAndWait();
+                if (option.get() == null) {
+                } else if (option.get() == ButtonType.OK) {
+                    final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "...");
+
+                    StringProperty errorMsg = new SimpleStringProperty();
+                    Task<Void> set = new Task<Void>() {
+                        @Override
+                        protected Void call() {
+                            try {
+                                boolean wasEnabled = false;
+                                if (_obj.getAttribute("Enabled").hasSample()) {
+                                    wasEnabled = _obj.getAttribute("Enabled").getLatestSample().getValueAsBoolean();
+                                }
+                                _obj.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
+
+                                JEVisClass output = _obj.getDataSource().getJEVisClass("Output");
+                                List<JEVisObject> outputs = _obj.getChildren(output, true);
+                                outputs.forEach(jeVisObject -> {
+                                    try {
+                                        JEVisAttribute attribute = jeVisObject.getAttribute("Output");
+                                        if (attribute != null && attribute.hasSample()) {
+                                            try {
+                                                TargetHelper th = new TargetHelper(_obj.getDataSource(), attribute);
+                                                if (!th.getObject().isEmpty()) {
+
+                                                    th.getObject().forEach(rowDataOutput -> {
+                                                        try {
+                                                            logger.debug("Delete RawSample from: {}", rowDataOutput.getAttribute("Value"));
+                                                            System.out.println();
+                                                            rowDataOutput.getAttribute("Value").deleteSamplesBetween(null, null);
+                                                            deleteCleanData(rowDataOutput);
+
+                                                        } catch (Exception ex) {
+                                                            ex.printStackTrace();
+                                                        }
+                                                    });
+                                                }
+                                            } catch (Exception e) {
+                                                logger.error("Error with output {}:{}", jeVisObject, e);
+                                            }
+                                        }
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                });
+
+
+                                CalcJob calcJob;
+                                CalcJobFactory calcJobCreator = new CalcJobFactory();
+                                do {
+                                    calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), _obj.getDataSource(), _obj);
+                                    calcJob.execute();
+                                } while (!calcJob.hasProcessedAllInputSamples());
+
+                                if (wasEnabled == true) {
+                                    _obj.getAttribute("Enabled").buildSample(new DateTime(), wasEnabled).commit();
+                                }
+
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                errorMsg.set(ex.getMessage());
+                                this.failed();
+                            }
+                            return null;
+                        }
+                    };
+                    set.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                    set.setOnCancelled(event -> {
+                        logger.debug("Setting all multiplier and differential switches cancelled");
+                        pForm.getDialogStage().hide();
+                    });
+
+                    set.setOnFailed(event -> {
+                        logger.debug("Setting all multiplier and differential switches failed");
+                        pForm.getDialogStage().hide();
+
+                        Alert error = new Alert(Alert.AlertType.ERROR);
+                        error.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.title"));
+                        error.setContentText(((SimpleStringProperty) errorMsg).get());
+
+                    });
+
+                    pForm.activateProgressBar(set);
+                    pForm.getDialogStage().show();
+
+                    new Thread(set).start();
+
+                }
+
+
+            });
+
+
             FlowPane flowPane = new FlowPane(Orientation.HORIZONTAL, 8, 12, label, enableButton, labelOutput, buttonOutput);
+            if (JEConfig.getExpert()) {
+                flowPane.getChildren().add(calcNowButton);
+            }
+
 
             VBox vbox = new VBox(8, flowPane, editConfigPane);
-//            ap.getChildren().addAll(vbox);
             view.setCenter(vbox);
         } catch (Exception e) {
             logger.fatal(e);
         }
 
 
+    }
+
+    private void deleteCleanData(JEVisObject obj) throws JEVisException {
+
+        obj.getChildren(_obj.getDataSource().getJEVisClass("Clean Data"), false).forEach(jeVisObject -> {
+            try {
+                JEVisAttribute value = obj.getAttribute("Value");
+                logger.debug("Delete Clean output Data: {}", value);
+                if (value.hasSample()) obj.getAttribute("Value").deleteSamplesBetween(null, null);
+                deleteCleanData(jeVisObject);
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
     }
 
     @Override
