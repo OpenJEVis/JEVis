@@ -131,6 +131,12 @@ public class TopMenu extends MenuBar {
         MenuItem findAgain = new MenuItem(I18n.getInstance().getString("menu.edit.findagain"));
         findAgain.setAccelerator(new KeyCodeCombination(KeyCode.F3));
 
+        MenuItem calcNow = new CheckMenuItem("Calc now");
+        calcNow.setOnAction(event -> {
+            activePlugin.handleRequest(999);
+            event.consume();
+        });
+
         paste.setOnAction(event -> {
             activePlugin.handleRequest(Constants.Plugin.Command.PASTE);
             event.consume();

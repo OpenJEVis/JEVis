@@ -730,7 +730,7 @@ public class MeterPlugin implements Plugin {
                             setGraphic(null);
                         } else {
                             Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
-                            Button previewButton = new Button("", JEConfig.getImage("export-image.png", tableIconSize, tableIconSize));
+                            Button previewButton = new Button("", JEConfig.getImage("eye_visible.png", tableIconSize, tableIconSize));
                             Button uploadButton = new Button("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
                             downloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.download")));

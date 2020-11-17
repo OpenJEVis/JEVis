@@ -5,16 +5,15 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.commons.validator.routines.LongValidator;
 import org.apache.logging.log4j.LogManager;
@@ -37,16 +36,19 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
+import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CleanDataExtension implements ObjectEditorExtension {
 
@@ -208,6 +210,28 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (enabledLastSample != null) {
             enabled.setSelected(enabledLastSample.getValueAsBoolean());
         }
+
+        /**
+         * Calculate now
+         */
+        Button calcCow = new Button(I18n.getInstance().getString("plugin.object.cleandata.reclean"));
+        calcCow.setOnAction(buttonEvent -> {
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(I18n.getInstance().getString("plugin.object.cleandata.reclean"));
+            alert.setHeaderText(I18n.getInstance().getString("plugin.object.cleandata.reclean.question"));
+            Optional<ButtonType> option = alert.showAndWait();
+            if (option.get() == null) {
+            } else if (option.get() == ButtonType.OK) {
+                try {
+                    recleanCleanData(cleanDataObject.getCleanObject());
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+
+
+        });
 
         /**
          *  Limits
@@ -455,9 +479,15 @@ public class CleanDataExtension implements ObjectEditorExtension {
         int row = 0;
         int colSpan = 1;
 
+        HBox hBox = new HBox(enabled);
+        hBox.setSpacing(10);
+        if (JEConfig.getExpert()) {
+            hBox.getChildren().add(calcCow);
+        }
+
         gridPane.add(nameEnabled, 0, row);
         gridPane.add(advSettingDialogButtonEnabled, 1, row);
-        gridPane.add(enabled, 2, row, colSpan, 1);
+        gridPane.add(hBox, 2, row, colSpan, 1);
         row++;
         gridPane.add(nameValue, 0, row);
         gridPane.add(advSettingDialogButtonValue, 1, row);
@@ -527,6 +557,74 @@ public class CleanDataExtension implements ObjectEditorExtension {
 
         scrollPane.setContent(gridPane);
         view.setCenter(scrollPane);
+    }
+
+    private void recleanCleanData(JEVisObject obj) throws JEVisException {
+        if (!obj.getJEVisClassName().equals("Clean Data")) return;
+        logger.error("Recaluclate object: {}", obj);
+
+        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "[" + obj.getID() + "] " + obj.getName() + "  ...");
+
+        Task<Void> set = new Task<Void>() {
+            @Override
+            protected Void call() {
+                try {
+                    logger.error("Disable DataCleaner");
+                    obj.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
+
+
+                    JEVisAttribute value = obj.getAttribute("Value");
+                    logger.error("Delete all data from: {}", value);
+                    if (value.hasSample()) obj.getAttribute("Value").deleteSamplesBetween(null, null);
+
+                    logger.error("Stat Precalc process");
+                    ProcessManager processManager = new ProcessManager(
+                            obj,
+                            new ObjectHandler(cleanDataObject.getCleanObject().getDataSource()),
+                            100000);
+                    processManager.start();
+                    logger.error("Done precalc, set enabled");
+
+                    obj.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
+                    logger.error("recalc all done for: {}", obj);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                return null;
+            }
+        };
+
+        set.setOnSucceeded(event -> {
+            pForm.getDialogStage().close();
+            try {
+                obj.getChildren(_obj.getDataSource().getJEVisClass("Clean Data"), false).forEach(childObj -> {
+                    try {
+                        logger.error("Found clean child: {}", childObj);
+                        recleanCleanData(childObj);
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+                });
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+
+        });
+        set.setOnCancelled(event -> {
+            logger.debug("recalc cancelled");
+            pForm.getDialogStage().hide();
+        });
+
+        set.setOnFailed(event -> {
+            logger.debug("recalc failed");
+            pForm.getDialogStage().hide();
+        });
+
+        pForm.activateProgressBar(set);
+        pForm.getDialogStage().show();
+
+        new Thread(set).start();
+
     }
 
     private void setupListener(TimeStampEditor conversionToDifferentialTimeStampEditor, ToggleSwitchPlus conversionToDifferential,
