@@ -191,6 +191,14 @@ public class JEVisTypeWS implements JEVisType {
     }
 
     @Override
+    public String toString() {
+        return "JEVisTypeWS{" +
+                "jclass='" + jclass + '\'' +
+                ", json=" + json +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object obj
     ) {
         try {
