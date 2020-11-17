@@ -320,89 +320,65 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         try {
             int coloum = 0;
             if (!obj.getJEVisClass().getTypes().isEmpty()) {
+
                 List<JEVisAttribute> attributes = obj.getAttributes();//load once because this function is not cached
                 for (JEVisType type : obj.getJEVisClass().getTypes()) {//loop types not attributes to be sure only no delete type are shown
-                    JEVisAttribute att = getAttribute(type.getName(), attributes);
-                    if (att == null) {
-                        continue;
-                    }
-                    currentAttribute = type.getName();
-                    AttributeEditor editor = new ErrorEditor();
-                    Label name = new Label(I18nWS.getInstance().getAttributeName(att));
-                    name.setWrapText(true);
-                    name.setMinWidth(100);
-
                     try {
+                        JEVisAttribute att = getAttribute(type.getName(), attributes);
+                        if (att == null) {
+                            continue;
+                        }
+                        currentAttribute = type.getName();
+                        AttributeEditor editor = new ErrorEditor();
+                        Label name = new Label(I18nWS.getInstance().getAttributeName(att));
+                        name.setWrapText(true);
+                        name.setMinWidth(100);
 
-                        editor = getEditor(type, att);
+                        try {
 
-                        editor.setReadOnly(readOnly);
+                            editor = getEditor(type, att);
 
-                        if (editor instanceof WebViewEditor) {
-                            webview = editor;
-                            webViewName = name;
+                            editor.setReadOnly(readOnly);
+
+                            if (editor instanceof WebViewEditor) {
+                                webview = editor;
+                                webViewName = name;
+                            }
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            logger.catching(ex);
                         }
 
+                        Tooltip tt = new Tooltip(I18nWS.getInstance().getAttributeDescription(att));
+                        if (!tt.getText().isEmpty()) {
+                            name.setTooltip(tt);
+                        }
+
+                        AttributeAdvSettingDialogButton attSettingsButton = new AttributeAdvSettingDialogButton(att);
+
+
+                        Node editNode = editor.getEditor();
+                        gridPane.add(name, 0, coloum);
+                        gridPane.add(editNode, 2, coloum);
+                        gridPane.add(attSettingsButton, 1, coloum);
+
+                        coloum++;
+                        Separator sep = new Separator(Orientation.HORIZONTAL);
+                        sep.setOpacity(0.2d);
+                        gridPane.add(sep, 0, coloum, 3, 1);
+                        name.setAlignment(Pos.CENTER_RIGHT);
+
+                        coloum++;
+                        _attributesEditor.add(editor);
+                        logger.trace("done: {}", obj.getID());
+
                     } catch (Exception ex) {
-                        ex.printStackTrace();
-                        logger.catching(ex);
+                        logger.error("Attribute error for: {}", type, ex);
                     }
 
-                    Tooltip tt = new Tooltip(I18nWS.getInstance().getAttributeDescription(att));
-                    if (!tt.getText().isEmpty()) {
-                        name.setTooltip(tt);
-                    }
-
-//                    SampleEditor se = new SampleEditor();
-
-                    AttributeAdvSettingDialogButton attSettingsButton = new AttributeAdvSettingDialogButton(att);
-
-
-                    Node editNode = editor.getEditor();
-
-//                    editNode.maxWidth(editorWidth.getValue());
-
-                    gridPane.add(name, 0, coloum);
-                    gridPane.add(editNode, 2, coloum);
-                    gridPane.add(attSettingsButton, 1, coloum);
-
-                    coloum++;
-                    Separator sep = new Separator(Orientation.HORIZONTAL);
-                    sep.setOpacity(0.2d);
-                    gridPane.add(sep, 0, coloum, 3, 1);
-                    name.setAlignment(Pos.CENTER_RIGHT);
-
-                    coloum++;
-                    _attributesEditor.add(editor);
-                    logger.trace("done: {}", obj.getID());
-
-//                    try {
-//                        AtomicReference<AttributeEditor> ediorReditor = new AtomicReference<>();
-//                        ediorReditor.set(editor);
-//                        att.getObject().addEventListener(new JEVisEventListener() {
-//                            @Override
-//                            public void fireEvent(JEVisEvent event) {
-//                                logger.error("Update: treeevent: " + event);
-//                                if (event.getType() == JEVisEvent.TYPE.ATTRIBUTE_UPDATE) {
-//
-//                                    JEVisAttribute source = (JEVisAttribute) event.getSource();
-//                                    if (att.equals(source)) {
-//                                        logger.error("Update attribute: " + att + " " + ediorReditor);
-//                                        ediorReditor.get().update();
-//                                    }
-//
-//
-//                                }
-//                            }
-//                        });
-//                    } catch (Exception ex) {
-//                        logger.catching(ex);
-//                    }
                 }
-
-
             }
-//
         } catch (Exception ex) {
             logger.error("Error in Attribute: {}", currentAttribute, ex);
         }
