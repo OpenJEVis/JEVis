@@ -67,7 +67,7 @@ public class ChartWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle("new Chart Widget");
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*12,control.getActiveDashboard().xGridInterval*20));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 12, control.getActiveDashboard().xGridInterval * 20));
 
         return widgetPojo;
     }
@@ -97,7 +97,7 @@ public class ChartWidget extends Widget {
                 try {
                     String dataName = chartDataModel.getObject().getName();
                     Platform.runLater(() -> this.legend.getItems().add(
-                            this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
+                            this.legend.buildHorizontalLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
                                     this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
                                     chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"), false)));
                 } catch (Exception ex) {

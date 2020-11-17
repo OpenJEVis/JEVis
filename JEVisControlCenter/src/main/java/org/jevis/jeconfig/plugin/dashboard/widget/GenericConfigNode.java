@@ -9,6 +9,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.Tab;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
 import org.jevis.api.JEVisDataSource;
@@ -68,6 +69,25 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         gridPane.setPadding(new Insets(10));
         gridPane.setVgap(8);
         gridPane.setHgap(8);
+
+        fontSizeSpinner.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.UP) {
+                fontSizeSpinner.getValueFactory().setValue(fontSizeSpinner.valueProperty().getValue() + 1);
+                event.consume();
+            } else if (event.getCode() == KeyCode.DOWN) {
+                fontSizeSpinner.getValueFactory().setValue(fontSizeSpinner.valueProperty().getValue() - 1);
+                event.consume();
+            }
+        });
+        borderSizeSpinner.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.UP) {
+                borderSizeSpinner.getValueFactory().setValue(borderSizeSpinner.valueProperty().getValue() + 1);
+                event.consume();
+            } else if (event.getCode() == KeyCode.DOWN) {
+                borderSizeSpinner.getValueFactory().setValue(borderSizeSpinner.valueProperty().getValue() - 1);
+                event.consume();
+            }
+        });
 
         gridPane.addColumn(0, idLabel, nameLabel, tooltipLabel, bgColorLabel, fColorLabel, yPosLabel, xPosLabel,
                 shadowLabel, borderSizeLabel, fontSizeLabel, timeFrameLabel);
