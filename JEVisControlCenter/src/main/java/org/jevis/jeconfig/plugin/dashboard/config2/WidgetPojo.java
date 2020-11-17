@@ -65,18 +65,19 @@ public class WidgetPojo {
 
             try {
 
-                /** Temporary workaround, existing dashboards have only left,right,center
-                 *  but the POJO expects an Pos with center_right and so on.
+                /**
+                 * Fallback, existing dashboards have only left,right,center
+                 * but the POJO expects an Pos with center_right and so on.
                  **/
-                if (jsonNode.get(TITLE_POSITION).asText().toLowerCase().contains("left")) {
+                if (jsonNode.get(TITLE_POSITION).asText().toLowerCase().equals("left")) {
                     this.titlePosition = Pos.CENTER_LEFT;
-                } else if (jsonNode.get(TITLE_POSITION).asText().toLowerCase().contains("center")) {
-                    this.titlePosition = Pos.CENTER;
-                } else if (jsonNode.get(TITLE_POSITION).asText().toLowerCase().contains("right")) {
+                } else if (jsonNode.get(TITLE_POSITION).asText().toLowerCase().equals("right")) {
                     this.titlePosition = Pos.CENTER_RIGHT;
+                } else {
+                    //correct implementation
+                    this.titlePosition = Pos.valueOf(jsonNode.get(TITLE_POSITION).asText());
                 }
-//                System.out.println("Json pos: " + jsonNode.get(TITLE_POSITION).asText());
-//                this.titlePosition = Pos.valueOf(jsonNode.get(TITLE_POSITION).asText());
+
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", TITLE_POSITION, ex.getMessage());
             }

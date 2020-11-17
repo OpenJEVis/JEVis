@@ -5,13 +5,12 @@ import com.jfoenix.validation.DoubleValidator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.Tab;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
@@ -35,6 +34,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final Label timeFrameLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.forcedtime"));
     private final Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
     private final Label borderSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.bordersize"));
+    private final Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
 
 
     private final JFXTextField nameField = new JFXTextField();
@@ -49,6 +49,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final TimeFactoryBox timeFrameBox;
     private final Widget widget;
     private final DataModelDataHandler dataModelDataHandler;
+    private final ComboBox<Pos> alignmentBox;
 
     public GenericConfigNode(JEVisDataSource ds, Widget widget, DataModelDataHandler dataModelDataHandler) {
         super(I18n.getInstance().getString("plugin.dashboard.edit.general.tab"));
@@ -61,6 +62,77 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         timeFrameBox.setMinWidth(200);
         timeFrameBox.getItems().addAll(timeFrames);
 
+        alignmentBox = new ComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+        alignmentBox.setPrefWidth(200);
+        alignmentBox.setMinWidth(200);
+        Callback<ListView<Pos>, ListCell<Pos>> cellFactory = new Callback<ListView<Pos>, ListCell<Pos>>() {
+            @Override
+            public ListCell<Pos> call(ListView<Pos> param) {
+                final ListCell<Pos> cell = new ListCell<Pos>() {
+
+                    @Override
+                    protected void updateItem(Pos item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            switch (item) {
+                                case CENTER:
+                                    setText(I18n.getInstance().getString("javafx.pos.center"));
+                                    break;
+                                case CENTER_LEFT:
+                                    setText(I18n.getInstance().getString("javafx.pos.centerleft"));
+                                    break;
+                                case CENTER_RIGHT:
+                                    setText(I18n.getInstance().getString("javafx.pos.centerright"));
+                                    break;
+                                case BOTTOM_RIGHT:
+                                    setText(I18n.getInstance().getString("javafx.pos.bottomright"));
+                                    break;
+                                case BOTTOM_LEFT:
+                                    setText(I18n.getInstance().getString("javafx.pos.bottomleft"));
+                                    break;
+                                case BOTTOM_CENTER:
+                                    setText(I18n.getInstance().getString("javafx.pos.bottomcenter"));
+                                    break;
+                                /**
+                                 case BASELINE_LEFT:
+                                 setText(I18n.getInstance().getString("javafx.pos.center"));
+                                 break;
+                                 case BASELINE_RIGHT:
+                                 setText(I18n.getInstance().getString("javafx.pos.center"));
+                                 break;
+                                 case BASELINE_CENTER:
+                                 setText(I18n.getInstance().getString("javafx.pos.center"));
+                                 break;
+                                 **/
+                                case TOP_LEFT:
+                                    setText(I18n.getInstance().getString("javafx.pos.topleft"));
+                                    break;
+                                case TOP_RIGHT:
+                                    setText(I18n.getInstance().getString("javafx.pos.topright"));
+                                    break;
+                                case TOP_CENTER:
+                                    setText(I18n.getInstance().getString("javafx.pos.topcenter"));
+                                    break;
+                                default:
+                                    setText(item.toString());
+
+
+                            }
+
+
+                        } else {
+                            setText(null);
+                        }
+                    }
+                };
+
+                return cell;
+            }
+        };
+
+        alignmentBox.setCellFactory(cellFactory);
+        alignmentBox.setButtonCell(cellFactory.call(null));
+        alignmentBox.getSelectionModel().select(Pos.CENTER);
 
         bgColorPicker.setStyle("-fx-color-label-visible: false ;");
         fColorPicker.setStyle("-fx-color-label-visible: false ;");
@@ -90,9 +162,9 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         });
 
         gridPane.addColumn(0, idLabel, nameLabel, tooltipLabel, bgColorLabel, fColorLabel, yPosLabel, xPosLabel,
-                shadowLabel, borderSizeLabel, fontSizeLabel, timeFrameLabel);
+                shadowLabel, borderSizeLabel, fontSizeLabel, alignmentLabel, timeFrameLabel);
         gridPane.addColumn(1, idField, nameField, tooltipField, bgColorPicker, fColorPicker, yPosField, xPosField,
-                showShadowField, borderSizeSpinner, fontSizeSpinner, timeFrameBox);
+                showShadowField, borderSizeSpinner, fontSizeSpinner, alignmentBox, timeFrameBox);
 
         setContent(gridPane);
 
@@ -125,6 +197,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
 
         fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
         borderSizeSpinner.getValueFactory().setValue((int) widget.getConfig().getBorderSize().getTop());
+        alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
     }
 
     @Override
@@ -185,6 +258,11 @@ public class GenericConfigNode extends Tab implements ConfigTab {
                     dataModelDataHandler.setForcedPeriod(timeFrameFactory);
                 }
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        try {
+            widget.getConfig().setTitlePosition(alignmentBox.getValue());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
