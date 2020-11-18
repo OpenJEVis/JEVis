@@ -3,8 +3,8 @@ package org.jevis.jeconfig.application.tools;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.utils.CalcMethods;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class CalculationNameFormatter {
@@ -60,10 +60,8 @@ public class CalculationNameFormatter {
     public static String createVariableName(JEVisObject target) throws JEVisException {
         String name = target.getName();
         if (target.getJEVisClassName().equals("Clean Data")) {
-            List<JEVisObject> targetObj = target.getParents();
-            if (!targetObj.isEmpty()) {
-                name = targetObj.get(0).getName();
-            }
+            JEVisObject firstParentalDataObject = CalcMethods.getFirstParentalDataObject(target);
+            name = firstParentalDataObject.getName();
         }
         name = formatInputVariable(name);
 

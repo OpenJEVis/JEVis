@@ -38,10 +38,10 @@ public class CalculationExtension implements ObjectEditorExtension {
     private final BorderPane view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _enabledChanged = new SimpleBooleanProperty(false);
-    private JEVisObject _obj;
+    private final JEVisObject _obj;
     private CalculationViewController control;
     private String oldExpression = "";
-    private JEVisSample lastSampleEnabeld = null;
+    private final JEVisSample lastSampleEnabeld = null;
     private JEVisSample _newSampleEnabled = null;
 
     public CalculationExtension(JEVisObject _obj) {
@@ -232,7 +232,7 @@ public class CalculationExtension implements ObjectEditorExtension {
 
                         Alert error = new Alert(Alert.AlertType.ERROR);
                         error.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.title"));
-                        error.setContentText(((SimpleStringProperty) errorMsg).get());
+                        error.setContentText(errorMsg.get());
 
                     });
 
@@ -295,12 +295,12 @@ public class CalculationExtension implements ObjectEditorExtension {
     @Override
     public boolean save() {
         try {
-            _changed.setValue(!control.getFormel().equals(oldExpression));
+            _changed.setValue(!control.getFormula().equals(oldExpression));
             if (needSave()) {
-                String newExpression = control.getFormel();
-                JEVisAttribute aExprsssion = _obj.getAttribute("Expression");
+                String newExpression = control.getFormula();
+                JEVisAttribute expression = _obj.getAttribute("Expression");
 
-                JEVisSample newSample = aExprsssion.buildSample(new DateTime(), newExpression);
+                JEVisSample newSample = expression.buildSample(new DateTime(), newExpression);
                 newSample.commit();
                 oldExpression = newExpression;
                 _changed.setValue(false);
