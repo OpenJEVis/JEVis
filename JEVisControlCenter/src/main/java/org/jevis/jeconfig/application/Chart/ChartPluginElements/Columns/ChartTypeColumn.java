@@ -114,7 +114,8 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
                                     List<String> disabledItems = new ArrayList<>();
                                     comboBoxChartType.getItems().forEach(o -> {
                                         int i = comboBoxChartType.getItems().indexOf(o);
-                                        if (i == 1 || i == 3 || i == 5 || i == 7 || i == 8 || i == 9) {
+//                                        if (i == 1 || i == 3 || i == 5 || i == 7 || i == 8 || i == 9) {
+                                        if (i == 3 || i == 5 || i == 7 || i == 8 || i == 9) {
                                             disabledItems.add(o);
                                         }
                                     });
@@ -131,7 +132,7 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
                                     tb.setTooltip(tooltipMarkAll);
 
                                     comboBoxChartType.valueProperty().addListener((observable, oldValue, newValue) -> {
-                                        if (oldValue == null || newValue != oldValue) {
+                                        if (!newValue.equals(oldValue)) {
                                             ChartType type = ChartType.parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
                                             commitEdit(type);
                                         }
@@ -158,7 +159,8 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
                                         ChartType chartType = chartSetting.getChartType();
                                         if (data.getSelectedcharts().contains(chartSetting.getId()) &&
                                                 (chartType == ChartType.LINE || chartType == ChartType.AREA
-                                                        || chartType == ChartType.COLUMN || chartType == ChartType.SCATTER)) {
+                                                        || chartType == ChartType.COLUMN || chartType == ChartType.SCATTER)
+                                                || chartType == ChartType.LOGICAL) {
                                             selectable.set(true);
                                         }
                                     });

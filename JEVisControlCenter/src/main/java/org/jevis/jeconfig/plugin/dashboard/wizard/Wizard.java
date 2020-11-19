@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard.wizzard;
+package org.jevis.jeconfig.plugin.dashboard.wizard;
 
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
@@ -25,19 +25,19 @@ public class Wizard {
 
     private final JEVisDataSource jeVisDataSource;
     public ObjectProperty<Widget> selectedWidget = new SimpleObjectProperty<>();
-    private Button nextButton = new Button("Next");
-    private Button previousButton = new Button("Previous");
-    private Button finishButton = new Button("Finish");
-    private Button cancelButton = new Button("Cancel");
-    private BorderPane rootPane = new BorderPane();
-    private AnchorPane contentPane = new AnchorPane();
-    private VBox bottomContent = new VBox(10);
+    private final Button nextButton = new Button("Next");
+    private final Button previousButton = new Button("Previous");
+    private final Button finishButton = new Button("Finish");
+    private final Button cancelButton = new Button("Cancel");
+    private final BorderPane rootPane = new BorderPane();
+    private final AnchorPane contentPane = new AnchorPane();
+    private final VBox bottomContent = new VBox(10);
     private BooleanProperty isLastStep = new SimpleBooleanProperty(false);
-    private PageWidgetSelection pageWidgetSelection = new PageWidgetSelection();
+    private final PageWidgetSelection pageWidgetSelection = new PageWidgetSelection();
     private Page currentPage;
 
-    private List<Page> pageList = new ArrayList<>();
-    private IntegerProperty pageIndex = new SimpleIntegerProperty(0);
+    private final List<Page> pageList = new ArrayList<>();
+    private final IntegerProperty pageIndex = new SimpleIntegerProperty(0);
 
 
     public Wizard(JEVisDataSource jeVisDataSource) {
@@ -84,11 +84,7 @@ public class Wizard {
         });
 
         this.selectedWidget.addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                this.nextButton.setDisable(false);
-            } else {
-                this.nextButton.setDisable(true);
-            }
+            this.nextButton.setDisable(newValue == null);
         });
 
         this.cancelButton.setCancelButton(true);

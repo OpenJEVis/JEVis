@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard.wizzard;
+package org.jevis.jeconfig.plugin.dashboard.wizard;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -17,8 +17,8 @@ public class PageWidgetSelection extends Page {
 
     public ObjectProperty<Widget> selectedWidgetProperty = new SimpleObjectProperty<>();
     Wizard wizard;
-    private Widget selectedWidget = null;
-    private Pane selectedWidgetContainer = null;
+    private final Widget selectedWidget = null;
+    private final Pane selectedWidgetContainer = null;
     private DashBordPlugIn dashBordPlugIn;
 
     public PageWidgetSelection() {
