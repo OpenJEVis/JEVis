@@ -60,7 +60,7 @@ public class TableChart extends XYChart {
                 }
             };
 
-            JEConfig.getStatusBar().addTask(XYChart.class.getName(), task, taskImage, true);
+            JEConfig.getStatusBar().addTask(TableChart.class.getName(), task, taskImage, true);
         } else {
             buildChart(dataModel, dataRows, chartSetting);
         }
