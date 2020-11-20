@@ -116,5 +116,9 @@ public class I18n {
     public Map<Locale, PropertyResourceBundle> getAllBundles() {
         return allBundles;
     }
+
+    public ResourceBundle getDefaultBundle() {
+        return defaultBundle;
+    }
 }
 

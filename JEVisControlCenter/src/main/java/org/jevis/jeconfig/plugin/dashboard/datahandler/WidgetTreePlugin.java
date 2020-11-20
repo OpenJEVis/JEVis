@@ -215,7 +215,7 @@ public class WidgetTreePlugin implements TreePlugin {
                                     comboBoxChartType.setPrefWidth(114);
 
                                     comboBoxChartType.valueProperty().addListener((observable, oldValue, newValue) -> {
-                                        if (oldValue == null || newValue != oldValue) {
+                                        if (!newValue.equals(oldValue)) {
                                             ChartType type = ChartType.parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
                                             commitEdit(type);
                                         }

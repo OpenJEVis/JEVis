@@ -94,6 +94,8 @@ public class AlarmProcess {
                     if (latestSample != null) {
                         try {
                             alarmEnabled = latestSample.getValueAsBoolean();
+
+                            if (!alarmEnabled) continue;
                         } catch (JEVisException e) {
                             logger.error("Error while getting alarm enabled attribute sample", e);
                         }

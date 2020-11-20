@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -90,7 +91,7 @@ public class TableTopDatePicker extends HBox {
             }
         });
 
-        selectionBox.getSelectionModel().select(date);
+        Platform.runLater(() -> selectionBox.getSelectionModel().select(date));
     }
 
     public ComboBox<DateTime> getDatePicker() {

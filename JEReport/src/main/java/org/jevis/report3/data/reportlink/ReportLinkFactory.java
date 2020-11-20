@@ -7,11 +7,13 @@ package org.jevis.report3.data.reportlink;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
+import org.jevis.commons.object.plugin.TargetHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -84,5 +86,43 @@ public class ReportLinkFactory {
             logger.error(e);
         }
         return list;
+    }
+
+    private static Map<JEVisObject, JEVisObject> enpiMap;
+
+    public static Map<JEVisObject, JEVisObject> getEnPICalcMap(JEVisDataSource ds) throws JEVisException {
+        if (enpiMap == null) {
+            Map<JEVisObject, JEVisObject> calcAndResult = new HashMap<>();
+            JEVisClass calculation = ds.getJEVisClass("Calculation");
+            JEVisClass outputClass = ds.getJEVisClass("Output");
+
+            for (JEVisObject calculationObj : ds.getObjects(calculation, true)) {
+                try {
+                    List<JEVisObject> outputs = calculationObj.getChildren(outputClass, true);
+
+                    if (outputs != null && !outputs.isEmpty()) {
+                        for (JEVisObject output : outputs) {
+                            JEVisAttribute targetAttribute = output.getAttribute("Output");
+                            if (targetAttribute != null) {
+                                try {
+                                    TargetHelper th = new TargetHelper(ds, targetAttribute);
+                                    if (th.getObject() != null && !th.getObject().isEmpty()) {
+                                        calcAndResult.put(th.getObject().get(0), calculationObj);
+                                    }
+                                } catch (Exception ignored) {
+                                }
+                            }
+                        }
+
+
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            enpiMap = calcAndResult;
+        }
+
+        return enpiMap;
     }
 }

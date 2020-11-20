@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -23,22 +22,15 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.ObjectHandler;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
-import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.datetime.DateHelper;
-import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.dialog.ProgressForm;
-import org.jevis.jeconfig.plugin.AnalysisRequest;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
@@ -57,8 +49,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private static final Logger logger = LogManager.getLogger(CleanDataExtension.class);
     private final BorderPane view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private JEVisObject _obj;
-    private List<JEVisAttribute> changedAttributes = new ArrayList<>();
+    private final JEVisObject _obj;
+    private final List<JEVisAttribute> changedAttributes = new ArrayList<>();
     private JEVisAttribute conversionToDifferentialAttribute;
     private JEVisAttribute enabledAttribute;
     private JEVisAttribute limitsEnabledAttribute;
@@ -89,7 +81,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private boolean changedConversionToDifferential = false;
     private JEVisAttribute gapFillingConfigAttribute;
     private JEVisAttribute limitsConfigurationAttribute;
-    private NumberFormat nf = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+    private final NumberFormat nf = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
 
     public CleanDataExtension(JEVisObject _obj) {
         this._obj = _obj;
@@ -378,23 +370,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         valueTimeStamp.getEditor().setDisable(true);
         JFXTextField value = new JFXTextField();
         JFXTextField unitValue = new JFXTextField();
-        JFXButton valueInChartsButton = new JFXButton("", JEConfig.getImage("1415314386_Graph.png", 20, 20));
-        try {
-            DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
-            WorkDays workDays = new WorkDays(valueAttribute.getObject());
-            dateHelper.setStartTime(workDays.getWorkdayStart());
-            dateHelper.setEndTime(workDays.getWorkdayEnd());
 
-            AnalysisRequest analysisRequest = new AnalysisRequest(valueAttribute.getObject(),
-                    AggregationPeriod.NONE,
-                    ManipulationMode.NONE,
-                    new AnalysisTimeFrame(TimeFrame.TODAY),
-                    dateHelper.getStartDate(), dateHelper.getEndDate());
-            analysisRequest.setAttribute(valueAttribute);
-            valueInChartsButton.setOnAction(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
-        } catch (Exception e) {
-            logger.error("Could not create value in charts button: " + e);
-        }
         value.setDisable(true);
         if (valueLastSample != null) {
             value.setText(nf.format(valueLastSample.getValueAsDouble()));
@@ -493,7 +469,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         gridPane.add(advSettingDialogButtonValue, 1, row);
         gridPane.add(value, 2, row);
         gridPane.add(unitValue, 3, row);
-        gridPane.add(valueInChartsButton, 4, row);
+        gridPane.add(new AnalysisLinkButton(valueAttribute), 4, row);
         gridPane.add(valueTimeStamp.getEditor(), 5, row);
         row++;
         gridPane.add(nameValueMultiplier, 0, row);

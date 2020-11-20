@@ -35,6 +35,7 @@ import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.Chart.*;
@@ -127,13 +128,9 @@ public class AnalysisDataModel {
             if (newValue != oldValue && newValue) {
                 changed.set(false);
 
-                if (getCurrentAnalysis() != null && !getTemporary()) {
-                    selectedData = new HashSet<>();
-                    charts = new ChartSettings();
-                    updateSelectedData();
-                } else if (getTemporary()) {
-                    setGlobalAnalysisTimeFrame(getSelectedData());
-                }
+                selectedData = new HashSet<>();
+                charts = new ChartSettings();
+                updateSelectedData();
 
                 update();
             }
@@ -417,10 +414,10 @@ public class AnalysisDataModel {
     private Orientation parseOrientation(String orientationString) {
         Orientation orientation = Orientation.HORIZONTAL;
         switch (orientationString) {
-            case "HORIZONTAL_TOP_LEFT":
+            case "HORIZONTAL":
                 orientation = Orientation.HORIZONTAL;
                 break;
-            case "VERTICAL_BOT_CENTER":
+            case "VERTICAL":
                 orientation = Orientation.VERTICAL;
                 break;
         }
@@ -776,7 +773,8 @@ public class AnalysisDataModel {
 
     public void checkForPreviewData(List<ChartDataRow> chartDataRows, AnalysisTimeFrame analysisTimeFrame) {
         try {
-            AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now().minusDays(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0));
+
+            AtomicReference<DateTime> start = new AtomicReference<>(null);
             AtomicReference<DateTime> end = new AtomicReference<>(DateTime.now());
 
             for (ChartDataRow chartDataRow : chartDataRows) {
@@ -785,13 +783,12 @@ public class AnalysisDataModel {
                     if (valueAtt.getTimestampFromLastSample().isBefore(end.get())) {
                         end.set(valueAtt.getTimestampFromLastSample());
                     }
-                }
 
-                start.set(end.get().minusDays(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0));
 
-                if (valueAtt != null && valueAtt.getTimestampFromFirstSample() != null) {
-                    if (valueAtt.getTimestampFromFirstSample().isAfter(start.get()))
-                        start.set(valueAtt.getTimestampFromFirstSample());
+                    DateTime newStart = CommonMethods.getStartDateFromSampleRate(valueAtt);
+                    if (start.get() == null || start.get().isAfter(newStart)) {
+                        start.set(newStart);
+                    }
                 }
             }
 
@@ -968,6 +965,16 @@ public class AnalysisDataModel {
     }
 
     public void setCurrentAnalysis(JEVisObject currentAnalysis) {
+        if (this.currentAnalysis != null && !this.currentAnalysis.equals(currentAnalysis)) {
+            if (getTemporary()) {
+                try {
+                    ds.deleteObject(this.currentAnalysis.getID());
+                    updateListAnalyses();
+                } catch (Exception e) {
+                    logger.error("Could not delete temporary analysis", e);
+                }
+            }
+        }
         this.currentAnalysis = currentAnalysis;
 
         if (currentAnalysis != null) {
@@ -977,7 +984,7 @@ public class AnalysisDataModel {
                 logger.error(ex);
             }
 
-            if (observableListAnalyses == null || observableListAnalyses.isEmpty()) {
+            if (observableListAnalyses.isEmpty()) {
                 updateListAnalyses();
             }
             if (!getTemporary()) {

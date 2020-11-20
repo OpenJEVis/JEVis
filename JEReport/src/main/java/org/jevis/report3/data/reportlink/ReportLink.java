@@ -6,12 +6,13 @@
 package org.jevis.report3.data.reportlink;
 
 /**
- *
  * @author broder
  */
 public interface ReportLink {
 
-    public static String NAME = "Report Link";
-    public static String JEVIS_ID = "JEVis ID";
-    public static String TEMPLATE_VARIABLE_NAME = "Template Variable Name";
+    String NAME = "Report Link";
+    String JEVIS_ID = "JEVis ID";
+    String TEMPLATE_VARIABLE_NAME = "Template Variable Name";
+    String OPTIONAL = "Optional";
+    String CALCULATION = "Calculation";
 }

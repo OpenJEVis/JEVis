@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard.wizzard;
+package org.jevis.jeconfig.plugin.dashboard.wizard;
 
 import org.jevis.jeconfig.plugin.dashboard.config.DataModelNode;
 import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
@@ -12,8 +12,8 @@ import java.util.Map;
 public class ExampleConverter {
 
 
-    private Map<Integer, Double> yPos = new HashMap<>();
-    private Map<String, Double> columns = new HashMap<>();
+    private final Map<Integer, Double> yPos = new HashMap<>();
+    private final Map<String, Double> columns = new HashMap<>();
 
     public ExampleConverter() {
 

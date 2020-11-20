@@ -3,8 +3,9 @@ package org.jevis.jeconfig.application.tools;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CalcMethods;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class CalculationNameFormatter {
@@ -58,12 +59,10 @@ public class CalculationNameFormatter {
      * @throws JEVisException
      */
     public static String createVariableName(JEVisObject target) throws JEVisException {
-        String name = target.getName();
+        String name = target.getLocalName(I18n.getInstance().getDefaultBundle().getLocale().getLanguage());
         if (target.getJEVisClassName().equals("Clean Data")) {
-            List<JEVisObject> targetObj = target.getParents();
-            if (!targetObj.isEmpty()) {
-                name = targetObj.get(0).getName();
-            }
+            JEVisObject firstParentalDataObject = CalcMethods.getFirstParentalDataObject(target);
+            name = firstParentalDataObject.getLocalName(I18n.getInstance().getDefaultBundle().getLocale().getLanguage());
         }
         name = formatInputVariable(name);
 

@@ -413,7 +413,7 @@ public class CalculationViewController {
         variablesScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     }
 
-    public String getFormel() {
+    public String getFormula() {
         return formulaBox.getExpression();
     }
 

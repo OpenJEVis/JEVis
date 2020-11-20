@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard.wizzard;
+package org.jevis.jeconfig.plugin.dashboard.wizard;
 
 import javafx.scene.Node;
 
