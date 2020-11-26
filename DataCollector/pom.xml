@@ -5,6 +5,16 @@
     <groupId>org.jevis.datacollector</groupId>
     <artifactId>DataCollector</artifactId>
     <version>3.0.0</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.jevis.api</groupId>
+            <artifactId>jeapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis.commons</groupId>
+            <artifactId>JECommons</artifactId>
+        </dependency>
+    </dependencies>
     <packaging>pom</packaging>
 
     <name>DataCollector</name>
@@ -43,6 +53,7 @@
         <module>envidatec-vida</module>
         <module>loytec-xml-dl</module>
         <module>OPCUA-Driver</module>
+        <module>Email-Driver</module>
     </modules>
    
 </project>
