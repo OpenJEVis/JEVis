@@ -52,13 +52,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.json.JsonChartDataModel;
+import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeapi.ws.JEVisObjectWS;
@@ -1127,6 +1128,17 @@ public class GraphPluginView implements Plugin {
 
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
 
+                    JEVisObject buildingObject = CommonMethods.getFirstParentalObjectOfClass(jeVisObject, "Building");
+                    JEVisObject analysisDir = null;
+                    if (buildingObject != null) {
+                        for (JEVisObject child : buildingObject.getChildren()) {
+                            if (child.getJEVisClassName().equals("Analyses Directory")) {
+                                analysisDir = child;
+                                break;
+                            }
+                        }
+                    }
+
                     ChartDataRow chartDataRow = new ChartDataRow(ds);
 
                     try {
@@ -1159,16 +1171,60 @@ public class GraphPluginView implements Plugin {
                     List<ChartSetting> chartSettingList = new ArrayList<>();
                     chartSettingList.add(chartSetting);
 
-                    org.jevis.commons.ws.json.JsonObject newJsonObject = new JsonObject();
-                    newJsonObject.setName("Temp");
-                    newJsonObject.setId(0L);
-                    newJsonObject.setJevisClass("Analysis");
-                    JEVisObject newObject = new JEVisObjectWS((JEVisDataSourceWS) ds, newJsonObject) {
-                        @Override
-                        public String toString() {
-                            return I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
+                    JEVisObject newObject = null;
+
+                    if (analysisDir == null || !ds.getCurrentUser().canCreate(analysisDir.getID())) {
+                        org.jevis.commons.ws.json.JsonObject newJsonObject = new JsonObject();
+                        newJsonObject.setName("Temp");
+                        newJsonObject.setId(0L);
+                        newJsonObject.setJevisClass("Analysis");
+                        newObject = new JEVisObjectWS((JEVisDataSourceWS) ds, newJsonObject) {
+                            @Override
+                            public String toString() {
+                                return I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
+                            }
+                        };
+                    } else {
+                        String tempName = I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
+                        for (JEVisObject child : analysisDir.getChildren()) {
+                            if (child.getName().equals(tempName)) {
+                                newObject = child;
+                                break;
+                            }
                         }
-                    };
+
+                        if (newObject == null) {
+                            newObject = analysisDir.buildObject(tempName, analysisDir.getDataSource().getJEVisClass("Analysis"));
+                            newObject.commit();
+                        }
+
+                        JsonChartDataModel jsonChartDataModel = SaveAnalysisDialog.getJsonChartDataModel(chartDataRows);
+                        ChartSettings chartSettings = new ChartSettings();
+                        chartSettings.setListSettings(chartSettingList);
+                        JsonChartSettings jsonChartSettings = SaveAnalysisDialog.getJsonChartSettings(chartSettings);
+
+                        DateTime now = DateTime.now();
+                        JEVisAttribute dataModel = newObject.getAttribute("Data Model");
+                        JEVisAttribute charts = newObject.getAttribute("Charts");
+                        JEVisSample smp = dataModel.buildSample(now, jsonChartDataModel.toString());
+                        JEVisSample smp2 = charts.buildSample(now, jsonChartSettings.toString());
+                        smp.commit();
+                        smp2.commit();
+
+                        if (ds.getCurrentUser().canDelete(analysisDir.getID())) {
+                            Long id = newObject.getID();
+                            JEConfig.getStage().setOnCloseRequest(event -> {
+                                try {
+                                    ds.deleteObject(id);
+                                } catch (JEVisException e) {
+                                    logger.error("Could not delete temporary analysis", e);
+                                }
+                                Platform.exit();
+                                System.exit(0);
+                            });
+                        }
+                    }
+
                     dataModel.setTemporary(true);
                     dataModel.setCurrentAnalysisNOEVENT(newObject);
                     dataModel.getCharts().setListSettings(chartSettingList);
@@ -1178,12 +1234,18 @@ public class GraphPluginView implements Plugin {
                     dataModel.isGlobalAnalysisTimeFrame(true);
                     dataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
                     toolBarView.getPickerCombo().updateCellFactory();
-                    dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
-                    Platform.runLater(() -> {
-                        toolBarView.setChanged(false);
-                        dataModel.setChanged(false);
-                    });
+                    if (analysisDir == null) {
+                        dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
+
+                        Platform.runLater(() -> {
+                            toolBarView.setChanged(false);
+                            dataModel.setChanged(false);
+                        });
+                    } else {
+                        dataModel.updateListAnalyses();
+                        update();
+                    }
 
                 }
 

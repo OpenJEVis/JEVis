@@ -349,13 +349,13 @@ public class MathDataObject {
     public boolean isReady() {
         DateTime nextRun = getEndDate();
 
-
         try {
             JEVisSample latestSample = getInputAttribute().getLatestSample();
 
             if (latestSample != null) {
                 try {
-                    return latestSample.getTimestamp().withZone(getTimeZone(getMathDataObject())).equals(nextRun) || DateTime.now().isAfter(nextRun);
+                    DateTime latestSampleTS = latestSample.getTimestamp().withZone(getTimeZone(getMathDataObject()));
+                    return latestSampleTS.equals(nextRun) || latestSampleTS.isAfter(nextRun);
                 } catch (JEVisException e) {
                     logger.error("Could not check ready state", e);
                 }

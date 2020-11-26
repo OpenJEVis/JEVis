@@ -8,6 +8,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.List;
 
@@ -20,6 +21,17 @@ public class CommonMethods {
                 return object;
             } else {
                 return getFirstParentalDataObject(object);
+            }
+        }
+        return jeVisObject;
+    }
+
+    public static JEVisObject getFirstParentalObjectOfClass(JEVisObject jeVisObject, String className) throws JEVisException {
+        for (JEVisObject object : jeVisObject.getParents()) {
+            if (object.getJEVisClassName().equals(className)) {
+                return object;
+            } else {
+                return getFirstParentalObjectOfClass(object, className);
             }
         }
         return jeVisObject;
@@ -209,6 +221,29 @@ public class CommonMethods {
                 logger.error("Could not get math data last run time: ", e);
             }
         }
+    }
+
+    public static DateTime getStartDateFromSampleRate(JEVisAttribute attribute) {
+        DateTime start;
+        Period displaySampleRate = attribute.getDisplaySampleRate();
+        if (displaySampleRate.equals(Period.years(1))) {
+            start = attribute.getTimestampFromLastSample().minusYears(10);
+        } else if (displaySampleRate.equals(Period.months(1))) {
+            start = attribute.getTimestampFromLastSample().minusMonths(12);
+        } else if (displaySampleRate.equals(Period.weeks(1))) {
+            start = attribute.getTimestampFromLastSample().minusWeeks(10);
+        } else if (displaySampleRate.equals(Period.days(1))) {
+            start = attribute.getTimestampFromLastSample().minusDays(14);
+        } else if (displaySampleRate.equals(Period.hours(1))) {
+            start = attribute.getTimestampFromLastSample().minusDays(2);
+        } else if (displaySampleRate.equals(Period.minutes(15))) {
+            start = attribute.getTimestampFromLastSample().minusHours(24);
+        } else if (displaySampleRate.equals(Period.minutes(1))) {
+            start = attribute.getTimestampFromLastSample().minusHours(6);
+        } else {
+            start = attribute.getTimestampFromLastSample().minusDays(7);
+        }
+        return start;
     }
 
 }

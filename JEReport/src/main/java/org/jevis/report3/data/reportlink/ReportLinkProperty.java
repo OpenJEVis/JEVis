@@ -8,9 +8,12 @@ package org.jevis.report3.data.reportlink;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.calculation.CalcJob;
+import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.JEVisAttributeDAO;
 import org.jevis.commons.database.JEVisObjectDataManager;
 import org.jevis.commons.database.JEVisSampleDAO;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -45,6 +48,7 @@ public class ReportLinkProperty implements ReportData {
     private final List<ReportAttributeProperty> defaultAttributeProperties = new ArrayList<>();
     private final LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private final LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
+    private Boolean isCalculation;
 
     //    private DateTime latestTimestamp;
     public static ReportLinkProperty buildFromJEVisObject(JEVisObject reportLinkObject) {
@@ -71,10 +75,12 @@ public class ReportLinkProperty implements ReportData {
 
     private void initializeAttributes(JEVisObject reportLinkObject) {
         try {
+            SampleHandler sampleHandler = new SampleHandler();
             linkObject = reportLinkObject;
             templateVariableName = reportLinkObject.getAttribute(ReportLink.TEMPLATE_VARIABLE_NAME).getLatestSample().getValueAsString();
             Long jevisID = reportLinkObject.getAttribute(ReportLink.JEVIS_ID).getLatestSample().getValueAsLong();
             dataObject = reportLinkObject.getDataSource().getObject(jevisID);
+            isCalculation = sampleHandler.getLastSample(reportLinkObject, ReportLink.CALCULATION, false);
             if (!DataHelper.checkAllObjectsNotNull(linkObject, templateVariableName, jevisID, dataObject)) {
                 throw new RuntimeException("One Sample missing for report link Object: id: " + reportLinkObject.getID() + " and name: " + reportLinkObject.getName());
             }
@@ -345,8 +351,21 @@ public class ReportLinkProperty implements ReportData {
 //
 //                                    interval = new Interval(start, end);
 //                                }
+                                if (!isCalculation) {
+                                    linkMap.putAll(ProcessHelper.getAttributeSamples(attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString()), attribute, property.getTimeZone()));
+                                } else {
+                                    try {
+                                        CalcJobFactory calcJobCreator = new CalcJobFactory();
 
-                                linkMap.putAll(ProcessHelper.getAttributeSamples(attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString()), attribute, property.getTimeZone()));
+                                        CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), ds, ReportLinkFactory.getEnPICalcMap(ds).get(dataObject),
+                                                interval.getStart(), interval.getEnd(), aggregationPeriod);
+
+
+                                        linkMap.putAll(ProcessHelper.getAttributeSamples(calcJob.getResults(), attribute, property.getTimeZone()));
+                                    } catch (JEVisException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                                 logger.debug("added link map {} to attribute map", linkMap.entrySet());
                             }
                             break;
@@ -386,8 +405,8 @@ public class ReportLinkProperty implements ReportData {
 
         boolean optional = false;
         try {
-            if (linkObject.getAttribute("Optional") != null && linkObject.getAttribute("Optional").getLatestSample() != null) {
-                optional = linkObject.getAttribute("Optional").getLatestSample().getValueAsBoolean();
+            if (linkObject.getAttribute(ReportLink.OPTIONAL) != null && linkObject.getAttribute(ReportLink.OPTIONAL).getLatestSample() != null) {
+                optional = linkObject.getAttribute(ReportLink.OPTIONAL).getLatestSample().getValueAsBoolean();
             }
         } catch (Exception ex) {
             logger.error(ex);

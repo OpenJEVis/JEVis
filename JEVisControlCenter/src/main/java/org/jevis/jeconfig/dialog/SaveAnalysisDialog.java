@@ -177,7 +177,6 @@ public class SaveAnalysisDialog {
                                 toolBarView.updateLayout();
                             }
                         } else {
-
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
                             dialogOverwrite.setResizable(true);
                             dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
@@ -207,6 +206,83 @@ public class SaveAnalysisDialog {
                 });
     }
 
+    public static JsonChartSettings getJsonChartSettings(ChartSettings chartSettings) {
+        JsonChartSettings jsonChartSettings = new JsonChartSettings();
+
+        if (chartSettings.getAutoSize() != null) {
+            jsonChartSettings.setAutoSize(chartSettings.getAutoSize().toString());
+        }
+
+        for (ChartSetting cset : chartSettings.getListSettings()) {
+            JsonChartSetting set = new JsonChartSetting();
+            if (cset.getId() != null) set.setId(cset.getId().toString());
+            if (cset.getName() != null) set.setName(cset.getName());
+            if (cset.getChartType() != null) set.setChartType(cset.getChartType().toString());
+            if (cset.getColorMapping() != null) set.setColorMapping(cset.getColorMapping().toString());
+            if (cset.getOrientation() != null) set.setOrientation(cset.getOrientation().toString());
+            if (cset.getGroupingInterval() != null) set.setGroupingInterval(cset.getGroupingInterval().toString());
+            if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());
+
+            JsonChartTimeFrame jctf = new JsonChartTimeFrame();
+            if (cset.getAnalysisTimeFrame().getTimeFrame() != null) {
+                jctf.setTimeframe(cset.getAnalysisTimeFrame().getTimeFrame().toString());
+            }
+            jctf.setId(String.valueOf(cset.getAnalysisTimeFrame().getId()));
+
+            set.setAnalysisTimeFrame(jctf);
+
+            jsonChartSettings.getListSettings().add(set);
+        }
+        return jsonChartSettings;
+    }
+
+    public static JsonChartDataModel getJsonChartDataModel(Set<ChartDataRow> selectedData) {
+        JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
+        List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
+        for (ChartDataRow mdl : selectedData) {
+            if (!mdl.getSelectedcharts().isEmpty()) {
+                JsonAnalysisDataRow json = new JsonAnalysisDataRow();
+                json.setName(mdl.getTitle());
+                json.setColor(mdl.getColor());
+                json.setObject(mdl.getObject().getID().toString());
+                if (mdl.getDataProcessor() != null)
+                    json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
+                json.setAggregation(mdl.getAggregationPeriod().toString());
+                json.setUnit(mdl.getUnit().toJSON());
+                json.setSelectedCharts(listToString(mdl.getSelectedcharts()));
+                json.setAxis(mdl.getAxis().toString());
+                json.setIsEnPI(mdl.getEnPI().toString());
+                if (mdl.getCalculationObject() != null)
+                    json.setCalculation(mdl.getCalculationObject().getID().toString());
+                if (mdl.getBubbleType() != null) {
+                    json.setBubbleType(mdl.getBubbleType().toString());
+                }
+
+                if (mdl.getChartType() != null) {
+                    json.setChartType(mdl.getChartType().toString());
+                }
+
+                jsonDataModels.add(json);
+            }
+        }
+        jsonChartDataModel.setListDataRows(jsonDataModels);
+        return jsonChartDataModel;
+    }
+
+    public static String listToString(List<Integer> listString) {
+        if (listString != null) {
+            StringBuilder sb = new StringBuilder();
+            if (listString.size() > 1) {
+                for (Integer i : listString) {
+                    int index = listString.indexOf(i);
+                    sb.append(i.toString());
+                    if (index < listString.size() - 1) sb.append(", ");
+                }
+            } else if (listString.size() == 1) sb.append(listString.get(0));
+            return sb.toString();
+        } else return "";
+    }
+
     private void saveDataModel(JEVisObject analysis, Set<ChartDataRow> selectedData, ChartSettings chartSettings) {
         try {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
@@ -221,62 +297,9 @@ public class SaveAnalysisDialog {
             JEVisAttribute horizontalTablesAttribute = analysis.getAttribute(AnalysisDataModel.NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
             Long horizontalTables = model.getHorizontalTables();
 
-            JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
-            List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
-            for (ChartDataRow mdl : selectedData) {
-                if (!mdl.getSelectedcharts().isEmpty()) {
-                    JsonAnalysisDataRow json = new JsonAnalysisDataRow();
-                    json.setName(mdl.getTitle());
-                    json.setColor(mdl.getColor());
-                    json.setObject(mdl.getObject().getID().toString());
-                    if (mdl.getDataProcessor() != null)
-                        json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
-                    json.setAggregation(mdl.getAggregationPeriod().toString());
-                    json.setUnit(mdl.getUnit().toJSON());
-                    json.setSelectedCharts(listToString(mdl.getSelectedcharts()));
-                    json.setAxis(mdl.getAxis().toString());
-                    json.setIsEnPI(mdl.getEnPI().toString());
-                    if (mdl.getCalculationObject() != null)
-                        json.setCalculation(mdl.getCalculationObject().getID().toString());
-                    if (mdl.getBubbleType() != null) {
-                        json.setBubbleType(mdl.getBubbleType().toString());
-                    }
+            JsonChartDataModel jsonChartDataModel = getJsonChartDataModel(selectedData);
 
-                    if (mdl.getChartType() != null) {
-                        json.setChartType(mdl.getChartType().toString());
-                    }
-
-                    jsonDataModels.add(json);
-                }
-            }
-            jsonChartDataModel.setListDataRows(jsonDataModels);
-
-            JsonChartSettings jsonChartSettings = new JsonChartSettings();
-
-            if (chartSettings.getAutoSize() != null) {
-                jsonChartSettings.setAutoSize(chartSettings.getAutoSize().toString());
-            }
-
-            for (ChartSetting cset : chartSettings.getListSettings()) {
-                JsonChartSetting set = new JsonChartSetting();
-                if (cset.getId() != null) set.setId(cset.getId().toString());
-                if (cset.getName() != null) set.setName(cset.getName());
-                if (cset.getChartType() != null) set.setChartType(cset.getChartType().toString());
-                if (cset.getColorMapping() != null) set.setColorMapping(cset.getColorMapping().toString());
-                if (cset.getOrientation() != null) set.setOrientation(cset.getOrientation().toString());
-                if (cset.getGroupingInterval() != null) set.setGroupingInterval(cset.getGroupingInterval().toString());
-                if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());
-
-                JsonChartTimeFrame jctf = new JsonChartTimeFrame();
-                if (cset.getAnalysisTimeFrame().getTimeFrame() != null) {
-                    jctf.setTimeframe(cset.getAnalysisTimeFrame().getTimeFrame().toString());
-                }
-                jctf.setId(String.valueOf(cset.getAnalysisTimeFrame().getId()));
-
-                set.setAnalysisTimeFrame(jctf);
-
-                jsonChartSettings.getListSettings().add(set);
-            }
+            JsonChartSettings jsonChartSettings = getJsonChartSettings(chartSettings);
 
             if (jsonChartDataModel.toString().length() < 16635 && jsonChartSettings.toString().length() < 16635) {
                 DateTime now = DateTime.now();
@@ -303,6 +326,16 @@ public class SaveAnalysisDialog {
 
                 this.changed = false;
                 this.toolBarView.setChanged(false);
+
+                if (this.model.getTemporary()) {
+                    try {
+                        ds.deleteObject(this.model.getCurrentAnalysis().getID());
+                        this.model.updateListAnalyses();
+                    } catch (JEVisException e) {
+                        logger.error("Could not delete temporary analysis", e);
+                    }
+                }
+
                 this.model.setTemporary(false);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
@@ -313,19 +346,5 @@ public class SaveAnalysisDialog {
         } catch (JEVisException e) {
             logger.error("Error: could not save data model and chart settings", e);
         }
-    }
-
-    private String listToString(List<Integer> listString) {
-        if (listString != null) {
-            StringBuilder sb = new StringBuilder();
-            if (listString.size() > 1) {
-                for (Integer i : listString) {
-                    int index = listString.indexOf(i);
-                    sb.append(i.toString());
-                    if (index < listString.size() - 1) sb.append(", ");
-                }
-            } else if (listString.size() == 1) sb.append(listString.get(0));
-            return sb.toString();
-        } else return "";
     }
 }

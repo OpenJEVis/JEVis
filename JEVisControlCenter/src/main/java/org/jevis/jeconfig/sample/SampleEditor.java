@@ -41,11 +41,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -218,26 +218,9 @@ public class SampleEditor {
 
         if (attribute.hasSample()) {
 
-            DateTime start = attribute.getTimestampFromLastSample().minus(Period.days(7));
             DateTime end = attribute.getTimestampFromLastSample();
 
-            Period displaySampleRate = attribute.getDisplaySampleRate();
-
-            if (displaySampleRate.equals(Period.years(1))) {
-                start = attribute.getTimestampFromLastSample().minusYears(10);
-            } else if (displaySampleRate.equals(Period.months(1))) {
-                start = attribute.getTimestampFromLastSample().minusMonths(12);
-            } else if (displaySampleRate.equals(Period.weeks(1))) {
-                start = attribute.getTimestampFromLastSample().minusWeeks(10);
-            } else if (displaySampleRate.equals(Period.days(1))) {
-                start = attribute.getTimestampFromLastSample().minusDays(14);
-            } else if (displaySampleRate.equals(Period.hours(1))) {
-                start = attribute.getTimestampFromLastSample().minusDays(2);
-            } else if (displaySampleRate.equals(Period.minutes(15))) {
-                start = attribute.getTimestampFromLastSample().minusHours(24);
-            } else if (displaySampleRate.equals(Period.minutes(1))) {
-                start = attribute.getTimestampFromLastSample().minusHours(6);
-            }
+            DateTime start = CommonMethods.getStartDateFromSampleRate(attribute);
 
             controlPane.initTimeRange(start, end);
         }

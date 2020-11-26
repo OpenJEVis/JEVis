@@ -39,6 +39,15 @@
       "jevisClass": "Report Link"
     },
     {
+      "name": "Calculation",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Link"
+    },
+    {
       "name": "Template Variable Name",
       "primitiveType": 0,
       "guiType": "Text",
