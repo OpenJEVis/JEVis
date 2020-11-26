@@ -2,6 +2,7 @@ package org.jevis.jeopc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
@@ -35,11 +36,11 @@ public class OPCUAServer {
     /**
      * The default value is {@value}.
      */
-    public final String USER_DEFAULT = "operator";
+    public final String USER_DEFAULT = "";
     /**
      * The default value is {@value}.
      */
-    public final String DEFAULT_PASSWORD = "loytec4u";
+    public final String DEFAULT_PASSWORD = "";
     /**
      * The default value is {@value}.
      */
@@ -86,6 +87,7 @@ public class OPCUAServer {
         user = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.NAME, USER_DEFAULT);
         password = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.PASSWORD, DEFAULT_PASSWORD);
         protocol = String.valueOf(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.PROTOCOL, DEFAULT_PROTOCOL));
+
 
         JEVisClass opcServerJClass = null;
         try {
@@ -140,8 +142,6 @@ public class OPCUAServer {
 
     /**
      * Start the readout process
-     *
-     * @see org.jevis.jedatacollector.Launcher
      */
     public void run() {
 
@@ -155,6 +155,12 @@ public class OPCUAServer {
 
             EndpointDescription endpointDescription = opcClient.autoSelectEndpoint();
             opcClient.setEndpoints(endpointDescription);
+            if (!user.isEmpty()) {
+                logger.error("Using user: {} pw:{}", user, password);
+                opcClient.setIdentification(new UsernameProvider(user, password));
+            }
+
+
             logger.info("Call connect");
             opcClient.connect();
             logger.info("Connection done start readout");
@@ -263,7 +269,6 @@ public class OPCUAServer {
                     }
 
                     Object value = null;
-
                     if (javaType.equals(org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger.class)) {
                         value = ((org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger) dataValue.getValue().getValue()).doubleValue();
                     } else if (javaType.equals(java.lang.Float.class)) {
@@ -277,7 +282,7 @@ public class OPCUAServer {
                         }
 
                     }
-                    logger.debug(" Target: {} TS: {} -> v: {} ", UPCUAChannel.getTargetId(), ts, value);
+                    logger.debug(" Target: {} TS: {} -> v: {}  class: {} raw: {}", UPCUAChannel.getTargetId(), ts, value, javaType, dataValue.getValue());
 
                     if (dataValue.getStatusCode().isGood()) {
                         results.add(new Result(UPCUAChannel.getTargetString(), value, ts));

@@ -118,9 +118,13 @@ public class NodeTable {
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
-                    opcClient.browse(testList);
+                    try {
+                        opcClient.browse(testList);
 
-                    super.done();
+                        super.done();
+                    } catch (Exception ex) {
+                        super.failed();
+                    }
                     return null;
                 }
             };

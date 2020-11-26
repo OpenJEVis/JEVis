@@ -2,51 +2,46 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.jevis.jeopc</groupId>
+    <artifactId>OPCUA-Driver</artifactId>
+    <version>1.0</version>
+    <name>OPCUA-Driver</name>
+    <packaging>jar</packaging>
+
+    <properties>
+        <!-- <milo.version>0.4.3</milo.version>-->
+        <milo.version>0.5.3</milo.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <skipTests>true</skipTests>
+        <additionalparam>-Xdoclint:none</additionalparam>
+    </properties>
+
     <parent>
         <artifactId>JEVisCore</artifactId>
         <groupId>org.jevis</groupId>
         <version>3.4</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <properties>
-        <milo.version>0.4.3</milo.version>
-    </properties>
-
-    <artifactId>OPCUA</artifactId>
-    <version>3.4</version>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.1</version>
                 <configuration>
-                    <!-- get all project dependencies -->
+                    <archive>
+                        <manifest>
+                            <mainClass>org.jevis.jeopc.CMDClient</mainClass>
+                        </manifest>
+                    </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <!-- MainClass in mainfest make a executable jar -->
-                    <archive>
-                        <manifest>
-                            <mainClass></mainClass>
-                        </manifest>
-                    </archive>
-
+                    <finalName>${project.artifactId}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
-                        <!-- bind to the packaging phase -->
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -54,12 +49,84 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArgument></compilerArgument>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>org.jevis.jeopc.CMDClient</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
         </plugins>
-
-
     </build>
 
+
+    <!--
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>8</source>
+                        <target>8</target>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <configuration>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                        <archive>
+                            <manifest>
+                                <mainClass>org.jevis.jeopc.OPCClient</mainClass>
+                            </manifest>
+                        </archive>
+
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+            </plugins>
+
+
+        </build>
+    -->
 
     <dependencies>
         <dependency>
@@ -125,6 +192,7 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Disable provided if you wish to use the CMDClient-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -140,6 +208,12 @@
             <artifactId>log4j-1.2-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+
+
     </dependencies>
 
 </project>

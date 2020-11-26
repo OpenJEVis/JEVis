@@ -36,18 +36,18 @@ public class DataValueTable {
     private ObservableList<DataValueRow> list = FXCollections.observableArrayList();
     private ObservableList<DataValueRow> filteredList = FXCollections.observableArrayList();
     private CheckBox filterTrends = new CheckBox();
-    private TextField filterFieldGroup= new TextField();
+    private TextField filterFieldGroup = new TextField();
     private ObservableList<DataValueRow> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
     private Label fromLabel = new Label("From:");
     private Label untilLabel = new Label("Until:");
     private JFXDatePicker fromDatePicker = new JFXDatePicker();
     private JFXDatePicker untilDatePicker = new JFXDatePicker();
-    private NodeId selectedtNodeId =null;
-    private Task runningTask=null;
+    private NodeId selectedtNodeId = null;
+    private Task runningTask = null;
 
     public DataValueTable(OPCClient opcClient) {
-        this.opcClient= opcClient;
+        this.opcClient = opcClient;
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldGroup.textProperty().addListener((observable, oldValue, newValue) -> updateFilteredData());
 
@@ -62,26 +62,26 @@ public class DataValueTable {
         valueCol.setPrefWidth(300);
 
 
-        tableView.getColumns().addAll(valueCol,dateCol,qualityCol);
+        tableView.getColumns().addAll(valueCol, dateCol, qualityCol);
         //tableView.setPrefSize(Double.MAX_VALUE,Double.MAX_VALUE);
         tableView.getSortOrder().add(valueCol);
-        tableView.setMinSize(600,900);
-        tableView.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
+        tableView.setMinSize(600, 900);
+        tableView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         //hiddenSidesPane.setContent(tableView);
-        view.addRow(0,filterTrends,filterFieldGroup);
-        view.addRow(1,fromLabel,fromDatePicker);
-        view.addRow(2,untilLabel,untilDatePicker);
+        view.addRow(0, filterTrends, filterFieldGroup);
+        view.addRow(1, fromLabel, fromDatePicker);
+        view.addRow(2, untilLabel, untilDatePicker);
         //view.setStyle("-fx-background-color:orangered;");
 
 
         //view.setGridLinesVisible(true);
         view.setPadding(new Insets(8));
         view.setHgap(8);
-        view.add(tableView,0,3,3,1);
-        GridPane.setFillWidth(tableView,true);
-        GridPane.setFillHeight(tableView,true);
+        view.add(tableView, 0, 3, 3, 1);
+        GridPane.setFillWidth(tableView, true);
+        GridPane.setFillHeight(tableView, true);
         //_view.setPinnedSide(Side.RIGHT)
         //_view.setRight(help);
 
@@ -89,11 +89,8 @@ public class DataValueTable {
         //readCol.setCellFactory(param -> new CheckBoxTableCell<>());
 
 
-
-
-
         filteredList.addAll(list);
-        System.out.println("filteredList; "+filteredList.size());
+        System.out.println("filteredList; " + filteredList.size());
 
         tableView.setItems(filteredList);
 
@@ -102,10 +99,16 @@ public class DataValueTable {
         fromDatePicker.valueProperty().set(LocalDate.now());
         untilDatePicker.valueProperty().set(LocalDate.now());
 
-        fromDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {updateTable(selectedtNodeId);});
-        untilDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {updateTable(selectedtNodeId);});
+        fromDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            updateTable(selectedtNodeId);
+        });
+        untilDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            updateTable(selectedtNodeId);
+        });
 
-        filterTrends.selectedProperty().addListener((observable, oldValue, newValue) -> {updateFilteredData();});
+        filterTrends.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            updateFilteredData();
+        });
         filterTrends.setSelected(true);
 
 
@@ -113,11 +116,11 @@ public class DataValueTable {
 
     }
 
-    public void updateTable(NodeId nodeID){
-        System.out.println("updateTable: "+nodeID);
-        selectedtNodeId=nodeID;
-        if(selectedtNodeId!=null){
-            if(runningTask!=null){
+    public void updateTable(NodeId nodeID) {
+        System.out.println("updateTable: " + nodeID);
+        selectedtNodeId = nodeID;
+        if (selectedtNodeId != null) {
+            if (runningTask != null) {
                 runningTask.cancel(true);
                 list.clear();
             }
@@ -125,39 +128,42 @@ public class DataValueTable {
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
+                    try {
+                        DateTime fromts = new DateTime(fromDatePicker.valueProperty().get().getYear(), fromDatePicker.valueProperty().get().getMonthValue(), fromDatePicker.valueProperty().get().getDayOfMonth(), 0, 0, 0);
+                        DateTime untilts = new DateTime(untilDatePicker.valueProperty().get().getYear(), untilDatePicker.valueProperty().get().getMonthValue(), untilDatePicker.valueProperty().get().getDayOfMonth(), 23, 59, 59);
 
-                    DateTime fromts = new DateTime(fromDatePicker.valueProperty().get().getYear(), fromDatePicker.valueProperty().get().getMonthValue(), fromDatePicker.valueProperty().get().getDayOfMonth(), 0, 0, 0);
-                    DateTime untilts = new DateTime(untilDatePicker.valueProperty().get().getYear(), untilDatePicker.valueProperty().get().getMonthValue(), untilDatePicker.valueProperty().get().getDayOfMonth(), 23, 59, 59);
-
-                    logger.error("historyReadResult: id={} from={} until={},",selectedtNodeId.getIdentifier(),fromts,untilts);
-                    HistoryReadResult historyReadResult = opcClient.getHistory(selectedtNodeId,fromts,untilts);
-                    List<DataValue> valueList = opcClient.getDateValues(historyReadResult);
-                    valueList.forEach(dataValue -> {
-                        try {
-                            System.out.println("sample: " + dataValue);
-                            list.add(new DataValueRow(dataValue));
-                        }catch (Exception ex){
-                            logger.error("DataValue error; {}",ex);
-                        }
-                    });
-                    System.out.println("done");
-                    super.done();
+                        logger.error("historyReadResult: id={} from={} until={},", selectedtNodeId.getIdentifier(), fromts, untilts);
+                        HistoryReadResult historyReadResult = opcClient.getHistory(selectedtNodeId, fromts, untilts);
+                        List<DataValue> valueList = opcClient.getDateValues(historyReadResult);
+                        valueList.forEach(dataValue -> {
+                            try {
+                                System.out.println("sample: " + dataValue);
+                                list.add(new DataValueRow(dataValue));
+                            } catch (Exception ex) {
+                                logger.error("DataValue error; {}", ex);
+                            }
+                        });
+                        System.out.println("done");
+                        super.done();
+                    } catch (Exception ex) {
+                        super.failed();
+                    }
                     return null;
                 }
             };
             runningTask = task;
-            JEConfig.getStatusBar().addTask(OPCBrowser.class.getName(),task, taskIcon,true);
+            JEConfig.getStatusBar().addTask(OPCBrowser.class.getName(), task, taskIcon, true);
         }
 
     }
 
 
-    public GridPane getView(){
+    public GridPane getView() {
         return view;
     }
 
     private void updateFilteredData() {
-        Platform.runLater(()->{
+        Platform.runLater(() -> {
             filteredList.clear();
 
             try {
@@ -176,7 +182,7 @@ public class DataValueTable {
 
                 }
 
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 /** todo: fix ConcurrentModificationException **/
             }
             // Must re-sort table after items changed
@@ -210,7 +216,7 @@ public class DataValueTable {
         return false; // Does not match
     }
 
-    public void setData(){
+    public void setData() {
 
     }
 

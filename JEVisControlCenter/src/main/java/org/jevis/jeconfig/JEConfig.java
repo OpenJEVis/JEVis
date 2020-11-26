@@ -44,10 +44,7 @@ import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
@@ -382,6 +379,17 @@ public class JEConfig extends Application {
                 Locale.setDefault(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
+
+                try {
+                    JEVisObject opcserver = _mainDS.getObject(20152l);
+                    System.out.println("opcserver: " + opcserver);
+                    JEVisClass opcclass = opcserver.getJEVisClass();
+                    opcclass.getTypes().forEach(jeVisType -> {
+                        System.out.println("Opc Type: " + jeVisType);
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
 
                 _config.setLocale(login.getSelectedLocale());
 

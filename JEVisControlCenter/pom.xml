@@ -35,9 +35,9 @@
             <version>1.5</version>
         </dependency>
         <dependency>
-            <groupId>org.jevis</groupId>
-            <artifactId>OPCUA</artifactId>
-            <version>3.4</version>
+            <groupId>org.jevis.jeopc</groupId>
+            <artifactId>OPCUA-Driver</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.milo</groupId>
@@ -161,6 +161,12 @@
             <groupId>de.jollyday</groupId>
             <artifactId>jollyday</artifactId>
             <version>0.5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis.jeopc</groupId>
+            <artifactId>OPCUA-Driver</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
         </dependency>
         <!-- nice javafx stuff
         <dependency>
