@@ -166,7 +166,7 @@
             <groupId>org.jevis.jeopc</groupId>
             <artifactId>OPCUA-Driver</artifactId>
             <version>1.0</version>
-            <scope>compile</scope>
+            <!--<scope>compile</scope>-->
         </dependency>
         <!-- nice javafx stuff
         <dependency>
@@ -227,6 +227,15 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.4.1</version>
+                    <configuration>
+                        <rules><dependencyConvergence/></rules>
+                    </configuration>
+                </plugin>
 
             <!--
             <plugin>
