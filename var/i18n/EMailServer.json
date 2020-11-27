@@ -1,115 +1,83 @@
 {
   "jevisclass": "EMail Server",
   "names": {
-    "de": "EMail Server",
-    "ru": "EMail Server",
-    "en": "EMail Server"
+    "de": "E-Mail Server",
+    "ru": "Почтовый сервер",
+    "en": "E-Mail Server",
+    "uk": "Сервер електронної пошти",
+    "th": "เซิร์ฟเวอร์อีเมล"
   },
   "descriptions": {},
   "types": [
     {
-      "type": "Connection Timeout",
-      "descriptions": {
-        "de": "Connection Timeout description",
-        "ru": "Connection Timeout description",
-        "en": "Connection Timeout description"
-      },
-      "names": {
-        "de": "Verbindungs-Timeout",
-        "ru": "Connection Timeout",
-        "en": "Connection Timeout"
-      }
-    },
-    {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled description",
-        "ru": "Enabled description",
-        "en": "Enabled description"
+        "de": "Mit dem Schalter wird die Datenquelle zur Auslesung aktiviert",
+        "ru": "Источник данных для чтения активируется переключателем",
+        "en": "The button enables this data source for read out",
+        "uk": "Джерело даних для зчитування активується за допомогою перемикача",
+        "th": "แหล่งข้อมูลสำหรับการอ่านเปิดใช้งานด้วยสวิตช์"
       },
       "names": {
         "de": "Aktiviert",
-        "ru": "Enabled",
-        "en": "Enabled"
-      }
-    },
-    {
-      "type": "Host",
-      "descriptions": {
-        "de": "Host description",
-        "ru": "Host description",
-        "en": "Host description"
-      },
-      "names": {
-        "de": "Host",
-        "ru": "Host",
-        "en": "Host"
+        "ru": "Активирован",
+        "en": "Enabled",
+        "uk": "Активоване",
+        "th": "เปิดใช้งานแล้ว"
       }
     },
     {
       "type": "Password",
       "descriptions": {
-        "de": "Password description",
-        "ru": "Password description",
-        "en": "Password description"
+        "de": "Das Passwort des E-Mail Accounts mit dem sich am Server angemeldet wird",
+        "ru": "Пароль учетной записи электронной почты, которая используется для входа на сервер.",
+        "en": "The password which is used for server authentication",
+        "uk": "Пароль облікового запису електронної пошти, який використовується для входу на сервер",
+        "th": "รหัสผ่านของบัญชีอีเมลที่ใช้เพื่อเข้าสู่ระบบเซิร์ฟเวอร์"
       },
       "names": {
         "de": "Passwort",
-        "ru": "Password",
-        "en": "Password"
-      }
-    },
-    {
-      "type": "Port",
-      "descriptions": {
-        "de": "Port description",
-        "ru": "Port description",
-        "en": "Port description"
-      },
-      "names": {
-        "de": "Port",
-        "ru": "Port",
-        "en": "Port"
-      }
-    },
-    {
-      "type": "Read Timeout",
-      "descriptions": {
-        "de": "Read Timeout description",
-        "ru": "Read Timeout description",
-        "en": "Read Timeout description"
-      },
-      "names": {
-        "de": "Lese-Timeout",
-        "ru": "Read Timeout",
-        "en": "Read Timeout"
+        "ru": "пароль",
+        "en": "Password",
+        "uk": "пароль",
+        "th": "รหัสผ่าน"
       }
     },
     {
       "type": "SSL",
       "descriptions": {
-        "de": "SSL description",
-        "ru": "SSL description",
-        "en": "SSL description"
+        "de": "Entscheidet welcher Authentifizierungsmethode benutzt wird",
+        "ru": "Решает, какой метод аутентификации используется",
+        "en": "Datermines the authentication method to use for server login",
+        "uk": "Визначає, який метод автентифікації використовуватиметься",
+        "th": "ตัดสินใจว่าจะใช้วิธีการรับรองความถูกต้องใด"
       },
       "names": {
         "de": "SSL",
         "ru": "SSL",
-        "en": "SSL"
+        "en": "SSL",
+        "uk": "SSL",
+        "th": "SSL"
       },
-      "enums" : {
-        "SSL/TLS" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "SSL/TLS",
-            "en" : "SSL/TLS"
+      "enums": {
+        "SSL/TLS": {
+          "descriptions": null,
+          "names": {
+            "de": "SSL/TLS",
+            "en": "SSL/TLS",
+            "ru": "SSL/TLS",
+            "uk": "SSL/TLS",
+            "th": "SSL/TLS"
           }
         },
-        "STARTTLS" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "STARTTLS",
-            "en" : "STARTTLS"
+        "STARTTLS": {
+          "descriptions": null,
+          "names": {
+            "de": "STARTTLS",
+            "en": "STARTTLS",
+            "ru": "STARTTLS",
+            "uk": "STARTTLS",
+            "th": "STARTTLS"
           }
         }
       }
@@ -117,27 +85,35 @@
     {
       "type": "Timezone",
       "descriptions": {
-        "de": "Timezone description",
-        "ru": "Timezone description",
-        "en": "Timezone description"
+        "de": "Die Zeitzone, die für die Daten, die vom Server ausgelesen werden, entscheidend ist",
+        "ru": "Часовой пояс, который имеет решающее значение для данных, считываемых с сервера.",
+        "en": "The timezone which is relevant for the data read out from the server",
+        "uk": "Часовий пояс, який є визначальним для даних, які зчитуються з сервера",
+        "th": "เขตเวลาซึ่งเป็นตัวชี้ขาดสำหรับข้อมูลที่อ่านจากเซิร์ฟเวอร์"
       },
       "names": {
         "de": "Zeitzone",
-        "ru": "Timezone",
-        "en": "Timezone"
+        "ru": "Часовой пояс",
+        "en": "Timezone",
+        "uk": "Часовий пояс",
+        "th": "เขตเวลา"
       }
     },
     {
       "type": "User",
       "descriptions": {
-        "de": "User description",
-        "ru": "User description",
-        "en": "User description"
+        "de": "Der Benutzername, mit dem sich am Server angemeldet wird",
+        "ru": "Имя пользователя для входа на сервер.",
+        "en": "The user name which is used for server login",
+        "uk": "Ім'я користувача, за допомогою якого можна ввійти на сервер",
+        "th": "ชื่อผู้ใช้ที่ใช้ในการเข้าสู่ระบบเซิร์ฟเวอร์"
       },
       "names": {
         "de": "Benutzer",
-        "ru": "User",
-        "en": "User"
+        "ru": "пользователь",
+        "en": "User",
+        "uk": "користувач",
+        "th": "ผู้ใช้"
       }
     }
   ]
