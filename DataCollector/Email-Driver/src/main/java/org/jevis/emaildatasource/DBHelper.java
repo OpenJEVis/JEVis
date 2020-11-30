@@ -43,12 +43,11 @@ public class DBHelper {
      * Get the attributes values.
      *
      * @param <T>
-     * @param rtype expected return type
-     * @param obj email object
-     * @param attType specific attribute of an email object (see EMailConstants)
-     * @param error specific error object for attribute
+     * @param rtype    expected return type
+     * @param obj      email object
+     * @param attType  specific attribute of an email object (see EMailConstants)
+     * @param error    specific error object for attribute
      * @param defValue default value of attribute
-     *
      * @return T value of attribute
      */
     public static <T> T getAttValue(RetType rtype, JEVisObject obj, String attType, MailError error, T defValue) throws NullPointerException {
@@ -86,7 +85,10 @@ public class DBHelper {
                 case INTEGER:
                     try {
                         Long longValue = lastS.getValueAsLong();
-                        logger.error("{} is empty. Trying to set the default value", error.getMessage());
+                        if (null == longValue || longValue == -1L) {
+                            logger.error("{} is empty. Trying to set the default value", error.getMessage());
+                            return getDefValue(defValue, error);
+                        }
                         return (T) new Integer(longValue.intValue());
                     } catch (Exception ex) {
                         logger.error("Attribute {}: failed to get the value", error.getMessage());

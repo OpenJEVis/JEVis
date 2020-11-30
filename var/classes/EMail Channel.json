@@ -45,6 +45,23 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Channel"
+    },
+    {
+      "name": "Filename",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Channel"
+    },
+    {
+      "name": "Data in body",
+      "primitiveType": 4,
+      "guiType": "Button",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Channel"
     }
   ]
 }

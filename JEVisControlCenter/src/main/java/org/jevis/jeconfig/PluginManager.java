@@ -237,6 +237,9 @@ public class PluginManager {
 
             }
 
+            if (this._plugins.isEmpty()) {
+                plugins.get(0);
+            }
 
             try {
                 Comparator<Plugin> pluginComparator = (o1, o2) -> {
