@@ -25,6 +25,45 @@
         "uk": "папку",
         "th": "โฟลเดอร์"
       }
+    },
+    {
+      "type": "SSL",
+      "descriptions": {
+        "de": "Entscheidet welcher Authentifizierungsmethode benutzt wird",
+        "ru": "Решает, какой метод аутентификации используется",
+        "en": "Datermines the authentication method to use for server login",
+        "uk": "Визначає, який метод автентифікації використовуватиметься",
+        "th": "ตัดสินใจว่าจะใช้วิธีการรับรองความถูกต้องใด"
+      },
+      "names": {
+        "de": "SSL",
+        "ru": "SSL",
+        "en": "SSL",
+        "uk": "SSL",
+        "th": "SSL"
+      },
+      "enums": {
+        "SSL/TLS": {
+          "descriptions": null,
+          "names": {
+            "de": "SSL/TLS",
+            "en": "SSL/TLS",
+            "ru": "SSL/TLS",
+            "uk": "SSL/TLS",
+            "th": "SSL/TLS"
+          }
+        },
+        "STARTTLS": {
+          "descriptions": null,
+          "names": {
+            "de": "STARTTLS",
+            "en": "STARTTLS",
+            "ru": "STARTTLS",
+            "uk": "STARTTLS",
+            "th": "STARTTLS"
+          }
+        }
+      }
     }
   ]
 }
