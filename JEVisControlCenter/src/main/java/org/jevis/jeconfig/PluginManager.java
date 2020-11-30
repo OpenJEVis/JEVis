@@ -237,10 +237,6 @@ public class PluginManager {
 
             }
 
-            if (this._plugins.isEmpty()) {
-                plugins.get(0);
-            }
-
             try {
                 Comparator<Plugin> pluginComparator = (o1, o2) -> {
 
@@ -261,6 +257,10 @@ public class PluginManager {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+
+        if (this._plugins.isEmpty()) {
+            plugins.get(0);
         }
     }
 
