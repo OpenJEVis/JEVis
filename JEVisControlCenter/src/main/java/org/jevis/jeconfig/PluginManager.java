@@ -25,7 +25,6 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
@@ -150,18 +149,21 @@ public class PluginManager {
             List<JEVisObject> servicesDir = this._ds.getObjects(servicesClass, false);
             if (servicesDir == null || servicesDir.isEmpty()) {
                 logger.info("Warning missing ServicesDirectory");
+                this._plugins.add(plugins.get(0));
                 return;
             }
 
             List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
             if (controlCenterObj == null || controlCenterObj.isEmpty()) {
                 logger.info("Warning missing ControlCenter");
+                this._plugins.add(plugins.get(0));
                 return;
             }
 
             List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
             if (pluginObjs == null || pluginObjs.isEmpty()) {
                 logger.info("Warning No Plugins installed");
+                this._plugins.add(plugins.get(0));
                 return;
             }
 
@@ -242,16 +244,7 @@ public class PluginManager {
             }
 
             try {
-                Comparator<Plugin> pluginComparator = (o1, o2) -> {
-
-                    if (o1.getPrefTapPos() < o2.getPrefTapPos()) {
-                        return -1;
-                    } else if (o1.getPrefTapPos() > o2.getPrefTapPos()) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                };
+                Comparator<Plugin> pluginComparator = Comparator.comparingInt(Plugin::getPrefTapPos);
                 this._plugins.sort(pluginComparator);
 
 //                        Collections.swap(_plugins, 0, 1);
@@ -320,7 +313,7 @@ public class PluginManager {
                     updateTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            Platform.runLater(() -> plugin.setHasFocus());
+                            Platform.runLater(plugin::setHasFocus);
                         }
                     }, 4000);
 
@@ -342,37 +335,31 @@ public class PluginManager {
 
         }
 
-        this.selectedPluginProperty.addListener(new ChangeListener<Plugin>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Plugin> observable, Plugin oldValue, Plugin newValue) {
-                Platform.runLater(() -> {
+        this.selectedPluginProperty.addListener((ChangeListener<Plugin>) (observable, oldValue, newValue) -> Platform.runLater(() -> {
 //                        toolbar.getChildren().removeAll();
-                    if (newValue != null) {
-                        try {
-                            Node pluginToolbar = newValue.getToolbar();
-                            PluginManager.this.toolbar.getChildren().setAll(pluginToolbar);
-                            AnchorPane.setTopAnchor(pluginToolbar, 0.0);
-                            AnchorPane.setLeftAnchor(pluginToolbar, 0.0);
-                            AnchorPane.setRightAnchor(pluginToolbar, 0.0);
-                            AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
-                            PluginManager.this.menu.setPlugin(newValue);
-                            newValue.setHasFocus();
-                            /**
-                             * for now we have to disable the function to keep the status over multiple plugins
-                             *  because the TaskMonitor will make trouble with the tooltips.
-                             */
-                            JEVisHelp.getInstance().showHelpTooltips(false);
-                            JEVisHelp.getInstance().showInfoTooltips(false);
-                            JEVisHelp.getInstance().setActivePlugin(newValue.getClass().getSimpleName());
-                        } catch (Exception ex) {
-                            logger.error("Error while switching plugin: {}", ex, ex);
-                        }
-                    }
-
-                });
+            if (newValue != null) {
+                try {
+                    Node pluginToolbar = newValue.getToolbar();
+                    PluginManager.this.toolbar.getChildren().setAll(pluginToolbar);
+                    AnchorPane.setTopAnchor(pluginToolbar, 0.0);
+                    AnchorPane.setLeftAnchor(pluginToolbar, 0.0);
+                    AnchorPane.setRightAnchor(pluginToolbar, 0.0);
+                    AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
+                    PluginManager.this.menu.setPlugin(newValue);
+                    newValue.setHasFocus();
+                    /**
+                     * for now we have to disable the function to keep the status over multiple plugins
+                     *  because the TaskMonitor will make trouble with the tooltips.
+                     */
+                    JEVisHelp.getInstance().showHelpTooltips(false);
+                    JEVisHelp.getInstance().showInfoTooltips(false);
+                    JEVisHelp.getInstance().setActivePlugin(newValue.getClass().getSimpleName());
+                } catch (Exception ex) {
+                    logger.error("Error while switching plugin: {}", ex, ex);
+                }
             }
-        });
+
+        }));
 
         this.tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             try {
