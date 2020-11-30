@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+<module type="JAVA_MODULE" version="4">
+  <component name="ExternalSystem" externalSystem="Maven" />
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
@@ -10,10 +11,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="JECommons" />
-    <orderEntry type="module" module-name="jeapi" />
-    <orderEntry type="library" name="Maven: joda-time:joda-time:2.10.5" level="project" />
-    <orderEntry type="library" name="Maven: org.jscience:jscience:4.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.javolution:javolution:5.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-api:2.13.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-core:2.13.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-1.2-api:2.13.0" level="project" />
@@ -53,5 +50,9 @@
     <orderEntry type="library" name="Maven: javax.ws.rs:javax.ws.rs-api:2.0" level="project" />
     <orderEntry type="module" module-name="SOAPDataSource" />
     <orderEntry type="module" module-name="XMLParser" />
+    <orderEntry type="module" module-name="jeapi" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.10.5" level="project" />
+    <orderEntry type="library" name="Maven: org.jscience:jscience:4.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.javolution:javolution:5.2.3" level="project" />
   </component>
 </module>

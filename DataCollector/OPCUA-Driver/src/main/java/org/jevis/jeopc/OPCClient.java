@@ -207,10 +207,10 @@ public class OPCClient {
                 .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri())) //
                 .findFirst();
         if (found.isPresent()) {
-            logger.error("Found supportet endpoint: {}", found);
+            logger.error("Found supported endpoint: {}", found);
             return found.get();
         } else {
-            logger.error("Ddid not found supportet endpoint using first: {}", getEndpoints().get(0));
+            logger.error("Did not found supported endpoint using first: {}", getEndpoints().get(0));
             return getEndpoints().get(0);
         }
 

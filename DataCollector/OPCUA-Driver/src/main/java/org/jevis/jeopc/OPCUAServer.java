@@ -282,7 +282,7 @@ public class OPCUAServer {
                         }
 
                     }
-                    logger.debug(" Target: {} TS: {} -> v: {}  class: {} raw: {}", UPCUAChannel.getTargetId(), ts, value, javaType, dataValue.getValue());
+                    logger.debug(" Target: {} TS: {} -> v: {}  class: {} raw: {} ", UPCUAChannel.getTargetId(), ts, value, javaType, dataValue.getValue());
 
                     if (dataValue.getStatusCode().isGood()) {
                         results.add(new Result(UPCUAChannel.getTargetString(), value, ts));
