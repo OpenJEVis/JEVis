@@ -84,7 +84,7 @@ public class OPCUAServer {
         port = Integer.parseInt(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.PORT, DEFAULT_PORT));
         connectionTimeout = Integer.parseInt(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.CONNECTION_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT));
         readTimeout = Integer.parseInt(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.READ_TIMEOUT, DEFAULT_READ_TIMEOUT));
-        user = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.NAME, USER_DEFAULT);
+        user = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.USER, USER_DEFAULT);
         password = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.PASSWORD, DEFAULT_PASSWORD);
         protocol = String.valueOf(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.PROTOCOL, DEFAULT_PROTOCOL));
 

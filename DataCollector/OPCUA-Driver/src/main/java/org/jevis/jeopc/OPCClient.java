@@ -31,7 +31,10 @@ import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -183,10 +186,12 @@ public class OPCClient {
         List<EndpointDescription> endpointDescriptions = DiscoveryClient.getEndpoints(endpointURL).get();
         endpointDescriptions.forEach(endpointDescription -> {
             try {
+                logger.debug("---");
+                logger.debug("EndpointUrl: {}", endpointDescription.getEndpointUrl());
                 logger.debug("SecurityLevel: {}", endpointDescription.getSecurityLevel());
                 logger.debug("SecurityPolicyUri: {}", endpointDescription.getSecurityPolicyUri());
                 logger.debug("SecurityMode: {}", endpointDescription.getSecurityMode());
-                logger.debug("ServerCertificate: {}", endpointDescription.getServerCertificate());
+                logger.debug("ServerCertificate.length: {}", endpointDescription.getServerCertificate().length());
                 logger.debug("ProductUri: {}", endpointDescription.getServer().getProductUri());
 
             } catch (Exception ex) {
@@ -203,18 +208,29 @@ public class OPCClient {
      */
     public EndpointDescription autoSelectEndpoint() throws ExecutionException, InterruptedException {
 
-        Optional<EndpointDescription> found = getEndpoints().stream()
-                .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri())) //
-                .findFirst();
-        if (found.isPresent()) {
-            logger.error("Found supported endpoint: {}", found);
-            return found.get();
-        } else {
-            logger.error("Did not found supported endpoint using first: {}", getEndpoints().get(0));
-            return getEndpoints().get(0);
+        for (EndpointDescription endpointDescription1 : getEndpoints()) {
+            if (endpointDescription1.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri())
+                    && endpointDescription1.getEndpointUrl().contains(endpointURL)) {
+                logger.error("Found supported endpoint: {}", endpointDescription1);
+                return endpointDescription1;
+            }
         }
 
+        logger.error("Did not found supported endpoint using first: {}", getEndpoints().get(0));
+        return getEndpoints().get(0);
 
+        /**
+         Optional<EndpointDescription> found = getEndpoints().stream()
+         .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri())) //
+         .findFirst();
+         if (found.isPresent()) {
+         logger.error("Found supported endpoint: {}", found);
+         return found.get();
+         } else {
+         logger.error("Did not found supported endpoint using first: {}", getEndpoints().get(0));
+         return getEndpoints().get(0);
+         }
+         **/
     }
 
     /**
