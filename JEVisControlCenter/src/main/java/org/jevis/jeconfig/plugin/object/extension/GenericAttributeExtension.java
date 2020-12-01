@@ -60,9 +60,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     public static DoubleProperty editorWidth = new SimpleDoubleProperty(350);
     private final ScrollPane _view = new ScrollPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private JEVisObject _obj;
+    private final JEVisObject _obj;
     private boolean _needSave = false;
-    private List<AttributeEditor> _attributesEditor;
+    private final List<AttributeEditor> _attributesEditor;
     private static JEVisTree tree;
 
     public GenericAttributeExtension(JEVisObject obj, JEVisTree tree) {
@@ -232,6 +232,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         editor = new CalendarEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.WEB_VIEW.getId())) {
                         editor = new WebViewEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.PERIOD.getId())) {
+                        editor = new PeriodEditor(att);
                     }
                 } catch (Exception e) {
                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());

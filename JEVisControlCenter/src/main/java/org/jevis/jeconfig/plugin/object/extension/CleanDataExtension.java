@@ -33,9 +33,11 @@ import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
+import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -63,6 +65,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private JEVisAttribute valueOffsetAttribute;
     private JEVisAttribute valueAttribute;
     private JEVisAttribute counterOverflowAttribute;
+    private JEVisAttribute periodAttribute;
     private ToggleSwitchPlus conversionToDifferential;
     private ToggleSwitchPlus enabled;
     private ToggleSwitchPlus limitsEnabled;
@@ -74,11 +77,14 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private JFXTextField valueMultiplier;
     private JFXTextField valueOffset;
     private JFXTextField counterOverflow;
+    private SamplingRateUI period;
     private TimeStampEditor conversionToDifferentialTimeStampEditor;
     private TimeStampEditor valueMultiplierTimeStampEditor;
+    private TimeStampEditor periodTimeStampEditor;
     private CleanDataObject cleanDataObject;
     private boolean changedValueMultiplier = false;
     private boolean changedConversionToDifferential = false;
+    private boolean changedPeriod = false;
     private JEVisAttribute gapFillingConfigAttribute;
     private JEVisAttribute limitsConfigurationAttribute;
     private final NumberFormat nf = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
@@ -155,6 +161,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         valueOffsetAttribute = cleanDataObject.getValueOffsetAttribute();
         valueAttribute = cleanDataObject.getValueAttribute();
         counterOverflowAttribute = cleanDataObject.getCounterOverflowAttribute();
+        periodAttribute = cleanDataObject.getPeriodAttribute();
 
         JEVisSample conversionToDifferentialLastSample = conversionToDifferentialAttribute.getLatestSample();
         JEVisSample enabledLastSample = enabledAttribute.getLatestSample();
@@ -172,7 +179,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         JEVisSample valueOffsetLastSample = valueOffsetAttribute.getLatestSample();
         JEVisSample valueLastSample = valueAttribute.getLatestSample();
         JEVisSample counterOverflowLastSample = counterOverflowAttribute.getLatestSample();
-
+        JEVisSample periodLastSample = periodAttribute.getLatestSample();
 
         /**
          *  Conversion to Differential
@@ -221,8 +228,6 @@ public class CleanDataExtension implements ObjectEditorExtension {
                     logger.error(ex);
                 }
             }
-
-
         });
 
         /**
@@ -298,6 +303,33 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (alarmLogLastSample != null) {
             alarmLog.setText(alarmLogLastSample.getValueAsDouble().toString());
         }
+
+        /**
+         *  Period
+         */
+
+        Label namePeriod = new Label(I18nWS.getInstance().getAttributeName(periodAttribute));
+        Tooltip ttPeriod = new Tooltip(I18nWS.getInstance().getAttributeDescription(periodAttribute));
+        if (!ttPeriod.getText().isEmpty()) {
+            namePeriod.setTooltip(ttPeriod);
+        }
+        AttributeAdvSettingDialogButton advSettingDialogButtonPeriod = new AttributeAdvSettingDialogButton(periodAttribute);
+        periodTimeStampEditor = new TimeStampEditor(periodAttribute);
+
+        Period p = Period.minutes(15);
+        try {
+            if (periodLastSample != null) {
+                p = new Period(periodLastSample.getValueAsString());
+            } else if (periodAttribute.getInputSampleRate() != null) {
+                JEVisObject object = periodAttribute.getObject();
+                JEVisAttribute value = object.getAttribute("Value");
+                p = value.getInputSampleRate();
+                changedAttributes.add(periodAttribute);
+            }
+        } catch (Exception e) {
+            logger.error("Could not get period from sample", e);
+        }
+        period = new SamplingRateUI(p);
 
         /**
          *  Period Alignment
@@ -427,7 +459,9 @@ public class CleanDataExtension implements ObjectEditorExtension {
                 valueOffset,
                 valueTimeStamp,
                 value,
-                counterOverflow);
+                counterOverflow,
+                valueMultiplierTimeStampEditor,
+                period);
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setStyle("-fx-background-color: transparent");
@@ -501,6 +535,13 @@ public class CleanDataExtension implements ObjectEditorExtension {
         gridPane.add(namePeriodAlignment, 0, row);
         gridPane.add(advSettingDialogButtonPeriodAlignment, 1, row);
         gridPane.add(periodAlignment, 2, row, colSpan, 1);
+
+        row++;
+        gridPane.add(namePeriod, 0, row);
+        gridPane.add(advSettingDialogButtonPeriod, 1, row);
+        gridPane.add(period, 2, row);
+        gridPane.add(periodTimeStampEditor.getEditor(), 5, row);
+
         row++;
         gridPane.add(namePeriodOffset, 0, row);
         gridPane.add(advSettingDialogButtonPeriodOffset, 1, row);
@@ -537,7 +578,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
 
     private void recleanCleanData(JEVisObject obj) throws JEVisException {
         if (!obj.getJEVisClassName().equals("Clean Data")) return;
-        logger.error("Recaluclate object: {}", obj);
+        logger.error("Delete and clean all values for object: {}", obj);
 
         final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "[" + obj.getID() + "] " + obj.getName() + "  ...");
 
@@ -545,24 +586,25 @@ public class CleanDataExtension implements ObjectEditorExtension {
             @Override
             protected Void call() {
                 try {
-                    logger.error("Disable DataCleaner");
+                    logger.error("Disable Clean Data Object");
                     obj.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
 
-
                     JEVisAttribute value = obj.getAttribute("Value");
-                    logger.error("Delete all data from: {}", value);
+                    int sampleCount = (int) valueAttribute.getSampleCount();
+                    logger.error("Delete all {} data from: {}", sampleCount, value);
+
                     if (value.hasSample()) obj.getAttribute("Value").deleteSamplesBetween(null, null);
 
-                    logger.error("Stat Precalc process");
+                    logger.error("Stat cleaning process");
                     ProcessManager processManager = new ProcessManager(
                             obj,
-                            new ObjectHandler(cleanDataObject.getCleanObject().getDataSource()),
-                            100000);
+                            new ObjectHandler(cleanDataObject.getCleanObject().getDataSource()), sampleCount
+                    );
                     processManager.start();
-                    logger.error("Done precalc, set enabled");
+                    logger.error("Done cleaning, set enabled");
 
                     obj.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
-                    logger.error("recalc all done for: {}", obj);
+                    logger.error("cleaning all done for: {}", obj);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -575,7 +617,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             try {
                 obj.getChildren(_obj.getDataSource().getJEVisClass("Clean Data"), false).forEach(childObj -> {
                     try {
-                        logger.error("Found clean child: {}", childObj);
+                        logger.error("Found clean data child: {}", childObj);
                         recleanCleanData(childObj);
                     } catch (Exception ex) {
                         logger.error(ex);
@@ -587,12 +629,12 @@ public class CleanDataExtension implements ObjectEditorExtension {
 
         });
         set.setOnCancelled(event -> {
-            logger.debug("recalc cancelled");
+            logger.debug("cleaning cancelled");
             pForm.getDialogStage().hide();
         });
 
         set.setOnFailed(event -> {
-            logger.debug("recalc failed");
+            logger.debug("cleaning failed");
             pForm.getDialogStage().hide();
         });
 
@@ -609,7 +651,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
                                AlarmEditor alarmConfiguration, JFXTextField alarmLog, ToggleSwitchPlus periodAlignment,
                                JFXTextField periodOffset, ToggleSwitchPlus valueIsAQuantity, TimeStampEditor valueMultiplierTimeStampEditor,
                                JFXTextField valueMultiplier, JFXTextField valueOffset, TimeStampEditor valueTimeStampEditor,
-                               JFXTextField value, JFXTextField counterOverflow) {
+                               JFXTextField value, JFXTextField counterOverflow, TimeStampEditor periodTimeStampEditor, SamplingRateUI samplingRateUI) {
 
         conversionToDifferentialTimeStampEditor.getValueChangedProperty().addListener((observable, oldValue, newValue) -> {
             _changed.set(true);
@@ -734,6 +776,21 @@ public class CleanDataExtension implements ObjectEditorExtension {
                 counterOverflow.setText(oldValue);
             }
         });
+
+        periodTimeStampEditor.getValueChangedProperty().addListener((observable, oldValue, newValue) -> {
+            _changed.set(true);
+            if (!changedAttributes.contains(periodAttribute)) {
+                changedAttributes.add(periodAttribute);
+            }
+        });
+
+        samplingRateUI.samplingRateProperty().addListener((observable, oldValue, newValue) -> {
+            _changed.set(true);
+            if (!changedAttributes.contains(periodAttribute)) {
+                changedAttributes.add(periodAttribute);
+                changedPeriod = true;
+            }
+        });
     }
 
     @Override
@@ -800,6 +857,22 @@ public class CleanDataExtension implements ObjectEditorExtension {
                         JEVisSample newSample = alarmEnabledAttribute.buildSample(DateTime.now(), alarmEnabled.isSelected());
                         newSample.commit();
                         savedAttributes.add(alarmEnabledAttribute);
+                    } else if (attribute.equals(periodAttribute)) {
+                        DateTime oldDateTime = periodTimeStampEditor.getOriginalDateTime();
+                        DateTime newDateTime = periodTimeStampEditor.getDateTime();
+                        List<JEVisSample> oldSamples = periodAttribute.getSamples(oldDateTime, oldDateTime);
+                        if (oldSamples.isEmpty()) {
+                            JEVisSample newSample = periodAttribute.buildSample(newDateTime, period.getPeriod());
+                            newSample.commit();
+                        } else {
+                            if (!changedPeriod) {
+                                periodAttribute.deleteSamplesBetween(oldDateTime, oldDateTime);
+                            }
+                            JEVisSample newSample = periodAttribute.buildSample(newDateTime, period.getPeriod());
+                            newSample.commit();
+                        }
+
+                        savedAttributes.add(periodAttribute);
                     } else if (attribute.equals(periodAlignmentAttribute)) {
                         JEVisSample newSample = periodAlignmentAttribute.buildSample(DateTime.now(), periodAlignment.isSelected());
                         newSample.commit();

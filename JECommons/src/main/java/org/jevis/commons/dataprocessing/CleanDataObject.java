@@ -83,6 +83,7 @@ public class CleanDataObject {
     private JEVisAttribute valueMultiplierAttribute;
     private JEVisAttribute valueOffsetAttribute;
     private JEVisAttribute counterOverflowAttribute;
+    private JEVisAttribute periodAttribute;
     private DateTime lastRawDate;
     private int processingSize = 10000;
 
@@ -215,6 +216,10 @@ public class CleanDataObject {
         if (valueAttribute == null) {
             valueAttribute = getCleanObject().getAttribute(VALUE.getAttributeName());
         }
+
+        if (periodAttribute == null) {
+            periodAttribute = getCleanObject().getAttribute(PERIOD.getAttributeName());
+        }
     }
 
     public void reloadAttributes() throws JEVisException {
@@ -280,6 +285,10 @@ public class CleanDataObject {
         }
         if (valueAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(valueAttribute);
+        }
+
+        if (periodAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(periodAttribute);
         }
 
         periodRawData = null;
@@ -674,6 +683,10 @@ public class CleanDataObject {
         return counterOverflowAttribute;
     }
 
+    public JEVisAttribute getPeriodAttribute() {
+        return periodAttribute;
+    }
+
     public void clearLists() {
         rawSamplesDown = null;
         rawSamplesUp = null;
@@ -693,6 +706,7 @@ public class CleanDataObject {
         COUNTEROVERFLOW("Counter Overflow"),
         OFFSET("Value Offset"),
         VALUE("Value"),
+        PERIOD("Period"),
         GAP_FILLING("Gap Filling"),
         ENABLED("Enabled"),
         GAP_FILLING_CONFIG("Gap Filling Config"),
