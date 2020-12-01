@@ -18,10 +18,18 @@
         <additionalparam>-Xdoclint:none</additionalparam>
     </properties>
 
+    <!--
     <parent>
         <artifactId>JEVisCore</artifactId>
         <groupId>org.jevis</groupId>
         <version>3.4</version>
+    </parent>
+    -->
+
+    <parent>
+        <groupId>org.jevis.datacollector</groupId>
+        <artifactId>DataCollector</artifactId>
+        <version>3.0.0</version>
     </parent>
 
     <build>

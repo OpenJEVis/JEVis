@@ -10,7 +10,7 @@ import java.util.List;
 
 public class OPCUADataSource implements DataSource {
 
-    private final String version="1.0";
+    private final String version = "1.1 2020-11-30";
     private final static Logger log = LogManager.getLogger(OPCUADataSource.class.getName());
 
     private JEVisObject dataSourceObj = null;
@@ -27,9 +27,9 @@ public class OPCUADataSource implements DataSource {
 
     @Override
     public void initialize(JEVisObject dataSourceJEVis) {
-        logger.error("initialize: Driver version {} for object: {}",version,dataSourceJEVis);
+        logger.error("initialize: Driver version {} for object: {}", version, dataSourceJEVis);
 
-        dataSourceObj= dataSourceJEVis;
+        dataSourceObj = dataSourceJEVis;
         opcuaServer = new OPCUAServer(dataSourceJEVis);
 
 
@@ -38,14 +38,14 @@ public class OPCUADataSource implements DataSource {
 
     @Override
     public List<InputStream> sendSampleRequest(JEVisObject channel) throws Exception {
-        System.out.println("sendSampleRequest: "+channel);
+        System.out.println("sendSampleRequest: " + channel);
 
         return null;
     }
 
     @Override
     public void parse(List<InputStream> input) {
-        logger.error("parse: {}",input);
+        logger.error("parse: {}", input);
     }
 
     @Override

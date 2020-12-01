@@ -44,6 +44,7 @@ import static org.eclipse.milo.opcua.stack.core.util.ConversionUtil.toList;
 public class OPCClient {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(OPCClient.class);
+
     //private final Logger logger = LoggerFactory.getLogger(getClass());
     private String endpointURL = "";//opc.tcp://10.1.2.128:4840
     private EndpointDescription endpointDescription;
