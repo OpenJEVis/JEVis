@@ -91,7 +91,7 @@ public class AggregatorFunction implements ProcessFunction {
 
         if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
             Period period = intervals.get(0).toPeriod();
-            if (period.getDays() > 0 || period.getWeeks() > 0 || period.getMonths() > 0 || period.getYears() > 0) {
+            if (period.getMonths() > 0 || period.getYears() > 0) {
                 List<Interval> newIntervals = new ArrayList<>();
                 for (Interval interval : intervals) {
                     newIntervals.add(new Interval(interval.getStart().minusDays(1), interval.getEnd().minusDays(1)));
