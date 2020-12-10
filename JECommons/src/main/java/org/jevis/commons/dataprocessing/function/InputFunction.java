@@ -230,26 +230,34 @@ public class InputFunction implements ProcessFunction {
 
                     AggregationPeriod aggregationPeriod = task.getJsonSampleGenerator().getAggregationPeriod();
                     switch (aggregationPeriod) {
+                        default:
+                            break;
+                        case QUARTER_HOURLY:
+                            startEnd[0] = startEnd[0].withSecondOfMinute(0).withMillisOfSecond(0);
+                            break;
+                        case HOURLY:
+                            startEnd[0] = startEnd[0].withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                            break;
                         case DAILY:
                             startEnd[0] = startEnd[0].withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                         case WEEKLY:
                             startEnd[0] = startEnd[0].withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                         case MONTHLY:
                             startEnd[0] = startEnd[0].withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                    }
-
-                    if (ProcessOptions.isCustomWorkdayPrev(task)) {
-                        switch (aggregationPeriod) {
-                            case DAILY:
-                            case WEEKLY:
-                            case MONTHLY:
-                            case QUARTERLY:
-                            case YEARLY:
-                            case THREEYEARS:
-                            case FIVEYEARS:
-                            case TENYEARS:
-                                startEnd[0] = startEnd[0].minusDays(1);
-                        }
+                        case QUARTERLY:
+                            if (startEnd[0].getMonthOfYear() < 4) {
+                                startEnd[0] = startEnd[0].withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                            } else if (startEnd[0].getMonthOfYear() < 7) {
+                                startEnd[0] = startEnd[0].withMonthOfYear(4).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                            } else if (startEnd[0].getMonthOfYear() < 10) {
+                                startEnd[0] = startEnd[0].withMonthOfYear(7).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                            } else {
+                                startEnd[0] = startEnd[0].withMonthOfYear(10).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                            }
+                            break;
+                        case YEARLY:
+                            startEnd[0] = startEnd[0].withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                            break;
                     }
 
                     if (foundUserDataObject && att != null) {
