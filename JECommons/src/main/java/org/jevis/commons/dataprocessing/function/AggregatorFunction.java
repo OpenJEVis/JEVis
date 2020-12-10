@@ -89,19 +89,18 @@ public class AggregatorFunction implements ProcessFunction {
         WorkDays workDays = new WorkDays(mainTask.getObject());
         workDays.setEnabled(isCustomWorkDay);
 
-        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+         if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
             Period period = intervals.get(0).toPeriod();
-            if (period.getMonths() > 0 || period.getYears() > 0) {
+            if (period.getDays() > 0 || period.getWeeks() > 0 || period.getMonths() > 0 || period.getYears() > 0) {
                 List<Interval> newIntervals = new ArrayList<>();
                 for (Interval interval : intervals) {
                     newIntervals.add(new Interval(interval.getStart().minusDays(1), interval.getEnd().minusDays(1)));
                 }
-
-                intervals = newIntervals;
-            }
-            if (intervals.size() > 0) {
-                Interval lastInterval = intervals.get(intervals.size() - 1);
-                intervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
+                if (newIntervals.size() > 0) {
+                    Interval lastInterval = newIntervals.get(newIntervals.size() - 1);
+                    newIntervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
+                    intervals = newIntervals;
+                }
             }
         }
 
@@ -275,19 +274,18 @@ public class AggregatorFunction implements ProcessFunction {
         WorkDays workDays = new WorkDays(mainTask.getSqlDataSource(), mainTask.getJsonObject());
         workDays.setEnabled(isCustomWorkDay);
 
-        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+         if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
             Period period = intervals.get(0).toPeriod();
-            if (period.getMonths() > 0 || period.getYears() > 0) {
+            if (period.getDays() > 0 || period.getWeeks() > 0 || period.getMonths() > 0 || period.getYears() > 0) {
                 List<Interval> newIntervals = new ArrayList<>();
                 for (Interval interval : intervals) {
                     newIntervals.add(new Interval(interval.getStart().minusDays(1), interval.getEnd().minusDays(1)));
                 }
-
-                intervals = newIntervals;
-            }
-            if (intervals.size() > 0) {
-                Interval lastInterval = intervals.get(intervals.size() - 1);
-                intervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
+                if (newIntervals.size() > 0) {
+                    Interval lastInterval = newIntervals.get(newIntervals.size() - 1);
+                    newIntervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
+                    intervals = newIntervals;
+                }
             }
         }
 
