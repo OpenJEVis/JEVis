@@ -281,14 +281,14 @@ public class AggregatorFunction implements ProcessFunction {
                 for (Interval interval : intervals) {
                     newIntervals.add(new Interval(interval.getStart().minusDays(1), interval.getEnd().minusDays(1)));
                 }
-                if (newIntervals.size() > 0) {
-                    Interval lastInterval = newIntervals.get(newIntervals.size() - 1);
-                    newIntervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
-                    intervals = newIntervals;
-                }
+
+                intervals = newIntervals;
+            }
+            if (intervals.size() > 0) {
+                Interval lastInterval = intervals.get(intervals.size() - 1);
+                intervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
             }
         }
-
 
         JsonAttribute jsonAttribute = mainTask.getJsonAttribute();
 
