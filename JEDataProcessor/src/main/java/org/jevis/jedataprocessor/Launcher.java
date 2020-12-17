@@ -16,9 +16,10 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessManagerN;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -60,12 +61,12 @@ public class Launcher extends AbstractCliApp {
                         Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
                         runningJobs.put(currentCleanDataObject.getID(), new DateTime());
 
-                        ProcessManager currentProcess = null;
+                        ProcessManagerN currentProcess = null;
                         try {
                             LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
                             LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
 
-                            currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds), processingSize);
+                            currentProcess = new ProcessManagerN(currentCleanDataObject, new ObjectHandler(ds), processingSize);
                             currentProcess.start();
                         } catch (Exception ex) {
                             logger.debug(ex);

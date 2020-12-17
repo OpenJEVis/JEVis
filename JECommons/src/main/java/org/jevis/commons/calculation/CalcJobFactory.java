@@ -244,19 +244,11 @@ public class CalcJobFactory {
                     if (ts != null && !ts.equals(ultimateStart)) {
                         startTime = ts;
                     }
+                }
 
-                    /**
-                     * should never happen but we will make sure...
-                     */
-                    if (startTime == null) {
-                        startTime = ultimateStart;
-                        break;
-                    }
-                } else {
-                    if (startTime == null) {
-                        startTime = ultimateStart;
-                        break;
-                    }
+                if (startTime == null) {
+                    startTime = ultimateStart;
+                    break;
                 }
             } catch (Exception e) {
                 logger.error(e);

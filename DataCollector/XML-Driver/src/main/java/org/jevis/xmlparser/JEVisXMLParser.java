@@ -179,6 +179,11 @@ public class JEVisXMLParser implements Parser {
     }
 
     @Override
+    public ParserReport getReport() {
+        return _xmlParser.getReport();
+    }
+
+    @Override
     public void initialize(JEVisObject parserObject) {
         initializeAttributes(parserObject);
 

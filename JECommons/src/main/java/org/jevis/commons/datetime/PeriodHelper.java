@@ -17,6 +17,8 @@ import org.joda.time.Days;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 
+import java.util.Calendar;
+
 /**
  * @author broder
  */
@@ -35,6 +37,21 @@ public class PeriodHelper {
 
             return days + d;
         } else return 0;
+    }
+
+    public static DateTime addPeriodToDate(DateTime currentDate, org.joda.time.Period cleanPeriod) {
+        DateTime resultingDate = currentDate;
+
+        resultingDate = resultingDate.plusYears(cleanPeriod.getYears());
+        resultingDate = resultingDate.plusMonths(cleanPeriod.getMonths());
+        resultingDate = resultingDate.plusWeeks(cleanPeriod.getWeeks());
+        resultingDate = resultingDate.plusDays(cleanPeriod.getDays());
+        resultingDate = resultingDate.plusHours(cleanPeriod.getHours());
+        resultingDate = resultingDate.plusMinutes(cleanPeriod.getMinutes());
+        resultingDate = resultingDate.plusSeconds(cleanPeriod.getSeconds());
+        resultingDate = resultingDate.plusMillis(cleanPeriod.getMillis());
+
+        return resultingDate;
     }
 
     public static DateTime getNextPeriod(DateTime start, Period schedule, int i) {
@@ -175,5 +192,13 @@ public class PeriodHelper {
         }
 
         return normalPattern;
+    }
+
+    public static int getLastSunday(int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, 1);
+        cal.add(Calendar.DATE, -1);
+        cal.add(Calendar.DAY_OF_MONTH, -(cal.get(Calendar.DAY_OF_WEEK) - 1));
+        return cal.get(Calendar.DAY_OF_MONTH);
     }
 }

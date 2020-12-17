@@ -22,6 +22,7 @@ import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.*;
 
@@ -849,5 +850,31 @@ public class ChartDataRow {
 
     public void setChartType(ChartType chartType) {
         this.chartType = chartType;
+    }
+
+    public Period getPeriod() {
+        Period p = Period.ZERO;
+        JEVisObject object = null;
+        if (dataProcessorObject != null) {
+            object = this.dataProcessorObject;
+        } else {
+            object = this.object;
+        }
+
+        try {
+            JEVisAttribute periodAttribute = object.getAttribute("Period");
+            if (periodAttribute != null) {
+                JEVisSample latestSample = periodAttribute.getLatestSample();
+
+                if (latestSample != null) {
+                    p = new Period(latestSample.getValueAsString());
+                }
+            }
+
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        return p;
     }
 }

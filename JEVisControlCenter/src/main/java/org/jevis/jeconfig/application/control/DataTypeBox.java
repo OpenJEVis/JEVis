@@ -62,15 +62,20 @@ public class DataTypeBox extends ComboBox<EnterDataTypes> {
 
     public void selectFromPeriod(JEVisObject selectedObject) {
         if (selectedObject != null) {
-            JEVisAttribute valueAttribute = null;
+            JEVisAttribute periodAttribute = null;
             try {
-                valueAttribute = selectedObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
+                periodAttribute = selectedObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
-            if (valueAttribute != null) {
+            if (periodAttribute != null) {
 
-                Period p = valueAttribute.getDisplaySampleRate();
+                Period p = Period.ZERO;
+                try {
+                    p = new Period(periodAttribute.getLatestSample().getValueAsString());
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
 
                 if (p.equals(Period.days(1))) {
                     getSelectionModel().select(EnterDataTypes.DAY);

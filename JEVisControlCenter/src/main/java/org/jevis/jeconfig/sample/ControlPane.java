@@ -283,7 +283,7 @@ public class ControlPane extends GridPane {
                         DateTime fromDate = getFromDate();
                         DateTime untilDate = getUntilDate();
 
-                        if (workdayStart.isAfter(workdayEnd)) {
+                        if (workdayStart.isAfter(workdayEnd) && aggregationField.getSelectionModel().getSelectedItem().equals(AggregationPeriod.NONE)) {
                             fromDate = fromDate.minusDays(1);
                         }
 

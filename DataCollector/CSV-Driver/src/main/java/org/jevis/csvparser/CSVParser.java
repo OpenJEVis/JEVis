@@ -23,15 +23,13 @@ package org.jevis.csvparser;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.driver.Converter;
-import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.Result;
-import org.jevis.commons.driver.TimeConverter;
+import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -41,6 +39,7 @@ import java.util.Map.Entry;
  */
 public class CSVParser {
     private static final Logger logger = LogManager.getLogger(CSVParser.class);
+    private static final String UTF8_BOM = "\uFEFF";
     private DateTimeZone timeZone;
     private String dpType;
     private String _quote;
@@ -59,7 +58,7 @@ public class CSVParser {
     private final List<Result> _results = new ArrayList<Result>();
     private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
     private Converter _converter;
-    private final CSVReport _report = new CSVReport();
+    private final ParserReport report = new ParserReport();
 
     private void calculateColumns(String stringArrayInput) {
         String[] line = stringArrayInput.split(String.valueOf(_delim), -1);
@@ -165,14 +164,11 @@ public class CSVParser {
         }
     }
 
-    //KRUCKE
     private Integer getIntByIdentifier(String mapIdent, Map<String, Integer> columnMap) {
         Integer result;
         for (Map.Entry<String, Integer> entry : columnMap.entrySet()) {
             String[] line = entry.getKey().split(String.valueOf(_delim), -1);
-            if (_quote != null) {
-                line = removeQuotes(line);
-            }
+
             for (int i = 0; i < line.length; i++) {
                 if (line[i].equals(mapIdent)) {
                     return i;
@@ -200,7 +196,7 @@ public class CSVParser {
         DateTime dateTime = getDateTime(line);
 
         if (dateTime == null) {
-            _report.addError(new LineError(-3, -2, null, "Date Error"));
+            report.addError(new LineError(-3, -2, null, "Date Error"));
             return;//if there is no date the whole line is invalid... or generate a date?
         }
 
@@ -275,9 +271,9 @@ public class CSVParser {
 //                }
                 Result tempResult = new Result(target, value, dateTime);
                 _results.add(tempResult);
-                _report.addSuccess(_currLineIndex, valueIndex);
+                report.addSuccess(_currLineIndex, valueIndex);
             } catch (Exception ex) {
-                _report.addError(new LineError(_currLineIndex, -2, ex, "Unexpected Exception"));
+                report.addError(new LineError(_currLineIndex, -2, ex, "Unexpected Exception"));
 //                ex.printStackTrace();
             }
         }
@@ -289,7 +285,15 @@ public class CSVParser {
         for (InputStream inputStream : inputList) {
 
             _converter.convertInput(inputStream, charset);
+
             String[] stringArrayInput = (String[]) _converter.getConvertedInput(String[].class);
+
+            if (charset.equals(StandardCharsets.UTF_8) && stringArrayInput.length > 0) {
+                if (stringArrayInput[0].startsWith(UTF8_BOM)) {
+                    stringArrayInput[0] = stringArrayInput[0].substring(1);
+                }
+            }
+
             logger.info("Total count of lines {}", stringArrayInput.length);
             if (dpType != null && dpType.equals("ROW")) {
                 calculateColumns(stringArrayInput[_dpIndex]);
@@ -309,8 +313,8 @@ public class CSVParser {
 
                         parseLine(line);
                     } catch (Exception e) {
-                        _report.addError(new LineError(_currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
-                        //                    Logger.getLogger(this.getClass().getName()).log(Level.WARN, "Detect a Problem in the Parsing Process");
+                        report.addError(new LineError(_currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
+                        logger.error("Detected a Problem in the Parsing Process in line {}", _currLineIndex, e);
                     }
                 }
             } else {
@@ -329,14 +333,15 @@ public class CSVParser {
                         DateTime dateTime = getDateTime(line);
 
                         if (dateTime == null) {
-                            _report.addError(new LineError(-3, -2, null, "Date Error"));
+                            report.addError(new LineError(-3, -2, null, "Date Error"));
+                            logger.error("Detected a Problem in the Parsing Process in line {}. Date Error", _currLineIndex);
                             return;
                         }
 
                         DataPoint currentDP = null;
                         for (DataPoint dp : _dataPoints) {
                             for (String s : line) {
-                                if (s.contains(dp.getMappingIdentifier())) {
+                                if (s.equals(dp.getMappingIdentifier())) {
                                     currentDP = dp;
                                     break;
                                 }
@@ -351,7 +356,7 @@ public class CSVParser {
                             String sVal = null;
                             Double value = null;
                             sVal = line[_dpIndex];
-                            //todo bind locale to language or location?? ad thousands separator without regex
+                            //todo bind locale to language or location?? add thousands separator without regex
                             if (_decimalSeparator == null || _decimalSeparator.equals(",")) {
                                 NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
                                 value = nf_in.parse(sVal).doubleValue();
@@ -361,26 +366,27 @@ public class CSVParser {
                             }
                             Result tempResult = new Result(target, value, dateTime);
                             _results.add(tempResult);
-                            _report.addSuccess(_currLineIndex, _dpIndex);
+                            report.addSuccess(_currLineIndex, _dpIndex);
                         } catch (Exception ex) {
-                            _report.addError(new LineError(_currLineIndex, -2, ex, "Unexpected Exception"));
+                            report.addError(new LineError(_currLineIndex, -2, ex, "Unexpected Exception"));
+                            logger.error("Detect a Problem in the Parsing Process in line {}. Value parsing Error", _currLineIndex);
                         }
                     } catch (Exception e) {
-                        _report.addError(new LineError(_currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
-                        //                    Logger.getLogger(this.getClass().getName()).log(Level.WARN, "Detect a Problem in the Parsing Process");
+                        report.addError(new LineError(_currLineIndex, -2, e, "Detected a Problem in the Parsing Process"));
+                        logger.error("Detect a Problem in the Parsing Process in line {}", _currLineIndex, e);
                     }
                 }
             }
 //        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Number of Results: " + _results.size());
             if (!_results.isEmpty()) {
-                logger.info("LastResult (Date,Target,Value): " + _results.get(_results.size() - 1).getDate() + "," + _results.get(_results.size() - 1).getTargetStr() + "," + _results.get(_results.size() - 1).getValue());
+                logger.info("LastResult Date {}, Target {}, Value {}", _results.get(_results.size() - 1).getDate(), _results.get(_results.size() - 1).getTargetStr(), _results.get(_results.size() - 1).getValue());
             } else {
                 logger.error("Cant parse or cant find any parsable data");
             }
         }
 
         //print error report based on Logger level
-        _report.print();
+        report.print();
 
     }
 
@@ -395,13 +401,14 @@ public class CSVParser {
     private DateTime getDateTime(String[] line) {
 
         if (_dateFormat == null) {
-            logger.info("No Datetime found");
-            return new DateTime();
+            logger.error("No date format found");
+            return null;
         }
         String input = "";
+        String pattern = "";
         try {
             String date = line[_dateIndex].trim();
-            String pattern = _dateFormat;
+            pattern = _dateFormat;
             input = date;
 
             if (_timeFormat != null && _timeIndex > -1) {
@@ -410,10 +417,11 @@ public class CSVParser {
                 input += " " + time;
             }
 
-            return TimeConverter.parserDateTime(input, pattern, timeZone);
+            return TimeConverter.parseDateTime(input, pattern, timeZone);
         } catch (Exception ex) {
+            logger.warn("Pattern: {}", pattern);
             logger.warn("Date not parsable: {}", input);
-            logger.warn("LINE not parsable: {}", Arrays.toString(line));
+            logger.warn("Line not parsable: {}", Arrays.toString(line));
             logger.warn("DateFormat: {}", _dateFormat);
             logger.warn("DateIndex: {}", _dateIndex);
             logger.warn("TimeFormat: {}", _timeFormat);
@@ -422,6 +430,10 @@ public class CSVParser {
             return null;
         }
 
+    }
+
+    public ParserReport getReport() {
+        return report;
     }
 
     public void setDpType(String dpType) {

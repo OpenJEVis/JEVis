@@ -7,10 +7,7 @@ package org.jevis.xmlparser;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.driver.Converter;
-import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.Result;
-import org.jevis.commons.driver.TimeConverter;
+import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.w3c.dom.Document;
@@ -37,6 +34,7 @@ public class XMLParser {
     private static final Logger logger = LogManager.getLogger(XMLParser.class);
 
     private DateTimeZone timeZone;
+    private final ParserReport report = new ParserReport();
 
     private final List<Result> _results = new ArrayList<Result>();
 
@@ -101,7 +99,7 @@ public class XMLParser {
     private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
 
     private void parseNode(Node currentNode, Node mainAttributeNode) {
-
+        int valueIndex = 0;
         for (DataPoint dp : _dataPoints) {
             try {
 
@@ -141,7 +139,7 @@ public class XMLParser {
 
 //                DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern);
 //                DateTime dateTime = fmt.parseDateTime(dateString);
-                DateTime dateTime = TimeConverter.parserDateTime(dateString, pattern, timeZone);
+                DateTime dateTime = TimeConverter.parseDateTime(dateString, pattern, timeZone);
 
 //                    dpParser.parse(ic);
 //                    value = dpParser.getValue();
@@ -175,13 +173,22 @@ public class XMLParser {
                     objectValue = valueString;
                 }
 
-                if (doubleValue != null) _results.add(new Result(target, doubleValue, dateTime));
-                else _results.add(new Result(target, objectValue, dateTime));
+                if (doubleValue != null) {
+                    Result result = new Result(target, doubleValue, dateTime);
+                    _results.add(result);
+                    report.addSuccess(_results.indexOf(result), valueIndex++);
+                } else {
+                    Result result = new Result(target, objectValue, dateTime);
+                    _results.add(result);
+                    report.addSuccess(_results.indexOf(result), valueIndex++);
+                }
             } catch (Exception ex) {
+                report.addError(new LineError(-1, -1, ex, "Unexpected Exception"));
                 logger.error("Could not parse Node: {} from main Attribute Node: {}", currentNode.toString(), mainAttributeNode);
             }
         }
     }
+
     private Converter _converter;
 
     public void setCharset(Charset charset) {
@@ -273,6 +280,10 @@ public class XMLParser {
 
     public void setConverter(Converter _converter) {
         this._converter = _converter;
+    }
+
+    public ParserReport getReport() {
+        return report;
     }
 
     interface XMLDataPoint extends DataCollectorTypes.DataPoint {

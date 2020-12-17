@@ -132,7 +132,7 @@ public class TableChart extends XYChart {
                         }
                     } else if (p == null && samples.size() == 1) {
                         try {
-                            p = samples.get(0).getAttribute().getDisplaySampleRate();
+                            p = xyChartSerie.getSingleRow().getPeriod();
                             setPeriod(p);
                         } catch (Exception e) {
                             logger.error("Could not get period from attribute", e);

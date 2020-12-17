@@ -27,6 +27,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.AnalysisLinkButton;
@@ -35,7 +36,6 @@ import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
-import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -179,7 +179,12 @@ public class CleanDataExtension implements ObjectEditorExtension {
         JEVisSample valueOffsetLastSample = valueOffsetAttribute.getLatestSample();
         JEVisSample valueLastSample = valueAttribute.getLatestSample();
         JEVisSample counterOverflowLastSample = counterOverflowAttribute.getLatestSample();
-        JEVisSample periodLastSample = periodAttribute.getLatestSample();
+        JEVisSample periodLastSample = null;
+        try {
+            periodLastSample = periodAttribute.getLatestSample();
+        } catch (Exception e) {
+
+        }
 
         /**
          *  Conversion to Differential
@@ -576,9 +581,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         view.setCenter(scrollPane);
     }
 
-    private void recleanCleanData(JEVisObject obj) throws JEVisException {
-        if (!obj.getJEVisClassName().equals("Clean Data")) return;
-        logger.error("Delete and clean all values for object: {}", obj);
+    private void recleanCleanData(JEVisObject obj) {
 
         final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "[" + obj.getID() + "] " + obj.getName() + "  ...");
 
@@ -586,25 +589,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             @Override
             protected Void call() {
                 try {
-                    logger.error("Disable Clean Data Object");
-                    obj.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
-
-                    JEVisAttribute value = obj.getAttribute("Value");
-                    int sampleCount = (int) valueAttribute.getSampleCount();
-                    logger.error("Delete all {} data from: {}", sampleCount, value);
-
-                    if (value.hasSample()) obj.getAttribute("Value").deleteSamplesBetween(null, null);
-
-                    logger.error("Stat cleaning process");
-                    ProcessManager processManager = new ProcessManager(
-                            obj,
-                            new ObjectHandler(cleanDataObject.getCleanObject().getDataSource()), sampleCount
-                    );
-                    processManager.start();
-                    logger.error("Done cleaning, set enabled");
-
-                    obj.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
-                    logger.error("cleaning all done for: {}", obj);
+                    CommonMethods.processCleanData(obj);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -615,18 +600,12 @@ public class CleanDataExtension implements ObjectEditorExtension {
         set.setOnSucceeded(event -> {
             pForm.getDialogStage().close();
             try {
-                obj.getChildren(_obj.getDataSource().getJEVisClass("Clean Data"), false).forEach(childObj -> {
-                    try {
-                        logger.error("Found clean data child: {}", childObj);
-                        recleanCleanData(childObj);
-                    } catch (Exception ex) {
-                        logger.error(ex);
-                    }
-                });
+                for (JEVisObject childObj : obj.getChildren()) {
+                    recleanCleanData(childObj);
+                }
             } catch (Exception ex) {
                 logger.error(ex);
             }
-
         });
         set.setOnCancelled(event -> {
             logger.debug("cleaning cancelled");

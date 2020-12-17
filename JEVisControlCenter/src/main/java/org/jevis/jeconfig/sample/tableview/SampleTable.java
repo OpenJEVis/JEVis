@@ -915,8 +915,13 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
-
-                            SamplingRateUI samplingRateUI = new SamplingRateUI(new Period(tableSample.getValue().toString()));
+                            Period p = Period.ZERO;
+                            try {
+                                p = new Period(tableSample.getValue().toString());
+                            } catch (Exception e) {
+                                logger.error(e);
+                            }
+                            SamplingRateUI samplingRateUI = new SamplingRateUI(p);
 
                             setDefaultFieldStyle(this, samplingRateUI);
                             samplingRateUI.autosize();

@@ -146,7 +146,7 @@ public class JEVisCSVParser implements Parser {
                 if (targetHelper.isValid() && targetHelper.targetAccessible()) {
                     target = targetString;
                 } else {
-                    logger.info("DataPoint target error: {}", datapointID);
+                    logger.warn("DataPoint target error: {}:{}", dp.getName(), dp.getID());
                     continue;
                 }
 
@@ -157,7 +157,7 @@ public class JEVisCSVParser implements Parser {
                     valueIndex = Integer.parseInt(Objects.requireNonNull(valueString));
                     valueIndex--;
                 } catch (Exception ex) {
-                    logger.info("DataPoint ValueIdentifier error: {}", ex.getMessage());
+                    logger.warn("DataPoint target error: {}:{}", dp.getName(), dp.getID());
 //                    ex.printStackTrace();
                 }
                 DataPoint csvdp = new DataPoint();
@@ -202,6 +202,11 @@ public class JEVisCSVParser implements Parser {
     @Override
     public List<Result> getResult() {
         return _csvParser.getResult();
+    }
+
+    @Override
+    public ParserReport getReport() {
+        return _csvParser.getReport();
     }
 
     @Override

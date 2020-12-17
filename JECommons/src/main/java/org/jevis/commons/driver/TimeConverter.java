@@ -38,8 +38,8 @@ public class TimeConverter {
         return dateTime;
     }
 
-    public static DateTime parserDateTime(String input, String pattern, DateTimeZone dateZimeZone) {
-        DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern).withZone(dateZimeZone);
+    public static DateTime parseDateTime(String input, String pattern, DateTimeZone dateTimeZone) {
+        DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern).withZone(dateTimeZone);
         return fmt.parseDateTime(input);
     }
 }

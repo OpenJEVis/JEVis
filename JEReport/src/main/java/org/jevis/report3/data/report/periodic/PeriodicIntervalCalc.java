@@ -94,7 +94,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         for (FixedPeriod fixedPeriod : FixedPeriod.values()) {
             DateTime startRecordFixed = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
             DateTime startRecordFixedToReportEnd = calcStartRecord(start, schedule, PeriodMode.FIXED_TO_REPORT_END, fixedPeriod, dateHelper);
-            DateTime endRecord = getEndForFixed(schedule, start);
+            DateTime endRecord = PeriodHelper.calcEndRecord(start, schedule, dateHelper);
 
             if (workdayStart != null && workdayEnd != null) {
                 startRecordFixed = startRecordFixed.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
@@ -208,25 +208,25 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                         resultStartRecord = startRecord.minusDays(1);
                         break;
                     case WEEK:
-                        resultStartRecord = startRecord.minusWeeks(1);
+                        resultStartRecord = startRecord.minusDays(7);
                         break;
                     case MONTH:
-                        resultStartRecord = startRecord.minusMonths(1);
+                        resultStartRecord = startRecord.minusMonths(1).plusDays(1);
                         break;
                     case QUARTER:
-                        resultStartRecord = startRecord.minusMonths(3);
+                        resultStartRecord = startRecord.minusMonths(3).plusDays(1);
                         break;
                     case YEAR:
-                        resultStartRecord = startRecord.minusYears(1);
+                        resultStartRecord = startRecord.minusYears(1).plusDays(1);
                         break;
                     case THREEYEARS:
-                        resultStartRecord = startRecord.minusYears(2);
+                        resultStartRecord = startRecord.minusYears(2).plusDays(1);
                         break;
                     case FIVEYEARS:
-                        resultStartRecord = startRecord.minusYears(4);
+                        resultStartRecord = startRecord.minusYears(4).plusDays(1);
                         break;
                     case TENYEARS:
-                        resultStartRecord = startRecord.minusYears(9);
+                        resultStartRecord = startRecord.minusYears(9).plusDays(1);
                         break;
                     case NONE:
                     default:

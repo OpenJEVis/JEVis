@@ -185,7 +185,7 @@ public class PDFViewerDialog {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            setText(obj.getJeVisFile().getFilename());
+                            setText(obj.getPdfFile().getFilename());
                         }
                     }
                 };
@@ -278,8 +278,8 @@ public class PDFViewerDialog {
         fileComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && newValue != null && !newValue.equals(oldValue)) {
                 try {
-                    byte[] bytesFromSampleMap = newValue.getJeVisFile().getBytes();
-                    Platform.runLater(() -> fileName.setText(newValue.getJeVisFile().getFilename()));
+                    byte[] bytesFromSampleMap = newValue.getPdfFile().getBytes();
+                    Platform.runLater(() -> fileName.setText(newValue.getPdfFile().getFilename()));
                     model.setBytes(bytesFromSampleMap);
                     pagination.setPageCount(model.numPages());
                     zoomFactor.set(0.3);
