@@ -263,16 +263,16 @@ public class AggregatorFunction implements ProcessFunction {
 //        List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
         List<Interval> intervals = ProcessOptions.getIntervals(mainTask, startAndEndDates.getStart(), startAndEndDates.getEnd());
 
-//        boolean isCustomWorkDay = true;
-//        for (ProcessOption option : mainTask.getOptions()) {
-//            if (option.getKey().equals(CUSTOM)) {
-//                isCustomWorkDay = Boolean.parseBoolean(option.getValue());
-//                break;
-//            }
-//        }
+        boolean isCustomWorkDay = true;
+        for (ProcessOption option : mainTask.getOptions()) {
+            if (option.getKey().equals(CUSTOM)) {
+                isCustomWorkDay = Boolean.parseBoolean(option.getValue());
+                break;
+            }
+        }
 
-//        WorkDays workDays = new WorkDays(mainTask.getSqlDataSource(), mainTask.getJsonObject());
-//        workDays.setEnabled(isCustomWorkDay);
+        WorkDays workDays = new WorkDays(mainTask.getSqlDataSource(), mainTask.getJsonObject());
+        workDays.setEnabled(isCustomWorkDay);
 //
 //        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
 //            Period period = intervals.get(0).toPeriod();
@@ -288,6 +288,21 @@ public class AggregatorFunction implements ProcessFunction {
 //                }
 //            }
 //        }
+
+        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+            Period period = intervals.get(0).toPeriod();
+            if (period.getDays() > 0 || period.getWeeks() > 0 || period.getMonths() > 0 || period.getYears() > 0) {
+                List<Interval> newIntervals = new ArrayList<>();
+                for (Interval interval : intervals) {
+                    newIntervals.add(new Interval(interval.getStart().minusDays(1), interval.getEnd().minusDays(1)));
+                }
+                if (newIntervals.size() > 0) {
+                    Interval lastInterval = newIntervals.get(newIntervals.size() - 1);
+                    newIntervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
+                    intervals = newIntervals;
+                }
+            }
+        }
 
         JsonAttribute jsonAttribute = mainTask.getJsonAttribute();
 

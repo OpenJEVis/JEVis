@@ -84,7 +84,8 @@ public class OPCUAServer {
         port = Integer.parseInt(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.PORT, DEFAULT_PORT));
         connectionTimeout = Integer.parseInt(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.CONNECTION_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT));
         readTimeout = Integer.parseInt(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.READ_TIMEOUT, DEFAULT_READ_TIMEOUT));
-        user = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.NAME, USER_DEFAULT);
+        user = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.USER, USER_DEFAULT);
+        logger.error("user attribute: '{}' User: {}", DataCollectorTypes.DataSource.DataServer.OPCUA.USER, user);
         password = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.PASSWORD, DEFAULT_PASSWORD);
         protocol = String.valueOf(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.PROTOCOL, DEFAULT_PROTOCOL));
 
@@ -282,7 +283,7 @@ public class OPCUAServer {
                         }
 
                     }
-                    logger.debug(" Target: {} TS: {} -> v: {}  class: {} raw: {}", UPCUAChannel.getTargetId(), ts, value, javaType, dataValue.getValue());
+                    logger.debug(" Target: {} TS: {} -> v: {}  class: {} raw: {} ", UPCUAChannel.getTargetId(), ts, value, javaType, dataValue.getValue());
 
                     if (dataValue.getStatusCode().isGood()) {
                         results.add(new Result(UPCUAChannel.getTargetString(), value, ts));
