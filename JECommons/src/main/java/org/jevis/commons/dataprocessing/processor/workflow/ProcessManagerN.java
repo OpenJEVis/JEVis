@@ -15,6 +15,8 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.limits.LimitsStepN;
+import org.jevis.commons.dataprocessing.processor.preparation.PrepareForecastN;
+import org.jevis.commons.dataprocessing.processor.preparation.PrepareMathN;
 import org.jevis.commons.dataprocessing.processor.preparation.PrepareStepN;
 import org.jevis.commons.dataprocessing.processor.steps.*;
 
@@ -106,26 +108,26 @@ public class ProcessManagerN {
 
     private void addForecastSteps() {
 
-//        ProcessStepN preparation = new PrepareForecastN();
-//        processSteps.add(preparation);
-//
-//        ProcessStepN forecast = new ForecastStepN();
-//        processSteps.add(forecast);
-//
-//        ProcessStepN importStep = new ImportStepN();
-//        processSteps.add(importStep);
+        ProcessStepN preparation = new PrepareForecastN();
+        processSteps.add(preparation);
+
+        ProcessStepN forecast = new ForecastStepN();
+        processSteps.add(forecast);
+
+        ProcessStepN importStep = new ImportStepN();
+        processSteps.add(importStep);
     }
 
     private void addMathSteps() {
 
-//        ProcessStepN preparation = new PrepareMathN();
-//        processSteps.add(preparation);
-//
-//        ProcessStepN math = new MathStepN();
-//        processSteps.add(math);
-//
-//        ProcessStepN importStep = new ImportStepN();
-//        processSteps.add(importStep);
+        ProcessStepN preparation = new PrepareMathN();
+        processSteps.add(preparation);
+
+        ProcessStepN math = new MathStepN();
+        processSteps.add(math);
+
+        ProcessStepN importStep = new ImportStepN();
+        processSteps.add(importStep);
     }
 
     public void setProcessSteps(List<ProcessStepN> processSteps) {
