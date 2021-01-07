@@ -151,13 +151,21 @@ public class PeriodEditor implements AttributeEditor {
         }
 
         pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            logger.info("///// Value changed: " + newValue);
+            logger.info("date changed: " + newValue);
             if (!newValue.equals(oldValue)) {
                 _changed.setValue(Boolean.TRUE);
             }
         });
 
         pickerTime.valueProperty().addListener((observable, oldValue, newValue) -> {
+            logger.info("time changed: " + newValue);
+            if (!newValue.equals(oldValue)) {
+                _changed.setValue(Boolean.TRUE);
+            }
+        });
+
+        samplingRateUI.samplingRateProperty().addListener((observable, oldValue, newValue) -> {
+            logger.info("period changed: " + newValue);
             if (!newValue.equals(oldValue)) {
                 _changed.setValue(Boolean.TRUE);
             }
