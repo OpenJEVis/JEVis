@@ -281,19 +281,10 @@ public class ChartDataRow {
                 if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                     try {
                         if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-//                            SampleGenerator sg = new SampleGenerator(
-//                                    attribute.getDataSource(),
-//                                    attribute.getObject(),
-//                                    attribute,
-//                                    selectedStart, selectedEnd,
-//                                    customWorkDay,
-//                                    manipulationMode,
-//                                    aggregationPeriod);
+
                             if (!isStringData) {
-//                                samples = factorizeSamples(sg.getAggregatedSamples());
                                 samples = factorizeSamples(attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString()));
                             } else {
-//                                samples = sg.getAggregatedSamples();
                                 samples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString());
                             }
 
