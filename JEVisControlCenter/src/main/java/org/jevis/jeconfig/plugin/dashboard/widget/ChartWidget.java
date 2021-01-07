@@ -28,6 +28,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -36,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class ChartWidget extends Widget {
+public class ChartWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ChartWidget.class);
     public static String WIDGET_ID = "Chart";
@@ -244,6 +245,11 @@ public class ChartWidget extends Widget {
     @Override
     public ImageView getImagePreview() {
         return JEConfig.getImage("widget/ChartWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+    }
+
+    @Override
+    public DataModelDataHandler getDataHandler() {
+        return this.sampleHandler;
     }
 
 

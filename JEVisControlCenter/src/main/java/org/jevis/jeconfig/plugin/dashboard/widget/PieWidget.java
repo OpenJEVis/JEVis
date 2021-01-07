@@ -27,6 +27,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -38,7 +39,7 @@ import java.util.Optional;
 /**
  * Clone of the JAVA 8 PIe Chart to fix the color every time an update is made, THis is most likely cured by the Animator.
  */
-public class PieWidget extends Widget {
+public class PieWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(PieWidget.class);
     public static String WIDGET_ID = "Pie";
     private PieChart chart = new PieChart();
@@ -324,6 +325,11 @@ public class PieWidget extends Widget {
 
 //            System.out.println(preIdent + ".chart-pie " + "-fx-pie-color: " + hexColor + ";" + " color: " + currentColor.toString());
         }
+    }
+
+    @Override
+    public DataModelDataHandler getDataHandler() {
+        return this.sampleHandler;
     }
 
 
