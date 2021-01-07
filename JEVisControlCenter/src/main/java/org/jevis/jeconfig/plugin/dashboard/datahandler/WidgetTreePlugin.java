@@ -57,6 +57,9 @@ public class WidgetTreePlugin implements TreePlugin {
     final String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
     final String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
     final String keySortedMax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
+    final String keyMax = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.max");
+    final String keyMin = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.min");
+    final String keyMedian = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.median");
     final String rawDataString = I18n.getInstance().getString("graph.processing.raw");
 
     private JEVisTree jeVisTree;
@@ -721,6 +724,15 @@ public class WidgetTreePlugin implements TreePlugin {
                                                     switch (manipulationMode) {
                                                         case NONE:
                                                             text = WidgetTreePlugin.this.keyPreset;
+                                                            break;
+                                                        case MIN:
+                                                            text = WidgetTreePlugin.this.keyMin;
+                                                            break;
+                                                        case MAX:
+                                                            text = WidgetTreePlugin.this.keyMax;
+                                                            break;
+                                                        case MEDIAN:
+                                                            text = WidgetTreePlugin.this.keyMedian;
                                                             break;
                                                         case RUNNING_MEAN:
                                                             text = WidgetTreePlugin.this.keyRunningMean;
