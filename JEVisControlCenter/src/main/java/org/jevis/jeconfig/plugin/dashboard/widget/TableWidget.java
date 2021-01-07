@@ -29,6 +29,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -37,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class TableWidget extends Widget {
+public class TableWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(TableWidget.class);
     public static String WIDGET_ID = "Table";
@@ -218,6 +219,10 @@ public class TableWidget extends Widget {
 
     }
 
+    @Override
+    public DataModelDataHandler getDataHandler() {
+        return this.sampleHandler;
+    }
 
     @Override
     public String typeID() {
