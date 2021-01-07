@@ -238,6 +238,7 @@ public class JEVisTreeFactory {
 
         cellFilter.addFilter(WidgetTreePlugin.COLUMN, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_SELECTED, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_NAME, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_CHART_TYPE, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_COLOR, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_MANIPULATION, dataFilter);
