@@ -7,6 +7,7 @@ package org.jevis.commons.dataprocessing.processor.steps;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.GapFillingType;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -20,6 +21,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -76,7 +78,7 @@ public class FillGapStepN implements ProcessStepN {
                         logger.info("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), newGaps.size());
 
                     GapsAndLimitsN gal = new GapsAndLimitsN(null, rawSamples, GapsAndLimitsN.GapsAndLimitsTypeN.GAPS_TYPE,
-                            c, newGaps, new ArrayList<>(), sampleCache);
+                            c, newGaps, new ArrayList<>(), sampleCache, cleanDataObject);
 
                     switch (GapFillingType.parse(c.getType())) {
                         case STATIC:
@@ -108,6 +110,14 @@ public class FillGapStepN implements ProcessStepN {
                             break;
                     }
                     logger.info("[{}:{}] Gap Filling Done", cleanDataObject.getCleanObject().getName(), resourceManager.getID());
+                    rawSamples.sort(Comparator.comparing(jeVisSample -> {
+                        try {
+                            return jeVisSample.getTimestamp();
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }));
                 }
                 if (gaps.size() != doneGaps.size()) {
                     logger.error("Could not complete all gaps. Gap may have been too long for reasonable gap filling on object {}:{}", cleanDataObject.getCleanObject().getName(), cleanDataObject.getCleanObject().getID());

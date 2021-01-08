@@ -137,7 +137,7 @@ public class Launcher extends AbstractCliApp {
 
         }
 
-        sleep();
+//        sleep();
     }
 
     @Override

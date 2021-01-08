@@ -62,7 +62,10 @@ public class PeriodAlignmentStepN implements ProcessStepN {
                 lowerTS = rawSampleTS.minusSeconds(30).withSecondOfMinute(0).withMillisOfSecond(0);
                 higherTS = rawSampleTS.plusSeconds(30).withSecondOfMinute(0).withMillisOfSecond(0);
             } else if (periodForRawSample.getMinutes() == 5) {
-                if (rawSampleTS.getMinuteOfHour() < 5) {
+                if (rawSampleTS.getMinuteOfHour() == 0) {
+                    lowerTS = rawSampleTS.minusMinutes(5).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 5) {
                     lowerTS = rawSampleTS.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                     higherTS = rawSampleTS.withMinuteOfHour(5).withSecondOfMinute(0).withMillisOfSecond(0);
                 } else if (rawSampleTS.getMinuteOfHour() < 10) {
@@ -100,7 +103,10 @@ public class PeriodAlignmentStepN implements ProcessStepN {
                     higherTS = rawSampleTS.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 }
             } else if (periodForRawSample.getMinutes() == 15) {
-                if (rawSampleTS.getMinuteOfHour() < 15) {
+                if (rawSampleTS.getMinuteOfHour() == 0) {
+                    lowerTS = rawSampleTS.minusMinutes(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 15) {
                     lowerTS = rawSampleTS.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                     higherTS = rawSampleTS.withMinuteOfHour(15).withSecondOfMinute(0).withMillisOfSecond(0);
                 } else if (rawSampleTS.getMinuteOfHour() < 30) {
@@ -114,7 +120,10 @@ public class PeriodAlignmentStepN implements ProcessStepN {
                     higherTS = rawSampleTS.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 }
             } else if (periodForRawSample.getMinutes() == 30) {
-                if (rawSampleTS.getMinuteOfHour() < 30) {
+                if (rawSampleTS.getMinuteOfHour() == 0) {
+                    lowerTS = rawSampleTS.minusMinutes(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 30) {
                     lowerTS = rawSampleTS.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                     higherTS = rawSampleTS.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
                 } else {
@@ -156,12 +165,14 @@ public class PeriodAlignmentStepN implements ProcessStepN {
                 long lowerDiff = rawSampleTS.getMillis() - lowerTS.getMillis();
                 long higherDiff = higherTS.getMillis() - rawSampleTS.getMillis();
 
-                if (lowerDiff < higherDiff) {
+                if (lowerDiff < higherDiff && !lowerTS.equals(rawSampleTS)) {
                     resultSample.setTimeStamp(lowerTS);
-                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_YES_NEG + lowerDiff + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
-                } else {
+                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_YES_NEG + lowerDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
+                } else if (higherDiff < lowerDiff && !higherTS.equals(rawSampleTS)) {
                     resultSample.setTimeStamp(higherTS);
-                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_YES_POS + lowerDiff + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
+                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_YES_POS + higherDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
+                } else {
+                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_NO);
                 }
             } else {
                 resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_NO);

@@ -107,7 +107,7 @@ public class LimitsStepN implements ProcessStepN {
                             }
 
                             GapsAndLimitsN gal = new GapsAndLimitsN(intervals, null, GapsAndLimitsN.GapsAndLimitsTypeN.LIMITS_TYPE,
-                                    c, new ArrayList<>(), newLimitBreaks, sampleCache);
+                                    c, new ArrayList<>(), newLimitBreaks, sampleCache, cleanDataObject);
 
                             switch (parse(c.getType())) {
                                 case STATIC:

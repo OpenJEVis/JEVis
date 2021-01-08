@@ -22,6 +22,8 @@ import org.joda.time.Period;
 import java.util.List;
 import java.util.Map;
 
+import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
+
 /**
  * @author broder
  */
@@ -58,7 +60,7 @@ public class DifferentialStepN implements ProcessStepN {
                     //raw data  period is bigger then clean data period, e.g. day values -> 15-minute values
                     interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
-                } else if (compare == 0 && timeStamp.equals(start) || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
+                } else if (compare == 0 && timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
                     //raw data period equal clean data period
                     interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
@@ -174,84 +176,42 @@ public class DifferentialStepN implements ProcessStepN {
                     }
                 } else {
 
-//                    boolean valueIsQuantity = cleanDataObject.getValueIsQuantity();
-//                    boolean last = valueIsQuantity && interval.getDifferential();
-//                    boolean sum = valueIsQuantity && !interval.getDifferential();
-//                    boolean avg = !valueIsQuantity && !interval.getDifferential();
-//                    List<JEVisSample> currentRawSamples = interval.getRawSamples();
-//
-//                    if (last) { //last sample
-//                        DateTime date = interval.getDate();
-//                        JEVisSample rawSample = currentRawSamples.get(currentRawSamples.size() - 1);
-//                        interval.getResult().setValue(rawSample.getValueAsDouble());
-//
-//                        double diff = (date.getMillis() - rawSample.getTimestamp().getMillis()) / 1000d;
-//                        String note = "";
-//                        if (diff > 0) {
-//                            note = "alignment(yes,+" + diff + "s,last)";
-//                        } else if (diff < 0) {
-//                            note = "alignment(yes,-" + Math.abs(diff) + "s,last)";
-//                        } else {
-//                            note = "alignment(no)";
-//                        }
-//                        if (userDataMap.containsKey(interval.getResult().getTimestamp())) {
-//                            note += "," + USER_VALUE;
-//                        }
-//                        interval.getResult().setNote(note);
-//                        rawSample.setNote(note);
-//
-//                    } else if (avg) {
-//                        Double currentValue = calcAvgSample(currentRawSamples);
-//                        DateTime date = interval.getDate();
-//                        interval.getResult().setValue(currentValue);
-//                        String note = "";
-//                        if (currentRawSamples.size() == 1) {
-//                            JEVisSample rawSample = currentRawSamples.get(0);
-//                            double diff = (date.getMillis() - rawSample.getTimestamp().getMillis()) / 1000d;
-//                            if (diff > 0) {
-//                                note = "alignment(yes,+" + diff + "s,avg)";
-//                            } else if (diff < 0) {
-//                                note = "alignment(yes,-" + Math.abs(diff) + "s,avg)";
-//                            }
-//                        }
-//                        if (note.equals("")) {
-//                            note = ("alignment(no)");
-//                        }
-//                        if (userDataMap.containsKey(interval.getResult().getTimestamp())) {
-//                            note += "," + USER_VALUE;
-//                        }
-//                        for (JEVisSample rawSample : rawSamples) {
-//                            rawSample.setNote(note);
-//                        }
-//                        interval.getResult().setNote(note);
-//                    } else if (sum) {
-//                        Double currentValue = null;
-//
-//                        interval.getResult().setValue(calcSumSample(currentRawSamples));
-//
-//                        DateTime date = interval.getDate();
-//                        JEVisSample sample = new VirtualSample(date, currentValue);
-//                        String note = "";
-//                        if (currentRawSamples.size() == 1) {
-//                            JEVisSample rawSample = currentRawSamples.get(0);
-//                            double diff = (date.getMillis() - rawSample.getTimestamp().getMillis()) / 1000d;
-//                            if (diff > 0) {
-//                                note = "alignment(yes,+" + diff + "s,sum)";
-//                            } else if (diff < 0) {
-//                                note = "alignment(yes,-" + Math.abs(diff) + "s,sum)";
-//                            }
-//                        }
-//                        if (note.equals("")) {
-//                            note = ("alignment(no)");
-//                        }
-//                        if (userDataMap.containsKey(sample.getTimestamp())) {
-//                            note += "," + USER_VALUE;
-//                        }
-//                        interval.getResult().setNote(note);
-//                        for (JEVisSample rawSample : rawSamples) {
-//                            rawSample.setNote(note);
-//                        }
-//                    }
+                    boolean valueIsQuantity = cleanDataObject.getValueIsQuantity();
+
+                    List<JEVisSample> currentRawSamples = interval.getRawSamples();
+                    String note;
+                    if (interval.getResult().getNote() == null) {
+                        note = currentRawSamples.get(0).getNote();
+                    } else {
+                        note = interval.getResult().getNote();
+                    }
+
+                    Double currentValue;
+                    if (!valueIsQuantity) {
+                        currentValue = calcAvgSample(currentRawSamples);
+                        interval.getResult().setValue(currentValue);
+
+                        int size = currentRawSamples.size();
+                        if (size > 1) {
+                            note += ",avg" + size + ")";
+                        } else {
+                            note += ",avg";
+                        }
+                    } else {
+                        currentValue = calcSumSample(currentRawSamples);
+                        interval.getResult().setValue(currentValue);
+
+                        int size = currentRawSamples.size();
+                        if (size > 1) {
+                            note += ",sum" + size + ")";
+                        } else {
+                            note += ",sum)";
+                        }
+                    }
+                    if (userDataMap.containsKey(interval.getResult().getTimestamp())) {
+                        note += "," + USER_VALUE;
+                    }
+                    interval.getResult().setNote(note);
                 }
                 lastInterval = interval;
             }
