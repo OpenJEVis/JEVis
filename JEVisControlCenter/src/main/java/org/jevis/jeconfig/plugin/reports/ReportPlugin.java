@@ -527,7 +527,6 @@ public class ReportPlugin implements Plugin {
 
                     if (lastReportPDFAttribute != null && lastReportXLSXAttribute != null) {
                         sampleMap.clear();
-                        fileComboBox.getItems().clear();
                         Platform.runLater(() -> fileComboBox.getItems().clear());
                         List<JEVisSample> allPDFSamples = lastReportPDFAttribute.getAllSamples();
                         List<JEVisSample> allXLSXSamples = lastReportXLSXAttribute.getAllSamples();
