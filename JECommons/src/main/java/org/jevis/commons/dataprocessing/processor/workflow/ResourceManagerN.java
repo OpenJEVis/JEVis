@@ -12,6 +12,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
+import org.jevis.commons.datetime.PeriodArithmetic;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
@@ -103,6 +104,33 @@ public class ResourceManagerN {
                 DateTime lastDateForCache = getCleanDataObject().getFirstDate();
 
                 sampleCache = getCleanDataObject().getRawDataObject().getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME).getSamples(minDateForCache, lastDateForCache);
+
+                int periods = 0;
+                List<PeriodRule> cleanDataPeriodAlignment = getCleanDataObject().getCleanDataPeriodAlignment();
+                for (PeriodRule periodRule : cleanDataPeriodAlignment) {
+                    int i = cleanDataPeriodAlignment.indexOf(periodRule);
+                    PeriodRule nextRule = null;
+                    if (cleanDataPeriodAlignment.size() > i + 1) {
+                        nextRule = cleanDataPeriodAlignment.get(i + 1);
+                    }
+
+                    if (nextRule == null) {
+                        periods += PeriodArithmetic.periodsInAnInterval(new Interval(minDateForCache, lastDateForCache), periodRule.getPeriod());
+                    } else {
+                        DateTime startOfPeriod = periodRule.getStartOfPeriod();
+                        DateTime endOfPeriod = nextRule.getStartOfPeriod();
+
+                        if ((minDateForCache.equals(startOfPeriod)
+                                || (minDateForCache.isAfter(startOfPeriod) && minDateForCache.isBefore(endOfPeriod))
+                                && (lastDateForCache.isBefore(endOfPeriod) || lastDateForCache.equals(endOfPeriod)))) {
+                            periods += PeriodArithmetic.periodsInAnInterval(new Interval(startOfPeriod, endOfPeriod), periodRule.getPeriod());
+                        }
+                    }
+                }
+
+                if (sampleCache.size() < periods) {
+                    sampleCache = null;
+                }
             } catch (Exception e) {
                 logger.error("No caching possible: ", e);
             }

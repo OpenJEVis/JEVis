@@ -61,7 +61,7 @@ public class FillGapStepN implements ProcessStepN {
                     List<GapN> newGaps = new ArrayList<>();
                     for (GapN g : gaps) {
                         if (!doneGaps.contains(g)) {
-                            logger.info("[{}] start filling with Mode for {}", cleanDataObject.getCleanObject().getID(), c.getType());
+                            logger.debug("[{}] start filling with Mode for {}", cleanDataObject.getCleanObject().getID(), c.getType());
                             DateTime firstDate = g.getMissingDateTimes().get(0);
                             DateTime lastDate = g.getMissingDateTimes().get(g.getMissingDateTimes().size() - 1);
                             if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
@@ -75,7 +75,7 @@ public class FillGapStepN implements ProcessStepN {
                         logger.error("No gaps in this interval.");
                         continue;
                     } else
-                        logger.info("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), newGaps.size());
+                        logger.debug("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), newGaps.size());
 
                     GapsAndLimitsN gal = new GapsAndLimitsN(null, rawSamples, GapsAndLimitsN.GapsAndLimitsTypeN.GAPS_TYPE,
                             c, newGaps, new ArrayList<>(), sampleCache, cleanDataObject);
@@ -109,7 +109,7 @@ public class FillGapStepN implements ProcessStepN {
                         default:
                             break;
                     }
-                    logger.info("[{}:{}] Gap Filling Done", cleanDataObject.getCleanObject().getName(), resourceManager.getID());
+                    logger.debug("[{}:{}] Gap Filling Done", cleanDataObject.getCleanObject().getName(), resourceManager.getID());
                     rawSamples.sort(Comparator.comparing(jeVisSample -> {
                         try {
                             return jeVisSample.getTimestamp();

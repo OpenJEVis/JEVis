@@ -8,6 +8,7 @@ package org.jevis.commons.dataprocessing.processor.limits;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -21,8 +22,10 @@ import org.jevis.commons.json.JsonLimitsConfig;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.jevis.commons.constants.GapFillingType.parse;
 
@@ -42,7 +45,6 @@ public class LimitsStepN implements ProcessStepN {
             return;
         }
         List<CleanIntervalN> intervals = resourceManager.getIntervals();
-        List<JEVisSample> sampleCache = resourceManager.getSampleCache();
         JEVisAttribute cleanAttribute = cleanDataObject.getValueAttribute();
         Double firstValue = 0.0;
         if (cleanAttribute != null) {
@@ -80,7 +82,6 @@ public class LimitsStepN implements ProcessStepN {
             if (cleanDataObject.getLimitsConfig().indexOf(limitsConfig) == 0) {
                 for (LimitBreakN limitBreak : limitBreaksStep1) {
                     for (CleanIntervalN currentInterval : limitBreak.getIntervals()) {
-                        logger.info("start marking peculiar samples");
                         VirtualSample smp = currentInterval.getResult();
                         String note = "";
                         note += smp.getNote();
@@ -91,12 +92,26 @@ public class LimitsStepN implements ProcessStepN {
             } else {
                 if (Objects.nonNull(confGaps)) {
                     if (!confGaps.isEmpty()) {
+                        List<JEVisSample> sampleCache = resourceManager.getSampleCache();
+
+                        if (sampleCache == null) {
+                            sampleCache = intervals.stream().map(CleanIntervalN::getResult).collect(Collectors.toList());
+                            sampleCache.sort(Comparator.comparing(jeVisSample -> {
+                                try {
+                                    return jeVisSample.getTimestamp();
+                                } catch (JEVisException e) {
+                                    e.printStackTrace();
+                                }
+                                return null;
+                            }));
+                        }
+
                         List<LimitBreakN> filledLimitBreaks = new ArrayList<>();
                         for (JsonGapFillingConfig c : confGaps) {
                             List<LimitBreakN> newLimitBreaks = new ArrayList<>();
                             for (LimitBreakN lb : limitBreaksStep2) {
                                 if (!filledLimitBreaks.contains(lb)) {
-                                    logger.info("[{}] start filling with Mode for {}", cleanDataObject.getCleanObject().getID(), c.getType());
+                                    logger.debug("[{}] start filling with Mode for {}", cleanDataObject.getCleanObject().getID(), c.getType());
                                     DateTime firstDate = lb.getIntervals().get(0).getDate();
                                     DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
                                     if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
@@ -139,7 +154,7 @@ public class LimitsStepN implements ProcessStepN {
                                     break;
                             }
 
-                            logger.info("[{}] Done", resourceManager.getID());
+                            logger.debug("[{}] Done", resourceManager.getID());
                         }
                         if (limitBreaksStep2.size() != filledLimitBreaks.size())
                             logger.error("Could not complete all limit breaks. Limit break may have been too long for reasonable gap filling.");
@@ -149,7 +164,7 @@ public class LimitsStepN implements ProcessStepN {
                 }
             }
         }
-        logger.info("[{}] finished filling gaps", cleanDataObject.getCleanObject().getID());
+        logger.debug("[{}] finished substituting values", cleanDataObject.getCleanObject().getID());
     }
 
     private Long defaultValue(String s) {
