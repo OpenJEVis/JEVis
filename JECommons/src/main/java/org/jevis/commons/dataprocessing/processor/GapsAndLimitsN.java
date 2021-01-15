@@ -467,10 +467,10 @@ public class GapsAndLimitsN {
                 for (LimitBreakN currentLimitBreak : limitBreaksList) {
                     Double firstValue = currentLimitBreak.getFirstValue();
                     Double lastValue = currentLimitBreak.getLastValue();
-                    int size = currentLimitBreak.getIntervals().size(); //if there is a gap of 2, then you have 3 steps
+                    int size = currentLimitBreak.getIntervals().size() + 1; //if there is a gap of 2, then you have 3 steps
                     if (firstValue != null && lastValue != null) {
                         Double stepSize = (lastValue - firstValue) / size;
-                        Double currentValue = firstValue;
+                        Double currentValue = firstValue + stepSize;
                         for (CleanIntervalN currentInterval : currentLimitBreak.getIntervals()) {
                             if (currentLimitBreak.getMin() != null && currentValue < currentLimitBreak.getMin()) {
                                 currentValue = currentLimitBreak.getMin();
