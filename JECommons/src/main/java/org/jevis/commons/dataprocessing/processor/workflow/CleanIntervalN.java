@@ -61,7 +61,7 @@ public class CleanIntervalN {
         this.multiplier = multiplier;
     }
 
-    public Boolean getDifferential() {
+    public Boolean isDifferential() {
         return differential;
     }
 

@@ -81,7 +81,7 @@ public class ImportStepN implements ProcessStepN {
         }
 
         if (resourceManager.isClean() && !resourceManager.getIntervals().isEmpty() && !monthPeriods) {
-            resourceManager.getIntervals().remove(0);
+//            resourceManager.getIntervals().remove(0);
             firstDateTimeOfResults = resourceManager.getIntervals().get(0).getInterval().getStart();
             lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
 

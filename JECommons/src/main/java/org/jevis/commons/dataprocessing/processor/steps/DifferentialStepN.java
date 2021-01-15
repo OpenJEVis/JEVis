@@ -43,7 +43,7 @@ public class DifferentialStepN implements ProcessStepN {
 
         int rawPointer = 0;
         for (CleanIntervalN interval : intervals) {
-            int compare = periodComparator.compare(interval.getInputPeriod(), interval.getOutputPeriod());
+            int compare = periodComparator.compare(interval.getOutputPeriod(), interval.getInputPeriod());
 
             DateTime start = interval.getInterval().getStart();
             DateTime end = interval.getInterval().getEnd();
@@ -52,7 +52,8 @@ public class DifferentialStepN implements ProcessStepN {
             while (samplesInInterval && rawPointer < rawSamples.size()) {
                 JEVisSample jeVisSample = rawSamples.get(rawPointer);
                 DateTime timeStamp = jeVisSample.getTimestamp();
-                if (compare > 0 && timeStamp.equals(start) || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
+//                if (compare > 0 && timeStamp.equals(start) || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
+                if (compare > 0 && timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
                     //raw data  period is smaller then clean data period, e.g. 15-minute values -> day values
                     interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
@@ -88,7 +89,7 @@ public class DifferentialStepN implements ProcessStepN {
             logger.debug("[{}] use differential mode with starting value {}", cleanDataObject.getCleanObject().getID(), lastDiffVal);
 
             for (CleanIntervalN interval : intervals) {
-                if (interval.getDifferential()) {
+                if (interval.isDifferential()) {
                     for (JEVisSample curSample : interval.getRawSamples()) {
 
                         int index = interval.getRawSamples().indexOf(curSample);
@@ -179,15 +180,32 @@ public class DifferentialStepN implements ProcessStepN {
                     boolean valueIsQuantity = cleanDataObject.getValueIsQuantity();
 
                     List<JEVisSample> currentRawSamples = interval.getRawSamples();
-                    String note;
+                    String note = null;
                     if (interval.getResult().getNote() == null) {
-                        note = currentRawSamples.get(0).getNote();
+                        int i = intervals.indexOf(interval);
+                        if (currentRawSamples.isEmpty() && i > 0) {
+                            while (note == null && i > 0) {
+                                List<JEVisSample> lastRawSamples = intervals.get(i - 1).getRawSamples();
+                                if (!lastRawSamples.isEmpty()) {
+                                    note = lastRawSamples.get(lastRawSamples.size() - 1).getNote();
+                                }
+                                i--;
+                            }
+
+                            if (note == null) {
+                                note = "";
+                            }
+                        } else if (!currentRawSamples.isEmpty()) {
+                            note = currentRawSamples.get(currentRawSamples.size() - 1).getNote();
+                        } else {
+                            note = "";
+                        }
                     } else {
                         note = interval.getResult().getNote();
                     }
 
                     Double currentValue;
-                    if (!valueIsQuantity) {
+                    if (currentRawSamples != null && !valueIsQuantity) {
                         currentValue = calcAvgSample(currentRawSamples);
                         interval.getResult().setValue(currentValue);
 
@@ -197,7 +215,7 @@ public class DifferentialStepN implements ProcessStepN {
                         } else {
                             note += ",avg";
                         }
-                    } else {
+                    } else if (currentRawSamples != null) {
                         currentValue = calcSumSample(currentRawSamples);
                         interval.getResult().setValue(currentValue);
 
@@ -207,6 +225,9 @@ public class DifferentialStepN implements ProcessStepN {
                         } else {
                             note += ",sum)";
                         }
+                    } else {
+                        //TODO: what to do
+                        logger.info("Missing feature");
                     }
                     if (userDataMap.containsKey(interval.getResult().getTimestamp())) {
                         note += "," + USER_VALUE;

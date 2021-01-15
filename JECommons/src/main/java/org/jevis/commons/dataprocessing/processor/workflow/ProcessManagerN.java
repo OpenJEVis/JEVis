@@ -98,7 +98,6 @@ public class ProcessManagerN {
         ProcessStepN aggregationAlignmentStep = new AggregationAlignmentStepN();
         processSteps.add(aggregationAlignmentStep);
 
-
         ProcessStepN limitsStep = new LimitsStepN();
         processSteps.add(limitsStep);
 
@@ -174,7 +173,12 @@ public class ProcessManagerN {
             resourceManager.getMathDataObject().reloadAttributes();
         }
         for (ProcessStepN ps : processSteps) {
-            ps.run(resourceManager);
+            try {
+                ps.run(resourceManager);
+            } catch (Exception e) {
+                logger.error("Error in step {}", ps, e);
+                throw e;
+            }
         }
     }
 
