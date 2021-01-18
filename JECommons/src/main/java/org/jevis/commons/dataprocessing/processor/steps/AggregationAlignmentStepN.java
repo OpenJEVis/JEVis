@@ -7,7 +7,6 @@ package org.jevis.commons.dataprocessing.processor.steps;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanIntervalN;
@@ -18,7 +17,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +45,8 @@ public class AggregationAlignmentStepN implements ProcessStepN {
          * calc the sample per interval if possible depending on aggregation mode (avg or sum value)
          */
 
-        for (CleanIntervalN currentInterval : intervals) {
+        for (int j = 0, intervalsSize = intervals.size(); j < intervalsSize; j++) {
+            CleanIntervalN currentInterval = intervals.get(j);
             //align the raw samples to the intervals
             Period outputPeriod = currentInterval.getOutputPeriod();
             Period inputPeriod = currentInterval.getInputPeriod();
@@ -161,82 +160,57 @@ public class AggregationAlignmentStepN implements ProcessStepN {
 
                 if (!periodRawHasMonths && !periodRawHasYear && !periodCleanHasMonths && !periodCleanHasYear) {
 
-                    List<JEVisSample> list = new ArrayList<>();
-                    for (CleanIntervalN ci : intervals) {
-                        list.add(ci.getResult());
-                    }
+                    CleanIntervalN ci = intervals.get(j);
 
-                    for (JEVisSample sample : list) {
-                        int index = list.indexOf(sample);
+                    Double previousValue = null;
+                    Double nextValue = null;
+                    int nextAdd = 0;
+                    Double value = null;
 
-                        Double previousValue = null;
-                        Double nextValue = null;
-                        int nextAdd = 0;
-                        Double value = null;
+                    if (ci.getRawSamples() == null || ci.getRawSamples().isEmpty()) {
+                        if (j > 0) {
+                            previousValue = intervals.get(j - 1).getResult().getValueAsDouble();
+                        }
 
-                        if (sample.getValue() == null) {
-                            if (index > 0) {
-                                previousValue = list.get(index - 1).getValueAsDouble();
-                            }
-
-                            String note = "";
-                            if (index < list.size() - 1) {
-                                for (int i = index; i < list.size(); i++) {
-                                    if (list.get(i).getValueAsDouble() != null) {
-                                        nextValue = list.get(i).getValueAsDouble();
-                                        note = list.get(i).getNote();
-                                        nextAdd++;
-                                        break;
-                                    }
+                        String note = "";
+                        if (j < intervals.size() - 1) {
+                            for (int i = j; i < intervals.size(); i++) {
+                                if (intervals.get(i).getRawSamples() != null && !intervals.get(i).getRawSamples().isEmpty()) {
+                                    nextValue = intervals.get(i).getResult().getValueAsDouble();
+                                    note = intervals.get(i).getResult().getNote();
                                     nextAdd++;
+                                    break;
                                 }
-
+                                nextAdd++;
                             }
 
-                            if (nextValue != null && valueIsQuantity) {
-                                value = nextValue / nextAdd;
-                                for (int i = index; i < index + nextAdd; i++) {
-                                    JEVisSample sample1 = list.get(i);
+                        }
+
+                        if (note == null || note.equals("")) {
+                            note = "agg(yes,up," + nextAdd + ")";
+                        } else {
+                            note = note + ",agg(yes,up," + nextAdd + ")";
+                        }
+
+                        if (nextValue != null && valueIsQuantity) {
+                            value = nextValue / nextAdd;
+                            for (int i = j; i < j + nextAdd; i++) {
+                                JEVisSample sample1 = intervals.get(i).getResult();
+                                sample1.setValue(value);
+                                sample1.setNote(note);
+                            }
+                        } else if (nextValue != null) {
+                            value = nextValue;
+                            for (int i = j; i < j + nextAdd + 1; i++) {
+                                if (i < intervalsSize) {
+                                    JEVisSample sample1 = intervals.get(i).getResult();
                                     sample1.setValue(value);
-                                    if (note == null || note.equals("")) {
-                                        note = "agg(yes,up," + nextAdd + ")";
-                                    } else {
-                                        note = note + ",agg(yes,up," + nextAdd + ")";
-                                    }
-                                    sample1.setNote(note);
-                                }
-                            } else if (previousValue != null && nextValue != null) {
-                                value = (previousValue + nextValue) / 2;
-                                for (int i = index - 1; i < index + nextAdd; i++) {
-                                    JEVisSample sample1 = list.get(i);
-                                    sample1.setValue(value);
-                                    if (note == null || note.equals("")) {
-                                        note = "agg(yes,up," + (nextAdd + 1) + ")";
-                                    } else {
-                                        note = note + ",agg(yes,up," + (nextAdd + 1) + ")";
-                                    }
                                     sample1.setNote(note);
                                 }
                             }
                         }
-                    }
 
-                    HashMap<DateTime, JEVisSample> map = new HashMap<>();
-                    for (JEVisSample jeVisSample : list) {
-                        try {
-                            map.put(jeVisSample.getTimestamp(), jeVisSample);
-                        } catch (JEVisException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    for (CleanIntervalN ci : intervals) {
-                        JEVisSample sample = ci.getResult();
-                        JEVisSample sample1 = map.get(ci.getDate());
-                        if (sample1 != null) {
-                            sample.setValue(sample1.getValueAsDouble());
-                            sample.setNote(sample1.getNote());
-                        }
+                        j += nextAdd - 1;
                     }
                 } else {
                     //TODO: implement periods greater than months

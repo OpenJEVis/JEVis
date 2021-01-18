@@ -91,8 +91,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
 
     public CleanDataExtension(JEVisObject _obj) {
         this._obj = _obj;
-        this.nf.setMinimumFractionDigits(2);
-        this.nf.setMaximumFractionDigits(2);
+        this.nf.setMinimumFractionDigits(0);
+        this.nf.setMaximumFractionDigits(6);
     }
 
     @Override

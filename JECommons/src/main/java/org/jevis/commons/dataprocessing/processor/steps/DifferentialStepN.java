@@ -57,7 +57,7 @@ public class DifferentialStepN implements ProcessStepN {
                     //raw data  period is smaller then clean data period, e.g. 15-minute values -> day values
                     interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
-                } else if (compare < 0 && timeStamp.equals(start)) {
+                } else if (compare < 0 && timeStamp.equals(end)) {
                     //raw data  period is bigger then clean data period, e.g. day values -> 15-minute values
                     interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
