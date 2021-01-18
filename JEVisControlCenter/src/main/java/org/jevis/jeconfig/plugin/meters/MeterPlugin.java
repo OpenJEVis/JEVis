@@ -483,26 +483,29 @@ public class MeterPlugin implements Plugin {
                                                 if (th.isValid() && th.targetAccessible()) {
 
                                                     JEVisAttribute att = th.getObject().get(0).getAttribute("Value");
+                                                    JEVisAttribute periodAtt = th.getObject().get(0).getAttribute("Period");
 
-                                                    if (att != null && att.hasSample()) {
+                                                    if (att != null && att.hasSample() && periodAtt != null) {
                                                         JEVisSample latestSample = att.getLatestSample();
+                                                        JEVisSample periodSample = periodAtt.getLatestSample();
+                                                        Period period = new Period(periodSample.getValueAsString());
                                                         boolean isCounter = isCounter(att.getObject(), latestSample);
                                                         JEVisUnit displayUnit = att.getDisplayUnit();
                                                         String unitString = UnitManager.getInstance().format(displayUnit);
                                                         String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
 
                                                         try {
-                                                            if (att.getDisplaySampleRate().equals(Period.days(1))) {
+                                                            if (period.equals(Period.days(1))) {
                                                                 normalPattern = "dd. MMMM yyyy";
-                                                            } else if (att.getDisplaySampleRate().equals(Period.weeks(1))) {
+                                                            } else if (period.equals(Period.weeks(1))) {
                                                                 normalPattern = "dd. MMMM yyyy";
-                                                            } else if (att.getDisplaySampleRate().equals(Period.months(1)) && !isCounter) {
+                                                            } else if (period.equals(Period.months(1)) && !isCounter) {
                                                                 normalPattern = "MMMM yyyy";
-                                                            } else if (att.getDisplaySampleRate().equals(Period.months(1)) && isCounter) {
+                                                            } else if (period.equals(Period.months(1)) && isCounter) {
                                                                 normalPattern = "dd. MMMM yyyy";
-                                                            } else if (att.getDisplaySampleRate().equals(Period.years(1)) && !isCounter) {
+                                                            } else if (period.equals(Period.years(1)) && !isCounter) {
                                                                 normalPattern = "yyyy";
-                                                            } else if (att.getDisplaySampleRate().equals(Period.years(1)) && isCounter) {
+                                                            } else if (period.equals(Period.years(1)) && isCounter) {
                                                                 normalPattern = "dd. MMMM yyyy";
                                                             } else {
                                                                 normalPattern = "yyyy-MM-dd HH:mm:ss";

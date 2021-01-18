@@ -16,9 +16,9 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -136,7 +136,7 @@ public class Launcher extends AbstractCliApp {
 
         }
 
-        sleep();
+//        sleep();
     }
 
     @Override

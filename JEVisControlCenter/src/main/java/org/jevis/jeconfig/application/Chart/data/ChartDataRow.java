@@ -22,6 +22,7 @@ import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.*;
 
@@ -280,19 +281,10 @@ public class ChartDataRow {
                 if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                     try {
                         if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-//                            SampleGenerator sg = new SampleGenerator(
-//                                    attribute.getDataSource(),
-//                                    attribute.getObject(),
-//                                    attribute,
-//                                    selectedStart, selectedEnd,
-//                                    customWorkDay,
-//                                    manipulationMode,
-//                                    aggregationPeriod);
+
                             if (!isStringData) {
-//                                samples = factorizeSamples(sg.getAggregatedSamples());
                                 samples = factorizeSamples(attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString()));
                             } else {
-//                                samples = sg.getAggregatedSamples();
                                 samples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString());
                             }
 
@@ -849,5 +841,31 @@ public class ChartDataRow {
 
     public void setChartType(ChartType chartType) {
         this.chartType = chartType;
+    }
+
+    public Period getPeriod() {
+        Period p = Period.ZERO;
+        JEVisObject object = null;
+        if (dataProcessorObject != null) {
+            object = this.dataProcessorObject;
+        } else {
+            object = this.object;
+        }
+
+        try {
+            JEVisAttribute periodAttribute = object.getAttribute("Period");
+            if (periodAttribute != null) {
+                JEVisSample latestSample = periodAttribute.getLatestSample();
+
+                if (latestSample != null) {
+                    p = new Period(latestSample.getValueAsString());
+                }
+            }
+
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        return p;
     }
 }

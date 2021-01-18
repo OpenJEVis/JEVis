@@ -30,11 +30,6 @@
     </parent>
     <dependencies>
         <dependency>
-            <groupId>org.jevis</groupId>
-            <artifactId>JEDataProcessor</artifactId>
-            <version>1.5</version>
-        </dependency>
-        <dependency>
             <groupId>org.jevis.jeopc</groupId>
             <artifactId>OPCUA-Driver</artifactId>
             <version>1.0</version>
@@ -161,6 +156,11 @@
             <groupId>de.jollyday</groupId>
             <artifactId>jollyday</artifactId>
             <version>0.5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+            <version>4.1.45.Final</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.jeopc</groupId>

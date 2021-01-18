@@ -283,12 +283,16 @@ public class ControlPane extends GridPane {
                         DateTime fromDate = getFromDate();
                         DateTime untilDate = getUntilDate();
 
-                        if (workdayStart.isAfter(workdayEnd)) {
+                        if (workdayStart.isAfter(workdayEnd) && aggregationField.getSelectionModel().getSelectedItem().equals(AggregationPeriod.NONE)) {
                             fromDate = fromDate.minusDays(1);
                         }
 
                         if (fromDate.isBefore(untilDate)) {
-                            return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString());
+                            if (period != AggregationPeriod.NONE) {
+                                return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString());
+                            } else {
+                                return ControlPane.this.attribute.getSamples(fromDate, untilDate);
+                            }
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();

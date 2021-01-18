@@ -42,8 +42,6 @@ import org.jevis.jeconfig.application.resource.PDFModel;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.PDFViewerDialog;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
@@ -77,9 +75,10 @@ public class ReportPlugin implements Plugin {
     private final SimpleDoubleProperty zoomFactor = new SimpleDoubleProperty(0.3);
     //private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
     //private final ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
-    private ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
-    private ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
+    private final ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
+    private final ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
     private boolean newReport = false;
+    private final AlphanumComparator alphanumComparator = new AlphanumComparator();
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -208,20 +207,19 @@ public class ReportPlugin implements Plugin {
         pdfButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("PDF File Destination");
-            DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
             FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("PDF Files (*.pdf)", ".pdf");
             fileChooser.getExtensionFilters().addAll(pdfFilter);
             fileChooser.setSelectedExtensionFilter(pdfFilter);
 
-            JEVisObject selectedItem = listView.getSelectionModel().getSelectedItem();
-            fileChooser.setInitialFileName(selectedItem.getName() + fmtDate.print(new DateTime()));
-            File file = fileChooser.showSaveDialog(JEConfig.getStage());
-            if (file != null) {
-                File destinationFile = new File(file + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));
+            JEVisFile pdfFile = fileComboBox.getSelectionModel().getSelectedItem().getPdfFile();
+            fileChooser.setInitialFileName(pdfFile.getFilename());
+            File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
+            if (selectedFile != null) {
+                JEConfig.setLastPath(selectedFile);
                 try {
-                    fileComboBox.getSelectionModel().getSelectedItem().getJeVisFile().saveToFile(destinationFile);
+                    pdfFile.saveToFile(selectedFile);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("Could not save pdf file", e);
                 }
             }
         });
@@ -234,23 +232,19 @@ public class ReportPlugin implements Plugin {
         xlsxButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("XLSX File Destination");
-            DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
             FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", ".xlsx");
             fileChooser.getExtensionFilters().addAll(pdfFilter);
             fileChooser.setSelectedExtensionFilter(pdfFilter);
 
-            JEVisObject selectedItem = listView.getSelectionModel().getSelectedItem();
-            fileChooser.setInitialFileName(selectedItem.getName() + fmtDate.print(new DateTime()));
-            File file = fileChooser.showSaveDialog(JEConfig.getStage());
-            if (file != null) {
-                File destinationFile = new File(file + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));
+            JEVisFile xlsxFile = fileComboBox.getSelectionModel().getSelectedItem().getXlsxFile();
+            fileChooser.setInitialFileName(xlsxFile.getFilename());
+            File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
+            if (selectedFile != null) {
+                JEConfig.setLastPath(selectedFile);
                 try {
-                    JEVisAttribute last_report_pdf = selectedItem.getAttribute("Last Report");
-                    DateTime dateTime = fileComboBox.getSelectionModel().getSelectedItem().getJeVisSample().getTimestamp();
-                    List<JEVisSample> samples = last_report_pdf.getSamples(dateTime.minusMinutes(1), dateTime.plusMinutes(1));
-                    samples.get(0).getValueAsFile().saveToFile(destinationFile);
-                } catch (JEVisException | IOException e) {
-                    e.printStackTrace();
+                    xlsxFile.saveToFile(selectedFile);
+                } catch (IOException e) {
+                    logger.error("Could not save xlsx file", e);
                 }
             }
         });
@@ -264,7 +258,7 @@ public class ReportPlugin implements Plugin {
         printButton.setOnAction(event -> {
             PrinterJob printerJob = PrinterJob.getPrinterJob();
             try {
-                PDDocument document = PDDocument.load(fileComboBox.getSelectionModel().getSelectedItem().getJeVisFile().getBytes());
+                PDDocument document = PDDocument.load(fileComboBox.getSelectionModel().getSelectedItem().getPdfFile().getBytes());
                 printerJob.setPageable(new PDFPageable(document));
                 if (printerJob.printDialog()) {
                     printerJob.print();
@@ -297,7 +291,7 @@ public class ReportPlugin implements Plugin {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            setText(obj.getJeVisFile().getFilename());
+                            setText(obj.getPdfFile().getFilename());
                         }
                     }
                 };
@@ -330,7 +324,7 @@ public class ReportPlugin implements Plugin {
         fileComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && newValue != null && !newValue.equals(oldValue)) {
                 try {
-                    byte[] bytesFromSampleMap = newValue.getJeVisFile().getBytes();
+                    byte[] bytesFromSampleMap = newValue.getPdfFile().getBytes();
                     model.setBytes(bytesFromSampleMap);
                     pagination.setPageCount(model.numPages());
                     zoomFactor.set(0.3);
@@ -523,18 +517,21 @@ public class ReportPlugin implements Plugin {
             protected Object call() throws Exception {
                 try {
                     JEVisAttribute lastReportPDFAttribute = null;
+                    JEVisAttribute lastReportXLSXAttribute = null;
                     try {
                         lastReportPDFAttribute = reportObject.getAttribute("Last Report PDF");
+                        lastReportXLSXAttribute = reportObject.getAttribute("Last Report");
                     } catch (JEVisException e) {
                         logger.error("Could not get 'Last Report' Attribute from object {}:{}", reportObject.getName(), reportObject.getID(), e);
                     }
 
-                    if (lastReportPDFAttribute != null) {
+                    if (lastReportPDFAttribute != null && lastReportXLSXAttribute != null) {
                         sampleMap.clear();
                         Platform.runLater(() -> fileComboBox.getItems().clear());
-                        List<JEVisSample> allSamples = lastReportPDFAttribute.getAllSamples();
-                        if (allSamples.size() > 0) {
-                            JEVisFile lastSampleValueAsFile = allSamples.get(allSamples.size() - 1).getValueAsFile();
+                        List<JEVisSample> allPDFSamples = lastReportPDFAttribute.getAllSamples();
+                        List<JEVisSample> allXLSXSamples = lastReportXLSXAttribute.getAllSamples();
+                        if (allPDFSamples.size() > 0) {
+                            JEVisFile lastSampleValueAsFile = allPDFSamples.get(allPDFSamples.size() - 1).getValueAsFile();
                             Task loadLastReport = new Task() {
                                 @Override
                                 protected Object call() throws Exception {
@@ -563,11 +560,27 @@ public class ReportPlugin implements Plugin {
                             };
                             JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadLastReport, ReportPlugin.this.getIcon().getImage(), true);
 
-                            for (JEVisSample jeVisSample : allSamples) {
+                            for (JEVisSample pdfSample : allPDFSamples) {
                                 try {
-                                    JEVisFile valueAsFile = jeVisSample.getValueAsFile();
-                                    Platform.runLater(() -> fileComboBox.getItems().add(new JEVisFileWithSample(jeVisSample, valueAsFile)));
-                                    sampleMap.put(valueAsFile, jeVisSample);
+                                    JEVisFile pdfFile = pdfSample.getValueAsFile();
+
+                                    JEVisFile xlsxFile = null;
+                                    DateTime pdfTSLower = pdfSample.getTimestamp().minusMinutes(1);
+                                    DateTime pdfTSUpper = pdfSample.getTimestamp().plusMinutes(1);
+                                    for (JEVisSample sample : allXLSXSamples) {
+                                        if (sample.getTimestamp().isAfter(pdfTSLower) && sample.getTimestamp().isBefore(pdfTSUpper)) {
+                                            xlsxFile = sample.getValueAsFile();
+                                            break;
+                                        }
+                                    }
+
+                                    JEVisFileWithSample jeVisFileWithSample = new JEVisFileWithSample(pdfSample, pdfFile, xlsxFile);
+
+                                    Platform.runLater(() -> {
+                                        fileComboBox.getItems().add(jeVisFileWithSample);
+                                        fileComboBox.getItems().sort((o1, o2) -> alphanumComparator.compare(o2.getPdfFile().getFilename(), o1.getPdfFile().getFilename()));
+                                    });
+                                    sampleMap.put(pdfFile, pdfSample);
 
                                 } catch (JEVisException e) {
                                     logger.error("Could not add date to date list.");
@@ -584,7 +597,7 @@ public class ReportPlugin implements Plugin {
             }
         };
 
-        loadOtherFilesInBackground.setOnSucceeded(event -> Platform.runLater(() -> fileComboBox.getSelectionModel().selectLast()));
+        loadOtherFilesInBackground.setOnSucceeded(event -> Platform.runLater(() -> fileComboBox.getSelectionModel().selectFirst()));
 
         JEConfig.getStatusBar().addTask(PDFViewerDialog.class.getName(), loadOtherFilesInBackground, this.getIcon().getImage(), true);
     }

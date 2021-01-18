@@ -116,7 +116,7 @@ public class FTPDataSource implements DataSource {
                     }
                 }
 
-                if (successful && deleteOnSuccess) {
+                if (successful && deleteOnSuccess && parser.getReport().errors().isEmpty()) {
                     FTPClient ftpClient = initFTPClient();
                     try {
                         for (String fileName : fileNames) {

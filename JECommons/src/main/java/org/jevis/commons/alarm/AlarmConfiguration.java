@@ -70,7 +70,7 @@ public class AlarmConfiguration {
                 }
             }
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Could not get Link status for object {}:{}", object.getName(), object.getID(), e);
         }
 
         return false;
@@ -251,7 +251,7 @@ public class AlarmConfiguration {
                 }
             }
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Could not get alarm objects: ", e);
         }
 
         return alarmObjects;

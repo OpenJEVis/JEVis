@@ -511,6 +511,10 @@ public class AnalysisDataModel {
         }
     }
 
+    public void setShowSum_NOEVENT(Boolean show) {
+        this.showSum = show;
+    }
+
     public Boolean calcRegression() {
         return calcRegression;
     }

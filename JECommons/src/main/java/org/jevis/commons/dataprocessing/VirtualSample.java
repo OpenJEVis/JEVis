@@ -37,6 +37,9 @@ public class VirtualSample implements JEVisSample {
     private String _note;
     private JEVisUnit _unit;
 
+    public VirtualSample() {
+    }
+
     public VirtualSample(DateTime ts, Double value) {
         _value = value;
         _timeStamp = ts;
@@ -87,6 +90,10 @@ public class VirtualSample implements JEVisSample {
         if (_value != null)
             return _value;
         else return _longValue;
+    }
+
+    public void setTimeStamp(DateTime value) {
+        _timeStamp = value;
     }
 
     @Override

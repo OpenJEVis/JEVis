@@ -106,10 +106,6 @@ public class TableSerie extends XYChartSerie {
         this.yAxis = singleRow.getAxis();
     }
 
-    public String getTableEntryName() {
-        return singleRow.getObject().getName();
-    }
-
     public String getUnit() {
         return super.getUnit();
     }

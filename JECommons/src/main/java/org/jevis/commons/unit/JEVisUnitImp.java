@@ -75,8 +75,6 @@ public class JEVisUnitImp implements JEVisUnit {
                                 break;
                             }
                         }
-                    } else {
-                        logger.info("Empty unit: {}", JsonTools.prettyObjectMapper().writeValueAsString(json));
                     }
                 } catch (Exception e) {
                     logger.warn("Warning! Could not parse unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + pe.getMessage());

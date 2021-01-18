@@ -1,11 +1,13 @@
 package org.jevis.jeconfig.plugin.meters;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.joda.time.DateTime;
 
 public class AttributeValueChange {
-
+    private static final Logger logger = LogManager.getLogger(AttributeValueChange.class);
     private int primitiveType;
     private String guiDisplayType;
     private JEVisAttribute attribute;
@@ -130,12 +132,12 @@ public class AttributeValueChange {
         this.attribute = attribute;
     }
 
-    public JEVisAttribute getAttribute(){
+    public JEVisAttribute getAttribute() {
         return this.attribute;
     }
 
     public void commit(DateTime dateTime) throws JEVisException {
-        System.out.println("Commit attribute: "+primitiveType+" "+attribute.getName());
+        logger.debug("Commit attribute: " + primitiveType + " " + attribute.getName());
         switch (primitiveType) {
             case JEVisConstants.PrimitiveType.LONG:
                 JEVisSample longSample = attribute.buildSample(dateTime, longValue);
@@ -169,7 +171,7 @@ public class AttributeValueChange {
 
                 break;
         }
-        System.out.println("->done");
+        logger.debug("->done");
     }
 
     @Override

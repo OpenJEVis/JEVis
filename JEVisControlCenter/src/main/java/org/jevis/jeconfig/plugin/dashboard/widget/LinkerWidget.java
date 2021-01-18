@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -32,27 +33,32 @@ import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class LinkerWidget extends Widget {
 
     public static String WIDGET_ID = "Analyse-Link";
     private GraphAnalysisLinker graphAnalysisLinker;
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(LinkerWidget.class);
-    private AnchorPane anchorPane = new AnchorPane();
+    private final AnchorPane anchorPane = new AnchorPane();
     private JsonNode linkerNode;
     private GraphAnalysisLinkerNode dataModelNode;
     private Interval lastInterval = null;
     public static ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectRelations objectRelations;
     private boolean hasInit = false;
 
     public LinkerWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
+        objectRelations = new ObjectRelations(control.getDataSource());
     }
 
     public LinkerWidget(DashboardControl control) {
         super(control);
+        objectRelations = new ObjectRelations(control.getDataSource());
     }
 
     @Override
@@ -148,16 +154,27 @@ public class LinkerWidget extends Widget {
 
             try {
                 JEVisClass analysisClass = getDataSource().getJEVisClass(AnalysisDataModel.ANALYSIS_CLASS_NAME);
-                List<JEVisObject> allAnalysis = getDataSource().getObjects(analysisClass, true);
-                AlphanumComparator alphanumComparator = new AlphanumComparator();
-                Collections.sort(allAnalysis, new Comparator<JEVisObject>() {
-                    @Override
-                    public int compare(JEVisObject o1, JEVisObject o2) {
-                        return alphanumComparator.compare(o1.getName(), o2.getName());
-                    }
-                });
+                JEVisClass analysisDirClass = getDataSource().getJEVisClass(AnalysisDataModel.ANALYSES_DIRECTORY_CLASS_NAME);
+                List<JEVisObject> allAnalyses = getDataSource().getObjects(analysisClass, true);
+                List<JEVisObject> allAnalysesDir = getDataSource().getObjects(analysisClass, true);
+                boolean multipleDir = allAnalysesDir.size() > 2;
+                AlphanumComparator ac = new AlphanumComparator();
+                if (!multipleDir) allAnalyses.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+                else {
+                    allAnalyses.sort((o1, o2) -> {
 
-                jfxtras.scene.control.ListView<JEVisObject> analysisListView = new ListView<>(FXCollections.observableArrayList(allAnalysis));
+                        String prefix1 = "";
+                        String prefix2 = "";
+
+                        prefix1 = objectRelations.getObjectPath(o1) + o1.getName();
+
+                        prefix2 = objectRelations.getObjectPath(o2) + o2.getName();
+
+                        return ac.compare(prefix1, prefix2);
+                    });
+                }
+
+                jfxtras.scene.control.ListView<JEVisObject> analysisListView = new ListView<>(FXCollections.observableArrayList(allAnalyses));
                 analysisListView.setCellFactory(param -> new ListCell<JEVisObject>() {
 
                     @Override
@@ -166,29 +183,13 @@ public class LinkerWidget extends Widget {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            String parent = "";
-                            String parentParent = "";
-                            try {
-                                if (!obj.getParents().isEmpty()) {
-                                    parent = obj.getParents().get(0).getName();
+                            if (!multipleDir)
+                                setText(obj.getName());
+                            else {
+                                String prefix = objectRelations.getObjectPath(obj);
 
-                                    if (!obj.getParents().get(0).getParents().isEmpty()) {
-                                        parentParent = obj.getParents().get(0).getParents().get(0).getName();
-                                    }
-                                }
-                            } catch (Exception ex) {
-
+                                setText(prefix + obj.getName());
                             }
-
-                            String finalName = "";
-                            if (!parent.isEmpty()) {
-                                finalName += parent + " / ";
-                            }
-                            if (!parentParent.isEmpty()) {
-                                finalName += parentParent + " / ";
-                            }
-                            finalName += obj.getName();
-                            setText(finalName);
                         }
                     }
                 });

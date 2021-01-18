@@ -58,7 +58,9 @@ public class TimeStampEditor implements AttributeEditor {
 
     public TimeStampEditor(JEVisAttribute att) {
         this.att = att;
-        originalSample = att.getLatestSample();
+        if (att != null && att.getLatestSample() != null) {
+            originalSample = att.getLatestSample();
+        }
         buildGUI();
     }
 

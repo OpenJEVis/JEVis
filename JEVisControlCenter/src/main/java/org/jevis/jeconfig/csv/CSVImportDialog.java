@@ -72,7 +72,7 @@ public class CSVImportDialog {
     private String _encloser = "";
     private String separator = "";
 
-    private double LEFT_PADDING = 30;
+    private final double LEFT_PADDING = 30;
 
     final Button ok = new Button(I18n.getInstance().getString("csv.ok"));
     final Button automatic = new Button(I18n.getInstance().getString("csv.automatic"));//, JEConfig.getImage("1403018303_Refresh.png", 15, 15));
@@ -83,6 +83,17 @@ public class CSVImportDialog {
     enum Seperator {
         Semicolon, Comma, Space, Tab, OTHER
     }
+
+    private final ComboBox<Seperator> seperatorComboBox = new ComboBox<>(FXCollections.observableArrayList(Seperator.values()));
+    private final ComboBox<Enclosed> enclosedComboBox = new ComboBox<>(FXCollections.observableArrayList(Enclosed.values()));
+    private final NotificationPane notificationPane = new NotificationPane();
+
+    final ToggleGroup textDiGroup = new ToggleGroup();
+    ObservableList<String> formatOptions;
+    private final TextField otherSeperatorField = new TextField();
+    final AnchorPane tableRootPane = new AnchorPane();
+    private final TextField otherEnclosedField = new TextField();
+    private final TextField customNoteField = new TextField();
 
     private Node buildSeparatorPane() {
         GridPane gp = new GridPane();
@@ -142,7 +153,7 @@ public class CSVImportDialog {
                 otherSeperatorField.requestFocus();
             } else {
                 otherSeperatorField.setDisable(true);
-                updateSeperator();
+                updateSeparator();
             }
         });
 
@@ -197,7 +208,7 @@ public class CSVImportDialog {
         });
 
         otherSeperatorField.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateSeperator();
+            updateSeparator();
         });
         otherEnclosedField.textProperty().addListener((observable, oldValue, newValue) -> {
             updateEnclosed();
@@ -244,19 +255,6 @@ public class CSVImportDialog {
         return root;
 
     }
-
-    private ComboBox<Seperator> seperatorComboBox = new ComboBox<>(FXCollections.observableArrayList(Seperator.values()));
-    private ComboBox<Enclosed> enclosedComboBox = new ComboBox<>(FXCollections.observableArrayList(Enclosed.values()));
-
-    final ToggleGroup textDiGroup = new ToggleGroup();
-    ObservableList<String> formatOptions;
-
-    private NotificationPane notificationPane = new NotificationPane();
-    final AnchorPane tableRootPane = new AnchorPane();
-
-    private TextField otherSeperatorField = new TextField();
-    private TextField otherEnclosedField = new TextField();
-    private TextField customNoteField = new TextField();
     private File _csvFile;
     private JEVisDataSource _ds;
     private CSVTable table;
@@ -513,7 +511,7 @@ public class CSVImportDialog {
                 try {
                     CSVAnalyser csvAnalyser = new CSVAnalyser(_csvFile);
                     setEncloser(csvAnalyser.getEnclosed());
-                    setSeperator(csvAnalyser.getSeparator());
+                    setSeparator(csvAnalyser.getSeparator());
                     formats.getSelectionModel().select(Format.Custom.name());
                     table.getParser().setEnclosed(csvAnalyser.getEnclosed());
                     table.getParser().setSeparator(csvAnalyser.getSeparator());
@@ -559,7 +557,7 @@ public class CSVImportDialog {
                             CSVAnalyser analyse = new CSVAnalyser(_csvFile);
 
                             setEncloser(analyse.getEnclosed());
-                            setSeperator(analyse.getSeparator());
+                            setSeparator(analyse.getSeparator());
                             formats.getSelectionModel().select(Format.Custom.name());
 
                             updateTree(true);
@@ -680,7 +678,7 @@ public class CSVImportDialog {
         return separator;
     }
 
-    private void setSeperator(String sep) {
+    private void setSeparator(String sep) {
         separator = sep;
 
         switch (sep) {
@@ -703,7 +701,7 @@ public class CSVImportDialog {
         }
     }
 
-    private void updateSeperator() {
+    private void updateSeparator() {
         switch (seperatorComboBox.getValue()) {
             case OTHER:
                 separator = otherSeperatorField.getText();

@@ -98,7 +98,7 @@ public class PieChart implements Chart {
         if (chartDataRows != null && chartDataRows.size() > 0) {
             unit = UnitManager.getInstance().format(chartDataRows.get(0).getUnit());
             if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
-            period = chartDataRows.get(0).getAttribute().getDisplaySampleRate();
+            period = chartDataRows.get(0).getPeriod();
         }
 
         hexColors.clear();

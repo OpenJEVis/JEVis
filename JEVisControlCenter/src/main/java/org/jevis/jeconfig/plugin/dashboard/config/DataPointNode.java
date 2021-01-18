@@ -16,6 +16,7 @@ public class DataPointNode {
     private Color color;
     private boolean absolute;
     private String unit;
+    private String name;
     private Integer axis = 0;
 
     public boolean isAbsolute() {
@@ -28,6 +29,14 @@ public class DataPointNode {
 
     private boolean enpi = false;
     private Long calculationID;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public boolean isEnpi() {
         return this.enpi;
@@ -123,6 +132,7 @@ public class DataPointNode {
                 "objectID=" + this.objectID +
                 ", cleanObjectID=" + this.cleanObjectID +
                 ", attribute='" + this.attribute + '\'' +
+                ", name=" + this.name +
                 ", chartType=" + this.chartType +
                 ", manipulationMode=" + this.manipulationMode +
                 ", aggregationPeriod=" + this.aggregationPeriod +

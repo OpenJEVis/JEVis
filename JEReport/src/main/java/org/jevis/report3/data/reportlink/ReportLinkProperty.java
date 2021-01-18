@@ -217,7 +217,7 @@ public class ReportLinkProperty implements ReportData {
                                 if (aggregationName != null) {
                                     aggregationPeriod = AggregationPeriod.get(aggregationName.toUpperCase());
                                 }
-                                logger.info("aggregationPeriod: {}", aggregationPeriod.toString());
+                                logger.debug("aggregationPeriod: {}", aggregationPeriod.toString());
 
                                 ManipulationMode manipulationMode = ManipulationMode.NONE;
                                 if (manipulationName != null) {
@@ -225,7 +225,7 @@ public class ReportLinkProperty implements ReportData {
                                 } else if (aggregationName != null) {
                                     manipulationMode = ManipulationMode.get(aggregationName.toUpperCase());
                                 }
-                                logger.info("manipulationMode: {}", manipulationMode.toString());
+                                logger.debug("manipulationMode: {}", manipulationMode.toString());
 
                                 Interval interval = null;
                                 PeriodMode mode = null;
@@ -248,120 +248,29 @@ public class ReportLinkProperty implements ReportData {
                                         interval = intervalCalc.getInterval(name);
                                     }
 
-                                    logger.info("interval: {}", interval);
+                                    logger.info("variable named {} for interval: {} getting data from object {}:{} of attribute {}",
+                                            linkProperty.templateVariableName, interval, dataObject.getName(), dataObject.getID(), attribute.getName());
 
                                 } catch (JEVisException ex) {
                                     logger.error(ex);
                                 }
 
-                                if (interval != null && !workdayEnd.isBefore(workdayStart)) {
-                                    long duration = 0;
-                                    duration = interval.toDurationMillis();
-
-                                    switch (aggregationPeriod) {
-                                        case QUARTER_HOURLY:
-                                            long quarter_hourly = 900000L;
-                                            if (duration < quarter_hourly) {
-                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), interval.getEnd().getHourOfDay(), interval.getEnd().getMinuteOfHour(), 0);
-                                                DateTime end = interval.getEnd();
-                                                interval = new Interval(start, end);
-                                            }
-                                            break;
-                                        case HOURLY:
-                                            long hourly = 3600000L;
-                                            if (duration < hourly) {
-                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), interval.getEnd().getHourOfDay(), 0, 0);
-                                                DateTime end = interval.getEnd();
-                                                interval = new Interval(start, end);
-                                            }
-                                            break;
-                                        case DAILY:
-                                            long daily = 86400000L;
-                                            if (duration < daily) {
-                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), 0, 0, 0);
-                                                DateTime end = interval.getEnd();
-                                                interval = new Interval(start, end);
-                                            }
-                                            break;
-                                        case WEEKLY:
-                                            long weekly = 604800000L;
-                                            if (duration < weekly) {
-                                                DateTime end = interval.getEnd();
-                                                int dayOfWeek = end.getDayOfWeek();
-
-                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), 0, 0, 0).minusDays(dayOfWeek);
-
-                                                interval = new Interval(start, end);
-                                            }
-                                            break;
-                                        case MONTHLY:
-                                            long monthly = 16934400000L;
-                                            if (duration < monthly) {
-                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), 1, 0, 0, 0);
-                                                DateTime end = interval.getEnd();
-                                                interval = new Interval(start, end);
-                                            }
-                                            break;
-                                        case QUARTERLY:
-                                            long quarterly = 50803200000L;
-                                            if (duration < quarterly) {
-                                                DateTime start;
-                                                DateTime end = interval.getEnd();
-                                                if (end.getMonthOfYear() < 4) {
-                                                    start = new DateTime(interval.getEnd().getYear(), 1, 1, 0, 0, 0);
-                                                } else if (end.getMonthOfYear() < 7) {
-                                                    start = new DateTime(interval.getEnd().getYear(), 4, 1, 0, 0, 0);
-
-                                                } else if (end.getMonthOfYear() < 10) {
-                                                    start = new DateTime(interval.getEnd().getYear(), 7, 1, 0, 0, 0);
-                                                } else {
-                                                    start = new DateTime(interval.getEnd().getYear(), 10, 1, 0, 0, 0);
-                                                }
-
-                                                interval = new Interval(start, end);
-                                            }
-                                            break;
-                                        case YEARLY:
-                                            long yearly = 203212800000L;
-                                            if (duration < yearly) {
-                                                DateTime start = new DateTime(interval.getEnd().getYear(), 1, 1, 0, 0, 0);
-                                                DateTime end = interval.getEnd();
-                                                interval = new Interval(start, end);
-                                            }
-                                            break;
-                                        case NONE:
-                                        default:
-                                            break;
-                                    }
-                                }
-
-//                                WorkDays wd = new WorkDays(dataObject);
-//                                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
-//                                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
-//
-//                                if (interval != null) {
-//                                    DateTime start = new DateTime(interval.getStart().getYear(), interval.getStart().getMonthOfYear(), interval.getStart().getDayOfMonth(),
-//                                            workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond());
-//                                    DateTime end = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(),
-//                                            workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
-//
-//                                    if (workdayStart.isAfter(workdayEnd)) {
-//                                        start = start.minusDays(1);
-//                                    }
-//
-//                                    interval = new Interval(start, end);
-//                                }
                                 if (!isCalculation) {
-                                    linkMap.putAll(ProcessHelper.getAttributeSamples(attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString()), attribute, property.getTimeZone()));
+                                    List<JEVisSample> samples = attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString());
+                                    linkMap.putAll(ProcessHelper.getAttributeSamples(samples, attribute, property.getTimeZone()));
                                 } else {
                                     try {
                                         CalcJobFactory calcJobCreator = new CalcJobFactory();
+                                        if (dataObject.getJEVisClassName().equals("Clean Data")) {
+                                            List<JEVisObject> parents = dataObject.getParents();
+                                            if (!parents.isEmpty()) {
+                                                JEVisObject parentDataObject = parents.get(0);
+                                                CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), ds, ReportLinkFactory.getEnPICalcMap(ds).get(parentDataObject),
+                                                        interval.getStart(), interval.getEnd(), aggregationPeriod);
 
-                                        CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), ds, ReportLinkFactory.getEnPICalcMap(ds).get(dataObject),
-                                                interval.getStart(), interval.getEnd(), aggregationPeriod);
-
-
-                                        linkMap.putAll(ProcessHelper.getAttributeSamples(calcJob.getResults(), attribute, property.getTimeZone()));
+                                                linkMap.putAll(ProcessHelper.getAttributeSamples(calcJob.getResults(), attribute, property.getTimeZone()));
+                                            }
+                                        }
                                     } catch (JEVisException e) {
                                         e.printStackTrace();
                                     }

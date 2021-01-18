@@ -7,6 +7,7 @@ import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.JEConfig;
@@ -18,12 +19,12 @@ import java.util.List;
 public class RowNote {
     private final JEVisObject dataObject;
     private final Double scaleFactor;
-    private SimpleStringProperty name;
-    private SimpleStringProperty note;
-    private SimpleStringProperty userNote;
-    private SimpleStringProperty userValue;
-    private SimpleStringProperty userValueUnit;
-    private Alarm alarm;
+    private final SimpleStringProperty name;
+    private final SimpleStringProperty note;
+    private final SimpleStringProperty userNote;
+    private final SimpleStringProperty userValue;
+    private final SimpleStringProperty userValueUnit;
+    private final Alarm alarm;
     private Boolean changed = false;
     private JEVisSample sample;
 
@@ -154,10 +155,10 @@ public class RowNote {
 
                     DateTime timestamp = sample.getTimestamp();
                     JEVisAttribute rawDataValueAttribute = object.getParents().get(0).getAttribute("Value");
-                    if (!cleanDataObject.getConversionDifferential().isEmpty()) {
-                        for (JEVisSample jeVisSample : cleanDataObject.getConversionDifferential()) {
-                            if (jeVisSample.getValueAsBoolean()) {
-                                if (timestamp.isAfter(jeVisSample.getTimestamp())) {
+                    if (!cleanDataObject.getDifferentialRules().isEmpty()) {
+                        for (DifferentialRule jeVisSample : cleanDataObject.getDifferentialRules()) {
+                            if (jeVisSample.isDifferential()) {
+                                if (timestamp.isAfter(jeVisSample.getStartOfPeriod())) {
                                     List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp.minus(rawDataValueAttribute.getInputSampleRate()), timestamp);
                                     if (samples.size() == 2) {
                                         formattedNote.append("Original Value: ");
@@ -167,7 +168,7 @@ public class RowNote {
                                     }
                                 }
                             } else {
-                                if (timestamp.isAfter(jeVisSample.getTimestamp())) {
+                                if (timestamp.isAfter(jeVisSample.getStartOfPeriod())) {
                                     List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp, timestamp);
                                     if (!samples.isEmpty()) {
                                         formattedNote.append("Original: ");

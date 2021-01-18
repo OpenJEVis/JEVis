@@ -56,7 +56,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
             _status = alarmObj.getAttribute(STATUS);
             _enabled = isEnabled(alarmObj);
             for (JEVisAttribute att : alarmObj.getAttributes()) {
-                logger.info("Attribute: {}", att);
+                logger.debug("Attribute: {}", att);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -163,7 +163,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
     @SuppressWarnings("unused")
     private void printAlarms(List<AlarmData> alarms) {
         for (AlarmData alarm : alarms) {
-            logger.info("Alarm: {}", alarm.getMessage());
+            logger.debug("Alarm: {}", alarm.getMessage());
         }
     }
 

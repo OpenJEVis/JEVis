@@ -262,7 +262,7 @@ public class XYChartSerie {
             } else {
                 DateTime finalFirstTS1 = firstTS;
                 DateTime finalLastTS = lastTS;
-                double finalAvg2 = avg;
+                double finalAvg = avg;
                 Task task = new Task() {
                     @Override
                     protected Object call() throws Exception {
@@ -284,8 +284,7 @@ public class XYChartSerie {
                             } else {
                                 Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
                             }
-                            double finalAvg1 = finalAvg2;
-                            Platform.runLater(() -> tableEntry.setEnpi(nf_out.format(finalAvg1) + " " + getUnit()));
+                            Platform.runLater(() -> tableEntry.setEnpi(nf_out.format(finalAvg) + " " + getUnit()));
                         } catch (Exception e) {
                             failed();
                         } finally {

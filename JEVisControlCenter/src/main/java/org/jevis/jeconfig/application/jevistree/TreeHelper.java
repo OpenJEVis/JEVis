@@ -34,6 +34,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -74,6 +75,8 @@ import org.joda.time.Period;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -662,14 +665,27 @@ public class TreeHelper {
                     CheckBox setUnit = new CheckBox("Unit");
                     setUnit.setSelected(true);
                     CheckBox setPeriod = new CheckBox("Period");
+                    CheckBox setNewTypePeriod = new CheckBox("New Type Period");
                     setPeriod.setSelected(true);
+                    setNewTypePeriod.setSelected(true);
+
+                    JFXDatePicker pickerDate = new JFXDatePicker();
+                    JFXTimePicker pickerTime = new JFXTimePicker();
+                    pickerDate.setPrefWidth(120d);
+                    pickerTime.setPrefWidth(110d);
+                    pickerTime.set24HourView(true);
+                    pickerTime.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
+                    pickerDate.valueProperty().setValue(LocalDate.of(2001, 1, 1));
+                    pickerTime.valueProperty().setValue(LocalTime.of(0, 0, 0));
+                    HBox dateBox = new HBox(4, pickerDate, pickerTime);
 
                     gp.add(setUnit, 0, 0, 2, 1);
                     gp.add(l_prefixL, 0, 1);
                     gp.add(l_unitL, 0, 2);
                     gp.add(l_example, 0, 3);
                     gp.add(setPeriod, 0, 4, 2, 1);
-                    gp.add(l_SampleRate, 0, 5);
+                    gp.add(setNewTypePeriod, 0, 5);
+                    gp.add(l_SampleRate, 0, 6);
 
                     final JEVisDataSource ds = items.get(0).getValue().getJEVisObject().getDataSource();
                     final JEVisObject object = DataMethods.getFirstCleanObject(items.get(0).getValue().getJEVisObject());
@@ -685,7 +701,8 @@ public class TreeHelper {
                     gp.add(unitUI.getPrefixBox(), 1, 1);
                     gp.add(unitUI.getUnitButton(), 1, 2);
                     gp.add(unitUI.getSymbolField(), 1, 3);
-                    gp.add(periodUI, 1, 5);
+                    gp.add(dateBox, 1, 5);
+                    gp.add(periodUI, 1, 6);
 
                     alert.getDialogPane().setContent(gp);
 
@@ -694,15 +711,26 @@ public class TreeHelper {
                             try {
                                 boolean unit = setUnit.isSelected();
                                 boolean period = setPeriod.isSelected();
+                                boolean newType = setNewTypePeriod.isSelected();
 
                                 final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title") + "...");
 
                                 Task<Void> set = new Task<Void>() {
                                     @Override
                                     protected Void call() {
+                                        DateTime datetime = new DateTime(
+                                                pickerDate.valueProperty().get().getYear(),
+                                                pickerDate.valueProperty().get().getMonthValue(),
+                                                pickerDate.valueProperty().get().getDayOfMonth(),
+                                                pickerTime.valueProperty().get().getHour(),
+                                                pickerTime.valueProperty().get().getMinute(),
+                                                pickerTime.valueProperty().get().getSecond(),
+                                                DateTimeZone.getDefault());
+
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             try {
-                                                DataMethods.setUnitAndPeriod(pForm, items.get(0).getValue().getJEVisObject(), unit, unitUI, period, periodUI);
+                                                DataMethods.setUnitAndPeriod(pForm, item.getValue().getJEVisObject(),
+                                                        unit, unitUI, period, newType, datetime, periodUI);
                                             } catch (JEVisException e) {
                                                 e.printStackTrace();
                                             }
@@ -1179,7 +1207,7 @@ public class TreeHelper {
                 CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent, mode);
 
                 boolean recursion = dia.isRecursion();
-                recursion = isOwnChild ? false : recursion;
+                recursion = !isOwnChild && recursion;
                 logger.warn("Warning recursion detected disable recursion: {}", recursion);
 
 

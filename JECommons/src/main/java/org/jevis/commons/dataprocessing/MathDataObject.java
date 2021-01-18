@@ -13,6 +13,7 @@ import org.jevis.api.*;
 import org.jevis.commons.constants.GapFillingReferencePeriod;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jevis.commons.constants.GapFillingReferencePeriod.MONTH;
+import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.PERIOD;
 import static org.jevis.commons.dataprocessing.MathDataObject.AttributeName.*;
 
 /**
@@ -51,6 +53,8 @@ public class MathDataObject {
     private JEVisAttribute fillPeriodAttribute;
     private JEVisAttribute beginningAttribute;
     private JEVisAttribute endingAttribute;
+    private JEVisAttribute periodAttribute;
+    private List<PeriodRule> periodInputData;
     private DateTime lastRawDate;
     private int processingSize = 10000;
     private List<JEVisSample> sampleCache;
@@ -111,6 +115,10 @@ public class MathDataObject {
         if (endingAttribute == null) {
             endingAttribute = getMathDataObject().getAttribute(ENDING.getAttributeName());
         }
+
+        if (periodAttribute == null) {
+            periodAttribute = getParentDataObject().getAttribute(PERIOD.getAttributeName());
+        }
     }
 
     public void reloadAttributes() throws JEVisException {
@@ -124,6 +132,7 @@ public class MathDataObject {
         getMathDataObject().getDataSource().reloadAttribute(fillPeriodAttribute);
         getMathDataObject().getDataSource().reloadAttribute(beginningAttribute);
         getMathDataObject().getDataSource().reloadAttribute(endingAttribute);
+        getParentDataObject().getDataSource().reloadAttribute(periodAttribute);
     }
 
     public Boolean getEnabled() {
@@ -250,15 +259,30 @@ public class MathDataObject {
         return referencePeriodCountAttribute;
     }
 
-    public Period getInputDataPeriod() {
-        if (inputDataPeriod == null) {
-            try {
-                inputDataPeriod = getInputAttribute().getInputSampleRate();
-            } catch (Exception e) {
-                logger.error("Could not get input data period for object {}:{}", getParentDataObject().getName(), getParentDataObject().getID(), e);
+    public List<PeriodRule> getInputDataPeriodAlignment() {
+        if (periodInputData == null) {
+            periodInputData = new ArrayList<>();
+            List<JEVisSample> allSamples = sampleHandler.getAllSamples(getParentDataObject(), PERIOD.getAttributeName());
+
+            for (JEVisSample jeVisSample : allSamples) {
+
+                try {
+                    DateTime startOfPeriod = jeVisSample.getTimestamp();
+                    String periodString = jeVisSample.getValueAsString();
+                    Period p = new Period(periodString);
+                    periodInputData.add(new PeriodRule(startOfPeriod, p));
+                } catch (Exception e) {
+                    logger.error("Could not create Period rule for sample {}", jeVisSample, e);
+                }
+            }
+
+            if (allSamples.isEmpty()) {
+                periodInputData.add(new PeriodRule(
+                        new DateTime(2001, 1, 1, 0, 0, 0, 0),
+                        Period.ZERO));
             }
         }
-        return inputDataPeriod;
+        return periodInputData;
     }
 
     public JEVisAttribute getEnabledAttribute() {
@@ -526,6 +550,7 @@ public class MathDataObject {
         ENDING("Ending"),
         REFERENCE_PERIOD("Reference Period"),
         REFERENCE_PERIOD_COUNT("Reference Period Count"),
+        PERIOD("Period"),
         PERIOD_OFFSET("Period Offset"),
         FILL_PERIOD("Fill Period");
 

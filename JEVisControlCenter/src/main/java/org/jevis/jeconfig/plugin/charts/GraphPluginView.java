@@ -528,7 +528,7 @@ public class GraphPluginView implements Plugin {
                     allCharts.put(chartSetting.getId(), chart);
                 }
 
-                if (chartSetting.getChartType() != ChartType.TABLE) {
+                if (chartSetting.getChartType() != ChartType.TABLE && chartSetting.getChartType() != ChartType.TABLE_V) {
                     switch (chartSetting.getChartType()) {
                         case BAR:
                         case PIE:
@@ -572,29 +572,29 @@ public class GraphPluginView implements Plugin {
                     TableHeader tableHeader = new TableHeader(chartSetting, chart.getTableData());
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
-                    if (chartSetting.getChartType() != ChartType.TABLE) {
+                    if (chartSetting.getChartType() != ChartType.TABLE && chartSetting.getChartType() != ChartType.TABLE_V) {
                         bp.setTop(tableHeader);
-                    } else {
+                    } else if (chartSetting.getChartType() == ChartType.TABLE) {
                         TableChart tableChart = (TableChart) chart;
+                        bp.setTop(tableChart.getTopPicker());
 
-                        if (chartSetting.getOrientation() == Orientation.HORIZONTAL) {
-                            bp.setTop(tableChart.getTopPicker());
-                        } else {
-                            Label titleLabel = new Label(chartSetting.getName());
-                            titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");
-                            titleLabel.setAlignment(Pos.CENTER);
-                            HBox hBox = new HBox(titleLabel);
-                            hBox.setAlignment(Pos.CENTER);
+                    } else if (chartSetting.getChartType() == ChartType.TABLE_V) {
+                        TableChartV tableChart = (TableChartV) chart;
 
-                            TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
-                            tableChart.setTableHeader(tableHeaderTable);
-                            tableHeaderTable.maxWidthProperty().bind(bp.widthProperty());
+                        Label titleLabel = new Label(chartSetting.getName());
+                        titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");
+                        titleLabel.setAlignment(Pos.CENTER);
+                        HBox hBox = new HBox(titleLabel);
+                        hBox.setAlignment(Pos.CENTER);
 
-                            VBox vBox = new VBox(hBox, tableHeaderTable);
-                            VBox.setVgrow(hBox, Priority.NEVER);
-                            VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
-                            bp.setCenter(vBox);
-                        }
+                        TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
+                        tableChart.setTableHeader(tableHeaderTable);
+                        tableHeaderTable.maxWidthProperty().bind(bp.widthProperty());
+
+                        VBox vBox = new VBox(hBox, tableHeaderTable);
+                        VBox.setVgrow(hBox, Priority.NEVER);
+                        VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
+                        bp.setCenter(vBox);
                     }
                 } else if (chartSetting.getChartType() != ChartType.LOGICAL) {
                     bp.setTop(null);
@@ -791,6 +791,7 @@ public class GraphPluginView implements Plugin {
         switch (chart.getChartType()) {
             case LOGICAL:
                 return new LogicalChart();
+            default:
             case LINE:
                 return new LineChart();
             case BAR:
@@ -805,10 +806,11 @@ public class GraphPluginView implements Plugin {
                 return new PieChart(dataModel, chartDataRows, chart);
             case TABLE:
                 return new TableChart();
+            case TABLE_V:
+                return new TableChartV();
             case HEAT_MAP:
                 return new HeatMapChart(chartDataRows, chart);
             case AREA:
-            default:
                 return new AreaChart();
         }
     }
