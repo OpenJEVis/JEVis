@@ -8,27 +8,31 @@ package org.jevis.commons.dataprocessing.processor.limits;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.GapsAndLimits;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.jevis.commons.constants.GapFillingType.parse;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
  */
-public class LimitsStep implements ProcessStep {
+public class LimitsStep implements ProcessStepN {
 
     private static final Logger logger = LogManager.getLogger(LimitsStep.class);
 
@@ -41,7 +45,6 @@ public class LimitsStep implements ProcessStep {
             return;
         }
         List<CleanInterval> intervals = resourceManager.getIntervals();
-        List<JEVisSample> sampleCache = resourceManager.getSampleCache();
         JEVisAttribute cleanAttribute = cleanDataObject.getValueAttribute();
         Double firstValue = 0.0;
         if (cleanAttribute != null) {
@@ -79,24 +82,36 @@ public class LimitsStep implements ProcessStep {
             if (cleanDataObject.getLimitsConfig().indexOf(limitsConfig) == 0) {
                 for (LimitBreak limitBreak : limitBreaksStep1) {
                     for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                        logger.info("start marking peculiar samples");
-                        for (JEVisSample smp : currentInterval.getTmpSamples()) {
-                            String note = "";
-                            note += smp.getNote();
-                            note += "," + NoteConstants.Limits.LIMIT_STEP1;
-                            smp.setNote(note);
-                        }
+                        VirtualSample smp = currentInterval.getResult();
+                        String note = "";
+                        note += smp.getNote();
+                        note += "," + NoteConstants.Limits.LIMIT_STEP1;
+                        smp.setNote(note);
                     }
                 }
             } else {
                 if (Objects.nonNull(confGaps)) {
                     if (!confGaps.isEmpty()) {
+                        List<JEVisSample> sampleCache = resourceManager.getSampleCache();
+
+                        if (sampleCache == null) {
+                            sampleCache = intervals.stream().map(CleanInterval::getResult).collect(Collectors.toList());
+                            sampleCache.sort(Comparator.comparing(jeVisSample -> {
+                                try {
+                                    return jeVisSample.getTimestamp();
+                                } catch (JEVisException e) {
+                                    e.printStackTrace();
+                                }
+                                return null;
+                            }));
+                        }
+
                         List<LimitBreak> filledLimitBreaks = new ArrayList<>();
                         for (JsonGapFillingConfig c : confGaps) {
                             List<LimitBreak> newLimitBreaks = new ArrayList<>();
                             for (LimitBreak lb : limitBreaksStep2) {
                                 if (!filledLimitBreaks.contains(lb)) {
-                                    logger.info("[{}] start filling with Mode for {}", cleanDataObject.getCleanObject().getID(), c.getType());
+                                    logger.debug("[{}] start filling with Mode for {}", cleanDataObject.getCleanObject().getID(), c.getType());
                                     DateTime firstDate = lb.getIntervals().get(0).getDate();
                                     DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
                                     if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
@@ -106,12 +121,10 @@ public class LimitsStep implements ProcessStep {
                                 }
                             }
 
-                            GapsAndLimits gal = new GapsAndLimits(intervals, GapsAndLimits.GapsAndLimitsType.LIMITS_TYPE,
-                                    c, new ArrayList<>(), newLimitBreaks, sampleCache);
+                            GapsAndLimits gal = new GapsAndLimits(intervals, null, GapsAndLimits.GapsAndLimitsType.LIMITS_TYPE,
+                                    c, new ArrayList<>(), newLimitBreaks, sampleCache, cleanDataObject);
 
                             switch (parse(c.getType())) {
-                                case NONE:
-                                    break;
                                 case STATIC:
                                     gal.fillStatic();
                                     break;
@@ -136,12 +149,12 @@ public class LimitsStep implements ProcessStep {
                                 case DELETE:
                                     gal.fillDelete();
                                     break;
+                                case NONE:
                                 default:
                                     break;
                             }
 
-                            gal.clearLists();
-                            logger.info("[{}] Done", resourceManager.getID());
+                            logger.debug("[{}] Done", resourceManager.getID());
                         }
                         if (limitBreaksStep2.size() != filledLimitBreaks.size())
                             logger.error("Could not complete all limit breaks. Limit break may have been too long for reasonable gap filling.");
@@ -151,7 +164,7 @@ public class LimitsStep implements ProcessStep {
                 }
             }
         }
-        logger.info("[{}] finished filling gaps", cleanDataObject.getCleanObject().getID());
+        logger.debug("[{}] finished substituting values", cleanDataObject.getCleanObject().getID());
     }
 
     private Long defaultValue(String s) {
@@ -172,41 +185,40 @@ public class LimitsStep implements ProcessStep {
                 if (lc.getMin() != null && !lc.getMin().equals("") && lc.getMax() != null && !lc.getMax().equals("")) {
                     Double min = Double.parseDouble(lc.getMin());
                     Double max = Double.parseDouble(lc.getMax());
-                    for (JEVisSample sample : currentInterval.getTmpSamples()) {
+                    VirtualSample sample = currentInterval.getResult();
 
-                        if (sample != null && sample.getValueAsDouble() != null) {
-                            Double sampleValue = sample.getValueAsDouble();
+                    if (sample != null && sample.getValueAsDouble() != null) {
+                        Double sampleValue = sample.getValueAsDouble();
 
-                            if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
-                                if (currentLimitBreak == null) {
-                                    currentLimitBreak = new LimitBreak(min, max);
-                                    if (lastInterval != null && !lastInterval.getTmpSamples().isEmpty() && Objects.nonNull(lastInterval.getTmpSamples().get(0)))
-                                        currentLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(0).getValueAsDouble());
-                                    else currentLimitBreak.setFirstValue(firstValue);
-                                    currentLimitBreak.addInterval(currentInterval);
-                                    MinOrMax limit = null;
-                                    if (sampleValue < min) {
-                                        limit = MinOrMax.MIN;
-                                    }
-                                    if (sampleValue > max) {
-                                        limit = MinOrMax.MAX;
-                                    }
-                                    currentLimitBreak.setMinOrMax(limit);
-                                } else {
-                                    currentLimitBreak.addInterval(currentInterval);
+                        if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
+                            if (currentLimitBreak == null) {
+                                currentLimitBreak = new LimitBreak(min, max);
+                                if (lastInterval != null)
+                                    currentLimitBreak.setFirstValue(lastInterval.getResult().getValueAsDouble());
+                                else currentLimitBreak.setFirstValue(firstValue);
+                                currentLimitBreak.addInterval(currentInterval);
+                                MinOrMax limit = null;
+                                if (sampleValue < min) {
+                                    limit = MinOrMax.MIN;
                                 }
+                                if (sampleValue > max) {
+                                    limit = MinOrMax.MAX;
+                                }
+                                currentLimitBreak.setMinOrMax(limit);
                             } else {
-                                if (currentLimitBreak != null) {
-                                    logger.info("Limit Break on: {} to: {}", currentLimitBreak.getIntervals().get(0).getDate(),
-                                            currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1).getDate());
-                                    currentLimitBreak.setLastValue(sampleValue);
-                                    limitBreaks.add(currentLimitBreak);
-                                    currentLimitBreak = null;
-                                }
+                                currentLimitBreak.addInterval(currentInterval);
                             }
                         } else {
-                            logger.warn("Limits Error. No value for Limits Sample {} of object {}:{}", sample, resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getCleanDataObject().getCleanObject().getID());
+                            if (currentLimitBreak != null) {
+                                logger.info("Limit Break on: {} to: {}", currentLimitBreak.getIntervals().get(0).getDate(),
+                                        currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1).getDate());
+                                currentLimitBreak.setLastValue(sampleValue);
+                                limitBreaks.add(currentLimitBreak);
+                                currentLimitBreak = null;
+                            }
                         }
+                    } else {
+                        logger.warn("Limits Error. No value for Limits Sample {} of object {}:{}", sample, resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getCleanDataObject().getCleanObject().getID());
                     }
                 }
             }
@@ -217,12 +229,11 @@ public class LimitsStep implements ProcessStep {
             if (currentLimitBreak != null) {
                 if (currentLimitBreak.getIntervals().size() > 0) {
                     CleanInterval last = currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1);
-                    if (last.getTmpSamples().size() > 0) {
-                        JEVisSample lastSample = last.getTmpSamples().get(last.getTmpSamples().size() - 1);
 
-                        currentLimitBreak.setLastValue(lastSample.getValueAsDouble());
-                        limitBreaks.add(currentLimitBreak);
-                    }
+                    VirtualSample lastSample = last.getResult();
+
+                    currentLimitBreak.setLastValue(lastSample.getValueAsDouble());
+                    limitBreaks.add(currentLimitBreak);
                 }
             }
         }

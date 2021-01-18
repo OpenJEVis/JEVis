@@ -10,6 +10,6 @@ package org.jevis.commons.dataprocessing.processor.workflow;
  */
 public interface ProcessStepN {
 
-    void run(ResourceManagerN resourceManager) throws Exception;
+    void run(ResourceManager resourceManager) throws Exception;
 
 }

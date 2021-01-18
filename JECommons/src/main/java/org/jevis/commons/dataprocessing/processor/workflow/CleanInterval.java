@@ -6,21 +6,27 @@
 package org.jevis.commons.dataprocessing.processor.workflow;
 
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author broder
+ * @author gschutz
  */
 public class CleanInterval {
 
     private final DateTime date;
     private final Interval interval;
     private final List<JEVisSample> rawSamples = new ArrayList<>();
-    private final List<JEVisSample> tmpSamples = new ArrayList<>();
+    private final VirtualSample result = new VirtualSample();
+    private Double multiplier;
+    private Boolean differential;
+    private Period inputPeriod;
+    private Period outputPeriod;
 
     public CleanInterval(Interval interval, DateTime exactDateTime) {
         this.interval = interval;
@@ -43,11 +49,39 @@ public class CleanInterval {
         rawSamples.add(rawSample);
     }
 
-    public List<JEVisSample> getTmpSamples() {
-        return tmpSamples;
+    public VirtualSample getResult() {
+        return result;
     }
 
-    public void addTmpSample(JEVisSample sample) {
-        tmpSamples.add(sample);
+    public Double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(Double multiplier) {
+        this.multiplier = multiplier;
+    }
+
+    public Boolean isDifferential() {
+        return differential;
+    }
+
+    public void setDifferential(Boolean differential) {
+        this.differential = differential;
+    }
+
+    public Period getInputPeriod() {
+        return inputPeriod;
+    }
+
+    public void setInputPeriod(Period inputPeriod) {
+        this.inputPeriod = inputPeriod;
+    }
+
+    public Period getOutputPeriod() {
+        return outputPeriod;
+    }
+
+    public void setOutputPeriod(Period outputPeriod) {
+        this.outputPeriod = outputPeriod;
     }
 }

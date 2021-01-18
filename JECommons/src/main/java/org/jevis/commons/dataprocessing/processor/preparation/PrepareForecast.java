@@ -1,8 +1,10 @@
 package org.jevis.commons.dataprocessing.processor.preparation;
 
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
+import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -11,13 +13,17 @@ import org.joda.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PrepareForecast implements ProcessStep {
+public class PrepareForecast implements ProcessStepN {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
         ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
 
-        Period inputPeriod = forecastDataObject.getInputDataPeriod();
+        List<PeriodRule> periodRules = forecastDataObject.getInputDataPeriodAlignment();
         List<CleanInterval> intervals = new ArrayList<>();
+
+        DateTime start = forecastDataObject.getStartDate();
+        DateTime end = forecastDataObject.getEndDate();
+        Period inputPeriod = CleanDataObject.getPeriodForDate(periodRules, start);
 
         boolean periodHasYear = inputPeriod.getYears() > 0;
         boolean periodHasMonths = inputPeriod.getMonths() > 0;
@@ -29,11 +35,10 @@ public class PrepareForecast implements ProcessStep {
         boolean periodHasMillis = inputPeriod.getMillis() > 0;
 
         if (periodHasMonths || periodHasYear || periodHasWeeks || periodHasDays || periodHasHours || periodHasMinutes || periodHasSeconds || periodHasMillis) {
-            DateTime start = forecastDataObject.getStartDate();
-            DateTime end = forecastDataObject.getEndDate();
 
             if (start != null && end != null) {
                 while (start.isBefore(end)) {
+                    inputPeriod = CleanDataObject.getPeriodForDate(periodRules, start);
                     DateTime endOfInterval;
                     if (periodHasYear) {
                         endOfInterval = start.plusYears(inputPeriod.getYears());

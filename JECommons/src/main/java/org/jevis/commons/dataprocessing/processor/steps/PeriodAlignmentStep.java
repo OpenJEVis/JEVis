@@ -7,379 +7,183 @@ package org.jevis.commons.dataprocessing.processor.steps;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
-import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
-import org.jevis.commons.datetime.PeriodComparator;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
-
 /**
- * align the raw samples and calculate the value per interval if possible
- *
- * @author broder
+ * @author gschutz
  */
-public class PeriodAlignmentStep implements ProcessStep {
+public class PeriodAlignmentStep implements ProcessStepN {
 
     private static final Logger logger = LogManager.getLogger(PeriodAlignmentStep.class);
-
-    public static int getLastSunday(int month, int year) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(year, month, 1);
-        cal.add(Calendar.DATE, -1);
-        cal.add(Calendar.DAY_OF_MONTH, -(cal.get(Calendar.DAY_OF_WEEK) - 1));
-        return cal.get(Calendar.DAY_OF_MONTH);
-    }
-
-    private Double calcAvgSample(List<JEVisSample> currentRawSamples) {
-        if (currentRawSamples.size() > 0) {
-            Double value = 0.0;
-            for (JEVisSample sample : currentRawSamples) {
-                try {
-                    Double valueAsDouble = sample.getValueAsDouble();
-                    value += valueAsDouble;
-                } catch (JEVisException ex) {
-                    logger.error(ex);
-                }
-            }
-            return value / currentRawSamples.size();
-        } else return 0d;
-    }
-
-    private Double calcSumSample(List<JEVisSample> currentRawSamples) {
-        Double value = 0.0;
-        for (JEVisSample sample : currentRawSamples) {
-            try {
-                Double valueAsDouble = sample.getValueAsDouble();
-                value += valueAsDouble;
-            } catch (JEVisException ex) {
-                logger.error(ex);
-            }
-        }
-        return value;
-    }
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
 
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
-        List<CleanInterval> rawIntervals = resourceManager.getRawIntervals();
-        List<CleanInterval> cleanIntervals = resourceManager.getIntervals();
-        Map<DateTime, JEVisSample> userDataMap = resourceManager.getUserDataMap();
-        Integer periodOffset = cleanDataObject.getPeriodOffset();
-
-        PeriodComparator periodComparator = new PeriodComparator();
-        Period periodCleanData = cleanDataObject.getCleanDataPeriodAlignment().get(0).getPeriod();
-        Period periodRawData = cleanDataObject.getRawDataPeriodAlignment().get(0).getPeriod();
-        int compare = periodComparator.compare(periodCleanData, periodRawData);
-
         List<JEVisSample> rawSamples = resourceManager.getRawSamplesDown();
-        int currentSamplePointer = 0;
-        List<CleanInterval> removeForTimeZoneShift = new ArrayList<>();
-        for (CleanInterval rawInterval : rawIntervals) {
-            boolean samplesInInterval = true;
-            DateTime snapToGridStart = null;
-            DateTime snapToGridEnd = null;
-            DateTime date = rawInterval.getDate();
+        Map<DateTime, JEVisSample> userDataMap = resourceManager.getUserDataMap();
 
-            if (periodCleanData.equals(Period.minutes(1)) && date.getMonthOfYear() == 3 || date.getMonthOfYear() == 10) {
-                int day = getLastSunday(date.getMonthOfYear(), date.getYear());
-                boolean isLastSunday = date.getDayOfMonth() == day;
+        if (!cleanDataObject.getIsPeriodAligned()) {
+            logger.info("No period alignment enabled");
+            return;
+        }
 
-                if (isLastSunday && date.getZone().getOffset(date) == 7200000
-                        && date.getMonthOfYear() == 10 && date.getHourOfDay() == 2) {
-                    removeForTimeZoneShift.add(rawInterval);
-                    continue;
+        Map<Integer, JEVisSample> replacementMap = new HashMap<>();
+
+        for (JEVisSample rawSample : rawSamples) {
+            DateTime rawSampleTS = rawSample.getTimestamp();
+            VirtualSample resultSample = new VirtualSample(rawSampleTS, rawSample.getValueAsDouble());
+            resultSample.setNote(rawSample.getNote());
+            Period periodForRawSample = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSampleTS);
+
+            JEVisSample userDataSample = userDataMap.get(rawSampleTS);
+            if (userDataSample != null) {
+                resultSample.setValue(userDataSample.getValueAsDouble());
+                if (!userDataSample.getNote().isEmpty()) {
+                    resultSample.setNote(resultSample.getNote() + "," + userDataSample.getNote() + "," + NoteConstants.User.USER_VALUE);
                 }
-//                else if (isLastSunday && date.getZone().getOffset(date) == 3600000
-//                        && date.getMonthOfYear() == 3 && date.getHourOfDay() == 3) {
-//                    // TODO: Check in on march again for testing
-//                    removeForTimeZoneShift.add(rawInterval);
-//                    continue;
-//                }
-            } else if (periodCleanData.equals(Period.minutes(15)) && date.getMonthOfYear() == 3 || date.getMonthOfYear() == 10) {
-                int day = getLastSunday(date.getMonthOfYear(), date.getYear());
-                boolean isLastSunday = date.getDayOfMonth() == day;
-
-                if (isLastSunday && date.getZone().getOffset(date) == 7200000
-                        && date.getMonthOfYear() == 10 && date.getHourOfDay() == 2
-                        && (date.getMinuteOfHour() == 0 || date.getMinuteOfHour() == 15 || date.getMinuteOfHour() == 30 || date.getMinuteOfHour() == 45)) {
-                    removeForTimeZoneShift.add(rawInterval);
-                    continue;
-                }
-//                else if (isLastSunday && date.getZone().getOffset(date) == 3600000
-//                        && date.getMonthOfYear() == 3 && date.getHourOfDay() == 3
-//                        && (date.getMinuteOfHour() == 0 || date.getMinuteOfHour() == 15 || date.getMinuteOfHour() == 30 || date.getMinuteOfHour() == 45)) {
-//                    // TODO: Check in on march again for testing
-//                    removeForTimeZoneShift.add(rawInterval);
-//                    continue;
-//                }
-            } else if (periodCleanData.equals(Period.hours(1)) && date.getMonthOfYear() == 3 || date.getMonthOfYear() == 10) {
-                int day = getLastSunday(date.getMonthOfYear(), date.getYear());
-                boolean isLastSunday = date.getDayOfMonth() == day;
-
-                if (isLastSunday && date.getZone().getOffset(date) == 7200000
-                        && date.getMonthOfYear() == 10 && date.getHourOfDay() == 2) {
-                    removeForTimeZoneShift.add(rawInterval);
-                    continue;
-                }
-//                else if (isLastSunday && date.getZone().getOffset(date) == 3600000
-//                        && date.getMonthOfYear() == 3 && date.getHourOfDay() == 3) {
-//                    // TODO: Check in on march again for testing
-//                    removeForTimeZoneShift.add(rawInterval);
-//                    continue;
-//                }
             }
 
-            long start = rawInterval.getInterval().getStartMillis();
-            long end = rawInterval.getInterval().getEndMillis();
-            long halfDiff = (end - start) / 2;
+            DateTime lowerTS = null;
+            DateTime higherTS = null;
 
-            if (cleanDataObject.getIsPeriodAligned()) {
-                snapToGridStart = date.minus(halfDiff);
-                snapToGridEnd = date.plus(halfDiff);
+            if (periodForRawSample.equals(Period.minutes(1))) {
+                lowerTS = rawSampleTS.minusSeconds(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = rawSampleTS.plusSeconds(30).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (periodForRawSample.getMinutes() == 5) {
+                if (rawSampleTS.getMinuteOfHour() == 0) {
+                    lowerTS = rawSampleTS.minusMinutes(5).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 5) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(5).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 10) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(5).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(10).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 15) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(10).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 20) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(20).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 25) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(20).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(25).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 30) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(25).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 35) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(35).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 40) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(35).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(40).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 45) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(40).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(45).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 50) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(45).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(50).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 55) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(50).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(55).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 60) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(55).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                }
+            } else if (periodForRawSample.getMinutes() == 15) {
+                if (rawSampleTS.getMinuteOfHour() == 0) {
+                    lowerTS = rawSampleTS.minusMinutes(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 15) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 30) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 45) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(45).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else {
+                    lowerTS = rawSampleTS.withMinuteOfHour(45).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                }
+            } else if (periodForRawSample.getMinutes() == 30) {
+                if (rawSampleTS.getMinuteOfHour() == 0) {
+                    lowerTS = rawSampleTS.minusMinutes(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 30) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else {
+                    lowerTS = rawSampleTS.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                }
+            } else if (periodForRawSample.getHours() == 1) {
+                lowerTS = rawSampleTS.minusMinutes(30).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = rawSampleTS.plusMinutes(30).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (periodForRawSample.getDays() == 1) {
+                lowerTS = rawSampleTS.minusHours(12).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = rawSampleTS.plusHours(12).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (periodForRawSample.getWeeks() == 1) {
+                lowerTS = rawSampleTS.minusHours(84).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = rawSampleTS.plusHours(84).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (periodForRawSample.getMonths() == 1) {
+                lowerTS = rawSampleTS.minusHours(363).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = rawSampleTS.plusHours(363).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (periodForRawSample.getMonths() == 3) {
+                if (rawSampleTS.getMonthOfYear() <= 3) {
+                    lowerTS = rawSampleTS.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMonthOfYear(3).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMonthOfYear() <= 6) {
+                    lowerTS = rawSampleTS.withMonthOfYear(3).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMonthOfYear(6).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMonthOfYear() <= 9) {
+                    lowerTS = rawSampleTS.withMonthOfYear(6).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMonthOfYear(9).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMonthOfYear() <= 12) {
+                    lowerTS = rawSampleTS.withMonthOfYear(9).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMonthOfYear(12).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                }
+            } else if (periodForRawSample.getYears() == 1) {
+                lowerTS = rawSampleTS.minusDays(182).minusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = rawSampleTS.plusDays(182).plusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+
+            if (lowerTS != null && higherTS != null) {
+                long lowerDiff = rawSampleTS.getMillis() - lowerTS.getMillis();
+                long higherDiff = higherTS.getMillis() - rawSampleTS.getMillis();
+
+                if (lowerDiff < higherDiff && !lowerTS.equals(rawSampleTS)) {
+                    resultSample.setTimeStamp(lowerTS);
+                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_YES_NEG + lowerDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
+                } else if (higherDiff < lowerDiff && !higherTS.equals(rawSampleTS)) {
+                    resultSample.setTimeStamp(higherTS);
+                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_YES_POS + higherDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
+                } else {
+                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_NO);
+                }
             } else {
-                snapToGridStart = rawInterval.getInterval().getStart();
-                snapToGridEnd = rawInterval.getInterval().getEnd();
+                resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_NO);
+                logger.warn("Could not identify period {}", periodForRawSample);
             }
 
-            while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
-                JEVisSample rawSample = rawSamples.get(currentSamplePointer);
-                try {
-                    DateTime timestamp = rawSample.getTimestamp();
-                    if (userDataMap.containsKey(timestamp)) {
-                        rawSample = userDataMap.get(timestamp);
-                    }
-
-                    int offset = Math.abs(periodOffset);
-                    if (periodOffset >= 0) {
-                        timestamp = timestamp.plusSeconds(offset);
-                    } else {
-                        timestamp = timestamp.minusSeconds(offset);
-                    }
-
-                    if (compare == 0 && timestamp.equals(snapToGridStart)
-                            || (timestamp.isAfter(snapToGridStart) && timestamp.isBefore(snapToGridEnd))
-                            || timestamp.equals(snapToGridEnd)) { //sample is in interval
-                        rawInterval.addRawSample(rawSample);
-                        currentSamplePointer++;
-                    } else if (compare != 0 && timestamp.equals(rawInterval.getInterval().getStart())
-                            || (timestamp.isAfter(rawInterval.getInterval().getStart()) && timestamp.isBefore(rawInterval.getInterval().getEnd()))
-                            || timestamp.equals(rawInterval.getInterval().getEnd())) { //sample is in interval
-                        rawInterval.addRawSample(rawSample);
-                        currentSamplePointer++;
-                    } else if (compare == 0 && timestamp.isBefore(snapToGridStart)) { //sample is before interval start --just find the start
-                        currentSamplePointer++;
-                    } else if (compare != 0 && timestamp.isBefore(rawInterval.getInterval().getStart())) { //sample is before interval start --just find the start
-                        currentSamplePointer++;
-                    } else {
-                        samplesInInterval = false;
-                    }
-                } catch (Exception ex) {
-                    throw new Exception("error while align the raw samples to the interval, no timestamp found", ex);
-                }
-            }
+            replacementMap.put(rawSamples.indexOf(rawSample), resultSample);
         }
 
-        rawIntervals.removeAll(removeForTimeZoneShift);
-
-        List<DifferentialRule> listConversionToDifferential = cleanDataObject.getDifferentialRules();
-        Boolean valueIsQuantity = cleanDataObject.getValueIsQuantity();
-
-        //calc modes
-
-        for (CleanInterval currentInterval : rawIntervals) {
-            for (int i = 0; i < listConversionToDifferential.size(); i++) {
-
-
-                DifferentialRule ctd = listConversionToDifferential.get(i);
-                DateTime nextTimeStampOfConversion = null;
-                if (listConversionToDifferential.size() > (i + 1)) {
-                    nextTimeStampOfConversion = (listConversionToDifferential.get(i + 1)).getStartOfPeriod();
-                }
-
-                DateTime timeStampOfConversion = ctd.getStartOfPeriod();
-                Boolean conversionDifferential = ctd.isDifferential();
-
-                boolean last = valueIsQuantity && conversionDifferential;
-                boolean sum = valueIsQuantity && !conversionDifferential;
-                boolean avg = !valueIsQuantity && !conversionDifferential;
-
-                if (currentInterval.getDate().equals(timeStampOfConversion) || (currentInterval.getDate().isAfter(timeStampOfConversion) &&
-                        ((nextTimeStampOfConversion == null) || currentInterval.getDate().isBefore(nextTimeStampOfConversion)))) {
-                    List<JEVisSample> currentRawSamples = currentInterval.getRawSamples();
-                    if (currentRawSamples.isEmpty()) {
-                        continue;
-                    }
-
-                    try {
-                        if (!cleanDataObject.getIsPeriodAligned()) { //no alignment
-                            for (JEVisSample sample : currentRawSamples) {
-                                if (sample.getNote() != null && !sample.getNote().equals("")) {
-                                    sample.setNote(sample.getNote() + "," + "alignment(no)");
-                                } else {
-                                    sample.setNote("alignment(no)");
-                                }
-                                if (userDataMap.containsKey(sample.getTimestamp())) {
-                                    sample.setNote(sample.getNote() + "," + USER_VALUE);
-                                }
-                                currentInterval.addTmpSample(sample);
-                            }
-                        } else if (last) { //last sample
-                            DateTime date = currentInterval.getDate();
-                            JEVisSample rawSample = currentRawSamples.get(currentRawSamples.size() - 1);
-                            Double valueAsDouble = rawSample.getValueAsDouble();
-                            JEVisSample sample = new VirtualSample(date, valueAsDouble);
-                            double diff = (date.getMillis() - rawSample.getTimestamp().getMillis()) / 1000d;
-                            String note = "";
-                            if (diff > 0) {
-                                note = "alignment(yes,+" + diff + "s,last)";
-                            } else if (diff < 0) {
-                                note = "alignment(yes,-" + Math.abs(diff) + "s,last)";
-                            } else {
-                                note = "alignment(no)";
-                            }
-                            if (userDataMap.containsKey(sample.getTimestamp())) {
-                                note += "," + USER_VALUE;
-                            }
-                            sample.setNote(note);
-                            rawSample.setNote(note);
-                            currentInterval.addTmpSample(sample);
-
-                        } else if (avg) {
-                            Double currentValue = calcAvgSample(currentRawSamples);
-                            DateTime date = currentInterval.getDate();
-                            JEVisSample sample = new VirtualSample(date, currentValue);
-                            String note = "";
-                            if (currentRawSamples.size() == 1) {
-                                JEVisSample rawSample = currentRawSamples.get(0);
-                                double diff = (date.getMillis() - rawSample.getTimestamp().getMillis()) / 1000d;
-                                if (diff > 0) {
-                                    note = "alignment(yes,+" + diff + "s,avg)";
-                                } else if (diff < 0) {
-                                    note = "alignment(yes,-" + Math.abs(diff) + "s,avg)";
-                                }
-                            }
-                            if (note.equals("")) {
-                                note = ("alignment(no)");
-                            }
-                            if (userDataMap.containsKey(sample.getTimestamp())) {
-                                note += "," + USER_VALUE;
-                            }
-                            for (JEVisSample rawSample : rawSamples) {
-                                rawSample.setNote(note);
-                            }
-                            sample.setNote(note);
-                            currentInterval.addTmpSample(sample);
-                        } else if (sum) {
-                            Double currentValue = null;
-
-                            int currentIntervalIndex = rawIntervals.indexOf(currentInterval);
-                            if (periodRawData.equals(Period.ZERO) && periodCleanData.equals(Period.minutes(15))
-                                    && currentIntervalIndex > 0) {
-                                int lastIntervalWithSamples = 0;
-                                int noOfIntermittentIntervals = 0;
-                                for (int j = currentIntervalIndex - 1; j > -1; j--) {
-                                    if (rawIntervals.get(j).getRawSamples().isEmpty()) {
-                                        noOfIntermittentIntervals++;
-                                    } else {
-                                        lastIntervalWithSamples = j;
-                                        break;
-                                    }
-                                }
-
-                                currentValue = calcSumSample(currentRawSamples);
-                                noOfIntermittentIntervals++;
-                                if (currentValue != 0 && noOfIntermittentIntervals != 0) {
-                                    currentValue = currentValue / noOfIntermittentIntervals;
-                                }
-
-                                for (int j = currentIntervalIndex - 1; j > lastIntervalWithSamples; j--) {
-                                    CleanInterval cleanIntervalBack = rawIntervals.get(j);
-                                    DateTime date = cleanIntervalBack.getDate();
-                                    JEVisSample sample = new VirtualSample(date, currentValue);
-                                    String note = "alignment(yes,sum)";
-                                    if (userDataMap.containsKey(sample.getTimestamp())) {
-                                        note += "," + USER_VALUE;
-                                    }
-                                    sample.setNote(note);
-                                    cleanIntervalBack.addTmpSample(sample);
-                                }
-                            } else {
-                                currentValue = calcSumSample(currentRawSamples);
-                            }
-
-                            DateTime date = currentInterval.getDate();
-                            JEVisSample sample = new VirtualSample(date, currentValue);
-                            String note = "";
-                            if (currentRawSamples.size() == 1) {
-                                JEVisSample rawSample = currentRawSamples.get(0);
-                                double diff = (date.getMillis() - rawSample.getTimestamp().getMillis()) / 1000d;
-                                if (diff > 0) {
-                                    note = "alignment(yes,+" + diff + "s,sum)";
-                                } else if (diff < 0) {
-                                    note = "alignment(yes,-" + Math.abs(diff) + "s,sum)";
-                                }
-                            }
-                            if (note.equals("")) {
-                                note = ("alignment(no)");
-                            }
-                            if (userDataMap.containsKey(sample.getTimestamp())) {
-                                note += "," + USER_VALUE;
-                            }
-                            sample.setNote(note);
-                            for (JEVisSample rawSample : rawSamples) {
-                                rawSample.setNote(note);
-                            }
-                            currentInterval.addTmpSample(sample);
-                        }
-                    } catch (JEVisException ex) {
-                        logger.error(ex);
-                    }
-                }
-            }
-        }
-
-        if (cleanDataObject.getCleanDataPeriodAlignment().equals(cleanDataObject.getRawDataPeriodAlignment())) {
-            resourceManager.setIntervals(rawIntervals);
-        } else {
-            int rawPointer = 0;
-
-            for (CleanInterval cleanInterval : cleanIntervals) {
-                DateTime start = cleanInterval.getInterval().getStart();
-                DateTime end = cleanInterval.getInterval().getEnd();
-
-                boolean samplesInInterval = true;
-                while (samplesInInterval && rawPointer < rawIntervals.size()) {
-                    CleanInterval rawInterval = rawIntervals.get(rawPointer);
-                    DateTime timeStamp = rawInterval.getDate();
-                    if (compare < 0 && start.isAfter(timeStamp)) {
-                        cleanInterval.getRawSamples().addAll(rawInterval.getRawSamples());
-                        cleanInterval.getTmpSamples().addAll(rawInterval.getTmpSamples());
-                        rawPointer++;
-                        samplesInInterval = false;
-                    } else if (compare > 0 && timeStamp.equals(start)
-                            || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
-                        cleanInterval.getRawSamples().addAll(rawInterval.getRawSamples());
-                        cleanInterval.getTmpSamples().addAll(rawInterval.getTmpSamples());
-                        rawPointer++;
-                    } else if (timeStamp.isBefore(start)) {
-                        rawPointer++;
-                    } else samplesInInterval = false;
-                }
-            }
+        for (Map.Entry<Integer, JEVisSample> entry : replacementMap.entrySet()) {
+            resourceManager.getRawSamplesDown().set(entry.getKey(), entry.getValue());
         }
     }
 }

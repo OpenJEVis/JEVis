@@ -19,26 +19,21 @@ import org.jevis.commons.dataprocessing.processor.preparation.PrepareForecast;
 import org.jevis.commons.dataprocessing.processor.preparation.PrepareMath;
 import org.jevis.commons.dataprocessing.processor.preparation.PrepareStep;
 import org.jevis.commons.dataprocessing.processor.steps.*;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author broder
+ * @author gschutz
  */
 public class ProcessManager {
 
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
-    private List<ProcessStep> processSteps = new ArrayList<>();
     private final String name;
     private final Long id;
+    private List<ProcessStepN> processSteps = new ArrayList<>();
     private boolean isClean = true;
-    private final boolean missingSamples = true;
-    private final boolean rerun = false;
-    private DateTime lastFirstDate;
-    private final boolean isWorking = true;
 
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler, int processingSize) {
         this.resourceManager = new ResourceManager();
@@ -85,56 +80,56 @@ public class ProcessManager {
 
     private void addDefaultSteps() {
 
-        ProcessStep preparation = new PrepareStep();
+        ProcessStepN preparation = new PrepareStep();
         processSteps.add(preparation);
 
-        ProcessStep alignmentStep = new PeriodAlignmentStep();
+        ProcessStepN alignmentStep = new PeriodAlignmentStep();
         processSteps.add(alignmentStep);
 
-        ProcessStep diffStep = new DifferentialStep();
-        processSteps.add(diffStep);
-
-        ProcessStep multiStep = new ScalingStep();
-        processSteps.add(multiStep);
-
-        ProcessStep aggregationAlignmentStep = new AggregationAlignmentStep();
-        processSteps.add(aggregationAlignmentStep);
-
-        ProcessStep gapStep = new FillGapStep();
+        ProcessStepN gapStep = new FillGapStep();
         processSteps.add(gapStep);
 
-        ProcessStep limitsStep = new LimitsStep();
+        ProcessStepN diffStep = new DifferentialStep();
+        processSteps.add(diffStep);
+
+        ProcessStepN multiStep = new ScalingStep();
+        processSteps.add(multiStep);
+
+        ProcessStepN aggregationAlignmentStep = new AggregationAlignmentStep();
+        processSteps.add(aggregationAlignmentStep);
+
+        ProcessStepN limitsStep = new LimitsStep();
         processSteps.add(limitsStep);
 
-        ProcessStep importStep = new ImportStep();
+        ProcessStepN importStep = new ImportStep();
         processSteps.add(importStep);
     }
 
     private void addForecastSteps() {
 
-        ProcessStep preparation = new PrepareForecast();
+        ProcessStepN preparation = new PrepareForecast();
         processSteps.add(preparation);
 
-        ProcessStep forecast = new ForecastStep();
+        ProcessStepN forecast = new ForecastStep();
         processSteps.add(forecast);
 
-        ProcessStep importStep = new ImportStep();
+        ProcessStepN importStep = new ImportStep();
         processSteps.add(importStep);
     }
 
     private void addMathSteps() {
 
-        ProcessStep preparation = new PrepareMath();
+        ProcessStepN preparation = new PrepareMath();
         processSteps.add(preparation);
 
-        ProcessStep math = new MathStep();
+        ProcessStepN math = new MathStep();
         processSteps.add(math);
 
-        ProcessStep importStep = new ImportStep();
+        ProcessStepN importStep = new ImportStep();
         processSteps.add(importStep);
     }
 
-    public void setProcessSteps(List<ProcessStep> processSteps) {
+    public void setProcessSteps(List<ProcessStepN> processSteps) {
         this.processSteps = processSteps;
     }
 
@@ -144,10 +139,7 @@ public class ProcessManager {
             logger.info("[{}:{}] Starting Process", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
 
             if (resourceManager.getCleanDataObject().checkConfig()) {
-
-//        while (missingSamples) {
                 reRun();
-//        }
             }
 
             logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
@@ -180,37 +172,13 @@ public class ProcessManager {
         } else if (resourceManager.getMathDataObject() != null) {
             resourceManager.getMathDataObject().reloadAttributes();
         }
-        for (ProcessStep ps : processSteps) {
-//            if (rerun && ps.getClass().equals(PrepareStep.class)) {
-//                JEVisDataSource ds = resourceManager.getCleanDataObject().getCleanObject().getDataSource();
-//                ds.clearCache();
-//                ds.preload();
-////                resourceManager.setCleanDataObject(new CleanDataObject(ds.getCleanObject(cleanObjectId), new ObjectHandler(ds)));
-//                CleanDataObject cdo = resourceManager.getCleanDataObject();
-//                cdo.setFirstDate(null);
-//            }
-
-//            Benchmark benchmark = new Benchmark();
-            ps.run(resourceManager);
-//            benchmark.printBenchmarkDetail("Finished step " + ps.getClass().getSimpleName() + " of object " + getName() + ":" + getId());
-
-//            if (ps.getClass().equals(PrepareStep.class)) {
-//                DateTime currentFirstDate = resourceManager.getCleanDataObject().getFirstDate();
-//                if (!currentFirstDate.equals(lastFirstDate)) {
-//                    lastFirstDate = resourceManager.getCleanDataObject().getFirstDate();
-//
-//                    if (resourceManager.getIntervals().size() > 10000) {
-//                        resourceManager.setIntervals(resourceManager.getIntervals().subList(0, 10000));
-//                        missingSamples = true;
-//                        rerun = true;
-//                    } else {
-//                        missingSamples = false;
-//                    }
-//                } else {
-//                    rerun = false;
-//                    missingSamples = false;
-//                }
-//            }
+        for (ProcessStepN ps : processSteps) {
+            try {
+                ps.run(resourceManager);
+            } catch (Exception e) {
+                logger.error("Error in step {}", ps, e);
+                throw e;
+            }
         }
     }
 

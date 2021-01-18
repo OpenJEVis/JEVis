@@ -4,9 +4,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.MathDataObject;
-import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.joda.time.DateTime;
 import org.mariuszgromada.math.mxparser.Expression;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class MathStep implements ProcessStep {
+public class MathStep implements ProcessStepN {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
 
@@ -169,9 +168,9 @@ public class MathStep implements ProcessStep {
 
         result = Math.pow(result, 1.0 / samples.size());
 
-        VirtualSample resultSample = new VirtualSample(cleanInterval.getDate(), result);
-        resultSample.setNote("math(geo)");
-        cleanInterval.getTmpSamples().add(resultSample);
+        cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
+        cleanInterval.getResult().setValue(result);
+        cleanInterval.getResult().setNote("math(geo)");
     }
 
     private void calcAvg(CleanInterval cleanInterval, List<JEVisSample> samples) throws JEVisException {
@@ -185,9 +184,9 @@ public class MathStep implements ProcessStep {
 
         result = result / samples.size();
 
-        VirtualSample resultSample = new VirtualSample(cleanInterval.getDate(), result);
-        resultSample.setNote("math(avg)");
-        cleanInterval.getTmpSamples().add(resultSample);
+        cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
+        cleanInterval.getResult().setValue(result);
+        cleanInterval.getResult().setNote("math(avg)");
     }
 
     private void calcMin(CleanInterval cleanInterval, List<JEVisSample> samples) throws JEVisException {
@@ -198,9 +197,9 @@ public class MathStep implements ProcessStep {
             result = Math.min(result, sample.getValueAsDouble());
         }
 
-        VirtualSample resultSample = new VirtualSample(cleanInterval.getDate(), result);
-        resultSample.setNote("math(min)");
-        cleanInterval.getTmpSamples().add(resultSample);
+        cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
+        cleanInterval.getResult().setValue(result);
+        cleanInterval.getResult().setNote("math(min)");
     }
 
     private void calcMax(CleanInterval cleanInterval, List<JEVisSample> samples) throws JEVisException {
@@ -211,9 +210,9 @@ public class MathStep implements ProcessStep {
             result = Math.max(result, sample.getValueAsDouble());
         }
 
-        VirtualSample resultSample = new VirtualSample(cleanInterval.getDate(), result);
-        resultSample.setNote("math(max)");
-        cleanInterval.getTmpSamples().add(resultSample);
+        cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
+        cleanInterval.getResult().setValue(result);
+        cleanInterval.getResult().setNote("math(max)");
     }
 
     private void calcMedian(CleanInterval cleanInterval, List<JEVisSample> samples) throws JEVisException {
@@ -231,9 +230,9 @@ public class MathStep implements ProcessStep {
             else if (sortedArray.size() == 2) result = (sortedArray.get(0) + sortedArray.get(1)) / 2;
         }
 
-        VirtualSample resultSample = new VirtualSample(cleanInterval.getDate(), result);
-        resultSample.setNote("math(median)");
-        cleanInterval.getTmpSamples().add(resultSample);
+        cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
+        cleanInterval.getResult().setValue(result);
+        cleanInterval.getResult().setNote("math(median)");
     }
 
     private void calcRunningMean(List<CleanInterval> intervals, List<JEVisSample> samples) throws JEVisException {
@@ -246,9 +245,9 @@ public class MathStep implements ProcessStep {
             Double currentValue = 1d / 2d * (value0 + value1);
             DateTime newTS = samples.get(i).getTimestamp();
 
-            JEVisSample resultSample = new VirtualSample(newTS, currentValue);
-            resultSample.setNote("math(rm)");
-            map.get(newTS).addTmpSample(resultSample);
+            map.get(newTS).getResult().setTimeStamp(newTS);
+            map.get(newTS).getResult().setValue(currentValue);
+            map.get(newTS).getResult().setNote("math(rm)");
         }
     }
 
@@ -263,9 +262,9 @@ public class MathStep implements ProcessStep {
             Double currentValue = 1d / 3d * (value0 + value1 + value2);
             DateTime newTS = samples.get(i).getTimestamp();
 
-            JEVisSample resultSample = new VirtualSample(newTS, currentValue);
-            resultSample.setNote("math(crm)");
-            map.get(newTS).addTmpSample(resultSample);
+            map.get(newTS).getResult().setTimeStamp(newTS);
+            map.get(newTS).getResult().setValue(currentValue);
+            map.get(newTS).getResult().setNote("math(crm)");
         }
     }
 
@@ -282,9 +281,9 @@ public class MathStep implements ProcessStep {
         for (CleanInterval cleanInterval : intervals) {
             Double value = samples.get(intervals.indexOf(cleanInterval)).getValueAsDouble();
 
-            JEVisSample resultSample = new VirtualSample(cleanInterval.getDate(), value);
-            resultSample.setNote("math(sortMin)");
-            cleanInterval.addTmpSample(resultSample);
+            cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
+            cleanInterval.getResult().setValue(value);
+            cleanInterval.getResult().setNote("math(sortMin)");
         }
     }
 
@@ -301,9 +300,9 @@ public class MathStep implements ProcessStep {
         for (CleanInterval cleanInterval : intervals) {
             Double value = samples.get(intervals.indexOf(cleanInterval)).getValueAsDouble();
 
-            JEVisSample resultSample = new VirtualSample(cleanInterval.getDate(), value);
-            resultSample.setNote("math(sortMax)");
-            cleanInterval.addTmpSample(resultSample);
+            cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
+            cleanInterval.getResult().setValue(value);
+            cleanInterval.getResult().setNote("math(sortMax)");
         }
     }
 
@@ -316,9 +315,9 @@ public class MathStep implements ProcessStep {
             else result += sample.getValueAsDouble();
         }
 
-        VirtualSample resultSample = new VirtualSample(cleanInterval.getDate(), result);
-        resultSample.setNote("math(avg)");
-        cleanInterval.getTmpSamples().add(resultSample);
+        cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
+        cleanInterval.getResult().setValue(result);
+        cleanInterval.getResult().setNote("math(avg)");
     }
 
     private void calcFormula(List<CleanInterval> intervals, List<JEVisSample> samples, String formula) throws JEVisException {
@@ -327,9 +326,9 @@ public class MathStep implements ProcessStep {
         for (JEVisSample sample : samples) {
             Expression expression = new Expression(formula.replace("x", sample.getValueAsDouble().toString()));
             double result = expression.calculate();
-            JEVisSample resultSample = new VirtualSample(sample.getTimestamp(), result);
-            resultSample.setNote("math(formula)");
-            map.get(sample.getTimestamp()).addTmpSample(resultSample);
+            map.get(sample.getTimestamp()).getResult().setTimeStamp(sample.getTimestamp());
+            map.get(sample.getTimestamp()).getResult().setValue(result);
+            map.get(sample.getTimestamp()).getResult().setNote("math(formula)");
         }
     }
 }

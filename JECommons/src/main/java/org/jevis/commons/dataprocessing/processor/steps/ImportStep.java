@@ -12,7 +12,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * @author broder
  */
-public class ImportStep implements ProcessStep {
+public class ImportStep implements ProcessStepN {
 
     private static final Logger logger = LogManager.getLogger(ImportStep.class);
 
@@ -71,8 +71,17 @@ public class ImportStep implements ProcessStep {
         Map<DateTime, JEVisSample> listOldSamples = new HashMap<>();
         DateTime firstDateTimeOfResults = null;
         DateTime lastDateTimeOfResults = null;
-        if (resourceManager.isClean() && !resourceManager.getIntervals().isEmpty() && !resourceManager.getCleanDataObject().getCleanDataPeriodAlignment().equals(Period.months(1))) {
-            resourceManager.getIntervals().remove(0);
+
+        boolean monthPeriods = false;
+        for (CleanInterval interval : resourceManager.getIntervals()) {
+            if (interval.getOutputPeriod().equals(Period.months(1))) {
+                monthPeriods = true;
+                break;
+            }
+        }
+
+        if (resourceManager.isClean() && !resourceManager.getIntervals().isEmpty() && !monthPeriods) {
+//            resourceManager.getIntervals().remove(0);
             firstDateTimeOfResults = resourceManager.getIntervals().get(0).getInterval().getStart();
             lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
 
@@ -83,27 +92,24 @@ public class ImportStep implements ProcessStep {
 
         List<JEVisSample> cleanSamples = new ArrayList<>();
         for (CleanInterval curInterval : resourceManager.getIntervals()) {
-            if (curInterval.getTmpSamples().size() > 0) {
-                int lastTmpSampleIndex = curInterval.getTmpSamples().size() - 1;
-                JEVisSample sample = curInterval.getTmpSamples().get(lastTmpSampleIndex);
+            JEVisSample sample = curInterval.getResult();
 
-                Double rawValue = sample.getValueAsDouble();
-                if (rawValue == null || rawValue.isNaN() || rawValue.isInfinite()) {
-                    continue;
-                }
-                DateTime date = sample.getTimestamp();
-                if (date != null) {
-                    DateTime timestamp = sample.getTimestamp().plusSeconds(periodOffset);
+            Double value = sample.getValueAsDouble();
+            if (value == null || value.isNaN() || value.isInfinite()) {
+                continue;
+            }
+            DateTime date = sample.getTimestamp();
+            if (date != null) {
+                DateTime timestamp = sample.getTimestamp().plusSeconds(periodOffset);
 
-                    if (hasSamples) {
-                        JEVisSample smp = listOldSamples.get(timestamp);
-                        if (smp != null) {
-                            attribute.deleteSamplesBetween(timestamp, timestamp);
-                        }
+                if (hasSamples) {
+                    JEVisSample smp = listOldSamples.get(timestamp);
+                    if (smp != null) {
+                        attribute.deleteSamplesBetween(timestamp, timestamp);
                     }
-                    JEVisSample sampleSql = attribute.buildSample(timestamp, rawValue, sample.getNote());
-                    cleanSamples.add(sampleSql);
                 }
+                JEVisSample sampleSql = attribute.buildSample(timestamp, value, sample.getNote());
+                cleanSamples.add(sampleSql);
             }
         }
         if (cleanSamples.size() > 0) {

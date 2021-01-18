@@ -5,7 +5,7 @@
  */
 package org.jevis.commons.dataprocessing.processor;
 
-import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +16,17 @@ import java.util.List;
  */
 public class Gap {
 
-    private final List<CleanInterval> intervals = new ArrayList<>();
+    private final List<DateTime> missingDateTimes = new ArrayList<>();
     private Double lastValue;
     private Double firstValue;
+    private String startNote;
 
-    public void addInterval(CleanInterval currentInterval) {
-        intervals.add(currentInterval);
+    public void addDateTime(DateTime missingDateTime) {
+        missingDateTimes.add(missingDateTime);
     }
 
-    public List<CleanInterval> getIntervals() {
-        return intervals;
+    public List<DateTime> getMissingDateTimes() {
+        return missingDateTimes;
     }
 
     public Double getFirstValue() {
@@ -44,4 +45,11 @@ public class Gap {
         this.lastValue = lastValue;
     }
 
+    public String getStartNote() {
+        return startNote;
+    }
+
+    public void setStartNote(String startNote) {
+        this.startNote = startNote;
+    }
 }

@@ -12,6 +12,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
+import org.jevis.commons.datetime.PeriodArithmetic;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author broder
+ * @author gschutz
  */
 public class ResourceManager {
 
@@ -102,7 +103,34 @@ public class ResourceManager {
                 DateTime minDateForCache = getCleanDataObject().getFirstDate().minusMonths(6);
                 DateTime lastDateForCache = getCleanDataObject().getFirstDate();
 
-                sampleCache = getCleanDataObject().getValueAttribute().getSamples(minDateForCache, lastDateForCache);
+                sampleCache = getCleanDataObject().getRawDataObject().getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME).getSamples(minDateForCache, lastDateForCache);
+
+                int periods = 0;
+                List<PeriodRule> cleanDataPeriodAlignment = getCleanDataObject().getCleanDataPeriodAlignment();
+                for (PeriodRule periodRule : cleanDataPeriodAlignment) {
+                    int i = cleanDataPeriodAlignment.indexOf(periodRule);
+                    PeriodRule nextRule = null;
+                    if (cleanDataPeriodAlignment.size() > i + 1) {
+                        nextRule = cleanDataPeriodAlignment.get(i + 1);
+                    }
+
+                    if (nextRule == null) {
+                        periods += PeriodArithmetic.periodsInAnInterval(new Interval(minDateForCache, lastDateForCache), periodRule.getPeriod());
+                    } else {
+                        DateTime startOfPeriod = periodRule.getStartOfPeriod();
+                        DateTime endOfPeriod = nextRule.getStartOfPeriod();
+
+                        if ((minDateForCache.equals(startOfPeriod)
+                                || (minDateForCache.isAfter(startOfPeriod) && minDateForCache.isBefore(endOfPeriod))
+                                && (lastDateForCache.isBefore(endOfPeriod) || lastDateForCache.equals(endOfPeriod)))) {
+                            periods += PeriodArithmetic.periodsInAnInterval(new Interval(startOfPeriod, endOfPeriod), periodRule.getPeriod());
+                        }
+                    }
+                }
+
+                if (sampleCache.size() < periods) {
+                    sampleCache = null;
+                }
             } catch (Exception e) {
                 logger.error("No caching possible: ", e);
             }
@@ -126,14 +154,14 @@ public class ResourceManager {
             List<PeriodRule> rawPeriodAlignment = getCleanDataObject().getRawDataPeriodAlignment();
             List<PeriodRule> cleanDataPeriodAlignment = getCleanDataObject().getCleanDataPeriodAlignment();
 
-            for (PeriodRule rawPeriod : rawPeriodAlignment) {
-                Period currentRawDataPeriod = rawPeriod.getPeriod();
+            for (PeriodRule rawPeriodRule : rawPeriodAlignment) {
+                Period currentRawDataPeriod = rawPeriodRule.getPeriod();
                 DateTime nextRawDataPeriodTS = null;
-                if (rawPeriodAlignment.size() > rawPeriodAlignment.indexOf(rawPeriod) + 1) {
-                    nextRawDataPeriodTS = rawPeriodAlignment.get(rawPeriodAlignment.indexOf(rawPeriod) + 1).getStartOfPeriod();
+                if (rawPeriodAlignment.size() > rawPeriodAlignment.indexOf(rawPeriodRule) + 1) {
+                    nextRawDataPeriodTS = rawPeriodAlignment.get(rawPeriodAlignment.indexOf(rawPeriodRule) + 1).getStartOfPeriod();
                 }
 
-                Period currentCleanDataPeriod = CleanDataObject.getPeriodForDate(cleanDataPeriodAlignment, rawPeriod.getStartOfPeriod());
+                Period currentCleanDataPeriod = CleanDataObject.getPeriodForDate(cleanDataPeriodAlignment, rawPeriodRule.getStartOfPeriod());
 
                 if (!currentRawDataPeriod.equals(Period.ZERO) && currentRawDataPeriod.getMonths() == 0 && currentRawDataPeriod.getYears() == 0
                         && currentCleanDataPeriod.getMonths() == 0 && currentCleanDataPeriod.getYears() == 0) {
@@ -186,8 +214,8 @@ public class ResourceManager {
 
                         while (currentTs.isBefore(lastTs) && (nextRawDataPeriodTS == null || currentTs.isBefore(nextRawDataPeriodTS))) {
                             Interval interval = new Interval(currentTs, currentTs.plusMinutes(14).plusSeconds(59).plusMillis(999));
-                            CleanInterval cleanInterval = new CleanInterval(interval, currentTs);
-                            rawIntervals.add(cleanInterval);
+                            CleanInterval CleanInterval = new CleanInterval(interval, currentTs);
+                            rawIntervals.add(CleanInterval);
                             currentTs = currentTs.plusMinutes(15);
                         }
                     } catch (Exception e) {
@@ -213,8 +241,8 @@ public class ResourceManager {
                                 }
 
                                 Interval interval = new Interval(start, end);
-                                CleanInterval cleanInterval = new CleanInterval(interval, timestamp);
-                                rawIntervals.add(cleanInterval);
+                                CleanInterval CleanInterval = new CleanInterval(interval, timestamp);
+                                rawIntervals.add(CleanInterval);
                             }
                         } catch (JEVisException e) {
                             e.printStackTrace();
