@@ -165,14 +165,17 @@ public class PeriodAlignmentStep implements ProcessStepN {
                 long lowerDiff = rawSampleTS.getMillis() - lowerTS.getMillis();
                 long higherDiff = higherTS.getMillis() - rawSampleTS.getMillis();
 
+                if (!resultSample.getNote().equals("")) {
+                    resultSample.setNote(resultSample.getNote() + ",");
+                }
                 if (lowerDiff < higherDiff && !lowerTS.equals(rawSampleTS)) {
                     resultSample.setTimeStamp(lowerTS);
-                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_YES_NEG + lowerDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
+                    resultSample.setNote(resultSample.getNote() + NoteConstants.Alignment.ALIGNMENT_YES_NEG + lowerDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
                 } else if (higherDiff < lowerDiff && !higherTS.equals(rawSampleTS)) {
                     resultSample.setTimeStamp(higherTS);
-                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_YES_POS + higherDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
+                    resultSample.setNote(resultSample.getNote() + NoteConstants.Alignment.ALIGNMENT_YES_POS + higherDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
                 } else {
-                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_NO);
+                    resultSample.setNote(resultSample.getNote() + NoteConstants.Alignment.ALIGNMENT_NO);
                 }
             } else {
                 resultSample.setNote(resultSample.getNote() + "," + NoteConstants.Alignment.ALIGNMENT_NO);

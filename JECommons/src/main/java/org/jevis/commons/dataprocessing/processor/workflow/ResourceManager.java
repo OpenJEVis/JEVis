@@ -98,7 +98,7 @@ public class ResourceManager {
     }
 
     public List<JEVisSample> getSampleCache() {
-        if (sampleCache.isEmpty()) {
+        if (sampleCache == null || sampleCache.isEmpty()) {
             try {
                 DateTime minDateForCache = getCleanDataObject().getFirstDate().minusMonths(6);
                 DateTime lastDateForCache = getCleanDataObject().getFirstDate();
