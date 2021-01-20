@@ -2,142 +2,190 @@
   "jevisclass": "Periodic Report",
   "names": {
     "de": "Periodischer Bericht",
-    "ru": "Periodic Report",
-    "en": "Periodic Report"
+    "ru": "Периодический отчет",
+    "en": "Periodic Report",
+    "uk": "Періодичний звіт",
+    "th": "รายงานเป็นระยะ"
   },
   "descriptions": {},
   "types": [
     {
       "type": "Attribute Name",
       "descriptions": {
-        "de": "Attribute Name description",
-        "ru": "Attribute Name description",
-        "en": "Attribute Name description"
+        "de": "Der Attribute Name, des Attributes, das für die Bedingung benutzt wird",
+        "ru": "Имя атрибута атрибута, который используется для условия.",
+        "en": "The Attribute Name which is used for the condition",
+        "uk": "Ім'я атрибута атрибута, який використовується для умови",
+        "th": "ชื่อแอ็ตทริบิวต์ของแอ็ตทริบิวต์ที่ใช้สำหรับเงื่อนไข"
       },
       "names": {
         "de": "Attributname",
-        "ru": "Attribute Name",
-        "en": "Attribute Name"
+        "ru": "имя атрибута",
+        "en": "Attribute Name",
+        "uk": "Назва атрибута",
+        "th": "ชื่อแอตทริบิวต์"
       }
     },
     {
       "type": "Condition Enabled",
       "descriptions": {
         "de": "Condition Enabled description",
-        "ru": "Condition Enabled description",
-        "en": "Condition Enabled description"
+        "ru": "Определяет, используется ли условие для запуска отчета.",
+        "en": "Determines if the condition is used for triggering the report",
+        "uk": "Визначає, чи використовується умова для активації звіту",
+        "th": "กำหนดว่าเงื่อนไขถูกใช้เพื่อทริกเกอร์รายงานหรือไม่"
       },
       "names": {
-        "de": "Bedingung aktiviert",
-        "ru": "Condition Enabled",
-        "en": "Condition Enabled"
+        "de": "Bedingung Aktiviert",
+        "ru": "Условие включено",
+        "en": "Condition Enabled",
+        "uk": "Стан увімкнено",
+        "th": "เงื่อนไขเปิดใช้งาน"
       }
     },
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled description",
-        "ru": "Enabled description",
-        "en": "Enabled description"
+        "de": "Bestimmt ob die Generierung des Berichts aktiviert ist",
+        "ru": "Определяет, активировано ли формирование отчета",
+        "en": "Determines if the report is generated",
+        "uk": "Визначає, чи активовано створення звіту",
+        "th": "กำหนดว่าจะเปิดใช้งานการสร้างรายงานหรือไม่"
       },
       "names": {
         "de": "Aktiviert",
-        "ru": "Enabled",
-        "en": "Enabled"
+        "ru": "Активирован",
+        "en": "Enabled",
+        "uk": "Активоване",
+        "th": "เปิดใช้งานแล้ว"
       }
     },
     {
       "type": "JEVis ID",
       "descriptions": {
-        "de": "JEVis ID description",
-        "ru": "JEVis ID description",
-        "en": "JEVis ID description"
+        "de": "Die JEVis ID des Objektes, welches für die Bedingung herangezogen wird",
+        "ru": "JEVis ID объекта, который используется для условия",
+        "en": "JEVis ID description",
+        "uk": "JEVis - ідентифікатор об'єкта, який використовується для стану",
+        "th": "JEVis ID ของอ็อบเจ็กต์ที่ใช้สำหรับเงื่อนไข"
       },
       "names": {
         "de": "JEVis ID",
         "ru": "JEVis ID",
-        "en": "JEVis ID"
+        "en": "JEVis ID",
+        "uk": "JEVis ID",
+        "th": "JEVis ID"
       }
     },
     {
       "type": "Last Report",
       "descriptions": {
-        "de": "Last Report description",
-        "ru": "Last Report description",
-        "en": "Last Report description"
+        "de": "In diesem Attribut ist der letzte Bericht und die Historie aller erzeugter Berichte hinterlegt",
+        "ru": "В этом атрибуте хранится последний отчет и история всех созданных отчетов.",
+        "en": "This attribute contains the last report and the history of all generated reports",
+        "uk": "Останній звіт та історія всіх створених звітів зберігаються в цьому атрибуті",
+        "th": "รายงานล่าสุดและประวัติของรายงานทั้งหมดที่สร้างขึ้นจะถูกเก็บไว้ในแอตทริบิวต์นี้"
       },
       "names": {
         "de": "Letzter Bericht",
-        "ru": "Last Report",
-        "en": "Last Report"
+        "ru": "Последний отчет",
+        "en": "Last Report",
+        "uk": "Останній звіт",
+        "th": "รายงานล่าสุด"
       }
     },
     {
       "type": "Limit",
       "descriptions": {
-        "de": "Limit description",
-        "ru": "Limit description",
-        "en": "Limit description"
+        "de": "Die Grenze für die Bedingung",
+        "ru": "Предел для условия",
+        "en": "Limit description",
+        "uk": "Межа для умови",
+        "th": "ขีด จำกัด สำหรับเงื่อนไข"
       },
       "names": {
         "de": "Grenze",
-        "ru": "Limit",
-        "en": "Limit"
+        "ru": "граница",
+        "en": "Limit",
+        "uk": "кордон",
+        "th": "ชายแดน"
       }
     },
     {
       "type": "Operator",
       "descriptions": {
-        "de": "Bedingung Beschreibung",
-        "ru": "Condition description",
-        "en": "Condition description"
+        "de": "Der Boolesche Operator für die Bedingung",
+        "ru": "Логический оператор для условия",
+        "en": "Condition description",
+        "uk": "Логічний оператор для умови",
+        "th": "ตัวดำเนินการบูลีนสำหรับเงื่อนไข"
       },
       "names": {
         "de": "Bedingung",
-        "ru": "Condition",
-        "en": "Condition"
+        "ru": "состояние",
+        "en": "Condition",
+        "uk": "хвороба",
+        "th": "เงื่อนไข"
       },
       "enums" : {
         "<" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Kleiner (Wert<Vergleichswert)",
-            "en" : "Less (Value<comparison value)"
+            "de": "Kleiner (Wert<Vergleichswert)",
+            "en": "Less (Value<comparison value)",
+            "ru": "Меньше (значение <значение для сравнения)",
+            "uk": "Менший (значення <значення порівняння)",
+            "th": "เล็กกว่า (ค่า <ค่าเปรียบเทียบ)"
           }
         },
         "<=" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Kleiner-Gleich (Wert<=Vergleichswert)",
-            "en" : "Less than or equal (value<=comparison value)"
+            "de": "Kleiner-Gleich (Wert<=Vergleichswert)",
+            "en": "Less than or equal (value<=comparison value)",
+            "ru": "Меньше или равно (значение <= значение для сравнения)",
+            "uk": "Менше або рівне (значення <= значення порівняння)",
+            "th": "น้อยกว่าหรือเท่ากับ (ค่า <= ค่าเปรียบเทียบ)"
           }
         },
         ">" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Größer (Wert>Vergleichswert)",
-            "en" : "Greater (value>comparison value)"
+            "de": "Größer (Wert>Vergleichswert)",
+            "en": "Greater (value>comparison value)",
+            "ru": "Больше чем (значение> значение для сравнения)",
+            "uk": "Більше ніж (значення> значення порівняння)",
+            "th": "มากกว่า (ค่า> ค่าเปรียบเทียบ)"
           }
         },
         ">=" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Größer-Gleich (Wert>=Vergleichswert)",
-            "en" : "Greater or equal (value>=comparison value)"
+            "de": "Größer-Gleich (Wert>=Vergleichswert)",
+            "en": "Greater or equal (value>=comparison value)",
+            "ru": "Больше или равно (значение> = значение для сравнения)",
+            "uk": "Більше або рівне (значення> = значення порівняння)",
+            "th": "มากกว่าหรือเท่ากับ (value> = ค่าเปรียบเทียบ)"
           }
         },
         "=" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Gleich (Wert=Vergleichswert)",
-            "en" : "Equal (value=comparison value)"
+            "de": "Gleich (Wert=Vergleichswert)",
+            "en": "Equal (value=comparison value)",
+            "ru": "Равно (значение = значение для сравнения)",
+            "uk": "Рівне (значення = значення порівняння)",
+            "th": "เท่ากัน (มูลค่า = ค่าเปรียบเทียบ)"
           }
         },
         "!=" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Ungleich (Wert≠Vergleichswert)",
-            "en" : "Unequal (value≠comparison value)"
+            "de": "Ungleich (Wert≠Vergleichswert)",
+            "en": "Unequal (value≠comparison value)",
+            "ru": "Не равно (значение ≠ значение для сравнения)",
+            "uk": "Не дорівнює (значення ≠ порівняльне значення)",
+            "th": "ไม่เท่ากัน (ค่า≠ค่าเปรียบเทียบ)"
           }
         }
       }
@@ -145,101 +193,129 @@
     {
       "type": "PDF",
       "descriptions": {
-        "de": "PDF description",
-        "ru": "PDF description",
-        "en": "PDF description"
+        "de": "In diesem Attribut ist der letzte Bericht als PDF und die Historie aller erzeugter Berichte als PDF hinterlegt",
+        "ru": "В этом атрибуте последний отчет сохраняется в формате PDF, а история всех созданных отчетов сохраняется в формате PDF.",
+        "en": "This attribute contains the last report as PDF file and the history of all generated reports as PDF files",
+        "uk": "У цьому атрибуті останній звіт зберігається у форматі PDF, а історія всіх створених звітів - у форматі PDF",
+        "th": "ในแอตทริบิวต์นี้รายงานล่าสุดจะถูกจัดเก็บเป็น PDF และประวัติของรายงานทั้งหมดที่สร้างขึ้นจะถูกจัดเก็บเป็น PDF"
       },
       "names": {
         "de": "PDF",
         "ru": "PDF",
-        "en": "PDF"
+        "en": "PDF",
+        "uk": "PDF",
+        "th": "PDF"
       }
     },
     {
       "type": "PDF Pages",
       "descriptions": {
-        "de": "PDF Pages description",
-        "ru": "PDF Pages description",
-        "en": "PDF Pages description"
+        "de": "Dieses Attribut bestimmt die Anzahl der Seiten für die PDF Erstellung (Standardwert = 10)",
+        "ru": "Этот атрибут определяет количество страниц для создания PDF (значение по умолчанию = 10).",
+        "en": "This determines the number of pages for creating the PDF file (default value = 10)",
+        "uk": "Цей атрибут визначає кількість сторінок для створення PDF (значення за замовчуванням = 10)",
+        "th": "แอตทริบิวต์นี้กำหนดจำนวนหน้าสำหรับการสร้าง PDF (ค่าเริ่มต้น = 10)"
       },
       "names": {
         "de": "Anzahl PDF Seiten",
-        "ru": "PDF Pages",
-        "en": "PDF Pages"
+        "ru": "Количество страниц PDF",
+        "en": "PDF Pages",
+        "uk": "Кількість сторінок PDF",
+        "th": "จำนวนหน้า PDF"
       }
     },
     {
       "type": "Schedule",
       "descriptions": {
-        "de": "Schedule description",
-        "ru": "Schedule description",
-        "en": "Schedule description"
+        "de": "Hier wird der Zeitplan für die Berichtserstellung festgelegt",
+        "ru": "График формирования отчета устанавливается здесь",
+        "en": "Determines the schedule of the periodic report",
+        "uk": "Тут встановлюється графік генерації звітів",
+        "th": "กำหนดการสำหรับการสร้างรายงานถูกกำหนดไว้ที่นี่"
       },
       "names": {
         "de": "Zeitplan",
-        "ru": "Schedule",
-        "en": "Schedule"
+        "ru": "График",
+        "en": "Schedule",
+        "uk": "Графік",
+        "th": "ตารางเวลา"
       },
       "enums" : {
         "MINUTELY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Minütlich",
-            "ru" : "минутный",
-            "en" : "Minutely"
+            "de": "Minütlich",
+            "ru": "Каждую минуту",
+            "en": "Minutely",
+            "uk": "Щохвилини",
+            "th": "ทุกๆนาที"
           }
         },
         "QUARTER_HOURLY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Viertelstündlich",
-            "ru" : "Eжеквартально",
-            "en" : "Quarter-hourly"
+            "de": "Viertelstündlich",
+            "ru": "Каждые четверть часа",
+            "en": "Quarter-hourly",
+            "uk": "Кожні чверть години",
+            "th": "ทุก ๆ ไตรมาสของหนึ่งชั่วโมง"
           }
         },
         "HOURLY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Monatlich",
-            "ru" : "ежечасно",
-            "en" : "hourly"
+            "de": "Stündlich",
+            "ru": "Ежечасно",
+            "en": "Hourly",
+            "uk": "Щогодини",
+            "th": "ทุกชั่วโมง"
           }
         },
         "WEEKLY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Wöchentlich",
-            "ru" : "Eженедельно",
-            "en" : "Weekly"
+            "de": "Wöchentlich",
+            "ru": "Eженедельно",
+            "en": "Weekly",
+            "uk": "Щотижня",
+            "th": "รายสัปดาห์"
           }
         },"MONTHLY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Monatlich",
-            "ru" : "ежемесячно",
-            "en" : "Monthly"
+            "de": "Monatlich",
+            "ru": "В месяц",
+            "en": "Monthly",
+            "uk": "На місяць",
+            "th": "ต่อเดือน"
           }
         },
         "QUARTERLY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Vierteljährlich",
-            "ru" : "Eжеквартальный",
-            "en" : "Quarterly"
+            "de": "Vierteljährlich",
+            "ru": "Ежеквартальный",
+            "en": "Quarterly",
+            "uk": "Щоквартально",
+            "th": "รายไตรมาส"
           }
         },"YEARLY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Jährlich",
-            "ru" : "Ежегодно",
-            "en" : "Yearly"
+            "de": "Jährlich",
+            "ru": "Ежегодно",
+            "en": "Yearly",
+            "uk": "Щорічно",
+            "th": "ทุกปี"
           }
         },"CUSTOM" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Benutzerdefiniert",
-            "ru" : "Пользовательский",
-            "en" : "Custom"
+            "de": "Benutzerdefiniert",
+            "ru": "На заказ",
+            "en": "Custom",
+            "uk": "На замовлення",
+            "th": "กำหนดเอง"
           }
         }
       }
@@ -247,53 +323,69 @@
     {
       "type": "Start Record",
       "descriptions": {
-        "de": "Start Record description",
-        "ru": "Start Record description",
-        "en": "Start Record description"
+        "de": "Der Startzeitpunkt für den nächsten Bericht",
+        "ru": "Время начала следующего отчета",
+        "en": "Start Record of the next report",
+        "uk": "Час початку наступного звіту",
+        "th": "เวลาเริ่มต้นสำหรับรายงานถัดไป"
       },
       "names": {
-        "de": "Start Zeitpunkt",
-        "ru": "Start Record",
-        "en": "Start Record"
+        "de": "Startzeitpunkt",
+        "ru": "Время начала",
+        "en": "Start Record",
+        "uk": "Час початку",
+        "th": "เวลาเริ่มต้น"
       }
     },
     {
       "type": "Template",
       "descriptions": {
-        "de": "Template description",
-        "ru": "Template description",
-        "en": "Template description"
+        "de": "Die Vorlage, die für die Erstellung des Berichts verwendet wird",
+        "ru": "Шаблон, используемый для создания отчета",
+        "en": "Template file which is used for creating the report",
+        "uk": "Шаблон, що використовується для створення звіту",
+        "th": "เทมเพลตที่ใช้ในการสร้างรายงาน"
       },
       "names": {
         "de": "Vorlage",
-        "ru": "Template",
-        "en": "Template"
+        "ru": "шаблон",
+        "en": "Template",
+        "uk": "шаблон",
+        "th": "แม่แบบ"
       }
     },
     {
       "type": "Time Zone",
       "descriptions": {
-        "de": "Time Zone description",
-        "ru": "Time Zone description",
-        "en": "Time Zone description"
+        "de": "Die Zeitzone, die für die Berichtserstellung relevant ist",
+        "ru": "Часовой пояс, актуальный для отчетности",
+        "en": "Time Zone relevant for report creation",
+        "uk": "Часовий пояс, який є важливим для звітування",
+        "th": "เขตเวลาที่เกี่ยวข้องกับการรายงาน"
       },
       "names": {
         "de": "Zeitzone",
-        "ru": "Time Zone",
-        "en": "Time Zone"
+        "ru": "Часовой пояс",
+        "en": "Time Zone",
+        "uk": "Часовий пояс",
+        "th": "เขตเวลา"
       }
     },
     {
       "type": "Custom Schedule Object",
       "descriptions": {
-        "de": "Custom Schedule Object description",
-        "ru": "Custom Schedule Object description",
-        "en": "Custom Schedule Object description"
+        "de": "Wenn eine benutzerdefinierte Periode aktiv ist, wird diese hier ausgewählt",
+        "ru": "Если активен определенный пользователем период, он выбирается здесь",
+        "en": "If a custom schedule is selected, the corresponding object is selected here",
+        "uk": "Якщо визначений користувачем період активний, він вибраний тут",
+        "th": "หากช่วงเวลาที่ผู้ใช้กำหนดใช้งานอยู่จะถูกเลือกที่นี่"
       },
       "names": {
         "de": "Benutzerdefinierter Zeitbereich",
-        "ru": "Custom Schedule Object",
-        "en": "Custom Schedule Object"
+        "ru": "Пользовательский временной диапазон",
+        "en": "Custom Schedule Object",
+        "uk": "Спеціальний діапазон часу",
+        "th": "ช่วงเวลาที่กำหนดเอง"
       }
     }
   ]

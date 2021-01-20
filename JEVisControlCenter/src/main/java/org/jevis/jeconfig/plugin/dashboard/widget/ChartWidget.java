@@ -141,7 +141,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     tableHeaderTable.maxWidthProperty().bind(this.borderPane.widthProperty());
 
                     this.xyChart = tableChart;
-                    model.setShowSum_NOEVENT(true);
+//                    model.setShowSum_NOEVENT(true);
                     this.xyChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
 
                     VBox vBox = new VBox(hBox, tableHeaderTable);
