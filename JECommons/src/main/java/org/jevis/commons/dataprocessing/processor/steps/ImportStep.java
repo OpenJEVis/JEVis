@@ -73,10 +73,12 @@ public class ImportStep implements ProcessStepN {
         DateTime lastDateTimeOfResults = null;
 
         boolean monthPeriods = false;
-        for (CleanInterval interval : resourceManager.getIntervals()) {
-            if (interval.getOutputPeriod().equals(Period.months(1))) {
-                monthPeriods = true;
-                break;
+        if (resourceManager.isClean()) {
+            for (CleanInterval interval : resourceManager.getIntervals()) {
+                if (interval.getOutputPeriod().equals(Period.months(1))) {
+                    monthPeriods = true;
+                    break;
+                }
             }
         }
 
