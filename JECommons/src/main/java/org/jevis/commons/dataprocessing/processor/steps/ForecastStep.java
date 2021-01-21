@@ -172,17 +172,6 @@ public class ForecastStep implements ProcessStepN {
                         }
                     }
                 }
-                for (CleanInterval ci : intervals) {
-                    if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
-                            || ci.getDate().equals(lastDate)) {
-                        JEVisSample js = ci.getResult();
-                        if (js.getTimestamp().getDayOfWeek() == lastDate.getDayOfWeek()) {
-                            if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                boundListSamples.add(js);
-                            }
-                        }
-                    }
-                }
                 return calcValueWithType(boundListSamples, c);
             case WEEKOFYEAR:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
@@ -190,17 +179,6 @@ public class ForecastStep implements ProcessStepN {
                         if (sample.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 boundListSamples.add(sample);
-                            }
-                        }
-                    }
-                }
-                for (CleanInterval ci : intervals) {
-                    if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
-                            || ci.getDate().equals(lastDate)) {
-                        JEVisSample js = ci.getResult();
-                        if (js.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
-                            if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                boundListSamples.add(js);
                             }
                         }
                     }
@@ -216,32 +194,12 @@ public class ForecastStep implements ProcessStepN {
                         }
                     }
                 }
-                for (CleanInterval ci : intervals) {
-                    if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
-                            || ci.getDate().equals(lastDate)) {
-                        JEVisSample js = ci.getResult();
-                        if (js.getTimestamp().getMonthOfYear() == lastDate.getMonthOfYear()) {
-                            if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                boundListSamples.add(js);
-                            }
-                        }
-                    }
-                }
                 return calcValueWithType(boundListSamples, c);
             default:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
                     for (JEVisSample sample : sampleCache) {
                         if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                             listSamplesNew.add(sample);
-                        }
-                    }
-                }
-                for (CleanInterval ci : intervals) {
-                    if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
-                            || ci.getDate().equals(lastDate)) {
-                        JEVisSample js = ci.getResult();
-                        if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                            listSamplesNew.add(js);
                         }
                     }
                 }

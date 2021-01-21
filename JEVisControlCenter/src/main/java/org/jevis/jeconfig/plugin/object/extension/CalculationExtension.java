@@ -193,7 +193,7 @@ public class CalculationExtension implements ObjectEditorExtension {
                                     } while (!calcJob.hasProcessedAllInputSamples());
 
                                     if (wasEnabled) {
-                                        _obj.getAttribute("Enabled").buildSample(new DateTime(), wasEnabled).commit();
+                                        _obj.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
                                     }
 
                                     for (JEVisObject jeVisObject : targets) {

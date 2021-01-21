@@ -29,11 +29,11 @@ public class CommonMethods {
     }
 
     public static JEVisObject getFirstParentalObjectOfClass(JEVisObject jeVisObject, String className) throws JEVisException {
-        for (JEVisObject object : jeVisObject.getParents()) {
-            if (object.getJEVisClassName().equals(className)) {
-                return object;
+        for (JEVisObject parent : jeVisObject.getParents()) {
+            if (parent.getJEVisClassName().equals(className)) {
+                return parent;
             } else {
-                return getFirstParentalObjectOfClass(object, className);
+                return getFirstParentalObjectOfClass(parent, className);
             }
         }
         return jeVisObject;
@@ -269,12 +269,15 @@ public class CommonMethods {
 
         deleteAllSamples(cleanDataObject, false, true);
 
-        logger.info("Starting cleaning process");
-        ProcessManager processManager = new ProcessManager(
-                cleanDataObject,
-                new ObjectHandler(cleanDataObject.getDataSource()), sampleCount
-        );
-        processManager.start();
+        double noOfCleaning = Math.ceil(sampleCount / 1500001d);
+        logger.info("Starting {} cleaning process", noOfCleaning);
+        for (int i = 0; i < noOfCleaning; i++) {
+            ProcessManager processManager = new ProcessManager(
+                    cleanDataObject,
+                    new ObjectHandler(cleanDataObject.getDataSource()), sampleCount
+            );
+            processManager.start();
+        }
 
         cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
         logger.info("cleaning done for: {}:{}", cleanDataObject.getName(), cleanDataObject.getID());

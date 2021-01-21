@@ -67,6 +67,8 @@ public class PrepareForecast implements ProcessStepN {
                     endOfInterval = endOfInterval.minusMillis(1);
                     Interval interval = new Interval(start, endOfInterval);
                     CleanInterval cleanInterval = new CleanInterval(interval, start);
+                    cleanInterval.getResult().setTimeStamp(endOfInterval);
+                    cleanInterval.setInputPeriod(inputPeriod);
                     intervals.add(cleanInterval);
 
                     if (periodHasYear) {
