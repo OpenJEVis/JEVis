@@ -269,12 +269,15 @@ public class CommonMethods {
 
         deleteAllSamples(cleanDataObject, false, true);
 
-        logger.info("Starting cleaning process");
-        ProcessManager processManager = new ProcessManager(
-                cleanDataObject,
-                new ObjectHandler(cleanDataObject.getDataSource()), sampleCount
-        );
-        processManager.start();
+        double noOfCleaning = Math.ceil(sampleCount / 1500001d);
+        logger.info("Starting {} cleaning process", noOfCleaning);
+        for (int i = 0; i < noOfCleaning; i++) {
+            ProcessManager processManager = new ProcessManager(
+                    cleanDataObject,
+                    new ObjectHandler(cleanDataObject.getDataSource()), sampleCount
+            );
+            processManager.start();
+        }
 
         cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
         logger.info("cleaning done for: {}:{}", cleanDataObject.getName(), cleanDataObject.getID());
