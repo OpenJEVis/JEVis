@@ -29,11 +29,11 @@ public class CommonMethods {
     }
 
     public static JEVisObject getFirstParentalObjectOfClass(JEVisObject jeVisObject, String className) throws JEVisException {
-        for (JEVisObject object : jeVisObject.getParents()) {
-            if (object.getJEVisClassName().equals(className)) {
-                return object;
+        for (JEVisObject parent : jeVisObject.getParents()) {
+            if (parent.getJEVisClassName().equals(className)) {
+                return parent;
             } else {
-                return getFirstParentalObjectOfClass(object, className);
+                return getFirstParentalObjectOfClass(parent, className);
             }
         }
         return jeVisObject;

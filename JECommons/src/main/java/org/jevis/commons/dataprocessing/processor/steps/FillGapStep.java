@@ -72,10 +72,11 @@ public class FillGapStep implements ProcessStepN {
                     }
 
                     if (newGaps.size() == 0) {
-                        logger.error("No gaps in this interval.");
+                        logger.debug("No gaps in this interval.");
                         continue;
-                    } else
+                    } else {
                         logger.debug("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), newGaps.size());
+                    }
 
                     GapsAndLimits gal = new GapsAndLimits(null, rawSamples, GapsAndLimits.GapsAndLimitsType.GAPS_TYPE,
                             c, newGaps, new ArrayList<>(), sampleCache, cleanDataObject);
