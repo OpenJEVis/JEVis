@@ -1,6 +1,5 @@
 .root {
     -tab-text-color: -fx-text-base-color ;
-    -fx-background-color: #262626;
 }
 
 #mainsplitpane{ 
@@ -205,7 +204,7 @@
 /* global table style settings */
 
 .table-view{
-   -fx-background-color: transparent;
+    -fx-background-color: #262626;
 }
 
 .table-view:focused{
