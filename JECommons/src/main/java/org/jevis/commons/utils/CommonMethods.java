@@ -226,39 +226,42 @@ public class CommonMethods {
     }
 
     public static DateTime getStartDateFromSampleRate(JEVisAttribute attribute) {
-        DateTime start = attribute.getTimestampFromLastSample().minusDays(7);
-        JEVisAttribute periodAttribute = null;
-        try {
-            periodAttribute = attribute.getObject().getAttribute("Period");
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
-        if (periodAttribute != null) {
-            JEVisSample latestSample = periodAttribute.getLatestSample();
-            Period p = Period.ZERO;
+        if (attribute.hasSample()) {
+            DateTime start = attribute.getTimestampFromLastSample().minusDays(7);
+            JEVisAttribute periodAttribute = null;
             try {
-                p = new Period(latestSample.getValueAsString());
+                periodAttribute = attribute.getObject().getAttribute("Period");
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
+            if (periodAttribute != null) {
+                JEVisSample latestSample = periodAttribute.getLatestSample();
+                Period p = Period.ZERO;
+                try {
+                    p = new Period(latestSample.getValueAsString());
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
 
-            if (p.equals(Period.years(1))) {
-                start = attribute.getTimestampFromLastSample().minusYears(10);
-            } else if (p.equals(Period.months(1))) {
-                start = attribute.getTimestampFromLastSample().minusMonths(12);
-            } else if (p.equals(Period.weeks(1))) {
-                start = attribute.getTimestampFromLastSample().minusWeeks(10);
-            } else if (p.equals(Period.days(1))) {
-                start = attribute.getTimestampFromLastSample().minusDays(14);
-            } else if (p.equals(Period.hours(1))) {
-                start = attribute.getTimestampFromLastSample().minusDays(2);
-            } else if (p.equals(Period.minutes(15))) {
-                start = attribute.getTimestampFromLastSample().minusHours(24);
-            } else if (p.equals(Period.minutes(1))) {
-                start = attribute.getTimestampFromLastSample().minusHours(6);
+                if (p.equals(Period.years(1))) {
+                    start = attribute.getTimestampFromLastSample().minusYears(10);
+                } else if (p.equals(Period.months(1))) {
+                    start = attribute.getTimestampFromLastSample().minusMonths(12);
+                } else if (p.equals(Period.weeks(1))) {
+                    start = attribute.getTimestampFromLastSample().minusWeeks(10);
+                } else if (p.equals(Period.days(1))) {
+                    start = attribute.getTimestampFromLastSample().minusDays(14);
+                } else if (p.equals(Period.hours(1))) {
+                    start = attribute.getTimestampFromLastSample().minusDays(2);
+                } else if (p.equals(Period.minutes(15))) {
+                    start = attribute.getTimestampFromLastSample().minusHours(24);
+                } else if (p.equals(Period.minutes(1))) {
+                    start = attribute.getTimestampFromLastSample().minusHours(6);
+                }
             }
+            return start;
         }
-        return start;
+        return DateTime.now().minusHours(12);
     }
 
     public static void processCleanData(JEVisObject cleanDataObject) throws Exception {

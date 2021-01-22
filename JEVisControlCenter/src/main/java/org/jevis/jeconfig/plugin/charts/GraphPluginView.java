@@ -1128,7 +1128,8 @@ public class GraphPluginView implements Plugin {
                         dataModel.setChanged(false);
                     });
 
-                } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
+                } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")
+                        || jeVisObject.getJEVisClassName().equals("Math Data") || jeVisObject.getJEVisClassName().equals("Forecast Data")) {
 
                     JEVisObject buildingObject = CommonMethods.getFirstParentalObjectOfClass(jeVisObject, "Building");
                     JEVisObject analysisDir = null;

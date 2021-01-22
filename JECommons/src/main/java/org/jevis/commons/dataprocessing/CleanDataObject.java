@@ -36,6 +36,7 @@ import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.*;
 public class CleanDataObject {
 
     public static final String CLASS_NAME = "Clean Data";
+    public static final String DATA_CLASS_NAME = "Data";
     public static final String VALUE_ATTRIBUTE_NAME = "Value";
     private static final Logger logger = LogManager.getLogger(CleanDataObject.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -125,28 +126,40 @@ public class CleanDataObject {
         try {
             JEVisAttribute cleanAtt = getValueAttribute();
             JEVisSample latestCleanSample = null;
-            if (cleanAtt.hasSample())
+            if (cleanAtt.hasSample()) {
                 latestCleanSample = cleanAtt.getLatestSample();
+            }
+
             DateTime timestampLatestCleanSample = null;
-            if (latestCleanSample != null)
+
+            if (latestCleanSample != null) {
                 timestampLatestCleanSample = latestCleanSample.getTimestamp();
+            }
 
             JEVisAttribute rawAtt = getRawAttribute();
             JEVisSample latestRawSample = null;
+
             if (rawAtt.hasSample()) {
                 latestRawSample = rawAtt.getLatestSample();
             } else {
                 errors.add(("No raw samples"));
             }
-            DateTime timestampLatestRawSample = null;
-            if (latestRawSample != null)
-                timestampLatestRawSample = latestRawSample.getTimestamp();
 
-            if (timestampLatestCleanSample != null && timestampLatestRawSample != null) {
+            DateTime timestampLatestRawSample = null;
+            if (latestRawSample != null) {
+                timestampLatestRawSample = latestRawSample.getTimestamp();
+            }
+
+            Period inputPeriod = getPeriodForDate(getRawDataPeriodAlignment(), timestampLatestRawSample);
+            Period outputPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), timestampLatestCleanSample);
+            PeriodComparator periodComparator = new PeriodComparator();
+            int compare = periodComparator.compare(outputPeriod, inputPeriod);
+
+            if (timestampLatestCleanSample != null && timestampLatestRawSample != null && compare < 1) {
                 if (!timestampLatestRawSample.isAfter(timestampLatestCleanSample)) {
                     errors.add(("No new Samples for cleaning"));
                 }
-            } else if (timestampLatestCleanSample != null) {
+            } else if (timestampLatestCleanSample != null && compare < 1) {
                 errors.add(("No new Samples for cleaning"));
             }
         } catch (Exception e) {
@@ -439,14 +452,13 @@ public class CleanDataObject {
 
     public DateTime getFirstDate() {
         if (firstDate == null) {
-            //first date is the lastdate of clean datarow + periodCleanData or the year of the first sample of the raw data
+            //first date is the last date of clean data row + periodCleanData or the year of the first sample of the raw data
             DateTime timestampFromLastCleanSample = null;
             JEVisAttribute attribute = null;
             try {
                 attribute = getCleanObject().getAttribute(VALUE_ATTRIBUTE_NAME);
             } catch (JEVisException e) {
-                logger.error("Could not get attribute " + VALUE_ATTRIBUTE_NAME +
-                        " of object " + getCleanObject().getName() + ":" + getCleanObject().getID());
+                logger.error("Could not get attribute {} of object {}:{}", VALUE_ATTRIBUTE_NAME, getCleanObject().getName(), getCleanObject().getID());
             }
             if (attribute != null) {
                 JEVisSample lastSample = attribute.getLatestSample();
@@ -454,8 +466,7 @@ public class CleanDataObject {
                     try {
                         timestampFromLastCleanSample = lastSample.getTimestamp();
                     } catch (JEVisException e) {
-                        logger.error("Could not get last sample of attribute " + attribute.getName() +
-                                " of object " + getCleanObject().getName() + ":" + getCleanObject().getID());
+                        logger.error("Could not get last sample of attribute {} of object {}:{}", attribute.getName(), getCleanObject().getName(), getCleanObject().getID());
                     }
                 }
             }
@@ -574,7 +585,8 @@ public class CleanDataObject {
                 if (!rawSamplesDown.isEmpty()) {
                     int indexLastRawSample = rawSamplesDown.size() - 1;
 
-                    Period lastPeriod = getCleanDataPeriodAlignment().get(getCleanDataPeriodAlignment().size() - 1).getPeriod();
+                    Period lastPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), rawSamplesDown.get(indexLastRawSample).getTimestamp());
+
                     lastDate = this.rawSamplesDown.get(indexLastRawSample).getTimestamp().plus(lastPeriod);
                 }
                 //lastDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(getCleanDataPeriodAlignment());
@@ -812,27 +824,6 @@ public class CleanDataObject {
                     lastDate);
         }
         return rawSamplesDown;
-    }
-
-    public List<JEVisSample> getRawSamplesUp() {
-        if (rawSamplesUp == null) {
-            Period maxPeriod = getMaxPeriod(getRawDataPeriodAlignment());
-            DateTime firstDate = getFirstDate()
-                    .minus(maxPeriod)
-                    .minus(maxPeriod)
-                    .minus(maxPeriod)
-                    .minus(maxPeriod);
-            rawSamplesUp = sampleHandler.getSamplesInPeriod(
-                    rawDataObject,
-                    VALUE_ATTRIBUTE_NAME,
-                    firstDate,
-                    getLastRawDate());
-
-            if (rawSamplesUp.size() > processingSize) {
-                rawSamplesUp.subList(0, processingSize);
-            }
-        }
-        return rawSamplesUp;
     }
 
     public DateTime getLastRawDate() {

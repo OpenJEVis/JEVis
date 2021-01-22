@@ -1045,11 +1045,11 @@ public class MathFunction implements ProcessFunction {
                 }
 
                 for (int i = lastPos; i < allJsonSamples.size(); i++) {
-                    if (interval.contains(new DateTime(allJsonSamples.get(i).getTs()).plusMillis(1))) {
+                    DateTime sampleTs = new DateTime(allJsonSamples.get(i).getTs());
+                    if (sampleTs.equals(interval.getEnd()) || (sampleTs.isAfter(interval.getStart()) && sampleTs.isBefore(interval.getEnd()))) {
                         //logger.info("add sample: " + samples.get(i));
                         samplesInPeriod.add(allJsonSamples.get(i));
-                    } else if (new DateTime(allJsonSamples.get(i).getTs()).equals(interval.getEnd())
-                            || new DateTime(allJsonSamples.get(i).getTs()).isAfter(interval.getEnd())) {
+                    } else if (sampleTs.isAfter(interval.getEnd())) {
                         lastPos = i;
                         break;
                     }
@@ -1069,6 +1069,7 @@ public class MathFunction implements ProcessFunction {
 
                 QuantityUnits qu = new QuantityUnits();
                 boolean isQuantity = qu.isQuantityUnit(unit);
+                isQuantity = qu.isQuantityIfCleanData(mainTask.getSqlDataSource(), mainTask.getJsonAttribute(), isQuantity);
 
                 if (hasSamples && !isQuantity) {
                     sum = sum / samplesInPeriod.size();
@@ -1080,7 +1081,7 @@ public class MathFunction implements ProcessFunction {
                     resultSum.setValue(sum.toString());
 
                     if (oldPeriod != null && newPeriod != null) {
-                        resultSum.setNote("Aggregation(" + oldPeriod.toString() + "/" + newPeriod.toString() + ")");
+                        resultSum.setNote("Aggregation(" + oldPeriod.toString() + "/" + newPeriod.toString() + "," + samplesInPeriod.size() + ")");
                     }
                     aggregatedJsonSamples.add(resultSum);
                 }

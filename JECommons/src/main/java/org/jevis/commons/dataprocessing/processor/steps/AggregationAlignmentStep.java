@@ -82,7 +82,6 @@ public class AggregationAlignmentStep implements ProcessStepN {
                 }
                 sample.setNote(note);
             } else if (downSampling && !valueIsQuantity) {
-                DateTime date = currentInterval.getDate();
 
                 CleanInterval lastInterval = null;
                 if (indexOfCurrentInterval > 0) {
@@ -91,7 +90,6 @@ public class AggregationAlignmentStep implements ProcessStepN {
 
                 Double valueAsDouble = calcAvgSample(currentInterval.getRawSamples(), currentInterval.isDifferential(), lastInterval);
 
-                currentInterval.getResult().setTimeStamp(date);
                 currentInterval.getResult().setValue(valueAsDouble);
                 String note = "";
                 try {
@@ -105,7 +103,7 @@ public class AggregationAlignmentStep implements ProcessStepN {
                     note += ",agg(yes," + currentInterval.getRawSamples().size() + ",avg)";
                 }
                 if (!notesMap.isEmpty()) {
-                    JEVisSample noteSample = notesMap.get(date);
+                    JEVisSample noteSample = notesMap.get(currentInterval.getResult().getTimestamp());
                     if (noteSample != null) {
                         note += ",userNotes";
                     }
@@ -121,8 +119,6 @@ public class AggregationAlignmentStep implements ProcessStepN {
 
                 Double currentValue = calcSumSampleDownscale(currentInterval.getRawSamples(), currentInterval.isDifferential(), lastInterval);
 
-                DateTime date = currentInterval.getDate();
-                currentInterval.getResult().setTimeStamp(date);
                 currentInterval.getResult().setValue(currentValue);
                 String note = "";
                 try {
@@ -136,7 +132,7 @@ public class AggregationAlignmentStep implements ProcessStepN {
                     note += ",agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
                 }
                 if (!notesMap.isEmpty()) {
-                    JEVisSample noteSample = notesMap.get(date);
+                    JEVisSample noteSample = notesMap.get(currentInterval.getResult().getTimestamp());
                     if (noteSample != null) {
                         note += ",userNotes";
                     }
@@ -196,8 +192,6 @@ public class AggregationAlignmentStep implements ProcessStepN {
                 JEVisSample sample1 = currentInterval.getRawSamples().get(currentInterval.getRawSamples().size() - 1);
                 Double currentValue = sample1.getValueAsDouble();
 
-                DateTime date = currentInterval.getDate();
-                currentInterval.getResult().setTimeStamp(date);
                 currentInterval.getResult().setValue(currentValue);
                 String note = "";
                 try {
@@ -211,7 +205,7 @@ public class AggregationAlignmentStep implements ProcessStepN {
                     note += ",agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
                 }
                 if (!notesMap.isEmpty()) {
-                    JEVisSample noteSample = notesMap.get(date);
+                    JEVisSample noteSample = notesMap.get(currentInterval.getResult().getTimestamp());
                     if (noteSample != null) {
                         note += ",userNotes";
                     }
