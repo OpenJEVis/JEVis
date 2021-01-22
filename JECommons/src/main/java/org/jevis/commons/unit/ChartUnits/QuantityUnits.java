@@ -248,13 +248,25 @@ public class QuantityUnits {
             }
             if (object != null) {
                 if (object.getJevisClass().equals(CleanDataObject.CLASS_NAME)) {
-                    isQuantity = isQuantity(object);
+                    isQuantity = isQuantity(object, isQuantity);
                 } else if (object.getJevisClass().equals(ForecastDataObject.CLASS_NAME) || object.getJevisClass().equals(MathDataObject.CLASS_NAME)) {
                     for (JsonRelationship jsonRelationship : sqlDataSource.getRelationships(object.getId())) {
                         if (jsonRelationship.getType() == 1 && jsonRelationship.getFrom() == object.getId()) {
                             try {
                                 JsonObject parent = sqlDataSource.getObject(jsonRelationship.getTo());
-                                isQuantity = isQuantity(parent);
+                                isQuantity = isQuantity(parent, isQuantity);
+                                break;
+                            } catch (JEVisException e) {
+                                logger.error("Could not get parent {} of object {}", jsonRelationship.getTo(), object.getId());
+                            }
+                        }
+                    }
+                } else if (object.getJevisClass().equals(CleanDataObject.DATA_CLASS_NAME)) {
+                    for (JsonRelationship jsonRelationship : sqlDataSource.getRelationships(object.getId())) {
+                        if (jsonRelationship.getType() == 1 && jsonRelationship.getTo() == object.getId()) {
+                            try {
+                                JsonObject child = sqlDataSource.getObject(jsonRelationship.getTo());
+                                isQuantity = isQuantity(child, isQuantity);
                                 break;
                             } catch (JEVisException e) {
                                 logger.error("Could not get parent {} of object {}", jsonRelationship.getTo(), object.getId());
@@ -267,20 +279,20 @@ public class QuantityUnits {
         return isQuantity;
     }
 
-    private boolean isQuantity(JsonObject object) {
-        boolean isQuantity = false;
+    private boolean isQuantity(JsonObject object, boolean isQuantity) {
+        boolean isQuantityTemp = isQuantity;
         if (object.getJevisClass().equals(CleanDataObject.CLASS_NAME)) {
             for (JsonAttribute jsonAttribute : object.getAttributes()) {
                 if (jsonAttribute.getType().equals(CleanDataObject.AttributeName.VALUE_QUANTITY.getAttributeName())) {
                     if (jsonAttribute.getLatestValue() != null) {
                         JsonSample latestSample = jsonAttribute.getLatestValue();
-                        isQuantity = Boolean.parseBoolean(latestSample.getValue());
+                        isQuantityTemp = Boolean.parseBoolean(latestSample.getValue());
                         break;
                     }
                 }
             }
         }
 
-        return isQuantity;
+        return isQuantityTemp;
     }
 }

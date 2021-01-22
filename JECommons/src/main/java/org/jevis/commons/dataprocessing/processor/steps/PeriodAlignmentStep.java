@@ -35,7 +35,7 @@ public class PeriodAlignmentStep implements ProcessStepN {
         Map<DateTime, JEVisSample> userDataMap = resourceManager.getUserDataMap();
 
         if (!cleanDataObject.getIsPeriodAligned()) {
-            logger.info("No period alignment enabled");
+            logger.debug("No period alignment enabled");
             return;
         }
 
@@ -46,6 +46,10 @@ public class PeriodAlignmentStep implements ProcessStepN {
             VirtualSample resultSample = new VirtualSample(rawSampleTS, rawSample.getValueAsDouble());
             resultSample.setNote(rawSample.getNote());
             Period periodForRawSample = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSampleTS);
+            if (periodForRawSample.equals(Period.ZERO)) {
+                logger.debug("Asynchronous period, no alignment possible, continuing");
+                continue;
+            }
 
             JEVisSample userDataSample = userDataMap.get(rawSampleTS);
             if (userDataSample != null) {

@@ -68,6 +68,7 @@ public abstract class AbstractCliApp {
     protected static final String SERVICE_THREAD_COUNT = "Max Number Threads";
     private int threadCount = 4;
     private String emergency_config;
+    private long maxThreadTime = 900000L;
 
     /**
      * @param args start params
@@ -385,20 +386,26 @@ public abstract class AbstractCliApp {
     }
 
     protected void removeJob(JEVisObject object) {
+        runnables.forEach((objectID, futureTask) -> {
+            if (objectID.equals(object.getID())) {
+                futureTask.cancel(true);
+            }
+        });
+
         runningJobs.remove(object.getID());
         plannedJobs.remove(object.getID());
         runnables.remove(object.getID());
     }
 
     protected void checkForTimeout() {
-        if (!runningJobs.isEmpty()) {
+        if (!runningJobs.isEmpty() && maxThreadTime != 0L) {
             SampleHandler sampleHandler = new SampleHandler();
             for (Map.Entry<Long, DateTime> entry : runningJobs.entrySet()) {
                 try {
                     Interval interval = new Interval(entry.getValue(), new DateTime());
                     JEVisObject object = ds.getObject(entry.getKey());
 
-                    Long maxTime = sampleHandler.getLastSample(object, "Max thread time", 900000L);
+                    Long maxTime = sampleHandler.getLastSample(object, "Max thread time", maxThreadTime);
                     if (interval.toDurationMillis() > maxTime) {
                         logger.warn("Task for {} is out of time, trying to cancel", entry.getKey());
                         runnables.get(entry.getKey()).cancel(true);
@@ -442,5 +449,9 @@ public abstract class AbstractCliApp {
 
     public String getEmergency_config() {
         return emergency_config;
+    }
+
+    public void setMaxThreadTime(long maxThreadTime) {
+        this.maxThreadTime = maxThreadTime;
     }
 }

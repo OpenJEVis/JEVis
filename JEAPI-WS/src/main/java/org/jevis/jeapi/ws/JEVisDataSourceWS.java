@@ -1030,7 +1030,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             JEVisSample lastInList = samples.get(samples.size() - 1);
             try {
                 List<JEVisSample> nextList = getSamples(att, lastInList.getTimestamp().plus(Duration.standardSeconds(1)), until);
-                logger.debug("Add additonal samples: {}", nextList.size());
+                logger.debug("Add additional samples: {}", nextList.size());
                 samples.addAll(nextList);
             } catch (Exception ex) {
                 logger.error(ex);
@@ -1316,25 +1316,25 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         try {
 
             InputStream inputStream = this.con.getInputStreamRequest(resource);
-            JsonObject json = this.objectMapper.readValue(inputStream, JsonObject.class);
-            inputStream.close();
-//            StringBuffer response = this.con.getRequest(resource);
-//            JsonObject json = this.gson.fromJson(response.toString(), JsonObject.class);
+            JsonObject json = null;
+            if (inputStream != null) {
+                json = this.objectMapper.readValue(inputStream, JsonObject.class);
+                inputStream.close();
+            }
 
-
-            if (this.objectCache.containsKey(json.getId())) {
+            if (json != null && this.objectCache.containsKey(json.getId())) {
                 ((JEVisObjectWS) this.objectCache.get(json.getId())).update(json);
                 return this.objectCache.get(json.getId());
-            } else {
+            } else if (json != null) {
                 JEVisObject obj = new JEVisObjectWS(this, json);
                 this.objectCache.put(obj.getID(), obj);
                 return obj;
-            }
+            } else throw new Exception("InputStream is null, object of id " + id + " does not seem to exist");
 
         } catch (JsonParseException ex) {
             logger.error("Json parse exception. Error while fetching Object: {}", id, ex);
         } catch (JsonMappingException ex) {
-            logger.error("Object is not accessible: {}", id, ex.getMessage());
+            logger.error("Object is not accessible: {}", id, ex);
         } catch (IOException ex) {
             logger.error("IO exception. Error while fetching Object: {}", id, ex);
         } catch (Exception ex) {

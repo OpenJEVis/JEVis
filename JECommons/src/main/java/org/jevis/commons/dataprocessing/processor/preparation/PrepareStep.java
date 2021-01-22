@@ -87,7 +87,18 @@ public class PrepareStep implements ProcessStepN {
         List<DifferentialRule> differentialRules = cleanDataObject.getDifferentialRules();
         DateTime currentDate = cleanDataObject.getFirstDate();
         DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        WorkDays wd = new WorkDays(cleanDataObject.getCleanObject());
+        LocalTime dtStart = wd.getWorkdayStart();
+        LocalTime dtEnd = wd.getWorkdayEnd();
         DateTime maxEndDate = cleanDataObject.getMaxEndDate();
+
+        if (dtEnd.isBefore(dtStart)) {
+            int indexLastRawSample = cleanDataObject.getRawSamplesDown().size() - 1;
+            Period lastPeriod = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), cleanDataObject.getRawSamplesDown().get(indexLastRawSample).getTimestamp());
+
+            currentDate = currentDate.minus(lastPeriod);
+            maxEndDate = maxEndDate.minus(lastPeriod);
+        }
 
         logger.info("[{}] getIntervals: currentDate: {}  MaxEndDate: {} ", cleanDataObject.getCleanObject().getID(), currentDate, maxEndDate);
 
@@ -97,9 +108,7 @@ public class PrepareStep implements ProcessStepN {
         } else {
             logger.info("[{}] Calc interval between start date {} and end date {}", cleanDataObject.getCleanObject().getID(), datePattern.print(currentDate), datePattern.print(maxEndDate));
 
-            WorkDays wd = new WorkDays(cleanDataObject.getCleanObject());
-            LocalTime dtStart = wd.getWorkdayStart();
-            LocalTime dtEnd = wd.getWorkdayEnd();
+
             DateTime lastDate = null;
 
             Boolean firstIsDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
@@ -176,16 +185,24 @@ public class PrepareStep implements ProcessStepN {
                     endInterval = new DateTime(endInterval.getYear(), endInterval.getMonthOfYear(), endInterval.getDayOfMonth(),
                             dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond());
 
-                    if (dtEnd.isBefore(dtStart)) {
-                        startInterval = startInterval.minusDays(1);
-                        endInterval = endInterval.minusDays(1);
-                    }
+//                    if (dtEnd.isBefore(dtStart)) {
+//                        startInterval = startInterval.minusDays(1);
+//                        endInterval = endInterval.minusDays(1).plusSeconds(1);
+//                    }
                 }
 
-                Interval interval = new Interval(startInterval.plusSeconds(1), endInterval);
 
-                CleanInterval currentInterval = new CleanInterval(interval, endInterval);
-                currentInterval.getResult().setTimeStamp(endInterval);
+                CleanInterval currentInterval;
+                if (!greaterThenDays) {
+                    Interval interval = new Interval(startInterval.plusSeconds(1), endInterval);
+                    currentInterval = new CleanInterval(interval, endInterval);
+                    currentInterval.getResult().setTimeStamp(endInterval);
+                } else {
+                    Interval interval = new Interval(startInterval.plusSeconds(1), endInterval.plusSeconds(1));
+                    currentInterval = new CleanInterval(interval, startInterval);
+                    currentInterval.getResult().setTimeStamp(endInterval.plusSeconds(1));
+                }
+
                 currentInterval.setInputPeriod(rawPeriod);
                 currentInterval.setOutputPeriod(cleanPeriod);
                 currentInterval.setDifferential(isDifferential);

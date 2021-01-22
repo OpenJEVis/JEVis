@@ -327,11 +327,11 @@ public class AggregatorFunction implements ProcessFunction {
                 }
 
                 for (int i = lastPos; i < samples.size(); i++) {
-                    if (interval.contains(new DateTime(samples.get(i).getTs()).plusMillis(1))) {
+                    DateTime sampleTS = new DateTime(samples.get(i).getTs());
+                    if (sampleTS.equals(interval.getEnd()) || (sampleTS.isAfter(interval.getStart()) && sampleTS.isBefore(interval.getEnd()))) {
                         //logger.info("add sample: " + samples.get(i));
                         samplesInPeriod.add(samples.get(i));
-                    } else if (new DateTime(samples.get(i).getTs()).equals(interval.getEnd())
-                            || new DateTime(samples.get(i).getTs()).isAfter(interval.getEnd())) {
+                    } else if (sampleTS.isAfter(interval.getEnd())) {
                         lastPos = i;
                         break;
                     }
@@ -362,7 +362,7 @@ public class AggregatorFunction implements ProcessFunction {
                     resultSum.setTs(interval.getStart().toString());
                     resultSum.setValue(sum.toString());
                     if (oldPeriod != null && newPeriod != null) {
-                        resultSum.setNote("Aggregation(" + oldPeriod.toString() + "/" + newPeriod.toString() + ")");
+                        resultSum.setNote("Aggregation(" + oldPeriod.toString() + "/" + newPeriod.toString() + "," + samplesInPeriod.size() + ")");
                     }
                     result.add(resultSum);
                 } else {

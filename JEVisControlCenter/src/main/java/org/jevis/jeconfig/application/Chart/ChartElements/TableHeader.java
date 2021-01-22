@@ -337,8 +337,8 @@ public class TableHeader extends TableView<TableEntry> {
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn() {
-        TableColumn<TableEntry, Color> column = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.color"));
-
+//        TableColumn<TableEntry, Color> column = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.color"));
+        TableColumn<TableEntry, Color> column = new TableColumn<>();
 
         column.setCellValueFactory(param -> {
             if (param != null && param.getValue() != null && param.getValue().getColor() != null)

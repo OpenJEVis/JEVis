@@ -50,7 +50,7 @@ public class AnalysisLinkButton extends JFXButton {
                 setOnAction(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
             } else setDisable(true);
         } catch (Exception e) {
-            logger.error("Could not build analysis link button: " + e);
+            logger.error("Could not build analysis link button: ", e);
             setDisable(true);
         }
     }

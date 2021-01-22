@@ -108,6 +108,7 @@ public class Launcher extends AbstractCliApp {
     protected void handleAdditionalCommands() {
         APP_SERVICE_CLASS_NAME = "JEDataProcessor";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
+        setMaxThreadTime(0L);
     }
 
     @Override

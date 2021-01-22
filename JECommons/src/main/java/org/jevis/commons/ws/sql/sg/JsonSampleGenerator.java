@@ -16,7 +16,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
-import java.util.Collections;
 import java.util.List;
 
 public class JsonSampleGenerator {
@@ -167,7 +166,7 @@ public class JsonSampleGenerator {
                 aggregationProcess.setFunction(new AggregatorFunction(this));
                 aggregationProcess.setID("Aggregation");
 
-                aggregationProcess.setSubProcesses(Collections.singletonList(basicProcess));
+                aggregationProcess.getSubProcesses().add(input);
                 return aggregationProcess.getJsonResult();
             } else {
                 switch (aggregationPeriod) {
