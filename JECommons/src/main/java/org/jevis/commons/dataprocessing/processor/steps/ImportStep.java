@@ -12,7 +12,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * @author broder
  */
-public class ImportStep implements ProcessStepN {
+public class ImportStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(ImportStep.class);
 

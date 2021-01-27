@@ -1,10 +1,14 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.concurrent.Task;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -26,9 +30,7 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class TableChartV extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChartV.class);
@@ -36,6 +38,7 @@ public class TableChartV extends XYChart {
     private ChartDataRow singleRow;
     private TableHeaderTable tableHeader;
     private boolean blockDatePickerEvent = false;
+    private final DateTime maxDate = new DateTime(9999, 1, 1, 0, 0, 0, 0);
 
     public TableChartV() {
     }
@@ -104,9 +107,10 @@ public class TableChartV extends XYChart {
             nf.setMaximumFractionDigits(2);
             nf.setMinimumFractionDigits(2);
             tableHeader.getItems().clear();
+            Platform.runLater(() -> tableHeader.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY));
 
-            List<TableColumn<List<String>, String>> tableColumns = new ArrayList<>();
-            List<DateTime> dateTimes = new ArrayList<>();
+            List<TableColumn> tableColumns = new ArrayList<>();
+            Map<DateTime, TableSample> tableSamples = new HashMap<>();
             Period p = null;
 
             for (XYChartSerie xyChartSerie : xyChartSerieList) {
@@ -118,6 +122,7 @@ public class TableChartV extends XYChart {
                         p = new Period(samples.get(0).getTimestamp(),
                                 samples.get(1).getTimestamp());
                         setPeriod(p);
+                        break;
                     } catch (Exception e) {
                         logger.error("Could not get period from samples", e);
                     }
@@ -125,108 +130,227 @@ public class TableChartV extends XYChart {
                     try {
                         p = xyChartSerie.getSingleRow().getPeriod();
                         setPeriod(p);
+                        break;
                     } catch (Exception e) {
                         logger.error("Could not get period from attribute", e);
                     }
                 }
+            }
+
+            String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+
+            if (getPeriod().equals(Period.days(1))) {
+                normalPattern = "dd. MMMM yyyy";
+            } else if (getPeriod().equals(Period.weeks(1))) {
+                normalPattern = "dd. MMMM yyyy";
+            } else if (getPeriod().equals(Period.months(1))) {
+                normalPattern = "MMMM yyyy";
+            } else if (getPeriod().equals(Period.years(1))) {
+                normalPattern = "yyyy";
+            }
+
+            TableColumn<TableSample, DateTime> dateColumn = buildDateColumn(normalPattern);
+
+            List<Double> columnSums = new ArrayList<>();
+            Map<DateTime, Double> rowSums = new HashMap<>();
+            for (int i = 0; i < xyChartSerieList.size(); i++) columnSums.add(0d);
+
+            for (XYChartSerie xyChartSerie : xyChartSerieList) {
+                int index = xyChartSerieList.indexOf(xyChartSerie);
+                List<JEVisSample> samples = xyChartSerie.getSingleRow().getSamples();
 
                 for (JEVisSample jeVisSample : samples) {
                     try {
-                        if (!dateTimes.contains(jeVisSample.getTimestamp())) {
-                            dateTimes.add(jeVisSample.getTimestamp());
+                        TableSample tableSample = tableSamples.get(jeVisSample.getTimestamp());
+                        if (tableSample == null) {
+                            TableSample nts = new TableSample(jeVisSample.getTimestamp(), xyChartSerieList.size());
+
+                            updateSample(nf, columnSums, xyChartSerie, index, jeVisSample, nts);
+
+                            tableSamples.put(jeVisSample.getTimestamp(), nts);
+                            rowSums.put(jeVisSample.getTimestamp(), jeVisSample.getValueAsDouble());
+                        } else {
+                            updateSample(nf, columnSums, xyChartSerie, index, jeVisSample, tableSample);
+                            double aDouble = rowSums.get(jeVisSample.getTimestamp()) + jeVisSample.getValueAsDouble();
+                            rowSums.replace(jeVisSample.getTimestamp(), aDouble);
                         }
                     } catch (JEVisException e) {
                         logger.error(e);
                     }
                 }
 
-                TableColumn<List<String>, String> column = new TableColumn<>(xyChartSerie.getTableEntryName());
-                column.setStyle("-fx-alignment: CENTER-RIGHT;");
-                column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().get(index + 1)));
+                TableColumn<TableSample, String> column = new TableColumn<>(xyChartSerie.getTableEntryName());
+                column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getColumnValues().get(index)));
+
+                column.setCellFactory(new Callback<TableColumn<TableSample, String>, TableCell<TableSample, String>>() {
+                    @Override
+                    public TableCell<TableSample, String> call(TableColumn<TableSample, String> param) {
+                        TableCell<TableSample, String> cell = new TableCell<TableSample, String>() {
+
+                            @Override
+                            protected void updateItem(String item, boolean empty) {
+                                super.updateItem(item, empty);
+
+                                if (!empty) {
+                                    try {
+                                        String customCSS = xyChartSerie.getSingleRow().getCustomCSS();
+
+                                        JFXTextField jfxTextField = new JFXTextField(item);
+                                        jfxTextField.setStyle("-fx-alignment: CENTER-RIGHT;");
+                                        if (customCSS != null) {
+                                            this.setStyle(customCSS);
+                                        }
+                                        setGraphic(jfxTextField);
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                        };
+
+                        return cell;
+                    }
+                });
+
+                tableColumns.add(column);
+            }
+
+            if (showSum) {
+                TableSample sumSample = new TableSample(maxDate, xyChartSerieList.size());
+                columnSums.forEach(aDouble -> {
+                    String string = "";
+                    if (!xyChartSerieList.get(0).getSingleRow().getUnit().toString().equals("")) {
+                        string = nf.format(aDouble) + " " + xyChartSerieList.get(0).getSingleRow().getUnit();
+                    } else {
+                        string = nf.format(aDouble);
+                    }
+                    sumSample.getColumnValues().set(columnSums.indexOf(aDouble), string);
+                });
+                tableSamples.put(maxDate, sumSample);
+                rowSums.put(maxDate, columnSums.stream().mapToDouble(aDouble -> aDouble).sum());
+
+                tableSamples.forEach((dateTime, tableSample) -> {
+                    if (!xyChartSerieList.get(0).getSingleRow().getUnit().toString().equals("")) {
+                        tableSample.getColumnValues().add(nf.format(rowSums.get(dateTime)) + " " + xyChartSerieList.get(0).getSingleRow().getUnit());
+                    } else {
+                        tableSample.getColumnValues().add(nf.format(rowSums.get(dateTime)));
+                    }
+                });
+
+                TableColumn<TableSample, String> column = new TableColumn<>((I18n.getInstance().getString("plugin.graph.table.sum")));
+                column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getColumnValues().get(param.getValue().getColumnValues().size() - 1)));
+
+                column.setCellFactory(new Callback<TableColumn<TableSample, String>, TableCell<TableSample, String>>() {
+                    @Override
+                    public TableCell<TableSample, String> call(TableColumn<TableSample, String> param) {
+                        TableCell<TableSample, String> cell = new TableCell<TableSample, String>() {
+
+                            @Override
+                            protected void updateItem(String item, boolean empty) {
+                                super.updateItem(item, empty);
+
+                                if (!empty) {
+                                    try {
+                                        JFXTextField jfxTextField = new JFXTextField(item);
+                                        jfxTextField.setStyle("-fx-alignment: CENTER-RIGHT;");
+                                        setGraphic(jfxTextField);
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                        };
+
+                        return cell;
+                    }
+                });
+
                 tableColumns.add(column);
             }
 
             AlphanumComparator ac = new AlphanumComparator();
             tableColumns.sort((o1, o2) -> ac.compare(o1.getText(), o2.getText()));
-            Platform.runLater(() -> tableHeader.getColumns().addAll(tableColumns));
+            tableColumns.add(0, dateColumn);
 
-            dateTimes.sort(DateTimeComparator.getInstance());
+            List<TableSample> values = new ArrayList<>(tableSamples.values());
+            values.sort((o1, o2) -> DateTimeComparator.getInstance().compare(o1.getTimeStamp(), o2.getTimeStamp()));
 
-            String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+            tableHeader.getItems().addAll(values);
 
-            try {
-                if (getPeriod().equals(Period.days(1))) {
-                    normalPattern = "dd. MMMM yyyy";
-                    Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
-                } else if (getPeriod().equals(Period.weeks(1))) {
-                    normalPattern = "dd. MMMM yyyy";
-                    Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
-                } else if (getPeriod().equals(Period.months(1))) {
-                    normalPattern = "MMMM yyyy";
-                    Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
-                } else if (getPeriod().equals(Period.years(1))) {
-                    normalPattern = "yyyy";
-                    Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
-                }
-            } catch (Exception e) {
-                logger.error("Could not determine sample rate, fall back to standard", e);
-            }
+            Platform.runLater(() -> {
+                tableHeader.getColumns().clear();
+                tableHeader.getColumns().addAll(tableColumns);
+                tableHeader.autoFitTable();
+            });
 
-            List<Double> sums = new ArrayList<>();
-            for (int i = 0; i < xyChartSerieList.size(); i++) sums.add(0d);
+        } catch (Exception e) {
+            logger.error("Error while adding Series to chart", e);
+        }
+    }
 
-            for (DateTime dateTime : dateTimes) {
-                List<String> values = new ArrayList<>();
-
-                values.add(dateTime.toString(normalPattern));
-
-                for (XYChartSerie xyChartSerie : xyChartSerieList) {
-                    JEVisSample sample = xyChartSerie.getSingleRow().getSamplesMap().get(dateTime);
-                    if (sample != null && !xyChartSerie.getSingleRow().isStringData()) {
-                        if (!xyChartSerie.getSingleRow().getUnit().toString().equals("")) {
-                            values.add(nf.format(sample.getValueAsDouble()) + " " + xyChartSerie.getSingleRow().getUnit());
-                        } else {
-                            values.add(nf.format(sample.getValueAsDouble()));
-                        }
-
-                        if (showSum) {
-                            Double oldValue = sums.get(xyChartSerieList.indexOf(xyChartSerie));
-                            sums.set(xyChartSerieList.indexOf(xyChartSerie), oldValue + sample.getValueAsDouble());
-                        }
-                    } else if (sample != null && xyChartSerie.getSingleRow().isStringData()) {
-                        if (!xyChartSerie.getSingleRow().getUnit().toString().equals("")) {
-                            values.add(sample.getValueAsString() + " " + xyChartSerie.getSingleRow().getUnit());
-                        } else {
-                            values.add(sample.getValueAsString());
-                        }
-                    } else {
-                        values.add("");
-                    }
-                }
-
-                tableHeader.getItems().add(values);
-
-                if (dateTimes.indexOf(dateTime) == dateTimes.size() - 1) {
-                    Platform.runLater(() -> tableHeader.autoFitTable());
-                }
+    private void updateSample(NumberFormat nf, List<Double> sums, XYChartSerie xyChartSerie, int index, JEVisSample jeVisSample, TableSample nts) throws JEVisException {
+        if (!xyChartSerie.getSingleRow().isStringData()) {
+            if (!xyChartSerie.getSingleRow().getUnit().toString().equals("")) {
+                nts.getColumnValues().set(index, nf.format(jeVisSample.getValueAsDouble()) + " " + xyChartSerie.getSingleRow().getUnit());
+            } else {
+                nts.getColumnValues().set(index, nf.format(jeVisSample.getValueAsDouble()));
             }
 
             if (showSum) {
-                List<String> values = new ArrayList<>();
-                values.add(I18n.getInstance().getString("plugin.graph.table.sum"));
-                for (Double sum : sums) {
-                    if (!xyChartSerieList.get(sums.indexOf(sum)).getSingleRow().getUnit().toString().equals("")) {
-                        values.add(nf.format(sum) + " " + xyChartSerieList.get(sums.indexOf(sum)).getSingleRow().getUnit());
-                    } else {
-                        values.add(nf.format(sum));
-                    }
-                }
-
-                tableHeader.getItems().add(values);
+                Double oldValue = sums.get(xyChartSerieList.indexOf(xyChartSerie));
+                sums.set(xyChartSerieList.indexOf(xyChartSerie), oldValue + jeVisSample.getValueAsDouble());
             }
-        } catch (JEVisException e) {
-            logger.error("Error while adding Series to chart", e);
+        } else if (xyChartSerie.getSingleRow().isStringData()) {
+            if (!xyChartSerie.getSingleRow().getUnit().toString().equals("")) {
+                nts.getColumnValues().set(index, jeVisSample.getValueAsString() + " " + xyChartSerie.getSingleRow().getUnit());
+            } else {
+                nts.getColumnValues().set(index, jeVisSample.getValueAsString());
+            }
         }
+    }
+
+    private TableColumn<TableSample, DateTime> buildDateColumn(String normalPattern) {
+        TableColumn<TableSample, DateTime> column = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.date"));
+        column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getTimeStamp()));
+
+        column.setCellFactory(new Callback<TableColumn<TableSample, DateTime>, TableCell<TableSample, DateTime>>() {
+            @Override
+            public TableCell<TableSample, DateTime> call(TableColumn<TableSample, DateTime> param) {
+                TableCell<TableSample, DateTime> cell = new TableCell<TableSample, DateTime>() {
+
+                    @Override
+                    protected void updateItem(DateTime item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item == null || empty) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            try {
+                                JFXTextField textField = new JFXTextField();
+
+                                if (item.equals(maxDate)) {
+                                    textField.setText(I18n.getInstance().getString("plugin.graph.table.sum"));
+                                } else textField.setText(item.toString(normalPattern));
+
+                                textField.setStyle("-fx-alignment: CENTER-RIGHT;");
+
+                                setGraphic(textField);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
+        return column;
     }
 
     public HBox getTopPicker() {
@@ -259,5 +383,34 @@ public class TableChartV extends XYChart {
 
     public void setTableHeader(TableHeaderTable tableHeader) {
         this.tableHeader = tableHeader;
+        this.tableHeader.getColumns().clear();
+    }
+
+    private class TableSample {
+        final private DateTime timeStamp;
+        private final List<String> columnValues = new ArrayList<>();
+
+        public TableSample(DateTime timeStamp, int size) {
+            this.timeStamp = timeStamp;
+
+            for (int i = 0; i < size; i++) columnValues.add("");
+        }
+
+        public DateTime getTimeStamp() {
+            return timeStamp;
+        }
+
+        public List<String> getColumnValues() {
+            return columnValues;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof TableSample) {
+                TableSample otherObj = (TableSample) obj;
+                return otherObj.getTimeStamp().equals(this.getTimeStamp());
+            }
+            return false;
+        }
     }
 }

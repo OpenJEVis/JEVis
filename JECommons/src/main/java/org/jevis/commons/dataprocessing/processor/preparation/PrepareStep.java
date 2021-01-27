@@ -31,13 +31,20 @@ import java.util.Map;
  *
  * @author gschutz
  */
-public class PrepareStep implements ProcessStepN {
+public class PrepareStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(PrepareStep.class);
+    private final ProcessManager processManager;
+    private ResourceManager resourceManager;
+
+    public PrepareStep(ProcessManager processManager) {
+        this.processManager = processManager;
+    }
 
     @Override
 
     public void run(ResourceManager resourceManager) throws Exception {
+        this.resourceManager = resourceManager;
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
 
         //get the raw samples for the cleaning
@@ -114,6 +121,8 @@ public class PrepareStep implements ProcessStepN {
             Boolean firstIsDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
             Period firstRawPeriod = CleanDataObject.getPeriodForDate(periodRawData, currentDate);
             Period firstCleanPeriod = CleanDataObject.getPeriodForDate(periodCleanData, currentDate);
+            int maxProcessingSize = cleanDataObject.getMaxProcessingSize();
+            boolean isFinished = true;
 
             //add half a period to maxEndDate
             if (firstCleanPeriod.getYears() > 0) {
@@ -210,9 +219,62 @@ public class PrepareStep implements ProcessStepN {
 
                 lastDate = currentDate;
                 currentDate = PeriodHelper.addPeriodToDate(currentDate, cleanPeriod);
+
+                if (cleanIntervals.size() >= maxProcessingSize) {
+                    isFinished = false;
+                    break;
+                }
             }
 
-            logger.info("[{}] {} intervals calculated", cleanDataObject.getCleanObject().getID(), cleanIntervals.size());
+            DateTime startDate = cleanIntervals.get(0).getDate();
+            DateTime endDate = cleanIntervals.get(cleanIntervals.size() - 1).getDate();
+            int startIndex = 0;
+            int endIndex = 0;
+
+            logger.info("[{}] {} intervals calculated between {} and {}",
+                    cleanDataObject.getCleanObject().getID(), cleanIntervals.size(),
+                    startDate, endDate);
+
+
+            List<JEVisSample> rawSamplesDown = resourceManager.getRawSamplesDown();
+            logger.info("[{}] {} raw samples found between {} and {}",
+                    cleanDataObject.getCleanObject().getID(), rawSamplesDown.size(),
+                    rawSamplesDown.get(0).getTimestamp(), rawSamplesDown.get(rawSamplesDown.size() - 1).getTimestamp());
+
+            for (JEVisSample jeVisSample : rawSamplesDown) {
+                if (jeVisSample.getTimestamp().equals(startDate) || jeVisSample.getTimestamp().isAfter(startDate)) {
+                    startIndex = resourceManager.getRawSamplesDown().indexOf(jeVisSample);
+                    break;
+                }
+            }
+
+            for (int i = rawSamplesDown.size() - 1; i > 0; i--) {
+                JEVisSample jeVisSample = rawSamplesDown.get(i);
+                if (jeVisSample.getTimestamp().equals(endDate) || jeVisSample.getTimestamp().isBefore(endDate)) {
+                    endIndex = resourceManager.getRawSamplesDown().indexOf(jeVisSample);
+                    break;
+                }
+            }
+
+            int i = 2;
+            while (startIndex > 0 && i > 0) {
+                startIndex--;
+                i--;
+            }
+
+            i = 2;
+            while (endIndex < resourceManager.getRawSamplesDown().size() && i > 0) {
+                endIndex++;
+                i--;
+            }
+
+            List<JEVisSample> subList = resourceManager.getRawSamplesDown().subList(startIndex, endIndex);
+            logger.info("[{}] {} raw samples in sublist between {} and {}",
+                    cleanDataObject.getCleanObject().getID(), subList.size(),
+                    subList.get(0).getTimestamp(), subList.get(subList.size() - 1).getTimestamp());
+            resourceManager.setRawSamplesDown(subList);
+
+            processManager.setFinished(isFinished);
         }
 
         if (cleanIntervals.isEmpty()) {

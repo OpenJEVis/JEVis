@@ -7,7 +7,6 @@ package org.jevis.jedataprocessor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -19,6 +18,7 @@ import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class Launcher extends AbstractCliApp {
     private static final String APP_INFO = "JEDataProcessor";
     public static String KEY = "process-id";
     private final Command commands = new Command();
-    private int processingSize = 10000;
+    private int processingSize = 50000;
     private boolean firstRun = true;
 
     private Launcher(String[] args, String appname) {
@@ -76,14 +76,14 @@ public class Launcher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
                         removeJob(currentCleanDataObject);
 
-                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {} runnables: {}", plannedJobs.size(), runningJobs.size(), runnables.size());
 
                         checkLastJob();
                     } finally {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
                         removeJob(currentCleanDataObject);
 
-                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {} runnables: {}", plannedJobs.size(), runningJobs.size(), runnables.size());
 
                         checkLastJob();
                     }
@@ -108,36 +108,23 @@ public class Launcher extends AbstractCliApp {
     protected void handleAdditionalCommands() {
         APP_SERVICE_CLASS_NAME = "JEDataProcessor";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
-        setMaxThreadTime(0L);
+        setMaxThreadTime(3600000L);
     }
 
     @Override
     protected void runSingle(List<Long> ids) {
-        List<JEVisObject> processes = new ArrayList<>();
-
         if (checkConnection()) {
-
             for (Long l : ids) {
                 try {
                     JEVisObject object = ds.getObject(l);
-                    if (!plannedJobs.containsKey(object.getID())) {
-                        plannedJobs.put(object.getID(), new DateTime());
-                        processes.add(object);
-                    }
-
+                    ProcessManager currentProcess = new ProcessManager(object, new ObjectHandler(ds), CommonMethods.getProcessingSizeFromService(ds, APP_SERVICE_CLASS_NAME));
+                    currentProcess.start();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Error in process of object {}", l, e);
                 }
             }
-
-
-            this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
-
-            this.executeProcesses(processes);
-
+            runSingle(ids);
         }
-
-//        sleep();
     }
 
     @Override
@@ -159,7 +146,7 @@ public class Launcher extends AbstractCliApp {
                 } else firstRun = false;
 
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-                this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
+                this.processingSize = CommonMethods.getProcessingSizeFromService(ds, APP_SERVICE_CLASS_NAME);
 
                 if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                     try {
@@ -180,43 +167,26 @@ public class Launcher extends AbstractCliApp {
         sleep();
     }
 
-    private int getProcessingSizeFromService(String serviceClassName) {
-        int size = processingSize;
-        try {
-            JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
-            List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
-            JEVisAttribute sizeAtt = listServices.get(0).getAttribute("Processing Size");
-            if (sizeAtt != null && sizeAtt.hasSample()) {
-                size = sizeAtt.getLatestSample().getValueAsLong().intValue();
-            }
-
-        } catch (Exception e) {
-            logger.error("Couldn't get processsing size from the JEVis System. Using standard Size of {}", processingSize, e);
-        }
-        processingSize = size;
-        return size;
-    }
-
     @Override
     protected void runComplete() {
-
-        List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
-        try {
-            enabledCleanDataObjects = getAllCleaningObjects();
-        } catch (Exception e) {
-            logger.error("Could not get enabled clean data objects. ", e);
-        }
-        for (JEVisObject jeVisObject : enabledCleanDataObjects) {
-            if (jeVisObject.getID() > 19700)
+        if (checkConnection()) {
+            List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
+            try {
+                enabledCleanDataObjects = getAllCleaningObjects();
+            } catch (Exception e) {
+                logger.error("Could not get enabled clean data objects. ", e);
+            }
+            for (JEVisObject jeVisObject : enabledCleanDataObjects) {
                 try {
-                    ProcessManager currentProcess = new ProcessManager(jeVisObject, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
+                    ProcessManager currentProcess = new ProcessManager(jeVisObject, new ObjectHandler(ds), CommonMethods.getProcessingSizeFromService(ds, APP_SERVICE_CLASS_NAME));
                     currentProcess.start();
                 } catch (Exception e) {
                     logger.error("Error in process of object {}", jeVisObject.getID(), e);
                 }
-        }
+            }
 
-        runComplete();
+            runComplete();
+        }
     }
 
     private List<JEVisObject> getAllCleaningObjects() throws Exception {

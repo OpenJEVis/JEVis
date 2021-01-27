@@ -400,6 +400,13 @@ public class MathDataObject {
             switch (aggregationPeriod) {
                 case NONE:
                     break;
+                case MINUTELY:
+                    if (offset > 0) {
+                        start = start.plusMinutes(1);
+                    } else if (offset < 0) {
+                        start = start.minusMinutes(1);
+                    }
+                    break;
                 case QUARTER_HOURLY:
                     if (offset > 0) {
                         start = start.plusMinutes(15);
@@ -461,6 +468,9 @@ public class MathDataObject {
         for (int i = 0; i < referencePeriodCount; i++) {
             switch (aggregationPeriod) {
                 case NONE:
+                    break;
+                case MINUTELY:
+                    lastRun = lastRun.plusMinutes(1);
                     break;
                 case QUARTER_HOURLY:
                     lastRun = lastRun.plusMinutes(15);

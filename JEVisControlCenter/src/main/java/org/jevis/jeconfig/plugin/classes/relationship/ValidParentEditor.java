@@ -39,7 +39,6 @@ import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.ImageConverter;
 
@@ -60,7 +59,7 @@ public class ValidParentEditor {
     public ValidParentEditor() {
         _view = new VBox();
 //        _view.setStyle("-fx-background-color: #E2E2E2");
-        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        _view.getStyleClass().add("valid-parent-editor");
     }
 
     public void setJEVisClass(final JEVisClass jclass) {

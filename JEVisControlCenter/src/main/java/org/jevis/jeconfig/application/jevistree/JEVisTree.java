@@ -68,8 +68,8 @@ public class JEVisTree extends TreeTableView {
         this.ds = ds;
 //        cellFilter = FilterFactory.buildDefaultItemFilter();
         this.cellFilter = filter;
-        this.getStylesheets().add(JEVisTree.class.getResource("/styles/JEVisTree.css").toExternalForm());
         this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
 //        addCellFactory();
         init();
     }
@@ -127,12 +127,12 @@ public class JEVisTree extends TreeTableView {
             });
 
             row.setOnDragEntered(event -> {
-                logger.debug("3. Drag entert");
+                logger.debug("3. Drag entered");
                 event.consume();
             });
 
             row.setOnDragDropped(event -> {
-                logger.debug("4. Drag droped");
+                logger.debug("4. Drag dropped");
                 try {
 //                        TreeItem selected = (TreeItem) getSelectionModel().getSelectedItem();
 //                        logger.debug("d-Target: " + row.getTreeItem());

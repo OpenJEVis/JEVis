@@ -9,7 +9,7 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.joda.time.DateTime;
@@ -22,7 +22,7 @@ import java.util.Objects;
 import static org.jevis.commons.constants.GapFillingType.parse;
 import static org.jevis.commons.dataprocessing.processor.GapsAndLimits.getNote;
 
-public class ForecastStep implements ProcessStepN {
+public class ForecastStep implements ProcessStep {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
 

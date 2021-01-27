@@ -591,14 +591,14 @@ public class CleanDataExtension implements ObjectEditorExtension {
                 try {
                     CommonMethods.processCleanData(obj);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error(ex);
                 }
                 return null;
             }
         };
 
         set.setOnSucceeded(event -> {
-            pForm.getDialogStage().close();
+            Platform.runLater(() -> pForm.getDialogStage().close());
             try {
                 for (JEVisObject childObj : obj.getChildren()) {
                     recleanCleanData(childObj);
@@ -609,18 +609,18 @@ public class CleanDataExtension implements ObjectEditorExtension {
         });
         set.setOnCancelled(event -> {
             logger.debug("cleaning cancelled");
-            pForm.getDialogStage().hide();
+            pForm.getDialogStage().close();
         });
 
         set.setOnFailed(event -> {
             logger.debug("cleaning failed");
-            pForm.getDialogStage().hide();
+            pForm.getDialogStage().close();
         });
 
         pForm.activateProgressBar(set);
         pForm.getDialogStage().show();
 
-        new Thread(set).start();
+        JEConfig.getStatusBar().addTask(CleanDataExtension.class.getName(), set, JEConfig.getImage("1476369770_Sync.png"), true);
 
     }
 

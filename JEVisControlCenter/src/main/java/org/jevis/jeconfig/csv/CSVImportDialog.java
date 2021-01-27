@@ -280,7 +280,8 @@ public class CSVImportDialog {
         stage.setResizable(true);
 
         BorderPane header = new BorderPane();
-        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
+        header.getStyleClass().add("dialog-header");
+//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
 //        header.setPadding(new Insets(10, 10, 10, 10));
 
         Label topTitle = new Label(I18n.getInstance().getString("csv.top_title"));

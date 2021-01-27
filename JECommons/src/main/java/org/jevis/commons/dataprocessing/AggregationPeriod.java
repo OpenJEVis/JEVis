@@ -2,13 +2,13 @@ package org.jevis.commons.dataprocessing;
 
 public enum AggregationPeriod {
 
-    NONE, QUARTER_HOURLY, HOURLY, DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY, THREEYEARS, FIVEYEARS, TENYEARS;
+    NONE, MINUTELY, QUARTER_HOURLY, HOURLY, DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY, THREEYEARS, FIVEYEARS, TENYEARS;
 
     public static AggregationPeriod get(String modeName) {
         String[] modeArray = modeName.split("_");
         String mode = NONE.name();
         if (modeArray.length == 2) {
-            if (modeArray[0].toUpperCase().equals("QUARTER")) {
+            if (modeArray[0].equalsIgnoreCase("QUARTER")) {
                 mode = modeArray[0] + "_" + modeArray[1];
             } else {
                 mode = modeArray[0];
@@ -21,6 +21,11 @@ public enum AggregationPeriod {
 
     public static AggregationPeriod parseAggregation(String aggregation) {
         switch (aggregation) {
+            case ("Minute"):
+            case ("MINUTE"):
+            case ("Minutely"):
+            case ("MINUTELY"):
+                return MINUTELY;
             case ("Quarter Hour"):
             case ("Quarter Hourly"):
             case ("Quarterly Hour"):
@@ -34,7 +39,7 @@ public enum AggregationPeriod {
             case ("Hour"):
             case ("Hourly"):
                 return HOURLY;
-            case ("DAI"):
+            case ("DAY"):
             case ("DAILY"):
             case ("Day"):
             case ("Daily"):

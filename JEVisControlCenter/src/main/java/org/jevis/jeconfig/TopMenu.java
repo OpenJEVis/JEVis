@@ -42,6 +42,7 @@ import org.joda.time.DateTime;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.prefs.Preferences;
@@ -308,6 +309,157 @@ public class TopMenu extends MenuBar {
 
         options.getItems().addAll(changePassword, enablePreview, welcome, showPatchNotes, expertMode);
 
+        Menu view = new Menu(I18n.getInstance().getString("menu.view"));
+        Menu theme = new Menu(I18n.getInstance().getString("menu.view.theme"));
+
+        final Preferences prefTheme = Preferences.userRoot().node("JEVis.JEConfig.Theme");
+
+        CheckMenuItem standardTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.standard"));
+        CheckMenuItem darkTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.dark"));
+        CheckMenuItem amberTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.amber"));
+        CheckMenuItem greenTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.green"));
+        CheckMenuItem indigoTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.indigo"));
+        CheckMenuItem redTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.red"));
+        CheckMenuItem whiteTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.white"));
+
+        final List<String> allThemes = Arrays.asList("/styles/Standard.css", "/styles/Dark.css", "/styles/Amber.css",
+                "/styles/Green.css", "/styles/Indigo.css", "/styles/Red.css", "/styles/White.css");
+
+        standardTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("standard", true);
+                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
+                JEConfig.getStage().getScene().getStylesheets().add("/styles/Standard.css");
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+            } else {
+                prefTheme.putBoolean("standard", false);
+            }
+        });
+
+        darkTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("dark", true);
+                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
+                JEConfig.getStage().getScene().getStylesheets().add("/styles/Dark.css");
+
+                standardTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("dark", false);
+            }
+        });
+
+        amberTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("amber", true);
+                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
+                JEConfig.getStage().getScene().getStylesheets().add("/styles/Amber.css");
+
+                darkTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("amber", false);
+            }
+        });
+
+        greenTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("green", true);
+                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
+                JEConfig.getStage().getScene().getStylesheets().add("/styles/Green.css");
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("green", false);
+            }
+        });
+
+        indigoTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("indigo", true);
+                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
+                JEConfig.getStage().getScene().getStylesheets().add("/styles/Indigo.css");
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                redTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("indigo", false);
+            }
+        });
+
+        redTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("red", true);
+                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
+                JEConfig.getStage().getScene().getStylesheets().add("/styles/Red.css");
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("red", false);
+            }
+        });
+
+        whiteTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("white", true);
+                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
+                JEConfig.getStage().getScene().getStylesheets().add("/styles/White.css");
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                standardTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("white", false);
+            }
+        });
+
+        standardTheme.setSelected(prefTheme.getBoolean("standard", true));
+        darkTheme.setSelected(prefTheme.getBoolean("dark", false));
+        amberTheme.setSelected(prefTheme.getBoolean("amber", false));
+        greenTheme.setSelected(prefTheme.getBoolean("green", false));
+        indigoTheme.setSelected(prefTheme.getBoolean("indigo", false));
+        redTheme.setSelected(prefTheme.getBoolean("red", false));
+        whiteTheme.setSelected(prefTheme.getBoolean("white", false));
+
+        theme.getItems().addAll(standardTheme, darkTheme, amberTheme, greenTheme, indigoTheme, redTheme, whiteTheme);
+        view.getItems().add(theme);
 
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 
@@ -316,7 +468,6 @@ public class TopMenu extends MenuBar {
         help.getItems().addAll(showHelp, about);
 
         about.setOnAction(t -> {
-
             AboutDialog dia = new AboutDialog();
             dia.show(I18n.getInstance().getString("menu.about.title")
                     , I18n.getInstance().getString("menu.about.message")
@@ -391,7 +542,7 @@ public class TopMenu extends MenuBar {
             classImport.setDisable(true);
         }
 
-        getMenus().setAll(menuFile, menuEdit, options, system, help);
+        getMenus().setAll(menuFile, menuEdit, options, system, view, help);
     }
 
     public void setPlugin(Plugin plugin) {

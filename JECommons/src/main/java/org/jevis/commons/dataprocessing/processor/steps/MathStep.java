@@ -5,18 +5,20 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 import org.mariuszgromada.math.mxparser.Expression;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class MathStep implements ProcessStepN {
+public class MathStep implements ProcessStep {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
 
@@ -32,6 +34,14 @@ public class MathStep implements ProcessStepN {
                 case NONE:
                     start = mathDataObject.getStartDate();
                     end = mathDataObject.getEndDate().minusMillis(1);
+                    break;
+                case MINUTELY:
+                    start = mathDataObject.getStartDate()
+                            .withSecondOfMinute(beginning.getSecondOfMinute())
+                            .withMillisOfSecond(beginning.getMillisOfSecond());
+                    end = mathDataObject.getStartDate()
+                            .withSecondOfMinute(ending.getSecondOfMinute())
+                            .withMillisOfSecond(ending.getMillisOfSecond());
                     break;
                 case QUARTER_HOURLY:
                     // TODO: add start & end conditions for 15-minutely
@@ -322,9 +332,10 @@ public class MathStep implements ProcessStepN {
 
     private void calcFormula(List<CleanInterval> intervals, List<JEVisSample> samples, String formula) throws JEVisException {
         Map<DateTime, CleanInterval> map = intervals.stream().collect(Collectors.toMap(CleanInterval::getDate, interval -> interval, (a, b) -> b));
+        NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getDefaultBundle().getLocale());
 
         for (JEVisSample sample : samples) {
-            Expression expression = new Expression(formula.replace("x", sample.getValueAsDouble().toString()));
+            Expression expression = new Expression(formula.replace("x", nf.format(sample.getValueAsDouble())));
             double result = expression.calculate();
             map.get(sample.getTimestamp()).getResult().setTimeStamp(sample.getTimestamp());
             map.get(sample.getTimestamp()).getResult().setValue(result);

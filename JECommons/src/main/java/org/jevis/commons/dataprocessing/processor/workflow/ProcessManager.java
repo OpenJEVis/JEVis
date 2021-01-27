@@ -32,8 +32,9 @@ public class ProcessManager {
     private final ResourceManager resourceManager;
     private final String name;
     private final Long id;
-    private List<ProcessStepN> processSteps = new ArrayList<>();
+    private List<ProcessStep> processSteps = new ArrayList<>();
     private boolean isClean = true;
+    private boolean isFinished = false;
 
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler, int processingSize) {
         this.resourceManager = new ResourceManager();
@@ -80,76 +81,76 @@ public class ProcessManager {
 
     private void addDefaultSteps() {
 
-        ProcessStepN preparation = new PrepareStep();
+        ProcessStep preparation = new PrepareStep(this);
         processSteps.add(preparation);
 
-        ProcessStepN alignmentStep = new PeriodAlignmentStep();
+        ProcessStep alignmentStep = new PeriodAlignmentStep();
         processSteps.add(alignmentStep);
 
-        ProcessStepN gapStep = new FillGapStep();
+        ProcessStep gapStep = new FillGapStep();
         processSteps.add(gapStep);
 
-        ProcessStepN diffStep = new DifferentialStep();
+        ProcessStep diffStep = new DifferentialStep();
         processSteps.add(diffStep);
 
-        ProcessStepN multiStep = new ScalingStep();
+        ProcessStep multiStep = new ScalingStep();
         processSteps.add(multiStep);
 
-        ProcessStepN aggregationAlignmentStep = new AggregationAlignmentStep();
+        ProcessStep aggregationAlignmentStep = new AggregationAlignmentStep();
         processSteps.add(aggregationAlignmentStep);
 
-        ProcessStepN limitsStep = new LimitsStep();
+        ProcessStep limitsStep = new LimitsStep();
         processSteps.add(limitsStep);
 
-        ProcessStepN importStep = new ImportStep();
+        ProcessStep importStep = new ImportStep();
         processSteps.add(importStep);
     }
 
     private void addForecastSteps() {
 
-        ProcessStepN preparation = new PrepareForecast();
+        ProcessStep preparation = new PrepareForecast();
         processSteps.add(preparation);
 
-        ProcessStepN forecast = new ForecastStep();
+        ProcessStep forecast = new ForecastStep();
         processSteps.add(forecast);
 
-        ProcessStepN importStep = new ImportStep();
+        ProcessStep importStep = new ImportStep();
         processSteps.add(importStep);
     }
 
     private void addMathSteps() {
 
-        ProcessStepN preparation = new PrepareMath();
+        ProcessStep preparation = new PrepareMath();
         processSteps.add(preparation);
 
-        ProcessStepN math = new MathStep();
+        ProcessStep math = new MathStep();
         processSteps.add(math);
 
-        ProcessStepN importStep = new ImportStep();
+        ProcessStep importStep = new ImportStep();
         processSteps.add(importStep);
     }
 
-    public void setProcessSteps(List<ProcessStepN> processSteps) {
+    public void setProcessSteps(List<ProcessStep> processSteps) {
         this.processSteps = processSteps;
     }
 
     public void start() throws Exception {
         if (isClean) {
+            do {
+                logger.info("[{}:{}] Starting Process", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
 
-            logger.info("[{}:{}] Starting Process", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
+                if (resourceManager.getCleanDataObject().checkConfig()) {
+                    reRun();
+                }
 
-            if (resourceManager.getCleanDataObject().checkConfig()) {
-                reRun();
-            }
+                logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
 
-            logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
-
-            resourceManager.setIntervals(null);
-            resourceManager.setNotesMap(null);
-            resourceManager.setRawSamplesDown(null);
-            resourceManager.setSampleCache(null);
-            resourceManager.setRawIntervals(null);
-            resourceManager.getCleanDataObject().clearLists();
+                resourceManager.setIntervals(null);
+                resourceManager.setNotesMap(null);
+                resourceManager.setRawSamplesDown(null);
+                resourceManager.setSampleCache(null);
+                resourceManager.setRawIntervals(null);
+            } while (!isFinished);
         } else if (resourceManager.getForecastDataObject() != null) {
             if (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
                 reRun();
@@ -165,6 +166,7 @@ public class ProcessManager {
 
     private void reRun() throws Exception {
 
+
         if (isClean) {
             resourceManager.getCleanDataObject().reloadAttributes();
         } else if (resourceManager.getForecastDataObject() != null) {
@@ -172,7 +174,8 @@ public class ProcessManager {
         } else if (resourceManager.getMathDataObject() != null) {
             resourceManager.getMathDataObject().reloadAttributes();
         }
-        for (ProcessStepN ps : processSteps) {
+
+        for (ProcessStep ps : processSteps) {
             try {
                 ps.run(resourceManager);
             } catch (Exception e) {
@@ -188,5 +191,13 @@ public class ProcessManager {
 
     public Long getId() {
         return id;
+    }
+
+    public boolean isFinished() {
+        return isFinished;
+    }
+
+    public void setFinished(boolean finished) {
+        isFinished = finished;
     }
 }
