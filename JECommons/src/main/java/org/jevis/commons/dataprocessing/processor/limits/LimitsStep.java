@@ -15,7 +15,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.GapsAndLimits;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
@@ -32,7 +32,7 @@ import static org.jevis.commons.constants.GapFillingType.parse;
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
  */
-public class LimitsStep implements ProcessStepN {
+public class LimitsStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(LimitsStep.class);
 

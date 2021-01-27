@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.joda.time.DateTime;
@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author gerrit
  */
-public class AggregationAlignmentStep implements ProcessStepN {
+public class AggregationAlignmentStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(AggregationAlignmentStep.class);
 

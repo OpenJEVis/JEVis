@@ -280,7 +280,7 @@ public class XYChart implements Chart {
         sumModels.add(sumModelY1);
         sumModels.add(sumModelY2);
 
-        if (showSum && chartDataRows.size() > 1 && sumModelY1 != null) {
+        if (showSum && chartDataRows.size() > 1 && sumModelY1 != null && chartType != ChartType.TABLE_V) {
             createSumModels(dataModel, sumModels);
         }
 

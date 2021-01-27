@@ -14,7 +14,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.Gap;
 import org.jevis.commons.dataprocessing.processor.GapsAndLimits;
 import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.joda.time.DateTime;
@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  * @author gschutz
  */
-public class FillGapStep implements ProcessStepN {
+public class FillGapStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(FillGapStep.class);
 

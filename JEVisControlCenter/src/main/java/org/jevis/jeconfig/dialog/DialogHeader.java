@@ -39,8 +39,9 @@ public class DialogHeader {
 
     public static Node getDialogHeader(String icon, String text) {
         BorderPane header = new BorderPane();
-        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
+//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));
+        header.getStyleClass().add("dialog-header");
 
         Label topTitle = new Label(text);
         topTitle.setTextFill(Color.web("#0076a3"));

@@ -1,44 +1,10 @@
-.root {
-    -tab-text-color: -fx-text-base-color ;
-}
 
-#mainsplitpane{ 
-    -fx-background-color: rgba(0, 100, 100, 0);
-}
-
-#objecteditorpane{   
-    /*-fx-background-color: #E2E2E2;*/
-    -fx-background-color: f4f4f4;
-    
-}
-
-#objecttree{
-    /*-fx-background-color: #E2E2E2;*/
-    -fx-background-color: f4f4f4;
-    /*-fx-background-color: white;*/
-}
-
-
-
-#attributelabel{
-    -fx-text-fill: black; 
-    -fx-font-size: 14;  
-}
-
-/**** neu **/
-.tree-table-view, .table-view{
-    -fx-background-color: rgba(0, 100, 100, 0.5);
-}
-
+/* for pdf/image view */
 .pagination { -fx-rotate:180; }
 .pagination .pagination-control { -fx-rotate:180; }
 .pagination .page { -fx-rotate:180; }
 
-/*******************************************************************************
- *                                                                             *
- * TreeView and TreeCell                                                       *
- *                                                                             *
- ******************************************************************************/
+/* TreeView and TreeCell */
 
 .tree-view {
     -fx-skin: "com.sun.javafx.scene.control.skin.TreeViewSkin";
@@ -52,7 +18,7 @@
 
 .tree-view:focused {
     -fx-background-color: -fx-focus-color,-fx-box-border,-fx-control-inner-background;
-    -fx-background-insets: -1.4, 0, 1;
+    -fx-background-insets: 0, 0, 1;
     -fx-background-radius: 1.4, 0, 0;
 
     /* There is some oddness if padding is in em values rather than pixels,
@@ -91,8 +57,6 @@
     -fx-padding: 0.0em 0.0em 0.0em 0.25em; /* 0 0 0 3 */
 }
 
-
-
 .tree-view:focused .tree-cell:focused {
     -fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border, -fx-control-inner-background;
     -fx-background-insets: 0, 1, 2;
@@ -106,7 +70,9 @@
 }
 
 .tree-view:focused .tree-cell:filled:selected, .tree-view:focused .tree-cell:filled:selected:hover {
-    -fx-background: -fx-accent;
+    /*-fx-background: -fx-accent;*/
+
+    -fx-background-color: black;
     -fx-background-color: -fx-selection-bar;
     -fx-text-fill: -fx-selection-bar-text;
 }
@@ -115,12 +81,6 @@
     -fx-background: -fx-accent;
     -fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border, -fx-selection-bar;
     -fx-background-insets: 0, 1, 2;
-    -fx-text-fill: -fx-selection-bar-text;
-}
-
-/* When the TreeView is _not_ focused, we show alternate selection colors */
-.tree-cell:filled:selected:focused, .tree-cell:filled:selected {
-    -fx-background-color: lightgray;
     -fx-text-fill: -fx-selection-bar-text;
 }
 
@@ -171,24 +131,6 @@
     -fx-background-color: -fx-selection-bar-text;
 }
 
-
-/*Meine*/
-
-.tree-cell{
-    -fx-background-color: rgba(0, 100, 100, 0);
-}
-
-.tree-cell:filled:selected:focused, .tree-cell:filled:selected {
-    -fx-background-color: lightgray;
-    -fx-text-fill: black;
-}
-
-.tree-cell:filled:selected:default{
-    -fx-background-color: lightgray;
-    -fx-text-fill: black;
-}
-
-
 #watermark{
     -fx-background-color: null;
     /*-fx-background-image: url("/org/jevis/jeconfig/image/logo_JEVis_OPEN_Ohne_Schatten_long_v0_10.png");*/
@@ -201,59 +143,23 @@
     -fx-background-insets: 20, 20;
 }
 
-/* global table style settings */
-
-.table-view{
-    -fx-background-color: #262626;
+.titled-pane > .title
+{
+    -fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 0 0 0 0, 0 0 0 0, 0 0 0 0;
+    -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em; /* 2 10 3 10 */
 }
 
-.table-view:focused{
+.titled-pane > *.content
+{
     -fx-background-color: transparent;
+    /*    -fx-background-insets: 0, 0 1 1 1;
+        -fx-padding: 0.167em;*/
 }
 
-.table-view .column-header-background{
-    -fx-background-color: linear-gradient(#131313 0%, #424141 100%);
-}
-
-.table-view .column-header-background .label{
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-}
-
-.table-view .column-header {
-    -fx-background-color: transparent;
-}
-
-.table-view .table-cell{
-    -fx-text-fill: white;
-}
-
-.table-view .table-cell:odd{
-    -fx-text-fill: black;
-}
-
-.table-row-cell:empty {
-    -fx-background-color: white;
-}
-
-.table-row-cell{
-    -fx-background-color: -fx-table-cell-border-color, #616161;
-    -fx-background-insets: 0, 0 0 1 0;
-    -fx-padding: 0.0em; /* 0 */
-}
-
-.table-row-cell:odd {
-    -fx-background-color: lightgray;
-}
-
-.table-row-cell:selected {
-    -fx-background-color: #005797;
-    -fx-background-insets: 0;
-    -fx-background-radius: 1;
-}
-
-.table-view .filler{
-    -fx-background-color: transparent;
+.tab-label {
+    -fx-text-fill: -tab-text-color ;
 }
 
 .table-view > .virtual-flow > .scroll-bar:vertical,
@@ -270,27 +176,76 @@
     -fx-opacity: 0;
 }
 
-.titled-pane > .title 
-{
-    -fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color;
-    -fx-background-insets: 0, 1, 2;
-    -fx-background-radius: 0 0 0 0, 0 0 0 0, 0 0 0 0;
-    -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em; /* 2 10 3 10 */
+.table-row-cell:empty .table-cell {
+    -fx-border-width: 0px;
 }
 
-.titled-pane > *.content 
-{
+.titled-pane {
+    -fx-animated: false;
+    -fx-background-radius: 0;
     -fx-background-color: transparent;
-    /*    -fx-background-insets: 0, 0 1 1 1;
-        -fx-padding: 0.167em;*/
+    -fx-padding: 0;
+    -fx-border-insets: 0;
+    -fx-border-insets: 0 2 0 2;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-border-insets: 0;
 }
 
-.search-box{
-    -fx-background-color: #E2E2E2;
+.titled-pane:focused {
+    /*-fx-effect: dropshadow(three-pass-box, #9F9F9F, 15, 0, 0, 0);*/
+    -fx-text-fill: -fx-accent;
+
+    -fx-animated: false;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-insets: 0;
+    -fx-border-insets: 0 2 0 2;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-border-insets: 0;
+}
+
+.titled-pane:focused .content {
+    -fx-padding: 0px;
+    -fx-background-radius: 0;
+    -fx-border-width: 2 0 2 0;
+    -fx-border-insets: 0;
+}
+
+.titled-pane .content {
+    -fx-padding: 0px;
+    -fx-background-radius: 0;
+    -fx-border-width: 2 0 2 0;
+    -fx-border-insets: 0;
+}
+
+.titled-pane > .title  {
+    -fx-background-radius: 0, 0, 0;
+    -fx-font: 14px System;
+    -fx-background-color: transparent;
+}
+
+.titled-pane:focused > .title  {
+    -fx-background-radius: 0, 0, 0;
+    -fx-font: 14px System;
+    -fx-background-color: transparent;
+}
+
+.titled-pane:focused > .title > .arrow-button .arrow {
+    -fx-font: 14px System;
+}
+
+.scroll-pane > .viewport {
+   -fx-background-color: transparent;
+}
+
+.scroll-pane {
+   -fx-background-color: transparent;
 }
 
 .search-box .text-field {
-    -fx-background-color: white;
     -fx-background-insets: 1;
     -fx-background-radius: 15;
     -fx-padding: -9 5 -11 0;
@@ -299,21 +254,18 @@
         -fx-border-image-width: 12 12 12 22;
         -fx-border-image-repeat: stretch; */
     -fx-font-size: 13px;
-    -fx-prompt-text-fill: grey;
 }
+
 .search-box .text-field:focused {
-    -fx-background-color: -fx-focus-color, white;
     -fx-background-insets: -1.4, 1;
     -fx-background-radius: 14.4;
 }
+
 .search-box .button {
     -fx-background-color: null;
     -fx-background-image: url("/icons/1394564949_search_48.png");
 }
+
 .search-box .button:hover {
     -fx-background-image: url("/icons/1394564949_search_48.png");
-}
-
-.tab-label {
-    -fx-text-fill: -tab-text-color ;
 }

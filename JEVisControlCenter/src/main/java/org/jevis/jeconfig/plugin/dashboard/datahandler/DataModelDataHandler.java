@@ -219,6 +219,10 @@ public class DataModelDataHandler {
                             chartDataRow.setAbsolute(true);
                         }
 
+                        if (dataPointNode.getCustomCSS() != null) {
+                            chartDataRow.setCustomCSS(dataPointNode.getCustomCSS());
+                        }
+
 
                     } else {
                         logger.error("Attribute does not exist: {}", dataPointNode.getAttribute());
@@ -410,6 +414,11 @@ public class DataModelDataHandler {
 
                 dataNode.put("color", dataPointNode.getColor().toString());
                 dataNode.put("axis", dataPointNode.getAxis().toString());
+
+                if (dataPointNode.getCustomCSS() != null) {
+                    dataNode.put("customCSS", dataPointNode.getCustomCSS());
+                }
+
                 dataArrayNode.add(dataNode);
             } catch (Exception ex) {
                 logger.error(ex);

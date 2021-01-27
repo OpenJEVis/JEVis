@@ -10,7 +10,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class TableHeaderTable extends TableView<List<String>> {
+public class TableHeaderTable extends TableView {
     private static Method columnToFitMethod;
 
     static {
@@ -29,12 +29,12 @@ public class TableHeaderTable extends TableView<List<String>> {
     public TableHeaderTable(List<XYChartSerie> xyChartSeries) {
 
         setBorder(null);
-        setStyle(
-                ".table-view:focused {" +
-                        "-fx-padding: 0; " +
-                        "-fx-background-color: transparent, -fx-box-border, -fx-control-inner-background; " +
-                        "-fx-background-insets: -1.4,0,1;" +
-                        "}");
+//        setStyle(
+//                ".table-view:focused {" +
+//                        "-fx-padding: 0; " +
+//                        "-fx-background-color: transparent, -fx-box-border, -fx-control-inner-background; " +
+//                        "-fx-background-insets: -1.4,0,1;" +
+//                        "}");
 
         setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 

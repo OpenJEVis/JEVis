@@ -132,7 +132,7 @@ public class GraphPluginView implements Plugin {
         this.sp.setFitToWidth(true);
         this.sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        this.border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//        this.border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
         this.ds = ds;
         this.name.set(newname);
@@ -172,7 +172,7 @@ public class GraphPluginView implements Plugin {
             }
         });
 
-        border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
+//        border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
 
     }
 
@@ -180,7 +180,7 @@ public class GraphPluginView implements Plugin {
         Long chartsPerScreen = dataModel.getChartsPerScreen();
 
         AtomicDouble autoMinSize = new AtomicDouble(0);
-        double autoMinSizeNormal = 220;
+        double autoMinSizeNormal = 230;
         double autoMinSizeLogical = 50;
 
         if (dataModel.getSelectedData() != null) {
@@ -219,14 +219,15 @@ public class GraphPluginView implements Plugin {
             vBox.setAlignment(Pos.CENTER);
             vBox.setSpacing(10);
 
-            String style = "-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);" +
+            String style =
+//                    "-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);" +
                     "    -fx-background-insets: 0,1,4,5;\n" +
-                    "    -fx-background-radius: 9,8,5,4;\n" +
-                    "    -fx-padding: 15 30 15 30;\n" +
-                    "    -fx-font-family: \"Cambria\";\n" +
-                    "    -fx-font-size: 32px;\n" +
-                    "    -fx-text-alignment: left;\n" +
-                    "    -fx-text-fill: #0076a3;\n";
+                            "    -fx-background-radius: 9,8,5,4;\n" +
+                            "    -fx-padding: 15 30 15 30;\n" +
+                            "    -fx-font-family: \"Cambria\";\n" +
+                            "    -fx-font-size: 32px;\n" +
+                            "    -fx-text-alignment: left;\n";
+//                    "    -fx-text-fill: #0076a3;\n";
 
             Button newAnalysis = new Button(I18n.getInstance().getString("plugin.graph.analysis.new"), JEConfig.getImage("Data.png", 32, 32));
             newAnalysis.setStyle(style);
@@ -514,7 +515,7 @@ public class GraphPluginView implements Plugin {
                 }
 
                 BorderPane bp = new BorderPane();
-                bp.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
+//                bp.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
                 bp.setBorder(new Border(new BorderStroke(Color.TRANSPARENT,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
 

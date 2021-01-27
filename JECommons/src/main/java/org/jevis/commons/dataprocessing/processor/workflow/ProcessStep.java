@@ -8,7 +8,7 @@ package org.jevis.commons.dataprocessing.processor.workflow;
 /**
  * @author broder
  */
-public interface ProcessStepN {
+public interface ProcessStep {
 
     void run(ResourceManager resourceManager) throws Exception;
 

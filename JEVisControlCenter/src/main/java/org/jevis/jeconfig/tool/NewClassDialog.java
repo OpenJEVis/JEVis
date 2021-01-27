@@ -257,7 +257,8 @@ public class NewClassDialog {
     private Node buildHeader(String titleLong) {
 
         BorderPane header = new BorderPane();
-        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
+        header.getStyleClass().add("dialog-header");
+//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));
 
         Label topTitle = new Label(titleLong);

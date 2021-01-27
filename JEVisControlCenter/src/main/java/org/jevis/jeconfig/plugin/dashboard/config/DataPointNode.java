@@ -18,6 +18,7 @@ public class DataPointNode {
     private String unit;
     private String name;
     private Integer axis = 0;
+    private String customCSS;
 
     public boolean isAbsolute() {
         return this.absolute;
@@ -126,6 +127,14 @@ public class DataPointNode {
         this.axis = axis;
     }
 
+    public String getCustomCSS() {
+        return customCSS;
+    }
+
+    public void setCustomCSS(String customCSS) {
+        this.customCSS = customCSS;
+    }
+
     @Override
     public String toString() {
         return "DataPointNode{" +
@@ -142,6 +151,7 @@ public class DataPointNode {
                 ", unit=" + this.unit +
                 ", calculationID=" + this.calculationID +
                 ", axis=" + this.axis +
+                ", customCSS=" + this.customCSS +
                 '}';
     }
 }
