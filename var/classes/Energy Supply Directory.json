@@ -1,0 +1,23 @@
+{
+  "name": "Energy Supply Directory",
+  "description": "The class Energy Supply Directory represents a specific directory for energy supply contracts.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Supply Directory",
+      "end": "Energy Contracting Directory",
+      "type": 0
+    },
+    {
+      "start": "Energy Supply Directory",
+      "end": "Energy Contracting Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Supply Directory",
+      "end": "Energy Supplier",
+      "type": 3
+    }
+  ]
+}
+

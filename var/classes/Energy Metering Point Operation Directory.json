@@ -1,0 +1,23 @@
+{
+  "name": "Energy Metering Point Operation Directory",
+  "description": "The class Energy Metering Point Operation Directory represents a specific directory for energy metering point contracts.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Metering Point Operation Directory",
+      "end": "Energy Contracting Directory",
+      "type": 0
+    },
+    {
+      "start": "Energy Metering Point Operation Directory",
+      "end": "Energy Contracting Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Metering Point Operation Directory",
+      "end": "Energy Metering Point Operator",
+      "type": 3
+    }
+  ]
+}
+
