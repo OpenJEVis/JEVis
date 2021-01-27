@@ -213,12 +213,13 @@ public class ObjectPlugin implements Plugin {
         tree = JEVisTreeFactory.buildBasicDefault(ds, true);
         tree.setId("objecttree");
 //            tree.getStylesheets().add("/styles/Styles.css");
-        tree.setStyle("-fx-background-color: #E2E2E2;");
+//        tree.setStyle("-fx-background-color: #E2E2E2;");
         //tree.getSelectionModel().selectFirst();
 
         VBox left = new VBox();
         left.setPrefWidth(460);
-        left.setStyle("-fx-background-color: #E2E2E2;");
+        left.getStyleClass().add("object-plugin-left");
+//        left.setStyle("-fx-background-color: #E2E2E2;");
 
         VBox.setVgrow(tree, Priority.ALWAYS);
 
@@ -264,8 +265,8 @@ public class ObjectPlugin implements Plugin {
         SplitPane sp = new SplitPane();
         sp.setDividerPositions(.3d);
         sp.setOrientation(Orientation.HORIZONTAL);
-        sp.setId("mainsplitpane");
-        sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        sp.getStyleClass().add("main-split-pane");
+//        sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 //            sp.getItems().setAll(left, tree.getEditor().getView());
         sp.getItems().setAll(treeLoadingPane, editorLoadingPane);
 
@@ -274,7 +275,8 @@ public class ObjectPlugin implements Plugin {
 
         viewPane = new BorderPane();
         viewPane.setCenter(sp);
-        viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        viewPane.getStyleClass().add("main-view-pane");
+//        viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
         //public void changed(ObservableValue<? extends TreeItem<JEVisObject>> ov, TreeItem<JEVisObject> t, TreeItem<JEVisObject> t1) {
         //TreeItem<JEVisTreeRow>

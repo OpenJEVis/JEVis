@@ -2,10 +2,7 @@ package org.jevis.commons.utils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
@@ -267,20 +264,13 @@ public class CommonMethods {
     public static void processCleanData(JEVisObject cleanDataObject) throws Exception {
         cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
 
-        JEVisAttribute valueAttribute = cleanDataObject.getAttribute("Value");
-        int sampleCount = (int) valueAttribute.getSampleCount();
-
         deleteAllSamples(cleanDataObject, false, true);
 
-        double noOfCleaning = Math.ceil(sampleCount / 1500001d);
-        logger.info("Starting {} cleaning process", noOfCleaning);
-        for (int i = 0; i < noOfCleaning; i++) {
-            ProcessManager processManager = new ProcessManager(
-                    cleanDataObject,
-                    new ObjectHandler(cleanDataObject.getDataSource()), sampleCount
-            );
-            processManager.start();
-        }
+        ProcessManager processManager = new ProcessManager(
+                cleanDataObject,
+                new ObjectHandler(cleanDataObject.getDataSource()), getProcessingSizeFromService(cleanDataObject.getDataSource(), "JEDataProcessor")
+        );
+        processManager.start();
 
         cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
         logger.info("cleaning done for: {}:{}", cleanDataObject.getName(), cleanDataObject.getID());
@@ -292,5 +282,21 @@ public class CommonMethods {
         for (JEVisObject jeVisObject : cleanDataObject.getChildren()) {
             processAllCleanData(jeVisObject);
         }
+    }
+
+    public static int getProcessingSizeFromService(JEVisDataSource ds, String serviceClassName) {
+        int size = 50000;
+        try {
+            JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
+            List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
+            JEVisAttribute sizeAtt = listServices.get(0).getAttribute("Processing Size");
+            if (sizeAtt != null && sizeAtt.hasSample()) {
+                size = sizeAtt.getLatestSample().getValueAsLong().intValue();
+            }
+
+        } catch (Exception e) {
+            logger.error("Couldn't get processing size from the JEVis System. Using standard Size of {}", "50.000", e);
+        }
+        return size;
     }
 }

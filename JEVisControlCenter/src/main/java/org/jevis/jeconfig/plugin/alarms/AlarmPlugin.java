@@ -136,7 +136,7 @@ public class AlarmPlugin implements Plugin {
         this.tableView.setPlaceholder(label);
 
         this.tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        this.tableView.setStyle("-fx-background-color: white;");
+//        this.tableView.setStyle("-fx-background-color: white;");
 
 //        this.tableView.setItems(alarmRows);
 

@@ -7,7 +7,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.childrentableeditor.ObjectTable;
 import org.jevis.jeconfig.tool.Layouts;
@@ -15,12 +14,13 @@ import org.jevis.jeconfig.tool.Layouts;
 
 public class ChildrenEditorPlugin implements ObjectEditorExtension {
 
-    private AnchorPane viewPane = new AnchorPane();
+    private final AnchorPane viewPane = new AnchorPane();
     private JEVisObject parentObject = null;
 
     public ChildrenEditorPlugin(JEVisObject parentObject) {
         this.parentObject = parentObject;
-        this.viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        this.viewPane.getStyleClass().add("children-editor-plugin");
+//        this.viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
     }
 
     @Override

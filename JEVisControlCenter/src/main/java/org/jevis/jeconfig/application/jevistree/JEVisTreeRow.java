@@ -35,7 +35,7 @@ public class JEVisTreeRow {
     private Boolean selected = false;
     private final TYPE type;
     private final JEVisAttribute attribute;
-    private Map<String, Object> additinalData;
+    private Map<String, Object> additionalData;
 
     public JEVisTreeRow(JEVisObject object) {
         this.jevisObject = object;
@@ -119,18 +119,18 @@ public class JEVisTreeRow {
     }
 
     public void clearData() {
-        additinalData.clear();
-        additinalData = null;
+        additionalData.clear();
+        additionalData = null;
     }
 
     public Object getDataObject(String key, Object defaultObject) {
-        if (additinalData == null) additinalData = new HashMap<>();
-        return additinalData.getOrDefault(key, defaultObject);
+        if (additionalData == null) additionalData = new HashMap<>();
+        return additionalData.getOrDefault(key, defaultObject);
     }
 
     public void setDataObject(String key, Object object) {
-        if (additinalData == null) additinalData = new HashMap<>();
-        additinalData.put(key, object);
+        if (additionalData == null) additionalData = new HashMap<>();
+        additionalData.put(key, object);
     }
 
     public enum TYPE {

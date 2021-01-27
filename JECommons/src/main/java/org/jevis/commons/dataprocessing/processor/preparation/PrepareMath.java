@@ -4,7 +4,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -13,7 +13,7 @@ import org.joda.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PrepareMath implements ProcessStepN {
+public class PrepareMath implements ProcessStep {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
         MathDataObject mathDataObject = resourceManager.getMathDataObject();

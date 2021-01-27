@@ -11,7 +11,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * @author gschutz
  */
-public class PeriodAlignmentStep implements ProcessStepN {
+public class PeriodAlignmentStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(PeriodAlignmentStep.class);
 
@@ -35,7 +35,7 @@ public class PeriodAlignmentStep implements ProcessStepN {
         Map<DateTime, JEVisSample> userDataMap = resourceManager.getUserDataMap();
 
         if (!cleanDataObject.getIsPeriodAligned()) {
-            logger.debug("No period alignment enabled");
+            logger.info("No period alignment enabled");
             return;
         }
 

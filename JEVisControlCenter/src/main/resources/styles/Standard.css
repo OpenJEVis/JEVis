@@ -1,0 +1,132 @@
+.root {
+    -tab-text-color: -fx-text-base-color ;
+    -fx-base: #e2e2e2;
+    -fx-accent: #1a719c;
+}
+
+.main-split-pane, main-view-pane{
+    -fx-background-color: #f4f4f4;
+}
+
+.object-editor-side-node{
+    -fx-background-color: white;
+}
+
+.object-plugin-left{
+    -fx-background-color: -fx-base;
+}
+
+.toolbar, .children-editor-plugin, .generic-attribute-extension, valid-parent-editor{
+    -fx-background-color: lightgray;
+}
+
+.dialog-header{
+    -fx-background-color: linear-gradient(-fx-base, #eeeeee);
+}
+
+#objecttree{
+    /*-fx-background-color: #E2E2E2;*/
+    -fx-background-color: f4f4f4;
+    /*-fx-background-color: white;*/
+}
+
+#attributelabel{
+    -fx-text-fill: black;
+    -fx-font-size: 14;
+}
+
+/* neu */
+.tree-table-view, .table-view{
+    -fx-background-color: rgba(0, 100, 100, 0.5);
+}
+
+/* When the TreeView is _not_ focused, we show alternate selection colors */
+.tree-cell:filled:selected:focused, .tree-cell:filled:selected {
+    -fx-background-color: lightgray;
+    -fx-text-fill: -fx-selection-bar-text;
+}
+
+.table-row-cell:odd{
+    -fx-background-color:lightblue;
+}
+
+.tree-table-row-cell:odd{
+    -fx-background-color: #f5f5f0;
+    -fx-highlight-text-fill: black;
+}
+
+.tree-table-row-cell: hover {
+     -fx-background-color: #0096c9;
+     -fx-highlight-text-fill: white;
+ }
+
+ .tree-table-row-cell: selected{
+     -fx-background-color: #0096c9;
+     -fx-highlight-text-fill: white;
+ }
+
+.tree-table-row-cell:focused{
+    -fx-highlight-text-fill: black;
+    -fx-background-color: #008dbd;
+}
+
+.tree-cell{
+    -fx-background-color: rgba(0, 100, 100, 0);
+}
+
+.tree-cell:filled:selected:focused, .tree-cell:filled:selected {
+    -fx-background-color: lightgray;
+    -fx-text-fill: black;
+}
+
+.tree-cell:filled:selected:default{
+    -fx-background-color: lightgray;
+    -fx-text-fill: black;
+}
+
+.table-row-cell:empty {
+    -fx-background-color: white;
+}
+
+.search-box{
+    -fx-background-color: #E2E2E2;
+}
+
+.search-box .text-field {
+    -fx-background-color: white;
+    -fx-prompt-text-fill: grey;
+}
+
+.search-box .text-field:focused {
+    -fx-background-color: -fx-focus-color, white;
+}
+
+/* ObjectPlugin */
+
+.titled-pane {
+    -fx-text-fill: #505050;
+}
+
+.titled-pane:focused .content {
+    -fx-background-color: #fcfcfc;
+    -fx-border-color: #ebebeb;
+    /*-fx-border-color: linear-gradient(to bottom, #f4f4f4, transparent);*/
+    /*-fx-effect: innershadow( gaussian, rgba( 0, 0, 0, 0.5 ), 10, 0, 0, 6 );*/
+}
+
+.titled-pane .content {
+/*    -fx-background-color: #fcfcfc;
+    -fx-padding: 0px;
+    -fx-border-width: 0;
+    -fx-border-color: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent);*/
+
+    -fx-background-color: #fcfcfc;
+    -fx-border-color: #ebebeb;
+    /*-fx-border-color: linear-gradient(to bottom, #ebebeb, transparent);*/
+
+}
+
+.titled-pane:focused > .title > .arrow-button .arrow {
+    /* do not highlight the title pane arrow on focus */
+    -fx-background-color: #b8b8b8;
+}

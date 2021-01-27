@@ -11,7 +11,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStepN;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.joda.time.DateTime;
 
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author broder
  */
-public class ScalingStep implements ProcessStepN {
+public class ScalingStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(ScalingStep.class);
 

@@ -267,7 +267,8 @@ public class PluginManager {
 
         this.tabPane.setSide(Side.LEFT);
 
-        this.toolbar.setStyle("-fx-background-color: #CCFF99;");
+//        this.toolbar.setStyle("-fx-background-color: #CCFF99;");
+        this.toolbar.getStyleClass().add("tool-bar");
 //        AnchorPane.setTopAnchor(toolbar, 0.0);
 //        AnchorPane.setLeftAnchor(toolbar, 0.0);
 //        AnchorPane.setRightAnchor(toolbar, 0.0);

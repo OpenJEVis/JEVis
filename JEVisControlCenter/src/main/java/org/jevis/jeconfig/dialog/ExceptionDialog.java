@@ -66,8 +66,8 @@ public class ExceptionDialog {
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON_WARNING = "1401136217_exclamation-diamond_red.png";
 
-    private static String MAIL_TO = "info@envidatec.com";
-    private static String MAIL_SUBJECT = "Error Report";
+    private static final String MAIL_TO = "info@envidatec.com";
+    private static final String MAIL_SUBJECT = "Error Report";
     private Response response = Response.CANCEL;
 
     public Response show(String title, String titleLong, String message, final Exception ex, final ApplicationInfo info) {
@@ -88,7 +88,8 @@ public class ExceptionDialog {
         stage.setResizable(false);
 
         BorderPane header = new BorderPane();
-        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
+//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
+        header.getStyleClass().add("dialog-header");
         header.setPadding(new Insets(10, 10, 10, 10));
 
         Label topTitle = new Label(titleLong);

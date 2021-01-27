@@ -34,7 +34,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.report.JEVisFileWithSample;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -127,8 +126,8 @@ public class ReportPlugin implements Plugin {
 
         SplitPane sp = new SplitPane();
         sp.setOrientation(Orientation.HORIZONTAL);
-        sp.setId("mainsplitpane");
-        sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        sp.getStyleClass().add("main-split-pane");
+//        sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
         VBox vBox = new VBox(filterInput, listView);
         sp.getItems().setAll(vBox, view);

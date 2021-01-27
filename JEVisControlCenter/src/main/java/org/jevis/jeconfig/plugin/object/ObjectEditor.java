@@ -39,7 +39,6 @@ import org.controlsfx.control.HiddenSidesPane;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -66,22 +65,19 @@ public class ObjectEditor {
     private static final Logger logger = LogManager.getLogger(ObjectEditor.class);
     private JEVisTree tree;
     private SideNode help;
-    private BooleanProperty showWebHelp = new SimpleBooleanProperty(false);
+    private final BooleanProperty showWebHelp = new SimpleBooleanProperty(false);
 
 
-    private HiddenSidesPane _view;
+    private final HiddenSidesPane _view;
 
     public ObjectEditor() {
         _view = new HiddenSidesPane();
         _view.setId("objecteditorpane");
-        _view.getStylesheets().add("/styles/Styles.css");
-        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-
     }
 
     public void commitAll() {
         for (ObjectEditorExtension extension : activeExtensions) {
-            logger.debug("ObjectEditor.comitall: {}", extension.getClass());
+            logger.debug("ObjectEditor.commit.all: {}", extension.getClass());
             extension.save();
         }
     }
@@ -173,8 +169,6 @@ public class ObjectEditor {
         Platform.runLater(
                 () -> {
                     Accordion accordion = new Accordion();
-                    accordion.getStylesheets().add("/styles/objecteditor.css");
-                    accordion.setStyle("-fx-box-border: transparent;");
 
                     List<TitledPane> tabs = new ArrayList<>();
                     installedExtensions = new ArrayList<>();
@@ -205,7 +199,6 @@ public class ObjectEditor {
 
                                 activeExtensions.add(ex);
                                 TitledPane newTab = new TitledPane(ex.getTitle(), ex.getView());
-                                newTab.getStylesheets().add("/styles/objecteditor.css");
 
                                 newTab.setAnimated(false);
                                 tabs.add(newTab);
@@ -406,7 +399,7 @@ public class ObjectEditor {
             setOpacity(0.7d);
             setSpacing(10d);
             setPadding(new Insets(10));
-            setStyle("-fx-background-color: white;");
+            getStyleClass().add("object-editor-side-node");
 
             Region spacerHeader = new Region();
             spacerHeader.setMinHeight(30d);//120d);

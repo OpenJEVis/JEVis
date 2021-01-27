@@ -16,13 +16,11 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
-import org.jevis.commons.datetime.PeriodArithmetic;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.io.IOException;
@@ -57,7 +55,6 @@ public class CleanDataObject {
     private DateTime firstDate;
     private DateTime lastDate;
     private List<JEVisSample> rawSamplesDown;
-    private List<JEVisSample> rawSamplesUp;
     private final SampleHandler sampleHandler;
 
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
@@ -120,7 +117,7 @@ public class CleanDataObject {
         if (getMultiplier().isEmpty()) {
             errors.add(("Multiplier is empty"));
         }
-        if (getCleanObject() == null) {
+        if (getOffset() == null) {
             errors.add(("Offset is empty"));
         }
         try {
@@ -151,7 +148,7 @@ public class CleanDataObject {
             }
 
             Period inputPeriod = getPeriodForDate(getRawDataPeriodAlignment(), timestampLatestRawSample);
-            Period outputPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), timestampLatestCleanSample);
+            Period outputPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), timestampLatestRawSample);
             PeriodComparator periodComparator = new PeriodComparator();
             int compare = periodComparator.compare(outputPeriod, inputPeriod);
 
@@ -353,7 +350,6 @@ public class CleanDataObject {
         firstDate = null;
         lastDate = null;
         rawSamplesDown = null;
-        rawSamplesUp = null;
         lastCleanValue = null;
     }
 
@@ -757,13 +753,12 @@ public class CleanDataObject {
         return periodAttribute;
     }
 
-    public void clearLists() {
-        rawSamplesDown = null;
-        rawSamplesUp = null;
-    }
-
     public void setProcessingSize(int processingSize) {
         this.processingSize = processingSize;
+    }
+
+    public int getMaxProcessingSize() {
+        return processingSize;
     }
 
     public enum AttributeName {
@@ -808,14 +803,6 @@ public class CleanDataObject {
                     .minus(maxPeriod);
 
             DateTime lastDate = getLastRawDate();
-            Period rawDataPeriod = getMaxPeriod(getRawDataPeriodAlignment());
-
-            long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
-
-            while (l > processingSize) {
-                lastDate = lastDate.minus(rawDataPeriod);
-                l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
-            }
 
             rawSamplesDown = sampleHandler.getSamplesInPeriod(
                     rawDataObject,

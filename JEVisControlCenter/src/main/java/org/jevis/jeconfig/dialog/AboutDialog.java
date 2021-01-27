@@ -38,7 +38,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.commons.application.LibraryInfo;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
@@ -78,7 +77,8 @@ public class AboutDialog {
         stage.setResizable(true);
 
         BorderPane header = new BorderPane();
-        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
+        header.getStyleClass().add("dialog-header");
+//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
 //        header.setPadding(new Insets(10, 10, 10, 10));
 
         ImageView imageView = ResourceLoader.getImage(ICON_TASKBAR, 65, 65);

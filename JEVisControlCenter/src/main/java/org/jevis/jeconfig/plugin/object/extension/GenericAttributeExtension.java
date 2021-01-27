@@ -36,7 +36,6 @@ import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -69,8 +68,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         GenericAttributeExtension.tree = tree;
         _obj = obj;
         _attributesEditor = new ArrayList<>();
-        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-        _view.getStylesheets().add("/styles/Styles.css");
+        _view.getStyleClass().add("generic-attribute-extension");
+
         _view.setFitToWidth(true);
     }
 

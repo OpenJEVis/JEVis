@@ -62,6 +62,7 @@ public class ChartDataRow {
     private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
     private final Map<DateTime, Alarm> alarmMap = new TreeMap<>();
     private boolean customWorkDay = true;
+    private String customCSS;
 
     /**
      * Maximum number of parallel running getSamples(), not the Dashboard need multiple
@@ -867,5 +868,13 @@ public class ChartDataRow {
         }
 
         return p;
+    }
+
+    public String getCustomCSS() {
+        return customCSS;
+    }
+
+    public void setCustomCSS(String customCSS) {
+        this.customCSS = customCSS;
     }
 }

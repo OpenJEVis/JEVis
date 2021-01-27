@@ -51,6 +51,7 @@ public class WidgetTreePlugin implements TreePlugin {
     public static String COLUMN_UNIT = I18n.getInstance().getString("graph.table.unit");
     public static String COLUMN_NAME = I18n.getInstance().getString("plugin.graph.table.name");
     public static String COLUMN_AXIS = I18n.getInstance().getString("graph.table.axis");
+    public static String COLUMN_CUSTOM_CSS = I18n.getInstance().getString("graph.table.css");
 
     final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
     final String keyTotal = I18n.getInstance().getString("plugin.graph.manipulation.total");
@@ -173,7 +174,8 @@ public class WidgetTreePlugin implements TreePlugin {
                 buildDataProcessorColumn(),
                 buildENIPColumn(),
                 buildUnitColumn(),
-                buildAxisColumn());
+                buildAxisColumn(),
+                buildCustomCSSColumn());
         list.add(pluginHeader);
 
         return list;
@@ -227,6 +229,69 @@ public class WidgetTreePlugin implements TreePlugin {
                                     nameField.textProperty().addListener((observable, oldValue, newValue) -> commitEdit(newValue));
 
                                     setGraphic(nameField);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                };
+
+                return cell;
+            }
+        });
+        return column;
+    }
+
+    private TreeTableColumn<JEVisTreeRow, String> buildCustomCSSColumn() {
+        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn<>(COLUMN_CUSTOM_CSS);
+        column.setPrefWidth(180);
+        column.setEditable(true);
+        column.setId(COLUMN_CUSTOM_CSS);
+
+        column.setCellValueFactory(param -> {
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
+            return new ReadOnlyObjectWrapper<>(dataPoint.getCustomCSS());
+        });
+
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, String>, TreeTableCell<JEVisTreeRow, String>>() {
+
+            @Override
+            public TreeTableCell<JEVisTreeRow, String> call(TreeTableColumn<JEVisTreeRow, String> param) {
+
+
+                TreeTableCell<JEVisTreeRow, String> cell = new TreeTableCell<JEVisTreeRow, String>() {
+                    @Override
+                    public void commitEdit(String name) {
+
+                        super.commitEdit(name);
+                        DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
+                        dataPoint.setCustomCSS(name);
+                    }
+
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
+                        if (!empty) {
+                            try {
+                                boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+
+                                if (show) {
+
+                                    DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
+                                    TextField customCSS = new TextField();
+                                    if (dataPoint.getCustomCSS() != null) {
+                                        customCSS.setText(dataPoint.getCustomCSS());
+                                    }
+
+                                    customCSS.textProperty().addListener((observable, oldValue, newValue) -> commitEdit(newValue));
+
+                                    setGraphic(customCSS);
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
