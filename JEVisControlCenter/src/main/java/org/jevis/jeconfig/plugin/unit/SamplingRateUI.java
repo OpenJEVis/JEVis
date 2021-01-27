@@ -62,6 +62,7 @@ public class SamplingRateUI extends ComboBox<Period> {
         this.getItems().add(Period.minutes(1));
         this.getItems().add(Period.hours(1));
         this.getItems().add(Period.days(1));
+        this.getItems().add(Period.weeks(1));
         this.getItems().add(Period.months(1));
         this.getItems().add(Period.years(1));
         this.getItems().add(Period.ZERO);
@@ -170,6 +171,21 @@ public class SamplingRateUI extends ComboBox<Period> {
             } else {
                 returnV += " " + I18n.getInstance().getString("plugin.unit.samplingrate.and") + " " + period.getMonths()
                         + " " + I18n.getInstance().getString("plugin.unit.samplingrate.months");
+            }
+        }
+
+        if (period.getWeeks() > 0) {
+            if (Period.weeks(1).equals(period)) {
+                return I18n.getInstance().getString("plugin.unit.samplingrate.weekly");
+            }
+
+            if (isFirst) {
+                returnV += I18n.getInstance().getString("plugin.unit.samplingrate.every") + " " + period.getWeeks()
+                        + I18n.getInstance().getString("plugin.unit.samplingrate.weeks");
+                isFirst = false;
+            } else {
+                returnV += " " + I18n.getInstance().getString("plugin.unit.samplingrate.and") + " " + period.getWeeks()
+                        + " " + I18n.getInstance().getString("plugin.unit.samplingrate.weeks");
             }
         }
 

@@ -49,6 +49,7 @@ public class WidgetTreePlugin implements TreePlugin {
     public static String DATA_MODEL_NODE = "DataModelNode";
     public static String COLUMN_CLEANING = I18n.getInstance().getString("graph.table.cleaning");
     public static String COLUMN_UNIT = I18n.getInstance().getString("graph.table.unit");
+    public static String COLUMN_NAME = I18n.getInstance().getString("plugin.graph.table.name");
     public static String COLUMN_AXIS = I18n.getInstance().getString("graph.table.axis");
 
     final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
@@ -57,6 +58,10 @@ public class WidgetTreePlugin implements TreePlugin {
     final String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
     final String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
     final String keySortedMax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
+    final String keyMax = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.max");
+    final String keyMin = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.min");
+    final String keyMedian = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.median");
+    final String keyAvg = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.average");
     final String rawDataString = I18n.getInstance().getString("graph.processing.raw");
 
     private JEVisTree jeVisTree;
@@ -71,6 +76,10 @@ public class WidgetTreePlugin implements TreePlugin {
             add(ManipulationMode.NONE);
             add(ManipulationMode.RUNNING_MEAN);
             add(ManipulationMode.CENTRIC_RUNNING_MEAN);
+            add(ManipulationMode.AVERAGE);
+            add(ManipulationMode.MEDIAN);
+            add(ManipulationMode.MIN);
+            add(ManipulationMode.MAX);
             add(ManipulationMode.SORTED_MIN);
             add(ManipulationMode.SORTED_MAX);
         }
@@ -156,6 +165,7 @@ public class WidgetTreePlugin implements TreePlugin {
 
         pluginHeader.getColumns().addAll(
                 buildSelection(),
+                buildNameColumn(),
                 buildChartType(),
                 buildColorColumn(),
                 buildManipulationColumn(),
@@ -167,6 +177,69 @@ public class WidgetTreePlugin implements TreePlugin {
         list.add(pluginHeader);
 
         return list;
+    }
+
+    private TreeTableColumn<JEVisTreeRow, String> buildNameColumn() {
+        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn<>(COLUMN_NAME);
+        column.setPrefWidth(180);
+        column.setEditable(true);
+        column.setId(COLUMN_NAME);
+
+        column.setCellValueFactory(param -> {
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
+            return new ReadOnlyObjectWrapper<>(dataPoint.getName());
+        });
+
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, String>, TreeTableCell<JEVisTreeRow, String>>() {
+
+            @Override
+            public TreeTableCell<JEVisTreeRow, String> call(TreeTableColumn<JEVisTreeRow, String> param) {
+
+
+                TreeTableCell<JEVisTreeRow, String> cell = new TreeTableCell<JEVisTreeRow, String>() {
+                    @Override
+                    public void commitEdit(String name) {
+
+                        super.commitEdit(name);
+                        DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
+                        dataPoint.setName(name);
+                    }
+
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
+                        if (!empty) {
+                            try {
+                                boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+
+                                if (show) {
+
+                                    DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
+                                    TextField nameField = new TextField();
+                                    if (dataPoint.getName() != null) {
+                                        nameField.setText(dataPoint.getName());
+                                    }
+
+                                    nameField.textProperty().addListener((observable, oldValue, newValue) -> commitEdit(newValue));
+
+                                    setGraphic(nameField);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                };
+
+                return cell;
+            }
+        });
+        return column;
     }
 
     private TreeTableColumn<JEVisTreeRow, ChartType> buildChartType() {
@@ -721,6 +794,18 @@ public class WidgetTreePlugin implements TreePlugin {
                                                     switch (manipulationMode) {
                                                         case NONE:
                                                             text = WidgetTreePlugin.this.keyPreset;
+                                                            break;
+                                                        case AVERAGE:
+                                                            text = WidgetTreePlugin.this.keyAvg;
+                                                            break;
+                                                        case MIN:
+                                                            text = WidgetTreePlugin.this.keyMin;
+                                                            break;
+                                                        case MAX:
+                                                            text = WidgetTreePlugin.this.keyMax;
+                                                            break;
+                                                        case MEDIAN:
+                                                            text = WidgetTreePlugin.this.keyMedian;
                                                             break;
                                                         case RUNNING_MEAN:
                                                             text = WidgetTreePlugin.this.keyRunningMean;

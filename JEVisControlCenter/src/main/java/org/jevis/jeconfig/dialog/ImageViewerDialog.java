@@ -209,7 +209,7 @@ public class ImageViewerDialog {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            setText(obj.getJeVisFile().getFilename());
+                            setText(obj.getPdfFile().getFilename());
                         }
                     }
                 };

@@ -59,10 +59,13 @@ import org.jevis.jeconfig.tool.Exceptions;
 import org.jevis.jeconfig.tool.PatchNotesPage;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -380,17 +383,6 @@ public class JEConfig extends Application {
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
 
-                try {
-                    JEVisObject opcserver = _mainDS.getObject(20152l);
-                    System.out.println("opcserver: " + opcserver);
-                    JEVisClass opcclass = opcserver.getJEVisClass();
-                    opcclass.getTypes().forEach(jeVisType -> {
-                        System.out.println("Opc Type: " + jeVisType);
-                    });
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
                 _config.setLocale(login.getSelectedLocale());
 
                 try {
@@ -444,6 +436,7 @@ public class JEConfig extends Application {
                 final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
                 final KeyCombination newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
                 final KeyCombination hiddenSettings = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
+                final KeyCombination mergePeriods = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
                 final KeyCombination help = new KeyCodeCombination(KeyCode.F1);
                 scene.setOnKeyPressed(ke -> {
 //                    Platform.runLater(() -> pluginManager.getToolbar().requestFocus());//the most attribute will validate if the lose focus so we do
@@ -464,6 +457,27 @@ public class JEConfig extends Application {
                         ke.consume();
                     } else if (hiddenSettings.match(ke)) {
                         HiddenConfig.showHiddenConfig();
+                        ke.consume();
+                    } else if (mergePeriods.match(ke) && JEConfig.getExpert()) {
+                        try {
+                            JEVisClass data = _mainDS.getJEVisClass("Data");
+                            List<JEVisObject> objects = _mainDS.getObjects(data, true);
+                            logger.info("Found {} objects for period merge", objects.size());
+                            for (JEVisObject jeVisObject : objects) {
+                                JEVisAttribute valueAttribute = jeVisObject.getAttribute("Value");
+                                JEVisAttribute periodAttribute = jeVisObject.getAttribute("Period");
+
+                                if (valueAttribute != null) {
+                                    Period inputSampleRate = valueAttribute.getInputSampleRate();
+                                    logger.info("Object {} : {} found sample rate: {}", jeVisObject.getName(), jeVisObject.getID(), inputSampleRate);
+                                    DateTime dateTime = new DateTime(2001, 1, 1, 0, 0, 0, 0);
+                                    JEVisSample newSample = periodAttribute.buildSample(dateTime, inputSampleRate);
+                                    periodAttribute.addSamples(Collections.singletonList(newSample));
+                                }
+                            }
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
                         ke.consume();
                     }
                 });

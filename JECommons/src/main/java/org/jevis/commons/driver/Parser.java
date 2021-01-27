@@ -19,10 +19,11 @@
  */
 package org.jevis.commons.driver;
 
-import java.io.InputStream;
-import java.util.List;
 import org.jevis.api.JEVisObject;
 import org.joda.time.DateTimeZone;
+
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * The interface for the Parser. Each Parser object represents a parser object
@@ -37,7 +38,7 @@ public interface Parser {
      *
      * @param parserObject
      */
-    public void initialize(JEVisObject parserObject);
+    void initialize(JEVisObject parserObject);
 
     /**
      * Parse the input and collect the results in the result list.
@@ -45,14 +46,16 @@ public interface Parser {
      * @param input
      * @param timezone
      */
-    public void parse(List<InputStream> input, DateTimeZone timezone);
+    void parse(List<InputStream> input, DateTimeZone timezone);
 
     /**
      * Gets the results from the parsing process.
      *
      * @return
      */
-    public List<Result> getResult();
+    List<Result> getResult();
+
+    ParserReport getReport();
 
 //    public void resetResult(); oder neuen parser?
 }

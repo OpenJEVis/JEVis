@@ -521,18 +521,23 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     private DateTime getNextTS() {
         DateTime nextTS = lastTS;
 
-        JEVisAttribute valueAttribute = null;
+        JEVisAttribute periodAttribute = null;
         if (selectedObject != null) {
             try {
-                valueAttribute = selectedObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
+                periodAttribute = selectedObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
             } catch (JEVisException e) {
                 logger.error("Could not get value attribute", e);
             }
         }
 
-        if (valueAttribute != null) {
+        if (periodAttribute != null) {
 
-            Period p = valueAttribute.getDisplaySampleRate();
+            Period p = Period.ZERO;
+            try {
+                p = new Period(periodAttribute.getLatestSample().getValueAsString());
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
 
             if (p.equals(Period.minutes(15))) {
                 nextTS = lastTS.plusMinutes(15).withSecondOfMinute(0).withMillisOfSecond(0);

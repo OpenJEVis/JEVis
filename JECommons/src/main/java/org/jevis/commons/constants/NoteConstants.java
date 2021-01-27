@@ -6,8 +6,10 @@ import java.util.List;
 
 public class NoteConstants {
     public interface Alignment {
-        String ALIGNMENT_YES = "alignment(yes";
-        String ALIGNMENT_NO = "alignment(no";
+        String ALIGNMENT_YES_NEG = "alignment(yes,-";
+        String ALIGNMENT_YES_POS = "alignment(yes,+";
+        String ALIGNMENT_YES_CLOSE = "s)";
+        String ALIGNMENT_NO = "alignment(no)";
     }
 
     public interface Differential {

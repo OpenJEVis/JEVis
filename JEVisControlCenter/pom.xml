@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.9.45</version>
+    <version>3.9.46</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -29,11 +29,6 @@
         <version>3.4</version>
     </parent>
     <dependencies>
-        <dependency>
-            <groupId>org.jevis</groupId>
-            <artifactId>JEDataProcessor</artifactId>
-            <version>1.5</version>
-        </dependency>
         <dependency>
             <groupId>org.jevis.jeopc</groupId>
             <artifactId>OPCUA-Driver</artifactId>
@@ -161,6 +156,11 @@
             <groupId>de.jollyday</groupId>
             <artifactId>jollyday</artifactId>
             <version>0.5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+            <version>4.1.45.Final</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.jeopc</groupId>

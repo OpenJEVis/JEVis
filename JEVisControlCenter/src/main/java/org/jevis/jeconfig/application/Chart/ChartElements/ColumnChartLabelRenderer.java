@@ -98,12 +98,13 @@ public class ColumnChartLabelRenderer extends LabelledMarkerRenderer {
 
             if (Math.abs(screenX - lastLabel) > lastFontSize && !label.isEmpty()) {
                 gc.save();
-                gc.setLineWidth(0.8);
+                gc.setLineWidth(2.0);
                 gc.setLineDashes(1.0);
 //                gc.translate(Math.ceil(xPos + 3), Math.ceil(0.01 * height));
 //                gc.rotate(-90);
                 gc.setFill(Color.BLACK);
                 gc.setFont(Font.font("Helvetica", 12));
+
                 gc.fillText(label, xRect + 3, yRect + heightRect - 3);
                 gc.restore();
                 lastLabel = screenX;

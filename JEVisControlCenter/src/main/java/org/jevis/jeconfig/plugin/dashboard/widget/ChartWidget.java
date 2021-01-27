@@ -6,19 +6,21 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.TableChartV;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
@@ -116,10 +118,45 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
             Platform.runLater(() -> {
                 this.borderPane.setCenter(null);
-                this.xyChart = new XYChart();
-                this.xyChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
 
-                this.borderPane.setCenter(this.xyChart.getChart());
+                boolean isOnlyTable = true;
+                for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
+                    if (!chartDataRow.getChartType().equals(ChartType.TABLE_V)) {
+                        isOnlyTable = false;
+                        break;
+                    }
+                }
+
+                if (isOnlyTable) {
+                    TableChartV tableChart = new TableChartV();
+
+                    Label titleLabel = new Label(chartSetting.getName());
+                    titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");
+                    titleLabel.setAlignment(Pos.CENTER);
+                    HBox hBox = new HBox(titleLabel);
+                    hBox.setAlignment(Pos.CENTER);
+
+                    TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
+                    tableChart.setTableHeader(tableHeaderTable);
+                    tableHeaderTable.maxWidthProperty().bind(this.borderPane.widthProperty());
+
+                    this.xyChart = tableChart;
+//                    model.setShowSum_NOEVENT(true);
+                    this.xyChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
+
+                    VBox vBox = new VBox(hBox, tableHeaderTable);
+                    VBox.setVgrow(hBox, Priority.NEVER);
+                    VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
+                    this.borderPane.setCenter(vBox);
+                    this.legend.getItems().clear();
+
+                } else {
+                    this.xyChart = new XYChart();
+                    this.xyChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
+
+                    this.borderPane.setCenter(this.xyChart.getChart());
+                }
+
                 Size configSize = getConfig().getSize();
                 xyChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight());
                 updateConfig();

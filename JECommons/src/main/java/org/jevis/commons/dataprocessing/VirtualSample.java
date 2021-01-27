@@ -23,7 +23,7 @@ import org.jevis.api.*;
 import org.joda.time.DateTime;
 
 /**
- * Minimalic implementaions of an JEVisSample to handel temporary Samples.
+ * Minimalistic implementation of an JEVisSample to handle temporary Samples.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -32,13 +32,22 @@ public class VirtualSample implements JEVisSample {
     JEVisDataSource _ds;
     private Double _value;
     private Long _longValue;
+    private String _string;
     private DateTime _timeStamp;
     private JEVisAttribute _att;
     private String _note;
     private JEVisUnit _unit;
 
+    public VirtualSample() {
+    }
+
     public VirtualSample(DateTime ts, Double value) {
         _value = value;
+        _timeStamp = ts;
+    }
+
+    public VirtualSample(DateTime ts, String value) {
+        _string = value;
         _timeStamp = ts;
     }
 
@@ -84,9 +93,14 @@ public class VirtualSample implements JEVisSample {
 
     @Override
     public Object getValue() {
-        if (_value != null)
-            return _value;
-        else return _longValue;
+        if (_value != null) return _value;
+        else if (_longValue != null) return _longValue;
+        else if (_string != null) return _string;
+        return null;
+    }
+
+    public void setTimeStamp(DateTime value) {
+        _timeStamp = value;
     }
 
     @Override
@@ -98,7 +112,9 @@ public class VirtualSample implements JEVisSample {
     public String getValueAsString() {
         if (_value != null)
             return _value.toString();
-        else return _longValue.toString();
+        else if (_longValue != null) return _longValue.toString();
+        else if (_string != null) return _string;
+        return null;
     }
 
     @Override

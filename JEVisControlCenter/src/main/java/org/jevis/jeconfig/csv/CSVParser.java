@@ -62,7 +62,7 @@ public class CSVParser {
         return rows;
     }
 
-    private List<CSVLine> parseLines(List<String> list, String enclosed, String seperator, int header) {
+    private List<CSVLine> parseLines(List<String> list, String enclosed, String separator, int header) {
         List<CSVLine> csvLines = new ArrayList<>();
         int count = -1;
         for (String line : list) {
@@ -77,7 +77,7 @@ public class CSVParser {
                 continue;
             }
 
-            CSVLine csvline = new CSVLine(line, enclosed, seperator, count);
+            CSVLine csvline = new CSVLine(line, enclosed, separator, count);
             csvLines.add(csvline);
 
             if (_maxColumnCount < csvline.getColumnCount()) {

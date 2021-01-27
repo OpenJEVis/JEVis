@@ -67,20 +67,20 @@ import java.util.*;
 public class CSVColumnHeader {
 
     private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
-    private static double FIELD_WIDTH = 210;
-    private static double ROW_HIGHT = 25;
+    private static final double FIELD_WIDTH = 210;
+    private static final double ROW_HIGHT = 25;
     final Button unitButton = new Button(I18n.getInstance().getString("csv.table.unit"));
     private final VBox root = new VBox(5);
-    private Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
-    private Label formatL = new Label(I18n.getInstance().getString("csv.table.format"));
-    private DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+    private final Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
+    private final Label formatL = new Label(I18n.getInstance().getString("csv.table.format"));
+    private final DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
     private JEVisAttribute _target = null;
     private ComboBox<Meaning> meaning;
-    private HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
-    private HashMap<Integer, SimpleObjectProperty<Node>> _valueProperty = new HashMap<Integer, SimpleObjectProperty<Node>>();
-    private HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
+    private final HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
+    private final HashMap<Integer, SimpleObjectProperty<Node>> _valueProperty = new HashMap<Integer, SimpleObjectProperty<Node>>();
+    private final HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
     private DateTimeZone _selectedTimeZone = DateTimeZone.getDefault();
-    private CSVTable _table;
+    private final CSVTable _table;
     private String _currentFormat;
     private char _decimalSeparator;
 
@@ -214,8 +214,8 @@ public class CSVColumnHeader {
                 case Date:
                 case DateTime:
                 case Time:
-                    Date time = getDateFormater().parse(value);
-                    return getDateFormater().format(time);
+                    Date time = getDateFormatter().parse(value);
+                    return getDateFormatter().format(time);
                 case Value:
                     DecimalFormat df = new DecimalFormat("###,###,###,###,###,###,###,###,###,##0.00###################################");
 
@@ -259,7 +259,7 @@ public class CSVColumnHeader {
      */
     public DateTime getValueAsDate(String value) throws ParseException {
         if (getMeaning() == Meaning.Date || getMeaning() == Meaning.DateTime || getMeaning() == Meaning.Time) {
-            Date datetime = getDateFormater().parse(value);
+            Date datetime = getDateFormatter().parse(value);
             datetime.getTime();
             return new DateTime(datetime).withZoneRetainFields(getTimeZone());
 
@@ -269,7 +269,7 @@ public class CSVColumnHeader {
         }
     }
 
-    public SimpleDateFormat getDateFormater() {
+    public SimpleDateFormat getDateFormatter() {
         return dateFormatter;
     }
 
@@ -285,11 +285,11 @@ public class CSVColumnHeader {
             switch (currentMeaning) {
                 case Date:
                 case DateTime:
-                    Date datetime = getDateFormater().parse(value);
-                    getDateFormater().format(datetime);
+                    Date datetime = getDateFormatter().parse(value);
+                    getDateFormatter().format(datetime);
                     return true;
                 case Time:
-                    Date time = getDateFormater().parse(value);
+                    Date time = getDateFormatter().parse(value);
                     time.getTime();
                     return true;
                 case Value:

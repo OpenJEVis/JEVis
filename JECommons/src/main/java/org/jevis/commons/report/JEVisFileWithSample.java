@@ -4,27 +4,29 @@ import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
 
 public class JEVisFileWithSample {
-    private JEVisSample jeVisSample;
-    private JEVisFile jeVisFile;
+    private final JEVisSample jeVisSample;
+    private final JEVisFile pdfFile;
+    private final JEVisFile xlsxFile;
 
-    public JEVisFileWithSample(JEVisSample jeVisSample, JEVisFile jeVisFile) {
+    public JEVisFileWithSample(JEVisSample jeVisSample, JEVisFile pdfFile, JEVisFile xlsxFile) {
         this.jeVisSample = jeVisSample;
-        this.jeVisFile = jeVisFile;
+        this.pdfFile = pdfFile;
+        this.xlsxFile = xlsxFile;
+    }
+
+    public JEVisFileWithSample(JEVisSample jeVisSample, JEVisFile pdfFile) {
+        this(jeVisSample, pdfFile, null);
     }
 
     public JEVisSample getJeVisSample() {
         return jeVisSample;
     }
 
-    public void setJeVisSample(JEVisSample jeVisSample) {
-        this.jeVisSample = jeVisSample;
+    public JEVisFile getPdfFile() {
+        return pdfFile;
     }
 
-    public JEVisFile getJeVisFile() {
-        return jeVisFile;
-    }
-
-    public void setJeVisFile(JEVisFile jeVisFile) {
-        this.jeVisFile = jeVisFile;
+    public JEVisFile getXlsxFile() {
+        return xlsxFile;
     }
 }

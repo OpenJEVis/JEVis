@@ -39,9 +39,11 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ImageViewerDialog;
 import org.jevis.jeconfig.dialog.PDFViewerDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
+import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -895,6 +897,56 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     }
 
     /**
+     * Create an Callback cell for String based values
+     *
+     * @return
+     */
+    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> valueCellPeriod() {
+        return new Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>>() {
+            @Override
+            public TableCell<TableSample, Object> call(TableColumn<TableSample, Object> param) {
+                return new TableCell<TableSample, Object>() {
+
+                    @Override
+                    protected void updateItem(Object item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            Period p = Period.ZERO;
+                            try {
+                                p = new Period(tableSample.getValue().toString());
+                            } catch (Exception e) {
+                                logger.error(e);
+                            }
+                            SamplingRateUI samplingRateUI = new SamplingRateUI(p);
+
+                            setDefaultFieldStyle(this, samplingRateUI);
+                            samplingRateUI.autosize();
+
+                            samplingRateUI.samplingRateProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
+                                    setDefaultCellStyle(this);
+                                    tableSample.setValue(newValue + "");
+                                } catch (Exception ex) {
+                                    setErrorCellStyle(this, ex);
+                                    logger.error("Error in string text", ex);
+                                }
+                            });
+
+                            setGraphic(samplingRateUI);
+                        }
+
+                    }
+                };
+            }
+
+        };
+    }
+
+    /**
      * Create an Callback cell for String based passwords. Text will be shown as ****
      *
      * @return
@@ -1032,6 +1084,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                 default:
                     if (attribute.getName().equalsIgnoreCase("Password") || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {
                         column.setCellFactory(valueCellStringPassword());
+                    } else if (attribute.getType().getGUIDisplayType().equalsIgnoreCase("Period")) {
+                        column.setCellFactory(valueCellPeriod());
                     } else {
                         column.setCellFactory(valueCellString());
                     }

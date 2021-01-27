@@ -48,6 +48,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -62,7 +63,6 @@ import org.jevis.jeconfig.bulkedit.CreateTable;
 import org.jevis.jeconfig.bulkedit.EditTable;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.tool.LoadingPane;
-import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -80,19 +80,19 @@ import java.util.List;
 public class ObjectPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ObjectPlugin.class);
     public static String PLUGIN_NAME = "Configuration Plugin";
-    private StringProperty name = new SimpleStringProperty("*NO_NAME*");
-    private StringProperty id = new SimpleStringProperty("*NO_ID*");
+    private final StringProperty name = new SimpleStringProperty("*NO_NAME*");
+    private final StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane viewPane;
     //    private ObjectTree tf;
 //    private ObjectTree tree;
     private JEVisTree tree;
-    private LoadingPane editorLoadingPane = new LoadingPane();
-    private LoadingPane treeLoadingPane = new LoadingPane();
+    private final LoadingPane editorLoadingPane = new LoadingPane();
+    private final LoadingPane treeLoadingPane = new LoadingPane();
     private final ToolBar toolBar = new ToolBar();
-    private ObjectEditor _editor = new ObjectEditor();
-    private SimpleBooleanProperty loadingObjectProperty = new SimpleBooleanProperty();
-    private String tooltip = I18n.getInstance().getString("pluginmanager.object.tooltip");
+    private final ObjectEditor _editor = new ObjectEditor();
+    private final SimpleBooleanProperty loadingObjectProperty = new SimpleBooleanProperty();
+    private final String tooltip = I18n.getInstance().getString("pluginmanager.object.tooltip");
     private boolean initToolbar = false;
 
     public ObjectPlugin(JEVisDataSource ds, String newname) {

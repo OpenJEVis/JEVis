@@ -21,25 +21,41 @@ import java.util.List;
 public class DataMethods extends CommonMethods {
     private static final Logger logger = LogManager.getLogger(DataMethods.class);
 
-    public static void setUnitAndPeriod(ProgressForm pForm, JEVisObject jeVisObject, boolean isUnit, UnitSelectUI unit, boolean isPeriod, SamplingRateUI rate) throws JEVisException {
-        if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
+    public static void setUnitAndPeriod(ProgressForm pForm, JEVisObject jeVisObject, boolean isUnit, UnitSelectUI unit, boolean isPeriod, boolean isNewType, DateTime dateTime, SamplingRateUI rate) throws JEVisException {
+        if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")
+                || jeVisObject.getJEVisClassName().equals("Base Data") || jeVisObject.getJEVisClassName().equals("Math Data")
+                || jeVisObject.getJEVisClassName().equals("String Data")) {
             JEVisAttribute valueAtt = jeVisObject.getAttribute("Value");
             if (isUnit) {
                 pForm.addMessage("Setting unit for object " + jeVisObject.getName() + ":" + jeVisObject.getID());
                 valueAtt.setDisplayUnit(unit.getUnit());
                 valueAtt.setInputUnit(unit.getUnit());
+                valueAtt.commit();
             }
 
-            if (isPeriod) {
+            if (isPeriod && !isNewType) {
                 pForm.addMessage("Setting period for object " + jeVisObject.getName() + ":" + jeVisObject.getID());
                 valueAtt.setDisplaySampleRate(rate.samplingRateProperty().getValue());
                 valueAtt.setInputSampleRate(rate.samplingRateProperty().getValue());
+                valueAtt.commit();
+
+            } else if (isPeriod) {
+                pForm.addMessage("Setting period for object " + jeVisObject.getName() + ":" + jeVisObject.getID());
+                JEVisAttribute periodAttribute = jeVisObject.getAttribute("Period");
+                if (periodAttribute != null) {
+                    List<JEVisSample> oldSamples = periodAttribute.getSamples(dateTime, dateTime);
+                    if (!oldSamples.isEmpty()) {
+                        periodAttribute.deleteSamplesBetween(dateTime, dateTime);
+                    }
+
+                    JEVisSample newSample = periodAttribute.buildSample(dateTime, rate.getPeriod());
+                    periodAttribute.addSamples(Collections.singletonList(newSample));
+                }
             }
-            valueAtt.commit();
         }
 
         for (JEVisObject jeVisObject1 : jeVisObject.getChildren()) {
-            setUnitAndPeriod(pForm, jeVisObject1, isUnit, unit, isPeriod, rate);
+            setUnitAndPeriod(pForm, jeVisObject1, isUnit, unit, isPeriod, isNewType, dateTime, rate);
         }
     }
 

@@ -202,6 +202,8 @@ public class DataModelDataHandler {
                             chartDataRow.setChartType(ChartType.LINE);
                         }
 
+                        chartDataRow.setTitle(dataPointNode.getName());
+
                         if (dataPointNode.getUnit() != null) {
                             chartDataRow.setUnit(ChartUnits.parseUnit(dataPointNode.getUnit()));
                         }
@@ -357,10 +359,10 @@ public class DataModelDataHandler {
                 chartDataRow.setAggregationPeriod(aggregationPeriod);
             }
 
-            if (chartDataRow.getManipulationMode() == ManipulationMode.NONE) {
-                ManipulationMode manipulationMode = getManipulationMode(interval);
-                chartDataRow.setManipulationMode(manipulationMode);
-            }
+//            if (chartDataRow.getManipulationMode() == ManipulationMode.NONE) {
+//                ManipulationMode manipulationMode = getManipulationMode(interval);
+//                chartDataRow.setManipulationMode(manipulationMode);
+//            }
 
             chartDataRow.setAbsolute(autoAggregation);
         }
@@ -385,6 +387,9 @@ public class DataModelDataHandler {
                 dataNode.put("objectID", dataPointNode.getObjectID());
                 dataNode.put("attribute", dataPointNode.getAttribute());
                 dataNode.put("calculationID", dataPointNode.getCalculationID());
+
+                dataNode.put("name", dataPointNode.getName());
+
                 if (dataPointNode.getChartType() != null) {
                     dataNode.put("chartType", dataPointNode.getChartType().toString());
                 } else {

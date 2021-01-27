@@ -45,8 +45,6 @@ import org.jevis.jeconfig.dialog.ImageViewerDialog;
 import org.jevis.jeconfig.dialog.PDFViewerDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 
@@ -253,17 +251,10 @@ public class FileEditor implements AttributeEditor {
                 loadWithAnimation();
                 JEVisFile file = attribute.getLatestSample().getValueAsFile();
 
-                DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
-
                 FileChooser fileChooser = new FileChooser();
-//                    fileChooser.setInitialFileName(attribute.getObject().getName() + "_" + fmt.print(attribute.getLatestSample().getTimestamp()));
                 fileChooser.setInitialFileName(file.getFilename());
                 fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
-                fileChooser.getExtensionFilters().addAll(
-                        //                            new ExtensionFilter("Text Files", "*.txt"),
-                        //                            new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
-                        //                            new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
-                        new ExtensionFilter("All Files", "*.*"));
+                fileChooser.getExtensionFilters().addAll(new ExtensionFilter("All Files", "*.*"));
                 File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
                 if (selectedFile != null) {
                     JEConfig.setLastPath(selectedFile);

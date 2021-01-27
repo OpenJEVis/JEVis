@@ -168,7 +168,7 @@ public class LoytecXmlDlParser {
 
 //                DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern);
 //                DateTime dateTime = fmt.parseDateTime(dateString);
-                DateTime dateTime = TimeConverter.parserDateTime(dateString, pattern, timeZone);
+                DateTime dateTime = TimeConverter.parseDateTime(dateString, pattern, timeZone);
 
 //                    dpParser.parse(ic);
 //                    value = dpParser.getValue();
