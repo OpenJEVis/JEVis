@@ -21,8 +21,6 @@
 package org.jevis.jeconfig.application.jevistree;
 
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -51,6 +49,8 @@ import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Dialog to prompt the user about the copy/clone/move action
@@ -76,44 +76,58 @@ public class CopyObjectDialog {
     private boolean includeValuesAllowed = true;
     private final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
+
+    public Response show(Stage owner, final JEVisObject object, final JEVisObject newParent, DefaultAction defaultAction) {
+        List<JEVisObject> objects = new ArrayList<>();
+        objects.add(object);
+        return show(owner, objects, newParent, defaultAction);
+    }
+
     /**
      * @param owner
-     * @param object
+     * @param objects
      * @param newParent
      * @return
      */
-    public Response show(Stage owner, final JEVisObject object, final JEVisObject newParent, DefaultAction defaultAction) {
+    public Response show(Stage owner, final List<JEVisObject> objects, final JEVisObject newParent, DefaultAction defaultAction) {
 
 //        boolean linkOK = false;
         try {
 
-            if (!object.getDataSource().getCurrentUser().canCreate(object.getID())) {
-                showError(I18n.getInstance().getString("jevistree.dialog.copy.permission.denied"), I18n.getInstance().getString("jevistree.dialog.copy.permission.denied.message"));
-                return Response.CANCEL;
+            boolean recursionForAll = true;
+
+            for (JEVisObject object : objects) {
+                if (!object.getDataSource().getCurrentUser().canCreate(object.getID())) {
+                    showError(I18n.getInstance().getString("jevistree.dialog.copy.permission.denied"), I18n.getInstance().getString("jevistree.dialog.copy.permission.denied.message"));
+                    return Response.CANCEL;
+                }
+
+                if (!object.getJEVisClassName().equals("Link") && !object.isAllowedUnder(newParent)) {
+                    showError(I18n.getInstance().getString("jevistree.dialog.copy.rules.error"),
+                            String.format(I18n.getInstance().getString("jevistree.dialog.copy.rules.error.message"), object.getJEVisClass().getName(),
+                                    newParent.getJEVisClass().getName()));
+                    return Response.CANCEL;
+                }
+                //Don't allow recursion if the process failed the recursion check
+                this.recursionAllowed = !TreeHelper.isOwnChildCheck(object, newParent);
+                if (!recursionAllowed) {
+                    recursionForAll = false;
+                }
+
+                /**
+                 if (!recursionAllowed) {
+                 this.recursion.setSelected(false);
+                 }
+
+                 this.recursion.setDisable(!this.recursionAllowed);
+                 this.move.setDisable(!this.recursionAllowed);
+                 **/
             }
 
-//            if (newParent.getJEVisClassName().equals("Link")
-//                    || newParent.getJEVisClassName().equals("View Directory")) {
-//                linkOK = true;
-//            }
-            /** links are now ok everywhere **/
-//            linkOK = true;
+            this.recursion.setSelected(recursionForAll);
+            this.recursion.setDisable(!recursionForAll);
+            this.move.setDisable(!recursionForAll);
 
-
-            if (!object.getJEVisClassName().equals("Link") && !object.isAllowedUnder(newParent)) {
-                showError(I18n.getInstance().getString("jevistree.dialog.copy.rules.error"),
-                        String.format(I18n.getInstance().getString("jevistree.dialog.copy.rules.error.message"), object.getJEVisClass().getName(),
-                                newParent.getJEVisClass().getName()));
-                return Response.CANCEL;
-            }
-            //Don't allow recursion if the process failed the recursion check
-            this.recursionAllowed = !TreeHelper.isOwnChildCheck(object, newParent);
-            if (!recursionAllowed) {
-                this.recursion.setSelected(false);
-            }
-
-            this.recursion.setDisable(!this.recursionAllowed);
-            this.move.setDisable(!this.recursionAllowed);
 
         } catch (JEVisException ex) {
             logger.fatal(ex);
@@ -122,8 +136,6 @@ public class CopyObjectDialog {
         }
 
         final Stage stage = new Stage();
-
-        final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
         stage.setTitle(I18n.getInstance().getString("jevistree.dialog.copy.title"));
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -238,7 +250,7 @@ public class CopyObjectDialog {
                         CopyObjectDialog.this.count.setDisable(false);
                         nameLabel.setDisable(false);
                         countLabel.setDisable(false);
-                        CopyObjectDialog.this.nameField.setText(object.getName());
+                        //CopyObjectDialog.this.nameField.setText(objects.getName());
 
                         CopyObjectDialog.this.includeSamples.setDisable(!CopyObjectDialog.this.includeDataAllowed);
                         CopyObjectDialog.this.includeSamples.setSelected(true);
@@ -250,6 +262,10 @@ public class CopyObjectDialog {
                         checkName();
                     }
 
+                    if (objects.size() != 1) {
+                        nameLabel.setDisable(true);
+                        nameField.setDisable(true);
+                    }
 
                 }
 
@@ -261,23 +277,36 @@ public class CopyObjectDialog {
         });
 
         try {
-//            this.link.setDisable(!linkOK);
 
-            if (object.isAllowedUnder(newParent)) {
+
+            if (objects.size() == 1) {
+                this.nameField.setText(objects.get(0).getName());
+            } else {
+                this.nameField.setText("*");
+            }
+
+
+            boolean isAllowedForAll = true;
+            for (JEVisObject obj : objects) {
+                if (!obj.isAllowedUnder(newParent)) {
+                    isAllowedForAll = false;
+                }
+            }
+
+
+            if (isAllowedForAll) {
                 if (recursionAllowed) {
                     this.move.setDisable(false);
                 }
                 this.copy.setDisable(false);
-//                clone.setDisable(false);
             } else {
                 this.move.setDisable(true);
                 this.copy.setDisable(true);
-//                clone.setDisable(true);
             }
 
             if (!this.link.isDisable()) {
                 group.selectToggle(this.link);
-                this.nameField.setText(object.getName());
+                //this.nameField.setText(objects.getName());
                 this.ok.setDisable(false);
             } else if (!this.move.isDisable()) {
                 group.selectToggle(this.move);

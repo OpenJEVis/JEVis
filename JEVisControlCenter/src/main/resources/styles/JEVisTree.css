@@ -1,14 +1,17 @@
-.table-row-cell:odd{
-    -fx-background-color:lightblue;
-}
 
-.tree-table-row-cell:odd{
-    -fx-background-color: #f5f5f0;
-    -fx-highlight-text-fill: black;
-    -fx-highlight-text-fill: black;
-}
 
-.tree-table-row-cell:focused{
-    -fx-highlight-text-fill: black;
-    -fx-background-color: #008dbd;
-}
+
+.tree-table-row-cell: odd{
+     -fx-background-color: #f5f5f0;
+     -fx-highlight-text-fill: black;
+ }
+
+ .tree-table-row-cell: hover {
+     -fx-background-color: #0096c9;
+     -fx-highlight-text-fill: white;
+ }
+
+ .tree-table-row-cell: selected{
+     -fx-background-color: #0096c9;
+     -fx-highlight-text-fill: white;
+ }

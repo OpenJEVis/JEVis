@@ -113,64 +113,76 @@ public class TreeHelper {
             question += "?";
 
             try {
-                if (items.get(0).getValue().getJEVisObject().getDataSource().getCurrentUser().canDelete(items.get(0).getValue().getJEVisObject().getID())) {
+                for (TreeItem<JEVisTreeRow> treeItem : items) {
+                    if (treeItem.getValue().getJEVisObject().getDataSource().getCurrentUser().canDelete(treeItem.getValue().getJEVisObject().getID())) {
 
-                    Alert alert = new Alert(AlertType.CONFIRMATION);
-                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.delete.title"));
-                    alert.setHeaderText(null);
-                    alert.setContentText(question);
+                        Alert alert = new Alert(AlertType.CONFIRMATION);
+                        alert.setTitle(I18n.getInstance().getString("jevistree.dialog.delete.title"));
+                        alert.setHeaderText(null);
+                        alert.setContentText(question);
 
-                    alert.showAndWait().ifPresent(buttonType -> {
-                        if (buttonType.equals(ButtonType.OK)) {
-                            final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
+                        alert.showAndWait().ifPresent(buttonType -> {
+                            if (buttonType.equals(ButtonType.OK)) {
+                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
 
-                            Task<Void> delete = new Task<Void>() {
-                                @Override
-                                protected Void call() throws Exception {
-                                    try {
-                                        for (TreeItem<JEVisTreeRow> item : items) {
-                                            Long id = item.getValue().getJEVisObject().getID();
-                                            item.getValue().getJEVisObject().getDataSource().deleteObject(id);
-                                            if (item.getParent() != null) {
-                                                item.getParent().getChildren().remove(item);
+                                Task<Void> delete = new Task<Void>() {
+                                    @Override
+                                    protected Void call() throws Exception {
+                                        try {
+                                            Long id = treeItem.getValue().getJEVisObject().getID();
+                                            System.out.println("Delete Object: " + treeItem.getValue().getJEVisObject());
+                                            treeItem.getValue().getJEVisObject().getDataSource().deleteObject(id);
+                                            if (treeItem.getParent() != null) {
+                                                treeItem.getParent().getChildren().remove(treeItem);
                                             }
+                                            /**
+                                             for (TreeItem<JEVisTreeRow> item : items) {
+                                             Long id = item.getValue().getJEVisObject().getID();
+                                             System.out.println("Delete Object: " + item.getValue().getJEVisObject());
+                                             item.getValue().getJEVisObject().getDataSource().deleteObject(id);
+                                             if (item.getParent() != null) {
+                                             item.getParent().getChildren().remove(item);
+                                             }
+                                             }
+                                             **/
+                                        } catch (Exception ex) {
+                                            logger.catching(ex);
+                                            CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                                    I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
                                         }
-                                    } catch (Exception ex) {
-                                        logger.catching(ex);
-                                        CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
-                                                I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                                        return null;
                                     }
-                                    return null;
-                                }
-                            };
-                            delete.setOnSucceeded(event -> pForm.getDialogStage().close());
+                                };
+                                delete.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                            delete.setOnCancelled(event -> {
-                                logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
-                                pForm.getDialogStage().hide();
-                            });
+                                delete.setOnCancelled(event -> {
+                                    logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
+                                    pForm.getDialogStage().hide();
+                                });
 
-                            delete.setOnFailed(event -> {
-                                logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
-                                pForm.getDialogStage().hide();
-                            });
+                                delete.setOnFailed(event -> {
+                                    logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
+                                    pForm.getDialogStage().hide();
+                                });
 
-                            pForm.activateProgressBar(delete);
-                            pForm.getDialogStage().show();
+                                pForm.activateProgressBar(delete);
+                                pForm.getDialogStage().show();
 
-                            new Thread(delete).start();
+                                new Thread(delete).start();
 
-                        } else {
-                            // ... user chose CANCEL or closed the dialog
-                        }
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
-                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
-                        alert1.showAndWait();
-                    });
+                            } else {
+                                // ... user chose CANCEL or closed the dialog
+                            }
+                        });
+                    } else {
+                        Platform.runLater(() -> {
+                            Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                            alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                            alert1.showAndWait();
+                        });
+                    }
                 }
+
             } catch (JEVisException e) {
                 logger.error("Could not get JEVis data source. ", e);
             }
@@ -1107,37 +1119,60 @@ public class TreeHelper {
         }
     }
 
-    public static void moveObject(final JEVisObject moveObj, final JEVisObject targetObj) {
+    public static void moveObject(final List<JEVisObject> moveObj, final JEVisObject targetObj) {
         logger.debug("EventMoveObject");
-        try {
 
-            // remove other parent relationships
-            for (JEVisRelationship rel : moveObj.getRelationships(JEVisConstants.ObjectRelationship.PARENT)) {
-                if (rel.getStartObject().equals(moveObj)) {
-                    moveObj.deleteRelationship(rel);
+
+        for (JEVisObject obj : moveObj) {
+            try {
+                // remove other parent relationships
+                try {
+                    //From Child to Parent
+                    for (JEVisRelationship rel : obj.getRelationships(JEVisConstants.ObjectRelationship.PARENT)) {
+                        if (rel.getStartObject().equals(obj)) {
+                            obj.deleteRelationship(rel);
+                        }
+                    }
+                } catch (Exception ex) {
+                    logger.error("Error while deleting old parentship", ex, ex);
                 }
+
+                try {
+                    JEVisRelationship newRel = obj.buildRelationship(targetObj, JEVisConstants.ObjectRelationship.PARENT, JEVisConstants.Direction.FORWARD);
+                } catch (Exception ex) {
+                    logger.error("Error while creating new parentship", ex, ex);
+                }
+
+
+            } catch (Exception ex) {
+                logger.catching(ex);
+                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.move.error.title"),
+                        I18n.getInstance().getString("jevistree.dialog.move.error.message"), null, ex);
             }
-
-            JEVisRelationship newRel = moveObj.buildRelationship(targetObj, JEVisConstants.ObjectRelationship.PARENT, JEVisConstants.Direction.FORWARD);
-
-
-        } catch (Exception ex) {
-            logger.catching(ex);
-            CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.move.error.title"),
-                    I18n.getInstance().getString("jevistree.dialog.move.error.message"), null, ex);
         }
+
+
     }
 
-    public static void buildLink(JEVisObject linkSrcObj, final JEVisObject targetParent, String linkName) {
+    public static void buildLink(List<JEVisObject> linkSrcObjs, final JEVisObject targetParent, String selectedLinkName) {
         try {
-            JEVisObject newLinkObj = targetParent.buildObject(linkName, targetParent.getDataSource().getJEVisClass(CommonClasses.LINK.NAME));
-            newLinkObj.commit();
-            logger.debug("new LinkObject: " + newLinkObj);
-            CommonObjectTasks.createLink(newLinkObj, linkSrcObj);
+
+            for (JEVisObject linkSrcObj : linkSrcObjs) {
+                String linkName = selectedLinkName;
+                if (linkSrcObjs.size() > 1) {
+                    linkName = linkSrcObj.getName();
+                }
+
+                JEVisObject newLinkObj = targetParent.buildObject(linkName, targetParent.getDataSource().getJEVisClass(CommonClasses.LINK.NAME));
+                newLinkObj.commit();
+                logger.debug("new LinkObject: " + newLinkObj);
+                CommonObjectTasks.createLink(newLinkObj, linkSrcObj);
+            }
+
         } catch (JEVisException ex) {
-            logger.error(ex);
+            logger.error(ex, ex);
         } catch (Exception ex) {
-            logger.fatal(ex);
+            logger.fatal(ex, ex);
         }
     }
 
@@ -1194,15 +1229,27 @@ public class TreeHelper {
 
     private final static Pattern lastIntPattern = Pattern.compile("[^0-9]+([0-9]+)$");
 
-    public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent, CopyObjectDialog.DefaultAction mode) {
+    public static void EventDrop(final JEVisTree tree, List<JEVisObject> dragObj, JEVisObject targetParent, CopyObjectDialog.DefaultAction mode) {
         try {
-            if (targetParent.getID() != null && tree.getJEVisDataSource().getCurrentUser().canCreate(targetParent.getID())) {
 
-                logger.trace("EventDrop");
-                boolean isOwnChild = isOwnChildCheck(dragObj, targetParent);
-                //boolean isOwnParen = isOwnParentCheck(dragObj, targetParent);
-                logger.error("Is ownChild: {}", isOwnChild);
+            boolean permissionsOK = true;
+            boolean isOwnChild = false;
+            for (JEVisObject obj : dragObj) {
+                if (targetParent.getID() != null && tree.getJEVisDataSource().getCurrentUser().canCreate(targetParent.getID())) {
 
+                    logger.trace("EventDrop");
+                    if (isOwnChildCheck(obj, targetParent)) {
+                        isOwnChild = true;
+                    }
+
+                    //boolean isOwnParen = isOwnParentCheck(dragObj, targetParent);
+                    logger.error("Is ownChild: {}", isOwnChild);
+                } else {
+                    permissionsOK = false;
+                }
+            }
+
+            if (permissionsOK) {
                 CopyObjectDialog dia = new CopyObjectDialog();
                 CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent, mode);
 
@@ -1210,12 +1257,12 @@ public class TreeHelper {
                 recursion = !isOwnChild && recursion;
                 logger.warn("Warning recursion detected disable recursion: {}", recursion);
 
-
                 if (re == CopyObjectDialog.Response.MOVE) {
                     moveObject(dragObj, targetParent);
                 } else if (re == CopyObjectDialog.Response.LINK) {
                     buildLink(dragObj, targetParent, dia.getCreateName());
                 } else if (re == CopyObjectDialog.Response.COPY) {
+                    System.out.println("--- Copy object: " + dragObj + " newParent: " + targetParent);
                     copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), recursion, dia.getCreateCount());
                 }
             } else {
@@ -1224,8 +1271,9 @@ public class TreeHelper {
                     alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
                     alert1.showAndWait();
                 });
-
             }
+
+
         } catch (JEVisException e) {
             logger.error("Could not get jevis data source.", e);
         }
@@ -1331,62 +1379,70 @@ public class TreeHelper {
 
     }
 
-    public static void copyObject(final JEVisObject toCopyObj, final JEVisObject newParent, String newName,
+    public static void copyObject(final List<JEVisObject> toCopyObjs, final JEVisObject newParent, String selectedName,
                                   boolean includeData, boolean includeValues, boolean recursive, int createCount) {
         try {
-            logger.debug("-> Copy ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
+            for (JEVisObject toCopyObj : toCopyObjs) {
+                logger.debug("-> Copy ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
-            final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.menu.copy") + "...");
+                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.menu.copy") + "...");
 
-            Task<Void> upload = new Task<Void>() {
-                @Override
-                protected Void call() {
+                Task<Void> upload = new Task<Void>() {
+                    @Override
+                    protected Void call() {
 
-                    try {
-                        for (int i = 0; i < createCount; i++) {
-                            String name = newName;
-                            if (createCount > 1) {
-                                name += (" " + (i + 1));
+                        try {
+                            String name = toCopyObj.getName();
+                            if (toCopyObjs.size() == 1) name = selectedName;
+
+
+                            for (int i = 0; i < createCount; i++) {
+                                String newName = name;
+                                if (createCount > 1) {
+                                    newName += (" " + (i + 1));
+                                }
+                                copyObjectUnder(toCopyObj, newParent, newName, includeData, includeValues, recursive);
                             }
-                            copyObjectUnder(toCopyObj, newParent, name, includeData, includeValues, recursive);
+
+                        } catch (Exception ex) {
+                            logger.catching(ex);
+                            CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.copy.error.title"),
+                                    I18n.getInstance().getString("jevistree.dialog.copy.error.message"), null, ex);
+                            failed();
                         }
-
-                    } catch (Exception ex) {
-                        logger.catching(ex);
-                        CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.copy.error.title"),
-                                I18n.getInstance().getString("jevistree.dialog.copy.error.message"), null, ex);
-                        failed();
+                        return null;
                     }
-                    return null;
-                }
-            };
-            upload.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-                @Override
-                public void handle(WorkerStateEvent event) {
-                    pForm.getDialogStage().close();
-                }
-            });
+                };
+                upload.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        pForm.getDialogStage().close();
+                    }
+                });
 
-            upload.setOnCancelled(new EventHandler<WorkerStateEvent>() {
-                @Override
-                public void handle(WorkerStateEvent event) {
-                    logger.error("Upload Cancel");
-                    pForm.getDialogStage().hide();
-                }
-            });
+                upload.setOnCancelled(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        logger.error("Upload Cancel");
+                        pForm.getDialogStage().hide();
+                    }
+                });
 
-            upload.setOnFailed(new EventHandler<WorkerStateEvent>() {
-                @Override
-                public void handle(WorkerStateEvent event) {
-                    logger.error("Upload failed");
-                    pForm.getDialogStage().hide();
-                }
-            });
+                upload.setOnFailed(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        logger.error("Upload failed");
+                        pForm.getDialogStage().hide();
+                    }
+                });
 
-            pForm.activateProgressBar(upload);
-            pForm.getDialogStage().show();
+                pForm.activateProgressBar(upload);
+                pForm.getDialogStage().show();
 
-            new Thread(upload).start();
+                new Thread(upload).start();
+
+            }
+
 
         } catch (Exception ex) {
             logger.catching(ex);
