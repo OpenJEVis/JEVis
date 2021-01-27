@@ -49,7 +49,118 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.45------\n" +
+            "------Version 3.9.46------\n" +
+                    "Classes - Calculation - added translation for missing calculation attributes\n" +
+                    "Classes - Data - added period attribute\n" +
+                    "Classes - Data - added period attribute \n" +
+                    "Classes - EMail Channel.json - added missing attributes\n" +
+                    "Classes - EMailServer - fixed enums and added translation\n" +
+                    "Classes - PeriodicReport.json - fixed problem in schedule enum\n" +
+                    "Classes - fixed base data relationship\n" +
+                    "Classes - new folder icon for Equipment Register\n" +
+                    "\n" +
+                    "DataCollector - CSVParser - added utf-8 bom support\n" +
+                    "DataCollector - CSVParser - fixed equivalence in mapping identifiern\n" +
+                    "DataCollector - FTPDataSource - added parser report error log to delete from server check\n" +
+                    "DataCollector - JEVisCSVParser - changed broken target configuration to warning\n" +
+                    "DataCollector - Parser - added parser report for all parser\n" +
+                    "DataCollector - fixed some pom settings\n" +
+                    "DataCollector - merged email driver into main\n" +
+                    "\n" +
+                    "JEAlarm - improved performance\n" +
+                    "\n" +
+                    "JECC - Add recalculate buttons to calculations and clean data\n" +
+                    "JECC - Added color themes, merged/distributed css files\n" +
+                    "JECC - BaseDataPlugin, EquipmentPlugin, MeterPlugin - pulled equal member up to TablePlugin, new style\n" +
+                    "JECC - CalculationExtension - Naming of clean under clean DR\n" +
+                    "JECC - ChartPlugin - Table - JavaFX thread exeption \n" +
+                    "JECC - ChartPlugin - TableChart - fixed missing units in sum row at the bottom\n" +
+                    "JECC - ChartPlugin - TableHeader removed color column name\n" +
+                    "JECC - ChartPlugin - TableSerie - fixed table entry name to new title type\n" +
+                    "JECC - ChartPlugin - added Math Data to processor box\n" +
+                    "JECC - ChartPlugin - allow logic charts with standard xy chart combinations\n" +
+                    "JECC - ChartPlugin - fixed some temporary analysis problems\n" +
+                    "JECC - ChartPlugin - moved vertical table to its own ChartType \n" +
+                    "JECC - ChartPlugin - preview is now depending on data row period \n" +
+                    "JECC - Charts - TableChartV - fixed\n" +
+                    "JECC - Charts - fixed some null pointer in DataPointTableViewPointer\n" +
+                    "JECC - Charts - improved date formatting\n" +
+                    "JECC - CleanDataExtension - added fraction digits\n" +
+                    "JECC - CleanDataExtension - added period settings\n" +
+                    "JECC - CleanDataExtension - added period settings\n" +
+                    "JECC - ColumnChartLabelRenderer - increased stroke width\n" +
+                    "JECC - CustomTimeFormatter - removed excessive logging message\n" +
+                    "JECC - Dashboard - Chart widget should show the legend in a way, that data names are readable\n" +
+                    "JECC - DashboardPlugin - ChartWidget - added vertical table only option\n" +
+                    "JECC - DashboardPlugin - LinkerWidget - changed analysis sorting to standard method\n" +
+                    "JECC - DashboardPlugin - Only ValueWidget Supports Forced Interval\n" +
+                    "JECC - DashboardPlugin - WidgetTreePlugin - added more options for manipulation column\n" +
+                    "JECC - DashboardPlugin - WidgetTreePlugin - added name column to allow custom data row names\n" +
+                    "JECC - DashboardPlugin - add an alignment setting to all widgets\n" +
+                    "JECC - DashboardPlugin - added TableChartV\n" +
+                    "JECC - DashboardPlugin - added custom css for TableChartV\n" +
+                    "JECC - DashboardPlugin - added max, min and median to manipulation column\n" +
+                    "JECC - DashoardPlugin - ChartWidget - optimized table settings\n" +
+                    "JECC - Fixed an tooltip bug\n" +
+                    "JECC - Fixed error which happens in ide run\n" +
+                    "JECC - Fixed translations\n" +
+                    "JECC - Meters - \"View file\" has the same icon as \"Make screenshot\"\n" +
+                    "JECC - ObjectPlugin - Added basic username and password field to the OPC Browser\n" +
+                    "JECC - ObjectPlugin - AnalysisLinkButton - only allowed for r/w user rights\n" +
+                    "JECC - ObjectPlugin - Fixed an bug where the user name was not used for OPC\n" +
+                    "JECC - PeriodEditor - fixed save on period change\n" +
+                    "JECC - PeriodEditor - initial commit\n" +
+                    "JECC - PeriodEditor - initial commit\n" +
+                    "JECC - PluginManager - added fallback for no configured plugins\n" +
+                    "JECC - Removed unused menu item\n" +
+                    "JECC - ReportPlugin - fixed duplicate bug for reloading\n" +
+                    "JECC - ReportPlugin - fixed some bug with file download\n" +
+                    "JECC - ReportPlugin - removed duplicated item clear\n" +
+                    "JECC - ReportPlugin - reversed sort order of reports in file list\n" +
+                    "JECC - ReportWizard - lib doesn't support special chars -> force variable name generation to english object names\n" +
+                    "JECC - SampleEditor - ControlPane - fixed retry error on not aggregated non data attributes\n" +
+                    "JECC - SampleEditor - added period support to sample table\n" +
+                    "JECC - SampleEditor - added period support to sample table\n" +
+                    "JECC - Set global tooltip css\n" +
+                    "\n" +
+                    "JECommons - AbstractCliApp - removed thread timeout for data processor\n" +
+                    "JECommons - AggregatorFunction - fixed problem with custom workdays\n" +
+                    "JECommons - CommonMethods - fixed null pointer for asynchronous data rows\n" +
+                    "JECommons - CommonMethods - fixed recleaning for data rows with more then 1500000 samples\n" +
+                    "JECommons - MathFunction - fixed problem with custom workdays\n" +
+                    "JECommons - QuantityUnits - added function to identify math-, forecast- and simple data rows by nearest clean data object\n" +
+                    "JECommons - QuantityUnits - fixed quantity check for forecast objects\n" +
+                    "JECommons - QuantityUnits - fixed quantity check for math objects\n" +
+                    "\n" +
+                    "JEDataProcessor - AggregationAlignmentStep - removed unnecessary variables\n" +
+                    "JEDataProcessor - AggregationAlignmentStepN - fixed \n" +
+                    "JEDataProcessor - AggregationAlignmentStepN - fixed \n" +
+                    "JEDataProcessor - CleanDataObject - fixed config check for dynamic aggregated data rows\n" +
+                    "JEDataProcessor - DifferentialStepN - fixed\n" +
+                    "JEDataProcessor - DifferentialStepN - fixed\n" +
+                    "JEDataProcessor - DifferentialStepN - fixed result value for not diff \n" +
+                    "JEDataProcessor - FillGapStep - fixed logger level for debug message\n" +
+                    "JEDataProcessor - ForecastStep\n" +
+                    "JEDataProcessor - ForecastStep - fixed value generation \n" +
+                    "JEDataProcessor - GapsAndLimitsN - fixed reference sample for diff values\n" +
+                    "JEDataProcessor - GapsAndLimitsN - fixed substitution value for interpolation\n" +
+                    "JEDataProcessor - ImportStepN - fixed\n" +
+                    "JEDataProcessor - LimitsStepN - fixed new type interval\n" +
+                    "JEDataProcessor - MathData - fixed ready check\n" +
+                    "JEDataProcessor - MathStep\n" +
+                    "JEDataProcessor - PeriodAlignmentStep - optimized logging\n" +
+                    "JEDataProcessor - PeriodAlignmentStepN - fixed no alignment\n" +
+                    "JEDataProcessor - PeriodAlignmentStepN - fixed period start logic\n" +
+                    "JEDataProcessor - PrepareStep - fixed problem with custom workdays\n" +
+                    "JEDataProcessor - cleanup of process routines\n" +
+                    "JEDataProcessor - fixed math object\n" +
+                    "JEDataProcessor - fixed null pointer in sample cache\n" +
+                    "JEDataProcessor - v2 - initial commit without forecast/math\n" +
+                    "\n" +
+                    "JEReport - Fixed calculation link\n" +
+                    "JEReport - ReportLink - add attribute for calculation objects check  \n" +
+                    "JEReport - fixed some problem with aggregation and custom workdays\n\n" +
+                    "------Version 3.9.45------\n" +
                     "JECC - ChartPlugin - fixed date value for aggregations bigger one day\n" +
                     "JECC - ChartPlugin - some problem with data manipulation e.g. centric running mean\n" +
                     "JECC - Delete Data and Clean Data - added timer reset for math data objects\n" +
