@@ -725,7 +725,6 @@ public class GraphPluginView implements Plugin {
     }
 
     private void finalUpdates() throws InterruptedException {
-        Thread.sleep(500);
 
         AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
         ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
