@@ -6,17 +6,21 @@ import de.gsi.chart.renderer.spi.LabelledMarkerRenderer;
 import de.gsi.chart.ui.geometry.Side;
 import de.gsi.dataset.DataSet;
 import de.gsi.dataset.spi.DoubleDataSet;
+import javafx.geometry.Orientation;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
 public class CustomMarkerRenderer extends LabelledMarkerRenderer {
+    private static final Logger logger = LogManager.getLogger(CustomMarkerRenderer.class);
 
-    private List<XYChartSerie> xyChartSerieList;
+    private final List<XYChartSerie> xyChartSerieList;
 
     public CustomMarkerRenderer(List<XYChartSerie> xyChartSerieList) {
         super();
@@ -27,7 +31,16 @@ public class CustomMarkerRenderer extends LabelledMarkerRenderer {
     @Override
     protected void drawVerticalLabelledMarker(GraphicsContext gc, XYChart chart, DataSet dataSet, int indexMin, int indexMax) {
 
-        final Axis xAxis = chart.getXAxis();
+        Axis xAxis = this.getFirstAxis(Orientation.HORIZONTAL);
+        if (xAxis == null) {
+            xAxis = chart.getFirstAxis(Orientation.HORIZONTAL);
+        }
+        if (xAxis == null) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("{}::drawVerticalLabelledMarker(...) getFirstAxis(HORIZONTAL) returned null skip plotting", CustomMarkerRenderer.class.getSimpleName());
+            }
+            return;
+        }
         Axis yAxis = null;
 
         DoubleDataSet doubleDataSet = (DoubleDataSet) dataSet;
@@ -59,13 +72,16 @@ public class CustomMarkerRenderer extends LabelledMarkerRenderer {
         setGraphicsContextAttributes(gc, dataSet.getStyle());
         gc.setTextAlign(TextAlignment.LEFT);
 
-        final double height = chart.getCanvas().getHeight();
         double lastLabel = -Double.MAX_VALUE;
         double lastFontSize = 0;
         for (int i = indexMin; i < indexMax; i++) {
             final double screenX = (int) xAxis.getDisplayPosition(dataSet.get(DataSet.DIM_X, i));
             final double screenY = (int) yAxis.getDisplayPosition(dataSet.get(DataSet.DIM_Y, i));
             final String label = dataSet.getDataLabel(i);
+
+            if (label == null) {
+                continue;
+            }
 
             final String pointStyle = dataSet.getStyle(i);
 

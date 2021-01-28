@@ -375,6 +375,10 @@ public class AggregatorFunction implements ProcessFunction {
         DateTime start = startAndEndDates.getStart();
         DateTime end = startAndEndDates.getEnd();
 
+        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+            start = start.minusDays(1);
+        }
+
         if (start != null && end != null) {
             for (Interval emptyInterval : emptyIntervals) {
                 if (emptyInterval.getStart().equals(start)

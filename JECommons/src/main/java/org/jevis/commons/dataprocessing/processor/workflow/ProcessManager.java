@@ -141,7 +141,7 @@ public class ProcessManager {
 
                 if (resourceManager.getCleanDataObject().checkConfig()) {
                     reRun();
-                }
+                } else setFinished(true);
 
                 logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
 
@@ -179,6 +179,7 @@ public class ProcessManager {
             try {
                 ps.run(resourceManager);
             } catch (Exception e) {
+                setFinished(true);
                 logger.error("Error in step {}", ps, e);
                 throw e;
             }

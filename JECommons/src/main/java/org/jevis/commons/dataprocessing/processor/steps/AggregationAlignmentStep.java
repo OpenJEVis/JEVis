@@ -45,6 +45,9 @@ public class AggregationAlignmentStep implements ProcessStep {
          * calc the sample per interval if possible depending on aggregation mode (avg or sum value)
          */
 
+        List<CleanInterval> needToBeRemoved = new ArrayList<>();
+
+        double lastValue = 0d;
         for (int j = 0, intervalsSize = intervals.size(); j < intervalsSize; j++) {
             CleanInterval currentInterval = intervals.get(j);
             //align the raw samples to the intervals
@@ -138,15 +141,13 @@ public class AggregationAlignmentStep implements ProcessStep {
                     }
                 }
                 currentInterval.getResult().setNote(note);
-            } else if (!downSampling) {
-
-                CleanInterval ci = intervals.get(j);
+            } else if (!downSampling && !valueIsQuantity) {
 
                 Double nextValue = null;
                 int nextAdd = 0;
                 Double value = null;
 
-                if (ci.getRawSamples() == null || ci.getRawSamples().isEmpty()) {
+                if (currentInterval.getRawSamples() == null || currentInterval.getRawSamples().isEmpty()) {
 
                     String note = "";
                     if (j < intervals.size() - 1) {
@@ -160,24 +161,24 @@ public class AggregationAlignmentStep implements ProcessStep {
                             nextAdd++;
                         }
 
-                    }
+                    } else needToBeRemoved.add(currentInterval);
 
                     if (note == null || note.equals("")) {
-                        note = "agg(yes,up," + nextAdd + ")";
+                        note = "agg(yes,up," + nextAdd + ",avg)";
                     } else {
-                        note = note + ",agg(yes,up," + nextAdd + ")";
+                        note = note + ",agg(yes,up," + nextAdd + ",avg)";
                     }
 
-                    if (nextValue != null && valueIsQuantity) {
-                        value = nextValue / nextAdd;
-                        for (int i = j; i < j + nextAdd; i++) {
-                            JEVisSample sample1 = intervals.get(i).getResult();
-                            sample1.setValue(value);
-                            sample1.setNote(note);
+                    if (!notesMap.isEmpty()) {
+                        JEVisSample noteSample = notesMap.get(currentInterval.getResult().getTimestamp());
+                        if (noteSample != null) {
+                            note += ",userNotes";
                         }
-                    } else if (nextValue != null) {
+                    }
+
+                    if (nextValue != null) {
                         value = nextValue;
-                        for (int i = j; i < j + nextAdd + 1; i++) {
+                        for (int i = j; i < j + nextAdd; i++) {
                             if (i < intervalsSize) {
                                 JEVisSample sample1 = intervals.get(i).getResult();
                                 sample1.setValue(value);
@@ -186,37 +187,66 @@ public class AggregationAlignmentStep implements ProcessStep {
                         }
                     }
 
-                    j += nextAdd - 1;
-                }
-            } else {
-                JEVisSample sample1 = currentInterval.getRawSamples().get(currentInterval.getRawSamples().size() - 1);
-                Double currentValue = sample1.getValueAsDouble();
-
-                currentInterval.getResult().setValue(currentValue);
-                String note = "";
-                try {
-                    note = sample1.getNote();
-                } catch (Exception e) {
-                    note = "";
-                }
-                if (note == null || note.equals("")) {
-                    note = "agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
-                } else {
-                    note += ",agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
-                }
-                if (!notesMap.isEmpty()) {
-                    JEVisSample noteSample = notesMap.get(currentInterval.getResult().getTimestamp());
-                    if (noteSample != null) {
-                        note += ",userNotes";
+                    if (nextAdd > 1) {
+                        j += nextAdd - 1;
                     }
                 }
-                currentInterval.getResult().setNote(note);
+            } else {
+                Double nextValue = null;
+                int nextAdd = 0;
+                Double value = null;
+
+                if (currentInterval.getRawSamples() == null || currentInterval.getRawSamples().isEmpty()) {
+
+                    String note = "";
+                    if (j < intervals.size() - 1) {
+                        for (int i = j; i < intervals.size(); i++) {
+                            if (intervals.get(i).getRawSamples() != null && !intervals.get(i).getRawSamples().isEmpty()) {
+                                nextValue = intervals.get(i).getResult().getValueAsDouble();
+                                note = intervals.get(i).getResult().getNote();
+                                nextAdd++;
+                                break;
+                            }
+                            nextAdd++;
+                        }
+
+                    } else needToBeRemoved.add(currentInterval);
+
+                    if (note == null || note.equals("")) {
+                        note = "agg(yes,up," + nextAdd + ",sum)";
+                    } else {
+                        note += ",agg(yes,up," + nextAdd + ",sum)";
+                    }
+                    if (!notesMap.isEmpty()) {
+                        JEVisSample noteSample = notesMap.get(currentInterval.getResult().getTimestamp());
+                        if (noteSample != null) {
+                            note += ",userNotes";
+                        }
+                    }
+
+                    if (nextValue != null) {
+                        value = nextValue / nextAdd;
+                        for (int i = j; i < j + nextAdd; i++) {
+                            JEVisSample sample1 = intervals.get(i).getResult();
+                            sample1.setValue(value);
+                            sample1.setNote(note);
+                        }
+                    }
+                }
+
+                if (nextAdd > 1) {
+                    j += nextAdd - 1;
+                }
+
             }
         }
+
+        intervals.removeAll(needToBeRemoved);
     }
 
 
-    private Double calcAvgSample(List<JEVisSample> currentTmpSamples, Boolean differential, CleanInterval lastInterval) throws Exception {
+    private Double calcAvgSample(List<JEVisSample> currentTmpSamples, Boolean differential, CleanInterval
+            lastInterval) throws Exception {
         Double value = 0.0;
         if (!differential) {
             for (JEVisSample sample : currentTmpSamples) {
@@ -240,7 +270,8 @@ public class AggregationAlignmentStep implements ProcessStep {
         return (value / currentTmpSamples.size());
     }
 
-    private Double calcSumSampleDownscale(List<JEVisSample> currentTmpSamples, Boolean differential, CleanInterval lastInterval) throws Exception {
+    private Double calcSumSampleDownscale(List<JEVisSample> currentTmpSamples, Boolean
+            differential, CleanInterval lastInterval) throws Exception {
         double value = 0.0;
         if (currentTmpSamples.size() > 0) {
             if (!differential) {
