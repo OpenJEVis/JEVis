@@ -1336,34 +1336,37 @@ public class TreeHelper {
         for (JEVisAttribute originalAtt : toCopyObj.getAttributes()) {
             logger.debug("Copy attribute: {}", originalAtt);
             JEVisAttribute newAtt = newObject.getAttribute(originalAtt.getType());
-            //Copy the basic attribute config
             newAtt.setDisplaySampleRate(originalAtt.getDisplaySampleRate());
             newAtt.setDisplayUnit(originalAtt.getDisplayUnit());
             newAtt.setInputSampleRate(originalAtt.getInputSampleRate());
             newAtt.setInputUnit(originalAtt.getInputUnit());
             newAtt.commit();
-            //if chosen copy the samples
-            if ((includeData && !newAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName()))
-                    || (includeValues && newAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName()))) {
-                if (originalAtt.hasSample()) {
-                    logger.debug("Include samples");
 
-                    List<JEVisSample> newSamples = new ArrayList<>();
-                    for (JEVisSample sample : originalAtt.getAllSamples()) {
-                        // TODO: file copy not working
-                        if (originalAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName())) {
-                            newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValueAsDouble(), sample.getNote()));
-                        } else {
+            if (includeData || includeValues || originalAtt.hasSample()) {
+                try {
+                    if (originalAtt.hasSample()) {
+                        if (!includeValues && newAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName())) {
+                            continue;
+                        }
+
+                        List<JEVisSample> newSamples = new ArrayList<>();
+                        for (JEVisSample sample : originalAtt.getAllSamples()) {
                             try {
-                                newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValue(), sample.getNote()));
-                            } catch (Exception e) {
-                                logger.error("Could not copy sample {} with value: {} and note: {} of attribute {}:{}",
-                                        sample.getTimestamp(), sample.getValue(), sample.getNote(), toCopyObj.getID(), originalAtt.getName(), e);
+                                if (originalAtt.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
+                                    JEVisFile tmpFile = sample.getValueAsFile();
+                                    newSamples.add(newAtt.buildSample(sample.getTimestamp(), tmpFile, sample.getNote()));
+                                } else {
+                                    newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValue(), sample.getNote()));
+                                }
+                            } catch (Exception ex) {
+                                logger.error("Error while coping samples for: {}", originalAtt, ex);
                             }
                         }
+                        logger.debug("Add samples: {}", newSamples.size());
+                        newAtt.addSamples(newSamples);
                     }
-                    logger.debug("Add samples: {}", newSamples.size());
-                    newAtt.addSamples(newSamples);
+                } catch (Exception ex) {
+                    logger.error("Error while coping attribute: {}", originalAtt, ex);
                 }
             }
         }
