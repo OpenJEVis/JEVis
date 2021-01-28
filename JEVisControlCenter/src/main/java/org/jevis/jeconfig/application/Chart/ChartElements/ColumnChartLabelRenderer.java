@@ -6,17 +6,21 @@ import de.gsi.chart.renderer.spi.LabelledMarkerRenderer;
 import de.gsi.chart.ui.geometry.Side;
 import de.gsi.dataset.DataSet;
 import de.gsi.dataset.spi.DoubleDataSet;
+import javafx.geometry.Orientation;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 
 import java.text.NumberFormat;
 import java.util.List;
 
 public class ColumnChartLabelRenderer extends LabelledMarkerRenderer {
+    private static final Logger logger = LogManager.getLogger(ColumnChartLabelRenderer.class);
 
     private final List<XYChartSerie> xyChartSerieList;
 
@@ -29,7 +33,16 @@ public class ColumnChartLabelRenderer extends LabelledMarkerRenderer {
     @Override
     protected void drawVerticalLabelledMarker(GraphicsContext gc, XYChart chart, DataSet dataSet, int indexMin, int indexMax) {
 
-        final Axis xAxis = chart.getXAxis();
+        Axis xAxis = this.getFirstAxis(Orientation.HORIZONTAL);
+        if (xAxis == null) {
+            xAxis = chart.getFirstAxis(Orientation.HORIZONTAL);
+        }
+        if (xAxis == null) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("{}::drawVerticalLabelledMarker(...) getFirstAxis(HORIZONTAL) returned null skip plotting", CustomMarkerRenderer.class.getSimpleName());
+            }
+            return;
+        }
         Axis yAxis = null;
 
         DoubleDataSet doubleDataSet = (DoubleDataSet) dataSet;
@@ -72,6 +85,10 @@ public class ColumnChartLabelRenderer extends LabelledMarkerRenderer {
             final double screenX = (int) xAxis.getDisplayPosition(dataSet.get(DataSet.DIM_X, i));
             final double screenY = (int) yAxis.getDisplayPosition(dataSet.get(DataSet.DIM_Y, i));
             final String label = nf.format(doubleDataSet.getY(i));
+
+            if (label == null) {
+                continue;
+            }
 
             final String pointStyle = dataSet.getStyle(i);
 

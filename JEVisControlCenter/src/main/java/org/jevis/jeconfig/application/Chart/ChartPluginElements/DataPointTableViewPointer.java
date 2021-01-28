@@ -6,7 +6,6 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
-import de.gsi.chart.axes.Axis;
 import de.gsi.chart.plugins.AbstractDataFormattingPlugin;
 import de.gsi.dataset.DataSet;
 import javafx.application.Platform;
@@ -100,7 +99,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         for (final DataPointTableViewPointer.DataPoint dataPoint : findNeighborPoints(xyChart, xValue)) {
             // Point2D displayPoint = toDisplayPoint(chart.getYAxis(),
             // (X)dataPoint.x , dataPoint.y);
-            if (getChart().getFirstAxis(Orientation.HORIZONTAL) instanceof Axis) {
+            if (getChart().getFirstAxis(Orientation.HORIZONTAL) != null) {
                 final double x = xyChart.getXAxis().getDisplayPosition(dataPoint.x);
                 final double y = xyChart.getYAxis().getDisplayPosition(dataPoint.y);
                 final Point2D displayPoint = new Point2D(x, y);
@@ -128,7 +127,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         double nextX = Double.MAX_VALUE;
 
         final int nDataCount = dataSet.getDataCount(DataSet.DIM_X);
-        for (int i = 0, size = nDataCount; i < size; i++) {
+        for (int i = 0; i < nDataCount; i++) {
             final double currentX = dataSet.get(DataSet.DIM_X, i);
 
             if (currentX < searchedX) {
@@ -342,7 +341,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         }
     }
 
-    protected class DataPoint {
+    protected static class DataPoint {
 
         protected final Chart chart;
         protected final double x;

@@ -160,7 +160,7 @@ public class CleanDataObject {
                 errors.add(("No new Samples for cleaning"));
             }
         } catch (Exception e) {
-            logger.error("Error while loading latest samples. " + e);
+            errors.add("Error while loading latest samples");
         }
 
         if (!errors.isEmpty()) {

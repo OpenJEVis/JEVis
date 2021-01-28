@@ -180,7 +180,7 @@ public class GraphPluginView implements Plugin {
         Long chartsPerScreen = dataModel.getChartsPerScreen();
 
         AtomicDouble autoMinSize = new AtomicDouble(0);
-        double autoMinSizeNormal = 230;
+        double autoMinSizeNormal = 240;
         double autoMinSizeLogical = 50;
 
         if (dataModel.getSelectedData() != null) {
@@ -725,6 +725,8 @@ public class GraphPluginView implements Plugin {
     }
 
     private void finalUpdates() throws InterruptedException {
+        Thread.sleep(500);
+
         AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
         ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
         for (Map.Entry<Task, String> entry : taskList.entrySet()) {
