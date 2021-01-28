@@ -542,9 +542,9 @@ public class ObjectPlugin implements Plugin {
                 case Constants.Plugin.Command.PASTE:
                     if (tree.getCopyObject() != null) {
                         if (tree.isCut()) {
-                            TreeHelper.EventDrop(tree, tree.getCopyObject(), ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
+                            TreeHelper.EventDrop(tree, tree.getCopyObjects(), ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
                         } else {
-                            TreeHelper.EventDrop(tree, tree.getCopyObject(), ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
+                            TreeHelper.EventDrop(tree, tree.getCopyObjects(), ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
                         }
                     }
                     break;

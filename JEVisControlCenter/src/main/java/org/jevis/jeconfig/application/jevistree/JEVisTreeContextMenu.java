@@ -110,55 +110,30 @@ public class JEVisTreeContextMenu extends ContextMenu {
         //TODO: disable if not allowed
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.paste"), ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
 
-        menu.setOnAction(new EventHandler<ActionEvent>() {
-
-                             @Override
-                             public void handle(ActionEvent t) {
-//                final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
-                                 TreeHelper.EventDrop(tree, tree.getCopyObject(), obj, CopyObjectDialog.DefaultAction.COPY);
-                             }
-                         }
+        menu.setOnAction(t -> TreeHelper.EventDrop(tree, tree.getCopyObjects(), obj, CopyObjectDialog.DefaultAction.COPY)
         );
         return menu;
     }
 
     private MenuItem buildCopy() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.copy"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
-        menu.setOnAction(new EventHandler<ActionEvent>() {
-
-                             @Override
-                             public void handle(ActionEvent t) {
-                                 tree.setCopyObject(obj, false);
-                             }
-                         }
+        menu.setOnAction(t -> tree.setCopyObjectsBySelection(false)
         );
         return menu;
     }
 
     private MenuItem buildCut() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.cut"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
-        menu.setOnAction(new EventHandler<ActionEvent>() {
-
-                             @Override
-                             public void handle(ActionEvent t) {
-                                 tree.setCopyObject(obj, true);
-                             }
-                         }
+        menu.setOnAction(t -> tree.setCopyObjectsBySelection(true)
         );
         return menu;
     }
 
     private MenuItem buildExport() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
-        menu.setOnAction(new EventHandler<ActionEvent>() {
-
-                             @Override
-                             public void handle(ActionEvent t) {
-
-
-                                 JsonExportDialog dia = new JsonExportDialog("Import", obj);
-                             }
-                         }
+        menu.setOnAction(t -> {
+                    JsonExportDialog dia = new JsonExportDialog("Import", obj);
+                }
         );
         return menu;
     }

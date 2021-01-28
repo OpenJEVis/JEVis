@@ -140,7 +140,8 @@ public class JEVisTreeFactory {
                     TreeHelper.EventSetEnableAll(tree, enableAll.match(t));
                     t.consume();
                 } else if (copyObj.match(t)) {
-                    tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
+                    //tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
+                    tree.setCopyObjectsBySelection(false);
                     final Clipboard clipboard = Clipboard.getSystemClipboard();
                     final ClipboardContent content = new ClipboardContent();
                     content.putString(selectedObj.getValue().getJEVisObject().getID() + " " + selectedObj.getValue().getJEVisObject().getName());
@@ -151,9 +152,9 @@ public class JEVisTreeFactory {
                 } else if (pasteObj.match(t)) {
                     if (tree.getCopyObject() != null) {
                         if (tree.isCut()) {
-                            TreeHelper.EventDrop(tree, tree.getCopyObject(), selectedObj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
+                            TreeHelper.EventDrop(tree, tree.getCopyObjects(), selectedObj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
                         } else {
-                            TreeHelper.EventDrop(tree, tree.getCopyObject(), selectedObj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
+                            TreeHelper.EventDrop(tree, tree.getCopyObjects(), selectedObj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
                         }
                         t.consume();
                     }
