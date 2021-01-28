@@ -316,11 +316,15 @@ public class SelectTargetDialog {
         ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
         ObjectAttributeFilter d2 = new ObjectAttributeFilter("Clean Data", ObjectAttributeFilter.NONE);
         ObjectAttributeFilter d3 = new ObjectAttributeFilter("Base Data", ObjectAttributeFilter.NONE);
+        ObjectAttributeFilter d4 = new ObjectAttributeFilter("Math Data", ObjectAttributeFilter.NONE);
         onlyData.addItemFilter(d1);
         onlyData.addItemFilter(d2);
         onlyData.addItemFilter(d3);
+        onlyData.addItemFilter(d4);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d2);
+        onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d3);
+        onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d4);
 
         return onlyData;
     }
@@ -328,9 +332,7 @@ public class SelectTargetDialog {
     public static JEVisTreeFilter buildAllDataFilter() {
         BasicCellFilter onlyData = new BasicCellFilter(I18n.getInstance().getString("tree.filter.data"));
         ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
-        ObjectAttributeFilter d2 = new ObjectAttributeFilter("Base Data", ObjectAttributeFilter.NONE);
         onlyData.addItemFilter(d1);
-        onlyData.addItemFilter(d2);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
 
         return onlyData;
