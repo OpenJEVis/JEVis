@@ -203,6 +203,8 @@ public class DifferentialStep implements ProcessStep {
                         note = interval.getResult().getNote();
                     }
 
+                    if (!note.isEmpty()) note += ",";
+
                     Double currentValue;
                     if (currentRawSamples != null && !valueIsQuantity) {
                         currentValue = calcAvgSample(currentRawSamples);
@@ -210,9 +212,9 @@ public class DifferentialStep implements ProcessStep {
 
                         int size = currentRawSamples.size();
                         if (size > 1) {
-                            note += ",avg" + size + ")";
+                            note += "avg" + size + ")";
                         } else {
-                            note += ",avg";
+                            note += "avg";
                         }
                     } else if (currentRawSamples != null) {
                         currentValue = calcSumSample(currentRawSamples);
@@ -220,9 +222,9 @@ public class DifferentialStep implements ProcessStep {
 
                         int size = currentRawSamples.size();
                         if (size > 1) {
-                            note += ",sum" + size + ")";
+                            note += "sum" + size + ")";
                         } else {
-                            note += ",sum)";
+                            note += "sum)";
                         }
                     } else {
                         //TODO: what to do

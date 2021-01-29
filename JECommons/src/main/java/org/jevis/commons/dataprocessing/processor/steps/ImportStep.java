@@ -59,9 +59,7 @@ public class ImportStep implements ProcessStep {
             cleanObject = mathDataObject.getMathDataObject();
         }
 
-        JEVisAttribute attribute = null;
-
-        attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
+        JEVisAttribute attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
 
         if (attribute == null) {
             return;

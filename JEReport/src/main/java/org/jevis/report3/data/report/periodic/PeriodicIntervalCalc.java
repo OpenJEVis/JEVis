@@ -103,7 +103,6 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                 if (workdayEnd.isBefore(workdayStart)) {
                     startRecordFixed = startRecordFixed.minusDays(1);
                     startRecordFixedToReportEnd = startRecordFixedToReportEnd.minusDays(1);
-                    endRecord = endRecord.minusDays(1);
                 }
             }
 

@@ -30,8 +30,8 @@ public class ProcessManager {
 
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
-    private final String name;
-    private final Long id;
+    private String name;
+    private Long id;
     private List<ProcessStep> processSteps = new ArrayList<>();
     private boolean isClean = true;
     private boolean isFinished = false;
@@ -57,12 +57,16 @@ public class ProcessManager {
             } else if (cleanObject.getJEVisClass().equals(forecastDataClass)) {
                 this.resourceManager.setForecastDataObject(new ForecastDataObject(cleanObject, objectHandler));
                 this.resourceManager.getForecastDataObject().setProcessingSize(processingSize);
+                this.name = resourceManager.getForecastDataObject().getForecastDataObject().getName();
+                this.id = resourceManager.getForecastDataObject().getForecastDataObject().getID();
                 addForecastSteps();
                 isClean = false;
                 resourceManager.setClean(false);
             } else if (cleanObject.getJEVisClass().equals(mathDataClass)) {
                 this.resourceManager.setMathDataObject(new MathDataObject(cleanObject, objectHandler));
                 this.resourceManager.getMathDataObject().setProcessingSize(processingSize);
+                this.name = this.resourceManager.getMathDataObject().getMathDataObject().getName();
+                this.id = this.resourceManager.getMathDataObject().getMathDataObject().getID();
                 addMathSteps();
                 isClean = false;
                 resourceManager.setClean(false);
@@ -180,7 +184,7 @@ public class ProcessManager {
                 ps.run(resourceManager);
             } catch (Exception e) {
                 setFinished(true);
-                logger.error("Error in step {}", ps, e);
+                logger.error("Error in step {} of object {}:{}", ps, this.getName(), this.getId(), e);
                 throw e;
             }
         }
