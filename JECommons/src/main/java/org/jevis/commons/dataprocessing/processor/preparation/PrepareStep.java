@@ -287,6 +287,7 @@ public class PrepareStep implements ProcessStep {
 
     private List<CleanInterval> getIntervalsFromRawSamples(CleanDataObject cleanDataObject, List<JEVisSample> rawSamples) throws Exception {
         List<CleanInterval> cleanIntervals = new ArrayList<>();
+
         for (JEVisSample curSample : rawSamples) {
 
             DateTime timestamp = curSample.getTimestamp().plusSeconds(cleanDataObject.getPeriodOffset());
@@ -298,21 +299,26 @@ public class PrepareStep implements ProcessStep {
 
             Period periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), timestamp);
 
-            if (periodForDate.equals(Period.months(1))) {
+            if (cleanDataObject.getIsPeriodAligned() && periodForDate.equals(Period.months(1))) {
                 timestamp = timestamp.minusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 start = timestamp.plusMillis(1);
                 end = timestamp.plusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             }
 
+            Boolean isDifferential = CleanDataObject.isDifferentialForDate(cleanDataObject.getDifferentialRules(), timestamp);
+
             Interval interval = new Interval(start, end);
             CleanInterval cleanInterval = new CleanInterval(interval, timestamp);
             cleanInterval.getResult().setTimeStamp(timestamp);
-            cleanInterval.getRawSamples().add(curSample);
             cleanInterval.setInputPeriod(rawPeriod);
             cleanInterval.setOutputPeriod(cleanPeriod);
+            cleanInterval.setDifferential(isDifferential);
             cleanIntervals.add(cleanInterval);
         }
+
         logger.info("[{}] {} intervals calculated", cleanDataObject.getCleanObject().getID(), cleanIntervals.size());
+        processManager.setFinished(true);
+
         return cleanIntervals;
     }
 }
