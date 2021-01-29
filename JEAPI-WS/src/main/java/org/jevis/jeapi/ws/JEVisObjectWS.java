@@ -41,7 +41,7 @@ public class JEVisObjectWS implements JEVisObject {
     private static final Logger logger = LogManager.getLogger(JEVisObjectWS.class);
 
     private final EventListenerList listeners = new EventListenerList();
-    private JEVisDataSourceWS ds;
+    private final JEVisDataSourceWS ds;
     private JsonObject json;
 
 
@@ -85,7 +85,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public String getLocalName(String key) {
-        if(key.toLowerCase().equals("default")){
+        if (key.equalsIgnoreCase("default")) {
             return this.json.getName();
         }
 
@@ -417,9 +417,9 @@ public class JEVisObjectWS implements JEVisObject {
         boolean isUnique = getJEVisClass().isUnique();
         boolean isAlreadyUnderParent = false;
         if (otherObject.getParents() != null) {
-            for (JEVisObject silvering : otherObject.getParents().get(0).getChildren()) {
+            for (JEVisObject child : otherObject.getChildren()) {
                 try {
-                    if (silvering.getJEVisClassName().equals(getJEVisClassName())) {
+                    if (child.getJEVisClassName().equals(getJEVisClassName())) {
                         isAlreadyUnderParent = true;
                     }
                 } catch (Exception ex) {
