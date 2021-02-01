@@ -5,6 +5,9 @@
 package org.jevis.jenotifier.notifier.Email;
 
 
+import jakarta.mail.Address;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,9 +15,6 @@ import org.jevis.api.*;
 import org.jevis.jenotifier.notifier.Notification;
 import org.joda.time.DateTime;
 
-import javax.mail.Address;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

@@ -131,9 +131,11 @@ public class SampleEditor {
         activExtensions = sampleTableExtension;
 
         /** graph makes only if the data are numbers **/
+        boolean data = false;
         try {
             if (attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.LONG || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
                 extensions.add(new SampleGraphExtension(attribute));
+                data = true;
             }
         } catch (Exception ex) {
             logger.error(ex);
@@ -220,7 +222,11 @@ public class SampleEditor {
 
             DateTime end = attribute.getTimestampFromLastSample();
 
-            DateTime start = CommonMethods.getStartDateFromSampleRate(attribute);
+            DateTime start = end.minusDays(1);
+
+            if (data) {
+                start = CommonMethods.getStartDateFromSampleRate(attribute);
+            }
 
             controlPane.initTimeRange(start, end);
         }

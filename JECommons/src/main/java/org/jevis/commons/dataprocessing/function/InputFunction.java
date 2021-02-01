@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
@@ -38,6 +39,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
+import static org.jevis.commons.dataprocessing.ProcessOptions.CUSTOM;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -228,6 +230,17 @@ public class InputFunction implements ProcessFunction {
                     DateTime[] startEnd = ProcessOptions.getStartAndEnd(task);
                     logger.info("start: {} end: {}", startEnd[0], startEnd[1]);
 
+                    boolean isCustomWorkDay = true;
+                    for (ProcessOption option : task.getOptions()) {
+                        if (option.getKey().equals(CUSTOM)) {
+                            isCustomWorkDay = Boolean.parseBoolean(option.getValue());
+                            break;
+                        }
+                    }
+
+                    WorkDays workDays = new WorkDays(task.getSqlDataSource(), task.getJsonObject());
+                    workDays.setEnabled(isCustomWorkDay);
+
                     AggregationPeriod aggregationPeriod = task.getJsonSampleGenerator().getAggregationPeriod();
                     switch (aggregationPeriod) {
                         default:
@@ -240,10 +253,13 @@ public class InputFunction implements ProcessFunction {
                             break;
                         case DAILY:
                             startEnd[0] = startEnd[0].withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                            break;
                         case WEEKLY:
                             startEnd[0] = startEnd[0].withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                            break;
                         case MONTHLY:
                             startEnd[0] = startEnd[0].withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                            break;
                         case QUARTERLY:
                             if (startEnd[0].getMonthOfYear() < 4) {
                                 startEnd[0] = startEnd[0].withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
@@ -258,6 +274,31 @@ public class InputFunction implements ProcessFunction {
                         case YEARLY:
                             startEnd[0] = startEnd[0].withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                             break;
+                    }
+
+                    if (isCustomWorkDay) {
+                        switch (aggregationPeriod) {
+                            case DAILY:
+                            case WEEKLY:
+                            case MONTHLY:
+                            case QUARTERLY:
+                            case YEARLY:
+                            case THREEYEARS:
+                            case FIVEYEARS:
+                            case TENYEARS:
+                                startEnd[0] = startEnd[0].withHourOfDay(workDays.getWorkdayStart().getHour());
+                                startEnd[0] = startEnd[0].withMinuteOfHour(workDays.getWorkdayStart().getMinute());
+                                startEnd[0] = startEnd[0].withSecondOfMinute(workDays.getWorkdayStart().getSecond());
+
+                                startEnd[1] = startEnd[1].withHourOfDay(workDays.getWorkdayEnd().getHour());
+                                startEnd[1] = startEnd[1].withMinuteOfHour(workDays.getWorkdayEnd().getMinute());
+                                startEnd[1] = startEnd[1].withSecondOfMinute(workDays.getWorkdayEnd().getSecond());
+
+                                if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                    startEnd[0] = startEnd[0].minusDays(1);
+                                }
+                                break;
+                        }
                     }
 
                     if (foundUserDataObject && att != null) {
