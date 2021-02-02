@@ -243,7 +243,7 @@ public class PrepareStep implements ProcessStep {
 
             for (JEVisSample jeVisSample : rawSamplesDown) {
                 if (jeVisSample.getTimestamp().equals(startDate) || jeVisSample.getTimestamp().isAfter(startDate)) {
-                    startIndex = resourceManager.getRawSamplesDown().indexOf(jeVisSample);
+                    startIndex = rawSamplesDown.indexOf(jeVisSample);
                     break;
                 }
             }
@@ -251,7 +251,7 @@ public class PrepareStep implements ProcessStep {
             for (int i = rawSamplesDown.size() - 1; i > 0; i--) {
                 JEVisSample jeVisSample = rawSamplesDown.get(i);
                 if (jeVisSample.getTimestamp().equals(endDate) || jeVisSample.getTimestamp().isBefore(endDate)) {
-                    endIndex = resourceManager.getRawSamplesDown().indexOf(jeVisSample);
+                    endIndex = rawSamplesDown.indexOf(jeVisSample);
                     break;
                 }
             }
@@ -263,12 +263,12 @@ public class PrepareStep implements ProcessStep {
             }
 
             i = 2;
-            while (endIndex < resourceManager.getRawSamplesDown().size() && i > 0) {
+            while (endIndex < rawSamplesDown.size() - 1 && i > 0) {
                 endIndex++;
                 i--;
             }
 
-            List<JEVisSample> subList = resourceManager.getRawSamplesDown().subList(startIndex, endIndex);
+            List<JEVisSample> subList = rawSamplesDown.subList(startIndex, endIndex);
             logger.info("[{}] {} raw samples in sublist between {} and {}",
                     cleanDataObject.getCleanObject().getID(), subList.size(),
                     subList.get(0).getTimestamp(), subList.get(subList.size() - 1).getTimestamp());

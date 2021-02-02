@@ -1,0 +1,19 @@
+{
+  "name": "Electricity Grid Operator",
+  "description": "The class Electricity Grid Operator defines attributes for electricity grid operators",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Electricity Grid Operator",
+      "end": "Energy Grid Operator",
+      "type": 0
+    },
+    {
+      "start": "Electricity Grid Operator",
+      "end": "Energy Grid Operation Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

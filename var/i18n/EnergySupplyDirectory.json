@@ -1,0 +1,18 @@
+{
+  "jevisclass": "Energy Supply Directory",
+  "names": {
+    "de": "Energielieferverträge",
+    "ru": "Договоры энергоснабжения",
+    "uk": "Договори енергопостачання",
+    "en": "Energy Supply Directory",
+    "th": "สัญญาจัดหาพลังงาน"
+  },
+  "descriptions": {
+    "de": "In den Energielieferverträgen werden nähere Informationen zu den Energieverträgen organisiert",
+    "ru": "Дополнительная информация об энергетических контрактах организована в контрактах на поставку энергии",
+    "en": "Detailed information concerning energy supply contracts are managed in the Energy Supply Directory",
+    "uk": "Більше інформації про енергетичні контракти наведено в контрактах на енергопостачання",
+    "th": "ข้อมูลเพิ่มเติมเกี่ยวกับสัญญาพลังงานจัดอยู่ในสัญญาจัดหาพลังงาน"
+  },
+  "types": []
+}

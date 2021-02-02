@@ -1,0 +1,19 @@
+{
+  "jevisclass": "Gas Metering Point Operator",
+  "names": {
+    "de": "Gasmessstellenbetreiber",
+    "ru": "Оператор счетчика газа",
+    "uk": "Оператор лічильника газу",
+    "en": "Gas Metering Point Operator",
+    "th": "เครื่องวัดก๊าซ"
+  },
+  "descriptions": {
+    "de": "Die Klasse Gasmessstellenbetreiber definiert die Attribute für Gasmessstellenbetreiber",
+    "ru": "Класс оператора точки учета газа определяет атрибуты операторов точки учета газа",
+    "en": "The class Gas Metering Point Operator defines the attributes of gas metering point operators",
+    "uk": "Клас оператора пункту обліку газу визначає атрибути операторів пункту обліку газу",
+    "th": "คลาสตัวดำเนินการจุดวัดก๊าซกำหนดคุณลักษณะสำหรับตัวดำเนินการจุดวัดก๊าซ"
+  },
+  "types": [
+  ]
+}

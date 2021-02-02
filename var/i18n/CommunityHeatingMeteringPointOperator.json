@@ -1,0 +1,19 @@
+{
+  "jevisclass": "Community Heating Metering Point Operator",
+  "names": {
+    "de": "Fernwärmemessstellenbetreiber",
+    "ru": "Оператор счетчика центрального отопления",
+    "uk": "Оператор лічильника централізованого опалення",
+    "en": "Community Heating Metering Point Operator",
+    "th": "เครื่องวัดความร้อนเขต"
+  },
+  "descriptions": {
+    "de": "Die Klasse Fernwärmemessstellenbetreiber definiert die Attribute für Fernwärmemessstellenbetreiber",
+    "ru": "Класс оператора точки учета централизованного теплоснабжения определяет атрибуты операторов точки учета тепла",
+    "en": "The class Community Heating Metering Point Operator defines the attributes of community heating metering point operators",
+    "uk": "Клас оператора вузла обліку централізованого опалення визначає атрибути операторів вузла обліку централізованого опалення",
+    "th": "คลาสตัวดำเนินการจุดวัดความร้อนย่านกำหนดแอตทริบิวต์สำหรับตัวดำเนินการจุดวัดความร้อนย่าน"
+  },
+  "types": [
+  ]
+}

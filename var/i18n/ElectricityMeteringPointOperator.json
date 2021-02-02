@@ -1,0 +1,19 @@
+{
+  "jevisclass": "Electricity Metering Point Operator",
+  "names": {
+    "de": "Strommessstellenbetreiber",
+    "ru": "Оператор счетчика электроэнергии",
+    "uk": "Оператор лічильника електроенергії",
+    "en": "Electricity Metering Point Operator",
+    "th": "ผู้ดำเนินการมิเตอร์ไฟฟ้า"
+  },
+  "descriptions": {
+    "de": "Die Klasse Strommessstellenbetreiber definiert die Attribute für Strommessstellenbetreiber",
+    "ru": "Класс оператора точек учета электроэнергии определяет атрибуты операторов точек учета электроэнергии",
+    "en": "The class Electricity Metering Point Operator defines the attributes of electricity metering point operators",
+    "uk": "Клас оператора пункту обліку електроенергії визначає атрибути операторів пункту обліку електроенергії",
+    "th": "คลาสตัวดำเนินการจุดวัดแสงไฟฟ้ากำหนดคุณลักษณะสำหรับตัวดำเนินการจุดวัดแสงไฟฟ้า"
+  },
+  "types": [
+  ]
+}

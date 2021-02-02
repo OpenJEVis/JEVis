@@ -1,0 +1,189 @@
+{
+  "jevisclass": "Energy Metering Point Operator",
+  "names": {
+    "de": "Messstellenbetreiber",
+    "ru": "Оператор счетчика",
+    "uk": "Оператор лічильника",
+    "en": "Energy Metering Point Operator",
+    "th": "ตัวดำเนินการมิเตอร์"
+  },
+  "descriptions": {
+    "de": "Die Klasse Messstellenbetreiber definiert die Grundattribute für die spezifischen Messstellenbetreiber",
+    "ru": "Класс оператора счетчика определяет основные атрибуты для конкретного оператора счетчика",
+    "en": "The class Energy Metering Point Operator defines the base attributes of specific energy metering point operator",
+    "uk": "Клас оператора лічильника визначає основні атрибути для конкретного оператора лічильника",
+    "th": "คลาสตัวดำเนินการมิเตอร์กำหนดคุณลักษณะพื้นฐานสำหรับตัวดำเนินการมิเตอร์เฉพาะ"
+  },
+  "types": [
+    {
+      "type": "Energy Metering Point Operator Code Number",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Messstellenbetreiber Code-Nr.",
+        "ru": "№ кода оператора точки замера.",
+        "uk": "Код оператора лічильника №",
+        "th": "รหัสตัวดำเนินการมิเตอร์เลขที่",
+        "en": "Energy Metering Point Operator Code Number"
+      }
+    },
+    {
+      "type": "Contract Conclusion",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragsschluss",
+        "ru": "Заключение договора",
+        "uk": "Укладення договору",
+        "th": "ข้อสรุปของสัญญา",
+        "en": "Contract Conclusion"
+      }
+    },
+    {
+      "type": "Contract Start",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragsbeginn",
+        "ru": "Начало контракта",
+        "uk": "Початок договору",
+        "th": "เริ่มต้นสัญญา",
+        "en": "Contract Start"
+      }
+    },
+    {
+      "type": "Contract End",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragsende",
+        "ru": "Завершение контракта",
+        "uk": "Кінець контракту",
+        "th": "สิ้นสุดสัญญา",
+        "en": "Contract End"
+      }
+    },
+    {
+      "type": "Period of Notice",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Kündigungsfrist",
+        "ru": "период уведомления",
+        "uk": "термін попередження",
+        "th": "ระยะเวลาแจ้งให้ทราบล่วงหน้า",
+        "en": "Period of Notice"
+      }
+    },
+    {
+      "type": "Product",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Produkt / Tarif",
+        "ru": "Товар / тариф",
+        "uk": "Товар / тариф",
+        "th": "สินค้า / ภาษี",
+        "en": "Product"
+      }
+    },
+    {
+      "type": "Net Cost",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Grundpreis",
+        "ru": "Базисная цена",
+        "uk": "Базова ціна",
+        "th": "ราคาพื้นฐาน",
+        "en": "Net Cost"
+      }
+    },
+    {
+      "type": "Billing Cycle",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Rechnungsintervall",
+        "ru": "Расчетный интервал",
+        "uk": "Інтервал виставлення рахунків",
+        "th": "ช่วงเวลาการเรียกเก็บเงิน",
+        "en": "Billing Cycle"
+      }
+    },
+    {
+      "type": "Additional Relative Cost",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Zusatzkosten relativ",
+        "ru": "Дополнительные расходы относительно",
+        "uk": "Додаткові витрати відносні",
+        "th": "ค่าใช้จ่ายเพิ่มเติมที่เกี่ยวข้อง",
+        "en": "Additional Relative Cost"
+      }
+    },
+    {
+      "type": "Additional Fix Cost",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Zusatzkosten fix",
+        "ru": "Фиксированные дополнительные расходы",
+        "uk": "Виправлені додаткові витрати",
+        "th": "ค่าใช้จ่ายเพิ่มเติมคงที่",
+        "en": "Additional Fix Cost"
+      }
+    }
+  ]
+}

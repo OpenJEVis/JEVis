@@ -1,0 +1,53 @@
+{
+  "jevisclass": "Gas Supply Contractor",
+  "names": {
+    "de": "Gaslieferant",
+    "ru": "Поставщик газа",
+    "uk": "Постачальник газу",
+    "en": "Gas Supply Contractor",
+    "th": "ผู้จำหน่ายแก๊ส"
+  },
+  "descriptions": {
+    "de": "Die Klasse Gaslieferant definiert die Attribute für Gaslieferanten",
+    "ru": "Класс поставщика газа определяет атрибуты поставщиков газа",
+    "en": "The class Energy Contractor defines the base attributes of specific energy suppliers",
+    "uk": "Клас постачальника газу визначає атрибути постачальників газу",
+    "th": "ระดับซัพพลายเออร์ก๊าซกำหนดคุณลักษณะสำหรับซัพพลายเออร์ก๊าซ"
+  },
+  "types": [
+    {
+      "type": "Energy Price",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Energiepreis",
+        "ru": "Цена на энергию",
+        "uk": "Ціна енергії",
+        "th": "ราคาพลังงาน",
+        "en": "Energy Price"
+      }
+    },
+    {
+      "type": "Demand Charge",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Leistungspreis",
+        "ru": "Цена исполнения",
+        "uk": "Ціна виконання",
+        "th": "ราคาประสิทธิภาพ",
+        "en": "Demand Charge"
+      }
+    }
+  ]
+}

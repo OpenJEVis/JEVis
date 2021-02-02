@@ -1,0 +1,53 @@
+{
+  "jevisclass": "Community Heating Supply Contractor",
+  "names": {
+    "de": "Fernwärmelieferant",
+    "ru": "Поставщик централизованного теплоснабжения",
+    "uk": "Постачальник централізованого опалення",
+    "en": "Community Heating Supply Contractor",
+    "th": "ผู้จัดจำหน่ายเครื่องทำความร้อนระดับอำเภอ"
+  },
+  "descriptions": {
+    "de": "Die Klasse Fernwärmelieferant definiert die Attribute für die Fernwärme Lieferanten",
+    "ru": "Класс поставщика централизованного теплоснабжения определяет атрибуты поставщика централизованного теплоснабжения",
+    "en": "The class Community Heating Supply Contractor defines the attributes of community heating suppliers",
+    "uk": "Клас постачальника централізованого опалення визначає атрибути постачальника централізованого опалення",
+    "th": "คลาสผู้จัดหาเครื่องทำความร้อนของเขตกำหนดคุณลักษณะสำหรับผู้จัดหาเครื่องทำความร้อนเขต"
+  },
+  "types": [
+    {
+      "type": "Energy Price",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Energiepreis",
+        "ru": "Цена на энергию",
+        "uk": "Ціна енергії",
+        "th": "ราคาพลังงาน",
+        "en": "Energy Price"
+      }
+    },
+    {
+      "type": "Demand Charge",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Leistungspreis",
+        "ru": "Цена исполнения",
+        "uk": "Ціна виконання",
+        "th": "ราคาประสิทธิภาพ",
+        "en": "Demand Charge"
+      }
+    }
+  ]
+}

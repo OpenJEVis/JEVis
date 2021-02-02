@@ -1,0 +1,37 @@
+{
+  "name": "Community Heating Supply Contractor",
+  "description": "The class Community Heating Supply Contractor defines specific attributes for community heating suppliers",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Community Heating Supply Contractor",
+      "end": "Energy Supplier",
+      "type": 0
+    },
+    {
+      "start": "Community Heating Supply Contractor",
+      "end": "Energy Supply Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Energy Price",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 24,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Community Heating Supply Contractor"
+    },
+    {
+      "name": "Demand Charge",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 25,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Community Heating Supply Contractor"
+    }
+  ]
+}
