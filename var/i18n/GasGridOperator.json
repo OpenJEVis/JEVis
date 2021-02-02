@@ -1,0 +1,19 @@
+{
+  "jevisclass": "Gas Grid Operator",
+  "names": {
+    "de": "Gasnetzbetreiber",
+    "ru": "Оператор газовой сети",
+    "uk": "Оператор газової мережі",
+    "en": "Gas Grid Operator",
+    "th": "ผู้ให้บริการเครือข่ายแก๊ส"
+  },
+  "descriptions": {
+    "de": "Die Klasse Gasnetzbetreiber definiert die Attribute für Gasnetzbetreiber",
+    "ru": "Класс оператора газовой сети определяет атрибуты операторов газовой сети",
+    "en": "The class Gas Grid Operator defines the attributes of gas grid operators",
+    "uk": "Клас оператора газової мережі визначає атрибути для операторів газових мереж",
+    "th": "คลาสตัวดำเนินการเครือข่ายก๊าซกำหนดแอตทริบิวต์สำหรับผู้ให้บริการเครือข่ายก๊าซ"
+  },
+  "types": [
+  ]
+}

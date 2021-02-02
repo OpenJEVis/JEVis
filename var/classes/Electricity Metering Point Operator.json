@@ -1,0 +1,19 @@
+{
+  "name": "Electricity Metering Point Operator",
+  "description": "The class Electricity Metering Point Operator defines attributes for electricity metering point operators",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Electricity Metering Point Operator",
+      "end": "Energy Metering Point Operator",
+      "type": 0
+    },
+    {
+      "start": "Electricity Metering Point Operator",
+      "end": "Energy Metering Point Operation Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Community Heating Grid Operator",
+  "description": "The class Community Heating Grid Operator defines attributes for community heating grid operators",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Community Heating Grid Operator",
+      "end": "Energy Grid Operator",
+      "type": 0
+    },
+    {
+      "start": "Community Heating Grid Operator",
+      "end": "Energy Grid Operation Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

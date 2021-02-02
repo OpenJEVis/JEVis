@@ -69,6 +69,7 @@ public class Launcher extends AbstractCliApp {
                             currentProcess.start();
                         } catch (Exception ex) {
                             logger.debug(ex);
+                            if (currentProcess != null) currentProcess.setFinished(true);
                             LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
                             removeJob(currentCleanDataObject);
                         }
@@ -108,7 +109,7 @@ public class Launcher extends AbstractCliApp {
     protected void handleAdditionalCommands() {
         APP_SERVICE_CLASS_NAME = "JEDataProcessor";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
-        setMaxThreadTime(3600000L);
+        setMaxThreadTime(1800000L);
     }
 
     @Override

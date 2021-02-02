@@ -1,0 +1,18 @@
+{
+  "jevisclass": "Energy Contracting Directory",
+  "names": {
+    "de": "Energievertragswesen",
+    "ru": "Энергетический подряд",
+    "uk": "Контрактування енергії",
+    "en": "Energy Contracting Directory",
+    "th": "การหดตัวของพลังงาน"
+  },
+  "descriptions": {
+    "de": "Im Energievertragswesen werden Energieverträge verwaltet",
+    "ru": "Энергетические контракты управляются в системе энергетических контрактов",
+    "en": "Energy contracts are managed in the Energy Contract Directory",
+    "uk": "Управління енергетичними контрактами здійснюється в енергетичній контрактній системі",
+    "th": "สัญญาพลังงานได้รับการจัดการในระบบสัญญาพลังงาน"
+  },
+  "types": []
+}

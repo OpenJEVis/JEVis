@@ -1,0 +1,19 @@
+{
+  "name": "Gas Grid Operator",
+  "description": "The class Gas Grid Operator defines attributes for gas grid operators",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Gas Grid Operator",
+      "end": "Energy Grid Operator",
+      "type": 0
+    },
+    {
+      "start": "Gas Grid Operator",
+      "end": "Energy Grid Operation Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

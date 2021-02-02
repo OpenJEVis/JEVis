@@ -1,0 +1,46 @@
+{
+  "name": "Electricity Supply Contractor",
+  "description": "The class Energy Contractor defines specific attributes for electricity suppliers",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Electricity Supply Contractor",
+      "end": "Energy Supplier",
+      "type": 0
+    },
+    {
+      "start": "Electricity Supply Contractor",
+      "end": "Energy Supply Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Energy Price HT",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 24,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Supply Contractor"
+    },
+    {
+      "name": "Energy Price NT",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 25,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Supply Contractor"
+    },
+    {
+      "name": "Demand Charge",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 25,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Supply Contractor"
+    }
+  ]
+}

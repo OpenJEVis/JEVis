@@ -1,0 +1,18 @@
+{
+  "jevisclass": "Energy Metering Point Operation Directory",
+  "names": {
+    "de": "Messstellenbetrieb",
+    "ru": "Работа точки измерения",
+    "uk": "Робота точки вимірювання",
+    "en": "Energy Metering Point Operation Directory",
+    "th": "การทำงานของจุดวัด"
+  },
+  "descriptions": {
+    "de": "Im Messstellenbetrieb werden Informationen zu den Messstellenbetreibern verwaltet",
+    "ru": "При работе точки учета осуществляется управление информацией об операторах точки учета.",
+    "en": "Energy metering point operation contracts are managed in the Energy Metering Point Operation Directory",
+    "uk": "При роботі пункту вимірювання здійснюється управління інформацією про операторів пунктів вимірювання",
+    "th": "ในการทำงานของจุดวัดแสงข้อมูลเกี่ยวกับตัวดำเนินการจุดวัดแสงจะได้รับการจัดการ"
+  },
+  "types": []
+}

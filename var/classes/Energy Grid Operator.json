@@ -1,0 +1,50 @@
+{
+  "name": "Energy Grid Operator",
+  "description": "The class Energy Grid Operator defines non-specified attributes as a base class",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Grid Operator",
+      "end": "Energy Contractor",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Energy Grid Operator Code Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 11,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Grid Operator"
+    },
+    {
+      "name": "Franchise Tax",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 12,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Grid Operator"
+    },
+    {
+      "name": "Energy Price Grid",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 13,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Grid Operator"
+    },
+    {
+      "name": "Market Location Identification Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 14,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Grid Operator"
+    }
+  ]
+}

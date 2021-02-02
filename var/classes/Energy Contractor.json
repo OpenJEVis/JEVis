@@ -1,0 +1,108 @@
+{
+  "name": "Energy Contractor",
+  "description": "The class Energy Contractor defines non-specified attributes as a base class",
+  "unique": false,
+  "relationships": [
+  ],
+  "types": [
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Energy Contractor Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Customer Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 2,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Company",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 3,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Address",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 4,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Zip Code",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 5,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "City",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 6,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Contact Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 7,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Contact phone",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 8,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Contact mobile",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 9,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Contact mail",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 10,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    }
+  ]
+}

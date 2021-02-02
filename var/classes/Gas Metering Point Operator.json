@@ -1,0 +1,19 @@
+{
+  "name": "Gas Metering Point Operator",
+  "description": "The class Gas Metering Point Operator defines attributes for gas metering point operators",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Gas Metering Point Operator",
+      "end": "Energy Metering Point Operator",
+      "type": 0
+    },
+    {
+      "start": "Gas Metering Point Operator",
+      "end": "Energy Metering Point Operation Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}
