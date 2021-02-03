@@ -19,7 +19,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
@@ -135,9 +134,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
                                                     String unitString = UnitManager.getInstance().format(displayUnit);
                                                     String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
 
-                                                    TargetHelper th = new TargetHelper(getDataSource(), att);
-
-                                                    addEventManSampleAction(new VirtualSample(new DateTime(), th.getSourceString()), manSampleButton, registerTableRow.getName());
+                                                    addEventManSampleAction(new VirtualSample(new DateTime(), att.getObject().getID() + ":" + att.getName()), manSampleButton, registerTableRow.getName());
 
                                                     try {
                                                         if (period.equals(Period.days(1))) {
