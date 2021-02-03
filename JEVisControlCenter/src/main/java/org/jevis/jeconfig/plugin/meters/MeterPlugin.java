@@ -7,6 +7,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.geometry.Orientation;
 import javafx.print.*;
@@ -379,7 +380,7 @@ public class MeterPlugin extends TablePlugin implements Plugin {
         replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.replace.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
 
-        toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
+        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
         JEVisHelp.getInstance().addHelpItems(MeterPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
@@ -675,7 +676,9 @@ public class MeterPlugin extends TablePlugin implements Plugin {
                                 registerTableRows.add(tableData);
                             }
 
-                            tableView.getItems().setAll(registerTableRows);
+                            FilteredList<RegisterTableRow> filteredList = new FilteredList<>(registerTableRows, s -> true);
+                            addListener(filteredList);
+                            tableView.setItems(filteredList);
                             this.succeeded();
                         } catch (Exception e) {
                             logger.error(e);

@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -102,7 +103,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
                     numberFormat.setMaximumFractionDigits(2);
                     TableColumn<RegisterTableRow, JEVisObject> lastValueColumn = new TableColumn<>(I18nWS.getInstance().getTypeName(baseDataClass.getName(), type.getName()));
                     lastValueColumn.setStyle("-fx-alignment: CENTER;");
-                    lastValueColumn.setMinWidth(200);
+                    lastValueColumn.setMinWidth(250);
                     lastValueColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject()));
                     lastValueColumn.setCellFactory(new Callback<TableColumn<RegisterTableRow, JEVisObject>, TableCell<RegisterTableRow, JEVisObject>>() {
                         @Override
@@ -218,7 +219,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(20, 20);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(20, 20);
 
-        toolBar.getItems().setAll(reload);
+        toolBar.getItems().setAll(filterInput, reload);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(BaseDataPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
@@ -442,7 +443,9 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
                                 registerTableRows.add(tableData);
                             }
 
-                            tableView.getItems().setAll(registerTableRows);
+                            FilteredList<RegisterTableRow> filteredList = new FilteredList<>(registerTableRows, s -> true);
+                            addListener(filteredList);
+                            tableView.setItems(filteredList);
                             this.succeeded();
                         } catch (Exception e) {
                             logger.error(e);
