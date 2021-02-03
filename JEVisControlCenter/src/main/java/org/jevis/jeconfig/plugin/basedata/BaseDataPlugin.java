@@ -80,7 +80,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
 
     }
 
-    private void createColumns(TableView<RegisterTableRow> tableView, JEVisObject typeOfBaseData) {
+    private void createColumns(TableView<RegisterTableRow> tableView) {
 
         try {
             TableColumn<RegisterTableRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.basedata.table.basedata.columnname"));
@@ -92,7 +92,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
             tableView.getColumns().add(nameColumn);
             tableView.getSortOrder().addAll(nameColumn);
 
-            JEVisClass baseDataClass = typeOfBaseData.getDataSource().getJEVisClass(BASE_DATA_CLASS);
+            JEVisClass baseDataClass = ds.getJEVisClass(BASE_DATA_CLASS);
 
             for (JEVisType type : baseDataClass.getTypes()) {
 
@@ -380,7 +380,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
         return borderPane;
     }
 
-    private void loadTabs(Map<JEVisObject, List<JEVisObject>> allBaseData, List<JEVisObject> typesOfBaseData) throws InterruptedException {
+    private void loadTabs(Map<String, List<JEVisObject>> allBaseData, List<String> typesOfBaseData) throws InterruptedException {
         AtomicBoolean hasActiveLoadTask = new AtomicBoolean(false);
         for (Map.Entry<Task, String> entry : JEConfig.getStatusBar().getTaskList().entrySet()) {
             Task task = entry.getKey();
@@ -411,14 +411,14 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
                         }
 
                         try {
-                            tab.setClassName(typeOfBaseData.getName());
+                            tab.setClassName(typeOfBaseData);
                             tab.setTableView(tableView);
 
                             tableView.setFixedCellSize(EDITOR_MAX_HEIGHT);
                             tableView.setTableMenuButtonVisible(true);
 
                             tab.setClosable(false);
-                            createColumns(tableView, typeOfBaseData);
+                            createColumns(tableView);
 
                             ObservableList<RegisterTableRow> registerTableRows = FXCollections.observableArrayList();
 
@@ -476,8 +476,8 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
         Platform.runLater(() -> tabPane.getTabs().clear());
         changeMap.clear();
 
-        List<JEVisObject> typesOfBaseData = new ArrayList<>();
-        Map<JEVisObject, List<JEVisObject>> allBaseData = new HashMap<>();
+        List<String> typesOfBaseData = new ArrayList<>();
+        Map<String, List<JEVisObject>> allBaseData = new HashMap<>();
         Task load = new Task() {
             @Override
             protected Object call() throws Exception {
@@ -485,7 +485,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
 
                 allBaseData.forEach((key, list) -> typesOfBaseData.add(key));
                 AlphanumComparator ac = new AlphanumComparator();
-                typesOfBaseData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+                typesOfBaseData.sort(ac);
                 return null;
             }
         };
@@ -507,19 +507,19 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
         JEConfig.getStatusBar().addTask(BaseDataPlugin.class.getName(), loadTabs, taskImage, true);
     }
 
-    private Map<JEVisObject, List<JEVisObject>> getAllBaseData() {
-        Map<JEVisObject, List<JEVisObject>> map = new HashMap<>();
+    private Map<String, List<JEVisObject>> getAllBaseData() {
+        Map<String, List<JEVisObject>> map = new HashMap<>();
         try {
             JEVisClass baseDataClass = ds.getJEVisClass(BASE_DATA_CLASS);
             List<JEVisObject> allObjects = ds.getObjects(baseDataClass, false);
             for (JEVisObject object : allObjects) {
                 JEVisObject parent = object.getParents().get(0);
-                if (!map.containsKey(parent)) {
+                if (!map.containsKey(parent.getName())) {
                     List<JEVisObject> objectArrayList = new ArrayList<>();
                     objectArrayList.add(object);
-                    map.put(parent, objectArrayList);
+                    map.put(parent.getName(), objectArrayList);
                 } else {
-                    map.get(parent).add(object);
+                    map.get(parent.getName()).add(object);
                 }
             }
         } catch (JEVisException e) {
