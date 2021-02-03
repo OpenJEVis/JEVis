@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -73,11 +74,13 @@ public class TablePlugin {
     protected final ObjectRelations objectRelations;
     protected final String title;
     protected final AlphanumComparator alphanumComparator = new AlphanumComparator();
+    protected final TextField filterInput = new TextField();
 
     public TablePlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.title = title;
+        this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
     }
 
     public static void autoFitTable(TableView<RegisterTableRow> tableView) {
@@ -91,6 +94,35 @@ public class TablePlugin {
             }
 //            }
         }
+    }
+
+    protected void addListener(FilteredList<RegisterTableRow> filteredList) {
+        filterInput.textProperty().addListener(obs -> {
+            String filter = filterInput.getText();
+            if (filter == null || filter.length() == 0) {
+                filteredList.setPredicate(s -> true);
+            } else {
+                if (filter.contains(" ")) {
+                    String[] result = filter.split(" ");
+                    filteredList.setPredicate(s -> {
+                        boolean match = false;
+                        String string = (objectRelations.getObjectPath(s.getObject()) + s.getObject().getName()).toLowerCase();
+                        for (String value : result) {
+                            String subString = value.toLowerCase();
+                            if (!string.contains(subString))
+                                return false;
+                            else match = true;
+                        }
+                        return match;
+                    });
+                } else {
+                    filteredList.setPredicate(s -> {
+                        String string = (objectRelations.getObjectPath(s.getObject()) + s.getObject().getName()).toLowerCase();
+                        return string.contains(filter.toLowerCase());
+                    });
+                }
+            }
+        });
     }
 
     protected Callback<TableColumn<RegisterTableRow, JEVisAttribute>, TableCell<RegisterTableRow, JEVisAttribute>> valueCellDateTime() {

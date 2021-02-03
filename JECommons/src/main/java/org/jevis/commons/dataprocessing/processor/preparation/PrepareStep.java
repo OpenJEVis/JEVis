@@ -131,7 +131,6 @@ public class PrepareStep implements ProcessStep {
             }
             if (firstCleanPeriod.getMonths() > 0) {
                 currentDate = currentDate.minusMonths(1);
-                maxEndDate = maxEndDate.plusWeeks(2);
             }
             if (firstCleanPeriod.getWeeks() > 0) {
                 currentDate = currentDate.minusWeeks(1);
@@ -206,9 +205,13 @@ public class PrepareStep implements ProcessStep {
                     Interval interval = new Interval(startInterval.plusSeconds(1), endInterval);
                     currentInterval = new CleanInterval(interval, endInterval);
                     currentInterval.getResult().setTimeStamp(endInterval);
-                } else {
+                } else if (!isDifferential) {
                     Interval interval = new Interval(startInterval.plusSeconds(1), endInterval.plusSeconds(1));
                     currentInterval = new CleanInterval(interval, startInterval);
+                    currentInterval.getResult().setTimeStamp(endInterval.plusSeconds(1));
+                } else {
+                    Interval interval = new Interval(startInterval.plusSeconds(1), endInterval.plusSeconds(1));
+                    currentInterval = new CleanInterval(interval, endInterval.plusSeconds(1));
                     currentInterval.getResult().setTimeStamp(endInterval.plusSeconds(1));
                 }
 
@@ -268,7 +271,7 @@ public class PrepareStep implements ProcessStep {
                 i--;
             }
 
-            List<JEVisSample> subList = rawSamplesDown.subList(startIndex, endIndex);
+            List<JEVisSample> subList = rawSamplesDown.subList(startIndex, endIndex + 1);
             logger.info("[{}] {} raw samples in sublist between {} and {}",
                     cleanDataObject.getCleanObject().getID(), subList.size(),
                     subList.get(0).getTimestamp(), subList.get(subList.size() - 1).getTimestamp());

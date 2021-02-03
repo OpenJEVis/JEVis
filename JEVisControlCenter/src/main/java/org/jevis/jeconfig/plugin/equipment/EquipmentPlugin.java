@@ -5,7 +5,9 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.geometry.Orientation;
 import javafx.print.*;
@@ -286,7 +288,7 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.tooltip.print")));
 
 
-        toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
+        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(EquipmentPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
@@ -537,7 +539,7 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
                                 }
                             });
 
-                            List<RegisterTableRow> registerTableRows = new ArrayList<>();
+                            ObservableList<RegisterTableRow> registerTableRows = FXCollections.observableArrayList();
                             JEVisType onlineIdType = jeVisClass.getType("Online ID");
                             JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
                             JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
@@ -580,7 +582,9 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
                                 registerTableRows.add(tableData);
                             }
 
-                            tableView.getItems().setAll(registerTableRows);
+                            FilteredList<RegisterTableRow> filteredList = new FilteredList<>(registerTableRows, s -> true);
+                            addListener(filteredList);
+                            tableView.setItems(filteredList);
                             this.succeeded();
                         } catch (Exception e) {
                             logger.error(e);
