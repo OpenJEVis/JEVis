@@ -1023,6 +1023,7 @@ public class GraphPluginView implements Plugin {
                     if (node instanceof BorderPane) {
                         BorderPane borderPane = (BorderPane) node;
                         boolean isLogical = false;
+                        boolean isTableV = false;
 
                         ObservableList<Node> borderChildren = borderPane.getChildren();
                         for (Node node1 : borderChildren) {
@@ -1032,6 +1033,10 @@ public class GraphPluginView implements Plugin {
                                 for (Node node2 : ((VBox) node1).getChildren()) {
                                     if (node2 instanceof de.gsi.chart.XYChart) {
                                         Platform.runLater(() -> ((de.gsi.chart.XYChart) node2).setMaxHeight((height) / (chartsPerScreen * 3)));
+                                    } else if (node2 instanceof HBox) {
+                                        isLogical = false;
+                                        isTableV = true;
+                                        break;
                                     }
                                 }
 
@@ -1039,7 +1044,7 @@ public class GraphPluginView implements Plugin {
                             }
                         }
 
-                        if (!isLogical) {
+                        if (!isLogical && !isTableV) {
                             TableHeader top = (TableHeader) borderPane.getTop();
                             double heightTop = top.getHeight();
 
@@ -1054,6 +1059,14 @@ public class GraphPluginView implements Plugin {
                                     de.gsi.chart.XYChart xyChart = (de.gsi.chart.XYChart) child;
                                     double v = (height / chartsPerScreen) - heightTop;
                                     Platform.runLater(() -> xyChart.setPrefHeight(v));
+                                }
+                            }
+                        } else if (isTableV) {
+                            double v = height / chartsPerScreen;
+                            for (Node node1 : borderChildren) {
+                                if (node1 instanceof VBox) {
+                                    VBox vBox1 = (VBox) node1;
+                                    Platform.runLater(() -> vBox1.setPrefHeight(v));
                                 }
                             }
                         }
