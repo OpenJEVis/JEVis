@@ -131,6 +131,10 @@ public class PrepareStep implements ProcessStep {
             }
             if (firstCleanPeriod.getMonths() > 0) {
                 currentDate = currentDate.minusMonths(1);
+
+                if (dtEnd.isBefore(dtStart)) {
+                    maxEndDate = maxEndDate.plusMonths(1);
+                }
             }
             if (firstCleanPeriod.getWeeks() > 0) {
                 currentDate = currentDate.minusWeeks(1);
@@ -193,12 +197,10 @@ public class PrepareStep implements ProcessStep {
                     endInterval = new DateTime(endInterval.getYear(), endInterval.getMonthOfYear(), endInterval.getDayOfMonth(),
                             dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond());
 
-//                    if (dtEnd.isBefore(dtStart)) {
-//                        startInterval = startInterval.minusDays(1);
-//                        endInterval = endInterval.minusDays(1).plusSeconds(1);
-//                    }
+                    if (dtEnd.isBefore(dtStart)) {
+                        startInterval = startInterval.minusDays(1);
+                    }
                 }
-
 
                 CleanInterval currentInterval;
                 if (!greaterThenDays) {
