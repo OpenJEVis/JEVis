@@ -1,6 +1,6 @@
 {
   "name": "Energy Contracting Directory",
-  "description": "The class Energy Contracting Directory represents a specific directory for the energy contracting instruments.\n\n",
+  "description": "The class Energy Contracting Directory represents a specific directory for the energy contracting.\n\n",
   "unique": true,
   "relationships": [
     {

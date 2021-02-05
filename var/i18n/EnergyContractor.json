@@ -1,0 +1,206 @@
+{
+  "jevisclass": "Energy Contractor",
+  "names": {
+    "de": "Energie Vertragsnehmer",
+    "ru": "поставщик энергии",
+    "uk": "постачальник енергії",
+    "en": "Energy Contractor",
+    "th": "ผู้จัดหาพลังงาน"
+  },
+  "descriptions": {
+    "de": "Die Klasse Energielieferant definiert die Grundattribute für die spezifischen Energielieferanten",
+    "ru": "Класс поставщика энергии определяет основные атрибуты конкретного поставщика энергии.",
+    "en": "The class Energy Contractor defines the base attributes of specific energy suppliers",
+    "uk": "Клас постачальника енергії визначає основні атрибути конкретного постачальника енергії",
+    "th": "ระดับผู้จัดหาพลังงานกำหนดคุณลักษณะพื้นฐานสำหรับผู้จัดหาพลังงานเฉพาะ"
+  },
+  "types": [
+    {
+      "type": "Energy Source",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Energieträger",
+        "ru": "Энергетический ресурс",
+        "uk": "Джерело енергії",
+        "th": "แหล่งพลังงาน",
+        "en": "Energy Source"
+      }
+    },
+    {
+      "type": "Energy Contractor Number",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Versorger Kennung",
+        "ru": "Идентификатор провайдера",
+        "uk": "Ідентифікатор постачальника",
+        "th": "ตัวระบุผู้ให้บริการ",
+        "en": "Energy Contractor Number"
+      }
+    },
+    {
+      "type": "Customer Number",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Kundennummer",
+        "ru": "Номер клиента",
+        "uk": "Номер клієнта",
+        "th": "จำนวนลูกค้า",
+        "en": "Customer Number"
+      }
+    },
+    {
+      "type": "Company",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Firma",
+        "ru": "Компания",
+        "uk": "компанії",
+        "th": "บริษัท",
+        "en": "Company"
+      }
+    },
+    {
+      "type": "Address",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Adresse",
+        "ru": "адрес",
+        "uk": "адресу",
+        "th": "ที่อยู่",
+        "en": "Address"
+      }
+    },
+    {
+      "type": "Zip Code",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Postleitzahl",
+        "ru": "Почтовый индекс",
+        "uk": "Поштовий індекс",
+        "th": "รหัสไปรษณีย์",
+        "en": "Zip Code"
+      }
+    },
+    {
+      "type": "City",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Stadt",
+        "ru": "город",
+        "uk": "місто",
+        "th": "เมือง",
+        "en": "City"
+      }
+    },
+    {
+      "type": "Contact Name",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Ansprechpartner",
+        "ru": "Контактное лицо",
+        "uk": "Контактна особа",
+        "th": "ผู้ติดต่อ",
+        "en": "Contact Name"
+      }
+    },
+    {
+      "type": "Contact phone",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Telefonnummer",
+        "ru": "Телефонный номер",
+        "uk": "Номер телефону",
+        "th": "หมายเลขโทรศัพท์",
+        "en": "Contact phone"
+      }
+    },
+    {
+      "type": "Contact mobile",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Handynummer",
+        "ru": "номер мобильного телефона",
+        "uk": "номер мобільного",
+        "th": "เบอร์มือถือ",
+        "en": "Contact mobile"
+      }
+    },
+    {
+      "type": "Contact mail",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "E-Mail Adresse",
+        "ru": "Адрес электронной почты",
+        "uk": "електронна адреса",
+        "th": "ที่อยู่อีเมล",
+        "en": "Contact mail"
+      }
+    }
+  ]
+}

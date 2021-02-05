@@ -16,11 +16,13 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
+import org.jevis.commons.datetime.PeriodArithmetic;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.io.IOException;
@@ -803,6 +805,15 @@ public class CleanDataObject {
                     .minus(maxPeriod);
 
             DateTime lastDate = getLastRawDate();
+
+            Period rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), firstDate);
+            long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
+
+            while (l > processingSize * 2d) {
+                rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), lastDate);
+                lastDate = lastDate.minus(rawDataPeriod);
+                l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
+            }
 
             rawSamplesDown = sampleHandler.getSamplesInPeriod(
                     rawDataObject,

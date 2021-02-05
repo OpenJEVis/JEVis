@@ -1,0 +1,257 @@
+{
+  "jevisclass": "Energy Supplier",
+  "names": {
+    "de": "Energielieferant",
+    "ru": "поставщик энергии",
+    "uk": "постачальник енергії",
+    "en": "Energy Supplier",
+    "th": "ผู้จัดหาพลังงาน"
+  },
+  "descriptions": {
+    "de": "Die Klasse Energielieferant definiert die Grundattribute für die spezifischen Energielieferanten",
+    "ru": "Класс поставщика энергии определяет основные атрибуты конкретного поставщика энергии.",
+    "en": "The class Energy Contractor defines the base attributes of specific energy suppliers",
+    "uk": "Клас постачальника енергії визначає основні атрибути конкретного постачальника енергії",
+    "th": "ระดับผู้จัดหาพลังงานกำหนดคุณลักษณะพื้นฐานสำหรับผู้จัดหาพลังงานเฉพาะ"
+  },
+  "types": [
+    {
+      "type": "Contract Number",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragsnummer",
+        "ru": "Контактный номер",
+        "uk": "Номер договору",
+        "th": "เลขที่สัญญา",
+        "en": "Contract Number"
+      }
+    },
+    {
+      "type": "Contract Conclusion",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragsschluss",
+        "ru": "Заключение договора",
+        "uk": "Укладення договору",
+        "th": "ข้อสรุปของสัญญา",
+        "en": "Contract Conclusion"
+      }
+    },
+    {
+      "type": "Contract Start",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragsbeginn",
+        "ru": "Начало контракта",
+        "uk": "Початок договору",
+        "th": "เริ่มต้นสัญญา",
+        "en": "Contract Start"
+      }
+    },
+    {
+      "type": "Contract End",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragsende",
+        "ru": "Завершение контракта",
+        "uk": "Кінець контракту",
+        "th": "สิ้นสุดสัญญา",
+        "en": "Contract End"
+      }
+    },
+    {
+      "type": "Period of Notice",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Kündigungsfrist",
+        "ru": "период уведомления",
+        "uk": "термін попередження",
+        "th": "ระยะเวลาแจ้งให้ทราบล่วงหน้า",
+        "en": "Period of Notice"
+      }
+    },
+    {
+      "type": "Product",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Produkt / Tarif",
+        "ru": "Товар / тариф",
+        "uk": "Товар / тариф",
+        "th": "สินค้า / ภาษี",
+        "en": "Product"
+      }
+    },
+    {
+      "type": "Net Cost",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Grundpreis",
+        "ru": "Базисная цена",
+        "uk": "Базова ціна",
+        "th": "ราคาพื้นฐาน",
+        "en": "Net Cost"
+      }
+    },
+    {
+      "type": "Billing Cycle",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Rechnungsintervall",
+        "ru": "Расчетный интервал",
+        "uk": "Інтервал виставлення рахунків",
+        "th": "ช่วงเวลาการเรียกเก็บเงิน",
+        "en": "Billing Cycle"
+      }
+    },
+    {
+      "type": "Yearly Sum",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragliche Jahresmenge",
+        "ru": "Договорная годовая сумма",
+        "uk": "Річна сума за контрактом",
+        "th": "จำนวนเงินรายปีตามสัญญา",
+        "en": "Yearly Sum"
+      }
+    },
+    {
+      "type": "First Time of Payment",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Erste Fälligkeit",
+        "ru": "Первый срок",
+        "uk": "Перший термін",
+        "th": "วันที่ครบกำหนดชำระครั้งแรก",
+        "en": "First Time of Payment"
+      }
+    },
+    {
+      "type": "Monthly Gross Rebate",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Monatlicher Abschlag brutto",
+        "ru": "Ежемесячный платеж брутто",
+        "uk": "Щомісячний валовий внесок",
+        "th": "ค่างวดรวมต่อเดือน",
+        "en": "Monthly Gross Rebate"
+      }
+    },
+    {
+      "type": "Monthly Net Rebate",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Monatlicher Abschlag netto",
+        "ru": "Ежемесячный платеж нетто",
+        "uk": "Щомісячний внесок нетто",
+        "th": "ยอดผ่อนสุทธิต่อเดือน",
+        "en": "Monthly Net Rebate"
+      }
+    },
+    {
+      "type": "Additional Relative Cost",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Zusatzkosten relativ",
+        "ru": "Дополнительные расходы относительно",
+        "uk": "Додаткові витрати відносні",
+        "th": "ค่าใช้จ่ายเพิ่มเติมที่เกี่ยวข้อง",
+        "en": "Additional Relative Cost"
+      }
+    },
+    {
+      "type": "Additional Fix Cost",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Zusatzkosten fix",
+        "ru": "Фиксированные дополнительные расходы",
+        "uk": "Виправлені додаткові витрати",
+        "th": "ค่าใช้จ่ายเพิ่มเติมคงที่",
+        "en": "Additional Fix Cost"
+      }
+    }
+  ]
+}

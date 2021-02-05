@@ -1,0 +1,19 @@
+{
+  "name": "Community Heating Metering Point Operator",
+  "description": "The class Community Heating Metering Point Operator defines attributes for community heating metering point operators",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Community Heating Metering Point Operator",
+      "end": "Energy Metering Point Operator",
+      "type": 0
+    },
+    {
+      "start": "Community Heating Metering Point Operator",
+      "end": "Energy Metering Point Operation Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

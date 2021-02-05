@@ -1,0 +1,87 @@
+{
+  "jevisclass": "Energy Grid Operator",
+  "names": {
+    "de": "Netzbetreiber",
+    "ru": "Оператор сети",
+    "uk": "Оператор мережі",
+    "en": "Energy Grid Operator",
+    "th": "ผู้ให้บริการเครือข่าย"
+  },
+  "descriptions": {
+    "de": "Die Klasse Netzbetreiber definiert die Basisattribute für Netzbetreiber",
+    "ru": "Класс оператора сети определяет основные атрибуты для операторов сети.",
+    "en": "The class Energy Grid Operator defines the base attributes of specific energy grid operators",
+    "uk": "Клас оператора мережі визначає основні атрибути для операторів мережі",
+    "th": "คลาสผู้ให้บริการเครือข่ายกำหนดคุณลักษณะพื้นฐานสำหรับตัวดำเนินการเครือข่าย"
+  },
+  "types": [
+    {
+      "type": "Energy Grid Operator Code Number",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Netzbetreiber Code-Nr.",
+        "ru": "Код оператора сети нет",
+        "uk": "Код оператора мережі №",
+        "th": "รหัสผู้ให้บริการเครือข่ายหมายเลข",
+        "en": "Energy Grid Operator Code Number"
+      }
+    },
+    {
+      "type": "Franchise Tax",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Konzessionsabgabe",
+        "ru": "Концессионный сбор",
+        "uk": "Плата за концесію",
+        "th": "ค่าสัมปทาน",
+        "en": "Franchise Tax"
+      }
+    },
+    {
+      "type": "Energy Price Grid",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Arbeitspreis Netz",
+        "ru": "Сеть цен на рабочую силу",
+        "uk": "Мережа цін на робочу силу",
+        "th": "เครือข่ายราคาแรงงาน",
+        "en": "Energy Price Grid"
+      }
+    },
+    {
+      "type": "Market Location Identification Number",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Marktlokations-ID",
+        "ru": "Идентификационный номер местонахождения рынка",
+        "uk": "Ідентифікаційний номер місця розташування ринку",
+        "th": "หมายเลขประจำตลาดที่ตั้ง",
+        "en": "Market Location Identification Number"
+      }
+    }
+  ]
+}

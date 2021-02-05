@@ -72,7 +72,6 @@ public class DifferentialStep implements ProcessStep {
 
         if (listConversionToDifferential != null) {
 
-            boolean isCounterChange = false;
             DateTime firstTS = intervals.get(0).getDate();
             DateTime lastDiffTS = firstTS;
             Double lastDiffVal = rawSamples.get(0).getValueAsDouble();
@@ -96,16 +95,14 @@ public class DifferentialStep implements ProcessStep {
 
                         Double rawValue = curSample.getValueAsDouble();
 
-                        if (isCounterChange) {
+                        if (curSample.getNote().contains(NoteConstants.Differential.COUNTER_CHANGE)) {
                             lastDiffVal = rawValue;
-                            isCounterChange = false;
                             continue;
                         }
 
                         double cleanedVal = rawValue - lastDiffVal;
-                        isCounterChange = curSample.getNote().contains("cc");
 
-                        if (interval.getInputPeriod().equals(Period.months(1)) && !isCounterChange) {
+                        if (interval.getInputPeriod().equals(Period.months(1))) {
 
                             int dayOfMonth = curSample.getTimestamp().getDayOfMonth();
 

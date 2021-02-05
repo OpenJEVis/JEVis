@@ -1,0 +1,19 @@
+{
+  "jevisclass": "Electricity Grid Operator",
+  "names": {
+    "de": "Stromnetzbetreiber",
+    "ru": "Оператор электрической сети",
+    "uk": "Оператор мережі електроенергії",
+    "en": "Electricity Grid Operator",
+    "th": "ผู้ให้บริการโครงข่ายไฟฟ้า"
+  },
+  "descriptions": {
+    "de": "Die Klasse Stromnetzbetreiber definiert die Attribute für Stromnetzbetreiber",
+    "ru": "Класс оператора электросети определяет атрибуты операторов электросети",
+    "en": "The class Electricity Grid Operator defines the attributes of electricity grid operators",
+    "uk": "Клас оператора електричної мережі визначає атрибути для операторів електричної мережі",
+    "th": "คลาสผู้ให้บริการเครือข่ายไฟฟ้ากำหนดคุณลักษณะสำหรับผู้ให้บริการเครือข่ายไฟฟ้า"
+  },
+  "types": [
+  ]
+}

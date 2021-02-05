@@ -268,14 +268,8 @@ public class SampleHandler {
         DateTime firstDate = null;
         try {
             JEVisAttribute attribute = object.getAttribute(attributeName);
-            if (attribute != null) {
-                List<JEVisSample> sampleList = attribute.getAllSamples();
-                if (sampleList.size() > 0) {
-                    JEVisSample smp = sampleList.get(0);
-                    firstDate = smp.getTimestamp();
-                }
+            if (attribute != null && attribute.hasSample()) {
                 firstDate = attribute.getTimestampFromFirstSample();
-
             }
         } catch (JEVisException ex) {
             logger.error(ex);
