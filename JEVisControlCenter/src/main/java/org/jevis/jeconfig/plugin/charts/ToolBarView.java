@@ -431,7 +431,6 @@ public class ToolBarView {
 
 
             toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-            System.out.println("Create Graph toolbar");
             JEVisHelp.getInstance().addHelpItems(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
             addAnalysisComboBoxListener();

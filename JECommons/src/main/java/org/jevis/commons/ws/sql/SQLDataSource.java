@@ -69,7 +69,7 @@ public class SQLDataSource {
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
 
         try {
-            ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
+            ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
 
             this.dbConn = ConnectionFactory.getInstance().getConnection();
 
@@ -400,7 +400,7 @@ public class SQLDataSource {
 
     public JsonObject updateObject(long id, String newname, boolean ispublic, String i18n) throws JEVisException {
         logger.debug("updateObject");
-        return getObjectTable().updateObject(id, newname, ispublic,i18n);
+        return getObjectTable().updateObject(id, newname, ispublic, i18n);
     }
 
     public List<JsonObject> getObjects() throws JEVisException {
@@ -634,7 +634,7 @@ public class SQLDataSource {
 //        parentRelationship.setTo(parent);
 //        setRelationships(parentRelationship);
 
-        return getObjectTable().insertObject(newObjecrequest.getName(), newObjecrequest.getJevisClass(), parent, newObjecrequest.getisPublic(),i18n);
+        return getObjectTable().insertObject(newObjecrequest.getName(), newObjecrequest.getJevisClass(), parent, newObjecrequest.getisPublic(), i18n);
     }
 
     /**
