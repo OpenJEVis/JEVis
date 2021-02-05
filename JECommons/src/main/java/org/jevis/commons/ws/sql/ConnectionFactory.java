@@ -25,17 +25,19 @@ public class ConnectionFactory {
 
     }
 
-    public void registerMySQLDriver(String host, String port, String schema, String dbUser, String dbPW) {
+    public void registerMySQLDriver(String host, String port, String schema, String dbUser, String dbPW, String options) {
 
         if (ds == null) {
-            String conSring = "jdbc:mysql://" + host + ":" + port + "/" + schema + "?"
+            String conString = "jdbc:mysql://" + host + ":" + port + "/" + schema + "?"
                     + "characterEncoding=UTF-8&useUnicode=true&character_set_client=UTF-8&character_set_connection=UTF-8&character_set_results=UTF-8";
 //                    + "characterEncoding=UTF-8&amp;useUnicode=true";
-//                    + "user=" + dbUser + "&password=" + dbPW;
+            if (!options.isEmpty()) {
+                conString += "&" + options;
+            }
 
             ds = new BasicDataSource();
             ds.setDriverClassName("com.mysql.jdbc.Driver");
-            ds.setUrl(conSring);
+            ds.setUrl(conString);
             ds.setUsername(dbUser);
             ds.setPassword(dbPW);
             ds.setMaxTotal(100);
@@ -51,9 +53,9 @@ public class ConnectionFactory {
     public Connection getConnection() throws SQLException {
         if (ds != null) {
 
-            try{
+            try {
                 return ds.getConnection();
-            }catch (SQLException ex){
+            } catch (SQLException ex) {
                 return getConnection(0);
             }
         } else {
@@ -64,37 +66,32 @@ public class ConnectionFactory {
     }
 
     public Connection getConnection(int retry) throws SQLException {
-        logger.error("Retry SQL connection: {}",retry);
+        logger.error("Retry SQL connection: {}", retry);
 
-        if(retry<5){
-            try
-            {
+        if (retry < 5) {
+            try {
                 logger.error("Wait 3 seconds");
                 Thread.sleep(3000);
-                try{
+                try {
                     logger.error("done wait");
                     return ds.getConnection();
 
-                }catch (SQLException sqlex){
-                    logger.error("SQL Connection error: {}",sqlex.toString(),sqlex);
+                } catch (SQLException sqlex) {
+                    logger.error("SQL Connection error: {}", sqlex.toString(), sqlex);
                     return getConnection(++retry);
                 }
 
-            }
-            catch(InterruptedException ex)
-            {
+            } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
                 logger.error(ex);
                 throw new SQLException("Thread Interrupted, No SQL Connection");
             }
-        }else{
+        } else {
             logger.error("Max SQL retry reached stopping");
             throw new SQLException("No SQL Connection");
         }
 
     }
-
-
 
 
     public static ConnectionFactory getInstance() {
