@@ -30,11 +30,13 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.dimpex.DimpEX;
 import org.jevis.commons.dimpex.DimpexObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
+import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.JsonExportDialog;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
@@ -71,6 +73,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     buildCut(),
                     buildPaste(),
                     new SeparatorMenuItem(),
+
                     buildMenuExport(),
                     buildImport()
             );
@@ -82,6 +85,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 } else if (obj.getJEVisClassName().equals("OPC UA Server")) {
                     getItems().add(new SeparatorMenuItem());
                     getItems().add(buildOCP());
+                } else if (obj.getAttribute("Value") != null) {
+                    getItems().add(buildManualSample());
                 }
 
 
@@ -220,6 +225,28 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 try {
                     LocalNameDialog localNameDialog = new LocalNameDialog(obj);
                     localNameDialog.show();
+                } catch (Exception ex) {
+                    logger.fatal(ex);
+                }
+            }
+        });
+
+        return menu;
+    }
+
+    public MenuItem buildManualSample() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("menu.file.import.manual"), ResourceLoader.getImage("if_textfield_add_64870.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    JEVisSample lastValue = obj.getAttribute("Value").getLatestSample();
+                    EnterDataDialog enterDataDialog = new EnterDataDialog(obj.getDataSource());
+                    enterDataDialog.setTarget(false, obj.getAttribute("Value"));
+                    enterDataDialog.setSample(lastValue);
+                    enterDataDialog.setShowValuePrompt(true);
+
+                    enterDataDialog.show();
                 } catch (Exception ex) {
                     logger.fatal(ex);
                 }
