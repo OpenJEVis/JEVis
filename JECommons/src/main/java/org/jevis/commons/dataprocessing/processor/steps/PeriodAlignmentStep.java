@@ -13,6 +13,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.datetime.WorkDays;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -39,6 +40,8 @@ public class PeriodAlignmentStep implements ProcessStep {
             return;
         }
 
+        WorkDays workDays = new WorkDays(cleanDataObject.getCleanObject());
+
         Map<Integer, JEVisSample> replacementMap = new HashMap<>();
 
         for (JEVisSample rawSample : rawSamples) {
@@ -61,6 +64,7 @@ public class PeriodAlignmentStep implements ProcessStep {
 
             DateTime lowerTS = null;
             DateTime higherTS = null;
+            boolean isGreaterThenDays = false;
 
             if (periodForRawSample.equals(Period.minutes(1))) {
                 lowerTS = rawSampleTS.minusSeconds(30).withSecondOfMinute(0).withMillisOfSecond(0);
@@ -140,13 +144,17 @@ public class PeriodAlignmentStep implements ProcessStep {
             } else if (periodForRawSample.getDays() == 1) {
                 lowerTS = rawSampleTS.minusHours(12).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 higherTS = rawSampleTS.plusHours(12).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                isGreaterThenDays = true;
             } else if (periodForRawSample.getWeeks() == 1) {
                 lowerTS = rawSampleTS.minusHours(84).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 higherTS = rawSampleTS.plusHours(84).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                isGreaterThenDays = true;
             } else if (periodForRawSample.getMonths() == 1) {
                 lowerTS = rawSampleTS.minusHours(363).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 higherTS = rawSampleTS.plusHours(363).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                isGreaterThenDays = true;
             } else if (periodForRawSample.getMonths() == 3) {
+                isGreaterThenDays = true;
                 if (rawSampleTS.getMonthOfYear() <= 3) {
                     lowerTS = rawSampleTS.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                     higherTS = rawSampleTS.withMonthOfYear(3).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
@@ -161,8 +169,23 @@ public class PeriodAlignmentStep implements ProcessStep {
                     higherTS = rawSampleTS.withMonthOfYear(12).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 }
             } else if (periodForRawSample.getYears() == 1) {
+                isGreaterThenDays = true;
                 lowerTS = rawSampleTS.minusDays(182).minusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 higherTS = rawSampleTS.plusDays(182).plusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+
+            if (isGreaterThenDays && lowerTS != null) {
+                lowerTS = lowerTS.withHourOfDay(workDays.getWorkdayStart().getHour())
+                        .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                        .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
+                higherTS = higherTS.withHourOfDay(workDays.getWorkdayStart().getHour())
+                        .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                        .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
+
+                if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                    lowerTS = lowerTS.minusDays(1);
+                    higherTS = higherTS.minusDays(1);
+                }
             }
 
             if (lowerTS != null && higherTS != null) {

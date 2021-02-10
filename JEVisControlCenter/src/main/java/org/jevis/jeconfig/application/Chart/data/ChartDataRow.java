@@ -590,7 +590,7 @@ public class ChartDataRow {
             try {
 
                 String jevisClassName = getObject().getJEVisClassName();
-                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data")) {
+                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data") || jevisClassName.equals("Base Data")) {
                     if (dataProcessorObject == null) {
                         this.attribute = getObject().getAttribute("Value");
                     } else {
