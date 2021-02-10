@@ -85,7 +85,7 @@ public class ArrowWidget extends Widget {
 
     @Override
     public void updateConfig() {
-        logger.error("UpdateConfig");
+        logger.debug("UpdateConfig");
         Platform.runLater(() -> {
             try {
 
