@@ -101,7 +101,6 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.objectRelations = new ObjectRelations(ds);
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
-
         init();
     }
 
@@ -116,8 +115,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.setTitle(I18n.getInstance().getString("plugin.object.dialog.data.title"));
         this.initOwner(JEConfig.getStage());
         this.setResizable(true);
-        this.getDialogPane().setMinWidth(600);
-        this.getDialogPane().setMinHeight(350);
+        this.getDialogPane().setPrefWidth(350);
+        this.getDialogPane().setPrefHeight(300);
 
         this.getDialogPane().getScene().getRoot().setEffect(new DropShadow());
         this.getDialogPane().getScene().setFill(Color.TRANSPARENT);
@@ -177,6 +176,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                 loadLastValue();
             }
         });
+
 
         getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.APPLY);
 
@@ -404,6 +404,12 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.target = target;
         this.selectedObject = target.getObject();
 
+        Platform.runLater(() -> {
+
+            treeButton.setText(selectedObject.getName());
+            searchIdField.setText(selectedObject.getID().toString());
+            loadLastValue();
+        });
     }
 
     public void setShowValuePrompt(boolean showValuePrompt) {
