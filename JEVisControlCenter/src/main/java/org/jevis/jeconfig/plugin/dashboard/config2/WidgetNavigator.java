@@ -36,6 +36,7 @@ public class WidgetNavigator {
     private final double iconSize = 16;
     final ImageView lockIcon = JEConfig.getImage("eye_visible.png", this.iconSize, this.iconSize);
     final ImageView unlockIcon = JEConfig.getImage("eye_hidden.png", this.iconSize, this.iconSize);
+    final ImageView copyWidget = JEConfig.getImage("16_Copy_48x48.png", this.iconSize, this.iconSize);
 
 
     private final DashboardControl control;
@@ -304,10 +305,36 @@ public class WidgetNavigator {
         highlightButton.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+        delete.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.delete")));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         delete.setOnAction(event -> {
             control.removeAllWidgets(table.getSelectionModel().getSelectedItems());
             table.refresh();
+        });
+
+        Button copyButton = new Button("", this.copyWidget);
+        copyButton.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.copy")));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(copyButton);
+        copyButton.setOnAction(event -> {
+            try {
+                Widget newWidget = table.getSelectionModel().getSelectedItem().clone();
+                newWidget.getConfig().setUuid(control.getNextFreeUUID());
+                newWidget.getConfig().setTitle(newWidget.getConfig().getTitle() + " " + I18n.getInstance().getString("dashboard.navigator.copy.name"));
+                double newXPos = newWidget.getConfig().getxPosition() + newWidget.getConfig().getSize().getWidth() + 50;
+                if (newXPos > control.getDashboardPane().getWidth()) {
+                    newWidget.getConfig().setxPosition(newWidget.getConfig().getxPosition() + 50);
+                } else {
+                    newWidget.getConfig().setxPosition(newXPos);
+                }
+
+                control.addWidget(newWidget);
+                newWidget.setEditable(true);
+                table.getSelectionModel().clearAndSelect(table.getItems().size() - 1);
+                table.scrollTo(newWidget);
+                this.control.requestViewUpdate(newWidget);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
 
 
@@ -316,14 +343,12 @@ public class WidgetNavigator {
             Widget newWidget = widgetSelector.getSelectedWidget();
             control.addWidget(newWidget);
             newWidget.setEditable(true);
-//            newWidget.updateConfig();
             table.getSelectionModel().clearAndSelect(table.getItems().size() - 1);
             table.scrollTo(newWidget);
             this.control.requestViewUpdate(newWidget);
         });
         Separator sep1 = new Separator();
-        Separator sep2 = new Separator();
-        toolBar.getItems().addAll(highlightButton, delete, sep1, widgetSelector, sep2);
+        toolBar.getItems().addAll(highlightButton, delete, sep1, widgetSelector, copyButton);
 
         return toolBar;
     }
