@@ -116,11 +116,11 @@ public class TreeHelper {
                 for (TreeItem<JEVisTreeRow> treeItem : items) {
                     if (treeItem.getValue().getJEVisObject().getDataSource().getCurrentUser().canDelete(treeItem.getValue().getJEVisObject().getID())) {
 
-                    Alert alert = new Alert(AlertType.CONFIRMATION);
-                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.delete.title"));
-                    alert.setHeaderText(null);
-                    alert.setContentText(question);
-                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
+                        Alert alert = new Alert(AlertType.CONFIRMATION);
+                        alert.setTitle(I18n.getInstance().getString("jevistree.dialog.delete.title"));
+                        alert.setHeaderText(null);
+                        alert.setContentText(question);
+                        TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
 
                         alert.showAndWait().ifPresent(buttonType -> {
                             if (buttonType.equals(ButtonType.OK)) {
@@ -171,23 +171,24 @@ public class TreeHelper {
 
                                 new Thread(delete).start();
 
-                        } else {
-                            // ... user chose CANCEL or closed the dialog
-                        }
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
-                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
-                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
-                        alert1.showAndWait();
-                    });
+                            } else {
+                                // ... user chose CANCEL or closed the dialog
+                            }
+                        });
+                    } else {
+                        Platform.runLater(() -> {
+                            Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                            alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                            TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
+                            alert1.showAndWait();
+                        });
 
+                    }
                 }
-
             } catch (JEVisException e) {
                 logger.error("Could not get JEVis data source. ", e);
             }
+
         }
     }
 
