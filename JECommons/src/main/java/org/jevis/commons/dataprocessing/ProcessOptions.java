@@ -323,33 +323,8 @@ public class ProcessOptions {
         }
         if (!ContainsOption(task, OFFSET)) {
             logger.warn("Error missing offset option");
-            WorkDays wd = null;
-            if (task.getObject() != null) {
-                wd = new WorkDays(task.getObject());
-            } else {
-                wd = new WorkDays(task.getSqlDataSource(), task.getJsonObject());
-            }
 
-            boolean isCustomWorkDay = true;
-            for (ProcessOption option : task.getOptions()) {
-                if (option.getKey().equals(CUSTOM)) {
-                    isCustomWorkDay = Boolean.parseBoolean(option.getValue());
-                    break;
-                }
-            }
-
-            wd.setEnabled(isCustomWorkDay);
-            if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
-                task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 " +
-                        wd.getWorkdayStart().getHour()
-                        + ":" +
-                        wd.getWorkdayStart().getMinute()
-                        + ":" +
-                        wd.getWorkdayStart().getSecond()));
-            } else {
-                task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 00:00:00"));
-            }
-
+            task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 00:00:00"));
         }
 
         for (ProcessOption option : task.getOptions()) {
@@ -375,7 +350,7 @@ public class ProcessOptions {
     }
 
     /**
-     * Cronverts an JEVIsSamle list to an Map
+     * Cronverts an JEVIsSample list to an Map
      *
      * @param samples
      * @return

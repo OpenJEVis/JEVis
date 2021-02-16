@@ -1,0 +1,131 @@
+{
+  "name": "Governmental Dues",
+  "description": "The class Governmental Dues defines specific attributes for governmental dues",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Governmental Dues",
+      "end": "Energy Contracting Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "VAT",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Energy Tax",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 2,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 01",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 3,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 02",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 4,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 03",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 5,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 04",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 6,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 05",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 7,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 06",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 8,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 07",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 9,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 08",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 10,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 09",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 11,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 10",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 12,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -32,10 +33,10 @@ public class DashBoardToolbar extends ToolBar {
 
     private static final Logger logger = LogManager.getLogger(DashBoardToolbar.class);
 
-    private double iconSize = 20;
+    private final double iconSize = 20;
     private final DashboardControl dashboardControl;
     private ToolBarIntervalSelector toolBarIntervalSelector;
-    private ComboBox<JEVisObject> listAnalysesComboBox;
+    private final ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
     private JFXComboBox<Double> listZoomLevel;
 
     private final ImageView lockIcon = JEConfig.getImage("if_lock_blue_68757.png", this.iconSize, this.iconSize);
@@ -43,30 +44,29 @@ public class DashBoardToolbar extends ToolBar {
     private final ImageView unlockIcon = JEConfig.getImage("if_lock-unlock_blue_68758.png", this.iconSize, this.iconSize);
     private final ImageView pauseIcon = JEConfig.getImage("pause_32.png", this.iconSize, this.iconSize);
     private final ImageView playIcon = JEConfig.getImage("play_32.png", this.iconSize, this.iconSize);
-    private ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
-    private ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
-    private ToggleButton unlockButton = new ToggleButton("", this.lockIcon);
-    private ToggleButton snapGridButton = new ToggleButton("", snapToGridIcon);
-    private ToggleButton showGridButton = new ToggleButton("", JEConfig.getImage("grid.png", this.iconSize, this.iconSize));
-    private ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
-    private ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", this.iconSize, this.iconSize));
-    private ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
-    private ToggleButton exportPNG = new ToggleButton("", JEConfig.getImage("export-image.png", this.iconSize, this.iconSize));
+    private final ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
+    private final ToggleButton unlockButton = new ToggleButton("", this.lockIcon);
+    private final ToggleButton snapGridButton = new ToggleButton("", snapToGridIcon);
+    private final ToggleButton showGridButton = new ToggleButton("", JEConfig.getImage("grid.png", this.iconSize, this.iconSize));
+    private final ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
+    private final ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", this.iconSize, this.iconSize));
+    private final ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
+    private final ToggleButton exportPNG = new ToggleButton("", JEConfig.getImage("export-image.png", this.iconSize, this.iconSize));
     //private ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
-    private ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
-    private ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
-    private ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
-    private ToggleButton enlarge = new ToggleButton("", JEConfig.getImage("enlarge_32.png", this.iconSize, this.iconSize));
-    private ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
-    private ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
-    private ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
-    private ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
-    private ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+    private final ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+    private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
+    private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
+    private final ToggleButton enlarge = new ToggleButton("", JEConfig.getImage("enlarge_32.png", this.iconSize, this.iconSize));
+    private final ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
+    private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
+    private final ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
+    private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+    private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+    private final ArrayList<Object> buttonList = new ArrayList();
 
     private boolean disableEventListener = false;
     //private ToolTipDocu toolTipDocu = new ToolTipDocu();
-
-    private ArrayList<Object> buttonList = new ArrayList();
+    private JFXComboBox<JEVisObject> listAnalysesComboBox;
 
 
     public DashBoardToolbar(DashboardControl dashboardControl) {
@@ -75,10 +75,84 @@ public class DashBoardToolbar extends ToolBar {
         this.dashboardControl.registerToolBar(this);
     }
 
+    public static JFXComboBox<Double> buildZoomLevelListView() {
+        ObservableList<Double> zoomLevel = FXCollections.observableArrayList();
+
+        List<Double> zoomLevels = new ArrayList<>();
+        zoomLevels.add(DashboardControl.fitToScreen);
+        zoomLevel.add(DashboardControl.fitToWidth);
+        zoomLevel.add(DashboardControl.fitToHeight);
+
+        /** JFXComboBox need all posible values or the buttonCell will not work work in java 1.8 **/
+        double zs = 0;
+        for (double d = 0; d <= DashboardControl.MAX_ZOOM; d += DashboardControl.zoomSteps) {
+            zs = Precision.round((zs + 0.05d), 2);
+            zoomLevels.add(zs);
+        }
+        zoomLevel.addAll(zoomLevels);
+
+
+        JFXComboBox<Double> doubleComboBox = new JFXComboBox<>(zoomLevel);
+        DecimalFormat df = new DecimalFormat("##0");
+        //DecimalFormat df = new DecimalFormat("#.##");
+        df.setMaximumFractionDigits(2);
+        Callback<ListView<Double>, ListCell<Double>> cellFactory = new Callback<ListView<Double>, ListCell<Double>>() {
+            @Override
+            public ListCell<Double> call(ListView<Double> param) {
+                return new ListCell<Double>() {
+                    @Override
+                    protected void updateItem(Double item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            return;
+                        }
+
+                        if (item != null) {
+                            Platform.runLater(() -> {
+                                if (item == DashboardControl.fitToScreen) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitscreen"));
+                                } else if (item == DashboardControl.fitToWidth) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitwidth"));
+                                } else if (item == DashboardControl.fitToHeight) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitheight"));
+                                } else {
+                                    setText(df.format(Precision.round(item * 100, 2)) + "%");
+                                }
+                            });
+                        }
+                    }
+                };
+            }
+
+
+        };
+
+        doubleComboBox.setCellFactory(cellFactory);
+        doubleComboBox.setButtonCell(cellFactory.call(null));
+        doubleComboBox.setValue(1.0d);
+        doubleComboBox.setPrefWidth(150d);
+
+
+        return doubleComboBox;
+    }
+
+    public void showTooltips(boolean show) {
+        //helpButton.setSelected(show);
+        //toolTipDocu.showHelpTooltips(show);
+    }
+
+
+    public void hideToolTips() {
+        //if (toolTipDocu.isShowingProperty().get()) {
+        //helpButton.setSelected(!toolTipDocu.isShowingProperty().getValue());
+        // toolTipDocu.toggleHelp();
+        //}
+    }
+
     public void initLayout() {
         logger.debug("InitLayout");
         ObservableList<JEVisObject> observableList = this.dashboardControl.getAllDashboards();
-        this.listAnalysesComboBox = new ComboBox<>(observableList);
+        this.listAnalysesComboBox = new JFXComboBox<>(observableList);
         setCellFactoryForComboBox();
         this.listAnalysesComboBox.setPrefWidth(350);
         this.listAnalysesComboBox.setMinWidth(350);
@@ -193,21 +267,21 @@ public class DashBoardToolbar extends ToolBar {
         //newButton.setDisable(true);
         delete.setDisable(true);
 
-        showGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.showgrid")));
-        snapGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.usegrid")));
-        unlockButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.unlock")));
-        newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.new")));
-        runUpdateButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.update")));
-        reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.reload")));
-        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.save")));
-        listAnalysesComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.list")));
-        zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
-        zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
-        listZoomLevel.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomlevel")));
-        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.delete")));
-        navigator.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.settings")));
-        exportPNG.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.export")));
-        reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload")));
+        showGridButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.showgrid")));
+        snapGridButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.usegrid")));
+        unlockButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.unlock")));
+        newB.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.new")));
+        runUpdateButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.update")));
+        reloadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.reload")));
+        save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.save")));
+        listAnalysesComboBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.list")));
+        zoomIn.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
+        zoomOut.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
+        listZoomLevel.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomlevel")));
+        delete.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.delete")));
+        navigator.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.settings")));
+        exportPNG.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.export")));
+        reloadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload")));
 
 
         Region spacerForRightSide = new Region();
@@ -226,24 +300,6 @@ public class DashBoardToolbar extends ToolBar {
 
 
         updateView(dashboardControl.getActiveDashboard());
-    }
-
-    public void showTooltips(boolean show) {
-        //helpButton.setSelected(show);
-        //toolTipDocu.showHelpTooltips(show);
-    }
-
-
-    public void hideToolTips() {
-        //if (toolTipDocu.isShowingProperty().get()) {
-        //helpButton.setSelected(!toolTipDocu.isShowingProperty().getValue());
-        // toolTipDocu.toggleHelp();
-        //}
-    }
-
-
-    public ComboBox<JEVisObject> getListAnalysesComboBox() {
-        return this.listAnalysesComboBox;
     }
 
     public void setUpdateRunning(boolean updateRunning) {
@@ -360,66 +416,8 @@ public class DashBoardToolbar extends ToolBar {
         }
     }
 
-
-    public static JFXComboBox<Double> buildZoomLevelListView() {
-        ObservableList<Double> zoomLevel = FXCollections.observableArrayList();
-
-        List<Double> zoomLevels = new ArrayList<>();
-        zoomLevels.add(DashboardControl.fitToScreen);
-        zoomLevel.add(DashboardControl.fitToWidth);
-        zoomLevel.add(DashboardControl.fitToHeight);
-
-        /** ComboBox need all posible values or the buttonCell will not work work in java 1.8 **/
-        double zs = 0;
-        for (double d = 0; d <= DashboardControl.MAX_ZOOM; d += DashboardControl.zoomSteps) {
-            zs = Precision.round((zs + 0.05d), 2);
-            zoomLevels.add(zs);
-        }
-        zoomLevel.addAll(zoomLevels);
-
-
-        JFXComboBox<Double> doubleComboBox = new JFXComboBox<>(zoomLevel);
-        DecimalFormat df = new DecimalFormat("##0");
-        //DecimalFormat df = new DecimalFormat("#.##");
-        df.setMaximumFractionDigits(2);
-        Callback<ListView<Double>, ListCell<Double>> cellFactory = new Callback<ListView<Double>, ListCell<Double>>() {
-            @Override
-            public ListCell<Double> call(ListView<Double> param) {
-                return new ListCell<Double>() {
-                    @Override
-                    protected void updateItem(Double item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            return;
-                        }
-
-                        if (item != null) {
-                            Platform.runLater(() -> {
-                                if (item == DashboardControl.fitToScreen) {
-                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitscreen"));
-                                } else if (item == DashboardControl.fitToWidth) {
-                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitwidth"));
-                                } else if (item == DashboardControl.fitToHeight) {
-                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitheight"));
-                                } else {
-                                    setText(df.format(Precision.round(item * 100, 2)) + "%");
-                                }
-                            });
-                        }
-                    }
-                };
-            }
-
-
-        };
-
-        doubleComboBox.setCellFactory(cellFactory);
-        doubleComboBox.setButtonCell(cellFactory.call(null));
-        doubleComboBox.setValue(1.0d);
-        doubleComboBox.setPrefWidth(150d);
-
-
-        return doubleComboBox;
+    public JFXComboBox<JEVisObject> getListAnalysesComboBox() {
+        return this.listAnalysesComboBox;
     }
 
     private void showAllTooltips(List<Object> controls) {

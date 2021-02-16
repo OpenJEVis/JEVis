@@ -20,8 +20,7 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTimePicker;
+import com.jfoenix.controls.*;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -54,6 +53,7 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.dialog.NewObject;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.methods.CalculationMethods;
@@ -116,10 +116,11 @@ public class TreeHelper {
                 for (TreeItem<JEVisTreeRow> treeItem : items) {
                     if (treeItem.getValue().getJEVisObject().getDataSource().getCurrentUser().canDelete(treeItem.getValue().getJEVisObject().getID())) {
 
-                        Alert alert = new Alert(AlertType.CONFIRMATION);
-                        alert.setTitle(I18n.getInstance().getString("jevistree.dialog.delete.title"));
-                        alert.setHeaderText(null);
-                        alert.setContentText(question);
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.delete.title"));
+                    alert.setHeaderText(null);
+                    alert.setContentText(question);
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
 
                         alert.showAndWait().ifPresent(buttonType -> {
                             if (buttonType.equals(ButtonType.OK)) {
@@ -170,17 +171,18 @@ public class TreeHelper {
 
                                 new Thread(delete).start();
 
-                            } else {
-                                // ... user chose CANCEL or closed the dialog
-                            }
-                        });
-                    } else {
-                        Platform.runLater(() -> {
-                            Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
-                            alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
-                            alert1.showAndWait();
-                        });
-                    }
+                        } else {
+                            // ... user chose CANCEL or closed the dialog
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
+                        alert1.showAndWait();
+                    });
+
                 }
 
             } catch (JEVisException e) {
@@ -207,6 +209,7 @@ public class TreeHelper {
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
                     alert.setHeaderText(null);
                     alert.setContentText(question);
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
                     GridPane gp = new GridPane();
                     gp.setHgap(4);
                     gp.setVgap(6);
@@ -368,6 +371,7 @@ public class TreeHelper {
                     Platform.runLater(() -> {
                         Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
                         alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                         alert1.showAndWait();
                     });
 
@@ -396,6 +400,7 @@ public class TreeHelper {
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.deleteCalculations.title"));
                     alert.setHeaderText(null);
                     alert.setContentText(question);
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
                     GridPane gp = new GridPane();
                     gp.setHgap(4);
                     gp.setVgap(6);
@@ -540,6 +545,7 @@ public class TreeHelper {
                     Platform.runLater(() -> {
                         Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
                         alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                         alert1.showAndWait();
                     });
 
@@ -563,11 +569,12 @@ public class TreeHelper {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setMultiplierAndDifferential.title"));
                     alert.setHeaderText(null);
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
                     GridPane gp = new GridPane();
                     gp.setHgap(4);
                     gp.setVgap(6);
                     Label multiplierLabel = new Label("Multiplier");
-                    TextField multiplier = new TextField();
+                    JFXTextField multiplier = new JFXTextField();
                     Label differentialLabel = new Label("Differential");
                     ToggleSwitchPlus differential = new ToggleSwitchPlus();
                     differential.setSelected(false);
@@ -643,6 +650,7 @@ public class TreeHelper {
                     Platform.runLater(() -> {
                         Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
                         alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                         alert1.showAndWait();
                     });
 
@@ -663,6 +671,7 @@ public class TreeHelper {
 
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title"));
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
                     alert.setHeaderText(null);
                     alert.setResizable(true);
                     GridPane gp = new GridPane();
@@ -674,10 +683,10 @@ public class TreeHelper {
                     final Label l_example = new Label(I18n.getInstance().getString("attribute.editor.unit.symbol"));
                     final Label l_SampleRate = new Label(I18n.getInstance().getString("attribute.editor.unit.samplingrate"));
 
-                    CheckBox setUnit = new CheckBox("Unit");
+                    JFXCheckBox setUnit = new JFXCheckBox("Unit");
                     setUnit.setSelected(true);
-                    CheckBox setPeriod = new CheckBox("Period");
-                    CheckBox setNewTypePeriod = new CheckBox("New Type Period");
+                    JFXCheckBox setPeriod = new JFXCheckBox("Period");
+                    JFXCheckBox setNewTypePeriod = new JFXCheckBox("New Type Period");
                     setPeriod.setSelected(true);
                     setNewTypePeriod.setSelected(true);
 
@@ -781,6 +790,7 @@ public class TreeHelper {
                     Platform.runLater(() -> {
                         Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
                         alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                         alert1.showAndWait();
                     });
 
@@ -803,18 +813,19 @@ public class TreeHelper {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title"));
                     alert.setHeaderText(null);
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
                     GridPane gp = new GridPane();
                     gp.setHgap(4);
                     gp.setVgap(6);
                     Label limit1MinLabel = new Label("Limit 1 Min");
-                    TextField limit1Min = new TextField();
+                    JFXTextField limit1Min = new JFXTextField();
                     Label limit1MaxLabel = new Label("Limit 1 Max");
-                    TextField limit1Max = new TextField();
+                    JFXTextField limit1Max = new JFXTextField();
 
                     Label limit2MinLabel = new Label("Limit 2 Min");
-                    TextField limit2Min = new TextField();
+                    JFXTextField limit2Min = new JFXTextField();
                     Label limit2MaxLabel = new Label("Limit 2 Max");
-                    TextField limit2Max = new TextField();
+                    JFXTextField limit2Max = new JFXTextField();
 
                     gp.add(limit1MinLabel, 0, 0);
                     gp.add(limit1Min, 1, 0);
@@ -896,6 +907,7 @@ public class TreeHelper {
                     Platform.runLater(() -> {
                         Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
                         alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                         alert1.showAndWait();
                     });
 
@@ -918,6 +930,7 @@ public class TreeHelper {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setSubstitutionSettingsRecursive.title"));
                     alert.setHeaderText(null);
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
 
                     TabPane tabPane = new TabPane();
                     tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -978,6 +991,7 @@ public class TreeHelper {
                     Platform.runLater(() -> {
                         Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
                         alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                         alert1.showAndWait();
                     });
 
@@ -1075,6 +1089,7 @@ public class TreeHelper {
                             Alert alert = new Alert(Alert.AlertType.INFORMATION);
                             alert.setTitle(I18n.getInstance().getString("jevistree.dialog.find.error.title"));
                             alert.setHeaderText("");
+                            TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
                             String s = I18n.getInstance().getString("jevistree.dialog.find.error.message");
                             alert.setContentText(s);
                             alert.show();
@@ -1102,6 +1117,7 @@ public class TreeHelper {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.find.error.title"));
                     alert.setHeaderText("");
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
                     String s = I18n.getInstance().getString("jevistree.dialog.find.error.message");
                     alert.setContentText(s);
                     alert.show();
@@ -1112,6 +1128,7 @@ public class TreeHelper {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle(I18n.getInstance().getString("jevistree.dialog.find.error.title"));
             alert.setHeaderText("");
+            TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
             String s = I18n.getInstance().getString("jevistree.dialog.find.error.message");
             alert.setContentText(s);
             alert.show();
@@ -1269,6 +1286,7 @@ public class TreeHelper {
                 Platform.runLater(() -> {
                     Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
                     alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                    TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                     alert1.showAndWait();
                 });
             }
@@ -1618,6 +1636,7 @@ public class TreeHelper {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.enable.title"));
                     alert.setHeaderText(null);
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
                     VBox vBox = new VBox();
                     Label qLabel = new Label(question);
                     qLabel.setWrapText(true);
@@ -1635,7 +1654,7 @@ public class TreeHelper {
                     AlphanumComparator ac = new AlphanumComparator();
                     jeVisClassesStrings.sort(ac);
                     jeVisClassesStrings.add(0, "All");
-                    ComboBox<String> jeVisClassComboBox = new ComboBox<>(FXCollections.observableList(jeVisClassesStrings));
+                    JFXComboBox<String> jeVisClassComboBox = new JFXComboBox<>(FXCollections.observableList(jeVisClassesStrings));
                     jeVisClassComboBox.getSelectionModel().selectFirst();
                     vBox.getChildren().addAll(qLabel, jeVisClassComboBox);
 
@@ -1686,6 +1705,7 @@ public class TreeHelper {
                 } else {
                     Platform.runLater(() -> {
                         Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                         alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
                         alert1.showAndWait();
                     });
@@ -1715,6 +1735,7 @@ public class TreeHelper {
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
                     alert.setHeaderText(null);
                     alert.setContentText(question);
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
 
                     alert.showAndWait().ifPresent(buttonType -> {
                         if (buttonType.equals(ButtonType.OK)) {
@@ -1762,6 +1783,7 @@ public class TreeHelper {
                     Platform.runLater(() -> {
                         Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
                         alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                         alert1.showAndWait();
                     });
 
@@ -1811,12 +1833,13 @@ public class TreeHelper {
 
     public static void EventMoveAllToDiffCleanTS(JEVisTree tree) {
         Alert warning = new Alert(AlertType.WARNING);
+        TopMenu.applyActiveTheme(warning.getDialogPane().getScene());
 
-        TextField textField = new TextField();
+        JFXTextField textField = new JFXTextField();
         Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples their period x field");
-        CheckBox correctUTC = new CheckBox("Correct UTC diff");
+        JFXCheckBox correctUTC = new JFXCheckBox("Correct UTC diff");
 
-        TextArea textArea = new TextArea();
+        JFXTextArea textArea = new JFXTextArea();
         textArea.setPrefRowCount(20);
 
         VBox vBox = new VBox(message, textField, correctUTC, textArea);

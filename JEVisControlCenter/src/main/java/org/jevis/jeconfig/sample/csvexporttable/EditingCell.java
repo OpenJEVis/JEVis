@@ -9,6 +9,7 @@ package org.jevis.jeconfig.sample.csvexporttable;
  * @author br
  */
 
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -33,7 +34,7 @@ import java.util.List;
  * @deprecated
  */
 public class EditingCell extends TableCell<CSVExportTableSample, String> {
-    private TextField textField;
+    private JFXTextField textField;
 
     public EditingCell() {
     }
@@ -83,7 +84,7 @@ public class EditingCell extends TableCell<CSVExportTableSample, String> {
     }
 
     private void createTextField() {
-        textField = new TextField(getString());
+        textField = new JFXTextField(getString());
         textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
         textField.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -121,7 +122,7 @@ public class EditingCell extends TableCell<CSVExportTableSample, String> {
 
                     Platform.runLater(() -> {
                         dialogSaveValue.showAndWait().ifPresent(response -> {
-                            if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                            if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
                                 try {
                                     DateTime ts = sample.getTimestamp();
                                     String note = sample.getNote();

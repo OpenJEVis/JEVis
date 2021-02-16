@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TimeZoneBox extends ComboBox<DateTimeZone> {
+public class TimeZoneBox extends JFXComboBox<DateTimeZone> {
 
     public TimeZoneBox() {
 

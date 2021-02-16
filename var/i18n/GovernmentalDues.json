@@ -1,0 +1,240 @@
+{
+  "jevisclass": "Governmental Dues",
+  "names": {
+    "de": "Staatliche Abgaben",
+    "ru": "Государственные налоги",
+    "uk": "Державні податки",
+    "en": "Governmental Dues",
+    "th": "ภาษีของรัฐ"
+  },
+  "descriptions": {
+    "de": "Die Klasse Staatliche Abgaben definiert die Attribute für staatliche Abgaben",
+    "ru": "Класс государственных налогов определяет атрибуты государственных налогов",
+    "en": "The class Governmental Dues defines the attributes of governmental dues",
+    "uk": "Клас державних податків визначає атрибути державних податків",
+    "th": "ระดับภาษีของรัฐกำหนดแอตทริบิวต์สำหรับภาษีของรัฐ"
+  },
+  "types": [
+    {
+      "type": "Energy Source",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Energieträger",
+        "ru": "Энергетический ресурс",
+        "uk": "Джерело енергії",
+        "th": "แหล่งพลังงาน",
+        "en": "Energy Source"
+      }
+    },
+    {
+      "type": "VAT",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Umsatzsteuer",
+        "ru": "налог на добавленную стоимость",
+        "uk": "податок на додану вартість",
+        "th": "ภาษีมูลค่าเพิ่ม",
+        "en": "VAT"
+      }
+    },
+    {
+      "type": "Energy Tax",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Energiesteuer",
+        "ru": "Налог на энергию",
+        "uk": "Податок на енергію",
+        "th": "ภาษีพลังงาน",
+        "en": "Energy Tax"
+      }
+    },
+    {
+      "type": "Allocation 01",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "EEG-Umlage",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 01"
+      }
+    },
+    {
+      "type": "Allocation 02",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "KWKG-Umlage",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 02"
+      }
+    },
+    {
+      "type": "Allocation 03",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "§ 10 Abs. 2 StromNEV",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 03"
+      }
+    },
+    {
+      "type": "Allocation 04",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "§ 17f EnWG",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 04"
+      }
+    },
+    {
+      "type": "Allocation 05",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "§ 18 AbLaV",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 05"
+      }
+    },
+    {
+      "type": "Allocation 06",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Ökosteuer",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 06"
+      }
+    },
+    {
+      "type": "Allocation 07",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "CO2-Abgabe",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 07"
+      }
+    },
+    {
+      "type": "Allocation 08",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Abgabe 08",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 08"
+      }
+    },
+    {
+      "type": "Allocation 09",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Abgabe 09",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 09"
+      }
+    },
+    {
+      "type": "Allocation 10",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Abgabe 10",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Allocation 10"
+      }
+    }
+  ]
+}

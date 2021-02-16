@@ -125,6 +125,7 @@ public class XYChart implements Chart {
                         buildChart(dataModel, dataRows, chartSetting);
                     } catch (Exception e) {
                         this.failed();
+                        logger.error("Could not build chart {}", chartSetting.getName(), e);
                     } finally {
                         succeeded();
                     }

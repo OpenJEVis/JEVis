@@ -1,9 +1,9 @@
 package org.jevis.jeconfig.application.control;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class LanguageBox extends ComboBox {
+public class LanguageBox extends JFXComboBox {
 
     public LanguageBox() {
         init();
@@ -62,7 +62,7 @@ public class LanguageBox extends ComboBox {
         List<Locale> availableLanguages = Arrays.asList(Locale.getAvailableLocales());
         ObservableList<Locale> options = FXCollections.observableArrayList(availableLanguages);
 
-        final ComboBox<Locale> comboBox = new ComboBox<Locale>(options);
+        final JFXComboBox<Locale> comboBox = new JFXComboBox<Locale>(options);
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 

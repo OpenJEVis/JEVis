@@ -1,0 +1,19 @@
+{
+  "name": "Template Result Calculation Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Template Result Calculation Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Template Result Calculation Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

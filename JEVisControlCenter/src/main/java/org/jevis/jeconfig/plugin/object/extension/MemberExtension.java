@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -195,11 +196,11 @@ public class MemberExtension implements ObjectEditorExtension {
             HBox userBox = new HBox(1);
             userBox.getChildren().setAll(usericon, userLabel);
 
-            CheckBox readBox = new CheckBox();
-            CheckBox writeBox = new CheckBox();
-            CheckBox execBox = new CheckBox();
-            CheckBox deleteBox = new CheckBox();
-            CheckBox createBox = new CheckBox();
+            JFXCheckBox readBox = new JFXCheckBox();
+            JFXCheckBox writeBox = new JFXCheckBox();
+            JFXCheckBox execBox = new JFXCheckBox();
+            JFXCheckBox deleteBox = new JFXCheckBox();
+            JFXCheckBox createBox = new JFXCheckBox();
 
             JEVisRelationship aRelationship = null;
 
@@ -259,7 +260,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
             HBox control = new HBox(0.5);
 
-            Button remove = new Button();
+            JFXButton remove = new JFXButton();
             remove.setGraphic(JEConfig.getImage("list-remove.png", 17, 17));
 
             //if the currentUser has a group which has delete right on the userObj he can delete it
@@ -286,7 +287,7 @@ public class MemberExtension implements ObjectEditorExtension {
                 remove.setDisable(true);
             }
 
-            remove.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.member.remove_tooltip")));
+            remove.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.member.remove_tooltip")));
             control.getChildren().setAll(remove);
 
             gridPane.add(userBox, 0, yAxis);
@@ -312,9 +313,9 @@ public class MemberExtension implements ObjectEditorExtension {
         gridPane.add(addNewBox, 0, yAxis, 7, 1);
         GridPane.setFillWidth(addNewBox, true);
 
-        Button newB = new Button();
+        JFXButton newB = new JFXButton();
         //ToDo
-        final ComboBox<JEVisObject> users = new ComboBox<>();
+        final JFXComboBox<JEVisObject> users = new JFXComboBox<>();
         users.setMinWidth(500);
         users.setButtonCell(new ListCell<JEVisObject>() {
 
@@ -365,7 +366,7 @@ public class MemberExtension implements ObjectEditorExtension {
         }
 
         FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleUsers, s -> true);
-        TextField filterInput = new TextField();
+        JFXTextField filterInput = new JFXTextField();
         filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         filterInput.textProperty().addListener(obs -> {
@@ -456,7 +457,7 @@ public class MemberExtension implements ObjectEditorExtension {
      * @param group
      * @param rel
      */
-    private void addRelationshipAction(final CheckBox button, final int type, final JEVisObject userObj, final JEVisObject group, final JEVisRelationship rel, boolean userCanEdit) {
+    private void addRelationshipAction(final JFXCheckBox button, final int type, final JEVisObject userObj, final JEVisObject group, final JEVisRelationship rel, boolean userCanEdit) {
 
         try {
             if (!userCanEdit) {
@@ -465,8 +466,8 @@ public class MemberExtension implements ObjectEditorExtension {
 
                 button.setOnAction(t -> {
 
-                            if (button.isSelected()) {
-                                try {
+                    if (button.isSelected()) {
+                        try {
                                     JEVisRelationship newRel = userObj.buildRelationship(group, type, JEVisConstants.Direction.FORWARD);
                                     userObj.commit();//?
                                 } catch (JEVisException ex) {

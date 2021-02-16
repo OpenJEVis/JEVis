@@ -1,6 +1,10 @@
 package org.jevis.jeconfig.dialog;
 
-import javafx.scene.control.*;
+import com.jfoenix.controls.JFXComboBox;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -11,11 +15,11 @@ import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 
 public class DeleteAnalysisDialog {
     private static final Logger logger = LogManager.getLogger(DeleteAnalysisDialog.class);
-    private JEVisDataSource ds;
-    private AnalysisDataModel model;
-    private ComboBox<JEVisObject> listAnalysesComboBox;
+    private final JEVisDataSource ds;
+    private final AnalysisDataModel model;
+    private final JFXComboBox<JEVisObject> listAnalysesComboBox;
 
-    public DeleteAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, ComboBox<JEVisObject> listAnalysesComboBox) {
+    public DeleteAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, JFXComboBox<JEVisObject> listAnalysesComboBox) {
         this.ds = ds;
         this.model = model;
         this.listAnalysesComboBox = listAnalysesComboBox;

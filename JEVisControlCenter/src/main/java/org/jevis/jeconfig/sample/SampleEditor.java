@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.sample;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,7 +27,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -43,6 +43,7 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
@@ -107,6 +108,7 @@ public class SampleEditor {
         root.setMaxWidth(2000);
 
         final Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(ScreenSize.fitScreenHeight(800));
         stage.setHeight(ScreenSize.fitScreenHeight(800));
@@ -122,7 +124,7 @@ public class SampleEditor {
         /** ------------------------------------------- Processor -------------------------------------------------**/
 
 
-        Button config = new Button();
+        JFXButton config = new JFXButton();
         config.setGraphic(JEConfig.getImage("Service Manager.png", 16, 16));
 
 

@@ -5,6 +5,7 @@
  */
 package org.jevis.jeconfig.application.jevistree.plugin;
 
+import com.jfoenix.controls.JFXCheckBox;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -39,8 +40,8 @@ public class MapPlugin implements TreePlugin {
 
     private JEVisTree _tree;
     private String _title = "GIS #1";
-    private Map<Long, List<JEVisSample>> _samples = new HashMap<>();
-    private Map<String, DataModel> _data = new HashMap<>();
+    private final Map<Long, List<JEVisSample>> _samples = new HashMap<>();
+    private final Map<String, DataModel> _data = new HashMap<>();
 
     @Override
     public void setTree(JEVisTree tree) {
@@ -357,7 +358,7 @@ public class MapPlugin implements TreePlugin {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                         if (!empty) {
                             StackPane hbox = new StackPane();
-                            CheckBox cbox = new CheckBox();
+                            JFXCheckBox cbox = new JFXCheckBox();
 
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 DataModel data = getData(getTreeTableRow().getItem());
@@ -373,11 +374,7 @@ public class MapPlugin implements TreePlugin {
                                     }
                                 });
 
-                                if (data.hasSample()) {
-                                    cbox.setDisable(false);
-                                } else {
-                                    cbox.setDisable(true);
-                                }
+                                cbox.setDisable(!data.hasSample());
 
                             }
 

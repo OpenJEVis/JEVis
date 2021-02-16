@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig;
 
+import com.jfoenix.controls.JFXTooltip;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -29,7 +30,6 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
@@ -42,8 +42,9 @@ import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
+import org.jevis.jeconfig.plugin.dtrc.TRCPlugin;
 import org.jevis.jeconfig.plugin.equipment.EquipmentPlugin;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
@@ -93,13 +94,14 @@ public class PluginManager {
     public List<Plugin> getInstalledPlugins() {
         List<Plugin> plugins = new ArrayList<>();
         plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-        plugins.add(new GraphPluginView(this._ds, I18n.getInstance().getString("plugin.graph.title")));
+        plugins.add(new ChartPlugin(this._ds, I18n.getInstance().getString("plugin.graph.title")));
         plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
         plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
         plugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
         plugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
         plugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
         plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
+        plugins.add(new TRCPlugin(this._ds));
 
 //        plugins.add(new SCADAPlugin(_ds));
         plugins.add(new ISO50001Browser(this._ds));
@@ -221,6 +223,12 @@ public class PluginManager {
                                                 if (allEquipment.size() == 0) {
                                                     continue;
                                                 }
+                                            } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
+                                                JEVisClass templateClass = this._ds.getJEVisClass(TRCPlugin.TEMPLATE_CLASS);
+                                                List<JEVisObject> allTemplates = this._ds.getObjects(templateClass, false);
+                                                if (allTemplates.size() == 0) {
+                                                    continue;
+                                                }
                                             }
 
                                             enabledPlugins.add(plugin);
@@ -278,7 +286,7 @@ public class PluginManager {
             try {
                 Tab pluginTab = new Tab(plugin.getName());
                 pluginTab.setClosable(false);
-                pluginTab.setTooltip(new Tooltip(plugin.getToolTip()));
+                pluginTab.setTooltip(new JFXTooltip(plugin.getToolTip()));
 //            pluginTab.setContent(plugin.getView().getNode());
                 pluginTab.setContent(plugin.getContentNode());
 

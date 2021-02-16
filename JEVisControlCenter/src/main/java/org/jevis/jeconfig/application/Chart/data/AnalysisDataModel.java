@@ -42,7 +42,7 @@ import org.jevis.jeconfig.application.Chart.*;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -75,7 +75,7 @@ public class AnalysisDataModel {
     public static final String DATA_MODEL_ATTRIBUTE_NAME = "Data Model";
     public static final String GRAPH_PLUGIN_CLASS_NAME = "Graph Plugin";
     private final ObjectRelations objectRelations;
-    private final GraphPluginView graphPluginView;
+    private final ChartPlugin chartPlugin;
     private Set<ChartDataRow> selectedData = new HashSet<>();
     private ChartSettings charts = new ChartSettings();
     private Boolean showIcons = true;
@@ -105,37 +105,29 @@ public class AnalysisDataModel {
     private Long finalSeconds = 60L;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Boolean temporary = false;
+    private final Service<Void> service = new Service<Void>() {
+        @Override
+        protected Task<Void> createTask() {
+            return new Task<Void>() {
+                @Override
+                protected Void call() {
+                    try {
+                        TimeUnit.SECONDS.sleep(finalSeconds);
+                        Platform.runLater(() -> {
+                            chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD);
+                        });
 
+                    } catch (InterruptedException e) {
+                        logger.warn("Reload Service stopped.");
+                        cancelled();
+                    }
+                    succeeded();
 
-    public AnalysisDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
-        this.ds = ds;
-        this.objectRelations = new ObjectRelations(ds);
-        this.graphPluginView = graphPluginView;
-        this.globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
-        /**
-         * objectMapper configuration for backwards compatibility. Can be removed in the future.
-         */
-        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
-        updateListAnalyses();
-        if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
-        if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
-        this.globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
-        this.globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
-
-        changed.addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue && newValue) {
-                changed.set(false);
-
-                selectedData = new HashSet<>();
-                charts = new ChartSettings();
-                updateSelectedData();
-
-                update();
-            }
-        });
-    }
+                    return null;
+                }
+            };
+        }
+    };
 
     public Set<ChartDataRow> getSelectedData() {
         if (selectedData == null || selectedData.isEmpty()) {
@@ -162,29 +154,35 @@ public class AnalysisDataModel {
         this.selectedData = data;
     }
 
-    private final Service<Void> service = new Service<Void>() {
-        @Override
-        protected Task<Void> createTask() {
-            return new Task<Void>() {
-                @Override
-                protected Void call() {
-                    try {
-                        TimeUnit.SECONDS.sleep(finalSeconds);
-                        Platform.runLater(() -> {
-                            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
-                        });
+    public AnalysisDataModel(JEVisDataSource ds, ChartPlugin chartPlugin) {
+        this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
+        this.chartPlugin = chartPlugin;
+        this.globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+        /**
+         * objectMapper configuration for backwards compatibility. Can be removed in the future.
+         */
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
+        updateListAnalyses();
+        if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
+        if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
+        this.globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
+        this.globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
 
-                    } catch (InterruptedException e) {
-                        logger.warn("Reload Service stopped.");
-                        cancelled();
-                    }
-                    succeeded();
+        changed.addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue && newValue) {
+                changed.set(false);
 
-                    return null;
-                }
-            };
-        }
-    };
+                selectedData = new HashSet<>();
+                charts = new ChartSettings();
+                updateSelectedData();
+
+                update();
+            }
+        });
+    }
 
     private AggregationPeriod globalAggregationPeriod = AggregationPeriod.NONE;
 
@@ -444,12 +442,12 @@ public class AnalysisDataModel {
 //        ProgressDialog pd = new ProgressDialog(service);
 //        pd.setHeaderText(I18n.getInstance().getString("graph.progress.header"));
 //        pd.setTitle(I18n.getInstance().getString("graph.progress.title"));
-//        Button cancelButton = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
+//        JFXButton cancelButton = new JFXButton(I18n.getInstance().getString("attribute.editor.cancel"));
 //        cancelButton.setOnAction(event -> service.cancel());
 //        pd.getDialogPane().setContent(cancelButton);
 //
 //        service.start();
-        graphPluginView.update();
+        chartPlugin.update();
     }
 
     public void stopTimer() {
@@ -507,7 +505,7 @@ public class AnalysisDataModel {
         if (show) {
             update();
         } else {
-            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+            chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD);
         }
     }
 
@@ -529,7 +527,7 @@ public class AnalysisDataModel {
         if (calc) {
             update();
         } else {
-            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+            chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD);
         }
     }
 
@@ -543,7 +541,7 @@ public class AnalysisDataModel {
         if (showL1L2) {
             update();
         } else {
-            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+            chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD);
         }
     }
 
@@ -605,7 +603,7 @@ public class AnalysisDataModel {
         if (show) {
             update();
         } else {
-            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+            chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD);
         }
     }
 
@@ -1385,7 +1383,7 @@ public class AnalysisDataModel {
         this.customWorkDay = customWorkDay;
         getSelectedData().forEach(chartDataModel -> chartDataModel.setCustomWorkDay(customWorkDay));
 
-        graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+        chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD);
     }
 
     public void setCustomWorkDayNO_EVENT(boolean customWorkDay) {

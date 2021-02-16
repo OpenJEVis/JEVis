@@ -41,7 +41,7 @@ public class LoytecXmlDlChannel implements LoytecXmlDlChannelClass {
         return targetAtt;
     }
 
-    private void update() throws JEVisException {
+    public void update() throws JEVisException {
         log.debug("Getting channel name");
         name = channelObject.getName();
         log.debug("Getting channel trend id");

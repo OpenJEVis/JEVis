@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,7 +27,6 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -58,8 +58,8 @@ public class FileEditor implements AttributeEditor {
     public JEVisAttribute attribute;
     private final HBox box = new HBox();
     private final boolean hasChanged = false;
-    private Button _downloadButton;
-    private Button uploadButton;
+    private JFXButton _downloadButton;
+    private JFXButton uploadButton;
     private boolean readOnly = true;
     //Enable the automatic download of the smaple fo rthe filename
     //This function is suboptial and gives a abd user experience.
@@ -110,9 +110,9 @@ public class FileEditor implements AttributeEditor {
 
     private void init() {
 
-        _downloadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.download")
+        _downloadButton = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.file.download")
                 , JEConfig.getImage("698925-icon-92-inbox-download-48.png", 18, 18));
-        uploadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.upload"),
+        uploadButton = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.file.upload"),
                 JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", 18, 18));
 
         boolean isPDF = false;
@@ -155,7 +155,7 @@ public class FileEditor implements AttributeEditor {
         box.getChildren().setAll(uploadButton, _downloadButton, rightSpacer);
 
         if (isPDF) {
-            Button pdfButton = new Button("", JEConfig.getImage("pdf_24_2133056.png", 18, 18));
+            JFXButton pdfButton = new JFXButton("", JEConfig.getImage("pdf_24_2133056.png", 18, 18));
             box.getChildren().add(2, pdfButton);
             pdfButton.setOnAction(event -> {
                 PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
@@ -171,7 +171,7 @@ public class FileEditor implements AttributeEditor {
         }
 
         if (isImage) {
-            Button imageButton = new Button("", JEConfig.getImage("export-image.png", 18, 18));
+            JFXButton imageButton = new JFXButton("", JEConfig.getImage("export-image.png", 18, 18));
             box.getChildren().add(2, imageButton);
             imageButton.setOnAction(event -> {
                 ImageViewerDialog imageViewerDialog = new ImageViewerDialog();

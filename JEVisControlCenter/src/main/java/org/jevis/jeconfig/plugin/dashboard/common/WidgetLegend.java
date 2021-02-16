@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.plugin.dashboard.common;
 
+import com.jfoenix.controls.JFXTooltip;
 import com.sun.javafx.charts.Legend;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -34,7 +34,7 @@ public class WidgetLegend extends Legend {
         alertLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         ImageView alertImage = JEConfig.getImage("Warning-icon.png", 12d, 12d);
         alertLabel.setGraphic(alertImage);
-        alertLabel.setTooltip(new Tooltip(alertText));
+        alertLabel.setTooltip(new JFXTooltip(alertText));
 
         GridPane gridPane = new GridPane();
         gridPane.add(r, 0, 0);
@@ -96,7 +96,7 @@ public class WidgetLegend extends Legend {
         alertLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         ImageView alertImage = JEConfig.getImage("Warning-icon.png", 12d, 12d);
         alertLabel.setGraphic(alertImage);
-        alertLabel.setTooltip(new Tooltip(alertText));
+        alertLabel.setTooltip(new JFXTooltip(alertText));
 
         GridPane gridPane = new GridPane();
         gridPane.add(r, 0, 0);

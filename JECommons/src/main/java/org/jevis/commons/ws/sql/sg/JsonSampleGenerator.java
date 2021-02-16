@@ -8,6 +8,7 @@ import org.jevis.commons.dataprocessing.function.AggregatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.commons.dataprocessing.function.MathFunction;
 import org.jevis.commons.dataprocessing.function.NullFunction;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
@@ -26,16 +27,9 @@ public class JsonSampleGenerator {
     private final JsonObject object;
     private final ManipulationMode manipulationMode;
     private final AggregationPeriod aggregationPeriod;
-    private Boolean customWorkday = true;
+    private final WorkDays workDays;
+    private final Boolean customWorkday;
 
-    public JsonSampleGenerator(SQLDataSource ds, JsonObject object, JsonAttribute attribute, DateTime from, DateTime until, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod) {
-        this.ds = ds;
-        this.object = object;
-        this.attribute = attribute;
-        this.manipulationMode = manipulationMode;
-        this.aggregationPeriod = aggregationPeriod;
-        this.interval = new Interval(from, until);
-    }
 
     public JsonSampleGenerator(SQLDataSource ds, JsonObject object, JsonAttribute attribute, DateTime from, DateTime until, Boolean customWorkday, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod) {
         this.ds = ds;
@@ -45,6 +39,9 @@ public class JsonSampleGenerator {
         this.aggregationPeriod = aggregationPeriod;
         this.interval = new Interval(from, until);
         this.customWorkday = customWorkday;
+
+        this.workDays = new WorkDays(ds, object);
+        this.workDays.setEnabled(customWorkday);
     }
 
     public List<JsonSample> getAggregatedSamples() {
@@ -225,5 +222,9 @@ public class JsonSampleGenerator {
 
     public Boolean getCustomWorkday() {
         return customWorkday;
+    }
+
+    public WorkDays getWorkDays() {
+        return workDays;
     }
 }

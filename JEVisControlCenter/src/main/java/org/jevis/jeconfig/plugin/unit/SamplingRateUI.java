@@ -20,6 +20,10 @@
  */
 package org.jevis.jeconfig.plugin.unit;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXSlider;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -30,7 +34,9 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -41,12 +47,13 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.joda.time.Period;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class SamplingRateUI extends ComboBox<Period> {
+public class SamplingRateUI extends JFXComboBox<Period> {
 
     private final Period FREE_SELECTION = Period.years(999);//Workaround, value to show the selection
     private final Period CANCELD_SELECTION = Period.years(998);//workaround, value if the new persio was cancled
@@ -255,18 +262,18 @@ public class SamplingRateUI extends ComboBox<Period> {
     private Period ShowNewPeriod() {
         GridPane gp = new GridPane();
         //---------------------------------------------
-        final Label l_monthlabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.months") + ":");
-        final Label l_weekslabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.weeks") + ":");
-        final Label l_hourslabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.hours") + ":");
-        final Label l_minuteslabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.minutes") + ":");
-        final Label l_secoundslabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.seconds") + ":");
+        final Label l_monthLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.months") + ":");
+        final Label l_weeksLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.weeks") + ":");
+        final Label l_hoursLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.hours") + ":");
+        final Label l_minutesLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.minutes") + ":");
+        final Label l_secondsLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.seconds") + ":");
         final Label l_periodLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.iso") + ":");
-        final Slider sliderMonth = new Slider();
-        final Slider sliderWeek = new Slider();
-        final Slider sliderHours = new Slider();
-        final Slider sliderMinutes = new Slider();
-        final Slider sliderSecounds = new Slider();
-        final TextField fieldISOString = new TextField("");
+        final JFXSlider sliderMonth = new JFXSlider();
+        final JFXSlider sliderWeek = new JFXSlider();
+        final JFXSlider sliderHours = new JFXSlider();
+        final JFXSlider sliderMinutes = new JFXSlider();
+        final JFXSlider sliderSeconds = new JFXSlider();
+        final JFXTextField fieldISOString = new JFXTextField("");
         final ObjectProperty<Period> newPeriod = new SimpleObjectProperty<>(Period.minutes(15));
 
         sliderMonth.setMin(0);
@@ -297,18 +304,18 @@ public class SamplingRateUI extends ComboBox<Period> {
         sliderMinutes.setMajorTickUnit(15);
         sliderMinutes.setBlockIncrement(1);
 
-        sliderSecounds.setMin(0);
-        sliderSecounds.setMax(60);
-        sliderSecounds.setShowTickLabels(true);
-        sliderSecounds.setShowTickMarks(true);
-        sliderSecounds.setMajorTickUnit(15);
-        sliderSecounds.setBlockIncrement(1);
+        sliderSeconds.setMin(0);
+        sliderSeconds.setMax(60);
+        sliderSeconds.setShowTickLabels(true);
+        sliderSeconds.setShowTickMarks(true);
+        sliderSeconds.setMajorTickUnit(15);
+        sliderSeconds.setBlockIncrement(1);
 
         HBox buttonBar = new HBox();
         Region spaceBetween = new Region();
         Stage dia = new Stage();
-        Button okButton = new Button(I18n.getInstance().getString("plugin.graph.dialog.new.ok").toUpperCase());
-        Button calcelButton = new Button(I18n.getInstance().getString("plugin.graph.dialog.new.cancel").toUpperCase());
+        JFXButton okButton = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok").toUpperCase());
+        JFXButton calcelButton = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel").toUpperCase());
         okButton.setDefaultButton(true);
         okButton.setAlignment(Pos.BASELINE_RIGHT);
 //        okButton.setButtonType(JFXButton.ButtonType.FLAT);
@@ -331,17 +338,17 @@ public class SamplingRateUI extends ComboBox<Period> {
 
         //localize
 //        Label enableLabel = new Label("Has fix sample rate:");
-//        final CheckBox enable = new CheckBox("Set fixed sample rate");
+//        final JFXCheckBox enable = new JFXCheckBox("Set fixed sample rate");
         gp.setHgap(5);
         gp.setVgap(5);
         gp.setPadding(new Insets(10, 10, 10, 10));
 
         int row = 0;
-        gp.add(l_monthlabel, 0, ++row);
-        gp.add(l_weekslabel, 0, ++row);
-        gp.add(l_hourslabel, 0, ++row);
-        gp.add(l_minuteslabel, 0, ++row);
-        gp.add(l_secoundslabel, 0, ++row);
+        gp.add(l_monthLabel, 0, ++row);
+        gp.add(l_weeksLabel, 0, ++row);
+        gp.add(l_hoursLabel, 0, ++row);
+        gp.add(l_minutesLabel, 0, ++row);
+        gp.add(l_secondsLabel, 0, ++row);
         gp.add(l_periodLabel, 0, ++row);
 
         row = 0;
@@ -350,7 +357,7 @@ public class SamplingRateUI extends ComboBox<Period> {
         gp.add(sliderWeek, 1, ++row);
         gp.add(sliderHours, 1, ++row);
         gp.add(sliderMinutes, 1, ++row);
-        gp.add(sliderSecounds, 1, ++row);
+        gp.add(sliderSeconds, 1, ++row);
         gp.add(fieldISOString, 1, ++row);
 
         gp.add(buttonBar, 0, ++row, 2, 1);
@@ -363,7 +370,7 @@ public class SamplingRateUI extends ComboBox<Period> {
                 p = p.withMinutes((int) sliderMinutes.getValue());
                 p = p.withHours((int) sliderHours.getValue());
                 p = p.withWeeks((int) sliderWeek.getValue());
-                p = p.withSeconds((int) sliderSecounds.getValue());
+                p = p.withSeconds((int) sliderSeconds.getValue());
                 p = p.withMonths((int) sliderMonth.getValue());
                 newPeriod.setValue(p);
 
@@ -378,7 +385,7 @@ public class SamplingRateUI extends ComboBox<Period> {
 
         sliderMinutes.valueProperty()
                 .addListener(sliderChanged);
-        sliderSecounds.valueProperty()
+        sliderSeconds.valueProperty()
                 .addListener(sliderChanged);
         sliderMonth.valueProperty()
                 .addListener(sliderChanged);
@@ -391,10 +398,17 @@ public class SamplingRateUI extends ComboBox<Period> {
 
         dia.initOwner(JEConfig.getStage());
 //        dia.setAlwaysOnTop(true);
-        dia.setScene(new Scene(gp));
+        Scene scene = new Scene(gp);
+        TopMenu.applyActiveTheme(scene);
+        dia.setScene(scene);
         dia.initStyle(StageStyle.UNDECORATED);
         dia.initModality(Modality.APPLICATION_MODAL);
         dia.sizeToScene();
+        dia.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                TopMenu.applyActiveTheme(scene);
+            }
+        });
         dia.showAndWait();
         return newPeriod.getValue();
     }

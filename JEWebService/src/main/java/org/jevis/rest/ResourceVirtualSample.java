@@ -25,7 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.Benchmark;
@@ -34,6 +33,7 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.Config;
 import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -145,14 +145,11 @@ public class ResourceVirtualSample {
                     List<JEVisSample> jeVisSampleList = tmpSampleList(this.list);
                     benchmark.printBenchmarkDetail("Total JEvisSample: " + jeVisSampleList.size());
 
-                    SampleGenerator sampleGenerator = new SampleGenerator(null, tmpObject(obj), tmpAttribute(att, jeVisSampleList),
-                            startDate, endDate, manipulationMode, aggregationPeriod);
+                    JsonSampleGenerator sampleGenerator = new JsonSampleGenerator(ds, obj, att,
+                            startDate, endDate, true, manipulationMode, aggregationPeriod);
                     benchmark.printBenchmarkDetail("Done building generator");
-                    List<JEVisSample> virtualSamples = sampleGenerator.getAggregatedSamples();
-                    benchmark.printBenchmarkDetail("Total VirtualSample: " + virtualSamples.size());
-                    List<JsonSample> jsonSamples = tmpJsonSampleList(virtualSamples);
+                    List<JsonSample> jsonSamples = sampleGenerator.getAggregatedSamples();
                     benchmark.printBenchmarkDetail("Total result: " + jsonSamples.size());
-                    virtualSamples.clear();
                     jeVisSampleList.clear();
                     sampleGenerator = null;
 

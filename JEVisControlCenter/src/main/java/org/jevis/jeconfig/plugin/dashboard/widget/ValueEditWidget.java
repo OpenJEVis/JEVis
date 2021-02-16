@@ -1,11 +1,15 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
@@ -38,7 +42,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ValueEditWidget.class);
     public static String WIDGET_ID = "Value Editor";
-    private final TextField labelValue = new TextField();
+    private final JFXTextField labelValue = new JFXTextField();
     private final Label labelTimeStamp = new Label();
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     private DataModelDataHandler sampleHandler;
@@ -48,7 +52,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     private Interval lastInterval = null;
     private EnterDataDialog enterDataDialog = null;
     private final ImageView imageView = JEConfig.getImage("add_table.png", 18, 18);
-    private final Button addButton = new Button("", JEConfig.getImage("AddValue.png", 34, 34));
+    private final JFXButton addButton = new JFXButton("", JEConfig.getImage("AddValue.png", 34, 34));
     private final boolean forceLastValue = true;
     private JEVisSample lastSample = null;
 

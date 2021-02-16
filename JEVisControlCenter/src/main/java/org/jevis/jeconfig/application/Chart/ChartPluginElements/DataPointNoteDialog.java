@@ -36,7 +36,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.dialog.NoteDialog;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.joda.time.DateTime;
 
@@ -59,7 +59,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
             event.consume();
         }
     };
-    private GraphPluginView graphPluginView;
+    private ChartPlugin chartPlugin;
 
     public DataPointNoteDialog(JEVisAttribute att, SampleTable table) {
 
@@ -243,9 +243,9 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
         }
     }
 
-    public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, GraphPluginView graphPluginView) {
+    public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, ChartPlugin chartPlugin) {
         this.xyChartSerieList = xyChartSerieList;
-        this.graphPluginView = graphPluginView;
+        this.chartPlugin = chartPlugin;
 
         registerInputEventHandler(MouseEvent.MOUSE_CLICKED, noteHandler);
     }
@@ -424,7 +424,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                         wantToReload.getDialogPane().getButtonTypes().addAll(ok, cancel);
                         Platform.runLater(() -> wantToReload.showAndWait().ifPresent(response2 -> {
                             if (response2.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
-                                graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+                                chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD);
                             }
                         }));
                     }

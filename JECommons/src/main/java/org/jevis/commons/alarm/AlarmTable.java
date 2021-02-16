@@ -30,6 +30,7 @@ public class AlarmTable {
     protected final String highlight = "background-color: #EAF3F3";
     protected final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     protected final String VALUE_ATTRIBUTE_NAME = "Value";
+    protected final String PERIOD_ATTRIBUTE_NAME = "Period";
     protected final String LAST_READOUT_ATTRIBUTE_NAME = "Last Readout";
     protected final String LATEST_REPORTED = "Latest reported";
     protected final String ENABLED = "Enabled";
@@ -38,7 +39,7 @@ public class AlarmTable {
     protected final String INPUT_DATA_ATTRIBUTE_NAME = "Input Data";
     protected final String STANDARD_TARGET_ATTRIBUTE_NAME = "Target";
     protected JEVisDataSource ds;
-    private List<JEVisObject> listCheckedData = new ArrayList<>();
+    private final List<JEVisObject> listCheckedData = new ArrayList<>();
     private String tableString;
     private JEVisClass vida350ChannelClass;
     private JEVisClass loytecXMLDLChannelClass;
@@ -61,7 +62,7 @@ public class AlarmTable {
     private JEVisClass outputClass;
     private JEVisClass inputClass;
     private JEVisClass calculationClass;
-    private Comparator<JEVisObject> objectComparator = (o1, o2) -> {
+    private final Comparator<JEVisObject> objectComparator = (o1, o2) -> {
         DateTime o1ts = getDateTime(o1);
         DateTime o2ts = getDateTime(o2);
 

@@ -4,6 +4,9 @@ package org.jevis.jeconfig.dialog;
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -56,7 +59,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ReportWizardDialog {
     private static final Logger logger = LogManager.getLogger(ReportWizardDialog.class);
     Image imgMarkAll = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
-    Tooltip tooltipMarkAll = new Tooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
+    Tooltip tooltipMarkAll = new JFXTooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
     public static final Image taskImage = JEConfig.getImage("Report.png");
 
     public static String ICON = "Startup Wizard_18228.png";
@@ -230,9 +233,9 @@ public class ReportWizardDialog {
         VBox vBox = new VBox();
         HBox hbox = new HBox();
 
-        Button addMultiple = new Button("", JEConfig.getImage("list-add.png", 16, 16));
+        JFXButton addMultiple = new JFXButton("", JEConfig.getImage("list-add.png", 16, 16));
 
-        ComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
+        JFXComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
         reportTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
                 reportType = newValue;
@@ -281,8 +284,8 @@ public class ReportWizardDialog {
         vBox.setFillWidth(true);
     }
 
-    private ComboBox<ReportType> getReportTypeComboBox() {
-        ComboBox<ReportType> box = new ComboBox<>();
+    private JFXComboBox<ReportType> getReportTypeComboBox() {
+        JFXComboBox<ReportType> box = new JFXComboBox<>();
 
         box.setItems(FXCollections.observableArrayList(ReportType.values()));
 
@@ -445,7 +448,7 @@ public class ReportWizardDialog {
 
     private void createBox(ReportLink reportLink) {
         int currentRow = row;
-        Button targetsButton = new Button("Select Target");
+        JFXButton targetsButton = new JFXButton("Select Target");
         ReportAggregationBox aggregationPeriodComboBox = new ReportAggregationBox();
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
@@ -464,7 +467,7 @@ public class ReportWizardDialog {
         imageMarkAllAggregation.fitHeightProperty().set(13);
         imageMarkAllAggregation.fitWidthProperty().set(13);
 
-        Button tbAggregation = new Button("", imageMarkAllAggregation);
+        JFXButton tbAggregation = new JFXButton("", imageMarkAllAggregation);
         tbAggregation.setTooltip(tooltipMarkAll);
         tbAggregation.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
@@ -481,7 +484,7 @@ public class ReportWizardDialog {
         imageMarkAllManipulation.fitHeightProperty().set(13);
         imageMarkAllManipulation.fitWidthProperty().set(13);
 
-        Button tbManipulation = new Button("", imageMarkAllManipulation);
+        JFXButton tbManipulation = new JFXButton("", imageMarkAllManipulation);
         tbManipulation.setTooltip(tooltipMarkAll);
         tbManipulation.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
@@ -512,7 +515,7 @@ public class ReportWizardDialog {
         imageMarkAllPeriod.fitHeightProperty().set(13);
         imageMarkAllPeriod.fitWidthProperty().set(13);
 
-        Button tbPeriod = new Button("", imageMarkAllPeriod);
+        JFXButton tbPeriod = new JFXButton("", imageMarkAllPeriod);
         tbPeriod.setTooltip(tooltipMarkAll);
         tbPeriod.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
@@ -533,9 +536,9 @@ public class ReportWizardDialog {
             }
         });
 
-        Button copyButton = new Button("", JEConfig.getImage("copy_172587.png", 16, 16));
+        JFXButton copyButton = new JFXButton("", JEConfig.getImage("copy_172587.png", 16, 16));
 
-        Button removeButton = new Button("", JEConfig.getImage("list-remove.png", 16, 16));
+        JFXButton removeButton = new JFXButton("", JEConfig.getImage("list-remove.png", 16, 16));
         removeButton.setOnAction(event -> {
             if (row > 1) {
                 reportLinkList.remove(reportLink);
@@ -725,7 +728,7 @@ public class ReportWizardDialog {
     }
 
 
-    private void setButtonText(String targetString, Button targetsButton) {
+    private void setButtonText(String targetString, JFXButton targetsButton) {
         TargetHelper th;
         try {
             if (targetString != null) {

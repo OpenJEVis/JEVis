@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
@@ -14,7 +14,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProcessorBox extends ComboBox<JEVisObject> {
+public class ProcessorBox extends JFXComboBox<JEVisObject> {
 
     public ProcessorBox(JEVisObject object, JEVisObject selectedObject) {
         final List<JEVisObject> dataProcessors = new ArrayList<JEVisObject>();

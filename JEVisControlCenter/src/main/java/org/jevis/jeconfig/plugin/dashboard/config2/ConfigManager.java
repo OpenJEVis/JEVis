@@ -47,11 +47,11 @@ public class ConfigManager {
 
 
     private final JEVisDataSource jeVisDataSource;
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(ConfigManager.class);
     private final TimeFrames timeFrames;
     private JEVisObject dashboardObject = null;
-    private ObjectRelations objectRelations;
+    private final ObjectRelations objectRelations;
 
     public ConfigManager(JEVisDataSource dataSource) {
         this.jeVisDataSource = dataSource;
@@ -429,7 +429,7 @@ public class ConfigManager {
          newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
          Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
          Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
-         TextField name = new TextField();
+         JFXTextField name = new JFXTextField();
 
          JEVisClass analysesDirectory = null;
          List<JEVisObject> listAnalysesDirectories = null;
@@ -444,7 +444,7 @@ public class ConfigManager {
          }
 
          ObjectProperty<JEVisObject> currentAnalysisDirectory = new SimpleObjectProperty<>(null);
-         ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
+         JFXComboBox<JEVisObject> parentsDirectories = new JFXComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
 
          Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
         @Override public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -498,8 +498,8 @@ public class ConfigManager {
          }
          }));
 
-         final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
-         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+         final JFXButtonType ok = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), JFXButtonBar.ButtonData.OK_DONE);
+         final JFXButtonType cancel = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), JFXButtonBar.ButtonData.CANCEL_CLOSE);
 
          GridPane gridLayout = new GridPane();
          gridLayout.setPadding(new Insets(10, 10, 10, 10));
@@ -526,7 +526,7 @@ public class ConfigManager {
         /**
          newAnalysis.showAndWait()
          .ifPresent(response -> {
-         if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+         if (response.getButtonData().getTypeCode() == JFXButtonType.OK.getButtonData().getTypeCode()) {
          List<String> check = new ArrayList<>();
          AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
          try {
@@ -547,13 +547,13 @@ public class ConfigManager {
          Dialog<ButtonType> dialogOverwrite = new Dialog<>();
          dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
          dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
-         final ButtonType overwrite_ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
-         final ButtonType overwrite_cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+         final JFXButtonType overwrite_ok = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), JFXButtonBar.ButtonData.OK_DONE);
+         final JFXButtonType overwrite_cancel = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), JFXButtonBar.ButtonData.CANCEL_CLOSE);
 
          dialogOverwrite.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
 
          dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
-         if (overwrite_response.getButtonData().getTypeCode() != ButtonType.OK.getButtonData().getTypeCode()) {
+         if (overwrite_response.getButtonData().getTypeCode() != JFXButtonType.OK.getButtonData().getTypeCode()) {
          return;
          }
          });

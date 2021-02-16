@@ -20,14 +20,14 @@
  */
 package org.jevis.jeconfig.plugin.object.permission;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
@@ -38,6 +38,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 /**
@@ -59,6 +60,7 @@ public class AddSharePermissionsDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(500);
         stage.setHeight(250);
@@ -92,18 +94,18 @@ public class AddSharePermissionsDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button(I18n.getInstance().getString("plugin.object.permission.add"));
+        JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.object.permission.add"));
         ok.setDefaultButton(true);
 
-        final CheckBox includeChildren = new CheckBox(I18n.getInstance().getString("plugin.object.permission.includechildren"));
+        final JFXCheckBox includeChildren = new JFXCheckBox(I18n.getInstance().getString("plugin.object.permission.includechildren"));
         includeChildren.setSelected(true);
-//        Button okAll = new Button("Delte also for all Children");
+//        JFXButton okAll = new JFXButton("Delte also for all Children");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setHgrow(includeChildren, Priority.NEVER);
         HBox.setHgrow(ok, Priority.NEVER);
 
-        Button cancel = new Button(I18n.getInstance().getString("plugin.object.permission.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.object.permission.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(includeChildren, spacer, ok, cancel);

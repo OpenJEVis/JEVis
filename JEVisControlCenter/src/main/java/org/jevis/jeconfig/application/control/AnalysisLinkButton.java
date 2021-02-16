@@ -12,7 +12,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
 
 public class AnalysisLinkButton extends JFXButton {
@@ -21,6 +21,8 @@ public class AnalysisLinkButton extends JFXButton {
 
     public AnalysisLinkButton(JEVisAttribute attribute) {
         super("", JEConfig.getImage("1415314386_Graph.png", 20, 20));
+
+        setStyle("-fx-background-color: transparent;");
 
         try {
             JEVisObject buildingObject = org.jevis.commons.utils.CommonMethods.getFirstParentalObjectOfClass(attribute.getObject(), "Building");
@@ -47,7 +49,7 @@ public class AnalysisLinkButton extends JFXButton {
                         startDateFromSampleRate, timestampFromLastSample);
                 analysisRequest.setAttribute(attribute);
 
-                setOnAction(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+                setOnAction(event -> JEConfig.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, analysisRequest));
             } else setDisable(true);
         } catch (Exception e) {
             logger.error("Could not build analysis link button: ", e);

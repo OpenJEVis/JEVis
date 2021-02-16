@@ -1,11 +1,12 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTooltip;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
-import de.gsi.chart.plugins.ChartPlugin;
 import de.gsi.chart.plugins.MouseEventsHelper;
 import de.gsi.chart.plugins.Panner;
 import de.gsi.chart.plugins.Zoomer;
@@ -28,9 +29,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
@@ -40,7 +39,7 @@ import javafx.util.Duration;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.glyphfont.Glyph;
 import org.jevis.jeconfig.application.Chart.Charts.PieChart;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +69,7 @@ import java.util.function.Predicate;
  * @author rstein - adapted to XYChartPane, corrected some features (mouse zoom events outside canvas, auto-ranging on
  * zoom-out, scrolling, toolbar)
  */
-public class MultiChartZoomer extends ChartPlugin {
+public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
     public static final String ZOOMER_OMIT_AXIS = "OmitAxisZoom";
     public static final String STYLE_CLASS_ZOOM_RECT = "chart-zoom-rect";
     /**
@@ -220,7 +219,7 @@ public class MultiChartZoomer extends ChartPlugin {
         }
 
     };
-    private GraphPluginView graphPluginView;
+    private ChartPlugin chartPlugin;
 
     /**
      * Creates a new instance of Zoomer with animation disabled and with {@link #axisModeProperty() zoomMode}
@@ -244,8 +243,8 @@ public class MultiChartZoomer extends ChartPlugin {
      *
      * @param zoomMode initial value of {@link #axisModeProperty() zoomMode} property
      */
-    public MultiChartZoomer(final GraphPluginView graphPluginView, final AxisMode zoomMode, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive, org.jevis.jeconfig.application.Chart.Charts.Chart currentChart) {
-        this(graphPluginView, zoomMode, notActive, currentChart, false);
+    public MultiChartZoomer(final ChartPlugin chartPlugin, final AxisMode zoomMode, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive, org.jevis.jeconfig.application.Chart.Charts.Chart currentChart) {
+        this(chartPlugin, zoomMode, notActive, currentChart, false);
     }
 
     /**
@@ -254,9 +253,9 @@ public class MultiChartZoomer extends ChartPlugin {
      * @param zoomMode initial value of {@link #axisModeProperty() axisMode} property
      * @param animated initial value of {@link #animatedProperty() animated} property
      */
-    public MultiChartZoomer(final GraphPluginView graphPluginView, final AxisMode zoomMode, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive, org.jevis.jeconfig.application.Chart.Charts.Chart currentChart, final boolean animated) {
+    public MultiChartZoomer(final ChartPlugin chartPlugin, final AxisMode zoomMode, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive, org.jevis.jeconfig.application.Chart.Charts.Chart currentChart, final boolean animated) {
         super();
-        setGraphPluginView(graphPluginView);
+        setGraphPluginView(chartPlugin);
         setAxisMode(zoomMode);
         setCurrentChart(currentChart);
         setNotActive(notActive);
@@ -540,18 +539,18 @@ public class MultiChartZoomer extends ChartPlugin {
         separator.setOrientation(Orientation.VERTICAL);
         final HBox buttonBar = new HBox();
         buttonBar.setPadding(new Insets(1, 1, 1, 1));
-        final Button zoomOut = new Button(null, new Glyph(FONT_AWESOME, "\uf0b2").size(FONT_SIZE));
+        final JFXButton zoomOut = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf0b2").size(FONT_SIZE));
         zoomOut.setPadding(new Insets(3, 3, 3, 3));
-        zoomOut.setTooltip(new Tooltip("zooms to origin and enables auto-ranging"));
-        final Button zoomModeXY = new Button(null, new Glyph(FONT_AWESOME, "\uf047").size(FONT_SIZE));
+        zoomOut.setTooltip(new JFXTooltip("zooms to origin and enables auto-ranging"));
+        final JFXButton zoomModeXY = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf047").size(FONT_SIZE));
         zoomModeXY.setPadding(new Insets(3, 3, 3, 3));
-        zoomModeXY.setTooltip(new Tooltip("set zoom-mode to X & Y range (N.B. disables auto-ranging)"));
-        final Button zoomModeX = new Button(null, new Glyph(FONT_AWESOME, "\uf07e").size(FONT_SIZE));
+        zoomModeXY.setTooltip(new JFXTooltip("set zoom-mode to X & Y range (N.B. disables auto-ranging)"));
+        final JFXButton zoomModeX = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf07e").size(FONT_SIZE));
         zoomModeX.setPadding(new Insets(3, 3, 3, 3));
-        zoomModeX.setTooltip(new Tooltip("set zoom-mode to X range (N.B. disables auto-ranging)"));
-        final Button zoomModeY = new Button(null, new Glyph(FONT_AWESOME, "\uf07d").size(FONT_SIZE));
+        zoomModeX.setTooltip(new JFXTooltip("set zoom-mode to X range (N.B. disables auto-ranging)"));
+        final JFXButton zoomModeY = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf07d").size(FONT_SIZE));
         zoomModeY.setPadding(new Insets(3, 3, 3, 3));
-        zoomModeY.setTooltip(new Tooltip("set zoom-mode to Y range (N.B. disables auto-ranging)"));
+        zoomModeY.setTooltip(new JFXTooltip("set zoom-mode to Y range (N.B. disables auto-ranging)"));
 
         zoomOut.setOnAction(evt -> {
             zoomOrigin();
@@ -1237,8 +1236,8 @@ public class MultiChartZoomer extends ChartPlugin {
 
             double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMin();
             double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
-            graphPluginView.setxAxisLowerBound(min);
-            graphPluginView.setxAxisUpperBound(max);
+            chartPlugin.setxAxisLowerBound(min);
+            chartPlugin.setxAxisUpperBound(max);
 
 
             if (!followUpZoom) {
@@ -1301,8 +1300,8 @@ public class MultiChartZoomer extends ChartPlugin {
         double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
 
         currentChart.updateTableZoom(min, max);
-        graphPluginView.setxAxisLowerBound(min);
-        graphPluginView.setxAxisUpperBound(max);
+        chartPlugin.setxAxisLowerBound(min);
+        chartPlugin.setxAxisUpperBound(max);
 
         if (!followUpZoom && currentChart != null) {
             notActive.forEach(chart -> {
@@ -1348,12 +1347,12 @@ public class MultiChartZoomer extends ChartPlugin {
         this.followUpZoom = followUpZoom;
     }
 
-    public GraphPluginView getGraphPluginView() {
-        return graphPluginView;
+    public ChartPlugin getGraphPluginView() {
+        return chartPlugin;
     }
 
-    public void setGraphPluginView(GraphPluginView graphPluginView) {
-        this.graphPluginView = graphPluginView;
+    public void setGraphPluginView(ChartPlugin chartPlugin) {
+        this.chartPlugin = chartPlugin;
     }
 
     /**

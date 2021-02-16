@@ -1,15 +1,15 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
+import com.jfoenix.controls.JFXComboBox;
 import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 
-public class ColorMappingBox extends ComboBox<ColorMapping> {
+public class ColorMappingBox extends JFXComboBox<ColorMapping> {
 
     public ColorMappingBox(ChartSetting chartSetting) {
         super(FXCollections.observableArrayList(ColorMapping.values()));

@@ -5,13 +5,17 @@
  */
 package org.jevis.jeconfig.application.unit;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -35,20 +39,20 @@ public class UnitChooserPanel {
     private static final Logger logger = LogManager.getLogger(UnitChooserPanel.class);
 
     private JEVisUnit _unit = null;
-    private TextField altSymbolField = new TextField("");
+    private final JFXTextField altSymbolField = new JFXTextField("");
     private String _altSymbol = "";
-    private ComboBox<?> boxMeaning = new ComboBox<Object>();
-    private ComboBox<MetricPrefix> boxPrefix = new ComboBox<MetricPrefix>();
-    private ComboBox<JEVisUnit> boxQuantity = new ComboBox<JEVisUnit>();
-    private ComboBox<JEVisUnit> boxUnit = new ComboBox<JEVisUnit>();
-    private Label example = new Label("1234.56");
-    private TextField searchField = new TextField();
-    private GridPane root = new GridPane();
-    private Label lQuantity = new Label("Quantity:");
-    private Label lUnit = new Label("Unit:");
-    private Label lAltUnit = new Label("Alternativ Symbol:");
-    private Label lMeaning = new Label("Meaning:");
-    private Label lExample = new Label("Example:");
+    private final JFXComboBox<?> boxMeaning = new JFXComboBox<Object>();
+    private final JFXComboBox<MetricPrefix> boxPrefix = new JFXComboBox<MetricPrefix>();
+    private final JFXComboBox<JEVisUnit> boxQuantity = new JFXComboBox<JEVisUnit>();
+    private final JFXComboBox<JEVisUnit> boxUnit = new JFXComboBox<JEVisUnit>();
+    private final Label example = new Label("1234.56");
+    private final JFXTextField searchField = new JFXTextField();
+    private final GridPane root = new GridPane();
+    private final Label lQuantity = new Label("Quantity:");
+    private final Label lUnit = new Label("Unit:");
+    private final Label lAltUnit = new Label("Alternativ Symbol:");
+    private final Label lMeaning = new Label("Meaning:");
+    private final Label lExample = new Label("Example:");
 
     private final UnitManager um = UnitManager.getInstance();
 

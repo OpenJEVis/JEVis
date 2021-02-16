@@ -10,6 +10,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 
 import javax.measure.unit.Unit;
@@ -74,7 +75,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 String name = currentAlarm.getObject().getName() + ":" + currentAlarm.getObject().getID().toString();
                 String nameRaw = "";
 
-                JEVisObject currentRawDataObject = getRawDataObject(currentAlarm.getObject(), rawDataClass);
+                JEVisObject currentRawDataObject = CommonMethods.getFirstParentalDataObject(currentAlarm.getObject());
 
                 String currentUnit = null;
                 try {

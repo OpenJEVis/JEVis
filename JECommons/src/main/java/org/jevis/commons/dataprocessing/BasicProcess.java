@@ -164,37 +164,6 @@ public class BasicProcess implements Process {
     }
 
     @Override
-    public List<JEVisSample> getResult() {
-        if (_result != null) {
-            return _result;
-        }
-
-        logger.info("Begin task " + getID());
-
-        if (!isDone) {
-            if (getSubProcesses().isEmpty()) {
-//            logger.info("[" + _id + "]  No more sub tasks!");
-
-            } else {
-                for (Process task : getSubProcesses()) {
-                    task.getResult();
-                }
-//            logger.info("[" + _id + "] All subtask are done!");
-            }
-            isDone = true;
-            logger.info(getID() + " task is done");
-
-        }
-
-        _result = getFunction().getResult(this);
-
-        logger.info("[" + _id + "] [" + _processor.getName() + "]  Result size: " + _result.size());
-
-        return _result;
-
-    }
-
-    @Override
     public List<JsonSample> getJsonResult() {
         if (_jsonResult != null) {
             return _jsonResult;

@@ -19,6 +19,8 @@
  */
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXPasswordField;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -26,9 +28,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.Separator;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -43,6 +43,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.dialog.DialogHeader;
 
 /**
@@ -57,10 +58,10 @@ public class PasswordDialog {
 
     private Response response = Response.CANCEL;
     private final Label confirmL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.confirmpassword"));
-    private final Button ok = new Button(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
-    private final PasswordField newPass = new PasswordField();
-    private final PasswordField oldPass = new PasswordField();
-    private final PasswordField confirmNew = new PasswordField();
+    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
+    private final JFXPasswordField newPass = new JFXPasswordField();
+    private final JFXPasswordField oldPass = new JFXPasswordField();
+    private final JFXPasswordField confirmNew = new JFXPasswordField();
     private boolean correctOldPass = false;
 
     /**
@@ -79,6 +80,7 @@ public class PasswordDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(400);
         stage.setHeight(300);
@@ -89,7 +91,7 @@ public class PasswordDialog {
 
         ok.setDefaultButton(true);
 
-        Button cancel = new Button(I18n.getInstance().getString("tool.dialog.passworddialog.button.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("tool.dialog.passworddialog.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

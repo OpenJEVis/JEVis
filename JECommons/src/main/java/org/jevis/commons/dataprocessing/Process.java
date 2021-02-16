@@ -7,7 +7,6 @@ package org.jevis.commons.dataprocessing;
 
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
@@ -97,8 +96,6 @@ public interface Process {
      *
      * @return
      */
-    List<JEVisSample> getResult();
-
     List<JsonSample> getJsonResult();
 
     void setSubProcesses(List<Process> processes);

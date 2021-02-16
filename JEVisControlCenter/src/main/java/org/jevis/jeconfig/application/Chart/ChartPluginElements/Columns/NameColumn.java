@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.StackPane;
@@ -19,7 +19,7 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 
 public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> implements ChartPluginColumn {
     private static final Logger logger = LogManager.getLogger(DataProcessorColumn.class);
@@ -27,8 +27,8 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
     private final JEVisDataSource dataSource;
     private TreeTableColumn<JEVisTreeRow, String> nameColumn;
     private AnalysisDataModel data;
-    private JEVisTree tree;
-    private String columnName;
+    private final JEVisTree tree;
+    private final String columnName;
 
     /**
      * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -92,7 +92,7 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
                                     StackPane stackPane = new StackPane();
 
                                     ChartDataRow data = getData(getTreeTableRow().getItem());
-                                    TextField nameField = new TextField();
+                                    JFXTextField nameField = new JFXTextField();
                                     if (data.getTitle() != null) {
                                         nameField.setText(data.getTitle());
                                     }
@@ -120,9 +120,9 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
 
         Platform.runLater(() -> {
             Label label = new Label(columnName);
-            //label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.name.tip")));
+            //label.setTooltip(new  JFXTooltip(I18n.getInstance().getString("graph.table.name.tip")));
             nameColumn.setGraphic(label);
-            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
+            JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
 
         });
 

@@ -5,6 +5,7 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -12,7 +13,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -34,7 +34,7 @@ public class FunctionFooterPane extends Region {
     private static final Logger logger = LogManager.getLogger(FunctionFooterPane.class);
 
     private Node parent;
-    private List<Node> children = new ArrayList<>();
+    private final List<Node> children = new ArrayList<>();
 
     public FunctionFooterPane() {
 //        this.parent = parent;
@@ -54,7 +54,7 @@ public class FunctionFooterPane extends Region {
         gc.lineTo(10, 28);
         gc.stroke();
 
-        Button newB = new Button("", JEConfig.getImage("list-add.png", 12, 12));
+        JFXButton newB = new JFXButton("", JEConfig.getImage("list-add.png", 12, 12));
 
         final ChoiceBox functionBox = new ChoiceBox();
         functionBox.setMaxWidth(500);

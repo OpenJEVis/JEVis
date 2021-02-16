@@ -19,7 +19,6 @@
  */
 package org.jevis.commons.dataprocessing;
 
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 
@@ -31,14 +30,6 @@ import java.util.List;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public interface ProcessFunction {
-
-    /**
-     * Rertuns the result list from this processor.
-     *
-     * @param task Task with the options and previous tasks
-     * @return List of JEVisSamples with the result
-     */
-    List<JEVisSample> getResult(Process task);
 
     /**
      * Returns the unique name of this processor wich is used to identify it.
@@ -54,6 +45,12 @@ public interface ProcessFunction {
 
     List<ProcessOption> getAvailableOptions();
 
+    /**
+     * Rertuns the result list from this processor.
+     *
+     * @param basicProcess Task with the options and previous tasks
+     * @return List of JEVisSamples with the result
+     */
     List<JsonSample> getJsonResult(BasicProcess basicProcess);
 
     void setJsonSampleGenerator(JsonSampleGenerator jsonSampleGenerator);

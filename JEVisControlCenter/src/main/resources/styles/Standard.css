@@ -4,6 +4,10 @@
     -fx-accent: #1a719c;
 }
 
+.button {
+    -fx-background-color: #e2e2e2;
+}
+
 .main-split-pane, main-view-pane{
     -fx-background-color: #f4f4f4;
 }

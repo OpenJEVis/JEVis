@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
@@ -30,6 +32,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.JEVisFileWithSample;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.PDFModel;
 
 import java.awt.print.PrinterException;
@@ -49,7 +52,7 @@ public class PDFViewerDialog {
     private PDFModel model;
     private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
     private final ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
-    private final ComboBox<JEVisFileWithSample> fileComboBox = new ComboBox<>(FXCollections.observableArrayList());
+    private final JFXComboBox<JEVisFileWithSample> fileComboBox = new JFXComboBox<>(FXCollections.observableArrayList());
     private final Map<JEVisFile, JEVisSample> sampleMap = new HashMap<>();
     private final ImageView pdfIcon = JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize);
     private Label fileName;
@@ -120,7 +123,7 @@ public class PDFViewerDialog {
         headerBox.setSpacing(4);
 
         ToggleButton pdfButton = new ToggleButton("", pdfIcon);
-        Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
+        Tooltip pdfTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
         pdfButton.setTooltip(pdfTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(pdfButton);
 
@@ -144,7 +147,7 @@ public class PDFViewerDialog {
         });
 
         ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
-        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
+        Tooltip printTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
@@ -295,7 +298,11 @@ public class PDFViewerDialog {
                 }
             }
         });
-
+        stage.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                TopMenu.applyActiveTheme(scene);
+            }
+        });
         stage.showAndWait();
     }
 

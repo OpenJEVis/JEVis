@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.plugin.basedata;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
@@ -118,8 +120,8 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
                                     } else {
                                         RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
                                         JEVisAttribute att = registerTableRow.getAttributeMap().get(type);
-                                        Button manSampleButton = new Button("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
-                                        manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
+                                        JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
+                                        manSampleButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
 
                                         if (att != null) {
                                             try {
@@ -207,7 +209,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
 
     private void initToolBar() {
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
-        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.basedata.reload.progress.tooltip"));
+        Tooltip reloadTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.basedata.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 

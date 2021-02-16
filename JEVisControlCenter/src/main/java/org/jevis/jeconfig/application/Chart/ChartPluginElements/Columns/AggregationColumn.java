@@ -1,9 +1,13 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -25,8 +29,8 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
     public static String COLUMN_ID = "AggregationColumn";
     private TreeTableColumn<JEVisTreeRow, AggregationPeriod> aggregationColumn;
     private AnalysisDataModel data;
-    private JEVisTree tree;
-    private String columnName;
+    private final JEVisTree tree;
+    private final String columnName;
     private final JEVisDataSource dataSource;
 
     public AggregationColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName) {
@@ -98,7 +102,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
                                     imageMarkAll.fitHeightProperty().set(13);
                                     imageMarkAll.fitWidthProperty().set(13);
 
-                                    Button tb = new Button("", imageMarkAll);
+                                    JFXButton tb = new JFXButton("", imageMarkAll);
 
                                     tb.setTooltip(tooltipMarkAll);
 
@@ -139,7 +143,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
         Platform.runLater(() -> {
             Label aggregationLabel = new Label(columnName);
-            aggregationLabel.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.interval.tip")));
+            aggregationLabel.setTooltip(new JFXTooltip(I18n.getInstance().getString("graph.table.interval.tip")));
             aggregationColumn.setGraphic(aggregationLabel);
             //JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, aggregationLabel);
 

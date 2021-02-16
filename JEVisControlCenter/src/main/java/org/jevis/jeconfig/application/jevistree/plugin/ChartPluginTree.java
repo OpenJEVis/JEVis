@@ -5,8 +5,8 @@
  */
 package org.jevis.jeconfig.application.jevistree.plugin;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.control.Button;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -84,7 +84,7 @@ public class ChartPluginTree implements TreePlugin {
         image.fitHeightProperty().set(20);
         image.fitWidthProperty().set(20);
 
-        Button addChart = new Button(I18n.getInstance().getString("graph.table.addchart"), image);
+        JFXButton addChart = new JFXButton(I18n.getInstance().getString("graph.table.addchart"), image);
         if (getData().getCharts().getListSettings().isEmpty()) {
             data.getCharts().getListSettings().add(new ChartSetting(0, chartTitle));
         }

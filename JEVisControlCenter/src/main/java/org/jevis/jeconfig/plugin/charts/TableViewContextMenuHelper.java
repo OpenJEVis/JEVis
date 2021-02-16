@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.charts;
 
+import com.jfoenix.controls.JFXCheckBox;
 import com.sun.javafx.scene.control.skin.TableHeaderRow;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.collections.ObservableList;
@@ -52,12 +53,12 @@ import java.util.function.Function;
  */
 public class TableViewContextMenuHelper {
 
-    private TableView<?> tableView;
+    private final TableView<?> tableView;
     private ContextMenu columnPopupMenu;
 
     private boolean showAllColumnsOperators = true;
 
-    private List<MenuItem> additionalMenuItems = new ArrayList<>();
+    private final List<MenuItem> additionalMenuItems = new ArrayList<>();
 
     // Default key to show menu: Shortcut + Shift + Space
     private Function<KeyEvent, Boolean> showMenuByKeyboardCheck =
@@ -251,7 +252,7 @@ public class TableViewContextMenuHelper {
 
             TableColumn<?, ?> tableColumn = (TableColumn<?, ?>) obj;
 
-            CheckBox cb = new CheckBox(tableColumn.getText());
+            JFXCheckBox cb = new JFXCheckBox(tableColumn.getText());
             cb.selectedProperty().bindBidirectional(tableColumn.visibleProperty());
 
             cmi = new CustomMenuItem(cb);

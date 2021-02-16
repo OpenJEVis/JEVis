@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -8,7 +9,10 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -23,6 +27,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController;
@@ -75,7 +80,7 @@ public class CalculationExtension implements ObjectEditorExtension {
     public void setVisible() {
 
 
-        //    Button button = new Button();
+        //    JFXButton button = new JFXButton();
         //  button.setText("Calc");
         //ap.getChildren().add(button);
 
@@ -85,7 +90,7 @@ public class CalculationExtension implements ObjectEditorExtension {
         //fxmlLoader.setRoot();
         //fxmlLoader.setController(new CalculationViewController());
         try {
-            Button buttonOutput = new Button(I18n.getInstance().getString("plugin.object.calc.output"));
+            JFXButton buttonOutput = new JFXButton(I18n.getInstance().getString("plugin.object.calc.output"));
             final ScrollPane editConfigPane = fxmlLoader.load();
             control = fxmlLoader.getController();
             control.setData(_obj, buttonOutput);
@@ -147,11 +152,13 @@ public class CalculationExtension implements ObjectEditorExtension {
             Label label = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.enable"));
             Label labelOutput = new Label(I18n.getInstance().getString("plugin.object.calc.output"));
 
-            Button calcNowButton = new Button(I18n.getInstance().getString("plugin.object.calc.recalc"));
+            JFXButton calcNowButton = new JFXButton(I18n.getInstance().getString("plugin.object.calc.recalc"));
             calcNowButton.setOnAction(bEvent -> {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle(I18n.getInstance().getString("plugin.object.calc.recalc"));
                 alert.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.question"));
+                TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
+
                 alert.showAndWait().ifPresent(buttonType -> {
                     if (buttonType.equals(ButtonType.OK)) {
                         final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "...");
@@ -223,6 +230,7 @@ public class CalculationExtension implements ObjectEditorExtension {
 
                             Alert error = new Alert(Alert.AlertType.ERROR);
                             error.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.title"));
+                            TopMenu.applyActiveTheme(error.getDialogPane().getScene());
                             error.setContentText(errorMsg.get());
 
                         });

@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.classes;
 
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -55,7 +56,7 @@ public class ClassGraphic {
         _menu = new ClassContextMenu(obj, tree);
 //        _menu = null;
         try {
-            _tip = new Tooltip(String.format(""));
+            _tip = new JFXTooltip(String.format(""));
         } catch (Exception ex) {
             logger.fatal(ex);
         }

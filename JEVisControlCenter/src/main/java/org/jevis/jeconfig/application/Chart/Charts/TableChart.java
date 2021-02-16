@@ -42,6 +42,7 @@ public class TableChart extends XYChart {
                         tableTopDatePicker.initialize(singleRow, timeStampOfLastSample.get());
                     } catch (Exception e) {
                         this.failed();
+                        logger.error("Could not build chart {}", chartSetting.getName(), e);
                     } finally {
                         succeeded();
                     }

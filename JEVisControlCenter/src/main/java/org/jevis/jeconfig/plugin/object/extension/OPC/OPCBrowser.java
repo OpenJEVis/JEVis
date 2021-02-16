@@ -1,9 +1,13 @@
 package org.jevis.jeconfig.plugin.object.extension.OPC;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Modality;
@@ -15,14 +19,15 @@ import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.OPCUAServer;
 
 public class OPCBrowser {
 
     private JEVisObject opcServerObj = null;
-    TextField username = new TextField();
-    TextField password = new TextField();
+    JFXTextField username = new JFXTextField();
+    JFXTextField password = new JFXTextField();
 
     public OPCBrowser(JEVisObject server) {
         this.opcServerObj = server;
@@ -35,6 +40,7 @@ public class OPCBrowser {
 
         BorderPane borderPane = new BorderPane();
         Scene scene = new Scene(borderPane);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         //TODo better be dynamic
 
@@ -58,7 +64,7 @@ public class OPCBrowser {
                 System.out.println("Endpoint: " + endpointDescription);
             });
 
-            ComboBox<EndpointDescription> alignmentBox = new ComboBox<>(endpoints);
+            JFXComboBox<EndpointDescription> alignmentBox = new JFXComboBox<>(endpoints);
             alignmentBox.setPrefWidth(1000);
             alignmentBox.setMinWidth(100);
 
@@ -74,7 +80,7 @@ public class OPCBrowser {
                                 //String security = item.getSecurityMode() + " " + item.getSecurityLevel();
                                 String security = item.getSecurityPolicyUri().split("#")[1];
                                 setText(tuUserString(item));
-                                setTooltip(new Tooltip(item.toString()));
+                                setTooltip(new JFXTooltip(item.toString()));
 
                             } else {
                                 setText(null);

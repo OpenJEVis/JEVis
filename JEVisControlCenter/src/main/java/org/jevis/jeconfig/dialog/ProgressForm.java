@@ -5,20 +5,21 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXProgressBar;
+import com.jfoenix.controls.JFXTextArea;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 
 /**
  * @author fs
@@ -26,8 +27,8 @@ import org.jevis.jeconfig.JEConfig;
 public class ProgressForm {
 
     private final Stage dialogStage;
-    private final ProgressBar pb = new ProgressBar();
-    private final TextArea textArea = new TextArea();
+    private final JFXProgressBar pb = new JFXProgressBar();
+    private final JFXTextArea textArea = new JFXTextArea();
     private final StringBuilder stringBuilder = new StringBuilder();
 
     public ProgressForm(String text) {
@@ -58,6 +59,11 @@ public class ProgressForm {
         VBox.setVgrow(textArea, Priority.ALWAYS);
 
         Scene scene = new Scene(vb);
+        dialogStage.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                TopMenu.applyActiveTheme(scene);
+            }
+        });
         dialogStage.setScene(scene);
     }
 

@@ -19,13 +19,13 @@
  */
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.TextField;
 
 /**
  * A text field, which restricts the user's input.
@@ -46,10 +46,10 @@ import javafx.scene.control.TextField;
  *
  * @author Christian Schudt
  */
-public class RestrictiveTextField extends TextField {
+public class RestrictiveTextField extends JFXTextField {
 
-    private IntegerProperty maxLength = new SimpleIntegerProperty(this, "maxLength", -1);
-    private StringProperty restrict = new SimpleStringProperty(this, "restrict");
+    private final IntegerProperty maxLength = new SimpleIntegerProperty(this, "maxLength", -1);
+    private final StringProperty restrict = new SimpleStringProperty(this, "restrict");
 
     public RestrictiveTextField() {
 

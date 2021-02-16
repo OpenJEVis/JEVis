@@ -39,7 +39,7 @@ public class PageWidgetSelection extends Page {
 
 //        Widgets.getAvabableWidgets(JEConfig.getDataSource(), null).forEach(widget -> {
 //
-//            Button widgetButton = new Button(widget.typeID(), widget.getImagePreview());
+//            JFXButton widgetButton = new JFXButton(widget.typeID(), widget.getImagePreview());
 //            widgetButton.setContentDisplay(ContentDisplay.TOP);
 //
 //            widgetListPane.getChildren().add(widgetButton);

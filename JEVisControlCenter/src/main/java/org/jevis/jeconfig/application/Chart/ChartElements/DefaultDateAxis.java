@@ -57,7 +57,7 @@ public class DefaultDateAxis extends DefaultNumericAxis {
 //                }
                 isHoliday = true;
 //                if (!toolTipString.equals("")) {
-//                    Tooltip tooltip = new Tooltip(toolTipString);
+//                    Tooltip tooltip = new JFXTooltiptoolTipString);
 //                    Tooltip.install(tick.textNode, tooltip);
 //                }
             }
