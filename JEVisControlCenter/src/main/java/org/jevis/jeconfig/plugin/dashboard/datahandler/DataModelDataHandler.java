@@ -448,13 +448,14 @@ public class DataModelDataHandler {
     }
 
     public void update() {
-        logger.debug("Update Samples: {}", this.durationProperty.getValue());
+        logger.error("Update Samples: {}", this.durationProperty.getValue());
         this.chartDataRows.forEach(chartDataModel -> {
 //            System.out.println("Set autoAggrigate: " + chartDataModel.getObject().getName() + " b: " + autoAggregation);
 //            chartDataModel.setAbsolute(autoAggregation);
             chartDataModel.setSelectedStart(this.durationProperty.getValue().getStart());
             chartDataModel.setSelectedEnd(this.durationProperty.getValue().getEnd());
             chartDataModel.getSamples();
+            logger.error("New samples for: {} = {}", chartDataModel.getObject().getID(), chartDataModel.getSamples().size());
         });
 
         this.lastUpdate.setValue(new DateTime());

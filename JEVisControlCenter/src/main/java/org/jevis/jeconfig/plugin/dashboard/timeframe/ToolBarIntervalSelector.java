@@ -73,7 +73,7 @@ public class ToolBarIntervalSelector extends HBox {
         });
 
         prevButton.setOnAction(event -> {
-            controller.setPrevInteval();
+            controller.setPrevInterval();
         });
 
         nextButton.setOnAction(event -> {
