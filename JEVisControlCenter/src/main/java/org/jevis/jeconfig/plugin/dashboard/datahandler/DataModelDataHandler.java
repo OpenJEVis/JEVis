@@ -18,6 +18,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.TopMenu;
@@ -61,6 +62,7 @@ public class DataModelDataHandler {
     private String forcedPeriod;
     private final ObjectMapper mapper = new ObjectMapper();
     private TimeFrameFactory timeFrameFactory;
+    private final PeriodComparator periodComparator = new PeriodComparator();
 
     public void debug() {
         System.out.println("----------------------------------------");
@@ -356,20 +358,69 @@ public class DataModelDataHandler {
 
 
         for (ChartDataRow chartDataRow : getDataModel()) {
-            int i = getDataModel().indexOf(chartDataRow);
-            AggregationPeriod initialAggregation = this.initialAggregation.get(i);
+            try {
+                int i = getDataModel().indexOf(chartDataRow);
+                AggregationPeriod initialAggregation = this.initialAggregation.get(i);
 
-            if (initialAggregation == AggregationPeriod.NONE) {
-                AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
-                chartDataRow.setAggregationPeriod(aggregationPeriod);
+                /** we may need this for meter changes usecase**/
+                //CleanDataObject.getPeriodForDate(, )
+
+                Period objectPeriod = new Period(chartDataRow.getAttribute().getObject().getAttribute("Period").getLatestSample().getValueAsString());
+                Period userPeriod = new Period();
+                switch (getAggregationPeriod(interval)) {
+                    case NONE:
+                        userPeriod = Period.ZERO;
+                        break;
+                    case MINUTELY:
+                        userPeriod = Period.minutes(1);
+                        break;
+                    case QUARTER_HOURLY:
+                        userPeriod = Period.minutes(15);
+                        break;
+                    case HOURLY:
+                        userPeriod = Period.hours(1);
+                        break;
+                    case DAILY:
+                        userPeriod = Period.days(1);
+                        break;
+                    case WEEKLY:
+                        userPeriod = Period.weeks(1);
+                        break;
+                    case MONTHLY:
+                        userPeriod = Period.months(1);
+                        break;
+                    case QUARTERLY:
+                        userPeriod = Period.months(3);
+                        break;
+                    case YEARLY:
+                        userPeriod = Period.years(1);
+                        break;
+                    case THREEYEARS:
+                        userPeriod = Period.years(3);
+                        break;
+                    case FIVEYEARS:
+                        userPeriod = Period.years(5);
+                        break;
+                    case TENYEARS:
+                        userPeriod = Period.years(10);
+                        break;
+                }
+
+
+                if (periodComparator.compare(userPeriod, objectPeriod) < 0) {
+                    chartDataRow.setAggregationPeriod(AggregationPeriod.NONE);
+                } else {
+                    if (initialAggregation == AggregationPeriod.NONE) {
+                        AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
+                        chartDataRow.setAggregationPeriod(aggregationPeriod);
+                    }
+                }
+
+
+                chartDataRow.setAbsolute(autoAggregation);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
             }
-
-//            if (chartDataRow.getManipulationMode() == ManipulationMode.NONE) {
-//                ManipulationMode manipulationMode = getManipulationMode(interval);
-//                chartDataRow.setManipulationMode(manipulationMode);
-//            }
-
-            chartDataRow.setAbsolute(autoAggregation);
         }
     }
 
@@ -449,13 +500,14 @@ public class DataModelDataHandler {
     }
 
     public void update() {
-        logger.debug("Update Samples: {}", this.durationProperty.getValue());
+        logger.error("Update Samples: {}", this.durationProperty.getValue());
         this.chartDataRows.forEach(chartDataModel -> {
 //            System.out.println("Set autoAggrigate: " + chartDataModel.getObject().getName() + " b: " + autoAggregation);
 //            chartDataModel.setAbsolute(autoAggregation);
             chartDataModel.setSelectedStart(this.durationProperty.getValue().getStart());
             chartDataModel.setSelectedEnd(this.durationProperty.getValue().getEnd());
             chartDataModel.getSamples();
+            logger.error("New samples for: {} = {}", chartDataModel.getObject().getID(), chartDataModel.getSamples().size());
         });
 
         this.lastUpdate.setValue(new DateTime());

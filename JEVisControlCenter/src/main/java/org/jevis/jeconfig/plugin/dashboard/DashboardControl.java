@@ -543,7 +543,7 @@ public class DashboardControl {
         return this.activeTimeFrame;
     }
 
-    public void setPrevInteval() {
+    public void setPrevInterval() {
         try {
             Interval nextInterval = this.activeTimeFrame.previousPeriod(this.activeInterval, 1);
             if (nextInterval.getStart().isBeforeNow()) {
@@ -575,6 +575,7 @@ public class DashboardControl {
             logger.error(ex);
         }
         this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+        logger.error("Reset Executor");
 
     }
 
@@ -647,6 +648,7 @@ public class DashboardControl {
     }
 
     public void runDataUpdateTasks(boolean reStartUpdateDaemon) {
+        logger.error("Restart Update Tasks: daemon: {}", reStartUpdateDaemon);
         this.isUpdateRunning = reStartUpdateDaemon;
 
         stopAllUpdates();
@@ -662,6 +664,7 @@ public class DashboardControl {
             if (!widget.isStatic()) {
                 Platform.runLater(() -> {
                     try {
+                        logger.error("Show ProgressIndicator ofr: {}", widget.getConfig().getTitle());
                         widget.showProgressIndicator(true);
                     } catch (Exception ex) {
                         logger.error(ex);
@@ -675,7 +678,7 @@ public class DashboardControl {
         this.updateTask = new TimerTask() {
             @Override
             public void run() {
-                logger.debug("Starting Update");
+                logger.error("Starting Updates");
                 JEConfig.getStatusBar().startProgressJob("Dashboard"
                         , DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count()
                         , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
@@ -723,12 +726,12 @@ public class DashboardControl {
             @Override
             protected Object call() throws Exception {
                 try {
-                    logger.debug("addWidgetUpdateTask: " + widget);
+                    logger.error("addWidgetUpdateTask: '{}'  - Interval: {}", widget.getConfig().getTitle(), interval);
                     Platform.runLater(() -> this.updateTitle("Updating Widget [" + widget.typeID() + "" + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
 
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
-                        logger.debug("updateData done: " + widget);
+                        logger.error("updateData done: " + widget);
 //                        finishUpdateJobs.setValue(finishUpdateJobs.getValue() + 1);
                     }
 

@@ -24,6 +24,7 @@ import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableRow;
@@ -220,6 +221,7 @@ public class JEVisTree extends JFXTreeTableView {
     /**
      * Initialize the jevis tree
      */
+    @Override
     protected void init() {
         try {
             this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), this.ds.getRootObjects());
