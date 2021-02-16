@@ -50,7 +50,7 @@ public class JEVisTree extends JFXTreeTableView {
     private static final Logger logger = LogManager.getLogger(JEVisTree.class);
     private final ObservableList<TreePlugin> plugins = FXCollections.observableArrayList();
     private final JEVisDataSource ds;
-    private JEVisObject copyObject;
+    private List<JEVisObject> copyObject;
     private JEVisTreeRow dragItem;
     private final UUID uuid = UUID.randomUUID();
     private JEVisTreeFilter cellFilter;
@@ -67,9 +67,11 @@ public class JEVisTree extends JFXTreeTableView {
      */
     public JEVisTree(JEVisDataSource ds, JEVisTreeFilter filter) {
         super();
+        this.setId("JEVisTree");
         this.ds = ds;
 //        cellFilter = FilterFactory.buildDefaultItemFilter();
         this.cellFilter = filter;
+        this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
 //        addCellFactory();
         init();
@@ -338,12 +340,78 @@ public class JEVisTree extends JFXTreeTableView {
     }
 
     public JEVisObject getCopyObject() {
+        if (this.copyObject.isEmpty()) {
+            return null;
+        }
+        return this.copyObject.get(0);
+    }
+
+    public List<JEVisObject> getCopyObjects() {
         return this.copyObject;
     }
 
+    /**
+     * @param obj
+     * @param cut
+     * @deprecated use setCopyObjectsBySelection(boolean cut)
+     */
+    @Deprecated
     public void setCopyObject(JEVisObject obj, boolean cut) {
-        this.copyObject = obj;
+        this.copyObject = new ArrayList<>();
+        this.copyObject.add(obj);
         this.isCut = cut;
+    }
+
+    /**
+     * @param objs
+     * @param cut
+     * @deprecated use setCopyObjectsBySelection(boolean cut)
+     */
+    @Deprecated
+    public void setCopyObjects(List<JEVisObject> objs, boolean cut) {
+        this.copyObject = objs;
+        this.isCut = cut;
+    }
+
+    public void setCopyObjectsBySelection(boolean cut) {
+        List<JEVisObject> selection = new ArrayList<>();
+
+        logger.error("--COPY--");
+        getSelectionModel().getSelectedItems().forEach(o -> {
+            try {
+                JEVisObject toCopy = ((JEVisTreeItem) o).getValue().getJEVisObject();
+                if (!isParentInList(selection, toCopy)) {
+                    selection.add(toCopy);
+                    logger.error("--add: " + toCopy);
+                }
+
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+            }
+        });
+        logger.error("--------");
+
+        setCopyObjects(selection, false);
+        this.isCut = cut;
+    }
+
+    public boolean isParentInList(List<JEVisObject> parents, JEVisObject object) {
+        try {
+            if (!object.getParents().isEmpty()) {
+                if (parents.contains(object.getParents().get(0))) {
+                    return true;
+                } else {
+                    return isParentInList(parents, object.getParents().get(0));
+                }
+
+            } else {
+                return false;
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+            return false;
+        }
+
     }
 
     public boolean isCut() {

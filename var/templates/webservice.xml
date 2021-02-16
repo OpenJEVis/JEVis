@@ -7,6 +7,7 @@
         <login>jevis</login>
         <password>dbpassword</password>
         <schema>jevis</schema>
+        <options>useSSL=false</options>
     </datasource>
     <webservice>
         <uri>http://hostname:8000/</uri>
@@ -20,7 +21,7 @@
             <demogroup>1</demogroup>
             <apikey>UIGDUSG023Bxdh283frehbo90</apikey>
         </registration>
-    </webservice>   
-    
-    
+    </webservice>
+
+
 </config>

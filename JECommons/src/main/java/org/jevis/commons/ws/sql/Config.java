@@ -49,6 +49,7 @@ public class Config {
     public static String _dbuser = "jevis";
     public static String _dbpw = "jevistest";
     public static String _schema = "jevis";
+    public static String _options = "";
     public static String _rootUser = "jevis";
     public static String _rootPW = "jevis";
     public static String _uri = "http://localhost:8080/JEWebservice/";
@@ -67,7 +68,7 @@ public class Config {
     private static File _fileDir;
     private static File _classDir;
     private static File _freemarkerDir;
-    private static String _jeccVersion="0";
+    private static String _jeccVersion = "0";
     private static ConcurrentHashMap<String, JsonJEVisClass> _classCache = new ConcurrentHashMap<>();
 
 
@@ -89,6 +90,10 @@ public class Config {
 
     public static String getSchema() {
         return _schema;
+    }
+
+    public static String getConnectionOptions() {
+        return _options;
     }
 
     private static final Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
@@ -204,7 +209,7 @@ public class Config {
                     _dbuser = getParameter(config, "datasource.login", "jevis");
                     _dbpw = getParameter(config, "datasource.password", "jevispw");
                     _schema = getParameter(config, "datasource.schema", "jevis");
-
+                    _options = getParameter(config, "datasource.options", "");
 
                     _rootUser = getParameter(config, "sysadmin.username", "Sys Admin");
                     _rootPW = getParameter(config, "sysadmin.password", "jevispw");

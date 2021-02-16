@@ -217,11 +217,11 @@ public class AlarmEditor implements AttributeEditor {
 
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        tabPane.setPrefWidth(480);
+        tabPane.setPrefHeight(350);
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setResizable(true);
-        dialog.setHeight(300);
-        dialog.setWidth(620);
 
 
         dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.dialog.title"));

@@ -27,12 +27,15 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -187,6 +190,8 @@ public class GapFillingEditor implements AttributeEditor {
         Label boundToSpecificLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.boundto"));
 
         JFXComboBox<GapFillingType> typeBox = new JFXComboBox<>(optionsType);
+        //typeBox.setMinWidth(300);
+        typeBox.setMaxWidth(800);
         Callback<ListView<GapFillingType>, ListCell<GapFillingType>> cellFactoryTypeBox = new Callback<javafx.scene.control.ListView<GapFillingType>, ListCell<GapFillingType>>() {
             @Override
             public ListCell<GapFillingType> call(javafx.scene.control.ListView<GapFillingType> param) {
@@ -228,6 +233,11 @@ public class GapFillingEditor implements AttributeEditor {
                                     break;
                             }
                             setText(text);
+
+                            if (getWidth() > getListView().getWidth()) {
+                                getListView().setMinWidth(getWidth() + 1);
+                            }
+
                         }
                     }
                 };
@@ -237,6 +247,7 @@ public class GapFillingEditor implements AttributeEditor {
         typeBox.setButtonCell(cellFactoryTypeBox.call(null));
 
         JFXComboBox<GapFillingReferencePeriod> referencePeriodBox = new JFXComboBox<>(optionsReferencePeriods);
+        referencePeriodBox.setMaxWidth(800);
         Callback<ListView<GapFillingReferencePeriod>, ListCell<GapFillingReferencePeriod>> cellFactoryReferencePeriodBox = new Callback<javafx.scene.control.ListView<GapFillingReferencePeriod>, ListCell<GapFillingReferencePeriod>>() {
             @Override
             public ListCell<GapFillingReferencePeriod> call(javafx.scene.control.ListView<GapFillingReferencePeriod> param) {
@@ -278,6 +289,7 @@ public class GapFillingEditor implements AttributeEditor {
         referencePeriodBox.setButtonCell(cellFactoryReferencePeriodBox.call(null));
 
         JFXComboBox<GapFillingBoundToSpecific> boundSpecificBox = new JFXComboBox<>(optionsBoundSpecifics);
+        boundSpecificBox.setMaxWidth(800);
         Callback<ListView<GapFillingBoundToSpecific>, ListCell<GapFillingBoundToSpecific>> cellFactoryBoundToSpecificBox = new Callback<javafx.scene.control.ListView<GapFillingBoundToSpecific>, ListCell<GapFillingBoundToSpecific>>() {
             @Override
             public ListCell<GapFillingBoundToSpecific> call(javafx.scene.control.ListView<GapFillingBoundToSpecific> param) {
@@ -374,6 +386,12 @@ public class GapFillingEditor implements AttributeEditor {
             config.setBindtospecific(newValue.toString());
         });
 
+
+        ColumnConstraints column1 = new ColumnConstraints(100, 150, 800, Priority.SOMETIMES, HPos.LEFT, false);
+        ColumnConstraints column2 = new ColumnConstraints(200, 300, 800, Priority.ALWAYS, HPos.LEFT, true);
+        gridPane.getColumnConstraints().addAll(column1, column2);
+
+
         /**
          * Create layout based on JsonGapFillingConfig type
          */
@@ -462,8 +480,8 @@ public class GapFillingEditor implements AttributeEditor {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setResizable(true);
-        dialog.setHeight(450);
-        dialog.setWidth(620);
+        //dialog.setHeight(450);
+        //dialog.setWidth(620);
         dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.title"));
         dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.header"));
         dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));
@@ -484,11 +502,13 @@ public class GapFillingEditor implements AttributeEditor {
 
         dialog.showAndWait()
                 .ifPresent(response -> {
+                    System.out.println(dialog.getWidth());
                     if (response.getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
                             _changed.setValue(true);
                             commit();
+
                         } catch (JEVisException e) {
                             logger.error("Could not write gap config to JEVis System: ", e);
                         }

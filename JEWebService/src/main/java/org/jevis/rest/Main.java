@@ -60,8 +60,9 @@ public class Main {
 //
 //            // }
 //        }
-        logger.info("DBHost: {}\nDBPort: {}\nDBSchema: {}\nDBUSer: {}\nDBPW: {}", Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
-        ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
+        logger.info("DBHost: {}\nDBPort: {}\nDBSchema: {}\nDBUSer: {}\nDBPW: {} \nDBOptions: '{}'",
+                Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
+        ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
 
         Connection dbConn = ConnectionFactory.getInstance().getConnection();
         if (dbConn.isValid(2000)) {
@@ -112,16 +113,16 @@ public class Main {
             server.start();
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("Server error: {}",e);
+            logger.error("Server error: {}", e);
             throw new RuntimeException(e);
         }
         try {
-            logger.info("{} is now running",VERSION);
+            logger.info("{} is now running", VERSION);
             logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("Server error: {}",e);
+            logger.error("Server error: {}", e);
             throw new RuntimeException(e);
         }
     }

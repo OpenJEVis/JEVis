@@ -284,6 +284,29 @@ public class WidgetPojo {
         this.type = type;
     }
 
+    public WidgetPojo copy() {
+
+        WidgetPojo copy = new WidgetPojo();
+        copy.setxPosition(this.getxPosition());
+        copy.setUuid(this.getUuid());
+        copy.setTitle(this.getTitle());
+        copy.setTitlePosition(this.getTitlePosition());
+        copy.setBorderSize(this.getBorderSize());
+        copy.setFont(this.getFont());
+        copy.setTooltip(this.getTooltip());
+        copy.setFontColorSecondary(this.getFontColorSecondary());
+        copy.setBackgroundColor(this.getBackgroundColor());
+        copy.setShowShadow(this.getShowShadow());
+        copy.setSize(this.getSize());
+        copy.setDecimals(this.getDecimals());
+        copy.setFontSize(this.getFontSize());
+        copy.setType(this.getType());
+        copy.setyPosition(this.getyPosition());
+
+
+        return copy;
+    }
+
     @Override
     public String toString() {
         return "WidgetPojo{" +

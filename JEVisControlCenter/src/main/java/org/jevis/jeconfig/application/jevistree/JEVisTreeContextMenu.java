@@ -30,11 +30,13 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.dimpex.DimpEX;
 import org.jevis.commons.dimpex.DimpexObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
+import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.JsonExportDialog;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
@@ -71,6 +73,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     buildCut(),
                     buildPaste(),
                     new SeparatorMenuItem(),
+
                     buildMenuExport(),
                     buildImport()
             );
@@ -82,6 +85,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 } else if (obj.getJEVisClassName().equals("OPC UA Server")) {
                     getItems().add(new SeparatorMenuItem());
                     getItems().add(buildOCP());
+                } else if (obj.getAttribute("Value") != null) {
+                    getItems().add(buildManualSample());
                 }
 
 
@@ -110,55 +115,30 @@ public class JEVisTreeContextMenu extends ContextMenu {
         //TODO: disable if not allowed
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.paste"), ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
 
-        menu.setOnAction(new EventHandler<ActionEvent>() {
-
-                             @Override
-                             public void handle(ActionEvent t) {
-//                final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
-                                 TreeHelper.EventDrop(tree, tree.getCopyObject(), obj, CopyObjectDialog.DefaultAction.COPY);
-                             }
-                         }
+        menu.setOnAction(t -> TreeHelper.EventDrop(tree, tree.getCopyObjects(), obj, CopyObjectDialog.DefaultAction.COPY)
         );
         return menu;
     }
 
     private MenuItem buildCopy() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.copy"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
-        menu.setOnAction(new EventHandler<ActionEvent>() {
-
-                             @Override
-                             public void handle(ActionEvent t) {
-                                 tree.setCopyObject(obj, false);
-                             }
-                         }
+        menu.setOnAction(t -> tree.setCopyObjectsBySelection(false)
         );
         return menu;
     }
 
     private MenuItem buildCut() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.cut"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
-        menu.setOnAction(new EventHandler<ActionEvent>() {
-
-                             @Override
-                             public void handle(ActionEvent t) {
-                                 tree.setCopyObject(obj, true);
-                             }
-                         }
+        menu.setOnAction(t -> tree.setCopyObjectsBySelection(true)
         );
         return menu;
     }
 
     private MenuItem buildExport() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
-        menu.setOnAction(new EventHandler<ActionEvent>() {
-
-                             @Override
-                             public void handle(ActionEvent t) {
-
-
-                                 JsonExportDialog dia = new JsonExportDialog("Import", obj);
-                             }
-                         }
+        menu.setOnAction(t -> {
+                    JsonExportDialog dia = new JsonExportDialog("Import", obj);
+                }
         );
         return menu;
     }
@@ -245,6 +225,28 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 try {
                     LocalNameDialog localNameDialog = new LocalNameDialog(obj);
                     localNameDialog.show();
+                } catch (Exception ex) {
+                    logger.fatal(ex);
+                }
+            }
+        });
+
+        return menu;
+    }
+
+    public MenuItem buildManualSample() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("menu.file.import.manual"), ResourceLoader.getImage("if_textfield_add_64870.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    JEVisSample lastValue = obj.getAttribute("Value").getLatestSample();
+                    EnterDataDialog enterDataDialog = new EnterDataDialog(obj.getDataSource());
+                    enterDataDialog.setTarget(false, obj.getAttribute("Value"));
+                    enterDataDialog.setSample(lastValue);
+                    enterDataDialog.setShowValuePrompt(true);
+
+                    enterDataDialog.show();
                 } catch (Exception ex) {
                     logger.fatal(ex);
                 }

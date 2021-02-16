@@ -485,7 +485,10 @@ public abstract class Widget extends Region {
 
         try {
             Widget newWidget = this.getClass().getDeclaredConstructor(DashboardControl.class).newInstance(control);
-            //TODO clone WidgetPojo
+
+            ObjectNode json = this.toNode();
+            WidgetPojo newConfig = new WidgetPojo(json);
+            newWidget.updateConfig(newConfig);
             return newWidget;
         } catch (InstantiationException e) {
             e.printStackTrace();
