@@ -265,6 +265,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 this.label.setBackground(bgColor);
                 this.label.setTextFill(this.config.getFontColor());
                 this.label.setContentDisplay(ContentDisplay.CENTER);
+
+                //this.label.setAlignment(this.config.getTitlePosition());
             });
         });
 

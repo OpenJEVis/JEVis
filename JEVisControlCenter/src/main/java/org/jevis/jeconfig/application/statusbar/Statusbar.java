@@ -245,7 +245,7 @@ public class Statusbar extends ToolBar {
      * @param autoStart if ture the shared executor will start the task.
      */
     public void addTask(String owner, Task task, Image image, boolean autoStart) {
-        logger.debug("Starting new Task: {}", task);
+        logger.error("Starting new Task to statusbar: {}", task);
         imageList.put(task.toString(), image);
         task.stateProperty().addListener((observable, oldValue, newValue) -> {
             try {
@@ -272,10 +272,14 @@ public class Statusbar extends ToolBar {
      * @param owner
      */
     public void stopTasks(String owner) {
-
+        logger.debug("stopTasks for: {}", owner);
+        taskList.forEach((task, s) -> {
+            logger.debug("Task running: {} {}", s, task);
+        });
         taskList.forEach((task, s) -> {
             if (s.equals(owner)) {
                 try {
+                    logger.error("Cancel task: {}", task);
                     task.cancel(true);
                 } catch (Exception ex) {
                     ex.printStackTrace();

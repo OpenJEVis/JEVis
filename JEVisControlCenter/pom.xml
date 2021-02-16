@@ -157,12 +157,6 @@
             <artifactId>netty-codec</artifactId>
             <version>4.1.45.Final</version>
         </dependency>
-        <dependency>
-            <groupId>org.jevis.jeopc</groupId>
-            <artifactId>OPCUA-Driver</artifactId>
-            <version>1.0</version>
-            <!--<scope>compile</scope>-->
-        </dependency>
         <!-- nice javafx stuff
         <dependency>
             <groupId>no.tornado</groupId>
