@@ -20,6 +20,8 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextArea;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -28,10 +30,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
-import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -48,6 +48,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 import java.awt.*;
@@ -81,6 +82,7 @@ public class ExceptionDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(500);
         stage.setHeight(250);
@@ -113,17 +115,17 @@ public class ExceptionDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button("OK");
+        JFXButton ok = new JFXButton("OK");
         ok.setDefaultButton(true);
 
-        Button cancel = new Button("Cancel");
+        JFXButton cancel = new JFXButton("Cancel");
         cancel.setCancelButton(true);
 
-//        Button exit = new Button("Exit");
-        Button send = new Button("Report");
+//        JFXButton exit = new JFXButton("Exit");
+        JFXButton send = new JFXButton("Report");
 
-        Button details = new Button("Details");
-        Button copyAll = new Button("Copy all");
+        JFXButton details = new JFXButton("Details");
+        JFXButton copyAll = new JFXButton("Copy all");
 
         buttonPanel.getChildren().addAll(details, copyAll, send, ok, cancel);
         buttonPanel.setAlignment(Pos.CENTER_RIGHT);
@@ -263,7 +265,7 @@ public class ExceptionDialog {
         stage.setResizable(false);
 
         HBox infoBox = new HBox();
-        TextArea info = new TextArea(exceptionToString(ex));
+        JFXTextArea info = new JFXTextArea(exceptionToString(ex));
 
         info.setWrapText(false);
         info.setPrefColumnCount(50);
@@ -272,15 +274,15 @@ public class ExceptionDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button("Close");
+        JFXButton ok = new JFXButton("Close");
         ok.setCancelButton(true);
 
-        Button exit = new Button("Exit");
-        Button send = new Button("Report");
+        JFXButton exit = new JFXButton("Exit");
+        JFXButton send = new JFXButton("Report");
 
         send.setDefaultButton(true);
 
-        Button copyAll = new Button("Copy All");
+        JFXButton copyAll = new JFXButton("Copy All");
 
         buttonPanel.getChildren().addAll(copyAll, send, ok, exit);
         buttonPanel.setAlignment(Pos.CENTER_RIGHT);

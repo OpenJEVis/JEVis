@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.plugin.object.extension.OPC;
 
 
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -9,7 +11,10 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -32,15 +37,15 @@ import java.util.ArrayList;
 public class NodeTable {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(NodeTable.class);
-    private GridPane view = new GridPane();
-    private TableView<Node> tableView = new TableView<>();
-    private OPCClient opcClient;
-    private HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
-    private ObservableList<Node> list = FXCollections.observableArrayList();
-    private ObservableList<Node> filteredList = FXCollections.observableArrayList();
-    private CheckBox filterTrends = new CheckBox();
-    private TextField filterFieldGroup = new TextField();
-    private ObservableList<Node> nodeObservableList = FXCollections.observableArrayList();
+    private final GridPane view = new GridPane();
+    private final TableView<Node> tableView = new TableView<>();
+    private final OPCClient opcClient;
+    private final HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
+    private final ObservableList<Node> list = FXCollections.observableArrayList();
+    private final ObservableList<Node> filteredList = FXCollections.observableArrayList();
+    private final JFXCheckBox filterTrends = new JFXCheckBox();
+    private final JFXTextField filterFieldGroup = new JFXTextField();
+    private final ObservableList<Node> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
     private DataValueTable dataValueTable;
 
@@ -94,7 +99,7 @@ public class NodeTable {
         //_view.setRight(help);
 
 
-        //readCol.setCellFactory(param -> new CheckBoxTableCell<>());
+        //readCol.setCellFactory(param -> new JFXCheckBoxTableCell<>());
 
 
         try {
@@ -241,12 +246,7 @@ public class NodeTable {
             return true;
         } else if (node.pathProperty.get().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
             return true;
-        } else if (node.stringNodeID.toString().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
-            return true;
-        }
-
-
-        return false; // Does not match
+        } else return node.stringNodeID.toString().toLowerCase().indexOf(lowerCaseFilterString) != -1;// Does not match
     }
 
     public void setData() {

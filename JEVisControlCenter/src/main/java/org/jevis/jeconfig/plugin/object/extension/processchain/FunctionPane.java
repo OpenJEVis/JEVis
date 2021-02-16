@@ -5,6 +5,8 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -13,7 +15,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,9 +36,9 @@ import java.util.List;
 public class FunctionPane extends Region {
     private static final Logger logger = LogManager.getLogger(FunctionPane.class);
 
-    Button close = new Button("X");
+    JFXButton close = new JFXButton("X");
     final ChoiceBox functionBox = new ChoiceBox();
-    Button newB = new Button("", JEConfig.getImage("list-add.png", 12, 12));
+    JFXButton newB = new JFXButton("", JEConfig.getImage("list-add.png", 12, 12));
 
     public FunctionPane(Process thisTask) {
         logger.info("FunctionPane: {}", thisTask.getFunction().getName());
@@ -63,7 +67,7 @@ public class FunctionPane extends Region {
 
         //---------------------- body ------------------------
         Label functionName = new Label("ID:");
-        TextField nameField = new TextField();
+        JFXTextField nameField = new JFXTextField();
 //        Separator sep = new Separator(Orientation.HORIZONTAL_TOP_LEFT);
 
         AnchorPane bodySpcer = new AnchorPane();
@@ -83,7 +87,7 @@ public class FunctionPane extends Region {
 
             rowNr++;
             Label optionName = new Label(key);
-            TextField optionValue = new TextField(value);
+            JFXTextField optionValue = new JFXTextField(value);
             body.add(optionName, 0, rowNr);
             body.add(optionValue, 1, rowNr);
         }

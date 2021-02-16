@@ -20,27 +20,28 @@
  */
 package org.jevis.jeconfig.application.unit;
 
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXSlider;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import org.joda.time.Period;
 
 /**
- * @deprecated 
  * @author Florian Simon <florian.simon@envidatec.com>
+ * @deprecated
  */
 public class SampleRateNode extends GridPane {
 
-    private final Slider sliderMonth = new Slider();
-    private final Slider sliderWeek = new Slider();
-    private final Slider sliderHours = new Slider();
-    private final Slider sliderMinutes = new Slider();
-    private final Slider sliderSecounds = new Slider();
+    private final JFXSlider sliderMonth = new JFXSlider();
+    private final JFXSlider sliderWeek = new JFXSlider();
+    private final JFXSlider sliderHours = new JFXSlider();
+    private final JFXSlider sliderMinutes = new JFXSlider();
+    private final JFXSlider sliderSecounds = new JFXSlider();
 
     private Period _returnPeriod;
 
@@ -104,10 +105,10 @@ public class SampleRateNode extends GridPane {
         final Label minuteslabel = new Label("Minutes:");
         final Label secoundslabel = new Label("Secounds:");
         final Label periodLabel = new Label("Sample Rate:");
-        final TextField sampleRate = new TextField();
+        final JFXTextField sampleRate = new JFXTextField();
 
 //        Label enableLabel = new Label("Has fix sample rate:");
-        final CheckBox enable = new CheckBox("Set fixed sample rate");
+        final JFXCheckBox enable = new JFXCheckBox("Set fixed sample rate");
 
         setHgap(5);
         setVgap(5);
@@ -161,11 +162,7 @@ public class SampleRateNode extends GridPane {
             sliderSecounds.setValue(period.getSeconds());
             sampleRate.setText(period.toString());
 
-            if (period.equals(Period.ZERO)) {
-                enable.setSelected(false);
-            } else {
-                enable.setSelected(true);
-            }
+            enable.setSelected(!period.equals(Period.ZERO));
         }
 
         ChangeListener<Number> sliderChanged = new ChangeListener<Number>() {

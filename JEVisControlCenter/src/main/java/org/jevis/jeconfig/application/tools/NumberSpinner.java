@@ -1,12 +1,12 @@
 package org.jevis.jeconfig.application.tools;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
@@ -41,8 +41,8 @@ public class NumberSpinner extends HBox {
     private final NumberTextField numberField;
     private final ObjectProperty<BigDecimal> stepWitdhProperty = new SimpleObjectProperty<>();
     private final double ARROW_SIZE = 4;
-    private final Button incrementButton;
-    private final Button decrementButton;
+    private final JFXButton incrementButton;
+    private final JFXButton decrementButton;
     private final NumberBinding buttonHeight;
     private final NumberBinding spacing;
 
@@ -59,7 +59,7 @@ public class NumberSpinner extends HBox {
         this.setId(NUMBER_SPINNER);
         this.stepWitdhProperty.set(stepWidth);
 
-        // TextField
+        // JFXTextField
         numberField = new NumberTextField(value, nf);
         numberField.setId(NUMBER_FIELD);
         numberField.setPrefWidth(40);
@@ -104,7 +104,7 @@ public class NumberSpinner extends HBox {
         // inc/dec buttons
         VBox buttons = new VBox();
         buttons.setId(BUTTONS_BOX);
-        incrementButton = new Button();
+        incrementButton = new JFXButton();
         incrementButton.setId(SPINNER_BUTTON_UP);
         incrementButton.prefWidthProperty().bind(numberField.heightProperty());
         incrementButton.minWidthProperty().bind(numberField.heightProperty());
@@ -125,7 +125,7 @@ public class NumberSpinner extends HBox {
         incPane.getChildren().addAll(incrementButton, arrowUp);
         incPane.setAlignment(Pos.CENTER);
 
-        decrementButton = new Button();
+        decrementButton = new JFXButton();
         decrementButton.setId(SPINNER_BUTTON_DOWN);
         decrementButton.prefWidthProperty().bind(numberField.heightProperty());
         decrementButton.minWidthProperty().bind(numberField.heightProperty());

@@ -21,9 +21,6 @@ package org.jevis.commons.dataprocessing.function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
@@ -41,46 +38,12 @@ public class ConverterFunction implements ProcessFunction {
     public final static String NAME = "Converter";
     public static final String MULTIPLAYER = "multiplier";
     public static final String OFFSET = "offset";
-    private List<JEVisSample> _result;
     private List<JsonSample> _jsonResult;
     private JsonSampleGenerator jsonSampleGenerator;
 
     @Override
     public void resetResult() {
-        _result = null;
-    }
-
-    @Override
-    public List<JEVisSample> getResult(Process mainTask) {
-        if (_result != null) {
-            return _result;
-        } else {
-            _result = new ArrayList<>();
-
-            double m = 1;
-            double b = 0;
-
-            m = Double.parseDouble(ProcessOptions.GetLatestOption(mainTask, MULTIPLAYER, new BasicProcessOption(MULTIPLAYER, "1")).getValue());//TYPO MULTIPLAYER
-            b = Double.parseDouble(ProcessOptions.GetLatestOption(mainTask, OFFSET, new BasicProcessOption(OFFSET, "0")).getValue());
-
-            if (mainTask.getSubProcesses().size() != 1) {
-                logger.info("Waring Counter processor can only handel one input. using first only!");
-            }
-
-            logger.info("Using M:" + m + "  B:" + b);
-            for (JEVisSample sample : mainTask.getSubProcesses().get(0).getResult()) {
-
-                try {
-                    double sum = (sample.getValueAsDouble() * m) + b;
-//                    logger.info("TS: " + sample.getTimestamp() + " new Value: " + sum);
-                    _result.add(new VirtualSample(sample.getTimestamp(), sum, mainTask.getJEVisDataSource(), new VirtualAttribute(null)));
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
-                }
-            }
-
-        }
-        return _result;
+        _jsonResult = null;
     }
 
     @Override

@@ -20,6 +20,9 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -31,7 +34,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -48,6 +52,7 @@ import org.jevis.commons.dimpex.DimpEX;
 import org.jevis.commons.dimpex.DimpExfactory;
 import org.jevis.commons.dimpex.DimpexObject;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 import java.io.File;
@@ -71,11 +76,11 @@ public class JsonExportDialog {
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
         Label destinationL = new Label("File:");
-        final TextField destinationF = new TextField();
-        final Button fileSelect = new Button("Change...");
-        final CheckBox allChildren = new CheckBox("Include all sub-Objects");
-        final CheckBox allSamples = new CheckBox("Include all Samples");
-        final CheckBox attributes = new CheckBox("Include Configuration");
+        final JFXTextField destinationF = new JFXTextField();
+        final JFXButton fileSelect = new JFXButton("Change...");
+        final JFXCheckBox allChildren = new JFXCheckBox("Include all sub-Objects");
+        final JFXCheckBox allSamples = new JFXCheckBox("Include all Samples");
+        final JFXCheckBox attributes = new JFXCheckBox("Include Configuration");
         allSamples.setDisable(true);
 
         HBox fileBox = new HBox(5);
@@ -113,6 +118,7 @@ public class JsonExportDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(500);
         stage.setHeight(300);
@@ -146,11 +152,11 @@ public class JsonExportDialog {
 
         HBox buttonPanel = new HBox();
 
-        final Button ok = new Button("Export");
+        final JFXButton ok = new JFXButton("Export");
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        Button cancel = new Button("Cancel");
+        JFXButton cancel = new JFXButton("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

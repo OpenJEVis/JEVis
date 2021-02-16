@@ -20,7 +20,10 @@
  */
 package org.jevis.jeconfig.application.statusbar;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPopup;
+import com.jfoenix.controls.JFXProgressBar;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -81,14 +84,14 @@ public class Statusbar extends ToolBar {
     private final ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
     private final ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
     private JEVisDataSource _ds;
-    private final Tooltip tt = new Tooltip("Warning:\nConnection to server lost. Trying to reconnect...  ");
+    private final Tooltip tt = new JFXTooltip("Warning:\nConnection to server lost. Trying to reconnect...  ");
     private int retryCount = 0;
-    private final ProgressBar progressBar = new ProgressBar();
+    private final JFXProgressBar progressBar = new JFXProgressBar();
     private final HBox progressbox = new HBox();
     private final Label messageBox = new Label();
     private final TaskProgressView taskProgressView = new TaskProgressView();
     private final JFXPopup popup = new JFXPopup();
-    private final Button showTaskViewButton = new Button("", JEConfig.getImage("TaskList.png", 15, 15));
+    private final JFXButton showTaskViewButton = new JFXButton("", JEConfig.getImage("TaskList.png", 15, 15));
     private final Map<String, Image> imageList = new HashMap<>();
     private boolean hideTaskList = false;
     private final Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
@@ -361,7 +364,7 @@ public class Statusbar extends ToolBar {
         versionNumber.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != newValue) {
                 try {
-                    Tooltip tooltip = new Tooltip(((new Date()).getTime() - JEConfig.startDate.getTime()) + "ms");
+                    Tooltip tooltip = new JFXTooltip(((new Date()).getTime() - JEConfig.startDate.getTime()) + "ms");
                     versionNumber.setTooltip(tooltip);
                 } catch (Exception ex) {
                 }
@@ -405,7 +408,7 @@ public class Statusbar extends ToolBar {
 
         sinfo += "\nMemory usage: " + numberFormate.format(memNumber) + " mb";
 
-        Tooltip serverTip = new Tooltip("Connection Info:\n"
+        Tooltip serverTip = new JFXTooltip("Connection Info:\n"
                 + sinfo);
         this.onlineInfo.setTooltip(serverTip);
 

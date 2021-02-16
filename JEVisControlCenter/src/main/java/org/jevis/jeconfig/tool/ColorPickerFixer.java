@@ -1,10 +1,11 @@
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import com.sun.javafx.scene.control.skin.CustomColorDialog;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 
 import java.lang.reflect.Field;
 
@@ -18,7 +19,7 @@ public class ColorPickerFixer {
 
 //            List<Field> privateFields = new ArrayList<>();
 
-            Field[] fields = CheckBox.class.getDeclaredFields();
+            Field[] fields = JFXCheckBox.class.getDeclaredFields();
             for (Field field : fields) {
 //                if (Modifier.isPrivate(field.getModifiers())) {
 //                    field.setAccessible(true);
@@ -53,13 +54,18 @@ public class ColorPickerFixer {
 //            }
 
 
-            Button buttonShowColorPicker = new Button("Show custom color dialog!");
+            JFXButton buttonShowColorPicker = new JFXButton("Show custom color dialog!");
             buttonShowColorPicker.setOnAction(actionEvent -> {
                 CustomColorDialog customColorDialog = new CustomColorDialog(JEConfig.getStage());
                 customColorDialog.show();
             });
 
             CustomColorDialog customColorDialog = new CustomColorDialog(JEConfig.getStage());
+            customColorDialog.sceneProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    TopMenu.applyActiveTheme(customColorDialog.getScene());
+                }
+            });
             customColorDialog.show();
 
 //            Stage newStage = new Stage();

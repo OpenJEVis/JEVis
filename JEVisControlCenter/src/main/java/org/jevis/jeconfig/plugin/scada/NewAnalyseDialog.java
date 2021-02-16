@@ -20,6 +20,8 @@
  */
 package org.jevis.jeconfig.plugin.scada;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -60,7 +62,7 @@ public class NewAnalyseDialog {
     private JEVisObject selectedParent;
     private String createName = "No Name";
     private Response response = Response.CANCEL;
-    private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
+    private final ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
 
     /**
      * @param owner
@@ -93,7 +95,7 @@ public class NewAnalyseDialog {
         int x = 0;
 
         Label lName = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        final TextField fName = new TextField();
+        final JFXTextField fName = new JFXTextField();
         fName.setPromptText(I18n.getInstance().getString("jevistree.dialog.new.name.prompt"));
 
 
@@ -146,7 +148,7 @@ public class NewAnalyseDialog {
             }
         };
 
-        final ComboBox<JEVisObject> comboBox = new ComboBox<>(optionsParents);
+        final JFXComboBox<JEVisObject> comboBox = new JFXComboBox<>(optionsParents);
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 
@@ -188,7 +190,7 @@ public class NewAnalyseDialog {
         Platform.runLater(() -> fName.requestFocus());
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.FINISH.getButtonData().getTypeCode())) {
 
                         createName = fName.getText();
 

@@ -9,7 +9,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
-import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -29,7 +28,6 @@ public class TimeFrames {
 
     private static final Logger logger = LogManager.getLogger(TimeFrames.class);
     private JEVisDataSource ds;
-    private WorkDays workDays = new WorkDays(null);
     private final ObservableList<TimeFrameFactory> list = FXCollections.observableArrayList();
 
     public TimeFrames(JEVisDataSource ds) {
@@ -152,9 +150,6 @@ public class TimeFrames {
                 dateHelper.setCustomPeriodObject(cpo);
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
 
-                dateHelper.setStartTime(TimeFrames.this.workDays.getWorkdayStart());
-                dateHelper.setEndTime(TimeFrames.this.workDays.getWorkdayEnd());
-
                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
                 newTimeFrame.setTimeFrame(TimeFrame.CUSTOM_START_END);
                 newTimeFrame.setId(cpo.getObject().getID());
@@ -183,15 +178,6 @@ public class TimeFrames {
 
         };
     }
-
-    /**
-     * Enable workdays support by given an object (Clean/Raw) form which we get the corresponding
-     * building and its workday settings.
-     */
-    public void setWorkdays(JEVisObject object) {
-        this.workDays = new WorkDays(object);
-    }
-
 
     public TimeFrameFactory custom() {
         return new TimeFrameFactory() {
@@ -300,7 +286,7 @@ public class TimeFrames {
                 }
                 DateTime start = dateTime.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 DateTime end = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
-                return getWorkdayInterval(start, end);
+                return new Interval(start, end);
             }
 
             @Override
@@ -319,28 +305,10 @@ public class TimeFrames {
 
     private Interval removeWorkdayInterval(Interval interval) {
         DateTime workStart = interval.getStart();
-        if (this.workDays.getWorkdayStart().isAfter(this.workDays.getWorkdayEnd())) {
-            workStart = workStart.plusDays(1);
-        }
 
         workStart = workStart.withHourOfDay(0).withMinuteOfHour(0);
         DateTime workEnd = interval.getEnd().withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
         return new Interval(workStart, workEnd);
-    }
-
-    private Interval getWorkdayInterval(DateTime start, DateTime end) {
-
-        DateTime workStart = start;
-        if (this.workDays.getWorkdayStart().isAfter(this.workDays.getWorkdayEnd())) {
-            workStart = start.minusDays(1);
-        }
-        workStart = workStart.withHourOfDay(this.workDays.getWorkdayStart().getHour()).withMinuteOfHour(this.workDays.getWorkdayStart().getMinute());
-        DateTime workEnd = end.withHourOfDay(this.workDays.getWorkdayEnd().getHour()).withMinuteOfHour(this.workDays.getWorkdayEnd().getMinute());
-
-//        DateTime workEnd = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), workDays.getWorkdayEnd().getHour(), workDays.getWorkdayEnd().getMinute(), 59, 999);
-
-        return new Interval(workStart, workEnd);
-
     }
 
     public TimeFrameFactory week() {
@@ -387,7 +355,7 @@ public class TimeFrames {
                 }
                 DateTime start = dateTime.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 DateTime end = dateTime.withDayOfWeek(7).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
-                return getWorkdayInterval(start, end);
+                return new Interval(start, end);
             }
 
             @Override
@@ -454,7 +422,7 @@ public class TimeFrames {
                 DateTime end = new DateTime(dateTime.getYear(), dateTime.getMonthOfYear(), lastDayInMonth, 23, 59, 59, 999);
 
                 //                return new Interval(start, end);
-                return getWorkdayInterval(start, end);
+                return new Interval(start, end);
             }
 
             @Override
@@ -521,7 +489,7 @@ public class TimeFrames {
                 DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999);
 
-                return getWorkdayInterval(start, end);
+                return new Interval(start, end);
             }
 
             @Override
@@ -588,7 +556,7 @@ public class TimeFrames {
                 DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(3);
                 DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999).minusYears(1);
 
-                return getWorkdayInterval(start, end);
+                return new Interval(start, end);
             }
 
             @Override
@@ -655,7 +623,7 @@ public class TimeFrames {
                 DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(5);
                 DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999).minusYears(1);
 
-                return getWorkdayInterval(start, end);
+                return new Interval(start, end);
             }
 
             @Override
@@ -722,7 +690,7 @@ public class TimeFrames {
                 DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(5);
                 DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999).minusYears(1);
 
-                return getWorkdayInterval(start, end);
+                return new Interval(start, end);
             }
 
             @Override
@@ -738,7 +706,6 @@ public class TimeFrames {
 
         };
     }
-
 
     public enum TimeFrameType {
         DAY, WEEK, MONTH, YEAR, CUSTOM

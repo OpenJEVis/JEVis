@@ -19,16 +19,16 @@
  */
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXTextArea;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Separator;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -40,6 +40,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 
 import java.util.prefs.Preferences;
 
@@ -693,7 +694,7 @@ public class PatchNotesPage {
                     "\n" +
                     "JEDataCollector - improved logging\n" +
                     "JEVis - Add JEVisObject name localization - used in renaming dialog";
-    CheckBox remember = new CheckBox(I18n.getInstance().getString("welcome.dontshow"));
+    JFXCheckBox remember = new JFXCheckBox(I18n.getInstance().getString("welcome.dontshow"));
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
     private final boolean isLoading = true;
 
@@ -726,9 +727,10 @@ public class PatchNotesPage {
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
 
-        TextArea page = new TextArea(versionHistory);
+        JFXTextArea page = new JFXTextArea(versionHistory);
 
         root.getChildren().add(new Separator(Orientation.HORIZONTAL));
         root.getChildren().add(page);
@@ -740,7 +742,7 @@ public class PatchNotesPage {
         bot.setAlignment(Pos.BOTTOM_RIGHT);
         bot.setSpacing(5);
         bot.setPadding(new Insets(10));
-        Button close = new Button(I18n.getInstance().getString("welcome.close"));
+        JFXButton close = new JFXButton(I18n.getInstance().getString("welcome.close"));
         close.setCancelButton(true);
         close.setDefaultButton(true);
 

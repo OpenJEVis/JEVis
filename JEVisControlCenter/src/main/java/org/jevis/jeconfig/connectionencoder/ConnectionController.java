@@ -5,18 +5,19 @@
  */
 package org.jevis.jeconfig.connectionencoder;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyEvent;
 import org.jevis.commons.cli.ConnectionEncoder;
+
+import java.net.URL;
+import java.util.ResourceBundle;
 
 /**
  * FXML Controller class
@@ -34,25 +35,25 @@ public class ConnectionController implements Initializable {
     }
 
     @FXML
-    private TextField host;
+    private JFXTextField host;
 
     @FXML
-    private TextField port;
+    private JFXTextField port;
 
     @FXML
-    private TextField result;
+    private JFXTextField result;
 
     @FXML
-    private TextField schema;
+    private JFXTextField schema;
 
     @FXML
-    private TextField user;
+    private JFXTextField user;
 
     @FXML
-    private PasswordField passwd;
+    private JFXPasswordField passwd;
 
     @FXML
-    private Button CopyCon;
+    private JFXButton CopyCon;
 
     @FXML
     void onChanged(KeyEvent event) {

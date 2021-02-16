@@ -1,11 +1,11 @@
 package org.jevis.jeconfig.plugin.dashboard.wizard;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
@@ -25,10 +26,10 @@ public class Wizard {
 
     private final JEVisDataSource jeVisDataSource;
     public ObjectProperty<Widget> selectedWidget = new SimpleObjectProperty<>();
-    private final Button nextButton = new Button("Next");
-    private final Button previousButton = new Button("Previous");
-    private final Button finishButton = new Button("Finish");
-    private final Button cancelButton = new Button("Cancel");
+    private final JFXButton nextButton = new JFXButton("Next");
+    private final JFXButton previousButton = new JFXButton("Previous");
+    private final JFXButton finishButton = new JFXButton("Finish");
+    private final JFXButton cancelButton = new JFXButton("Cancel");
     private final BorderPane rootPane = new BorderPane();
     private final AnchorPane contentPane = new AnchorPane();
     private final VBox bottomContent = new VBox(10);
@@ -148,6 +149,7 @@ public class Wizard {
         AnchorPane.setRightAnchor(this.contentPane, 5.0);
 
         Scene scene = new Scene(this.rootPane, 600, 700);
+        TopMenu.applyActiveTheme(scene);
         Stage newWindow = new Stage();
 
         newWindow.setTitle("dashboard Wizard");

@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.equipment;
 
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -39,7 +40,10 @@ import org.jevis.jeconfig.plugin.meters.JEVisClassTab;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
 
@@ -281,11 +285,11 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
 
-        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.reload.tooltip")));
-        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.save.tooltip")));
-        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.new.tooltip")));
-        replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.replace.tooltip")));
-        printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.tooltip.print")));
+        reload.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.reload.tooltip")));
+        save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.save.tooltip")));
+        newButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.new.tooltip")));
+        replaceButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.replace.tooltip")));
+        printButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.tooltip.print")));
 
 
         toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
@@ -295,7 +299,7 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
 
     @Override
     public String getClassName() {
-        return "Meter Plugin";
+        return "Equipment Plugin";
     }
 
     @Override
@@ -521,11 +525,11 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
                             AlphanumComparator ac = new AlphanumComparator();
 
                             tableView.setFixedCellSize(EDITOR_MAX_HEIGHT);
-                            tableView.setSortPolicy(param -> {
-                                Comparator<RegisterTableRow> comparator = (t1, t2) -> ac.compare(t1.getObject().getName(), t2.getObject().getName());
-                                FXCollections.sort(tableView.getItems(), comparator);
-                                return true;
-                            });
+//                            tableView.setSortPolicy(param -> {
+//                                Comparator<RegisterTableRow> comparator = (t1, t2) -> ac.compare(t1.getObject().getName(), t2.getObject().getName());
+//                                Platform.runLater(() -> FXCollections.sort(tableView.getItems(), comparator));
+//                                return true;
+//                            });
                             tableView.setTableMenuButtonVisible(true);
 
                             tab.setClosable(false);
@@ -584,7 +588,7 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
 
                             FilteredList<RegisterTableRow> filteredList = new FilteredList<>(registerTableRows, s -> true);
                             addListener(filteredList);
-                            tableView.setItems(filteredList);
+                            Platform.runLater(() -> tableView.setItems(filteredList));
                             this.succeeded();
                         } catch (Exception e) {
                             logger.error(e);

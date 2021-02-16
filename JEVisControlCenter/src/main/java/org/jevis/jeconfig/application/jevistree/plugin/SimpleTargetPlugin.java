@@ -5,11 +5,11 @@
  */
 package org.jevis.jeconfig.application.jevistree.plugin;
 
+import com.jfoenix.controls.JFXCheckBox;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Pos;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.StackPane;
@@ -36,11 +36,11 @@ public class SimpleTargetPlugin implements TreePlugin {
     public static String TARGET_COLUMN_ID = "targetcolumn";
     private JEVisTree _tree;
     private List<UserSelection> _preselect = new ArrayList<>();
-    private List<SimpleTargetPluginData> _data = new ArrayList<>();
+    private final List<SimpleTargetPluginData> _data = new ArrayList<>();
     private boolean allowMultiSelection = false;
-    private BooleanProperty validProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty validProperty = new SimpleBooleanProperty(false);
     private MODE mode = MODE.OBJECT;
-    private SimpleFilter filter = null;
+    private final SimpleFilter filter = null;
 
 
     @Override
@@ -185,7 +185,7 @@ public class SimpleTargetPlugin implements TreePlugin {
 
                                         StackPane stackPane = new StackPane();
                                         StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
-                                        CheckBox box = new CheckBox();
+                                        JFXCheckBox box = new JFXCheckBox();
                                         stackPane.getChildren().add(box);
 
                                         if (isPreselected(getTreeTableRow().getItem())) {

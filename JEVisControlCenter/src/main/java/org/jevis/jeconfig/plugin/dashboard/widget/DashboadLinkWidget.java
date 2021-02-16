@@ -39,9 +39,9 @@ public class DashboadLinkWidget extends Widget {
 
     public static String DASHBOARD_LINKER_NODE_NAME = "dashboardLinker";
     public static String WIDGET_ID = "Dashboard-Link";
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(DashboadLinkWidget.class);
-    private AnchorPane anchorPane = new AnchorPane();
+    private final AnchorPane anchorPane = new AnchorPane();
     private JsonNode linkerNode;
 //    private GraphAnalysisLinkerNode dataModelNode;
 
@@ -90,6 +90,8 @@ public class DashboadLinkWidget extends Widget {
 
             selectedTimeFrameFactory = control.getActiveDashboard().getTimeFrame();
 //            linkedDashboardObj = getDataSource().getObject(3799l);
+
+            linkButton.setStyle("-fx-background-color: transparent;");
 
             linkButton.setOnAction(event -> {
                 if (linkedDashboardObj != null) {

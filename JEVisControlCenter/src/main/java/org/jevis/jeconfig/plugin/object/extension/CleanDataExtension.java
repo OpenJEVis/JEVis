@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -190,7 +192,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Conversion to Differential
          */
         Label nameConversionToDifferential = new Label(I18nWS.getInstance().getAttributeName(conversionToDifferentialAttribute));
-        Tooltip ttConversionToDifferential = new Tooltip(I18nWS.getInstance().getAttributeDescription(conversionToDifferentialAttribute));
+        Tooltip ttConversionToDifferential = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(conversionToDifferentialAttribute));
         if (!ttConversionToDifferential.getText().isEmpty()) {
             nameConversionToDifferential.setTooltip(ttConversionToDifferential);
         }
@@ -205,7 +207,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Enabled
          */
         Label nameEnabled = new Label(I18nWS.getInstance().getAttributeName(enabledAttribute));
-        Tooltip ttEnabled = new Tooltip(I18nWS.getInstance().getAttributeDescription(enabledAttribute));
+        Tooltip ttEnabled = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(enabledAttribute));
         if (!ttEnabled.getText().isEmpty()) {
             nameEnabled.setTooltip(ttConversionToDifferential);
         }
@@ -218,7 +220,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         /**
          * Calculate now
          */
-        Button calcCow = new Button(I18n.getInstance().getString("plugin.object.cleandata.reclean"));
+        JFXButton calcCow = new JFXButton(I18n.getInstance().getString("plugin.object.cleandata.reclean"));
         calcCow.setOnAction(buttonEvent -> {
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -239,7 +241,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Limits
          */
         Label nameLimitsEnabled = new Label(I18nWS.getInstance().getAttributeName(limitsEnabledAttribute));
-        Tooltip ttLimitsEnabled = new Tooltip(I18nWS.getInstance().getAttributeDescription(limitsEnabledAttribute));
+        Tooltip ttLimitsEnabled = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(limitsEnabledAttribute));
         if (!ttLimitsEnabled.getText().isEmpty()) {
             nameLimitsEnabled.setTooltip(ttLimitsEnabled);
         }
@@ -249,7 +251,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         }
 
         Label nameLimitsConfiguration = new Label(I18nWS.getInstance().getAttributeName(limitsConfigurationAttribute));
-        Tooltip ttLimitsConfiguration = new Tooltip(I18nWS.getInstance().getAttributeDescription(limitsConfigurationAttribute));
+        Tooltip ttLimitsConfiguration = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(limitsConfigurationAttribute));
         if (!ttLimitsConfiguration.getText().isEmpty()) {
             nameLimitsConfiguration.setTooltip(ttLimitsConfiguration);
         }
@@ -259,7 +261,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Gaps
          */
         Label nameGapsEnabled = new Label(I18nWS.getInstance().getAttributeName(gapFillingEnabledAttribute));
-        Tooltip ttGapsEnabled = new Tooltip(I18nWS.getInstance().getAttributeDescription(gapFillingEnabledAttribute));
+        Tooltip ttGapsEnabled = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(gapFillingEnabledAttribute));
         if (!ttGapsEnabled.getText().isEmpty()) {
             nameGapsEnabled.setTooltip(ttGapsEnabled);
         }
@@ -269,7 +271,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         }
 
         Label nameGapsConfiguration = new Label(I18nWS.getInstance().getAttributeName(gapFillingConfigAttribute));
-        Tooltip ttGapsConfiguration = new Tooltip(I18nWS.getInstance().getAttributeDescription(gapFillingConfigAttribute));
+        Tooltip ttGapsConfiguration = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(gapFillingConfigAttribute));
         if (!ttGapsConfiguration.getText().isEmpty()) {
             nameGapsConfiguration.setTooltip(ttGapsConfiguration);
         }
@@ -279,7 +281,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Alarm
          */
         Label nameAlarmEnabled = new Label(I18nWS.getInstance().getAttributeName(alarmEnabledAttribute));
-        Tooltip ttAlarmEnabled = new Tooltip(I18nWS.getInstance().getAttributeDescription(alarmEnabledAttribute));
+        Tooltip ttAlarmEnabled = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(alarmEnabledAttribute));
         if (!ttAlarmEnabled.getText().isEmpty()) {
             nameAlarmEnabled.setTooltip(ttAlarmEnabled);
         }
@@ -289,14 +291,14 @@ public class CleanDataExtension implements ObjectEditorExtension {
         }
 
         Label nameAlarmConfiguration = new Label(I18nWS.getInstance().getAttributeName(alarmConfigAttribute));
-        Tooltip ttAlarmConfiguration = new Tooltip(I18nWS.getInstance().getAttributeDescription(alarmConfigAttribute));
+        Tooltip ttAlarmConfiguration = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(alarmConfigAttribute));
         if (!ttAlarmConfiguration.getText().isEmpty()) {
             nameAlarmConfiguration.setTooltip(ttAlarmConfiguration);
         }
         AlarmEditor alarmConfiguration = new AlarmEditor(alarmConfigAttribute);
 
         Label nameAlarmLog = new Label(I18nWS.getInstance().getAttributeName(alarmLogAttribute));
-        Tooltip ttAlarmLog = new Tooltip(I18nWS.getInstance().getAttributeDescription(alarmLogAttribute));
+        Tooltip ttAlarmLog = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(alarmLogAttribute));
         if (!ttAlarmLog.getText().isEmpty()) {
             nameAlarmLog.setTooltip(ttAlarmLog);
         }
@@ -314,7 +316,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          */
 
         Label namePeriod = new Label(I18nWS.getInstance().getAttributeName(periodAttribute));
-        Tooltip ttPeriod = new Tooltip(I18nWS.getInstance().getAttributeDescription(periodAttribute));
+        Tooltip ttPeriod = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(periodAttribute));
         if (!ttPeriod.getText().isEmpty()) {
             namePeriod.setTooltip(ttPeriod);
         }
@@ -340,7 +342,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Period Alignment
          */
         Label namePeriodAlignment = new Label(I18nWS.getInstance().getAttributeName(periodAlignmentAttribute));
-        Tooltip ttPeriodAlignment = new Tooltip(I18nWS.getInstance().getAttributeDescription(periodAlignmentAttribute));
+        Tooltip ttPeriodAlignment = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(periodAlignmentAttribute));
         if (!ttPeriodAlignment.getText().isEmpty()) {
             namePeriodAlignment.setTooltip(ttPeriodAlignment);
         }
@@ -354,7 +356,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Period Offset
          */
         Label namePeriodOffset = new Label(I18nWS.getInstance().getAttributeName(periodOffsetAttribute));
-        Tooltip ttPeriodOffset = new Tooltip(I18nWS.getInstance().getAttributeDescription(periodOffsetAttribute));
+        Tooltip ttPeriodOffset = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(periodOffsetAttribute));
         if (!ttPeriodOffset.getText().isEmpty()) {
             namePeriodOffset.setTooltip(ttPeriodOffset);
         }
@@ -368,7 +370,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Value is a Quantity
          */
         Label nameValueIsAQuantity = new Label(I18nWS.getInstance().getAttributeName(valueIsAQuantityAttribute));
-        Tooltip ttValueIsAQuantity = new Tooltip(I18nWS.getInstance().getAttributeDescription(valueIsAQuantityAttribute));
+        Tooltip ttValueIsAQuantity = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(valueIsAQuantityAttribute));
         if (!ttValueIsAQuantity.getText().isEmpty()) {
             nameValueIsAQuantity.setTooltip(ttValueIsAQuantity);
         }
@@ -382,7 +384,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Value Multiplier
          */
         Label nameValueMultiplier = new Label(I18nWS.getInstance().getAttributeName(valueMultiplierAttribute));
-        Tooltip ttValueMultiplier = new Tooltip(I18nWS.getInstance().getAttributeDescription(valueMultiplierAttribute));
+        Tooltip ttValueMultiplier = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(valueMultiplierAttribute));
         if (!ttValueMultiplier.getText().isEmpty()) {
             nameValueMultiplier.setTooltip(ttValueMultiplier);
         }
@@ -398,7 +400,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Value
          */
         Label nameValue = new Label(I18nWS.getInstance().getAttributeName(valueAttribute));
-        Tooltip ttValue = new Tooltip(I18nWS.getInstance().getAttributeDescription(valueAttribute));
+        Tooltip ttValue = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(valueAttribute));
         if (!ttValue.getText().isEmpty()) {
             nameValue.setTooltip(ttValue);
         }
@@ -423,7 +425,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Value Offset
          */
         Label nameValueOffset = new Label(I18nWS.getInstance().getAttributeName(valueOffsetAttribute));
-        Tooltip ttValueOffset = new Tooltip(I18nWS.getInstance().getAttributeDescription(valueOffsetAttribute));
+        Tooltip ttValueOffset = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(valueOffsetAttribute));
         if (!ttValueOffset.getText().isEmpty()) {
             nameValueOffset.setTooltip(ttValueOffset);
         }
@@ -437,7 +439,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
          *  Counter Overflow
          */
         Label nameCounterOverflow = new Label(I18nWS.getInstance().getAttributeName(counterOverflowAttribute));
-        Tooltip ttCounterOverflow = new Tooltip(I18nWS.getInstance().getAttributeDescription(counterOverflowAttribute));
+        Tooltip ttCounterOverflow = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(counterOverflowAttribute));
         if (!ttCounterOverflow.getText().isEmpty()) {
             nameCounterOverflow.setTooltip(ttCounterOverflow);
         }

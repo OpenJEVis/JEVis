@@ -1,9 +1,9 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
@@ -20,7 +20,7 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,7 +127,7 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
                                     imageMarkAll.fitHeightProperty().set(13);
                                     imageMarkAll.fitWidthProperty().set(13);
 
-                                    Button tb = new Button("", imageMarkAll);
+                                    JFXButton tb = new JFXButton("", imageMarkAll);
 
                                     tb.setTooltip(tooltipMarkAll);
 
@@ -184,9 +184,9 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
         Platform.runLater(() -> {
             Label label = new Label(columnName);
             label.setWrapText(true);
-            //label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.tabs.tab.charttype.tip")));
+            //label.setTooltip(new  JFXTooltip(I18n.getInstance().getString("graph.tabs.tab.charttype.tip")));
             chartTypeColumn.setGraphic(label);
-            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
+            JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
 
         });
 

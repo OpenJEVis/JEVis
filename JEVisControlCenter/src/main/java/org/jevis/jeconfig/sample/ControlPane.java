@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.sample;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -8,7 +10,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
@@ -25,7 +26,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
@@ -37,7 +37,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -47,13 +46,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ControlPane extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(ControlPane.class);
-    private final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
+    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("attribute.editor.save"));
     private final JFXDatePicker startDate = new JFXDatePicker();
     private final JFXDatePicker endDate = new JFXDatePicker();
-    private final Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
+    private final JFXButton cancel = new JFXButton(I18n.getInstance().getString("attribute.editor.cancel"));
 
-    private final Button reloadButton = new Button("", JEConfig.getImage("1403018303_Refresh.png", 12, 12));
-    private final Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
+    private final JFXButton reloadButton = new JFXButton("", JEConfig.getImage("1403018303_Refresh.png", 12, 12));
+    private final Tooltip reloadTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
     private final Label timeHeader = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
     private final Label processorHeader = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));
     private final Label dataProcessorLabel = new Label(I18n.getInstance().getString("attribute.editor.processor"));
@@ -73,13 +72,11 @@ public class ControlPane extends GridPane {
     private final TimeZoneBox timeZoneBox = new TimeZoneBox();
     private DateTimeZone dateTimeZone = DateTimeZone.getDefault();
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(dateTimeZone);
-    private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
-    private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisAttribute attribute;
     private AggregationPeriod period = AggregationPeriod.NONE;
     private EventHandler<ActionEvent> okEvent;
     private EventHandler<ActionEvent> cancelEvent;
-    private final AtomicBoolean updateing = new AtomicBoolean(false);
+    private final AtomicBoolean updating = new AtomicBoolean(false);
     private final Separator separator = new Separator(Orientation.HORIZONTAL);
     private DateTime from = null;
     private DateTime until = null;
@@ -194,14 +191,11 @@ public class ControlPane extends GridPane {
                 logger.error(ex);
             }
         }
-        WorkDays wd = new WorkDays(attribute.getObject());
-        if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
-        if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
     }
 
 
     private void updateView() {
-        updateing.set(true);
+        updating.set(true);
         if (from != null && until != null) {
             try {
                 logger.debug("updateView from: '{}' until: '{}'", from, until);
@@ -212,8 +206,8 @@ public class ControlPane extends GridPane {
                 long duration = attribute.getTimestampFromLastSample().getMillis() - attribute.getTimestampFromFirstSample().getMillis();
 
 
-                Tooltip minTSTooltip = new Tooltip(attribute.getTimestampFromFirstSample().toString());
-                Tooltip maxTSTooltip = new Tooltip(attribute.getTimestampFromLastSample().toString());
+                Tooltip minTSTooltip = new JFXTooltip(attribute.getTimestampFromFirstSample().toString());
+                Tooltip maxTSTooltip = new JFXTooltip(attribute.getTimestampFromLastSample().toString());
                 startDate.setTooltip(minTSTooltip);
                 endDate.setTooltip(maxTSTooltip);
 
@@ -234,7 +228,7 @@ public class ControlPane extends GridPane {
         }
 
 
-        updateing.set(false);
+        updating.set(false);
     }
 
 
@@ -258,8 +252,8 @@ public class ControlPane extends GridPane {
      * @param event
      */
     private void timeChanged(ActionEvent event) {
-        logger.debug("timeChanged: {},updateing: {}", event, updateing.get());
-        if (!updateing.get()) {
+        logger.debug("timeChanged: {},updateing: {}", event, updating.get());
+        if (!updating.get()) {
             logger.debug("Is not updating: {}", timeChangeEvent);
 
             if (timeChangeEvent != null) timeChangeEvent.handle(event);
@@ -282,10 +276,6 @@ public class ControlPane extends GridPane {
                     try {
                         DateTime fromDate = getFromDate();
                         DateTime untilDate = getUntilDate();
-
-                        if (workdayStart.isAfter(workdayEnd) && aggregationField.getSelectionModel().getSelectedItem().equals(AggregationPeriod.NONE)) {
-                            fromDate = fromDate.minusDays(1);
-                        }
 
                         if (fromDate.isBefore(untilDate)) {
                             if (period != AggregationPeriod.NONE) {
@@ -378,7 +368,7 @@ public class ControlPane extends GridPane {
     public void setFromDate(DateTime from) {
 
 
-        updateing.set(true);
+        updating.set(true);
         this.from = from;
 
         //new DateTime(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 0, 0).withZone(dateTimeZone);
@@ -387,16 +377,16 @@ public class ControlPane extends GridPane {
         startDate.setValue(localDate);
 //        dateSlider.setLowValue(from.getMillis());
 
-        updateing.set(false);
+        updating.set(false);
     }
 
     public void setUntilDate(DateTime until) {
-        updateing.set(true);
+        updating.set(true);
         this.until = until;
         LocalDate localDate = LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth());
         endDate.setValue(localDate);
 //        dateSlider.setHighValue(until.getMillis());
-        updateing.set(false);
+        updating.set(false);
 
     }
 
@@ -416,7 +406,7 @@ public class ControlPane extends GridPane {
 
         startDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             logger.error("startDate event");
-            if (!updateing.get()) {
+            if (!updating.get()) {
                 DateTime fromDate = new DateTime(
                         startDate.getValue().getYear(),
                         startDate.getValue().getMonth().getValue(),
@@ -429,7 +419,7 @@ public class ControlPane extends GridPane {
 
         });
         endDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!updateing.get()) {
+            if (!updating.get()) {
                 DateTime untilDate = new DateTime(
                         endDate.getValue().getYear(),
                         endDate.getValue().getMonth().getValue(),

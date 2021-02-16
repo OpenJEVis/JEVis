@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.tools;
 
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -36,10 +37,10 @@ public class JEVisHelp {
 
     private static JEVisHelp jevisHelp;
     private static final Logger logger = LogManager.getLogger(JEVisHelp.class);
-    private Map<String, Set<ToolTipElement>> controlsMap = new HashMap<>();
-    private Map<String, Set<ToolTipElement>> controlsInfoMap = new HashMap<>();
-    private BooleanProperty isHelpShowing = new SimpleBooleanProperty(false);
-    private BooleanProperty isInfoShowing = new SimpleBooleanProperty(false);
+    private final Map<String, Set<ToolTipElement>> controlsMap = new HashMap<>();
+    private final Map<String, Set<ToolTipElement>> controlsInfoMap = new HashMap<>();
+    private final BooleanProperty isHelpShowing = new SimpleBooleanProperty(false);
+    private final BooleanProperty isInfoShowing = new SimpleBooleanProperty(false);
     private String activePlugin = "";
     private String activeSubModule = "";
     private final KeyCombination help = new KeyCodeCombination(KeyCode.F1);
@@ -255,7 +256,7 @@ public class JEVisHelp {
     public ToggleButton buildHelpButtons(double width, double height) {
         ToggleButton helpButton = new ToggleButton("", JEConfig.getImage("1404161580_help_blue.png", height, width));
         helpButton.setId("HelpButton");
-        Tooltip tooltip = new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.help"));
+        Tooltip tooltip = new JFXTooltip(I18n.getInstance().getString("plugin.toolbar.tip.help"));
         helpButton.setTooltip(tooltip);
 
         helpButton.setOnAction(event -> JEVisHelp.getInstance().toggleHelp());
@@ -268,7 +269,7 @@ public class JEVisHelp {
 
     public ToggleButton buildInfoButtons(double width, double height) {
         ToggleButton infoButton = new ToggleButton("", JEConfig.getImage("1404337146_info.png", height, width));
-        infoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.info")));
+        infoButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.toolbar.tip.info")));
         infoButton.setOnAction(event -> toggleInfo());
         isInfoShowing.addListener((observable, oldValue, newValue) -> {
             infoButton.setSelected(newValue);
@@ -280,9 +281,9 @@ public class JEVisHelp {
     public class ToolTipElement {
 
         private LAYOUT layout = LAYOUT.VERTICAL_BOT_CENTER;
-        private Control control;
-        private boolean isVisible = false;
-        private Tooltip tooltip = new Tooltip();
+        private final Control control;
+        private final boolean isVisible = false;
+        private final Tooltip tooltip = new JFXTooltip();
 
         public ToolTipElement(LAYOUT layout, Control control) {
             this.layout = layout;
@@ -352,7 +353,7 @@ public class JEVisHelp {
                         if (pos[0] + pos[1] == 0) return; // in case the parent is not visible anymore
                         //System.out.println("Pos: " + xPos + "/" + yPos);
                         tooltip.show(control, xPos, yPos);
-                        Node parent = (Node) tooltip.getGraphic().getParent();
+                        Node parent = tooltip.getGraphic().getParent();
                         parent.getTransforms().clear();
                         double ttHeight = tooltip.getHeight();
                         switch (layout) {

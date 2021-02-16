@@ -20,6 +20,7 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
@@ -71,11 +72,11 @@ public class LimitEditor implements AttributeEditor {
             GapFillingType.DEFAULT_VALUE, GapFillingType.STATIC, GapFillingType.MINIMUM, GapFillingType.MAXIMUM, GapFillingType.MEDIAN, GapFillingType.DELETE);
     private String unitString = "";
     public JEVisAttribute _attribute;
-    private HBox box = new HBox(12);
+    private final HBox box = new HBox(12);
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private List<JsonLimitsConfig> _listConfig;
-    private boolean delete = false;
+    private final boolean delete = false;
 
     public LimitEditor(JEVisAttribute att) {
         logger.debug("==init== for: {}", att.getName());
@@ -115,7 +116,7 @@ public class LimitEditor implements AttributeEditor {
      * Build main UI
      */
     private void init() {
-        Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.limitseditor.openconfig"));
+        JFXButton openConfig = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.limitseditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();

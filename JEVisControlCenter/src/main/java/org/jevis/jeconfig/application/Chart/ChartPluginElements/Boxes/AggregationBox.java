@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
@@ -10,7 +10,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 
-public class AggregationBox extends ComboBox<AggregationPeriod> {
+public class AggregationBox extends JFXComboBox<AggregationPeriod> {
 
 
     public AggregationBox(AggregationPeriod period) {

@@ -19,8 +19,10 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -86,7 +88,7 @@ public class AlarmEditor implements AttributeEditor {
      * Build main UI
      */
     private void init() {
-        Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.openconfig"));
+        JFXButton openConfig = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();
@@ -287,13 +289,13 @@ public class AlarmEditor implements AttributeEditor {
         JFXTextField nameField = new JFXTextField();
 
         HBox limitDataBox = new HBox();
-        Button treeButton = new Button(I18n
+        JFXButton treeButton = new JFXButton(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
 
-        Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+        JFXButton gotoButton = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
                 JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
-        gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+        gotoButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
@@ -396,7 +398,7 @@ public class AlarmEditor implements AttributeEditor {
 
         JFXTextField limitField = new JFXTextField();
 
-        ComboBox<AlarmConstants.Operator> operator = new JFXComboBox<>(this.operator);
+        JFXComboBox<AlarmConstants.Operator> operator = new JFXComboBox<>(this.operator);
         Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>> cellFactory = new Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>>() {
             @Override
             public ListCell<AlarmConstants.Operator> call(ListView<AlarmConstants.Operator> param) {

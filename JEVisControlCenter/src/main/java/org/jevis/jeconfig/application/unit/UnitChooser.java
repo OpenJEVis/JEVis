@@ -20,6 +20,8 @@
  */
 package org.jevis.jeconfig.application.unit;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -28,7 +30,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -59,15 +64,15 @@ public class UnitChooser {
         units.add(SI.HERTZ);
 
         VBox spinner = new VBox();
-        final Button prefixUp = new Button("+");
-        Button prefixDown = new Button("-");
+        final JFXButton prefixUp = new JFXButton("+");
+        JFXButton prefixDown = new JFXButton("-");
         prefixDown.setId("prefixdown");
         prefixUp.setId("prefixup");
 
         Label prefix = new Label(" k ");
         prefix.setId("prefix");
 
-        ComboBox unitBox = buildUnitBox(units);
+        JFXComboBox unitBox = buildUnitBox(units);
         unitBox.setStyle("-fx-background-radius: 0 10 10 0;");
 
         prefixDown.getStylesheets().add("/styles/unitchooser.css");
@@ -120,13 +125,13 @@ public class UnitChooser {
         Label prefix = new Label(" k ");
         prefix.setId("prefix");
 
-        ComboBox unitBox = buildUnitBox(units);
+        JFXComboBox unitBox = buildUnitBox(units);
         unitBox.setStyle("-fx-background-radius: 0 10 10 0;");
 
         List<String> prefixList = new ArrayList<>();
         prefixList.add("k");
 //        ObservableList<String> options2 = FXCollections.observableArrayList(prefixList);
-        ComboBox uprefixBox = buildPrefixBox(prefixList);
+        JFXComboBox uprefixBox = buildPrefixBox(prefixList);
         uprefixBox.setId("prefixBox");
         uprefixBox.setStyle("-fx-background-radius: 10 0 0 10;");
 
@@ -150,11 +155,10 @@ public class UnitChooser {
     }
 
     /**
-     *
      * @param units
      * @return
      */
-    private ComboBox buildUnitBox(List<Unit> units) {
+    private JFXComboBox buildUnitBox(List<Unit> units) {
         Callback<ListView<Unit>, ListCell<Unit>> cellFactory = new Callback<ListView<Unit>, ListCell<Unit>>() {
             @Override
             public ListCell<Unit> call(ListView<Unit> param) {
@@ -186,7 +190,7 @@ public class UnitChooser {
 
         ObservableList<Unit> options = FXCollections.observableArrayList(units);
 
-        final ComboBox<Unit> comboBox = new ComboBox<Unit>(options);
+        final JFXComboBox<Unit> comboBox = new JFXComboBox<Unit>(options);
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 
@@ -199,7 +203,7 @@ public class UnitChooser {
 
     }
 
-    private ComboBox buildPrefixBox(List<String> units) {
+    private JFXComboBox buildPrefixBox(List<String> units) {
         Callback<ListView<String>, ListCell<String>> cellFactory = new Callback<ListView<String>, ListCell<String>>() {
             @Override
             public ListCell<String> call(ListView<String> param) {
@@ -233,7 +237,7 @@ public class UnitChooser {
 
         ObservableList<String> options = FXCollections.observableArrayList(units);
 
-        final ComboBox<String> comboBox = new ComboBox<String>(options);
+        final JFXComboBox<String> comboBox = new JFXComboBox<String>(options);
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 

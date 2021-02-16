@@ -19,16 +19,15 @@
  */
 package org.jevis.jeconfig.plugin.object.permission;
 
+import com.jfoenix.controls.JFXCheckBox;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -115,17 +114,17 @@ public class MemberTable extends TableView {
     }
 
     private void setBooleanCellrenderer(TableColumn column) {
-        column.setCellFactory((Callback) p -> new CheckBoxTableCell<MemberRow, Boolean>());
+        column.setCellFactory(p -> new JFXCheckBoxTableCell<MemberRow, Boolean>());
 
     }
 
-    public static class CheckBoxTableCell<S, T> extends TableCell<S, T> {
+    public static class JFXCheckBoxTableCell<S, T> extends TableCell<S, T> {
 
-        private final CheckBox checkBox;
+        private final JFXCheckBox checkBox;
         private ObservableValue<T> ov;
 
-        public CheckBoxTableCell() {
-            this.checkBox = new CheckBox();
+        public JFXCheckBoxTableCell() {
+            this.checkBox = new JFXCheckBox();
             this.checkBox.setAlignment(Pos.CENTER);
 
             setAlignment(Pos.CENTER);

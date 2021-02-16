@@ -3,9 +3,13 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
@@ -81,7 +85,7 @@ public class ArrowConfig {
 
         Label limitTypeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation"));
 
-        ComboBox<ARROW_ORIENTATION> orientationTypeBox = new ComboBox<>(FXCollections.observableArrayList(ARROW_ORIENTATION.values()));
+        JFXComboBox<ARROW_ORIENTATION> orientationTypeBox = new JFXComboBox<>(FXCollections.observableArrayList(ARROW_ORIENTATION.values()));
         Callback<ListView<ARROW_ORIENTATION>, ListCell<ARROW_ORIENTATION>> cellFactory = new Callback<ListView<ARROW_ORIENTATION>, ListCell<ARROW_ORIENTATION>>() {
             @Override
             public ListCell<ARROW_ORIENTATION> call(ListView<ARROW_ORIENTATION> param) {
@@ -123,7 +127,7 @@ public class ArrowConfig {
 
         Label shapeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.shape"));
 
-        ComboBox<SHAPE> shapeBox = new ComboBox<>(FXCollections.observableArrayList(SHAPE.values()));
+        JFXComboBox<SHAPE> shapeBox = new JFXComboBox<>(FXCollections.observableArrayList(SHAPE.values()));
         Callback<ListView<SHAPE>, ListCell<SHAPE>> shapeCellFactory = new Callback<ListView<SHAPE>, ListCell<SHAPE>>() {
             @Override
             public ListCell<SHAPE> call(ListView<SHAPE> param) {

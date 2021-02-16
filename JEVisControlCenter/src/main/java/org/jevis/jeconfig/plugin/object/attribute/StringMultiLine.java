@@ -19,12 +19,13 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextArea;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -46,8 +47,8 @@ public class StringMultiLine implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(StringMultiLine.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
-    private HBox box = new HBox();
-    private TextArea _field;
+    private final HBox box = new HBox();
+    private JFXTextArea _field;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private boolean _readOnly = true;
@@ -110,7 +111,7 @@ public class StringMultiLine implements AttributeEditor {
 
     private void buildEditor() throws JEVisException {
         if (_field == null) {
-            _field = new TextArea();
+            _field = new JFXTextArea();
             _field.setPrefWidth(GenericAttributeExtension.editorWidth.doubleValue());
 //            _field.setPrefWidth(500);//TODO: remove this workaround
             _field.setPrefRowCount(10);
@@ -144,7 +145,7 @@ public class StringMultiLine implements AttributeEditor {
             _field.setId("attributelabel");
 
             if (_attribute.getType().getDescription() != null && !_attribute.getType().getDescription().isEmpty()) {
-                Tooltip tooltip = new Tooltip();
+                Tooltip tooltip = new JFXTooltip();
                 try {
                     tooltip.setText(_attribute.getType().getDescription());
                     tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));
@@ -159,7 +160,7 @@ public class StringMultiLine implements AttributeEditor {
 
             try {
                 if (_attribute.getType().getValidity() == JEVisConstants.Validity.AT_DATE) {
-                    Button chartView = new Button();
+                    JFXButton chartView = new JFXButton();
                     chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", 20, 20));
                     chartView.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
 

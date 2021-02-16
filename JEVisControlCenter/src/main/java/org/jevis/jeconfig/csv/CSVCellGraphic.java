@@ -19,13 +19,13 @@
  */
 package org.jevis.jeconfig.csv;
 
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -45,7 +45,7 @@ public class CSVCellGraphic {
     //TODO maybe load an icon only once
     ImageView iconValid = JEConfig.getImage(ICON_VALID, 20, 20);
     ImageView iconInVlaid = JEConfig.getImage(ICON_INVALID, 20, 20);
-    Tooltip tooltip = new Tooltip();
+    Tooltip tooltip = new JFXTooltip();
 
     public CSVCellGraphic(String text) {
         root.setPadding(new Insets(3));

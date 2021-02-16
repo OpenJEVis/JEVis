@@ -1,14 +1,18 @@
 package org.jevis.jeconfig.plugin.object.extension.OPC;
 
 
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
@@ -29,20 +33,20 @@ import java.util.List;
 public class DataValueTable {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(DataValueTable.class);
-    private GridPane view = new GridPane();
-    private TableView<DataValueRow> tableView = new TableView<>();
-    private OPCClient opcClient;
-    private HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
-    private ObservableList<DataValueRow> list = FXCollections.observableArrayList();
-    private ObservableList<DataValueRow> filteredList = FXCollections.observableArrayList();
-    private CheckBox filterTrends = new CheckBox();
-    private TextField filterFieldGroup = new TextField();
-    private ObservableList<DataValueRow> nodeObservableList = FXCollections.observableArrayList();
+    private final GridPane view = new GridPane();
+    private final TableView<DataValueRow> tableView = new TableView<>();
+    private final OPCClient opcClient;
+    private final HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
+    private final ObservableList<DataValueRow> list = FXCollections.observableArrayList();
+    private final ObservableList<DataValueRow> filteredList = FXCollections.observableArrayList();
+    private final JFXCheckBox filterTrends = new JFXCheckBox();
+    private final JFXTextField filterFieldGroup = new JFXTextField();
+    private final ObservableList<DataValueRow> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
-    private Label fromLabel = new Label("From:");
-    private Label untilLabel = new Label("Until:");
-    private JFXDatePicker fromDatePicker = new JFXDatePicker();
-    private JFXDatePicker untilDatePicker = new JFXDatePicker();
+    private final Label fromLabel = new Label("From:");
+    private final Label untilLabel = new Label("Until:");
+    private final JFXDatePicker fromDatePicker = new JFXDatePicker();
+    private final JFXDatePicker untilDatePicker = new JFXDatePicker();
     private NodeId selectedtNodeId = null;
     private Task runningTask = null;
 
@@ -86,7 +90,7 @@ public class DataValueTable {
         //_view.setRight(help);
 
 
-        //readCol.setCellFactory(param -> new CheckBoxTableCell<>());
+        //readCol.setCellFactory(param -> new JFXCheckBoxTableCell<>());
 
 
         filteredList.addAll(list);
@@ -208,12 +212,7 @@ public class DataValueTable {
 
         if (node.valueProperty.getValue().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
             return true;
-        } else if (node.tsProperty.getValue().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
-            return true;
-        }
-
-
-        return false; // Does not match
+        } else return node.tsProperty.getValue().toLowerCase().indexOf(lowerCaseFilterString) != -1;// Does not match
     }
 
     public void setData() {

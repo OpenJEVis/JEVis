@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -30,6 +32,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.JEVisFileWithSample;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -47,7 +50,7 @@ public class ImageViewerDialog {
     private final int iconSize = 32;
     private Stage stage;
     private final ImageView imageView = new ImageView();
-    private final ComboBox<JEVisFileWithSample> fileComboBox = new ComboBox<>(FXCollections.observableArrayList());
+    private final JFXComboBox<JEVisFileWithSample> fileComboBox = new JFXComboBox<>(FXCollections.observableArrayList());
     private final Map<JEVisFile, JEVisSample> sampleMap = new HashMap<>();
     private final ImageView imageIcon = JEConfig.getImage("1390344346_3d_objects.png", iconSize, iconSize);
     private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
@@ -128,7 +131,7 @@ public class ImageViewerDialog {
         headerBox.setSpacing(4);
 
         ToggleButton saveButton = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
-        Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("sampleeditor.confirmationdialog.save"));
+        Tooltip pdfTooltip = new JFXTooltip(I18n.getInstance().getString("sampleeditor.confirmationdialog.save"));
         saveButton.setTooltip(pdfTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(saveButton);
 
@@ -152,7 +155,7 @@ public class ImageViewerDialog {
         });
 
         ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
-        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
+        Tooltip printTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
@@ -248,6 +251,7 @@ public class ImageViewerDialog {
         bp.setCenter(sp);
 
         Scene scene = new Scene(bp);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
 
         try {

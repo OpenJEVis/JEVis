@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.plugin.scada;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -55,13 +57,13 @@ public class SCADAPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(SCADAPlugin.class);
     private final DateTimeFormatter dfp = DateTimeFormat.forPattern("HH:mm:ss dd.MM.YYYY");
     private final BorderPane root = new BorderPane();
-    private FileChooser fileChooser = new FileChooser();
+    private final FileChooser fileChooser = new FileChooser();
     private JEVisDataSource ds;
-    private StackPane viewArea = new StackPane();
-    private BooleanProperty lockProperty = new SimpleBooleanProperty(true);
-    private ObjectProperty<List<UserSelection>> userSelection = new SimpleObjectProperty(new ArrayList<>());
+    private final StackPane viewArea = new StackPane();
+    private final BooleanProperty lockProperty = new SimpleBooleanProperty(true);
+    private final ObjectProperty<List<UserSelection>> userSelection = new SimpleObjectProperty(new ArrayList<>());
     private SCADAAnalysis activeAnalyse = null;
-    private Timer timer = new Timer();
+    private final Timer timer = new Timer();
 
 
     public SCADAPlugin(JEVisDataSource ds) {
@@ -220,7 +222,7 @@ public class SCADAPlugin implements Plugin {
     private void updateToolbar(ToolBar toolBar, final SCADAAnalysis analyses) {
         logger.info("==Update Toolbar==");
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
-        ComboBox<JEVisObject> listAnalysesComboBox = new ComboBox();
+        JFXComboBox<JEVisObject> listAnalysesComboBox = new JFXComboBox();
         listAnalysesComboBox.setPrefWidth(300);
 
         try {
@@ -246,7 +248,7 @@ public class SCADAPlugin implements Plugin {
                         if (item != null && !empty) {
                             setText(item.getName());
                             setGraphic(null);
-                            Tooltip tt = new Tooltip();
+                            JFXTooltip tt = new JFXTooltip();
                             tt.setText("ID: " + item.getID());
                             setTooltip(tt);
                         }
@@ -262,7 +264,7 @@ public class SCADAPlugin implements Plugin {
         listAnalysesComboBox.setCellFactory(cellFactory);
         listAnalysesComboBox.setButtonCell(cellFactory.call(null));
 
-        ComboBox<SCADAAnalysis.BGMode> listBGType = new ComboBox();
+        JFXComboBox<SCADAAnalysis.BGMode> listBGType = new JFXComboBox();
         listBGType.setItems(FXCollections.observableArrayList(SCADAAnalysis.BGMode.values()));
 
         Callback<ListView<SCADAAnalysis.BGMode>, ListCell<SCADAAnalysis.BGMode>> bgFactory = new Callback<ListView<SCADAAnalysis.BGMode>, ListCell<SCADAAnalysis.BGMode>>() {

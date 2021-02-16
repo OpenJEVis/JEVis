@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.sample;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,7 +27,6 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -88,7 +88,7 @@ public class SampleTableExtension implements SampleEditorExtension {
 
         boolean canDelete = false;
         boolean canWrite = false;
-        Button deleteAll = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"));
+        JFXButton deleteAll = new JFXButton(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"));
 
         try {
             canDelete = att.getObject().getDataSource().getCurrentUser().canDelete(att.getObject().getID());
@@ -123,7 +123,7 @@ public class SampleTableExtension implements SampleEditorExtension {
             }
         });
 
-        Button deleteSelected = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"));
+        JFXButton deleteSelected = new JFXButton(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"));
         deleteSelected.setDisable(!table.deleteSelectedProperty().getValue());
         deleteSelected.disableProperty().bind(table.deleteSelectedProperty().not());
 
@@ -153,7 +153,7 @@ public class SampleTableExtension implements SampleEditorExtension {
 
                 }
         );
-        Button saveButton = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.save"));
+        JFXButton saveButton = new JFXButton(I18n.getInstance().getString("sampleeditor.confirmationdialog.save"));
         saveButton.disableProperty().bind(table.needSaveProperty().not());
         saveButton.setOnAction(event -> {
             table.commitChanges();
@@ -161,7 +161,7 @@ public class SampleTableExtension implements SampleEditorExtension {
         });
         saveButton.setDefaultButton(true);
 
-        Button addNewSample = new Button(null, JEConfig.getImage("list-add.png", 17, 17));
+        JFXButton addNewSample = new JFXButton(null, JEConfig.getImage("list-add.png", 17, 17));
         addNewSample.setDisable(!canWrite);
 
         addNewSample.setOnAction(event -> {
@@ -188,7 +188,7 @@ public class SampleTableExtension implements SampleEditorExtension {
             }
         });
 
-        Button deleteInBetween = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.titlelong"));
+        JFXButton deleteInBetween = new JFXButton(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.titlelong"));
         deleteInBetween.setDisable(table.deleteInBetweenProperty().getValue());
         deleteInBetween.disableProperty().bind(table.deleteInBetweenProperty().not());
 
@@ -226,7 +226,7 @@ public class SampleTableExtension implements SampleEditorExtension {
 
         deleteBox.getChildren().setAll(addNewSample, deleteAll, deleteSelected, deleteInBetween, saveButton);
 
-        Button addNewUserValue = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.addnewuservalue.titlelong"));
+        JFXButton addNewUserValue = new JFXButton(I18n.getInstance().getString("sampleeditor.confirmationdialog.addnewuservalue.titlelong"));
         addNewUserValue.setDisable(!table.deleteSelectedProperty().getValue());
         addNewUserValue.disableProperty().bind(table.deleteSelectedProperty().not());
 
@@ -240,7 +240,7 @@ public class SampleTableExtension implements SampleEditorExtension {
             }
         });
 
-        Button addUserValuesInBetween = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.adduservalueinbetwen.titlelong"));
+        JFXButton addUserValuesInBetween = new JFXButton(I18n.getInstance().getString("sampleeditor.confirmationdialog.adduservalueinbetwen.titlelong"));
         addUserValuesInBetween.setDisable(table.deleteInBetweenProperty().getValue());
         addUserValuesInBetween.disableProperty().bind(table.deleteInBetweenProperty().not());
 

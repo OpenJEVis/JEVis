@@ -1,9 +1,13 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -17,14 +21,14 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 
 public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implements ChartPluginColumn {
     public static String COLUMN_ID = "AxisColumn";
     private TreeTableColumn<JEVisTreeRow, Integer> axisColumn;
     private AnalysisDataModel data;
-    private JEVisTree tree;
-    private String columnName;
+    private final JEVisTree tree;
+    private final String columnName;
     private final JEVisDataSource dataSource;
 
     public AxisColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName) {
@@ -92,12 +96,12 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
                                     imageMarkAll.fitHeightProperty().set(13);
                                     imageMarkAll.fitWidthProperty().set(13);
 
-                                    Button tb = new Button("", imageMarkAll);
+                                    JFXButton tb = new JFXButton("", imageMarkAll);
 
                                     tb.setTooltip(tooltipMarkAll);
 
                                     tb.setOnAction(event -> {
-                                        Integer selection = axisBox.getChoiceBox().getSelectionModel().getSelectedIndex();
+                                        Integer selection = axisBox.getSelectionModel().getSelectedIndex();
                                         getData().getSelectedData().forEach(mdl -> {
                                             if (!mdl.getSelectedcharts().isEmpty()) {
                                                 mdl.setAxis(selection);
@@ -108,11 +112,11 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
                                     });
 
                                     HBox hbox = new HBox();
-                                    hbox.getChildren().addAll(axisBox.getChoiceBox(), tb);
+                                    hbox.getChildren().addAll(axisBox, tb);
                                     stackPane.getChildren().add(hbox);
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
-                                    axisBox.getChoiceBox().setDisable(!data.isSelectable());
+                                    axisBox.setDisable(!data.isSelectable());
                                     tb.setDisable(!data.isSelectable());
                                     setGraphic(stackPane);
                                 }
@@ -131,9 +135,9 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
 
         Platform.runLater(() -> {
             Label label = new Label(columnName);
-            label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.axis.tip")));
+            label.setTooltip(new JFXTooltip(I18n.getInstance().getString("graph.table.axis.tip")));
             axisColumn.setGraphic(label);
-            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
+            JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
 
         });
 

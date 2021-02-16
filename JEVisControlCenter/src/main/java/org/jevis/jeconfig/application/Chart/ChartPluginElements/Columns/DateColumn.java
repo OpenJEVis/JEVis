@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
@@ -33,9 +33,9 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
 
     private TreeTableColumn<JEVisTreeRow, DateTime> dateColumn;
     private AnalysisDataModel data;
-    private JEVisTree tree;
-    private String columnName;
-    private DATE_TYPE type;
+    private final JEVisTree tree;
+    private final String columnName;
+    private final DATE_TYPE type;
     private final JEVisDataSource dataSource;
 
     public DateColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName, DATE_TYPE type) {
@@ -154,7 +154,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
                                     imageMarkAll.fitHeightProperty().set(13);
                                     imageMarkAll.fitWidthProperty().set(13);
 
-                                    Button tb = new Button("", imageMarkAll);
+                                    JFXButton tb = new JFXButton("", imageMarkAll);
                                     tb.setTooltip(tooltipMarkAll);
 
                                     tb.setOnAction(event -> {

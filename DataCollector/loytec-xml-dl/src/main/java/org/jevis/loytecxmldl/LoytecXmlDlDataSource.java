@@ -17,9 +17,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 /**
  * Loytec XML-DL Data Source
@@ -32,6 +32,7 @@ public class LoytecXmlDlDataSource implements DataSource {
     private SOAPDataSource soapDataSource;
     private Channel soapChannel;
     private Importer importer;
+    private ExecutorService executorService;
 
     @Override
     public void initialize(JEVisObject dataSourceObject) {
@@ -69,80 +70,87 @@ public class LoytecXmlDlDataSource implements DataSource {
     public void run() {
         log.info("Running");
         // For every channel directory
-        ExecutorService executorService = Executors.newFixedThreadPool(15);
-        try {
+        executorService = Executors.newFixedThreadPool(15);
 
-            for (LoytecXmlDlChannelDirectory channelDirectory : dataServer.getChannelDirectories()) {
+        for (LoytecXmlDlChannelDirectory channelDirectory : dataServer.getChannelDirectories()) {
 
-                channelDirectory.getChannels().forEach(channel -> {
-                    try {
-                        executorService.submit(() -> {
-                            // For every channel
+            channelDirectory.getChannels().forEach(channel -> {
+                Runnable runnable = getJob(channelDirectory, channel);
 
-                            List<InputStream> responseStreams;
-                            List<Result> results;
-                            List<JEVisSample> statusResults;
-
-                            // Create parser
-                            LoytecXmlDlParser parser = new LoytecXmlDlParser();
-                            parser.initChannel(channel);
-
-                            // Send request
-                            try {
-                                responseStreams = this.sendSampleRequest(channelDirectory, channel);
-                                if (responseStreams.isEmpty()) {
-                                    log.info("The sample request response is empty");
-                                    printResponse(responseStreams);
-                                } else {
-                                    log.info("The sample request response is ok");
-                                    //printResponse(responseStreams);
-                                }
-
-                                // Parse the response
-                                parser.initChannel(channel);
-
-                                results = parser.parseStream(responseStreams, dataServer.getTimezone());
-                                statusResults = parser.getStatusResults();
-
-                                if (results.isEmpty() && statusResults.isEmpty()) {
-                                    log.info("The parse result is empty");
-                                    // use stream, no use later...
-                                } else {
-                                    log.info("The parse result is ok. Results: {}. Status results: {}", results.size(), statusResults.size());
-                                    // Import
-                                    JEVisImporterAdapter.importResults(results, statusResults, importer, channel.getJeVisObject());
-                                }
-                            } catch (
-                                    MalformedURLException ex) {
-                                logger.error("MalformedURLException. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
-                                logger.debug("MalformedURLException. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
-                            } catch (
-                                    ClientProtocolException ex) {
-                                logger.error("Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
-                                logger.debug("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
-                            } catch (
-                                    IOException ex) {
-                                logger.error("IO Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
-                                logger.debug("IO Exception. For channel {}:{}.", channel.getJeVisObject().getID(), channel.getName(), ex);
-                            } catch (ParseException ex) {
-                                logger.error("Parse Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
-                                logger.debug("Parse Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
-                            } catch (Exception ex) {
-                                logger.error("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
-                            }
-                        }).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        log.error("Thread Pool was interrupted or execution was stopped: " + e);
-                    }
-
-                });
-            }
-        } finally {
-            executorService.shutdown();
+                FutureTask<?> ft = new FutureTask<Void>(runnable, null);
+                executorService.submit(ft);
+            });
         }
 
         log.info("Run completed");
     }
+
+    private Runnable getJob(LoytecXmlDlChannelDirectory channelDirectory, LoytecXmlDlChannel channel) {
+        return () -> {
+            // For every channel
+
+            List<InputStream> responseStreams;
+            List<Result> results;
+            List<JEVisSample> statusResults;
+
+            // Create parser
+            LoytecXmlDlParser parser = new LoytecXmlDlParser();
+            parser.initChannel(channel);
+
+            // Send request
+            try {
+                responseStreams = this.sendSampleRequest(channelDirectory, channel);
+                if (responseStreams.isEmpty()) {
+                    log.info("The sample request response is empty");
+                    printResponse(responseStreams);
+                } else {
+                    log.info("The sample request response is ok");
+                    //printResponse(responseStreams);
+                }
+
+                // Parse the response
+                parser.initChannel(channel);
+
+                results = parser.parseStream(responseStreams, dataServer.getTimezone());
+                statusResults = parser.getStatusResults();
+
+                if (results.isEmpty() && statusResults.isEmpty()) {
+                    log.info("The parse result is empty");
+                    // use stream, no use later...
+                } else {
+                    log.info("The parse result is ok. Results: {}. Status results: {}", results.size(), statusResults.size());
+                    // Import
+                    JEVisImporterAdapter.importResults(results, statusResults, importer, channel.getJeVisObject());
+
+                    if (results.size() == 1000) {
+                        channel.update();
+                        Runnable runnable = getJob(channelDirectory, channel);
+
+                        FutureTask<?> ft = new FutureTask<Void>(runnable, null);
+                        executorService.submit(ft);
+                    }
+                }
+            } catch (
+                    MalformedURLException ex) {
+                logger.error("MalformedURLException. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
+                logger.debug("MalformedURLException. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+            } catch (
+                    ClientProtocolException ex) {
+                logger.error("Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
+                logger.debug("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+            } catch (
+                    IOException ex) {
+                logger.error("IO Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
+                logger.debug("IO Exception. For channel {}:{}.", channel.getJeVisObject().getID(), channel.getName(), ex);
+            } catch (ParseException ex) {
+                logger.error("Parse Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
+                logger.debug("Parse Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+            } catch (Exception ex) {
+                logger.error("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+            }
+        };
+    }
+
 
     private List<InputStream> sendSampleRequest(LoytecXmlDlChannelDirectory
                                                         channelDirectoryObject, LoytecXmlDlChannel channelObject) throws Exception {

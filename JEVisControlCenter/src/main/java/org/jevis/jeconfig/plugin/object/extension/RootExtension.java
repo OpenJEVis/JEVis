@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,7 +27,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -57,8 +61,8 @@ public class RootExtension implements ObjectEditorExtension {
 
     private static final String TITLE = I18n.getInstance().getString("plugin.object.root.title");
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private JEVisObject _obj;
-    private BorderPane _view = new BorderPane();
+    private final JEVisObject _obj;
+    private final BorderPane _view = new BorderPane();
 
     public RootExtension(JEVisObject obj) {
         this._obj = obj;
@@ -170,7 +174,7 @@ public class RootExtension implements ObjectEditorExtension {
 
                 groupBox.getChildren().addAll(usericon, nameLabel);
 
-                Button remove = new Button();
+                JFXButton remove = new JFXButton();
                 remove.setGraphic(JEConfig.getImage("list-remove.png", 17, 17));
                 remove.setOnAction(t -> {
 
@@ -230,7 +234,7 @@ public class RootExtension implements ObjectEditorExtension {
         GridPane.setValignment(newOwnerlabel, VPos.CENTER);
         HBox addNewBox = new HBox(5);
 
-        Button newB = new Button();
+        JFXButton newB = new JFXButton();
         newB.setGraphic(JEConfig.getImage("list-add.png", 17, 17));
 
         newB.setOnAction(t -> {

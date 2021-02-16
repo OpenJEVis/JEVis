@@ -65,32 +65,38 @@ public class Launcher extends AbstractCliApp {
         dataSources.forEach(object -> {
             if (!runningJobs.containsKey(object.getID())) {
                 Runnable runnable = () -> {
-                    Thread.currentThread().setName(object.getID().toString());
+                    try {
+                        Thread.currentThread().setName(object.getID().toString());
 
-                    DataSource dataSource = DataSourceFactory.getDataSource(object);
-                    if (dataSource.isReady(object)) {
-                        logger.info("DataSource {}:{} is ready.", object.getName(), object.getID());
-                        runDataSource(object, dataSource, true);
-                    } else {
-                        logger.info("DataSource {}:{} is not ready.", object.getName(), object.getID());
-                        if (plannedJobs.containsKey(object.getID())) {
-                            Boolean manualTrigger = sampleHandler.getLastSample(object, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
-                            if (manualTrigger) {
-                                logger.info("DataSource {}:{} has active manual trigger.", object.getName(), object.getID());
-                                runDataSource(object, dataSource, false);
-                                try {
-                                    JEVisAttribute attribute = object.getAttribute(DataCollectorTypes.DataSource.MANUAL_TRIGGER);
-                                    JEVisSample sample = attribute.buildSample(DateTime.now(), false);
-                                    sample.commit();
-                                } catch (JEVisException e) {
-                                    logger.error("Could not disable manual trigger for datasource {}:{}", object.getName(), object.getID());
+                        DataSource dataSource = DataSourceFactory.getDataSource(object);
+                        if (dataSource.isReady(object)) {
+                            logger.info("DataSource {}:{} is ready.", object.getName(), object.getID());
+                            runDataSource(object, dataSource, true);
+                        } else {
+                            logger.info("DataSource {}:{} is not ready.", object.getName(), object.getID());
+                            if (plannedJobs.containsKey(object.getID())) {
+                                Boolean manualTrigger = sampleHandler.getLastSample(object, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
+                                if (manualTrigger) {
+                                    logger.info("DataSource {}:{} has active manual trigger.", object.getName(), object.getID());
+                                    runDataSource(object, dataSource, false);
+                                    try {
+                                        JEVisAttribute attribute = object.getAttribute(DataCollectorTypes.DataSource.MANUAL_TRIGGER);
+                                        JEVisSample sample = attribute.buildSample(DateTime.now(), false);
+                                        sample.commit();
+                                    } catch (JEVisException e) {
+                                        logger.error("Could not disable manual trigger for datasource {}:{}", object.getName(), object.getID());
+                                        removeJob(object);
+                                    }
+                                } else {
+                                    removeJob(object);
                                 }
                             } else {
-                                removeWaiting(object);
+                                removeJob(object);
                             }
-                        } else {
-                            removeWaiting(object);
                         }
+                    } catch (Exception e) {
+                        logger.error("Unexpected exception in {}:{}", object.getName(), object.getID(), e);
+                        removeJob(object);
                     }
                 };
 
@@ -104,15 +110,6 @@ public class Launcher extends AbstractCliApp {
 
         logger.info("---------------------finish------------------------");
 
-    }
-
-    private void removeWaiting(JEVisObject object) {
-        logger.error("Still waiting for next DataSource Cycle " + object.getName() + ":" + object.getID());
-
-        plannedJobs.remove(object.getID());
-        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-        checkLastJob();
     }
 
     private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {

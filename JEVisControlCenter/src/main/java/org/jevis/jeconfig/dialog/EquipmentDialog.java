@@ -1,10 +1,14 @@
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -15,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -90,20 +95,21 @@ public class EquipmentDialog {
         gp.setVgap(12);
 
         Scene scene = new Scene(vBox);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
 
         Label parentLabel = new Label(I18n.getInstance().getString("jevis.types.parent"));
         VBox parentVBox = new VBox(parentLabel);
         parentVBox.setAlignment(Pos.CENTER);
 
-        Button treeButton = new Button(I18n
+        JFXButton treeButton = new JFXButton(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
 
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        TextField nameField = new TextField();
+        JFXTextField nameField = new JFXTextField();
 
         Region targetSpace = new Region();
         targetSpace.setPrefWidth(20);
@@ -113,9 +119,9 @@ public class EquipmentDialog {
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.new.ok"));
+        JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.ok"));
         HBox.setHgrow(ok, Priority.NEVER);
-        Button cancel = new Button(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
         HBox.setHgrow(cancel, Priority.NEVER);
 
         Separator sep1 = new Separator(Orientation.HORIZONTAL);
@@ -254,16 +260,16 @@ public class EquipmentDialog {
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        TextField nameField = new TextField(selectedMeter.getName());
+        JFXTextField nameField = new JFXTextField(selectedMeter.getName());
 
         HBox targetBox = new HBox(nameVBox, nameField);
         targetBox.setSpacing(4);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.new.ok"));
+        JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.ok"));
         HBox.setHgrow(ok, Priority.NEVER);
-        Button cancel = new Button(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
         HBox.setHgrow(cancel, Priority.NEVER);
 
         Separator sep1 = new Separator(Orientation.HORIZONTAL);

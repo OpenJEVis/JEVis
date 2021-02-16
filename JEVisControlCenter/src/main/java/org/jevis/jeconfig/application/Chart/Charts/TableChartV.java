@@ -56,6 +56,7 @@ public class TableChartV extends XYChart {
                         tableTopDatePicker.initialize(singleRow, timeStampOfLastSample.get());
                     } catch (Exception e) {
                         this.failed();
+                        logger.error("Could not build chart {}", chartSetting.getName(), e);
                     } finally {
                         succeeded();
                     }
@@ -140,7 +141,7 @@ public class TableChartV extends XYChart {
             String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
 
             if (getPeriod().equals(Period.days(1))) {
-                normalPattern = "dd. MMMM yyyy";
+                normalPattern = "dd. MMM (EEE)";
             } else if (getPeriod().equals(Period.weeks(1))) {
                 normalPattern = "dd. MMMM yyyy";
             } else if (getPeriod().equals(Period.months(1))) {
@@ -320,7 +321,7 @@ public class TableChartV extends XYChart {
         column.setCellFactory(new Callback<TableColumn<TableSample, DateTime>, TableCell<TableSample, DateTime>>() {
             @Override
             public TableCell<TableSample, DateTime> call(TableColumn<TableSample, DateTime> param) {
-                TableCell<TableSample, DateTime> cell = new TableCell<TableSample, DateTime>() {
+                return new TableCell<TableSample, DateTime>() {
 
                     @Override
                     protected void updateItem(DateTime item, boolean empty) {
@@ -335,7 +336,14 @@ public class TableChartV extends XYChart {
 
                                 if (item.equals(maxDate)) {
                                     textField.setText(I18n.getInstance().getString("plugin.graph.table.sum"));
-                                } else textField.setText(item.toString(normalPattern));
+                                } else {
+                                    if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                        DateTime modDateTime = item.plusDays(1);
+                                        textField.setText(modDateTime.toString(normalPattern));
+                                    } else {
+                                        textField.setText(item.toString(normalPattern));
+                                    }
+                                }
 
                                 textField.setStyle("-fx-alignment: CENTER-RIGHT;");
 
@@ -347,7 +355,6 @@ public class TableChartV extends XYChart {
                         }
                     }
                 };
-                return cell;
             }
         });
         return column;

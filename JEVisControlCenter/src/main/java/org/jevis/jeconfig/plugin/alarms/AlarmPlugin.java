@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.plugin.alarms;
 
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTooltip;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -49,7 +51,7 @@ import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -105,7 +107,7 @@ public class AlarmPlugin implements Plugin {
     private TimeFrame timeFrame = TimeFrame.TODAY;
     private final JFXDatePicker startDatePicker = new JFXDatePicker();
     private final JFXDatePicker endDatePicker = new JFXDatePicker();
-    private final ComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
     private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
         if (newValue != oldValue) {
             start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
@@ -306,7 +308,7 @@ public class AlarmPlugin implements Plugin {
                                         setUnderline(false);
                                     } else {
 
-                                        this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, getAnalysisRequest(alarmRow, item)));
+                                        this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, getAnalysisRequest(alarmRow, item)));
                                         this.hoverProperty().addListener((observable, oldValue, newValue) -> {
                                             if (newValue) {
                                                 this.getScene().setCursor(Cursor.HAND);
@@ -593,7 +595,7 @@ public class AlarmPlugin implements Plugin {
                             } else {
                                 checkedButton.setGraphic(notChecked);
                             }
-                            Tooltip checkedTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.tooltip.checked"));
+                            Tooltip checkedTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.alarms.tooltip.checked"));
                             checkedButton.setTooltip(checkedTooltip);
                             GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkedButton);
                             checkedButton.setSelected(item);
@@ -647,7 +649,7 @@ public class AlarmPlugin implements Plugin {
 
     private void initToolBar() {
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
-        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
+        Tooltip reloadTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
@@ -702,7 +704,7 @@ public class AlarmPlugin implements Plugin {
         startDatePicker.valueProperty().addListener(startDateChangeListener);
         endDatePicker.valueProperty().addListener(endDateChangeListener);
 
-        ComboBox<String> filterBox = new ComboBox<>();
+        JFXComboBox<String> filterBox = new JFXComboBox<>();
         String showOnlyUncheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showunchecked");
         String showOnlyCheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showchecked");
         String showAllAlarms = I18n.getInstance().getString("plugin.alarm.label.showall");
@@ -730,11 +732,11 @@ public class AlarmPlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
 
-        timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
-        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
-        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
-        filterBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.filter.tooltip")));
-        checkAll.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.checkall.tooltip")));
+        timeFrameComboBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
+        startDatePicker.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
+        endDatePicker.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
+        filterBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.filter.tooltip")));
+        checkAll.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.checkall.tooltip")));
 
         toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, filterBox, sep4, checkAll);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
@@ -744,8 +746,8 @@ public class AlarmPlugin implements Plugin {
 
     }
 
-    private ComboBox<TimeFrame> getTimeFrameComboBox() {
-        ComboBox<TimeFrame> box = new ComboBox<>();
+    private JFXComboBox<TimeFrame> getTimeFrameComboBox() {
+        JFXComboBox<TimeFrame> box = new JFXComboBox<>();
 
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");

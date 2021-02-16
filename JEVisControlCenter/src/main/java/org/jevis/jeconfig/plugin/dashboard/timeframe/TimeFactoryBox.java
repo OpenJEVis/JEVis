@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.timeframe;
 
-import javafx.scene.control.ComboBox;
+import com.jfoenix.controls.JFXComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
@@ -9,10 +9,10 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 
-public class TimeFactoryBox extends ComboBox<TimeFrameFactory> {
+public class TimeFactoryBox extends JFXComboBox<TimeFrameFactory> {
 
 
-    private TimeFrameFactory offTimeFrame = emptyTimeFrame();
+    private final TimeFrameFactory offTimeFrame = emptyTimeFrame();
 
     public TimeFactoryBox(boolean addOffValue) {
         super();

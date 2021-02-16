@@ -12,7 +12,6 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
-import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.report3.data.report.IntervalCalculator;
@@ -20,7 +19,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import javax.inject.Inject;
-import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,8 +32,6 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
     private static boolean isInit = false;
     private final SampleHandler samplesHandler;
     private JEVisObject reportObject = null;
-    private LocalTime workdayStart = null;
-    private LocalTime workdayEnd = null;
 
     @Inject
     public PeriodicIntervalCalc(SampleHandler samplesHandler) {
@@ -57,19 +53,11 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
 
     private void initializeIntervalMap(JEVisObject reportObject) {
         this.reportObject = reportObject;
-        WorkDays workDays = new WorkDays(reportObject);
 
         String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
         Period schedule = Period.valueOf(scheduleString.toUpperCase());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         DateTime start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
-
-        if (schedule == Period.DAILY || schedule == Period.WEEKLY || schedule == Period.MONTHLY || schedule == Period.QUARTERLY || schedule == Period.YEARLY) {
-            if (workDays.getWorkdayStart() != null && workDays.getWorkdayEnd() != null) {
-                workdayStart = workDays.getWorkdayStart();
-                workdayEnd = workDays.getWorkdayEnd();
-            }
-        }
 
         org.jevis.commons.datetime.DateHelper dateHelper = null;
 
@@ -79,14 +67,6 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             DateTime startRecord = calcStartRecord(start, schedule, mode, FixedPeriod.NONE, dateHelper);
             DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
 
-            if (workdayStart != null && workdayEnd != null) {
-                startRecord = startRecord.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
-                endRecord = endRecord.withHourOfDay(workdayEnd.getHour()).withMinuteOfHour(workdayEnd.getMinute()).withSecondOfMinute(workdayEnd.getSecond()).withMillisOfSecond(999);
-                if (workdayEnd.isBefore(workdayStart)) {
-                    startRecord = startRecord.minusDays(1);
-                }
-            }
-
             Interval interval = new Interval(startRecord, endRecord);
             intervalMap.put(mode.toString().toUpperCase(), interval);
         }
@@ -95,16 +75,6 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             DateTime startRecordFixed = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
             DateTime startRecordFixedToReportEnd = calcStartRecord(start, schedule, PeriodMode.FIXED_TO_REPORT_END, fixedPeriod, dateHelper);
             DateTime endRecord = PeriodHelper.calcEndRecord(start, schedule, dateHelper);
-
-            if (workdayStart != null && workdayEnd != null) {
-                startRecordFixed = startRecordFixed.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
-                startRecordFixedToReportEnd = startRecordFixed.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
-                endRecord = endRecord.withHourOfDay(workdayEnd.getHour()).withMinuteOfHour(workdayEnd.getMinute()).withSecondOfMinute(workdayEnd.getSecond()).withMillisOfSecond(999);
-                if (workdayEnd.isBefore(workdayStart)) {
-                    startRecordFixed = startRecordFixed.minusDays(1);
-                    startRecordFixedToReportEnd = startRecordFixedToReportEnd.minusDays(1);
-                }
-            }
 
             Interval intervalFixed = new Interval(startRecordFixed, endRecord);
             Interval intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecord);
@@ -210,22 +180,22 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                         resultStartRecord = startRecord.minusDays(7);
                         break;
                     case MONTH:
-                        resultStartRecord = startRecord.minusMonths(1).plusDays(1);
+                        resultStartRecord = startRecord.minusMonths(1);
                         break;
                     case QUARTER:
-                        resultStartRecord = startRecord.minusMonths(3).plusDays(1);
+                        resultStartRecord = startRecord.minusMonths(3);
                         break;
                     case YEAR:
-                        resultStartRecord = startRecord.minusYears(1).plusDays(1);
+                        resultStartRecord = startRecord.minusYears(1);
                         break;
                     case THREEYEARS:
-                        resultStartRecord = startRecord.minusYears(2).plusDays(1);
+                        resultStartRecord = startRecord.minusYears(2);
                         break;
                     case FIVEYEARS:
-                        resultStartRecord = startRecord.minusYears(4).plusDays(1);
+                        resultStartRecord = startRecord.minusYears(4);
                         break;
                     case TENYEARS:
-                        resultStartRecord = startRecord.minusYears(9).plusDays(1);
+                        resultStartRecord = startRecord.minusYears(9);
                         break;
                     case NONE:
                     default:

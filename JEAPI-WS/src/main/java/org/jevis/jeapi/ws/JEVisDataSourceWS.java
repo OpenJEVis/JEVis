@@ -1593,7 +1593,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public List<JsonI18nClass> getTranslation() {
         logger.trace("Get I18n");
         try {
-            String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.REAOURCE_I18N;//+"?jclass="+Organisation;
+            String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_I18N;//+"?jclass="+Organisation;
 //            StringBuffer response = this.con.getRequest(resource);
 //
 //            logger.trace("raw response: '{}'", response.toString());

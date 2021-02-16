@@ -20,6 +20,10 @@
 package org.jevis.jeconfig.plugin.charts;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextArea;
+import com.jfoenix.controls.JFXTooltip;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
 import eu.hansolo.fx.charts.MatrixPane;
@@ -92,9 +96,9 @@ import java.util.prefs.Preferences;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class GraphPluginView implements Plugin {
+public class ChartPlugin implements Plugin {
 
-    private static final Logger logger = LogManager.getLogger(GraphPluginView.class);
+    private static final Logger logger = LogManager.getLogger(ChartPlugin.class);
     public static String PLUGIN_NAME = "Graph Plugin";
     //    private final List<ChartView> charts = new ArrayList<>();
     private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
@@ -115,11 +119,11 @@ public class GraphPluginView implements Plugin {
     //this.chartView = new ChartView(dataModel);
     private final VBox vBox = new VBox();
     private final BorderPane border = new BorderPane(sp);
-    private final Tooltip tp = new Tooltip("");
+    private final Tooltip tp = new JFXTooltip("");
     private final HashMap<Integer, Chart> allCharts = new HashMap<>();
     private final Image taskImage = JEConfig.getImage("Analysis.png");
 
-    public GraphPluginView(JEVisDataSource ds, String newname) {
+    public ChartPlugin(JEVisDataSource ds, String newname) {
         this.dataModel = new AnalysisDataModel(ds, this);
 //        this.dataModel.addObserver(this);
 
@@ -229,11 +233,11 @@ public class GraphPluginView implements Plugin {
                             "    -fx-text-alignment: left;\n";
 //                    "    -fx-text-fill: #0076a3;\n";
 
-            Button newAnalysis = new Button(I18n.getInstance().getString("plugin.graph.analysis.new"), JEConfig.getImage("Data.png", 32, 32));
+            JFXButton newAnalysis = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"), JEConfig.getImage("Data.png", 32, 32));
             newAnalysis.setStyle(style);
             newAnalysis.setAlignment(Pos.CENTER);
 
-            Button loadAnalysis = new Button(I18n.getInstance().getString("plugin.graph.analysis.load"), JEConfig.getImage("1390343812_folder-open.png", 32, 32));
+            JFXButton loadAnalysis = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"), JEConfig.getImage("1390343812_folder-open.png", 32, 32));
             loadAnalysis.setStyle(style);
             loadAnalysis.setAlignment(Pos.CENTER);
 
@@ -461,10 +465,16 @@ public class GraphPluginView implements Plugin {
         try {
             double totalJob = dataModel.getCharts().getListSettings().size();
 
-            JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
+            JEConfig.getStatusBar().startProgressJob(ChartPlugin.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
         } catch (Exception ex) {
 
         }
+
+        JEConfig.getStatusBar().getTaskList().forEach((task, s) -> {
+            if (s.equals(XYChart.class.getName())) {
+                task.cancel(true);
+            }
+        });
 
         allCharts.clear();
         zoomed = false;
@@ -680,7 +690,7 @@ public class GraphPluginView implements Plugin {
                     });
                 }
 
-                JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.finishedchart") + " ");
+                JEConfig.getStatusBar().progressProgressJob(ChartPlugin.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.finishedchart") + " ");
             }
         }
 
@@ -720,7 +730,7 @@ public class GraphPluginView implements Plugin {
         };
 
 
-        JEConfig.getStatusBar().addTask(GraphPluginView.class.getName(), task, taskImage, true);
+        JEConfig.getStatusBar().addTask(ChartPlugin.class.getName(), task, taskImage, true);
 //        });
     }
 
@@ -759,7 +769,7 @@ public class GraphPluginView implements Plugin {
                     infoBox.setResizable(true);
                     infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
                     infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
-                    TextArea textArea = new TextArea(allFormulas.toString());
+                    JFXTextArea textArea = new JFXTextArea(allFormulas.toString());
                     textArea.setWrapText(true);
                     textArea.setPrefWidth(450);
                     textArea.setPrefHeight(200);
@@ -767,7 +777,7 @@ public class GraphPluginView implements Plugin {
                     infoBox.show();
                 }
 
-                Platform.runLater(() -> JEConfig.getStatusBar().finishProgressJob(GraphPluginView.class.getName(), ""));
+                Platform.runLater(() -> JEConfig.getStatusBar().finishProgressJob(ChartPlugin.class.getName(), ""));
                 Platform.runLater(() -> JEConfig.getStatusBar().getPopup().hide());
             });
         } else {
@@ -1303,7 +1313,7 @@ public class GraphPluginView implements Plugin {
                 case TABLE:
                     TableChart chart = (TableChart) cv;
                     TableTopDatePicker tableTopDatePicker = chart.getTableTopDatePicker();
-                    ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                    JFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
                     ChartDataRow singleRow = chart.getSingleRow();
                     datePicker.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                         if (datePicker.getSelectionModel().selectedIndexProperty().get() < singleRow.getSamples().size()

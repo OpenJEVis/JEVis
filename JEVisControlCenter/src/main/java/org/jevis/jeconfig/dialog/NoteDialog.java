@@ -4,6 +4,9 @@ package org.jevis.jeconfig.dialog;
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextArea;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -29,8 +32,8 @@ import java.util.Map;
 
 public class NoteDialog extends Dialog<ButtonType> {
     private final Image imgExpand = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "if_ExpandMore.png"));
-    private Map<String, RowNote> noteMap;
-    private ObservableList<RowNote> observableList = FXCollections.observableArrayList();
+    private final Map<String, RowNote> noteMap;
+    private final ObservableList<RowNote> observableList = FXCollections.observableArrayList();
 
     public NoteDialog(Map<String, RowNote> map) {
         this.noteMap = map;
@@ -105,9 +108,9 @@ public class NoteDialog extends Dialog<ButtonType> {
                         } else {
                             RowNote rowNote = (RowNote) getTableRow().getItem();
 
-                            TextArea textArea = new TextArea(rowNote.getUserNote());
+                            JFXTextArea textArea = new JFXTextArea(rowNote.getUserNote());
 
-                            Button expand = new Button(null);
+                            JFXButton expand = new JFXButton(null);
                             expand.setBackground(new Background(new BackgroundImage(
                                     imgExpand,
                                     BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
@@ -192,7 +195,7 @@ public class NoteDialog extends Dialog<ButtonType> {
                         } else {
                             RowNote rowNote = (RowNote) getTableRow().getItem();
 
-                            TextField textField = new TextField();
+                            JFXTextField textField = new JFXTextField();
                             if (!rowNote.getUserValue().equals("")) {
                                 double userValue = Double.parseDouble(rowNote.getUserValue()) * rowNote.getScaleFactor();
                                 textField.setText(String.valueOf(userValue));
@@ -218,11 +221,7 @@ public class NoteDialog extends Dialog<ButtonType> {
                                 }
                             });
                             try {
-                                if (rowNote.getDataObject().getDataSource().getCurrentUser().canWrite(rowNote.getDataObject().getID())) {
-                                    textField.setDisable(false);
-                                } else {
-                                    textField.setDisable(true);
-                                }
+                                textField.setDisable(!rowNote.getDataObject().getDataSource().getCurrentUser().canWrite(rowNote.getDataObject().getID()));
                             } catch (Exception ex) {
                                 textField.setDisable(true);
                             }

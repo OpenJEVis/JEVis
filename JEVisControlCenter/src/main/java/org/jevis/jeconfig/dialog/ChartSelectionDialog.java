@@ -20,8 +20,7 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTimePicker;
+import com.jfoenix.controls.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -42,6 +41,7 @@ import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ColorMappingBox;
@@ -175,8 +175,8 @@ public class ChartSelectionDialog {
         VBox.setVgrow(buttonBox, Priority.NEVER);
 
         Region spacer = new Region();
-        Button ok = new Button(I18n.getInstance().getString("graph.selection.load"));
-        Button removeAllSelections = new Button(I18n.getInstance().getString("graph.selection.removeselections"));
+        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.selection.load"));
+        JFXButton removeAllSelections = new JFXButton(I18n.getInstance().getString("graph.selection.removeselections"));
 
         removeAllSelections.setOnAction(event -> {
             try {
@@ -198,6 +198,7 @@ public class ChartSelectionDialog {
         root.getChildren().addAll(mainTabPane, sep, buttonBox);
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
 
         if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
@@ -342,7 +343,7 @@ public class ChartSelectionDialog {
         });
 
         PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels, false);
-        final ComboBox<AnalysisTimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
+        final JFXComboBox<AnalysisTimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
         final JFXDatePicker pickerDateStart = pickerCombo.getStartDatePicker();
         final JFXTimePicker pickerTimeStart = pickerCombo.getStartTimePicker();
         final JFXDatePicker pickerDateEnd = pickerCombo.getEndDatePicker();
@@ -397,7 +398,7 @@ public class ChartSelectionDialog {
             final Label calculationLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.calculation"));
             final Label bubbleTypeLabel = new Label("Bubble Type");
 
-            final ComboBox<BubbleType> bubbleTypeComboBox = new ComboBox<>(FXCollections.observableArrayList(BubbleType.X, BubbleType.Y));
+            final JFXComboBox<BubbleType> bubbleTypeComboBox = new JFXComboBox<>(FXCollections.observableArrayList(BubbleType.X, BubbleType.Y));
 
             bubbleTypeComboBox.getSelectionModel().select(model.getBubbleType());
 
@@ -501,13 +502,13 @@ public class ChartSelectionDialog {
 
     private HBox getTargetSelector(String value, ChartDataRow model) {
         HBox limitDataBox = new HBox();
-        Button treeButton = new Button(I18n
+        JFXButton treeButton = new JFXButton(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
 
-        Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+        JFXButton gotoButton = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
                 JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
-        gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+        gotoButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);

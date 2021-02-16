@@ -19,6 +19,9 @@
  */
 package org.jevis.jeconfig.plugin.classes.relationship;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -26,7 +29,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -95,7 +99,7 @@ public class ValidParentEditor {
                                               classBox.getChildren().setAll(icon, otherClass);
 
                                               gb.add(classBox, 0, ++x);
-                                              Button remove = new Button();
+                                              JFXButton remove = new JFXButton();
                                               remove.setDisable(!JEConfig.getDataSource().getCurrentUser().isSysAdmin());
                                               remove.setGraphic(JEConfig.getImage("list-remove.png", 20, 20));
                                               gb.add(remove, 1, x);
@@ -123,13 +127,13 @@ public class ValidParentEditor {
                                       logger.fatal(ex);
                                   }
 
-                                  final Button newB = new Button();
+                                  final JFXButton newB = new JFXButton();
 
                                   newB.setGraphic(JEConfig.getImage("list-add.png", 20, 20));
                                   newB.setDisable(true);
 
                                   //TODO: replace with Tree selection dialog
-                                  final TextField newTF = new TextField();
+                                  final JFXTextField newTF = new JFXTextField();
 
                                   newTF.setPromptText(I18n.getInstance().getString("plugin.classes.relationship.name.prompt"));
                                   gb.add(new Separator(Orientation.HORIZONTAL), 0, ++x, 2, 1);
@@ -213,8 +217,8 @@ public class ValidParentEditor {
 
     }
 
-    public ComboBox<String> buildTypeBox(JEVisClassRelationship rel) throws JEVisException {
-        ComboBox<String> box = new ComboBox<>();
+    public JFXComboBox<String> buildTypeBox(JEVisClassRelationship rel) throws JEVisException {
+        JFXComboBox<String> box = new JFXComboBox<>();
         box.getItems().add(INHERIT);
         box.getItems().add(NESTED);
         box.getItems().add(OK_PARENT);
@@ -244,8 +248,8 @@ public class ValidParentEditor {
         return box;
     }
 
-    public ComboBox<String> buildDirectionBox(JEVisClassRelationship rel, JEVisClass jclass) throws JEVisException {
-        ComboBox<String> box = new ComboBox<>();
+    public JFXComboBox<String> buildDirectionBox(JEVisClassRelationship rel, JEVisClass jclass) throws JEVisException {
+        JFXComboBox<String> box = new JFXComboBox<>();
         box.getItems().add("Forward");
         box.getItems().add("Backward");
 

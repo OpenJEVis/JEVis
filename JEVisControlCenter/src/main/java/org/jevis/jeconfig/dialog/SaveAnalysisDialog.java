@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -33,7 +35,7 @@ public class SaveAnalysisDialog {
     private final ObjectRelations objectRelations;
     private final ToolBarView toolBarView;
     private final PickerCombo pickerCombo;
-    private final ComboBox<JEVisObject> listAnalysesComboBox;
+    private final JFXComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean changed;
     private JEVisObject currentAnalysisDirectory = null;
 
@@ -55,7 +57,7 @@ public class SaveAnalysisDialog {
         newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
-        TextField name = new TextField();
+        JFXTextField name = new JFXTextField();
 
         JEVisClass analysesDirectory = null;
         List<JEVisObject> listAnalysesDirectories = null;
@@ -66,7 +68,7 @@ public class SaveAnalysisDialog {
             e.printStackTrace();
         }
 
-        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
+        JFXComboBox<JEVisObject> parentsDirectories = new JFXComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
 
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override

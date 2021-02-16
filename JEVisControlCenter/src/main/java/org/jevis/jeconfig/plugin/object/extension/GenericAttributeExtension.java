@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -142,7 +143,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 //            alert.setContentText("Do you sill want to save?");
 //
 //            Optional<ButtonType> result = alert.showAndWait();
-//            if (result.get() == ButtonType.OK){
+//            if (result.get() == JFXButtonType.OK){
 //                return saveAll();
 //            } else {
 //                return false;
@@ -351,7 +352,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                             logger.catching(ex);
                         }
 
-                        Tooltip tt = new Tooltip(I18nWS.getInstance().getAttributeDescription(att));
+                        Tooltip tt = new JFXTooltip(I18nWS.getInstance().getAttributeDescription(att));
                         if (!tt.getText().isEmpty()) {
                             name.setTooltip(tt);
                         }

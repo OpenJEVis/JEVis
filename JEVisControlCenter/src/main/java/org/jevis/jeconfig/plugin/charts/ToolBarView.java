@@ -5,9 +5,11 @@
  */
 package org.jevis.jeconfig.plugin.charts;
 
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
+import com.jfoenix.controls.JFXTooltip;
+import com.jfoenix.skins.JFXComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -55,10 +57,10 @@ public class ToolBarView {
 
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
-    private final GraphPluginView graphPluginView;
+    private final ChartPlugin chartPlugin;
     private final ObjectRelations objectRelations;
     private AnalysisDataModel model;
-    private final ComboBox<JEVisObject> listAnalysesComboBox;
+    private final JFXComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean _initialized = false;
     private ToggleButton save;
     private ToggleButton loadNew;
@@ -73,7 +75,7 @@ public class ToolBarView {
     private ToggleButton infoButton;
     private ToggleButton helpButton;
     private PickerCombo pickerCombo;
-    private ComboBox<AnalysisTimeFrame> presetDateBox;
+    private JFXComboBox<AnalysisTimeFrame> presetDateBox;
     private JFXDatePicker pickerDateStart;
     private JFXTimePicker pickerTimeStart;
     private JFXDatePicker pickerDateEnd;
@@ -123,13 +125,13 @@ public class ToolBarView {
         }
     };
 
-    public ToolBarView(AnalysisDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
+    public ToolBarView(AnalysisDataModel model, JEVisDataSource ds, ChartPlugin chartPlugin) {
         this.model = model;
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
-        this.graphPluginView = graphPluginView;
+        this.chartPlugin = chartPlugin;
 
-        listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
+        listAnalysesComboBox = new JFXComboBox<>(model.getObservableListAnalyses());
         listAnalysesComboBox.setPrefWidth(300);
         setCellFactoryForComboBox();
     }
@@ -196,14 +198,14 @@ public class ToolBarView {
             }
         };
 
-        listAnalysesComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.list")));
+        listAnalysesComboBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.list")));
         listAnalysesComboBox.setCellFactory(cellFactory);
         listAnalysesComboBox.setButtonCell(cellFactory.call(null));
         listAnalysesComboBox.setId("Graph Analysis List");
 
         listAnalysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
-                ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) listAnalysesComboBox.getSkin();
+                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) listAnalysesComboBox.getSkin();
                 if (skin != null) {
                     ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
                     if (popupContent != null) {
@@ -212,7 +214,7 @@ public class ToolBarView {
                 }
             });
         });
-        JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, listAnalysesComboBox);
+        JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, listAnalysesComboBox);
     }
 
     private void loadNewDialog() {
@@ -305,7 +307,7 @@ public class ToolBarView {
         }
     }
 
-    public ComboBox<JEVisObject> getListAnalysesComboBox() {
+    public JFXComboBox<JEVisObject> getListAnalysesComboBox() {
         return listAnalysesComboBox;
     }
 
@@ -385,7 +387,7 @@ public class ToolBarView {
             pickerDateEnd = pickerCombo.getEndDatePicker();
             pickerTimeEnd = pickerCombo.getEndTimePicker();
 
-            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, presetDateBox, pickerDateStart, pickerTimeStart);
+            JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, presetDateBox, pickerDateStart, pickerTimeStart);
 
             createToolbarIcons();
 
@@ -432,7 +434,7 @@ public class ToolBarView {
 
             toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
             System.out.println("Create Graph toolbar");
-            JEVisHelp.getInstance().addHelpItems(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+            JEVisHelp.getInstance().addHelpItems(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
             addAnalysisComboBoxListener();
             pickerCombo.addListener();
@@ -442,7 +444,7 @@ public class ToolBarView {
     }
 
     private void startToolbarIconListener() {
-        reload.selectedProperty().addListener((observable, oldValue, newValue) -> graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD));
+        reload.selectedProperty().addListener((observable, oldValue, newValue) -> chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD));
 
         runUpdateButton.setOnAction(action -> {
             if (runUpdateButton.isSelected()) {
@@ -457,15 +459,15 @@ public class ToolBarView {
         });
 
         exportCSV.setOnAction(action -> {
-            GraphExportCSV ge = null;
-            if (graphPluginView.isZoomed()) {
-                ge = new GraphExportCSV(
+            ChartExportCSV ge = null;
+            if (chartPlugin.isZoomed()) {
+                ge = new ChartExportCSV(
                         ds,
                         model,
-                        new DateTime(graphPluginView.getxAxisLowerBound().longValue() * 1000),
-                        new DateTime(graphPluginView.getxAxisUpperBound().longValue() * 1000));
+                        new DateTime(chartPlugin.getxAxisLowerBound().longValue() * 1000),
+                        new DateTime(chartPlugin.getxAxisUpperBound().longValue() * 1000));
             } else {
-                ge = new GraphExportCSV(
+                ge = new ChartExportCSV(
                         ds,
                         model,
                         model.getGlobalAnalysisTimeFrame().getStart(),
@@ -480,11 +482,11 @@ public class ToolBarView {
         });
 
         exportImage.setOnAction(action -> {
-            GraphExportImage ge = new GraphExportImage(model);
+            ChartExportImage ge = new ChartExportImage(model);
 
             if (ge.getDestinationFile() != null) {
 
-                ge.export(graphPluginView.getvBox());
+                ge.export(chartPlugin.getvBox());
             }
 
         });
@@ -532,26 +534,26 @@ public class ToolBarView {
         save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
-        Tooltip saveTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.save"));
+        Tooltip saveTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.save"));
         save.setTooltip(saveTooltip);
 
         loadNew = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
-        Tooltip loadNewTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.loadNew"));
+        Tooltip loadNewTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.loadNew"));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadNew);
         loadNew.setTooltip(loadNewTooltip);
 
         exportCSV = new ToggleButton("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
-        Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
+        Tooltip exportCSVTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
         exportCSV.setTooltip(exportCSVTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportCSV);
 
         exportImage = new ToggleButton("", JEConfig.getImage("export-image.png", iconSize, iconSize));
-        Tooltip exportImageTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportImage"));
+        Tooltip exportImageTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportImage"));
         exportImage.setTooltip(exportImageTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportImage);
 
         reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
-        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
+        Tooltip reloadTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
@@ -559,7 +561,7 @@ public class ToolBarView {
         playIcon = JEConfig.getImage("play_32.png", iconSize, iconSize);
 
         runUpdateButton = new ToggleButton("", playIcon);
-        Tooltip runUpdateTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.runupdate"));
+        Tooltip runUpdateTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.runupdate"));
         runUpdateButton.setTooltip(runUpdateTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
         runUpdateButton.setSelected(model.getRunUpdate());
@@ -575,12 +577,12 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
         delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
-        Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
+        Tooltip deleteTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
         delete.setTooltip(deleteTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
 
         autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
-        Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
+        Tooltip autoResizeTip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
         autoResize.setTooltip(autoResizeTip);
         autoResize.setSelected(model.getAutoResize());
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(autoResize);
@@ -596,12 +598,12 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
         select = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
-        Tooltip selectTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
+        Tooltip selectTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
         select.setTooltip(selectTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
 
         showRawData = new ToggleButton("", JEConfig.getImage("raw_199316.png", iconSize, iconSize));
-        Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
+        Tooltip showRawDataTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
         showRawData.setTooltip(showRawDataTooltip);
         showRawData.setSelected(model.getShowRawData());
         showRawData.styleProperty().bind(
@@ -616,7 +618,7 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
         showSum = new ToggleButton("", JEConfig.getImage("Sum_132399.png", iconSize, iconSize));
-        Tooltip showSumTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
+        Tooltip showSumTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
         showSum.setTooltip(showSumTooltip);
         showSum.setSelected(model.getShowSum());
         showSum.styleProperty().bind(
@@ -631,7 +633,7 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
         showL1L2 = new ToggleButton("", JEConfig.getImage("l1l2.png", iconSize, iconSize));
-        Tooltip showL1L2Tooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
+        Tooltip showL1L2Tooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
         showL1L2.setTooltip(showL1L2Tooltip);
         showL1L2.setSelected(model.getShowL1L2());
         showL1L2.styleProperty().bind(
@@ -646,7 +648,7 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
         calcRegression = new ToggleButton("", JEConfig.getImage("regression.png", iconSize, iconSize));
-        Tooltip calcRegressionTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
+        Tooltip calcRegressionTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
         calcRegression.setTooltip(calcRegressionTooltip);
         calcRegression.setSelected(model.calcRegression());
         calcRegression.styleProperty().bind(
@@ -661,7 +663,7 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
         customWorkDay = new ToggleButton("", JEConfig.getImage("iconfinder_calendar-clock_299096.png", iconSize, iconSize));
-        Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
+        Tooltip customWorkDayTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
         customWorkDay.setTooltip(customWorkDayTooltip);
         customWorkDay.setSelected(model.isCustomWorkDay());
         customWorkDay.styleProperty().bind(
@@ -676,7 +678,7 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
         disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
-        Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
+        Tooltip disableIconsTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         disableIcons.setTooltip(disableIconsTooltip);
         disableIcons.setSelected(model.getShowIcons());
         disableIcons.styleProperty().bind(
@@ -691,7 +693,7 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
         addSeriesRunningMean = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
-        Tooltip addSeriesRunningMeanTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
+        Tooltip addSeriesRunningMeanTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         addSeriesRunningMean.setTooltip(addSeriesRunningMeanTooltip);
         addSeriesRunningMean.styleProperty().bind(
                 Bindings
@@ -706,7 +708,7 @@ public class ToolBarView {
 
 
         zoomOut = new ToggleButton("", JEConfig.getImage("ZoomOut.png", iconSize, iconSize));
-        Tooltip zoomOutTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
+        Tooltip zoomOutTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
         zoomOut.setTooltip(zoomOutTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
 
@@ -733,7 +735,7 @@ public class ToolBarView {
         this.changed = changed;
     }
 
-    public GraphPluginView getGraphPluginView() {
-        return graphPluginView;
+    public ChartPlugin getGraphPluginView() {
+        return chartPlugin;
     }
 }

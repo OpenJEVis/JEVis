@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.plugin.dashboard.datahandler;
 
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -221,7 +224,7 @@ public class WidgetTreePlugin implements TreePlugin {
                                 if (show) {
 
                                     DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
-                                    TextField nameField = new TextField();
+                                    JFXTextField nameField = new JFXTextField();
                                     if (dataPoint.getName() != null) {
                                         nameField.setText(dataPoint.getName());
                                     }
@@ -284,7 +287,7 @@ public class WidgetTreePlugin implements TreePlugin {
                                 if (show) {
 
                                     DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
-                                    TextField customCSS = new TextField();
+                                    JFXTextField customCSS = new JFXTextField();
                                     if (dataPoint.getCustomCSS() != null) {
                                         customCSS.setText(dataPoint.getCustomCSS());
                                     }
@@ -418,7 +421,7 @@ public class WidgetTreePlugin implements TreePlugin {
                                 if (show) {
 
                                     DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
-                                    ComboBox<String> box = buildUnitBox(dataPoint);
+                                    JFXComboBox<String> box = buildUnitBox(dataPoint);
 
                                     box.valueProperty().addListener((observable, oldValue, newValue) -> {
                                         if (!newValue.equals(oldValue)) {
@@ -443,8 +446,8 @@ public class WidgetTreePlugin implements TreePlugin {
         return column;
     }
 
-    private ComboBox<String> buildUnitBox(DataPointNode singleRow) {
-        ComboBox<String> processorBox = new ComboBox<>();
+    private JFXComboBox<String> buildUnitBox(DataPointNode singleRow) {
+        JFXComboBox<String> processorBox = new JFXComboBox<>();
         try {
             JEVisClass stringDataClass = null;
 
@@ -842,7 +845,7 @@ public class WidgetTreePlugin implements TreePlugin {
                             boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
 
                             if (show) {
-                                ComboBox<ManipulationMode> mathBox = new ComboBox<>();
+                                JFXComboBox<ManipulationMode> mathBox = new JFXComboBox<>();
 
 
                                 Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>> cellFactory = new Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>>() {
@@ -1086,7 +1089,7 @@ public class WidgetTreePlugin implements TreePlugin {
 //                            getDataPointNode(getTreeTableRow());//hmmm
 
                             if (show) {
-                                CheckBox box = new CheckBox();
+                                JFXCheckBox box = new JFXCheckBox();
                                 box.setSelected(item);
 //                                box.setSelected((Boolean) getTreeTableRow().getItem().getDataObject(COLUMN_SELECTED, false));
                                 box.setOnAction(event -> {
@@ -1152,7 +1155,7 @@ public class WidgetTreePlugin implements TreePlugin {
                             boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
 
                             if (show) {
-                                CheckBox box = new CheckBox();
+                                JFXCheckBox box = new JFXCheckBox();
                                 box.setSelected(item);
                                 box.setOnAction(event -> {
                                     try {

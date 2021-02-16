@@ -19,13 +19,13 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,9 +45,9 @@ public class PasswordEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(PasswordEditor.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
-    private HBox box = new HBox();
+    private final HBox box = new HBox();
     private boolean _hasChanged = false;
-    private Button _setPW;
+    private JFXButton _setPW;
     private boolean _readOnly = true;
 
     public PasswordEditor(JEVisAttribute att) {
@@ -105,7 +105,7 @@ public class PasswordEditor implements AttributeEditor {
 
     private void buildTextField() {
         if (_setPW == null) {
-            _setPW = new Button(I18n.getInstance().getString("plugin.object.attribute.password.button"),
+            _setPW = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.password.button"),
                     JEConfig.getImage("1415303685_lock-s1.png", 18, 18));
             _setPW.setDisable(_readOnly);
             _setPW.setOnAction(new EventHandler<ActionEvent>() {

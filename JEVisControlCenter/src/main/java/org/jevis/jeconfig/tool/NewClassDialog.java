@@ -20,6 +20,9 @@
  */
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -30,7 +33,8 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -44,16 +48,21 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 /**
- *
  * @author fs
  */
 public class NewClassDialog {
     private static final Logger logger = LogManager.getLogger(NewClassDialog.class);
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON_QUESTION = "1400874302_question_blue.png";
+
+    final JFXCheckBox iherit = new JFXCheckBox("Inherit:");
+
+    private JEVisClass inherit = null;
+    private String name;
 
     /**
      *
@@ -75,6 +84,7 @@ public class NewClassDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(350);
         stage.setHeight(230);
@@ -83,10 +93,10 @@ public class NewClassDialog {
 
         HBox buttonPanel = new HBox();
 
-        final Button ok = new Button("OK");
+        final JFXButton ok = new JFXButton("OK");
         ok.setDefaultButton(true);
 
-        Button cancel = new Button("Cancel");
+        JFXButton cancel = new JFXButton("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -96,13 +106,13 @@ public class NewClassDialog {
         buttonPanel.setMaxHeight(25);
 
         Label nameL = new Label("Name:");
-        final TextField nameF = new TextField();
+        final JFXTextField nameF = new JFXTextField();
         nameF.setPromptText("Enter new name here");
 
         final Label warning = new Label("Exists!");
         warning.setTextFill(Color.web("#CB5959"));
 
-        final TextField heritB = new TextField();
+        final JFXTextField heritB = new JFXTextField();
         heritB.setPromptText("Iherit class name");
         heritB.setDisable(true);
 
@@ -220,6 +230,7 @@ public class NewClassDialog {
 
         nameF.requestFocus();
         stage.sizeToScene();
+
         stage.showAndWait();
 //        if (isOK.getValue() == true) {
 //            response = Response.YES;
@@ -229,10 +240,6 @@ public class NewClassDialog {
 
         return response;
     }
-
-    private JEVisClass inherit = null;
-    private String name;
-    final CheckBox iherit = new CheckBox("Inherit:");
 
     private Response response = Response.CANCEL;
 

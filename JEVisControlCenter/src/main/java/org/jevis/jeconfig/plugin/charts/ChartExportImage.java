@@ -23,8 +23,8 @@ import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 
-public class GraphExportImage {
-    private static final Logger logger = LogManager.getLogger(GraphExportImage.class);
+public class ChartExportImage {
+    private static final Logger logger = LogManager.getLogger(ChartExportImage.class);
     private final AnalysisDataModel model;
     private File destinationFile;
     private DateTime minDate = null;
@@ -32,7 +32,7 @@ public class GraphExportImage {
     private String formatName;
     private final FileChooser fileChooser;
 
-    public GraphExportImage(AnalysisDataModel model) {
+    public ChartExportImage(AnalysisDataModel model) {
         this.model = model;
         this.setDates();
 

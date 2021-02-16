@@ -19,12 +19,12 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
@@ -47,9 +47,9 @@ public class WebViewEditor implements AttributeEditor {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _readOnly = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
-    private JEVisSample _lastSample;
-    private VBox vBox = new VBox();
-    private WebView webView = new WebView();
+    private final JEVisSample _lastSample;
+    private final VBox vBox = new VBox();
+    private final WebView webView = new WebView();
 
     public WebViewEditor(JEVisAttribute att) {
         logger.debug("==init== for: {}", att.getName());
@@ -75,7 +75,7 @@ public class WebViewEditor implements AttributeEditor {
                     logger.error("Could not add date to dat list.");
                 }
             }
-            ComboBox<DateTime> dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
+            JFXComboBox<DateTime> dateTimeComboBox = new JFXComboBox<>(FXCollections.observableList(dateTimeList));
             try {
                 if (_lastSample != null) {
                     dateTimeComboBox.getSelectionModel().select(_lastSample.getTimestamp());

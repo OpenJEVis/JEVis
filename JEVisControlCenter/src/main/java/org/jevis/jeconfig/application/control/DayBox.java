@@ -1,15 +1,15 @@
 package org.jevis.jeconfig.application.control;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DayBox extends ComboBox<Integer> {
+public class DayBox extends JFXComboBox<Integer> {
 
     public DayBox() {
         super();

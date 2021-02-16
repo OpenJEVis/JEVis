@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.sample.tableview;
 
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -437,7 +438,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
-                            TextField textField = new TextField(dateViewFormat.print(tableSample.getTimeStamp()));
+                            JFXTextField textField = new JFXTextField(dateViewFormat.print(tableSample.getTimeStamp()));
                             setDefaultFieldStyle(this, textField);
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -500,7 +501,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                         } else {
                             try {
                                 TableSample tableSample = (TableSample) getTableRow().getItem();
-                                CheckBox checkBox = new CheckBox();
+                                JFXCheckBox checkBox = new JFXCheckBox();
                                 checkBox.setSelected(tableSample.isSelected());
                                 checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
                                     tableSample.setIsSelected(newValue);
@@ -578,7 +579,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      */
     private void setErrorCellStyle(TableCell cell, Exception ex) {
         cell.setBackground(new Background(new BackgroundFill(COLOR_ERROR, CornerRadii.EMPTY, Insets.EMPTY)));
-        Tooltip tt = new Tooltip(ex.getMessage());
+        Tooltip tt = new JFXTooltip(ex.getMessage());
         cell.setTooltip(tt);
     }
 
@@ -591,7 +592,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      */
     private void setErrorCellStyle(TableCell cell, Exception ex, Control... field) {
         cell.setBackground(new Background(new BackgroundFill(COLOR_ERROR, CornerRadii.EMPTY, Insets.EMPTY)));
-        Tooltip tt = new Tooltip(ex.getMessage());
+        Tooltip tt = new JFXTooltip(ex.getMessage());
         cell.setTooltip(tt);
         for (Control control : field) {
             control.setTooltip(tt);
@@ -618,7 +619,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
 
-                            TextField textField = new TextField(tableSample.getValue().toString());
+                            JFXTextField textField = new JFXTextField(tableSample.getValue().toString());
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
                             setDefaultFieldStyle(this, textField);
@@ -716,7 +717,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
-                            Button downloadButton = new Button(fileName, JEConfig.getImage("save.gif", 14, 14));
+                            JFXButton downloadButton = new JFXButton(fileName, JEConfig.getImage("save.gif", 14, 14));
 
                             downloadButton.setOnAction(event -> {
 
@@ -742,7 +743,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
                             HBox hBox = new HBox(downloadButton);
                             if (isPDF) {
-                                Button pdfButton = new Button("", JEConfig.getImage("pdf_24_2133056.png", 14, 14));
+                                JFXButton pdfButton = new JFXButton("", JEConfig.getImage("pdf_24_2133056.png", 14, 14));
                                 hBox.getChildren().add(pdfButton);
                                 pdfButton.setOnAction(event -> {
                                     PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
@@ -755,7 +756,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             }
 
                             if (isImage) {
-                                Button imageButton = new Button("", JEConfig.getImage("export-image.png", 18, 18));
+                                JFXButton imageButton = new JFXButton("", JEConfig.getImage("export-image.png", 18, 18));
                                 hBox.getChildren().add(imageButton);
                                 imageButton.setOnAction(event -> {
                                     ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
@@ -841,10 +842,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
 
-                            TextArea textField = new TextArea(tableSample.getValue().toString());
+                            JFXTextArea textField = new JFXTextArea(tableSample.getValue().toString());
 
-
-                            Button expand = new Button(null);
+                            JFXButton expand = new JFXButton(null);
                             expand.setBackground(new Background(new BackgroundImage(
                                     JEConfig.getImage("if_ExpandMore.png"),
                                     BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
@@ -966,7 +966,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
 
-                            PasswordField textField = new PasswordField();
+                            JFXPasswordField textField = new JFXPasswordField();
                             textField.setText(tableSample.getValue().toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
@@ -1011,7 +1011,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
-                            TextField textField = new TextField(tableSample.getValue().toString());
+                            JFXTextField textField = new JFXTextField(tableSample.getValue().toString());
                             setDefaultFieldStyle(this, textField);
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
@@ -1132,7 +1132,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setDefaultCellStyle(this);
                             TableSample tableSample = (TableSample) getTableRow().getItem();
 
-                            TextField textField = new TextField(tableSample.getNote());
+                            JFXTextField textField = new JFXTextField(tableSample.getNote());
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
 

@@ -5,11 +5,11 @@
  */
 package org.jevis.jeconfig.sample;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
@@ -33,7 +33,7 @@ public class AttributeUnitExtension implements SampleEditorExtension {
 
     private final static String TITLE = I18n.getInstance().getString("attribute.editor.unit.title");
     private final BorderPane _view = new BorderPane();
-    private JEVisAttribute att;
+    private final JEVisAttribute att;
     private UnitSelectUI iuUnit;
     private UnitSelectUI ouUnit;
 
@@ -91,8 +91,8 @@ public class AttributeUnitExtension implements SampleEditorExtension {
             SamplingRateUI iuRate = new SamplingRateUI(att.getInputSampleRate());
             SamplingRateUI ouRate = new SamplingRateUI(att.getDisplaySampleRate());
 
-            Button applyToRight = new Button("", JEConfig.getImage("right.png", 12, 12));
-            Button applyToLeft = new Button("", JEConfig.getImage("left.png", 12, 12));
+            JFXButton applyToRight = new JFXButton("", JEConfig.getImage("right.png", 12, 12));
+            JFXButton applyToLeft = new JFXButton("", JEConfig.getImage("left.png", 12, 12));
 
             applyToRight.setOnAction(event -> {
                 try {

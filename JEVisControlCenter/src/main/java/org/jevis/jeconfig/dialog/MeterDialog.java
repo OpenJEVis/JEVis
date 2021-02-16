@@ -1,13 +1,14 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTimePicker;
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -23,6 +24,7 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.DataTypeBox;
 import org.jevis.jeconfig.application.control.DayBox;
@@ -60,9 +62,9 @@ public class MeterDialog {
     private final Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
     private final Label oldCounterValueLabel = new Label(I18n.getInstance().getString("plugin.meters.meterdialog.oldcountervalue"));
     private final Label newCounterValueLabel = new Label(I18n.getInstance().getString("plugin.meters.meterdialog.newcountervalue"));
-    private final TextField oldCounterValue = new TextField();
-    private final TextField newCounterValue = new TextField();
-    private final CheckBox enterCounterValues = new CheckBox(I18n.getInstance().getString("plugin.meters.meterdialog.entercountervalues"));
+    private final JFXTextField oldCounterValue = new JFXTextField();
+    private final JFXTextField newCounterValue = new JFXTextField();
+    private final JFXCheckBox enterCounterValues = new JFXCheckBox(I18n.getInstance().getString("plugin.meters.meterdialog.entercountervalues"));
     private final GridPane innerGridPane = new GridPane();
     private int row;
     private int column;
@@ -158,14 +160,14 @@ public class MeterDialog {
         VBox parentVBox = new VBox(parentLabel);
         parentVBox.setAlignment(Pos.CENTER);
 
-        Button treeButton = new Button(I18n
+        JFXButton treeButton = new JFXButton(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
 
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        TextField nameField = new TextField();
+        JFXTextField nameField = new JFXTextField();
 
         Region targetSpace = new Region();
         targetSpace.setPrefWidth(20);
@@ -175,9 +177,9 @@ public class MeterDialog {
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.new.ok"));
+        JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.ok"));
         HBox.setHgrow(ok, Priority.NEVER);
-        Button cancel = new Button(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
         HBox.setHgrow(cancel, Priority.NEVER);
 
         Separator sep1 = new Separator(Orientation.HORIZONTAL);
@@ -269,8 +271,12 @@ public class MeterDialog {
             }
         });
 
+        stage.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                TopMenu.applyActiveTheme(scene);
+            }
+        });
         stage.showAndWait();
-
         return response;
     }
 
@@ -310,16 +316,16 @@ public class MeterDialog {
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        TextField nameField = new TextField(selectedMeter.getName());
+        JFXTextField nameField = new JFXTextField(selectedMeter.getName());
 
         HBox targetBox = new HBox(nameVBox, nameField);
         targetBox.setSpacing(4);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.new.ok"));
+        JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.ok"));
         HBox.setHgrow(ok, Priority.NEVER);
-        Button cancel = new Button(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
         HBox.setHgrow(cancel, Priority.NEVER);
 
         Separator sep1 = new Separator(Orientation.HORIZONTAL);

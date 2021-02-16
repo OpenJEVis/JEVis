@@ -18,6 +18,7 @@ import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.Calendar;
+import java.util.stream.IntStream;
 
 /**
  * @author broder
@@ -200,5 +201,9 @@ public class PeriodHelper {
         cal.add(Calendar.DATE, -1);
         cal.add(Calendar.DAY_OF_MONTH, -(cal.get(Calendar.DAY_OF_WEEK) - 1));
         return cal.get(Calendar.DAY_OF_MONTH);
+    }
+
+    public static boolean isGreaterThenDays(org.joda.time.Period period) {
+        return IntStream.of(period.getYears(), period.getMonths(), period.getWeeks(), period.getDays()).anyMatch(i -> i > 0);
     }
 }

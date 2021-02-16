@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.unit;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -26,13 +27,13 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.dialog.DialogHeader;
 
 import javax.measure.unit.Unit;
@@ -50,7 +51,7 @@ public class NewUnitDialog {
         NO, YES, CANCEL
     }
 
-    private Response response = Response.CANCEL;
+    private final Response response = Response.CANCEL;
 
     public Response show(Stage owner, final Unit parent) {
         final Stage stage = new Stage();
@@ -65,6 +66,7 @@ public class NewUnitDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(380);
         stage.setHeight(260);
@@ -80,11 +82,11 @@ public class NewUnitDialog {
 
         HBox buttonPanel = new HBox();
 
-        final Button ok = new Button("OK");
+        final JFXButton ok = new JFXButton("OK");
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        Button cancel = new Button("Cancel");
+        JFXButton cancel = new JFXButton("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

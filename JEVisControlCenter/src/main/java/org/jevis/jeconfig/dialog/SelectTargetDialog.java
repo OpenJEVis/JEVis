@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -27,7 +28,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -41,6 +41,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.*;
 import org.jevis.jeconfig.application.jevistree.filter.BasicCellFilter;
@@ -60,7 +61,7 @@ public class SelectTargetDialog {
     public static final String VALUE = "Value";
     private final SelectionMode selectionMode;
     private final JEVisTreeFilter basicFilter;
-    private final Button ok = new Button("OK");
+    private final JFXButton ok = new JFXButton("OK");
     private final String ICON = "1404313956_evolution-tasks.png";
     private JEVisDataSource _ds;
     private Stage stage;
@@ -371,7 +372,11 @@ public class SelectTargetDialog {
         if (dialogOwner != null) {
             stage.initOwner(dialogOwner);
         }
-
+        stage.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                TopMenu.applyActiveTheme(scene);
+            }
+        });
         stage.showAndWait();
 
         return _response;
@@ -403,7 +408,7 @@ public class SelectTargetDialog {
 
         ok.setDefaultButton(true);
 
-        Button cancel = new Button(I18n.getInstance().getString("dialog.selection.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("dialog.selection.cancel"));
         cancel.setCancelButton(true);
         cancel.setOnAction(new EventHandler<ActionEvent>() {
 

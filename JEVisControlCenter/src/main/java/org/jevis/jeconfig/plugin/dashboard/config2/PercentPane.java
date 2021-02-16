@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -23,7 +23,7 @@ public class PercentPane extends GridPane {
     private final Label sourceLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.source"));
     private final Percent percent;
     private final ObservableList<Widget> widgetList;
-    private ComboBox<Widget> widgetBox;
+    private JFXComboBox<Widget> widgetBox;
 
 
     public PercentPane(Percent percent, ObservableList<Widget> widgetList) {
@@ -40,7 +40,7 @@ public class PercentPane extends GridPane {
 
     private void initControls() {
 
-        widgetBox = new ComboBox<>(
+        widgetBox = new JFXComboBox<>(
                 widgetList.filtered(widget -> widget.typeID().equals(ValueWidget.WIDGET_ID)));
         Callback<ListView<Widget>, ListCell<Widget>> cellFactory = new Callback<ListView<Widget>, ListCell<Widget>>() {
             @Override

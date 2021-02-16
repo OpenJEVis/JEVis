@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.control;
 
 import com.google.common.collect.Lists;
+import com.jfoenix.controls.JFXButton;
 import com.sun.javafx.scene.control.skin.CustomColorDialog;
 import com.sun.javafx.scene.control.skin.resources.ControlResources;
 import javafx.beans.property.ObjectProperty;
@@ -9,7 +10,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -25,20 +25,20 @@ import java.util.List;
 public class ColorPickerAdv extends HBox {
 
     private static final Logger logger = LogManager.getLogger(ColorPickerAdv.class);
-    private ObjectProperty<Color> selectColorProperty = new SimpleObjectProperty<>(ColorColumn.color_list[0]);
+    private final ObjectProperty<Color> selectColorProperty = new SimpleObjectProperty<>(ColorColumn.color_list[0]);
     private Window owner;
     private Color initColor = ColorColumn.color_list[0];
-    private ObjectProperty<Color> finalColor = new SimpleObjectProperty<>(ColorColumn.color_list[0]);
-    private Button button = new Button();
+    private final ObjectProperty<Color> finalColor = new SimpleObjectProperty<>(ColorColumn.color_list[0]);
+    private final JFXButton button = new JFXButton();
 
     public ColorPickerAdv() {
-        this(null,null);
+        this(null, null);
     }
 
     public ColorPickerAdv(Window owner, Color selectedColor) {
         super();
         if (selectedColor != null) {
-            initColor= selectedColor;
+            initColor = selectedColor;
             finalColor.set(initColor);
         }
 

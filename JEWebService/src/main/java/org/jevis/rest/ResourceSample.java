@@ -316,15 +316,16 @@ public class ResourceSample {
 
                     }
 
-                    if (!aggregationPeriod.equals("") && !manipulationMode.equals("")) {
+                    if ((aggregationPeriod.equals("") && manipulationMode.equals(""))
+                            || (aggregationPeriod.equals("NONE") && manipulationMode.equals("NONE"))) {
+                        list = ds.getSamples(id, attribute, startDate, endDate, limit);
+                    } else {
                         AggregationPeriod ap = AggregationPeriod.parseAggregation(aggregationPeriod);
                         ManipulationMode mm = ManipulationMode.parseManipulation(manipulationMode);
                         JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap);
 
                         list = sg.getAggregatedSamples();
-
-                    } else {
-                        list = ds.getSamples(id, attribute, startDate, endDate, limit);
+                        sg = null;
                     }
 
                     return Response.ok(list).build();

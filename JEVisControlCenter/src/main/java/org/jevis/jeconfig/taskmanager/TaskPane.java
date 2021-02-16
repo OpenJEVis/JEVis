@@ -1,11 +1,11 @@
 package org.jevis.jeconfig.taskmanager;
 
+import com.jfoenix.controls.JFXProgressBar;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -35,28 +35,24 @@ public class TaskPane extends AnchorPane {
         taskNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
 
-        TableColumn<Task, ProgressBar> taskProgressColumn = new TableColumn("Progress");
-        taskProgressColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Task, ProgressBar>, ObservableValue<ProgressBar>>() {
+        TableColumn<Task, JFXProgressBar> taskProgressColumn = new TableColumn("Progress");
+        taskProgressColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Task, JFXProgressBar>, ObservableValue<JFXProgressBar>>() {
             @Override
-            public ObservableValue<ProgressBar> call(TableColumn.CellDataFeatures<Task, ProgressBar> param) {
-                ProgressBar progressBar = new ProgressBar();
+            public ObservableValue<JFXProgressBar> call(TableColumn.CellDataFeatures<Task, JFXProgressBar> param) {
+                JFXProgressBar progressBar = new JFXProgressBar();
                 progressBar.progressProperty().bind(param.getValue().progressProperty());
                 return new SimpleObjectProperty<>(progressBar);
             }
         });
-        taskProgressColumn.setCellFactory(new Callback<TableColumn<Task, ProgressBar>, TableCell<Task, ProgressBar>>() {
+        taskProgressColumn.setCellFactory(new Callback<TableColumn<Task, JFXProgressBar>, TableCell<Task, JFXProgressBar>>() {
             @Override
-            public TableCell<Task, ProgressBar> call(TableColumn<Task, ProgressBar> param) {
-                return new TableCell<Task, ProgressBar>(){
+            public TableCell<Task, JFXProgressBar> call(TableColumn<Task, JFXProgressBar> param) {
+                return new TableCell<Task, JFXProgressBar>() {
                     @Override
-                    protected void updateItem(ProgressBar item, boolean empty) {
+                    protected void updateItem(JFXProgressBar item, boolean empty) {
                         super.updateItem(item, empty);
                         setText(null);
-                        if(item!=null){
-                            setGraphic(item);
-                        }else{
-                            setGraphic(null);
-                        }
+                        setGraphic(item);
                     }
                 };
             }

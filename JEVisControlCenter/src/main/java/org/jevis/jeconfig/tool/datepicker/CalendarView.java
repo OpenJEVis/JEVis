@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.tool.datepicker;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.*;
@@ -8,7 +9,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -56,6 +56,133 @@ public class CalendarView extends VBox {
                 calendar.set(Calendar.getInstance(localeProperty().get()));
             }
         });
+    }
+
+    private final HBox todayButtonBox;
+    private final ObjectProperty<Locale> locale = new SimpleObjectProperty<Locale>();
+
+    /**
+     * Gets or sets the locale.
+     *
+     * @return The property.
+     */
+    public ObjectProperty<Locale> localeProperty() {
+        return locale;
+    }
+
+    private final ObjectProperty<Calendar> calendar = new SimpleObjectProperty<Calendar>();
+
+    public Locale getLocale() {
+        return locale.get();
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale.set(locale);
+    }
+
+    /**
+     * Gets or sets the calendar.
+     *
+     * @return The property.
+     */
+    public ObjectProperty<Calendar> calendarProperty() {
+        return calendar;
+    }
+
+    private final ObservableList<Integer> disabledWeekdays = FXCollections.observableArrayList();
+
+    public Calendar getCalendar() {
+        return calendar.get();
+    }
+
+    public void setCalendar(Calendar calendar) {
+        this.calendar.set(calendar);
+    }
+
+    /**
+     * Gets the list of disabled week days. E.g. if you add
+     * <code>Calendar.WEDNESDAY</code>, Wednesday will be disabled.
+     *
+     * @return The list.
+     */
+    public ObservableList<Integer> getDisabledWeekdays() {
+        return disabledWeekdays;
+    }
+
+    private final ObservableList<Date> disabledDates = FXCollections.observableArrayList();
+
+    /**
+     * Gets the list of disabled dates. You can add specific date, in order to
+     * disable them.
+     *
+     * @return The list.
+     */
+    public ObservableList<Date> getDisabledDates() {
+        return disabledDates;
+    }
+
+    private final ObjectProperty<Date> currentDate = new SimpleObjectProperty<Date>();
+
+    /**
+     * Gets the selected date.
+     *
+     * @return The property.
+     */
+    public ReadOnlyObjectProperty<Date> selectedDateProperty() {
+        return selectedDate;
+    }
+
+    private final BooleanProperty showTodayButton = new SimpleBooleanProperty();
+
+    public ObjectProperty<Date> currentDateProperty() {
+        return currentDate;
+    }
+
+    /**
+     * Indicates, whether the today button should be shown.
+     *
+     * @return The property.
+     */
+    public BooleanProperty showTodayButtonProperty() {
+        return showTodayButton;
+    }
+
+    private final StringProperty todayButtonText = new SimpleStringProperty("Today");
+
+    public boolean getShowTodayButton() {
+        return showTodayButton.get();
+    }
+
+    public void setShowTodayButton(boolean showTodayButton) {
+        this.showTodayButton.set(showTodayButton);
+    }
+
+    /**
+     * The text of the today button
+     *
+     * @return The property.
+     */
+    public StringProperty todayButtonTextProperty() {
+        return todayButtonText;
+    }
+
+    private final BooleanProperty showWeeks = new SimpleBooleanProperty(false);
+
+    public String getTodayButtonText() {
+        return todayButtonText.get();
+    }
+
+    public void setTodayButtonText(String todayButtonText) {
+        this.todayButtonText.set(todayButtonText);
+    }
+
+    /**
+     * Indicates, whether the week numbers are shown.
+     *
+     * @return The property.
+     */
+    public BooleanProperty showWeeksProperty() {
+        return showWeeks;
     }
 
     /**
@@ -106,7 +233,7 @@ public class CalendarView extends VBox {
         todayButtonBox = new HBox();
         todayButtonBox.getStyleClass().add(CSS_CALENDAR_FOOTER);
 
-        Button todayButton = new Button();
+        JFXButton todayButton = new JFXButton();
         todayButton.textProperty().bind(todayButtonText);
         todayButton.getStyleClass().add(CSS_CALENDAR_TODAY_BUTTON);
         todayButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -139,134 +266,6 @@ public class CalendarView extends VBox {
         showTodayButton.set(true);
 
     }
-
-    private HBox todayButtonBox;
-
-    /**
-     * Gets or sets the locale.
-     *
-     * @return The property.
-     */
-    public ObjectProperty<Locale> localeProperty() {
-        return locale;
-    }
-
-    private ObjectProperty<Locale> locale = new SimpleObjectProperty<Locale>();
-
-    public Locale getLocale() {
-        return locale.get();
-    }
-
-    public void setLocale(Locale locale) {
-        this.locale.set(locale);
-    }
-
-    /**
-     * Gets or sets the calendar.
-     *
-     * @return The property.
-     */
-    public ObjectProperty<Calendar> calendarProperty() {
-        return calendar;
-    }
-
-    private ObjectProperty<Calendar> calendar = new SimpleObjectProperty<Calendar>();
-
-    public Calendar getCalendar() {
-        return calendar.get();
-    }
-
-    public void setCalendar(Calendar calendar) {
-        this.calendar.set(calendar);
-    }
-
-    /**
-     * Gets the list of disabled week days. E.g. if you add
-     * <code>Calendar.WEDNESDAY</code>, Wednesday will be disabled.
-     *
-     * @return The list.
-     */
-    public ObservableList<Integer> getDisabledWeekdays() {
-        return disabledWeekdays;
-    }
-
-    private ObservableList<Integer> disabledWeekdays = FXCollections.observableArrayList();
-
-    /**
-     * Gets the list of disabled dates. You can add specific date, in order to
-     * disable them.
-     *
-     * @return The list.
-     */
-    public ObservableList<Date> getDisabledDates() {
-        return disabledDates;
-    }
-
-    private ObservableList<Date> disabledDates = FXCollections.observableArrayList();
-
-    /**
-     * Gets the selected date.
-     *
-     * @return The property.
-     */
-    public ReadOnlyObjectProperty<Date> selectedDateProperty() {
-        return selectedDate;
-    }
-
-    private ObjectProperty<Date> currentDate = new SimpleObjectProperty<Date>();
-
-    public ObjectProperty<Date> currentDateProperty() {
-        return currentDate;
-    }
-
-    /**
-     * Indicates, whether the today button should be shown.
-     *
-     * @return The property.
-     */
-    public BooleanProperty showTodayButtonProperty() {
-        return showTodayButton;
-    }
-
-    private BooleanProperty showTodayButton = new SimpleBooleanProperty();
-
-    public boolean getShowTodayButton() {
-        return showTodayButton.get();
-    }
-
-    public void setShowTodayButton(boolean showTodayButton) {
-        this.showTodayButton.set(showTodayButton);
-    }
-
-    /**
-     * The text of the today button
-     *
-     * @return The property.
-     */
-    public StringProperty todayButtonTextProperty() {
-        return todayButtonText;
-    }
-
-    private StringProperty todayButtonText = new SimpleStringProperty("Today");
-
-    public String getTodayButtonText() {
-        return todayButtonText.get();
-    }
-
-    public void setTodayButtonText(String todayButtonText) {
-        this.todayButtonText.set(todayButtonText);
-    }
-
-    /**
-     * Indicates, whether the week numbers are shown.
-     *
-     * @return The property.
-     */
-    public BooleanProperty showWeeksProperty() {
-        return showWeeks;
-    }
-
-    private BooleanProperty showWeeks = new SimpleBooleanProperty(false);
 
     public boolean getShowWeeks() {
         return showWeeks.get();
