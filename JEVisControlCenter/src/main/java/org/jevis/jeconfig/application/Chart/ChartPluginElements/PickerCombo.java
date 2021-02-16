@@ -1,11 +1,16 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
+import com.jfoenix.controls.JFXTooltip;
+import com.jfoenix.skins.JFXComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.scene.control.*;
+import javafx.scene.control.DateCell;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -36,17 +41,17 @@ import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END;
 public class PickerCombo {
     private static final Logger logger = LogManager.getLogger(PickerCombo.class);
     private JEVisDataSource ds;
-    private ComboBox<AnalysisTimeFrame> presetDateBox = new ComboBox<>();
-    private JFXDatePicker startDatePicker = new JFXDatePicker();
-    private JFXDatePicker endDatePicker = new JFXDatePicker();
-    private JFXTimePicker startTimePicker = new JFXTimePicker();
-    private JFXTimePicker endTimePicker = new JFXTimePicker();
+    private final JFXComboBox<AnalysisTimeFrame> presetDateBox = new JFXComboBox<>();
+    private final JFXDatePicker startDatePicker = new JFXDatePicker();
+    private final JFXDatePicker endDatePicker = new JFXDatePicker();
+    private final JFXTimePicker startTimePicker = new JFXTimePicker();
+    private final JFXTimePicker endTimePicker = new JFXTimePicker();
 
     private AnalysisDataModel analysisDataModel;
     private List<ChartDataRow> chartDataRows;
 
 
-    private DateHelper dateHelper;
+    private final DateHelper dateHelper;
     private LocalDate minDate;
     private LocalDate maxDate;
 
@@ -74,7 +79,7 @@ public class PickerCombo {
 
         this.presetDateBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
-                ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) this.presetDateBox.getSkin();
+                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) this.presetDateBox.getSkin();
                 if (skin != null) {
                     ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
                     if (popupContent != null) {
@@ -99,9 +104,9 @@ public class PickerCombo {
         final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
         final String preview = I18n.getInstance().getString("plugin.graph.changedate.preview");
 
-        presetDateBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.presetdate")));
-        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
-        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
+        presetDateBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.presetdate")));
+        startDatePicker.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
+        endDatePicker.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
 
 
         List<AnalysisTimeFrame> analysisTimeFrameList = new ArrayList<>();
@@ -538,7 +543,7 @@ public class PickerCombo {
         return endTimePicker;
     }
 
-    public ComboBox<AnalysisTimeFrame> getPresetDateBox() {
+    public JFXComboBox<AnalysisTimeFrame> getPresetDateBox() {
         return presetDateBox;
     }
 

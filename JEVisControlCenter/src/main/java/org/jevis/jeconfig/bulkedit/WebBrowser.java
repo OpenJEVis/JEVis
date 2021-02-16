@@ -11,22 +11,24 @@ import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import org.jevis.jeconfig.TopMenu;
 
 /**
- *
  * @author Zeyd Bilal Calis
  */
 //class declaration for batch_mode_help.html
 //WebBrowser for batch_mode_help.html file
 public class WebBrowser {
 
-    private Scene scene;
-    private Stage stage = new Stage();
+    private final Scene scene;
+    private final Stage stage = new Stage();
 
     public WebBrowser() {
         stage.setTitle("Help Bulk Mode");
         scene = new Scene(new Browser(), 750, 500, Color.web("#666970"));
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
+
         stage.show();
     }
 }

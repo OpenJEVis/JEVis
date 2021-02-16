@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -48,7 +49,7 @@ public abstract class Widget extends Region {
     private final BooleanProperty editable = new SimpleBooleanProperty(false);
     private final ProgressIndicator progressIndicator = new ProgressIndicator();
     private final Label label = new Label();
-    private final Tooltip tt = new Tooltip("");
+    private final Tooltip tt = new JFXTooltip("");
 
 //    private BooleanProperty snapToGrid = new SimpleBooleanProperty(false);
 
@@ -229,7 +230,7 @@ public abstract class Widget extends Region {
     public void showAlertOverview(boolean show, String message) {
         Platform.runLater(() -> {
             this.alertPane.setVisible(show);
-            Tooltip tooltip = new Tooltip(message);
+            Tooltip tooltip = new JFXTooltip(message);
             label.setTooltip(tooltip);
         });
 

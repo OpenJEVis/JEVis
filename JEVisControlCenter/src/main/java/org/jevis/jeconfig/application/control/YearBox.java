@@ -1,14 +1,14 @@
 package org.jevis.jeconfig.application.control;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class YearBox extends ComboBox<Integer> {
+public class YearBox extends JFXComboBox<Integer> {
 
     private MonthBox monthBox;
     private DayBox dayBox;

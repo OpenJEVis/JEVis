@@ -1,7 +1,9 @@
 package org.jevis.jeconfig.plugin;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTooltip;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -74,7 +76,7 @@ public class TablePlugin {
     protected final ObjectRelations objectRelations;
     protected final String title;
     protected final AlphanumComparator alphanumComparator = new AlphanumComparator();
-    protected final TextField filterInput = new TextField();
+    protected final JFXTextField filterInput = new JFXTextField();
 
     public TablePlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -214,16 +216,16 @@ public class TablePlugin {
                         } else {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
-                            Button manSampleButton = new Button("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
+                            JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                             manSampleButton.setDisable(true);
-                            manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
-                            Button treeButton = new Button("",
+                            manSampleButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
+                            JFXButton treeButton = new JFXButton("",
                                     JEConfig.getImage("folders_explorer.png", tableIconSize, tableIconSize));
                             treeButton.wrapTextProperty().setValue(true);
 
-                            Button gotoButton = new Button("",
+                            JFXButton gotoButton = new JFXButton("",
                                     JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
-                            gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+                            gotoButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
                             try {
                                 if (item.hasSample()) {
@@ -335,7 +337,7 @@ public class TablePlugin {
         };
     }
 
-    protected void addEventManSampleAction(JEVisSample targetSample, Button buttonToAddEvent, String headerText) {
+    protected void addEventManSampleAction(JEVisSample targetSample, JFXButton buttonToAddEvent, String headerText) {
 
         buttonToAddEvent.setOnAction(event -> {
             if (!openedDataDialog.get()) {
@@ -365,7 +367,7 @@ public class TablePlugin {
         });
     }
 
-    private boolean setToolTipText(Button treeButton, JEVisAttribute att) {
+    private boolean setToolTipText(JFXButton treeButton, JEVisAttribute att) {
         boolean foundTarget = false;
         try {
             TargetHelper th = new TargetHelper(ds, att);
@@ -408,7 +410,7 @@ public class TablePlugin {
                     foundTarget = true;
                 }
 
-                Platform.runLater(() -> treeButton.setTooltip(new Tooltip(bText.toString())));
+                Platform.runLater(() -> treeButton.setTooltip(new JFXTooltip(bText.toString())));
             }
 
         } catch (Exception ex) {
@@ -494,13 +496,13 @@ public class TablePlugin {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
-                            Button previewButton = new Button("", JEConfig.getImage("eye_visible.png", tableIconSize, tableIconSize));
-                            Button uploadButton = new Button("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
+                            JFXButton downloadButton = new JFXButton("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
+                            JFXButton previewButton = new JFXButton("", JEConfig.getImage("eye_visible.png", tableIconSize, tableIconSize));
+                            JFXButton uploadButton = new JFXButton("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
-                            downloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.download")));
-                            previewButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
-                            uploadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.upload")));
+                            downloadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.download")));
+                            previewButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
+                            uploadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.upload")));
 
                             AttributeValueChange valueChange;
                             if (changeMap.get(item) == null) {
@@ -597,7 +599,7 @@ public class TablePlugin {
         };
     }
 
-    private void setPreviewButton(Button button, AttributeValueChange valueChange) {
+    private void setPreviewButton(JFXButton button, AttributeValueChange valueChange) {
 
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override

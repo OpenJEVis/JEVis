@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,7 +17,6 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -31,6 +33,7 @@ import org.jevis.jeconfig.plugin.object.extension.role.Membership;
 import org.jevis.jeconfig.plugin.object.extension.role.Role;
 import org.jevis.jeconfig.plugin.object.extension.role.RoleManager;
 import org.jevis.jeconfig.plugin.object.extension.role.User;
+import org.jevis.jeconfig.plugin.object.permission.MemberTable;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -40,23 +43,23 @@ public class RoleExtention implements ObjectEditorExtension {
     private static final Logger logger = LogManager.getLogger(RoleExtention.class);
 
     private static final String TITLE = I18n.getInstance().getString("plugin.object.role.title");
-    private JEVisObject _obj;
+    private final JEVisObject _obj;
 
-    private BorderPane _view = new BorderPane();
+    private final BorderPane _view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private Role role;
-    private ObservableList<Membership> filterdMemberships = FXCollections.observableArrayList();
-    private ObservableList<User> filterdUsers = FXCollections.observableArrayList();
-    private TextField filterFieldGroup;
-    private TextField filterFieldUser;
+    private final ObservableList<Membership> filterdMemberships = FXCollections.observableArrayList();
+    private final ObservableList<User> filterdUsers = FXCollections.observableArrayList();
+    private final BooleanProperty filterMemberOnlyProperty = new SimpleBooleanProperty(true);
+    private final BooleanProperty filterUserOnlyProperty = new SimpleBooleanProperty(true);
     private TableView groupTableView;
     private TableView userTableView;
     private boolean needLoad = true;
-    private BooleanProperty filterMemberOnlyProperty = new SimpleBooleanProperty(true);
-    private BooleanProperty filterUserOnlyProperty = new SimpleBooleanProperty(true);
+    private JFXTextField filterFieldGroup;
+    private JFXTextField filterFieldUser;
     private RoleManager roleManager;
-    private ComboBox<JEVisObject> dashboadList;
-    private CheckBox overwriteDashboad;
+    private JFXComboBox<JEVisObject> dashboadList;
+    private JFXCheckBox overwriteDashboad;
     private Long orgaID = 0l;
 
     public RoleExtention(JEVisObject obj) {
@@ -210,8 +213,8 @@ public class RoleExtention implements ObjectEditorExtension {
         return prefix;
     }
 
-    private ComboBox<JEVisObject> buildDashboardListView() {
-        ComboBox<JEVisObject> view = new ComboBox<>();
+    private JFXComboBox<JEVisObject> buildDashboardListView() {
+        JFXComboBox<JEVisObject> view = new JFXComboBox<>();
         List<JEVisObject> allDashboard = new ArrayList<>();
         try {
             Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>>() {
@@ -270,14 +273,14 @@ public class RoleExtention implements ObjectEditorExtension {
 
         Label userTitle = new Label(I18n.getInstance().getString("plugin.object.role.users"));
         Label groupTitle = new Label(I18n.getInstance().getString("plugin.object.role.grouprights"));
-        CheckBox showActiveMember = new CheckBox(I18n.getInstance().getString("plugin.object.role.autofilter"));
-        CheckBox showActiveUser = new CheckBox(I18n.getInstance().getString("plugin.object.role.autofilter"));
+        JFXCheckBox showActiveMember = new JFXCheckBox(I18n.getInstance().getString("plugin.object.role.autofilter"));
+        JFXCheckBox showActiveUser = new JFXCheckBox(I18n.getInstance().getString("plugin.object.role.autofilter"));
         Label dashboardLabel = new Label(I18n.getInstance().getString("plugin.object.role.dashboard"));
         Label filterGroupTable = new Label(I18n.getInstance().getString("plugin.object.role.filter"));
         Label filterUserTable = new Label(I18n.getInstance().getString("plugin.object.role.filter"));
-        filterFieldGroup = new TextField();
-        filterFieldUser = new TextField();
-        overwriteDashboad = new CheckBox(I18n.getInstance().getString("plugin.object.role.overwritedashboard"));
+        filterFieldGroup = new JFXTextField();
+        filterFieldUser = new JFXTextField();
+        overwriteDashboad = new JFXCheckBox(I18n.getInstance().getString("plugin.object.role.overwritedashboard"));
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldUser.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         HBox userFilterBox = new HBox(8, filterUserTable, filterFieldUser);
@@ -369,15 +372,15 @@ public class RoleExtention implements ObjectEditorExtension {
         nameCol.setCellValueFactory(new PropertyValueFactory<TableUser, String>("groupName"));
         idCol.setCellValueFactory(new PropertyValueFactory<TableUser, String>("groupid"));
         readCol.setCellValueFactory(param -> param.getValue().readProperty());
-        readCol.setCellFactory(param -> new CheckBoxTableCell<>());
+        readCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
         writeCol.setCellValueFactory(param -> param.getValue().writeProperty());
-        writeCol.setCellFactory(param -> new CheckBoxTableCell<>());
+        writeCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
         deleteCol.setCellValueFactory(param -> param.getValue().deleteProperty());
-        deleteCol.setCellFactory(param -> new CheckBoxTableCell<>());
+        deleteCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
         createCol.setCellValueFactory(param -> param.getValue().createProperty());
-        createCol.setCellFactory(param -> new CheckBoxTableCell<>());
+        createCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
         executeCol.setCellValueFactory(param -> param.getValue().executeProperty());
-        executeCol.setCellFactory(param -> new CheckBoxTableCell<>());
+        executeCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
 
         filterdMemberships.addAll(role.getMemberships());
 
@@ -416,11 +419,7 @@ public class RoleExtention implements ObjectEditorExtension {
 
         if (membership.getGroupName().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
             return true;
-        } else if (membership.getGroupName().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
-            return true;
-        }
-
-        return false; // Does not match
+        } else return membership.getGroupName().toLowerCase().indexOf(lowerCaseFilterString) != -1;// Does not match
     }
 
 
@@ -438,7 +437,7 @@ public class RoleExtention implements ObjectEditorExtension {
         userTableView.getColumns().addAll(memberCol, userNameCol, idCol);
 
         memberCol.setCellValueFactory(param -> param.getValue().memberProperty());
-        memberCol.setCellFactory(param -> new CheckBoxTableCell<>());
+        memberCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
         memberCol.setEditable(true);
         userNameCol.setCellValueFactory(param -> param.getValue().usernameProperty());
         userNameCol.setEditable(false);
@@ -517,11 +516,7 @@ public class RoleExtention implements ObjectEditorExtension {
 
         if (user.getUsername().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
             return true;
-        } else if (user.getUsername().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
-            return true;
-        }
-
-        return false; // Does not match
+        } else return user.getUsername().toLowerCase().indexOf(lowerCaseFilterString) != -1;// Does not match
     }
 
 

@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
@@ -113,7 +114,7 @@ public class GapFillingEditor implements AttributeEditor {
      * Build main UI
      */
     private void init() {
-        Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
+        JFXButton openConfig = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();

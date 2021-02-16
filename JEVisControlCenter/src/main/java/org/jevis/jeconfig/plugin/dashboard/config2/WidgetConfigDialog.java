@@ -7,6 +7,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
@@ -17,10 +18,10 @@ import org.jevis.jeconfig.tool.ScreenSize;
 
 public class WidgetConfigDialog extends Alert {
 
-    private TabPane tabPane = new TabPane();
+    private final TabPane tabPane = new TabPane();
     private DataModelDataHandler dataModelDataHandler;
     private WidgetTreePlugin widgetTreePlugin;
-    private Widget widget;
+    private final Widget widget;
 
     /**
      * Create an new Widget Config Dialog.
@@ -44,6 +45,7 @@ public class WidgetConfigDialog extends Alert {
         getDialogPane().setContent(borderPane);
 
         Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
         stage.setAlwaysOnTop(true);
 //        stage.toFront();
 

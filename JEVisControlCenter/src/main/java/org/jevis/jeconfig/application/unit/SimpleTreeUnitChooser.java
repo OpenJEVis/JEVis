@@ -19,13 +19,13 @@
  */
 package org.jevis.jeconfig.application.unit;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -39,6 +39,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.dialog.DialogHeader;
 
@@ -66,6 +67,7 @@ public class SimpleTreeUnitChooser {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
 
 //        stage.initStyle(StageStyle.UNDECORATED);
@@ -80,10 +82,10 @@ public class SimpleTreeUnitChooser {
 //        Node header = DialogHeader.getDialogHeader("1404313956_evolution-tasks.png", "Unit Selection");
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button(I18n.getInstance().getString("plugin.units.baseunit.ok"));
+        JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.units.baseunit.ok"));
         ok.setDefaultButton(true);
 
-        Button cancel = new Button(I18n.getInstance().getString("plugin.units.baseunit.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.units.baseunit.cancel"));
         cancel.setCancelButton(true);
 
         UnitTree uTree = new UnitTree(ds);

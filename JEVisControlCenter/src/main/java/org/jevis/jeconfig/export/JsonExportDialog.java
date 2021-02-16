@@ -20,6 +20,9 @@
  */
 package org.jevis.jeconfig.export;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -31,7 +34,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -74,11 +78,11 @@ public class JsonExportDialog {
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
         Label destinationL = new Label(I18n.getInstance().getString("export.file"));
-        final TextField destinationF = new TextField();
-        final Button fileSelect = new Button(I18n.getInstance().getString("export.select"));
-        final CheckBox allChildren = new CheckBox(I18n.getInstance().getString("export.include_objects"));
-        final CheckBox allSamples = new CheckBox(I18n.getInstance().getString("export.include_samples"));
-        final CheckBox attributes = new CheckBox(I18n.getInstance().getString("export.include_attributes"));
+        final JFXTextField destinationF = new JFXTextField();
+        final JFXButton fileSelect = new JFXButton(I18n.getInstance().getString("export.select"));
+        final JFXCheckBox allChildren = new JFXCheckBox(I18n.getInstance().getString("export.include_objects"));
+        final JFXCheckBox allSamples = new JFXCheckBox(I18n.getInstance().getString("export.include_samples"));
+        final JFXCheckBox attributes = new JFXCheckBox(I18n.getInstance().getString("export.include_attributes"));
         allSamples.setDisable(true);
 
         HBox fileBox = new HBox(5);
@@ -149,11 +153,11 @@ public class JsonExportDialog {
 
         HBox buttonPanel = new HBox();
 
-        final Button ok = new Button(I18n.getInstance().getString("export.button.export"));
+        final JFXButton ok = new JFXButton(I18n.getInstance().getString("export.button.export"));
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        Button cancel = new Button(I18n.getInstance().getString("export.button.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("export.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

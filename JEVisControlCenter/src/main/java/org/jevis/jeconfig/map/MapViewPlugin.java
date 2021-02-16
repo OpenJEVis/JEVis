@@ -5,6 +5,8 @@
  */
 package org.jevis.jeconfig.map;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -48,14 +50,14 @@ public class MapViewPlugin implements Plugin {
     private JEVisDataSource ds;
     private JXMapViewer mapViewer;
 
-    private StringProperty name = new SimpleStringProperty(I18n.getInstance().getString("plugin.map.title"));
-    private StringProperty id = new SimpleStringProperty("*NO_ID*");
+    private final StringProperty name = new SimpleStringProperty(I18n.getInstance().getString("plugin.map.title"));
+    private final StringProperty id = new SimpleStringProperty("*NO_ID*");
 
     private ToolBar toolBar;
     private TableView table;
-    private ComboBox comboBox;
-    private BooleanProperty firstStartProperty = new SimpleBooleanProperty(true);
-    private String tooltip = I18n.getInstance().getString("pluginmanager.mapview.tooltip");
+    private final BooleanProperty firstStartProperty = new SimpleBooleanProperty(true);
+    private final String tooltip = I18n.getInstance().getString("pluginmanager.mapview.tooltip");
+    private JFXComboBox comboBox;
 
     private Map<String, GPSRoute> routeData;
 
@@ -154,7 +156,7 @@ public class MapViewPlugin implements Plugin {
             delete.setDisable(true);
 
 //load new stuff
-            Button select = new Button(I18n.getInstance().getString("plugin.map.select"));
+            JFXButton select = new JFXButton(I18n.getInstance().getString("plugin.map.select"));
             select.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
@@ -215,7 +217,7 @@ public class MapViewPlugin implements Plugin {
 
             });
 
-            Button defaultMap = new Button(I18n.getInstance().getString("plugin.map.default"));
+            JFXButton defaultMap = new JFXButton(I18n.getInstance().getString("plugin.map.default"));
             defaultMap.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
@@ -306,7 +308,7 @@ public class MapViewPlugin implements Plugin {
                 "Example 1",
                 "Example 2"
         );
-        comboBox = new ComboBox(options);
+        comboBox = new JFXComboBox(options);
         comboBox.setPrefWidth(Double.MAX_VALUE);
         StackPane stack = new StackPane(comboBox);
 

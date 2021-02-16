@@ -1,14 +1,14 @@
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.i18n.I18n;
 
-public class ReportAggregationBox extends ComboBox<AggregationPeriod> {
+public class ReportAggregationBox extends JFXComboBox<AggregationPeriod> {
 
     public ReportAggregationBox() {
         super();

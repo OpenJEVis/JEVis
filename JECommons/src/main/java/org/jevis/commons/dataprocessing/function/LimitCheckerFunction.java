@@ -19,9 +19,10 @@
  */
 package org.jevis.commons.dataprocessing.function;
 
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.dataprocessing.BasicProcess;
+import org.jevis.commons.dataprocessing.BasicProcessOption;
+import org.jevis.commons.dataprocessing.ProcessFunction;
+import org.jevis.commons.dataprocessing.ProcessOption;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 
@@ -39,11 +40,6 @@ public class LimitCheckerFunction implements ProcessFunction {
 
     @Override
     public void resetResult() {
-    }
-
-    @Override
-    public List<JEVisSample> getResult(Process task) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

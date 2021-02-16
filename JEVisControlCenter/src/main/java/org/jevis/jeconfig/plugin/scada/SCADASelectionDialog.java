@@ -19,6 +19,8 @@
  */
 package org.jevis.jeconfig.plugin.scada;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,8 +30,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -39,6 +39,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -54,14 +55,14 @@ import java.util.List;
 public class SCADASelectionDialog {
 
     //    private VBox root = new VBox();
-    private Button ok = new Button("OK");
-    private Button clear = new Button("Clear");
-    private String ICON = "1404313956_evolution-tasks.png";
+    private final JFXButton ok = new JFXButton("OK");
+    private final JFXButton clear = new JFXButton("Clear");
+    private final String ICON = "1404313956_evolution-tasks.png";
     private JEVisDataSource _ds;
     private Stage stage;
     private Response _response = Response.CANCEL;
     private JEVisTree tree;
-    private SimpleTargetPlugin stp = new SimpleTargetPlugin();
+    private final SimpleTargetPlugin stp = new SimpleTargetPlugin();
     private MODE mode = MODE.OBJECT;
 
     public Response show(Stage owner, JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
@@ -77,6 +78,7 @@ public class SCADASelectionDialog {
         VBox root = build(ds, title, uselection);
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(524);
         stage.setHeight(768);
@@ -86,6 +88,7 @@ public class SCADASelectionDialog {
 //        stage.setAlwaysOnTop(true);
         stage.sizeToScene();
         stage.toFront();
+
         stage.showAndWait();
 
         return _response;
@@ -112,7 +115,7 @@ public class SCADASelectionDialog {
         content.getChildren().setAll(tree);
 
 
-        CheckBox advanced = new CheckBox("Advanced");
+        JFXCheckBox advanced = new JFXCheckBox("Advanced");
 
 
         tree.openUserSelection(uselection);
@@ -176,7 +179,7 @@ public class SCADASelectionDialog {
         ok.setDefaultButton(true);
 //        ok.setDisable(true);
 
-        Button cancel = new Button("Cancel");
+        JFXButton cancel = new JFXButton("Cancel");
         cancel.setCancelButton(true);
         cancel.setOnAction(new EventHandler<ActionEvent>() {
 

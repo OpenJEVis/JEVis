@@ -100,7 +100,7 @@ public class LanguageEditor implements AttributeEditor {
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
         enumList.addAll(getEnumList());
 
-//        ComboBox picker = new ComboBox(enumList);
+//        JFXComboBox picker = new JFXComboBox(enumList);
         JFXComboBox picker = new JFXComboBox(enumList);
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {

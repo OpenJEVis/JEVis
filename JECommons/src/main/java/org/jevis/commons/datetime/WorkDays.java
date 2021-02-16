@@ -186,4 +186,8 @@ public class WorkDays {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
+    public boolean isCustomWorkDay() {
+        return !(workdayStart.equals(workdayStartDisabled) && workdayEnd.equals(workdayEndDisabled));
+    }
 }

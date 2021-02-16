@@ -5,15 +5,15 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -44,12 +44,12 @@ public class TargetEditor implements AttributeEditor {
     private final MODE mode;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
-    private HBox box = new HBox();
-    private boolean _hasChanged = false;
-    private Button _treeButton;
+    private final HBox box = new HBox();
+    private final boolean _hasChanged = false;
+    private final JEVisTree tree;
     private boolean _readOnly = true;
     JEVisSample newSample;
-    private JEVisTree tree;
+    private JFXButton _treeButton;
 
     public TargetEditor(JEVisAttribute att, MODE mode, JEVisTree tree) {
         _attribute = att;
@@ -101,14 +101,14 @@ public class TargetEditor implements AttributeEditor {
     }
 
     private void init() {
-        _treeButton = new Button(I18n
+        _treeButton = new JFXButton(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
         _treeButton.wrapTextProperty().setValue(true);
 
-        Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+        JFXButton gotoButton = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
                 JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
-        gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+        gotoButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);

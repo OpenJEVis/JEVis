@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,7 +15,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.util.Callback;
@@ -27,6 +27,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.plugin.object.attribute.LanguageEditor;
 import org.jevis.jeconfig.tool.Layouts;
+
 import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.Map;
@@ -38,8 +39,8 @@ public class LocalNameDialog {
 
     private Response response = Response.CANCEL;
     private JEVisObject object = null;
-    private ObservableList<TranslationRow> translationRows = FXCollections.observableArrayList();
-    private String newName="";
+    private final ObservableList<TranslationRow> translationRows = FXCollections.observableArrayList();
+    private String newName = "";
 
     private static Method columnToFitMethod;
     static {
@@ -68,7 +69,7 @@ public class LocalNameDialog {
         /** build form **/
 
         Label objNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        TextField objectNameTest = new TextField();
+        JFXTextField objectNameTest = new JFXTextField();
         objectNameTest.setText(object.getLocalName("default"));
         objectNameTest.textProperty().addListener((observable, oldValue, newValue) -> {
             newName=newValue;
@@ -184,14 +185,14 @@ public class LocalNameDialog {
 
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.FINISH.getButtonData().getTypeCode())) {
                         this.response = Response.YES;
                         try {
                             object.setName(newName);
-                            Map<String,String> commitLangMap = new HashedMap();
+                            Map<String, String> commitLangMap = new HashedMap();
                             translationRows.forEach(translationRow -> {
-                                if(translationRow!=null && !translationRow.getName().isEmpty() ){
-                                    commitLangMap.put(translationRow.getLanguage(),translationRow.getName());
+                                if (translationRow != null && !translationRow.getName().isEmpty()) {
+                                    commitLangMap.put(translationRow.getLanguage(), translationRow.getName());
                                 }
 
                             });

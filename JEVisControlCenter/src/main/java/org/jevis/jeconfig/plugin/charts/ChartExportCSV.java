@@ -36,8 +36,8 @@ import java.io.*;
 import java.text.NumberFormat;
 import java.util.*;
 
-public class GraphExportCSV {
-    private static final Logger logger = LogManager.getLogger(GraphExportCSV.class);
+public class ChartExportCSV {
+    private static final Logger logger = LogManager.getLogger(ChartExportCSV.class);
     private final String NAME;
     private final String IN;
     private final String NOTE;
@@ -70,7 +70,7 @@ public class GraphExportCSV {
     private final List<ChartDataRow> selectedData;
     private final AlphanumComparator ac = new AlphanumComparator();
 
-    public GraphExportCSV(JEVisDataSource ds, AnalysisDataModel model, DateTime xAxisLowerBound, DateTime xAxisUpperBound) {
+    public ChartExportCSV(JEVisDataSource ds, AnalysisDataModel model, DateTime xAxisLowerBound, DateTime xAxisUpperBound) {
         this.NAME = I18n.getInstance().getString("plugin.graph.export.text.name");
         this.IN = I18n.getInstance().getString("plugin.graph.export.text.in");
         this.NOTE = I18n.getInstance().getString("plugin.graph.export.text.note");

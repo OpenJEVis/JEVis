@@ -1,11 +1,16 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -23,7 +28,7 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,8 +52,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         this.columnName = columnName;
     }
 
-    private ComboBox<String> buildUnitBox(ChartDataRow singleRow) {
-        ComboBox<String> processorBox = new ComboBox<>();
+    private JFXComboBox<String> buildUnitBox(ChartDataRow singleRow) {
+        JFXComboBox<String> processorBox = new JFXComboBox<>();
         try {
             JEVisClass stringDataClass = null;
 
@@ -211,7 +216,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                     StackPane stackPane = new StackPane();
 
                                     ChartDataRow data = getData(getTreeTableRow().getItem());
-                                    ComboBox box = buildUnitBox(data);
+                                    JFXComboBox box = buildUnitBox(data);
 
                                     box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
                                         if (!newValue.equals(oldValue)) {
@@ -224,7 +229,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                     imageMarkAll.fitHeightProperty().set(13);
                                     imageMarkAll.fitWidthProperty().set(13);
 
-                                    Button tb = new Button("", imageMarkAll);
+                                    JFXButton tb = new JFXButton("", imageMarkAll);
                                     tb.setTooltip(tooltipMarkAll);
 
                                     tb.setOnAction(event -> {
@@ -284,9 +289,9 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
 
         Platform.runLater(() -> {
             Label label = new Label(columnName);
-            label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.unit.tip")));
+            label.setTooltip(new JFXTooltip(I18n.getInstance().getString("graph.table.unit.tip")));
             unitColumn.setGraphic(label);
-            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
+            JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
 
         });
 

@@ -1,32 +1,17 @@
 package org.jevis.jeconfig.tool.datepicker;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
-
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -35,12 +20,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Popup;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 /**
  * From https://github.com/hrj/javafxDatePicker
  *
- * @TODO: replace this with an java 1.8 solution if we made the migration
- *
  * @author Christian Schudt
+ * @TODO: replace this with an java 1.8 solution if we made the migration
  */
 public class DatePicker extends HBox {
 
@@ -56,6 +45,162 @@ public class DatePicker extends HBox {
 
     private Timer timer;
 
+    private final CalendarView calendarView;
+
+    private void hidePopup() {
+        if (popup != null) {
+            popup.hide();
+        }
+    }
+
+    /**
+     * Tries to parse the text field for a valid date.
+     *
+     * @param setDateToNullOnException True, if the date should be set to null,
+     *                                 when a {@link ParseException} occurs. This is the case, when the text
+     *                                 field loses focus.
+     */
+    private void tryParse(boolean setDateToNullOnException) {
+        if (timer != null) {
+            timer.cancel();
+        }
+        try {
+            // Double parse the date here, since e.g. 01.01.1 is parsed as year 1, and then formatted as 01.01.01 and then parsed as year 2001.
+            // This might lead to an undesired date.
+            DateFormat dateFormat = getActualDateFormat();
+            Date parsedDate = dateFormat.parse(textField.getText());
+            parsedDate = dateFormat.parse(dateFormat.format(parsedDate));
+            if (selectedDate.get() == null || selectedDate.get() != null && parsedDate.getTime() != selectedDate.get().getTime()) {
+                selectedDate.set(parsedDate);
+            }
+            invalid.set(false);
+            updateTextField();
+        } catch (ParseException e) {
+            invalid.set(true);
+            if (setDateToNullOnException) {
+                selectedDate.set(null);
+            }
+        }
+
+    }
+
+    private boolean textSetProgrammatically;
+
+    /**
+     * Updates the text field.
+     */
+    private void updateTextField() {
+        // Mark the we updateData the text field (and not the user), so that it can be ignored, by textField.textProperty()
+        textSetProgrammatically = true;
+        if (selectedDateProperty().get() != null) {
+            String date = getActualDateFormat().format(selectedDateProperty().get());
+            if (!textField.getText().equals(date)) {
+                textField.setText(date);
+            }
+        } else {
+            textField.setText("");
+        }
+        textSetProgrammatically = false;
+    }
+
+    /**
+     * Gets the actual date format. If {@link #dateFormatProperty()} is set,
+     * take it, otherwise get a default format for the current locale.
+     *
+     * @return The date format.
+     */
+    private DateFormat getActualDateFormat() {
+        if (dateFormat.get() != null) {
+            return dateFormat.get();
+        }
+
+        DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT, locale.get());
+        format.setCalendar(calendarView.getCalendar());
+        format.setLenient(false);
+
+        return format;
+    }
+
+    private final JFXTextField textField;
+
+    /**
+     * Use this to set further properties of the calendar.
+     *
+     * @return The calendar view.
+     */
+    public CalendarView getCalendarView() {
+        return calendarView;
+    }
+
+    private final BooleanProperty invalid = new SimpleBooleanProperty();
+    private final ObjectProperty<Locale> locale = new SimpleObjectProperty<Locale>();
+
+    /**
+     * States whether the user input is invalid (is no valid date).
+     *
+     * @return The property.
+     */
+    public ReadOnlyBooleanProperty invalidProperty() {
+        return invalid;
+    }
+
+    /**
+     * The locale.
+     *
+     * @return The property.
+     */
+    public ObjectProperty<Locale> localeProperty() {
+        return locale;
+    }
+
+    private final ObjectProperty<Date> selectedDate = new SimpleObjectProperty<Date>();
+
+    public void setLocale(Locale locale) {
+        this.locale.set(locale);
+    }
+
+    public Locale getLocale() {
+        return locale.get();
+    }
+
+    /**
+     * The selected date.
+     *
+     * @return The property.
+     */
+    public ObjectProperty<Date> selectedDateProperty() {
+        return selectedDate;
+    }
+
+    private final ObjectProperty<DateFormat> dateFormat = new SimpleObjectProperty<DateFormat>();
+
+    public void setSelectedDate(Date date) {
+        this.selectedDate.set(date);
+    }
+
+    public Date getSelectedDate() {
+        return selectedDate.get();
+    }
+
+    /**
+     * Gets the date format.
+     *
+     * @return The date format.
+     */
+    public ObjectProperty<DateFormat> dateFormatProperty() {
+        return dateFormat;
+    }
+
+    private final StringProperty promptText = new SimpleStringProperty();
+
+    public void setDateFormat(DateFormat dateFormat) {
+        this.dateFormat.set(dateFormat);
+    }
+
+    public DateFormat getDateFormat() {
+        return dateFormat.get();
+    }
+
     /**
      * Initializes the date picker with the given locale.
      *
@@ -67,7 +212,7 @@ public class DatePicker extends HBox {
         calendarView = new CalendarView(locale, car);
 //        calendarView = new CalendarView(locale);
 
-        textField = new TextField();
+        textField = new JFXTextField();
         this.locale.set(locale);
 
         calendarView.setEffect(new DropShadow());
@@ -199,7 +344,7 @@ public class DatePicker extends HBox {
             }
         });
 
-        Button button = new Button(">");
+        JFXButton button = new JFXButton(">");
         button.setFocusTraversable(false);
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -225,163 +370,6 @@ public class DatePicker extends HBox {
             }
         });
     }
-
-    private void hidePopup() {
-        if (popup != null) {
-            popup.hide();
-        }
-    }
-
-    /**
-     * Tries to parse the text field for a valid date.
-     *
-     * @param setDateToNullOnException True, if the date should be set to null,
-     * when a {@link ParseException} occurs. This is the case, when the text
-     * field loses focus.
-     */
-    private void tryParse(boolean setDateToNullOnException) {
-        if (timer != null) {
-            timer.cancel();
-        }
-        try {
-            // Double parse the date here, since e.g. 01.01.1 is parsed as year 1, and then formatted as 01.01.01 and then parsed as year 2001.
-            // This might lead to an undesired date.
-            DateFormat dateFormat = getActualDateFormat();
-            Date parsedDate = dateFormat.parse(textField.getText());
-            parsedDate = dateFormat.parse(dateFormat.format(parsedDate));
-            if (selectedDate.get() == null || selectedDate.get() != null && parsedDate.getTime() != selectedDate.get().getTime()) {
-                selectedDate.set(parsedDate);
-            }
-            invalid.set(false);
-            updateTextField();
-        } catch (ParseException e) {
-            invalid.set(true);
-            if (setDateToNullOnException) {
-                selectedDate.set(null);
-            }
-        }
-
-    }
-
-    private boolean textSetProgrammatically;
-
-    /**
-     * Updates the text field.
-     */
-    private void updateTextField() {
-        // Mark the we updateData the text field (and not the user), so that it can be ignored, by textField.textProperty()
-        textSetProgrammatically = true;
-        if (selectedDateProperty().get() != null) {
-            String date = getActualDateFormat().format(selectedDateProperty().get());
-            if (!textField.getText().equals(date)) {
-                textField.setText(date);
-            }
-        } else {
-            textField.setText("");
-        }
-        textSetProgrammatically = false;
-    }
-
-    /**
-     * Gets the actual date format. If {@link #dateFormatProperty()} is set,
-     * take it, otherwise get a default format for the current locale.
-     *
-     * @return The date format.
-     */
-    private DateFormat getActualDateFormat() {
-        if (dateFormat.get() != null) {
-            return dateFormat.get();
-        }
-
-        DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT, locale.get());
-        format.setCalendar(calendarView.getCalendar());
-        format.setLenient(false);
-
-        return format;
-    }
-
-    private CalendarView calendarView;
-
-    /**
-     * Use this to set further properties of the calendar.
-     *
-     * @return The calendar view.
-     */
-    public CalendarView getCalendarView() {
-        return calendarView;
-    }
-
-    private TextField textField;
-
-    private BooleanProperty invalid = new SimpleBooleanProperty();
-
-    /**
-     * States whether the user input is invalid (is no valid date).
-     *
-     * @return The property.
-     */
-    public ReadOnlyBooleanProperty invalidProperty() {
-        return invalid;
-    }
-
-    /**
-     * The locale.
-     *
-     * @return The property.
-     */
-    public ObjectProperty<Locale> localeProperty() {
-        return locale;
-    }
-
-    private ObjectProperty<Locale> locale = new SimpleObjectProperty<Locale>();
-
-    public void setLocale(Locale locale) {
-        this.locale.set(locale);
-    }
-
-    public Locale getLocale() {
-        return locale.get();
-    }
-
-    /**
-     * The selected date.
-     *
-     * @return The property.
-     */
-    public ObjectProperty<Date> selectedDateProperty() {
-        return selectedDate;
-    }
-
-    private ObjectProperty<Date> selectedDate = new SimpleObjectProperty<Date>();
-
-    public void setSelectedDate(Date date) {
-        this.selectedDate.set(date);
-    }
-
-    public Date getSelectedDate() {
-        return selectedDate.get();
-    }
-
-    /**
-     * Gets the date format.
-     *
-     * @return The date format.
-     */
-    public ObjectProperty<DateFormat> dateFormatProperty() {
-        return dateFormat;
-    }
-
-    private ObjectProperty<DateFormat> dateFormat = new SimpleObjectProperty<DateFormat>();
-
-    public void setDateFormat(DateFormat dateFormat) {
-        this.dateFormat.set(dateFormat);
-    }
-
-    public DateFormat getDateFormat() {
-        return dateFormat.get();
-    }
-
-    private StringProperty promptText = new SimpleStringProperty();
 
     /**
      * The prompt text for the text field. By default, the prompt text is taken

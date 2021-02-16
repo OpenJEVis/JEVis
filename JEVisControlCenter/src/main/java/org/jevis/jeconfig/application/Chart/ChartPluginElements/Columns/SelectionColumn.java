@@ -1,9 +1,9 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.jfoenix.controls.JFXCheckBox;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
@@ -161,7 +161,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                         && tree != null
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
 
-                                    CheckBox checkBox = new CheckBox();
+                                    JFXCheckBox checkBox = new JFXCheckBox();
                                     checkBox.setSelected(item);
                                     StackPane stackPane = new StackPane();
 
@@ -240,7 +240,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
 
                                     setText(null);
                                     setGraphic(stackPane);
-                                    //textFieldChartName.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.selector.tip")));
+                                    //textFieldChartName.setTooltip(new  JFXTooltip(I18n.getInstance().getString("graph.table.selector.tip")));
                                     //JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, textFieldChartName);
                                 }
                             } catch (Exception e) {

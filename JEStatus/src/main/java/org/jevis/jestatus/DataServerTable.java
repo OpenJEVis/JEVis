@@ -171,8 +171,8 @@ public class DataServerTable extends AlarmTable {
         for (JEVisObject currentChannel : outOfBounds) {
             JEVisObject target = channelAndTarget.get(currentChannel);
             if (target != null) {
-                JEVisAttribute attribute = target.getAttribute(VALUE_ATTRIBUTE_NAME);
-                if (attribute.getInputSampleRate().equals(Period.ZERO)) {
+                JEVisAttribute attribute = target.getAttribute(PERIOD_ATTRIBUTE_NAME);
+                if (new Period(attribute.getLatestSample().getValueAsString()).equals(Period.ZERO)) {
                     asyncTargets.add(currentChannel);
                 }
             }

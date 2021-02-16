@@ -1,12 +1,16 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
@@ -21,7 +25,7 @@ import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.tools.TableViewUtils;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
 
 import java.util.Collections;
@@ -82,7 +86,7 @@ public class TableHeader extends TableView<TableEntry> {
                         super.setText(item);
                         super.setGraphic(null);
 
-                        this.setTooltip(new Tooltip(item));
+                        this.setTooltip(new JFXTooltip(item));
                     }
                 };
             }
@@ -157,9 +161,9 @@ public class TableHeader extends TableView<TableEntry> {
                 periodCol.setMinWidth(100);
 
                 Label periodLabel = new Label(I18n.getInstance().getString("plugin.graph.table.period"));
-                periodLabel.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.table.period.tip")));
+                periodLabel.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.table.period.tip")));
                 periodCol.setGraphic(periodLabel);
-                JEVisHelp.getInstance().addInfoControl(GraphPluginView.class.getSimpleName(), "", JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, periodLabel);
+                JEVisHelp.getInstance().addInfoControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, periodLabel);
 
                 /**
                  * Table Column 3

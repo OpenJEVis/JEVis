@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.application.tools;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SingleSelectionModel;
@@ -11,7 +11,7 @@ import javafx.util.Callback;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisabledItemsComboBox<T> extends ComboBox<T> {
+public class DisabledItemsComboBox<T> extends JFXComboBox<T> {
 
     private ArrayList<T> disabledItems = new ArrayList<T>();
 

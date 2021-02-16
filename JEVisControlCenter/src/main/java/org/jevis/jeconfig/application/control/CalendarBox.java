@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.application.control;
 
+import com.jfoenix.controls.JFXComboBox;
 import de.jollyday.CalendarHierarchy;
 import de.jollyday.HolidayManager;
 import de.jollyday.ManagerParameters;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class CalendarBox extends ComboBox<CalendarRow> {
+public class CalendarBox extends JFXComboBox<CalendarRow> {
 
     public CalendarBox() {
         List<CalendarRow> list = new ArrayList<>();

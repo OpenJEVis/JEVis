@@ -20,15 +20,15 @@
  */
 package org.jevis.jeconfig.plugin.unit;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -49,10 +49,10 @@ import java.util.List;
  */
 public class UnitSelectUI {
 
-    private final TextField symbolField = new TextField();
+    private final JFXTextField symbolField = new JFXTextField();
     private static final Logger logger = LogManager.getLogger(UnitSelectUI.class);
-    private final ComboBox<Prefix> prefixBox;
-    private final Button changeBaseUnit = new Button();//new Button("Basic Unit");
+    private final JFXComboBox<Prefix> prefixBox;
+    private final JFXButton changeBaseUnit = new JFXButton();//new JFXButton("Basic Unit");
     private JEVisUnit jeVisUnit;
     //workaround
     private final BooleanProperty valueChangedProperty = new SimpleBooleanProperty(false);
@@ -63,7 +63,7 @@ public class UnitSelectUI {
         List<Prefix> list = new ArrayList<>();
         list.add(null);
         Collections.addAll(list, MetricPrefix.values());
-        prefixBox = new ComboBox<>(FXCollections.observableArrayList(MetricPrefix.values()));
+        prefixBox = new JFXComboBox<>(FXCollections.observableArrayList(MetricPrefix.values()));
 
 
         prefixBox.setButtonCell(new ListCell<Prefix>() {
@@ -161,15 +161,15 @@ public class UnitSelectUI {
         this.jeVisUnit = unit;
     }
 
-    public TextField getSymbolField() {
+    public JFXTextField getSymbolField() {
         return symbolField;
     }
 
-    public Button getUnitButton() {
+    public JFXButton getUnitButton() {
         return changeBaseUnit;
     }
 
-    public ComboBox<Prefix> getPrefixBox() {
+    public JFXComboBox<Prefix> getPrefixBox() {
         return prefixBox;
     }
 //

@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.application.jevistree;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,11 +23,11 @@ import java.util.List;
 public class SearchFilterBar extends VBox {
     private static final Logger logger = LogManager.getLogger(SearchFilterBar.class);
     private final Finder finder;
-    private Label labelFilter = new Label(I18n.getInstance().getString("searchbar.filter"));
-    private Label labelSearch = new Label(I18n.getInstance().getString("searchbar.search"));
-    //    private TextField searchField = new TextField();
-    private Spinner<String> searchField = new Spinner<>();
-    private ComboBox<JEVisTreeFilter> filterBox;
+    private final Label labelFilter = new Label(I18n.getInstance().getString("searchbar.filter"));
+    private final Label labelSearch = new Label(I18n.getInstance().getString("searchbar.search"));
+    //    private JFXTextField searchField = new JFXTextField();
+    private final Spinner<String> searchField = new Spinner<>();
+    private final JFXComboBox<JEVisTreeFilter> filterBox;
     private final HBox replacementHbox;
     boolean replaceMode = false;
 
@@ -73,7 +76,7 @@ public class SearchFilterBar extends VBox {
         this.finder = finder;
 
         ObservableList<JEVisTreeFilter> filterList = FXCollections.observableArrayList(filter);
-        filterBox = new ComboBox<>(filterList);
+        filterBox = new JFXComboBox<>(filterList);
         filterBox.setButtonCell(new ListCell<JEVisTreeFilter>() {
             @Override
             protected void updateItem(JEVisTreeFilter item, boolean empty) {
@@ -161,9 +164,9 @@ public class SearchFilterBar extends VBox {
 //        });
 
         Label replaceLabel = new Label(I18n.getInstance().getString("searchbar.label.replacewith"));
-        TextField replaceField = new TextField();
-        Button replace = new Button(I18n.getInstance().getString("searchbar.button.replace"));
-        Button replaceAll = new Button(I18n.getInstance().getString("searchbar.button.alltreedown"));
+        JFXTextField replaceField = new JFXTextField();
+        JFXButton replace = new JFXButton(I18n.getInstance().getString("searchbar.button.replace"));
+        JFXButton replaceAll = new JFXButton(I18n.getInstance().getString("searchbar.button.alltreedown"));
 
         replacementHbox = new HBox(replaceLabel, replaceField, replace, replaceAll);
         replacementHbox.setSpacing(10);

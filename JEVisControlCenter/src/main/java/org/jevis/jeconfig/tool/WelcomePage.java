@@ -19,6 +19,8 @@
  */
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -29,8 +31,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -44,6 +44,7 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.TopMenu;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -58,9 +59,9 @@ public class WelcomePage {
     private static final Logger logger = LogManager.getLogger(WelcomePage.class);
 
 
-    private Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
-    CheckBox remember = new CheckBox(I18n.getInstance().getString("welcome.dontshow"));
-    private boolean isLoading = true;
+    private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
+    private final boolean isLoading = true;
+    JFXCheckBox remember = new JFXCheckBox(I18n.getInstance().getString("welcome.dontshow"));
 
     public WelcomePage() {
 
@@ -88,6 +89,7 @@ public class WelcomePage {
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
 
         final WebView page = new WebView();
@@ -137,7 +139,7 @@ public class WelcomePage {
         bot.setAlignment(Pos.BOTTOM_RIGHT);
         bot.setSpacing(5);
         bot.setPadding(new Insets(10));
-        Button close = new Button(I18n.getInstance().getString("welcome.close"));
+        JFXButton close = new JFXButton(I18n.getInstance().getString("welcome.close"));
         close.setCancelButton(true);
         close.setDefaultButton(true);
 
@@ -162,6 +164,7 @@ public class WelcomePage {
 
         try {
             webEngine.load(welcomepage.toURL().toExternalForm());
+
             stage.showAndWait();
 
         } catch (MalformedURLException ex) {

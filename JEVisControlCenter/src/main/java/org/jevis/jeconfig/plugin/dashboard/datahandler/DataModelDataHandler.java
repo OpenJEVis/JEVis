@@ -20,6 +20,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
@@ -96,6 +97,7 @@ public class DataModelDataHandler {
         alert.setGraphic(null);
         alert.setHeaderText(null);
         alert.getDialogPane().setContent(tabPane);
+        TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
         alert.setResizable(true);
         alert.show();
 
@@ -125,7 +127,6 @@ public class DataModelDataHandler {
 
         setData(this.dataModelNode.getData());
         this.timeFrames = new TimeFrames(jeVisDataSource);
-        this.timeFrames.setWorkdays(this.chartDataRows.stream().findFirst().map(ChartDataRow::getObject).orElse(null));
         this.timeFrameFactories.addAll(this.timeFrames.getAll());
 
 

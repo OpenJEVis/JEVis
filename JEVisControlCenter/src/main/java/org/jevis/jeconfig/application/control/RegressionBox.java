@@ -1,15 +1,15 @@
 package org.jevis.jeconfig.application.control;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 
-public class RegressionBox extends ComboBox<RegressionType> {
+public class RegressionBox extends JFXComboBox<RegressionType> {
 
     public RegressionBox() {
         super();

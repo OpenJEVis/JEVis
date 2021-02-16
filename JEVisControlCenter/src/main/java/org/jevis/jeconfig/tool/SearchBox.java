@@ -19,23 +19,22 @@
  */
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 import javafx.scene.control.Control;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SearchBox extends Region {
 
-    private TextField textBox;
-    private Button clearButton;
+    private final JFXTextField textBox;
+    private final JFXButton clearButton;
 
     public SearchBox() {
         setId("SearchBox");
@@ -44,9 +43,9 @@ public class SearchBox extends Region {
         setMinHeight(24);
         setPrefSize(200, 24);
         setMaxSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
-        textBox = new TextField();
+        textBox = new JFXTextField();
         textBox.setPromptText("Search");
-        clearButton = new Button();
+        clearButton = new JFXButton();
         clearButton.setVisible(false);
         getChildren().addAll(textBox, clearButton);
         clearButton.setOnAction(new EventHandler<ActionEvent>() {

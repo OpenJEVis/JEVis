@@ -1,10 +1,9 @@
 package org.jevis.jeconfig.application.tools;
 
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.CalcMethods;
+import org.jevis.jeconfig.application.application.I18nWS;
 
 import java.util.regex.Pattern;
 
@@ -64,6 +63,15 @@ public class CalculationNameFormatter {
             JEVisObject firstParentalDataObject = CalcMethods.getFirstParentalDataObject(target);
             name = firstParentalDataObject.getLocalName(I18n.getInstance().getDefaultBundle().getLocale().getLanguage());
         }
+        name = formatInputVariable(name);
+
+        return name;
+
+    }
+
+    public static String createVariableName(JEVisClass target, JEVisType attribute) throws JEVisException {
+        String name = I18nWS.getInstance().getClassName(target) + I18nWS.getInstance().getTypeName(target.getName(), attribute.getName());
+
         name = formatInputVariable(name);
 
         return name;

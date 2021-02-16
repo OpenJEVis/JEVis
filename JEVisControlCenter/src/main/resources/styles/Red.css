@@ -13,6 +13,10 @@
     -fx-text-fill: 	#ff0000;
 }
 
+.button{
+    -fx-background-color: derive(-fx-base, 80%);
+}
+
 .text-field {
     -fx-prompt-text-fill: #ff4040;
 }

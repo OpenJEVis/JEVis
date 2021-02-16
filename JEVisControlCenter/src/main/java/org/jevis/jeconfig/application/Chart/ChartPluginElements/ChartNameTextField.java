@@ -1,9 +1,9 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import javafx.scene.control.TextField;
+import com.jfoenix.controls.JFXTextField;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 
-public class ChartNameTextField extends TextField {
+public class ChartNameTextField extends JFXTextField {
 
     public ChartNameTextField(ChartSetting chartSetting) {
         super();

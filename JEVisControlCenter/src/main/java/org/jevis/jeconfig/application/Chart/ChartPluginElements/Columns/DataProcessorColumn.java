@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.StackPane;
@@ -21,15 +21,15 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 
 public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> implements ChartPluginColumn {
     public static String COLUMN_ID = "DataProcessorColumn";
     private TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn;
     private static final Logger logger = LogManager.getLogger(DataProcessorColumn.class);
     private AnalysisDataModel data;
-    private JEVisTree tree;
-    private String columnName;
+    private final JEVisTree tree;
+    private final String columnName;
     private final JEVisDataSource dataSource;
 
     /**
@@ -123,9 +123,9 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
 
         Platform.runLater(() -> {
             Label label = new Label(columnName);
-            label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.cleaning.tip")));
+            label.setTooltip(new JFXTooltip(I18n.getInstance().getString("graph.table.cleaning.tip")));
             dataProcessorColumn.setGraphic(label);
-            JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
+            JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
 
         });
 

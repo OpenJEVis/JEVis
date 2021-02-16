@@ -20,6 +20,8 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextArea;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,10 +31,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
-import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -44,6 +44,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 /**
@@ -74,6 +75,7 @@ public class ConfirmDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(500);
         stage.setHeight(250);
@@ -107,10 +109,10 @@ public class ConfirmDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button("OK");
+        JFXButton ok = new JFXButton("OK");
         ok.setDefaultButton(true);
 
-        Button cancel = new Button("Cancel");
+        JFXButton cancel = new JFXButton("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -122,7 +124,7 @@ public class ConfirmDialog {
         HBox messagePanel = new HBox();
         messagePanel.setPadding(new Insets(30, 0, 30, 30));
 
-        TextArea messageLabel = new TextArea(message);
+        JFXTextArea messageLabel = new JFXTextArea(message);
         messageLabel.getStylesheets().add(ConfirmDialog.class.getResource("/styles/TransparentTextArea.css").toExternalForm());
 //        messagePanel.getChildren().add(messageLabel);
         messageLabel.setPrefRowCount(5);

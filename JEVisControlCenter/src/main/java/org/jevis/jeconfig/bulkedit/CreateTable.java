@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.bulkedit;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -24,6 +26,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 import java.util.ArrayList;
@@ -47,18 +50,18 @@ public class CreateTable {
     private ObservableList<SpreadsheetCell> cells;
     private SpreadsheetView spv;
     private GridBase grid;
-    private Stage stage = new Stage();
+    private final Stage stage = new Stage();
     private JEVisClass createClass;
     private int rowCount;
     private int columnCount;
-    private ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
-    private ObservableList<String> columnHeaderNamesDataTable = FXCollections.observableArrayList();
+    private final ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
+    private final ObservableList<String> columnHeaderNamesDataTable = FXCollections.observableArrayList();
     //Pair list ist fuer die Objektnamen und Attribute
-    private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
+    private final ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
     //Die Units kommen aus JEVisUnit.Prefix.values
-    private ObservableList<String> listUnits = FXCollections.observableArrayList();
+    private final ObservableList<String> listUnits = FXCollections.observableArrayList();
     //Die Unitsymbols kommen aus der addSymbols()
-    private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
+    private final ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
 
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
@@ -69,7 +72,7 @@ public class CreateTable {
         } catch (JEVisException ex) {
             logger.fatal(ex);
         }
-        //cellFactory for the ComboBox
+        //cellFactory for the JFXComboBox
         Callback<ListView<JEVisClass>, ListCell<JEVisClass>> cellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
             @Override
             public ListCell<JEVisClass> call(ListView<JEVisClass> param) {
@@ -104,7 +107,7 @@ public class CreateTable {
         };
 
         //ComboBox ist fuer die Kinder vom ausgewaehlten Parent zu zeigen.
-        ComboBox<JEVisClass> classComboBox = new ComboBox<JEVisClass>(options);
+        JFXComboBox<JEVisClass> classComboBox = new JFXComboBox<JEVisClass>(options);
         classComboBox.setCellFactory(cellFactory);
         classComboBox.setButtonCell(cellFactory.call(null));
         classComboBox.setMinWidth(250);
@@ -112,8 +115,8 @@ public class CreateTable {
         //Wähle das erste Item aus und initialisiere createClass.
         createClass = classComboBox.getSelectionModel().getSelectedItem();
 
-        Button createBtn = new Button("Create Structure");
-        Button cancelBtn = new Button("Cancel");
+        JFXButton createBtn = new JFXButton("Create Structure");
+        JFXButton cancelBtn = new JFXButton("Cancel");
 
         //Wenn createclass ein JEconfig "Data" object ist,wird CreateNewDataTable aufgerufen.
         //Wenn nicht wird CreateNewTable aufgerufen.
@@ -134,8 +137,8 @@ public class CreateTable {
         hBoxTop.setSpacing(10);
         //hBoxTop.setPadding(new Insets(3, 3, 3, 3));
         Label lClass = new Label("Class:");
-        //Help Button ist fuer den WebBrowser in den WebBrowser wird die batch_mode_help.html Datei aufgerufen.
-        Button help = new Button("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
+        //Help JFXButton ist fuer den WebBrowser in den WebBrowser wird die batch_mode_help.html Datei aufgerufen.
+        JFXButton help = new JFXButton("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
         Separator sep1 = new Separator();
         hBoxTop.getChildren().addAll(lClass, classComboBox, sep1, help);
 
@@ -150,7 +153,9 @@ public class CreateTable {
 
         root.setCenter(spv);
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         scene.getStylesheets().add("styles/Table.css");
+
         //Die inputs werden schrit zu schrit so abgespeichert.
         createBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -185,7 +190,7 @@ public class CreateTable {
 
             }
         });
-        //Wenn man vom ComboBox ein neues Objekt auswählt,wird die Tabelle neue Strukturiert.
+        //Wenn man vom JFXComboBox ein neues Objekt auswählt,wird die Tabelle neue Strukturiert.
         classComboBox.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -210,7 +215,7 @@ public class CreateTable {
             }
         });
 
-        //Help Button für die help Datei.
+        //Help JFXButton für die help Datei.
         help.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -434,11 +439,7 @@ public class CreateTable {
             }
         }
 
-        if (listUnits.containsAll(listPrefix) && listUnitSymbols.containsAll(listSymbols) && listSampleRateControl.isEmpty()) {
-            createBtn.setDisable(false);
-        } else {
-            createBtn.setDisable(true);
-        }
+        createBtn.setDisable(!listUnits.containsAll(listPrefix) || !listUnitSymbols.containsAll(listSymbols) || !listSampleRateControl.isEmpty());
 
         for (int i = 0; i < grid.getRowCount(); i++) {
             SpreadsheetCell spcDisplayPrefix = rows.get(i).get(1);

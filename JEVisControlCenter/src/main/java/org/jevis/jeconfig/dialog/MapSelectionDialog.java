@@ -20,13 +20,13 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
@@ -89,7 +89,7 @@ public class MapSelectionDialog {
 
         HBox buttonBox = new HBox(10);
         Region spacer = new Region();
-        Button ok = new Button("Load");
+        JFXButton ok = new JFXButton("Load");
         ok.setDefaultButton(true);
 
         HBox.setHgrow(ok, Priority.NEVER);

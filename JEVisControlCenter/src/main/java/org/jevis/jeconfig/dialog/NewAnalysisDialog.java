@@ -2,18 +2,18 @@ package org.jevis.jeconfig.dialog;
 
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 
 public class NewAnalysisDialog {
-    private JEVisDataSource ds;
-    private AnalysisDataModel model;
-    private GraphPluginView graphPluginView;
+    private final JEVisDataSource ds;
+    private final AnalysisDataModel model;
+    private final ChartPlugin chartPlugin;
     private Boolean changed;
 
-    public NewAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, GraphPluginView graphPluginView, Boolean changed) {
+    public NewAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, ChartPlugin chartPlugin, Boolean changed) {
         this.ds = ds;
         this.model = model;
-        this.graphPluginView = graphPluginView;
+        this.chartPlugin = chartPlugin;
         this.changed = changed;
 
         newAnalysis();
@@ -21,7 +21,7 @@ public class NewAnalysisDialog {
 
     private void newAnalysis() {
 
-        AnalysisDataModel newModel = new AnalysisDataModel(ds, graphPluginView);
+        AnalysisDataModel newModel = new AnalysisDataModel(ds, chartPlugin);
 
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel);
 

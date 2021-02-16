@@ -5,6 +5,8 @@
  */
 package org.jevis.jeconfig.bulkedit;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,6 +28,7 @@ import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.spreadsheet.*;
 import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 import java.util.*;
@@ -43,19 +46,19 @@ public class EditTable {
     private ObservableList<SpreadsheetCell> cells;
     private SpreadsheetView spv;
     private GridBase grid;
-    private Stage stage = new Stage();
+    private final Stage stage = new Stage();
     private JEVisClass selectedClass;
     private int rowCount;
     private int columnCount;
-    private ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
-    private ObservableList<String> columnHeaderNamesDataTable = FXCollections.observableArrayList();
+    private final ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
+    private final ObservableList<String> columnHeaderNamesDataTable = FXCollections.observableArrayList();
     //Liste für die Objekte und ihre Attribute
-    private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
+    private final ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
     //Die Units kommen aus JEVisUnit.Prefix.values
-    private ObservableList<String> listUnits = FXCollections.observableArrayList();
+    private final ObservableList<String> listUnits = FXCollections.observableArrayList();
     //Die Unitsymbols kommen aus der addSymbols()
-    private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
-    private ObservableList<JEVisObject> listChildren = FXCollections.observableArrayList();
+    private final ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
+    private final ObservableList<JEVisObject> listChildren = FXCollections.observableArrayList();
 
     public EditTable() {
 
@@ -121,7 +124,7 @@ public class EditTable {
             }
         };
 
-        ComboBox<JEVisClass> classComboBox = new ComboBox<JEVisClass>(options);
+        JFXComboBox<JEVisClass> classComboBox = new JFXComboBox<JEVisClass>(options);
         classComboBox.setCellFactory(cellFactory);
         classComboBox.setButtonCell(cellFactory.call(null));
         classComboBox.setMinWidth(250);
@@ -129,8 +132,8 @@ public class EditTable {
         selectedClass = classComboBox.getSelectionModel().getSelectedItem();
 
         addListChildren(parent, selectedClass);
-        Button editBtn = new Button("Edit Structure");
-        Button cancelBtn = new Button("Cancel");
+        JFXButton editBtn = new JFXButton("Edit Structure");
+        JFXButton cancelBtn = new JFXButton("Cancel");
 
         try {
             if (selectedClass.getName().equals("Data")) {
@@ -149,7 +152,7 @@ public class EditTable {
         hBoxTop.setSpacing(10);
         //hBoxTop.setPadding(new Insets(3, 3, 3, 3));
         Label lClass = new Label("Class:");
-        Button help = new Button("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
+        JFXButton help = new JFXButton("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
         Separator sep1 = new Separator();
         hBoxTop.getChildren().addAll(lClass, classComboBox, sep1, help);
         root.setTop(hBoxTop);
@@ -164,6 +167,7 @@ public class EditTable {
         root.setCenter(spv);
         Scene scene = new Scene(root);
         scene.getStylesheets().add("styles/Table.css");
+        TopMenu.applyActiveTheme(scene);
 
         editBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -273,10 +277,147 @@ public class EditTable {
         return selectedClass;
     }
 
+    public void inputControl(Button editBtn) {
+        ObservableList<String> listPrefix = FXCollections.observableArrayList();
+        ObservableList<String> listSymbols = FXCollections.observableArrayList();
+        ObservableList<String> listSampleRateControl = FXCollections.observableArrayList();
+
+        Pattern pattern = Pattern.compile("[P]([0-9]+[M])?([0-9][W])?[T]([0-9]+[H])?([0-9]+[M])?([0-9]+[S])?");
+
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcDisplayPrefix = rows.get(i).get(2);
+            if (!spcDisplayPrefix.getText().equals("")) {
+                listPrefix.add(spcDisplayPrefix.getText());
+            }
+        }
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcInputPrefix = rows.get(i).get(5);
+            if (!spcInputPrefix.getText().equals("")) {
+                listPrefix.add(spcInputPrefix.getText());
+            }
+        }
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcDisplaySymbol = rows.get(i).get(3);
+            if (!spcDisplaySymbol.getText().equals("")) {
+                listSymbols.add(spcDisplaySymbol.getText());
+            }
+        }
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcInputSymbol = rows.get(i).get(6);
+            if (!spcInputSymbol.getText().equals("")) {
+                listSymbols.add(spcInputSymbol.getText());
+            }
+        }
+
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcDisplaySampleRate = rows.get(i).get(4);
+            if (!spcDisplaySampleRate.getText().equals("")) {
+                Matcher matcher = pattern.matcher(spcDisplaySampleRate.getText());
+                if (!matcher.matches()) {
+                    listSampleRateControl.add(spcDisplaySampleRate.getText());
+                }
+            }
+        }
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcInputSampleRate = rows.get(i).get(7);
+            if (!spcInputSampleRate.getText().equals("")) {
+                Matcher matcher = pattern.matcher(spcInputSampleRate.getText());
+                if (!matcher.matches()) {
+                    listSampleRateControl.add(spcInputSampleRate.getText());
+                }
+            }
+        }
+
+        editBtn.setDisable(!listUnits.containsAll(listPrefix) || !listUnitSymbols.containsAll(listSymbols) || !listSampleRateControl.isEmpty());
+
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcDisplayPrefix = rows.get(i).get(2);
+            if (!spcDisplayPrefix.getText().equals("")) {
+                if (!listUnits.contains(spcDisplayPrefix.getText())) {
+                    spcDisplayPrefix.getStyleClass().add("spreadsheet-cell-error");
+                } else {
+                    spcDisplayPrefix.getStyleClass().remove("spreadsheet-cell-error");
+                }
+            } else {
+                spcDisplayPrefix.getStyleClass().remove("spreadsheet-cell-error");
+            }
+        }
+
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcInputPrefix = rows.get(i).get(5);
+            if (!spcInputPrefix.getText().equals("")) {
+                if (!listUnits.contains(spcInputPrefix.getText())) {
+                    spcInputPrefix.getStyleClass().add("spreadsheet-cell-error");
+                } else {
+                    spcInputPrefix.getStyleClass().remove("spreadsheet-cell-error");
+                }
+            } else {
+                spcInputPrefix.getStyleClass().remove("spreadsheet-cell-error");
+            }
+        }
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcDisplaySymbol = rows.get(i).get(3);
+            if (!spcDisplaySymbol.getText().equals("")) {
+                if (!listUnitSymbols.contains(spcDisplaySymbol.getText())) {
+                    spcDisplaySymbol.getStyleClass().add("spreadsheet-cell-error");
+                } else {
+                    spcDisplaySymbol.getStyleClass().remove("spreadsheet-cell-error");
+                }
+            } else {
+                spcDisplaySymbol.getStyleClass().remove("spreadsheet-cell-error");
+            }
+        }
+
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcInputSymbol = rows.get(i).get(6);
+            if (!spcInputSymbol.getText().equals("")) {
+                if (!listUnitSymbols.contains(spcInputSymbol.getText())) {
+                    spcInputSymbol.getStyleClass().add("spreadsheet-cell-error");
+                } else {
+                    spcInputSymbol.getStyleClass().remove("spreadsheet-cell-error");
+                }
+            } else {
+                spcInputSymbol.getStyleClass().remove("spreadsheet-cell-error");
+            }
+        }
+
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcDisplaySampleRate = rows.get(i).get(4);
+            Matcher matcher = pattern.matcher(spcDisplaySampleRate.getText());
+            if (!spcDisplaySampleRate.getText().equals("")) {
+                if (!matcher.matches()) {
+                    spcDisplaySampleRate.getStyleClass().add("spreadsheet-cell-error");
+                } else {
+                    spcDisplaySampleRate.getStyleClass().remove("spreadsheet-cell-error");
+                }
+            } else {
+                spcDisplaySampleRate.getStyleClass().remove("spreadsheet-cell-error");
+            }
+        }
+
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            SpreadsheetCell spcInputSampleRate = rows.get(i).get(7);
+            Matcher matcher = pattern.matcher(spcInputSampleRate.getText());
+            if (!spcInputSampleRate.getText().equals("")) {
+                if (!matcher.matches()) {
+                    spcInputSampleRate.getStyleClass().add("spreadsheet-cell-error");
+                } else {
+                    spcInputSampleRate.getStyleClass().remove("spreadsheet-cell-error");
+                }
+            } else {
+                spcInputSampleRate.getStyleClass().remove("spreadsheet-cell-error");
+            }
+        }
+
+        listSymbols.clear();
+        listPrefix.clear();
+        listSampleRateControl.clear();
+    }
+
     // Erstelle eine neue Tabelle fuer die Objekte zu editieren.
     class CreateNewEditTable {
 
-        private ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndSample = FXCollections.observableArrayList();
+        private final ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndSample = FXCollections.observableArrayList();
 
         public CreateNewEditTable(JEVisObject parent) {
             try {
@@ -393,9 +534,9 @@ public class EditTable {
     // Diese Klasse spezial nur fuer das Data-Object implementiert.
     class CreateNewDataEditTable {
 
-        private ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndAttribute = FXCollections.observableArrayList();
+        private final ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndAttribute = FXCollections.observableArrayList();
 
-        public CreateNewDataEditTable(JEVisObject parent, Button editBtn) {
+        public CreateNewDataEditTable(JEVisObject parent, JFXButton editBtn) {
 
             String[] colNames = {"Object ID", "Object Name", "Display Prefix", "Display Symbol", "Display Sample Rate", "Input Prefix", "Input Symbol", "Input Sample Rate"};
             try {
@@ -558,147 +699,6 @@ public class EditTable {
                 }
             });
         }
-    }
-
-    public void inputControl(Button editBtn) {
-        ObservableList<String> listPrefix = FXCollections.observableArrayList();
-        ObservableList<String> listSymbols = FXCollections.observableArrayList();
-        ObservableList<String> listSampleRateControl = FXCollections.observableArrayList();
-
-        Pattern pattern = Pattern.compile("[P]([0-9]+[M])?([0-9][W])?[T]([0-9]+[H])?([0-9]+[M])?([0-9]+[S])?");
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplayPrefix = rows.get(i).get(2);
-            if (!spcDisplayPrefix.getText().equals("")) {
-                listPrefix.add(spcDisplayPrefix.getText());
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputPrefix = rows.get(i).get(5);
-            if (!spcInputPrefix.getText().equals("")) {
-                listPrefix.add(spcInputPrefix.getText());
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplaySymbol = rows.get(i).get(3);
-            if (!spcDisplaySymbol.getText().equals("")) {
-                listSymbols.add(spcDisplaySymbol.getText());
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputSymbol = rows.get(i).get(6);
-            if (!spcInputSymbol.getText().equals("")) {
-                listSymbols.add(spcInputSymbol.getText());
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplaySampleRate = rows.get(i).get(4);
-            if (!spcDisplaySampleRate.getText().equals("")) {
-                Matcher matcher = pattern.matcher(spcDisplaySampleRate.getText());
-                if (!matcher.matches()) {
-                    listSampleRateControl.add(spcDisplaySampleRate.getText());
-                }
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputSampleRate = rows.get(i).get(7);
-            if (!spcInputSampleRate.getText().equals("")) {
-                Matcher matcher = pattern.matcher(spcInputSampleRate.getText());
-                if (!matcher.matches()) {
-                    listSampleRateControl.add(spcInputSampleRate.getText());
-                }
-            }
-        }
-
-        if (listUnits.containsAll(listPrefix) && listUnitSymbols.containsAll(listSymbols) && listSampleRateControl.isEmpty()) {
-            editBtn.setDisable(false);
-        } else {
-            editBtn.setDisable(true);
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplayPrefix = rows.get(i).get(2);
-            if (!spcDisplayPrefix.getText().equals("")) {
-                if (!listUnits.contains(spcDisplayPrefix.getText())) {
-                    spcDisplayPrefix.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcDisplayPrefix.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcDisplayPrefix.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputPrefix = rows.get(i).get(5);
-            if (!spcInputPrefix.getText().equals("")) {
-                if (!listUnits.contains(spcInputPrefix.getText())) {
-                    spcInputPrefix.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcInputPrefix.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcInputPrefix.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplaySymbol = rows.get(i).get(3);
-            if (!spcDisplaySymbol.getText().equals("")) {
-                if (!listUnitSymbols.contains(spcDisplaySymbol.getText())) {
-                    spcDisplaySymbol.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcDisplaySymbol.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcDisplaySymbol.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputSymbol = rows.get(i).get(6);
-            if (!spcInputSymbol.getText().equals("")) {
-                if (!listUnitSymbols.contains(spcInputSymbol.getText())) {
-                    spcInputSymbol.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcInputSymbol.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcInputSymbol.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplaySampleRate = rows.get(i).get(4);
-            Matcher matcher = pattern.matcher(spcDisplaySampleRate.getText());
-            if (!spcDisplaySampleRate.getText().equals("")) {
-                if (!matcher.matches()) {
-                    spcDisplaySampleRate.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcDisplaySampleRate.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcDisplaySampleRate.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputSampleRate = rows.get(i).get(7);
-            Matcher matcher = pattern.matcher(spcInputSampleRate.getText());
-            if (!spcInputSampleRate.getText().equals("")) {
-                if (!matcher.matches()) {
-                    spcInputSampleRate.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcInputSampleRate.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcInputSampleRate.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        listSymbols.clear();
-        listPrefix.clear();
-        listSampleRateControl.clear();
     }
 
     // Hier wird die ZellenhÃ¶he anpasst

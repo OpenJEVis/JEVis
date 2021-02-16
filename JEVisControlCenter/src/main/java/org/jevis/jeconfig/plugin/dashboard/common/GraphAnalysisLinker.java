@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.common;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Tooltip;
 import org.jevis.api.JEVisDataSource;
@@ -12,7 +13,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
 import org.joda.time.Interval;
 
@@ -28,6 +29,7 @@ public class GraphAnalysisLinker {
     JFXButton button = new JFXButton("", JEConfig.getImage("1415314386_Graph.png", 20, 20));
 
     public GraphAnalysisLinker(JEVisDataSource dataSource) {
+        button.setStyle("-fx-background-color: transparent;");
 
         this.dataSource = dataSource;
         button.setOnAction(event -> {
@@ -50,7 +52,7 @@ public class GraphAnalysisLinker {
                         , aggregationPeriod, manipulationMode, analysisTimeFrame
                         , interval.getStart(), interval.getEnd());
 
-                JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest);
+                JEConfig.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, analysisRequest);
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setContentText(I18n.getInstance().getString("plugin.dashboard.linker.error.message"));
@@ -70,7 +72,7 @@ public class GraphAnalysisLinker {
             if (this.node.getGraphAnalysisObject() > 0) {
                 JEVisObject jeVisObject = this.dataSource.getObject(this.node.getGraphAnalysisObject());
                 if (jeVisObject != null) {
-                    Tooltip tooltip = new Tooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
+                    Tooltip tooltip = new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
                     button.setTooltip(tooltip);
                     targetIsreachable = true;
                 }
@@ -111,7 +113,7 @@ public class GraphAnalysisLinker {
 //        try {
 //            JEVisObject jeVisObject = this.dataSource.getObject(this.node.getGraphAnalysisObject());
 //            if (jeVisObject != null) {
-//                Tooltip tooltip = new Tooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
+//                Tooltip tooltip = new  JFXTooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
 //                button.setTooltip(tooltip);
 //            }
 //

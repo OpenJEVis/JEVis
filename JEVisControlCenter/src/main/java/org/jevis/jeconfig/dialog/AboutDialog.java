@@ -20,13 +20,13 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.Image;
@@ -39,6 +39,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 /**
@@ -70,6 +71,7 @@ public class AboutDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         //TODo better be dynamic
 
@@ -93,7 +95,7 @@ public class AboutDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button cancel = new Button("Close");
+        JFXButton cancel = new JFXButton("Close");
         cancel.setDefaultButton(true);
 
         buttonPanel.getChildren().addAll(cancel);
@@ -179,7 +181,6 @@ public class AboutDialog {
         stage.setHeight(500);
         //Workaround to set a dynamic size
 //        stage.setHeight(460 + ((gy - 3) * 17));
-
 
         stage.sizeToScene();
         stage.showAndWait();

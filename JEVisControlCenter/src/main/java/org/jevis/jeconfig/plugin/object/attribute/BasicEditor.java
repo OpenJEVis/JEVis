@@ -6,6 +6,7 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTooltip;
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -102,7 +103,7 @@ public abstract class BasicEditor implements AttributeEditor {
                 valueField.setText(formatSample(this.orgSample));
                 this.isValid.setValue(true);
 
-                Tooltip tt = new Tooltip("TimeStamp: " + this.orgSample.getTimestamp().toString(DateTimeFormat.patternForStyle("MS", I18n.getInstance().getLocale())));
+                Tooltip tt = new JFXTooltip("TimeStamp: " + this.orgSample.getTimestamp().toString(DateTimeFormat.patternForStyle("MS", I18n.getInstance().getLocale())));
                 tt.setOpacity(0.5);
                 valueField.setTooltip(tt);
             }

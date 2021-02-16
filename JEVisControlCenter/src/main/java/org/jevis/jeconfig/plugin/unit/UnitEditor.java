@@ -19,13 +19,13 @@
  */
 package org.jevis.jeconfig.plugin.unit;
 
+import com.jfoenix.controls.JFXTextArea;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -58,10 +58,10 @@ public class UnitEditor {
 //                Label orderLabel = new Label("Dimension: ");
             Label formel = new Label("Formel Editor:");
 
-            TextField nameT = new TextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
-            TextField symboleT = new TextField(unit.getUnit().toString());
-//                TextField orderT = new TextField(unit.getUnit().getDimension().toString());
-            TextArea formelField = new TextArea();
+            JFXTextField nameT = new JFXTextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
+            JFXTextField symboleT = new JFXTextField(unit.getUnit().toString());
+//                JFXTextField orderT = new JFXTextField(unit.getUnit().getDimension().toString());
+            JFXTextArea formelField = new JFXTextArea();
             formelField.setPrefSize(260, 100);
             formelField.setWrapText(true);
             formelField.setText(unit.getUnit().toJSON());

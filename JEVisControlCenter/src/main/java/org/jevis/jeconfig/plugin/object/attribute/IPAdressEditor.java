@@ -19,12 +19,12 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
@@ -41,11 +41,11 @@ import org.joda.time.DateTime;
 public class IPAdressEditor implements AttributeEditor {
 
     private static final Logger logger = LogManager.getLogger(IPAdressEditor.class);
-    private final TextField ipAdressField = new TextField();
+    private final JFXTextField ipAdressField = new JFXTextField();
     private final HBox editor = new HBox();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisDataSource ds;
-    private JEVisAttribute att;
+    private final JEVisAttribute att;
     private JEVisSample newSample;
 
     public IPAdressEditor(JEVisAttribute att) {

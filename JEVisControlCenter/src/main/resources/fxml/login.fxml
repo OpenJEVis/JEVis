@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -27,18 +28,22 @@
         <GridPane hgap="10.0" padding="$x1">
           <children>
             <Label fx:id="loginLabelServer" text="%login.server.label" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <ComboBox fx:id="loginServer" editable="true" maxWidth="1.7976931348623157E308" minWidth="-1.0" onAction="#nextAction" visible="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
+            <JFXComboBox fx:id="loginServer" editable="true" maxWidth="1.7976931348623157E308" minWidth="-1.0"
+                         onAction="#nextAction" visible="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"
+                         GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
               <items>
-                <FXCollections fx:factory="observableArrayList" />
+                <FXCollections fx:factory="observableArrayList"/>
               </items>
               <GridPane.margin>
-                <Insets fx:id="x1" />
+                <Insets fx:id="x2"/>
               </GridPane.margin>
-            </ComboBox>
+            </JFXComboBox>
             <Label fx:id="loginLabelUserName" text="%login.user.label" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <TextField fx:id="loginUser" onAction="#nextAction" onKeyReleased="#credentialCheck" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <JFXTextField fx:id="loginUser" onAction="#nextAction" onKeyReleased="#credentialCheck" prefWidth="200.0"
+                          GridPane.columnIndex="1" GridPane.rowIndex="2"/>
             <Label fx:id="loginLabelPassword" text="%login.pass.label" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <PasswordField fx:id="loginPass" onAction="#nextAction" onKeyReleased="#credentialCheck" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <JFXPasswordField fx:id="loginPass" onAction="#nextAction" onKeyReleased="#credentialCheck"
+                              prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
             <HBox alignment="TOP_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="9">
               <children>
                 <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancel" text="%login.cancel" />
@@ -46,15 +51,17 @@
               </children>
             </HBox>
             <Label fx:id="loginLabelProgress" text="%login.load.label" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-            <ProgressBar fx:id="loadBar" maxWidth="1.7976931348623157E308" prefWidth="-1.0" progress="0.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <JFXProgressBar fx:id="loadBar" maxWidth="1.7976931348623157E308" prefWidth="-1.0" progress="0.0"
+                            GridPane.columnIndex="1" GridPane.rowIndex="6"/>
             <Label fx:id="loginMessage" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="7" />
             <Label fx:id="loginLabelStatus" text="%login.status.label" GridPane.columnIndex="0" GridPane.rowIndex="7" />
             <Label fx:id="loginLabelLanguage" text="%login.language" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-            <ComboBox fx:id="loginLanguage" maxWidth="1.7976931348623157E308" onAction="#handleChangeLanguage" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <JFXComboBox fx:id="loginLanguage" maxWidth="1.7976931348623157E308" onAction="#handleChangeLanguage"
+                         GridPane.columnIndex="1" GridPane.rowIndex="4">
               <items>
-                <FXCollections fx:factory="observableArrayList" />
+                <FXCollections fx:factory="observableArrayList"/>
               </items>
-            </ComboBox>
+            </JFXComboBox>
           </children>
           <columnConstraints>
             <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="278.0" minWidth="10.0" prefWidth="151.0" />
@@ -89,7 +96,7 @@
             </HBox>
           </items>
           <VBox.margin>
-            <Insets fx:id="x1" />
+            <Insets fx:id="x3"/>
           </VBox.margin>
         </ToolBar>
       </children>

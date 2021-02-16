@@ -139,9 +139,14 @@ public class CalculationTable extends AlarmTable {
         for (JEVisObject calculation : outOfBounds) {
             JEVisObject target = calcAndResult.get(calculation);
             if (target != null) {
-                JEVisAttribute attribute = target.getAttribute(VALUE_ATTRIBUTE_NAME);
-                if (attribute.getInputSampleRate().equals(Period.ZERO)) {
-                    asyncTargets.add(calculation);
+                JEVisAttribute attribute = target.getAttribute(PERIOD_ATTRIBUTE_NAME);
+                if (attribute.hasSample()) {
+                    try {
+                        if (new Period(attribute.getLatestSample()).equals(Period.ZERO))
+                            asyncTargets.add(calculation);
+                    } catch (Exception e) {
+                        logger.error("Could not get Period for object {}:{}", target.getName(), target.getID(), e);
+                    }
                 }
             }
         }

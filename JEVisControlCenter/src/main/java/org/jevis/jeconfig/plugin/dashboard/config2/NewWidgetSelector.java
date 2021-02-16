@@ -1,10 +1,14 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
@@ -18,18 +22,18 @@ import java.util.List;
 public class NewWidgetSelector extends GridPane {
 
     public enum SIZE {
-        S_1x4, LARGE, S_16x16, S_16x24,S_1x6
+        S_1x4, LARGE, S_16x16, S_16x24, S_1x6
     }
 
-    final ComboBox<Widget> widgetComboBox;
-    //final ComboBox<SIZE> sizeComboBox;
+    final JFXComboBox<Widget> widgetComboBox;
+    //final JFXComboBox<SIZE> sizeComboBox;
     final ObjectProperty<Widget> selectedWidgetProperty = new SimpleObjectProperty<>();
 
     public NewWidgetSelector(List<Widget> widgets) {
 
 
         ObservableList<Widget> options = FXCollections.observableArrayList(widgets);
-        widgetComboBox = new ComboBox<>(options);
+        widgetComboBox = new JFXComboBox<>(options);
 
         Callback<ListView<Widget>, ListCell<Widget>> cellFactory = buildCellFactory();
         widgetComboBox.setCellFactory(cellFactory);
@@ -41,9 +45,9 @@ public class NewWidgetSelector extends GridPane {
         Label sizeType = new Label(I18n.getInstance().getString("plugin.dashboard.toolbar.new.size"));
 
 
-        ObservableList<SIZE> sizeOptions = FXCollections.observableArrayList(SIZE.S_1x4, SIZE.S_16x16, SIZE.LARGE);
-        sizeComboBox = new ComboBox<>(sizeOptions);
-        sizeComboBox.getSelectionModel().selectFirst();
+         ObservableList<SIZE> sizeOptions = FXCollections.observableArrayList(SIZE.S_1x4, SIZE.S_16x16, SIZE.LARGE);
+         sizeComboBox = new JFXComboBox<>(sizeOptions);
+         sizeComboBox.getSelectionModel().selectFirst();
         sizeComboBox.setCellFactory(buildSizeCellFactory());
         sizeComboBox.setButtonCell(buildSizeCellFactory().call(null));
         **/

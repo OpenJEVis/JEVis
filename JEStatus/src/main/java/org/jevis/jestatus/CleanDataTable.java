@@ -49,8 +49,9 @@ public class CleanDataTable extends AlarmTable {
 
         for (JEVisObject obj : cleanDataObjects) {
             JEVisAttribute attribute = obj.getAttribute(VALUE_ATTRIBUTE_NAME);
+            JEVisAttribute periodAttribute = obj.getAttribute(PERIOD_ATTRIBUTE_NAME);
             JEVisSample lastSample = attribute.getLatestSample();
-            Period period = attribute.getInputSampleRate();
+            Period period = new Period(periodAttribute.getLatestSample().getValueAsString());
             if (lastSample != null) {
                 DateTime timestamp = lastSample.getTimestamp();
                 DateTime now = new DateTime();
@@ -64,10 +65,17 @@ public class CleanDataTable extends AlarmTable {
 
         List<JEVisObject> asyncTargets = new ArrayList<>();
         for (JEVisObject cleanDataObject : outOfBounds) {
-            JEVisAttribute attribute = cleanDataObject.getAttribute(VALUE_ATTRIBUTE_NAME);
-            if (attribute.getInputSampleRate().equals(Period.ZERO)) {
+            JEVisAttribute attribute = cleanDataObject.getAttribute(PERIOD_ATTRIBUTE_NAME);
+            JEVisAttribute enabledAttribute = cleanDataObject.getAttribute(ENABLED);
+            if (new Period(attribute.getLatestSample().getValueAsString()).equals(Period.ZERO)) {
                 asyncTargets.add(cleanDataObject);
             }
+
+            if (enabledAttribute.hasSample()) {
+                if (!enabledAttribute.getLatestSample().getValueAsBoolean()) {
+                    asyncTargets.add(cleanDataObject);
+                }
+            } else asyncTargets.add(cleanDataObject);
         }
 
         outOfBounds.removeAll(asyncTargets);

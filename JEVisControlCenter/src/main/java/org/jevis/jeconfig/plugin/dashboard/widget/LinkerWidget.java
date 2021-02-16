@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jfoenix.controls.JFXListView;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -12,7 +13,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import jfxtras.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -174,7 +174,8 @@ public class LinkerWidget extends Widget {
                     });
                 }
 
-                jfxtras.scene.control.ListView<JEVisObject> analysisListView = new ListView<>(FXCollections.observableArrayList(allAnalyses));
+                JFXListView<JEVisObject> analysisListView = new JFXListView<>();
+                analysisListView.setItems(FXCollections.observableArrayList(allAnalyses));
                 analysisListView.setCellFactory(param -> new ListCell<JEVisObject>() {
 
                     @Override
@@ -198,14 +199,14 @@ public class LinkerWidget extends Widget {
                     try {
                         JEVisObject selectedAnalyis = getDataSource().getObject(dataModelNode.getGraphAnalysisObject());
                         if (selectedAnalyis != null) {
-                            analysisListView.setSelectedItem(selectedAnalyis);
+                            analysisListView.getSelectionModel().select(selectedAnalyis);
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
 
-                analysisListView.selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                     dataModelNode.setGraphAnalysisObject(newValue.getID());
                 });
 

@@ -1,11 +1,17 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -19,26 +25,25 @@ import java.util.Optional;
 
 public class LimitDynamicPane extends GridPane {
     private static final Logger logger = LogManager.getLogger(LimitDynamicPane.class);
-    private Label upperColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.upper"));
-    private Label lowerColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.lower"));
-    private CheckBox enableUpperBox = new CheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.upper"));
-    private CheckBox enableLowerBox = new CheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.lower"));
-//    private ColorPicker upperColorPicker = new ColorPicker();
+    private final Label upperColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.upper"));
+    private final Label lowerColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.lower"));
+    private final JFXCheckBox enableUpperBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.upper"));
+    private final JFXCheckBox enableLowerBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.lower"));
+    //    private ColorPicker upperColorPicker = new ColorPicker();
 //    private ColorPicker lowerColorPicker = new ColorPicker();
-    private ColorPickerAdv upperColorPicker = new ColorPickerAdv();
-    private ColorPickerAdv lowerColorPicker = new ColorPickerAdv();
+    private final ColorPickerAdv upperColorPicker = new ColorPickerAdv();
+    private final ColorPickerAdv lowerColorPicker = new ColorPickerAdv();
 
 
+    private final Label upperVOffsetlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.upper"));
+    private final Label lowerVOffsetlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.lower"));
+    private final JFXTextField upperValueField = new JFXTextField();
+    private final JFXTextField lowerValueField = new JFXTextField();
 
-    private Label upperVOffsetlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.upper"));
-    private Label lowerVOffsetlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.lower"));
-    private TextField upperValueField = new TextField();
-    private TextField lowerValueField = new TextField();
-
-    private Label sourceLable = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.source"));
-    private ComboBox<Widget> widgetBox;
+    private final Label sourceLable = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.source"));
+    private final ObservableList<Widget> widgetList;
     private final Limit limit;
-    private ObservableList<Widget> widgetList;
+    private JFXComboBox<Widget> widgetBox;
 
 
     public LimitDynamicPane(Limit limit, ObservableList<Widget> widgetList) {
@@ -76,7 +81,7 @@ public class LimitDynamicPane extends GridPane {
         upperValueField.setText(limit.upperLimitOffset.toString());
         lowerValueField.setText(limit.lowerLimitOffset.toString());
 
-        widgetBox = new ComboBox<>(
+        widgetBox = new JFXComboBox<>(
                 widgetList.filtered(widget -> widget.typeID().equals(ValueWidget.WIDGET_ID)));
         Callback<ListView<Widget>, ListCell<Widget>> cellFactory = new Callback<javafx.scene.control.ListView<Widget>, ListCell<Widget>>() {
             @Override

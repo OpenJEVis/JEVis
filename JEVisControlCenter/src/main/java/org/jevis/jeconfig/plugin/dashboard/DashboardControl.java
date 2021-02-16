@@ -136,11 +136,6 @@ public class DashboardControl {
 
     private void initTimeFrameFactory() {
         this.timeFrames = new TimeFrames(this.jevisDataSource);
-        try {
-            this.timeFrames.setWorkdays(dashBordPlugIn.getDataSource().getCurrentUser().getUserObject());
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
     }
 
     public TimeFrames getAllTimeFrames() {

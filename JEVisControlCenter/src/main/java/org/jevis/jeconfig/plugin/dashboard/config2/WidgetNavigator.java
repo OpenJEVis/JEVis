@@ -1,6 +1,9 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTooltip;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -19,6 +22,7 @@ import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.plugin.dashboard.DashBoardToolbar;
@@ -77,6 +81,7 @@ public class WidgetNavigator {
         root.getChildren().add(borderPane);
 
         final Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
 
         stage.setWidth(ScreenSize.fitScreenWidth(1100));
@@ -85,14 +90,12 @@ public class WidgetNavigator {
         stage.setResizable(true);
         scene.setFill(Color.TRANSPARENT);
 
-        Button finishButton = new Button(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"));
+        JFXButton finishButton = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"));
         finishButton.setDefaultButton(true);
         finishButton.setOnAction(event -> {
             stage.hide();
         });
-        stage.setOnHiding(event -> {
-            this.control.enableHighlightGlow(false);
-        });
+        stage.setOnHiding(event -> this.control.enableHighlightGlow(false));
 
 
         HBox buttonBox = new HBox(18);
@@ -100,6 +103,7 @@ public class WidgetNavigator {
         buttonBox.getChildren().addAll(finishButton);
         buttonBox.setPadding(new Insets(12));
         borderPane.setBottom(buttonBox);
+
         stage.show();
     }
 
@@ -115,9 +119,9 @@ public class WidgetNavigator {
         Region spacer = new Region();
         spacer.setPrefWidth(20d);
 
-        TextField nameField = new TextField();
-        TextField widthField = new TextField();
-        TextField heightField = new TextField();
+        JFXTextField nameField = new JFXTextField();
+        JFXTextField widthField = new JFXTextField();
+        JFXTextField heightField = new JFXTextField();
         JFXComboBox<Double> listZoomLevel = DashBoardToolbar.buildZoomLevelListView();
 
 
@@ -127,13 +131,13 @@ public class WidgetNavigator {
         timeFactoryBox.selectValue(control.getActiveDashboard().getTimeFrame());
         //timeFactoryBox.selectValue(control.getActiveTimeFrame());
 
-        Button backgroundButton = new Button("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
-        Button removeBGIcon = new Button("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+        JFXButton backgroundButton = new JFXButton("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
+        JFXButton removeBGIcon = new JFXButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         ColorPickerAdv pickerAdv = new ColorPickerAdv();
         pickerAdv.setValue(control.getActiveDashboard().getBackgroundColor());
         pickerAdv.setMinHeight(backgroundButton.getHeight());
 
-        ComboBox<String> bhModeBox = buildBGMOdeBox();
+        JFXComboBox<String> bhModeBox = buildBGMOdeBox();
 
         HBox imageBox = new HBox();
         imageBox.setSpacing(5);
@@ -248,10 +252,10 @@ public class WidgetNavigator {
     }
 
 
-    private ComboBox<String> buildBGMOdeBox() {
+    private JFXComboBox<String> buildBGMOdeBox() {
         ObservableList<String> modeList = FXCollections.observableArrayList();
         modeList.addAll(BackgroundMode.defaultMode, BackgroundMode.repeat, BackgroundMode.stretch);
-        ComboBox<String> comboBox = new ComboBox<>(modeList);
+        JFXComboBox<String> comboBox = new JFXComboBox<>(modeList);
         comboBox.setValue(control.getActiveDashboard().backgroundMode);
 
 
@@ -302,7 +306,7 @@ public class WidgetNavigator {
                 highlightButton.setGraphic(this.unlockIcon);
             }
         });
-        highlightButton.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
+        highlightButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         delete.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.delete")));

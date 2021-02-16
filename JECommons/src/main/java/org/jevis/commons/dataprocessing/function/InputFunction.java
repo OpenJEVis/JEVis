@@ -21,8 +21,7 @@ package org.jevis.commons.dataprocessing.function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
-import org.jevis.commons.dataprocessing.Process;
+import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.ws.json.JsonAttribute;
@@ -39,7 +38,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
-import static org.jevis.commons.dataprocessing.ProcessOptions.CUSTOM;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -51,103 +49,15 @@ public class InputFunction implements ProcessFunction {
     public final static String OBJECT_ID = "object-id";
     public final static String ATTRIBUTE_ID = "attribute-id";
     public static final int LIMIT = 1000000;
-    private List<JEVisSample> _result = null;
     private List<JsonSample> _jsonResult = null;
     private JsonSampleGenerator jsonSampleGenerator;
 
     public InputFunction() {
     }
 
-    public InputFunction(List<JEVisSample> resultSamples) {
-        _result = resultSamples;
-    }
-
     @Override
     public void resetResult() {
-        _result = null;
-    }
-
-    @Override
-    public List<JEVisSample> getResult(Process task) {
-        if (_result != null) {
-            return _result;
-        } else {
-            _result = new ArrayList<>();
-
-            JEVisObject object = null;
-            if (ProcessOptions.ContainsOption(task, OBJECT_ID)) {
-                long oid = Long.parseLong((ProcessOptions.GetLatestOption(task, OBJECT_ID, new BasicProcessOption(OBJECT_ID, "")).getValue()));
-                try {
-                    object = task.getJEVisDataSource().getObject(oid);
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
-                }
-            } else if (task.getObject() != null) {
-                try {
-                    object = task.getObject().getParents().get(0);//TODO make save
-                } catch (JEVisException ex) {
-                    logger.error(ex);
-                }
-            }
-
-            if (object != null && ProcessOptions.ContainsOption(task, ATTRIBUTE_ID)) {
-
-                try {
-                    logger.info("Parent object: {}", object);
-//                    long oid = Long.valueOf(task.getOptions().get(OBJECT_ID));
-//                    JEVisObject object = task.getJEVisDataSource().getObject(oid);
-
-                    JEVisAttribute att = object.getAttribute(ProcessOptions.GetLatestOption(task, ATTRIBUTE_ID, new BasicProcessOption(ATTRIBUTE_ID, "")).getValue());
-
-                    JEVisObject correspondingUserDataObject = null;
-                    boolean foundUserDataObject = false;
-                    final JEVisClass userDataClass = object.getDataSource().getJEVisClass("User Data");
-                    for (JEVisObject parent : object.getParents()) {
-                        for (JEVisObject child : parent.getChildren()) {
-                            if (child.getJEVisClass().equals(userDataClass)) {
-                                correspondingUserDataObject = child;
-                                foundUserDataObject = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    DateTime[] startEnd = ProcessOptions.getStartAndEnd(task);
-                    logger.info("start: {} end: {}", startEnd[0], startEnd[1]);
-
-                    if (foundUserDataObject) {
-                        SortedMap<DateTime, JEVisSample> map = new TreeMap<>();
-                        for (JEVisSample jeVisSample : att.getSamples(startEnd[0], startEnd[1])) {
-                            map.put(jeVisSample.getTimestamp(), jeVisSample);
-                        }
-
-                        JEVisAttribute userDataValueAttribute = correspondingUserDataObject.getAttribute("Value");
-                        List<JEVisSample> userValues = userDataValueAttribute.getSamples(startEnd[0], startEnd[1]);
-
-                        for (JEVisSample userValue : userValues) {
-                            String note = map.get(userValue.getTimestamp()).getNote();
-                            VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble(), att.getDisplayUnit());
-                            virtualSample.setNote(note + "," + USER_VALUE);
-                            virtualSample.setAttribute(map.get(userValue.getTimestamp()).getAttribute());
-
-                            map.remove(userValue.getTimestamp());
-                            map.put(virtualSample.getTimestamp(), virtualSample);
-                        }
-
-                        _result = new ArrayList<>(map.values());
-                    } else {
-                        _result = att.getSamples(startEnd[0], startEnd[1]);
-                    }
-
-                    logger.info("Input result: {}", _result.size());
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
-                }
-            } else {
-                logger.warn("Missing options {} and {}", OBJECT_ID, ATTRIBUTE_ID);
-            }
-        }
-        return _result;
+        _jsonResult = null;
     }
 
     @Override
@@ -229,17 +139,8 @@ public class InputFunction implements ProcessFunction {
 
                     DateTime[] startEnd = ProcessOptions.getStartAndEnd(task);
                     logger.info("start: {} end: {}", startEnd[0], startEnd[1]);
-
-                    boolean isCustomWorkDay = true;
-                    for (ProcessOption option : task.getOptions()) {
-                        if (option.getKey().equals(CUSTOM)) {
-                            isCustomWorkDay = Boolean.parseBoolean(option.getValue());
-                            break;
-                        }
-                    }
-
-                    WorkDays workDays = new WorkDays(task.getSqlDataSource(), task.getJsonObject());
-                    workDays.setEnabled(isCustomWorkDay);
+                    WorkDays wd = jsonSampleGenerator.getWorkDays();
+                    if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) startEnd[0] = startEnd[0].minusDays(1);
 
                     AggregationPeriod aggregationPeriod = task.getJsonSampleGenerator().getAggregationPeriod();
                     switch (aggregationPeriod) {
@@ -274,31 +175,6 @@ public class InputFunction implements ProcessFunction {
                         case YEARLY:
                             startEnd[0] = startEnd[0].withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                             break;
-                    }
-
-                    if (isCustomWorkDay) {
-                        switch (aggregationPeriod) {
-                            case DAILY:
-                            case WEEKLY:
-                            case MONTHLY:
-                            case QUARTERLY:
-                            case YEARLY:
-                            case THREEYEARS:
-                            case FIVEYEARS:
-                            case TENYEARS:
-                                startEnd[0] = startEnd[0].withHourOfDay(workDays.getWorkdayStart().getHour());
-                                startEnd[0] = startEnd[0].withMinuteOfHour(workDays.getWorkdayStart().getMinute());
-                                startEnd[0] = startEnd[0].withSecondOfMinute(workDays.getWorkdayStart().getSecond());
-
-                                startEnd[1] = startEnd[1].withHourOfDay(workDays.getWorkdayEnd().getHour());
-                                startEnd[1] = startEnd[1].withMinuteOfHour(workDays.getWorkdayEnd().getMinute());
-                                startEnd[1] = startEnd[1].withSecondOfMinute(workDays.getWorkdayEnd().getSecond());
-
-                                if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
-                                    startEnd[0] = startEnd[0].minusDays(1);
-                                }
-                                break;
-                        }
                     }
 
                     if (foundUserDataObject && att != null) {

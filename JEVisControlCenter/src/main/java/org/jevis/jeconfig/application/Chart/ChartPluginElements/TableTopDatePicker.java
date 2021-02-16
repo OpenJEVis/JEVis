@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
@@ -24,12 +24,12 @@ public class TableTopDatePicker extends HBox {
 
     private final ImageView leftImage;
     private final ImageView rightImage;
-    private final ComboBox<DateTime> selectionBox;
+    private final JFXComboBox<DateTime> selectionBox;
 
     public TableTopDatePicker() {
         super();
         setAlignment(Pos.CENTER);
-        selectionBox = new ComboBox<>();
+        selectionBox = new JFXComboBox<>();
         Callback<ListView<DateTime>, ListCell<DateTime>> cellFactory = new Callback<ListView<DateTime>, ListCell<DateTime>>() {
             @Override
             public ListCell<DateTime> call(ListView<DateTime> param) {
@@ -94,7 +94,7 @@ public class TableTopDatePicker extends HBox {
         Platform.runLater(() -> selectionBox.getSelectionModel().select(date));
     }
 
-    public ComboBox<DateTime> getDatePicker() {
+    public JFXComboBox<DateTime> getDatePicker() {
         return selectionBox;
     }
 

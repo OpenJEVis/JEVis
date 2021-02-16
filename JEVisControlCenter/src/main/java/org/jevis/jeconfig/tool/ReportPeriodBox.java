@@ -1,15 +1,15 @@
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.PeriodMode;
 
-public class ReportPeriodBox extends ComboBox<PeriodMode> {
+public class ReportPeriodBox extends JFXComboBox<PeriodMode> {
 
     public ReportPeriodBox(ObservableList<PeriodMode> items) {
         super(items);

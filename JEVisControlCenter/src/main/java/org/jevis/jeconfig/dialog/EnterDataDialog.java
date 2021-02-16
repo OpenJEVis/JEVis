@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -59,7 +61,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     private final ObjectRelations objectRelations;
 
     private JEVisObject selectedObject;
-    private final TextField doubleField = new TextField();
+    private final JFXTextField doubleField = new JFXTextField();
     private Response response;
 
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
@@ -79,8 +81,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     private final Label idLabel = new Label(I18n.getInstance().getString("plugin.graph.export.text.id"));
     private final Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
     private final Label dateTypeLabel = new Label(I18n.getInstance().getString("plugin.object.dialog.data.datetype.label"));
-    private final TextField searchIdField = new TextField();
-    private final Button treeButton = new Button(I18n
+    private final JFXTextField searchIdField = new JFXTextField();
+    private final JFXButton treeButton = new JFXButton(I18n
             .getInstance().getString("plugin.object.attribute.target.button"),
             JEConfig.getImage("folders_explorer.png", 18, 18));
     private final YearBox yearBox = new YearBox();
@@ -380,7 +382,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.setHeaderText(headerText);
         this.getDialogPane().setContent(buildForm());
 
-//        Button pButton = (Button) parent;
+//        JFXButton pButton = (Button) parent;
 //        Bounds layoutBounds = pButton.localToScene(pButton.getLayoutBounds());
 
 //        System.out.println("X: " + layoutBounds.getMinX() + " Y:" + layoutBounds.getMinY());

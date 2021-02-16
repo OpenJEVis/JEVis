@@ -20,6 +20,9 @@
  */
 package org.jevis.jeconfig.application.unit;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -27,7 +30,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
@@ -68,7 +72,7 @@ public class UnitPanel extends GridPane {
         List<Prefix> list = new ArrayList<>();
         list.add(CustomPrefix.NONE);
         Collections.addAll(list, MetricPrefix.values());
-        ComboBox<Prefix> prefixBox = new ComboBox(FXCollections.observableArrayList(list));
+        JFXComboBox<Prefix> prefixBox = new JFXComboBox(FXCollections.observableArrayList(list));
         prefixBox.setMaxWidth(520);
 //        prefixBox.getSelectionModel().select("");//toto get elsewhere?!
 
@@ -84,9 +88,9 @@ public class UnitPanel extends GridPane {
         });
         prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefix(prefix));
 
-        final TextField labelField = new TextField();
+        final JFXTextField labelField = new JFXTextField();
         labelField.setEditable(false);
-        final Button changeBaseUnit = new Button();//new Button("Basic Unit");
+        final JFXButton changeBaseUnit = new JFXButton();//new JFXButton("Basic Unit");
         changeBaseUnit.setText(unit.toString());
 //
         HBox unitBox = new HBox(5);
@@ -151,7 +155,7 @@ public class UnitPanel extends GridPane {
         printExample(labelField, _returnUnit);
     }
 
-    private void printExample(final TextField tf, final JEVisUnit unit) {
+    private void printExample(final JFXTextField tf, final JEVisUnit unit) {
         logger.debug("UpdateLabel: '{}' '{}' '{}'", unit.getLabel(), unit.getFormula(), unit.getPrefix());
         Platform.runLater(new Runnable() {
             @Override

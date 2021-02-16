@@ -22,6 +22,7 @@ package org.jevis.jeconfig;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -54,15 +55,33 @@ import java.util.prefs.Preferences;
  */
 public class TopMenu extends MenuBar {
     private static final Logger logger = LogManager.getLogger(TopMenu.class);
-
     private final List<MenuItem> items = new ArrayList<>();
     private Plugin activePlugin;
+    private static final String stylesString = "/styles/Styles.css";
+    private static final String chartString = "/styles/charts.css";
+    private static final String standardString = "/styles/Standard.css";
+    private static final String darkString = "/styles/Dark.css";
+    private static final String amberString = "/styles/Amber.css";
+    private static final String greenString = "/styles/Green.css";
+    private static final String indigoString = "/styles/Indigo.css";
+    private static final String redString = "/styles/Red.css";
+    private static final String whiteString = "/styles/White.css";
+    private static final List<String> allThemes = Arrays.asList(stylesString, chartString, standardString, darkString, amberString,
+            greenString, indigoString, redString, whiteString);
+    private static String activeTheme;
 
     public TopMenu() {
         super();
 
         updateLayout();
 
+    }
+
+    public static void applyActiveTheme(Scene scene) {
+        scene.getStylesheets().removeAll(allThemes);
+        scene.getStylesheets().add(stylesString);
+        scene.getStylesheets().add(chartString);
+        scene.getStylesheets().add(activeTheme);
     }
 
     private void updateLayout() {
@@ -322,14 +341,11 @@ public class TopMenu extends MenuBar {
         CheckMenuItem redTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.red"));
         CheckMenuItem whiteTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.white"));
 
-        final List<String> allThemes = Arrays.asList("/styles/Standard.css", "/styles/Dark.css", "/styles/Amber.css",
-                "/styles/Green.css", "/styles/Indigo.css", "/styles/Red.css", "/styles/White.css");
-
         standardTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+
                 prefTheme.putBoolean("standard", true);
-                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
-                JEConfig.getStage().getScene().getStylesheets().add("/styles/Standard.css");
+                applyTheme(standardString);
 
                 darkTheme.setSelected(false);
                 amberTheme.setSelected(false);
@@ -345,8 +361,7 @@ public class TopMenu extends MenuBar {
         darkTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 prefTheme.putBoolean("dark", true);
-                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
-                JEConfig.getStage().getScene().getStylesheets().add("/styles/Dark.css");
+                applyTheme(darkString);
 
                 standardTheme.setSelected(false);
                 amberTheme.setSelected(false);
@@ -363,8 +378,7 @@ public class TopMenu extends MenuBar {
         amberTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 prefTheme.putBoolean("amber", true);
-                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
-                JEConfig.getStage().getScene().getStylesheets().add("/styles/Amber.css");
+                applyTheme(amberString);
 
                 darkTheme.setSelected(false);
                 standardTheme.setSelected(false);
@@ -381,8 +395,7 @@ public class TopMenu extends MenuBar {
         greenTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 prefTheme.putBoolean("green", true);
-                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
-                JEConfig.getStage().getScene().getStylesheets().add("/styles/Green.css");
+                applyTheme(greenString);
 
                 darkTheme.setSelected(false);
                 amberTheme.setSelected(false);
@@ -399,8 +412,7 @@ public class TopMenu extends MenuBar {
         indigoTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 prefTheme.putBoolean("indigo", true);
-                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
-                JEConfig.getStage().getScene().getStylesheets().add("/styles/Indigo.css");
+                applyTheme(indigoString);
 
                 darkTheme.setSelected(false);
                 amberTheme.setSelected(false);
@@ -417,8 +429,7 @@ public class TopMenu extends MenuBar {
         redTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 prefTheme.putBoolean("red", true);
-                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
-                JEConfig.getStage().getScene().getStylesheets().add("/styles/Red.css");
+                applyTheme(redString);
 
                 darkTheme.setSelected(false);
                 amberTheme.setSelected(false);
@@ -435,8 +446,7 @@ public class TopMenu extends MenuBar {
         whiteTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 prefTheme.putBoolean("white", true);
-                JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
-                JEConfig.getStage().getScene().getStylesheets().add("/styles/White.css");
+                applyTheme(whiteString);
 
                 darkTheme.setSelected(false);
                 amberTheme.setSelected(false);
@@ -549,4 +559,12 @@ public class TopMenu extends MenuBar {
         activePlugin = plugin;
     }
 
+    private void applyTheme(String themeString) {
+        JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
+        JEConfig.getStage().getScene().getStylesheets().add(stylesString);
+        JEConfig.getStage().getScene().getStylesheets().add(chartString);
+        JEConfig.getStage().getScene().getStylesheets().add(themeString);
+
+        activeTheme = themeString;
+    }
 }

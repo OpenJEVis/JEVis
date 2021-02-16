@@ -1,14 +1,14 @@
 package org.jevis.jeconfig.tool;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 
-public class ReportManipulationBox extends ComboBox<ManipulationMode> {
+public class ReportManipulationBox extends JFXComboBox<ManipulationMode> {
 
     public ReportManipulationBox() {
         super();

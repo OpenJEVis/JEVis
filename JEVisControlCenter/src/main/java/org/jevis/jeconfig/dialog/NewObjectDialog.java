@@ -20,6 +20,9 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -64,7 +67,7 @@ public class NewObjectDialog {
     private String createName = "No Name";
     private boolean userSetName = false;
     private Response response = Response.CANCEL;
-    private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
+    private final ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
     private boolean withCleanData = true;
 
     /**
@@ -105,7 +108,7 @@ public class NewObjectDialog {
         int x = 0;
 
         Label lName = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        final TextField fName = new TextField();
+        final JFXTextField fName = new JFXTextField();
         fName.setPromptText(I18n.getInstance().getString("jevistree.dialog.new.name.prompt"));
 
         if (objName != null) {
@@ -167,8 +170,8 @@ public class NewObjectDialog {
             }
         };
 
-        final ComboBox<JEVisClass> jeVisClassComboBox = new ComboBox<>(options);
-        CheckBox createCleanData = new CheckBox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
+        final JFXComboBox<JEVisClass> jeVisClassComboBox = new JFXComboBox<>(options);
+        JFXCheckBox createCleanData = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
         createCleanData.setVisible(true);
 
         jeVisClassComboBox.setCellFactory(cellFactory);
@@ -280,7 +283,7 @@ public class NewObjectDialog {
         Platform.runLater(() -> fName.requestFocus());
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.FINISH.getButtonData().getTypeCode())) {
 
                         createName = fName.getText();
                         createClass = jeVisClassComboBox.getSelectionModel().getSelectedItem();

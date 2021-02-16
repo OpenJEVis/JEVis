@@ -20,6 +20,9 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -32,7 +35,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -48,6 +54,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeconfig.tool.NumberSpinner;
@@ -91,6 +98,7 @@ public class NewFunctionDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(380);
         stage.setHeight(260);
@@ -122,11 +130,11 @@ public class NewFunctionDialog {
 
         HBox buttonPanel = new HBox();
 
-        final Button ok = new Button(I18n.getInstance().getString("newobject.ok"));
+        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        Button cancel = new Button(I18n.getInstance().getString("newobject.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -142,7 +150,7 @@ public class NewFunctionDialog {
         int x = 0;
 
         Label lName = new Label(I18n.getInstance().getString("newobject.name"));
-        final TextField fName = new TextField();
+        final JFXTextField fName = new JFXTextField();
         fName.setPromptText(I18n.getInstance().getString("newobject.name.prompt"));
 
         if (objName != null) {
@@ -209,7 +217,7 @@ public class NewFunctionDialog {
             }
         };
 
-        final ComboBox<JEVisClass> comboBox = new ComboBox<JEVisClass>(options);
+        final JFXComboBox<JEVisClass> comboBox = new JFXComboBox<JEVisClass>(options);
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 

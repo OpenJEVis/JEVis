@@ -20,10 +20,13 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
+import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableRow;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -43,7 +46,7 @@ import java.util.UUID;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class JEVisTree extends TreeTableView {
+public class JEVisTree extends JFXTreeTableView {
     private static final Logger logger = LogManager.getLogger(JEVisTree.class);
     private final ObservableList<TreePlugin> plugins = FXCollections.observableArrayList();
     private final JEVisDataSource ds;
@@ -57,7 +60,7 @@ public class JEVisTree extends TreeTableView {
     private SearchFilterBar searchBar;
 
     /**
-     * Create an default Tree for the given JEVisDataSource by using all accessable JEVisObjects starting by the
+     * Create an default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
      * root objects.
      *
      * @param ds
@@ -217,7 +220,7 @@ public class JEVisTree extends TreeTableView {
     /**
      * Initialize the jevis tree
      */
-    private void init() {
+    protected void init() {
         try {
             this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), this.ds.getRootObjects());
             this.itemLoader.filterTree(this.cellFilter);

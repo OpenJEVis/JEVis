@@ -30,8 +30,10 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
@@ -199,9 +201,11 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 this.label.setFont(new Font(this.config.getFontSize()));
 
                 if (limit != null) {
-                    this.label.setTextFill(limit.getExceedsLimitColor(fontColor, displayedSample.get()));
+//                    this.label.setTextFill(limit.getExceedsLimitColor(fontColor, displayedSample.get()));
+                    this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(limit.getExceedsLimitColor(fontColor, displayedSample.get())) + " !important;");
                 } else {
-                    this.label.setTextFill(fontColor);
+//                    this.label.setTextFill(fontColor);
+                    this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(fontColor) + " !important;");
                 }
 
 
@@ -354,9 +358,10 @@ public class ValueWidget extends Widget implements DataModelWidget {
         this.label.setPadding(new Insets(0, 8, 0, 8));
         setGraphic(this.label);
 
+
         setOnMouseClicked(event -> {
             if (!control.editableProperty.get() && event.getButton().equals(MouseButton.PRIMARY)
-                    && event.getClickCount() == 1) {
+                    && event.getClickCount() == 1 && !event.isShiftDown()) {
                 int row = 0;
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -399,10 +404,13 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 }
                 if (!gp.getChildren().isEmpty()) {
                     alert.getDialogPane().setContent(gp);
+                    TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
                     alert.showAndWait();
                 }
 
-
+            } else if (!control.editableProperty.get() && event.getButton().equals(MouseButton.PRIMARY)
+                    && event.getClickCount() == 1 && event.isShiftDown()) {
+                debug();
             }
         });
     }

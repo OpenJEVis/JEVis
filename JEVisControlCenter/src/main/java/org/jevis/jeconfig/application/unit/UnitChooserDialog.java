@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.application.unit;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -28,7 +29,6 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
@@ -47,6 +47,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
 import org.jevis.api.JEVisUnit;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 /**
@@ -91,6 +92,7 @@ public class UnitChooserDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(420);
         stage.setHeight(320);
@@ -101,10 +103,10 @@ public class UnitChooserDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button("OK");
+        JFXButton ok = new JFXButton("OK");
         ok.setDefaultButton(true);
 
-        Button cancel = new Button("Cancel");
+        JFXButton cancel = new JFXButton("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

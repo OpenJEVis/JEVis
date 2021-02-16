@@ -20,6 +20,10 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXRadioButton;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -45,6 +49,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
 
@@ -62,18 +67,18 @@ public class CopyObjectDialog {
 
     public static String ICON = "1403555565_stock_folder-move.png";
 
-    private TextField nameField = new TextField();
+    private final JFXTextField nameField = new JFXTextField();
     private boolean recursionAllowed = false;
-    private boolean includeDataAllowed = true;
-    private final CheckBox includeValues = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.addvalues"));
-    private final Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.copy.ok"));
+    private final boolean includeDataAllowed = true;
+    private final JFXCheckBox includeValues = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.copy.addvalues"));
+    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.dialog.copy.ok"));
 
-    private final RadioButton move = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.move"));
-    private final RadioButton link = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.link"));
-    private final RadioButton copy = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.copy"));
-    private final CheckBox recursion = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.substructure"));
-    private final CheckBox includeSamples = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.adddata"));
-    private boolean includeValuesAllowed = true;
+    private final JFXRadioButton move = new JFXRadioButton(I18n.getInstance().getString("jevistree.dialog.copy.move"));
+    private final JFXRadioButton link = new JFXRadioButton(I18n.getInstance().getString("jevistree.dialog.copy.link"));
+    private final JFXRadioButton copy = new JFXRadioButton(I18n.getInstance().getString("jevistree.dialog.copy.copy"));
+    private final JFXCheckBox recursion = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.copy.substructure"));
+    private final JFXCheckBox includeSamples = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.copy.adddata"));
+    private final boolean includeValuesAllowed = true;
     private final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
 
@@ -144,6 +149,7 @@ public class CopyObjectDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         stage.setWidth(450);
         stage.setHeight(400);
@@ -179,7 +185,7 @@ public class CopyObjectDialog {
         this.ok.setDefaultButton(true);
         this.ok.setDisable(true);
 
-        Button cancel = new Button(I18n.getInstance().getString("jevistree.dialog.copy.cancel"));
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("jevistree.dialog.copy.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(this.ok, cancel);
@@ -423,6 +429,7 @@ public class CopyObjectDialog {
         stage.setAlwaysOnTop(true);
         Platform.runLater(stage::requestFocus);
         Platform.runLater(stage::toFront);
+
         stage.showAndWait();
 
         return this.response;
@@ -467,11 +474,7 @@ public class CopyObjectDialog {
     }
 
     private void checkName() {
-        if (this.nameField.getText() != null && !this.nameField.getText().isEmpty()) {
-            this.ok.setDisable(false);
-        } else {
-            this.ok.setDisable(true);
-        }
+        this.ok.setDisable(this.nameField.getText() == null || this.nameField.getText().isEmpty());
     }
 
     private void showError(String titleLong, String message) {

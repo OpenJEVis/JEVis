@@ -19,6 +19,8 @@
  */
 package org.jevis.jeconfig.application.jevistree.plugin;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -38,6 +40,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.unit.SampleRateNode;
 import org.jevis.jeconfig.application.unit.UnitPanel;
@@ -87,6 +90,7 @@ public class AttributeSettingsDialog {
         VBox root = new VBox();
 
         Scene scene = new Scene(root);
+        TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
 
         stage.initStyle(StageStyle.UTILITY);
@@ -101,19 +105,19 @@ public class AttributeSettingsDialog {
 //        Node header = DialogHeader.getDialogHeader("1404313956_evolution-tasks.png", "Unit Selection");
         HBox buttonPanel = new HBox();
 
-        final CheckBox setDefault = new CheckBox("Set as default");
+        final JFXCheckBox setDefault = new JFXCheckBox("Set as default");
 
-        Button ok = new Button("OK");
+        JFXButton ok = new JFXButton("OK");
         ok.setDefaultButton(true);
 
-        Button cancel = new Button("Cancel");
+        JFXButton cancel = new JFXButton("Cancel");
         cancel.setCancelButton(true);
 
         if (att.getDisplayUnit() != null) {
             att.getDisplayUnit().toString();
         }//            changeBaseUnigetDisplayUnitxt(att.getUnit().toString());
 
-//        CheckBox keepDefault = new CheckBox("Set as DB unit");
+//        JFXCheckBox keepDefault = new JFXCheckBox("Set as DB unit");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
