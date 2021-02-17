@@ -6,6 +6,10 @@ import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.text.NumberFormat;
 import java.util.List;
 
 public class ServiceStatus extends AlarmTable {
@@ -25,6 +29,56 @@ public class ServiceStatus extends AlarmTable {
     public void createTableString() throws JEVisException {
         StringBuilder sb = new StringBuilder();
 
+        sb.append("<br>");
+        sb.append("<br>");
+
+        sb.append("<h2>Free Diskspace</h2>");
+        sb.append("<table style=\"");
+        sb.append(tableCSS);
+        sb.append("\" border=\"1\" >");
+        sb.append("<tr style=\"");
+        sb.append(headerCSS);
+        sb.append("\" >");
+        sb.append("    <th>").append("Partition").append("</th>");
+        sb.append("    <th>").append("Total Space").append("</th>");
+        sb.append("    <th>").append("Free Space").append("</th>");
+        sb.append("  </tr>");
+
+        FileSystem fs = FileSystems.getDefault();
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMinimumFractionDigits(2);
+        nf.setMaximumFractionDigits(2);
+
+        fs.getFileStores().forEach(store -> {
+            try {
+                sb.append("<tr>");
+                sb.append("<td style=\"");
+                sb.append(rowCss);
+                sb.append("\">");
+                sb.append(store.name());
+                sb.append("</td>");
+
+                sb.append("<td style=\"");
+                sb.append(rowCss);
+                sb.append("\">");
+                double totalSpace = store.getTotalSpace() / 1024d / 1024d / 1024d;
+                sb.append(nf.format(totalSpace)).append(" GB");
+                sb.append("</td>");
+
+                sb.append("<td style=\"");
+                sb.append(rowCss);
+                sb.append("\">");
+                double usableSpace = store.getUsableSpace() / 1024d / 1024d / 1024d;
+                sb.append(nf.format(usableSpace)).append(" GB");
+                sb.append("</td>");
+
+                sb.append("</tr>");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        sb.append("</table>");
         sb.append("<br>");
         sb.append("<br>");
 

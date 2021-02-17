@@ -19,6 +19,9 @@
  */
 package org.jevis.jestatus;
 
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.jenotifier.mode.SendNotification;
@@ -28,9 +31,6 @@ import org.jevis.jenotifier.notifier.Email.EmailServiceProperty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -156,7 +156,6 @@ public class AlarmHandler {
             nofi.setIsHTML(true);
 
             JEVisObject notiDriObj = notificationObject.getDataSource().getObject(service.getMailID());
-
             EmailNotificationDriver emailNofi = new EmailNotificationDriver();
             emailNofi.setNotificationDriverObject(notiDriObj);
 

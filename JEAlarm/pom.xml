@@ -78,16 +78,12 @@
             <artifactId>log4j-1.2-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jevis.jenotifier.notifier</groupId>
-            <artifactId>Notifier</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jevis.jenotifier.notifier</groupId>
-            <artifactId>Notifier-EP</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jevis.jenotifier</groupId>
             <artifactId>JENotifier</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
         </dependency>
     </dependencies>
 </project>

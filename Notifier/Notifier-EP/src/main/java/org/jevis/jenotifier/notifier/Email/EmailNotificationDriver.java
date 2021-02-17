@@ -224,7 +224,6 @@ public class EmailNotificationDriver implements NotificationDriver {
      */
     public void setDefaultAuthenticator() {
         _authentication = new Authenticator() {
-            //override the getPasswordAuthentication method
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(getUser(), getPassword());

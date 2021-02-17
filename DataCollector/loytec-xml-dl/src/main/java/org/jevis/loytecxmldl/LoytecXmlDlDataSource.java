@@ -11,12 +11,14 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.driver.*;
 import org.jevis.soapdatasource.Channel;
 import org.jevis.soapdatasource.SOAPDataSource;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -33,6 +35,7 @@ public class LoytecXmlDlDataSource implements DataSource {
     private Channel soapChannel;
     private Importer importer;
     private ExecutorService executorService;
+    private final ConcurrentHashMap<LoytecXmlDlChannel, DateTime> activeChannels = new ConcurrentHashMap<>();
 
     @Override
     public void initialize(JEVisObject dataSourceObject) {
@@ -92,6 +95,7 @@ public class LoytecXmlDlDataSource implements DataSource {
             List<InputStream> responseStreams;
             List<Result> results;
             List<JEVisSample> statusResults;
+            activeChannels.put(channel, new DateTime());
 
             // Create parser
             LoytecXmlDlParser parser = new LoytecXmlDlParser();
@@ -116,11 +120,15 @@ public class LoytecXmlDlDataSource implements DataSource {
 
                 if (results.isEmpty() && statusResults.isEmpty()) {
                     log.info("The parse result is empty");
+                    removeJob(channel);
+
                     // use stream, no use later...
                 } else {
                     log.info("The parse result is ok. Results: {}. Status results: {}", results.size(), statusResults.size());
                     // Import
                     JEVisImporterAdapter.importResults(results, statusResults, importer, channel.getJeVisObject());
+
+                    removeJob(channel);
 
                     if (results.size() == 1000) {
                         channel.update();
@@ -134,21 +142,35 @@ public class LoytecXmlDlDataSource implements DataSource {
                     MalformedURLException ex) {
                 logger.error("MalformedURLException. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 logger.debug("MalformedURLException. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+                removeJob(channel);
             } catch (
                     ClientProtocolException ex) {
                 logger.error("Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 logger.debug("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+                removeJob(channel);
             } catch (
                     IOException ex) {
                 logger.error("IO Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 logger.debug("IO Exception. For channel {}:{}.", channel.getJeVisObject().getID(), channel.getName(), ex);
+                removeJob(channel);
             } catch (ParseException ex) {
                 logger.error("Parse Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 logger.debug("Parse Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+                removeJob(channel);
             } catch (Exception ex) {
                 logger.error("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+                removeJob(channel);
             }
         };
+    }
+
+    private void removeJob(LoytecXmlDlChannel channel) {
+        activeChannels.remove(channel);
+
+        if (activeChannels.isEmpty()) {
+            logger.debug("No more active threads, shutting down executor.");
+            executorService.shutdown();
+        }
     }
 
 
