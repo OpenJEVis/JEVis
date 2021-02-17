@@ -172,8 +172,12 @@ public class DataServerTable extends AlarmTable {
             JEVisObject target = channelAndTarget.get(currentChannel);
             if (target != null) {
                 JEVisAttribute attribute = target.getAttribute(PERIOD_ATTRIBUTE_NAME);
-                if (new Period(attribute.getLatestSample().getValueAsString()).equals(Period.ZERO)) {
-                    asyncTargets.add(currentChannel);
+                try {
+                    if (new Period(attribute.getLatestSample().getValueAsString()).equals(Period.ZERO)) {
+                        asyncTargets.add(currentChannel);
+                    }
+                } catch (Exception e) {
+                    logger.error("Could not get period for object {}:{}", target.getName(), target.getID(), e);
                 }
             }
         }
