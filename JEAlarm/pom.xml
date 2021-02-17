@@ -81,5 +81,9 @@
             <groupId>org.jevis.jenotifier</groupId>
             <artifactId>JENotifier</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+        </dependency>
     </dependencies>
 </project>
