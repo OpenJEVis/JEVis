@@ -64,6 +64,7 @@ import java.util.prefs.Preferences;
 
 public class TRCPlugin implements Plugin {
     public static final String TEMPLATE_CLASS = "Result Calculation Template";
+    private static final String PLUGIN_CLASS_NAME = "Template Result Calculation Plugin";
     private static final Logger logger = LogManager.getLogger(TRCPlugin.class);
     private static final String DATA_MODEL_ATTRIBUTE = "Template File";
     private static final String NO_RESULT = I18n.getInstance().getString("plugin.dtrc.noresult");
@@ -308,7 +309,7 @@ public class TRCPlugin implements Plugin {
 
     @Override
     public String getClassName() {
-        return "TRC Plugin";
+        return PLUGIN_CLASS_NAME;
     }
 
     @Override
@@ -608,6 +609,9 @@ public class TRCPlugin implements Plugin {
         startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateViewOutputGridPane());
         endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateViewOutputGridPane());
 
+        IntervalSelector intervalSelector = new IntervalSelector(ds, startDatePicker, startTimePicker, endDatePicker, endTimePicker);
+
+
         GridPane datePane = new GridPane();
         datePane.setPadding(new Insets(4));
         datePane.setHgap(6);
@@ -620,6 +624,8 @@ public class TRCPlugin implements Plugin {
         datePane.add(endText, 0, 1);
         datePane.add(endDatePicker, 1, 1);
         datePane.add(endTimePicker, 2, 1);
+
+        HBox dateBox = new HBox(4, datePane, intervalSelector);
 
         if (templateHandler.getRcTemplate() != null) {
             updateViewInputFlowPane();
@@ -640,7 +646,7 @@ public class TRCPlugin implements Plugin {
         separator2.setPadding(new Insets(8, 0, 8, 0));
 
         VBox viewVBox = new VBox(4,
-                datePane, separator1,
+                dateBox, separator1,
                 inputsLabel, viewInputs, separator2,
                 outputsLabel, viewOutputs);
 
@@ -654,7 +660,16 @@ public class TRCPlugin implements Plugin {
         Label inputsLabel2 = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
         Label outputsLabel2 = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.outputslabel"));
 
-        VBox configVBox = new VBox(4, formulaLabel, configFormulas, inputsLabel2, configInputs, new HBox(outputsLabel2, buildAddOutputButton()), configOutputs);
+        Separator separator3 = new Separator(Orientation.HORIZONTAL);
+        separator3.setPadding(new Insets(8, 0, 8, 0));
+
+        Separator separator4 = new Separator(Orientation.HORIZONTAL);
+        separator4.setPadding(new Insets(8, 0, 8, 0));
+
+        VBox configVBox = new VBox(4, formulaLabel, configFormulas, separator3,
+                inputsLabel2, configInputs, separator4,
+                new HBox(outputsLabel2, buildAddOutputButton()), configOutputs);
+
         configVBox.setPadding(new Insets(12));
         configurationTab.setContent(configVBox);
 
