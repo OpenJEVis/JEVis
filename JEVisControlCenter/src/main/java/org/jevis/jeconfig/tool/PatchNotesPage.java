@@ -50,7 +50,50 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.46------\n" +
+            "------Version 3.9.47------\n" +
+                    "Classes - added energy contracting classes\n" +
+                    "Classes - allow clean data below math data\n" +
+                    "\n" +
+                    "DataCollector - EMailDataSource - fixed some pom error and allowing wildcard for filename \n" +
+                    "DataCollector - LoytecXmlDlDataSource - fixed persistent thread executor\n" +
+                    "DataCollector - OPCDriver - Fixed duplicate pom entry for opc\n" +
+                    "\n" +
+                    "JEAPI-WS - JEVisObjectWS - fixed unique check copy under same parent\n" +
+                    "\n" +
+                    "JECC - BaseDataPlugin - fixed manual sample dialog\n" +
+                    "JECC - ChartPlugin - TableChartV - fixed autosize\n" +
+                    "JECC - DashboardPlugin - ValueWidget - added alignment function\n" +
+                    "JECC - DashboardPlugin - ValueWidget - fixed data manipulation \n" +
+                    "JECC - DashboardPlugin - copy widget\n" +
+                    "JECC - JECC - Alarmeinstellungen am Datenobjekt - Dialog öffnet sich viel zu klein\n" +
+                    "JECC - JECC - Manuelle Dateneingabe im Kontextmenü im Datenbaum um den Dialog für die Dateneingabe zu verkürzen\n" +
+                    "JECC - JEVisTree - Multiple Selection Mode \n" +
+                    "JECC - ObjectPlugin - Replacement Value dialog needs more space\n" +
+                    "JECC - SampleEditor - fixed not data period estimate\n" +
+                    "JECC - SelectTargetDialog - added math data to clean data/data filter\n" +
+                    "JECC - TRCPlugin - added comfortable date selector to view tab\n" +
+                    "JECC - TRCPlugin - added comfortable date selector to view tab\n" +
+                    "JECC - TablePlugin - added filter to toolbar\n" +
+                    "\n" +
+                    "JECommons - AggregatorFunction - fixed custom workday beginning day previous error for empty intervals\n" +
+                    "JECommons - JsonSampleGenerator - AggregatorFunction/Inputfunction - fixed intervals for predating workday days\n" +
+                    "\n" +
+                    "JEDataProcessor - fixed async -> monthly aggregation\n" +
+                    "JEDataProcessor - fixed counter change functionality\n" +
+                    "JEDataProcessor - fixed custom workday stuff\n" +
+                    "JEDataProcessor - fixed custom workday stuff\n" +
+                    "JEDataProcessor - fixed custom workday stuff\n" +
+                    "JEDataProcessor - fixed month error\n" +
+                    "JEDataProcessor - fixes\n" +
+                    "\n" +
+                    "JEStatus - added highlight for free space, translation  \n" +
+                    "\n" +
+                    "JEWebService - Add Debug messages\n" +
+                    "JEWebService - Add the possibility for connection option to the webservice\n" +
+                    "\n" +
+                    "Notifier - pulled all mail dependencies to parent pom \n" +
+                    "Notifier - Notifier-EP - fixed\n\n" +
+                    "------Version 3.9.46------\n" +
                     "Classes - Calculation - added translation for missing calculation attributes\n" +
                     "Classes - Data - added period attribute\n" +
                     "Classes - Data - added period attribute \n" +
