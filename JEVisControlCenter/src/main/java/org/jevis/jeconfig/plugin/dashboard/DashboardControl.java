@@ -449,16 +449,8 @@ public class DashboardControl {
                 }
             });
 
-//            if (activeTimeFrame == null) {
             this.activeTimeFrame = activeDashboard.getTimeFrame();
-//            }
-
-//            if (activeInterval != null) {
-//                setInterval(activeInterval);
-//            } else {
-            setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
-//            }
-
+            //setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
             setActiveTimeFrame(activeTimeFrame);
 
             firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
@@ -581,11 +573,11 @@ public class DashboardControl {
 
     public void setInterval(Interval interval) {
         try {
-            logger.error("SetInterval to: {}", interval);
+            logger.error("------------------ SetInterval to: {} ------------------", interval);
+
             this.activeInterval = interval;
             activeIntervalProperty.setValue(activeInterval);//workaround
             runDataUpdateTasks(false);
-
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -611,6 +603,7 @@ public class DashboardControl {
     }
 
     public void switchUpdating() {
+        logger.error("switchUpdating");
         this.isUpdateRunning = !this.isUpdateRunning;
         if (this.isUpdateRunning) {
             runDataUpdateTasks(isUpdateRunning);
@@ -627,21 +620,10 @@ public class DashboardControl {
 
     private void stopAllUpdates() {
         try {
+            logger.error("stopAllUpdates: " + JEConfig.getStatusBar().getTaskList().size());
             this.isUpdateRunning = false;
 
             JEConfig.getStatusBar().stopTasks(DashBordPlugIn.class.getName());
-            /**
-             if (this.updateTask != null) {
-             try {
-             this.updateTask.cancel();
-             } catch (Exception ex) {
-
-             }
-             }
-             this.updateTimer.cancel();
-             if (this.executor != null) this.executor.shutdownNow();
-
-             */
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -660,11 +642,15 @@ public class DashboardControl {
 
         this.runningUpdateTaskList.clear();
 
+        DashboardControl.this.widgetList.sorted().forEach(widget -> {
+            logger.error("-- Create Update job for: {}-{}-{}-{} '{}'", widget.getConfig().getUuid(), widget.getConfig().getType(), widget, widget.getConfig().getTitle());
+        });
+
         for (Widget widget : this.widgetList) {
             if (!widget.isStatic()) {
                 Platform.runLater(() -> {
                     try {
-                        logger.error("Show ProgressIndicator ofr: {}", widget.getConfig().getTitle());
+                        logger.debug("Show ProgressIndicator for: {}", widget.getConfig().getTitle());
                         widget.showProgressIndicator(true);
                     } catch (Exception ex) {
                         logger.error(ex);
@@ -674,7 +660,7 @@ public class DashboardControl {
         }
 
 
-        logger.debug("Update Interval: {}", activeInterval);
+        logger.error("Update Interval: {}", activeInterval);
         this.updateTask = new TimerTask() {
             @Override
             public void run() {
@@ -684,14 +670,26 @@ public class DashboardControl {
                         , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
                 try {
 //                    totalUpdateJobs.setValue(DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count());
+
+
+                    Set<Object> linkedHashSet = new LinkedHashSet<>();
+
                     for (Widget widget : DashboardControl.this.widgetList) {
                         if (!widget.isStatic()) {
+                            if (linkedHashSet.contains(widget)) {
+                                logger.error("    --- waring duplicate widget update: {}", widget.getConfig().getTitle(), widget.getConfig().getType());
+                            } else {
+                                logger.error("add new to list check: {}", widget.getConfig().getTitle(), widget.getConfig().getType());
+                                linkedHashSet.add(widget);
+                                Task<Object> updateTask = addWidgetUpdateTask(widget, activeInterval);
+                                JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
+                            }
                             //addWidgetUpdateTask(widget, activeInterval);
-                            Task<Object> updateTask = addWidgetUpdateTask(widget, activeInterval);
+
                             //runningUpdateTaskList.add(updateTask);
                             //JEConfig.getStatusBar().addTask(updateTask,widgetTaskIcon);
                             //executor.submit(updateTask);
-                            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
+
                         }
                     }
 
@@ -700,7 +698,6 @@ public class DashboardControl {
                 }
             }
         };
-
 
         if (reStartUpdateDaemon) {
             this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(reStartUpdateDaemon);
@@ -728,10 +725,9 @@ public class DashboardControl {
                 try {
                     logger.error("addWidgetUpdateTask: '{}'  - Interval: {}", widget.getConfig().getTitle(), interval);
                     Platform.runLater(() -> this.updateTitle("Updating Widget [" + widget.typeID() + "" + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
-
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
-                        logger.error("updateData done: " + widget);
+                        logger.error("updateData done: '{}'", widget.getConfig().getTitle());
 //                        finishUpdateJobs.setValue(finishUpdateJobs.getValue() + 1);
                     }
 
