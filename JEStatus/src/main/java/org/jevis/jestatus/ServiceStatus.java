@@ -32,16 +32,16 @@ public class ServiceStatus extends AlarmTable {
         sb.append("<br>");
         sb.append("<br>");
 
-        sb.append("<h2>Free Diskspace</h2>");
+        sb.append("<h2>").append(I18n.getInstance().getString("status.table.title.diskspace")).append("</h2>");
         sb.append("<table style=\"");
         sb.append(tableCSS);
         sb.append("\" border=\"1\" >");
         sb.append("<tr style=\"");
         sb.append(headerCSS);
         sb.append("\" >");
-        sb.append("    <th>").append("Partition").append("</th>");
-        sb.append("    <th>").append("Total Space").append("</th>");
-        sb.append("    <th>").append("Free Space").append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.partition")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.totalspace")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.freespace")).append("</th>");
         sb.append("  </tr>");
 
         FileSystem fs = FileSystems.getDefault();
@@ -51,6 +51,10 @@ public class ServiceStatus extends AlarmTable {
 
         fs.getFileStores().forEach(store -> {
             try {
+                double totalSpace = store.getTotalSpace() / 1024d / 1024d / 1024d;
+                double usableSpace = store.getUsableSpace() / 1024d / 1024d / 1024d;
+                double percent = usableSpace / totalSpace * 100d;
+
                 sb.append("<tr>");
                 sb.append("<td style=\"");
                 sb.append(rowCss);
@@ -61,15 +65,19 @@ public class ServiceStatus extends AlarmTable {
                 sb.append("<td style=\"");
                 sb.append(rowCss);
                 sb.append("\">");
-                double totalSpace = store.getTotalSpace() / 1024d / 1024d / 1024d;
+
                 sb.append(nf.format(totalSpace)).append(" GB");
                 sb.append("</td>");
 
                 sb.append("<td style=\"");
-                sb.append(rowCss);
+                if (percent > 15) {
+                    sb.append(rowCss);
+                } else {
+                    sb.append(redRowCss);
+                }
                 sb.append("\">");
-                double usableSpace = store.getUsableSpace() / 1024d / 1024d / 1024d;
                 sb.append(nf.format(usableSpace)).append(" GB");
+                sb.append(" (").append(nf.format(percent)).append(" %)");
                 sb.append("</td>");
 
                 sb.append("</tr>");

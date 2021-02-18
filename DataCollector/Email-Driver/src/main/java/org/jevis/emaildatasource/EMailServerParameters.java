@@ -86,6 +86,7 @@ public class EMailServerParameters {
         _sslEnabled = setIsSsl();
         _port = setPort();
         _timezone = DBHelper.getAttValue(DBHelper.RetType.STRING, _mailObj, EMailConstants.EMail.TIMEZONE, EMailConstants.Errors.TIMEZ_ERR, EMailConstants.DefParameters.TIMEZONE);
+
         _readTimeout = DBHelper.getAttValue(DBHelper.RetType.INTEGER, _mailObj, EMailConstants.EMail.READ_TIMEOUT, EMailConstants.Errors.READ_ERR, EMailConstants.DefParameters.READ_TIMEOUT);
         _connectionTimeout = DBHelper.getAttValue(DBHelper.RetType.INTEGER, _mailObj, EMailConstants.EMail.CONNECTION_TIMEOUT, EMailConstants.Errors.CONN_ERR, EMailConstants.DefParameters.CONNECTION_TIMEOUT);
         _enabled = DBHelper.getAttValue(DBHelper.RetType.BOOLEAN, _mailObj, EMailConstants.EMail.ENABLE, EMailConstants.Errors.ENAB_ERR, EMailConstants.DefParameters.ENABLE);
