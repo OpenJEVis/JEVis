@@ -2,6 +2,7 @@
     -tab-text-color: -fx-text-base-color ;
     -fx-base: #e2e2e2;
     -fx-accent: #1a719c;
+    -jfx-default-color: -fx-base;
 }
 
 .button {

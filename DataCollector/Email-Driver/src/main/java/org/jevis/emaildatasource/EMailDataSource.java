@@ -83,8 +83,6 @@ public class EMailDataSource implements DataSource {
                     } catch (NullPointerException np) {
                         logger.error("File is wrong or parse failed");
                     }
-
-                    DBHelper.setLastReadout(_result, channel);
                 }
 
 

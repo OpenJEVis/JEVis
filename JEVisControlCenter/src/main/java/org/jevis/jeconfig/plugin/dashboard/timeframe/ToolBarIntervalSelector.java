@@ -21,17 +21,21 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 public class ToolBarIntervalSelector extends HBox {
 
     private static final Logger logger = LogManager.getLogger(ToolBarIntervalSelector.class);
-    private final TimeFrameEdior timeFrameEdior;
     private final Double iconSize = 20d;
-    private final ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
-    private final ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
-    private final TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
-    private final ObservableList<TimeFrameFactory> timeFrames;
-    private boolean disableEventListener = false;
-    private final DashboardControl controller;
+    protected final ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
+    protected final ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
+    protected final TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
+    protected TimeFrameEditor timeFrameEditor;
+    protected ObservableList<TimeFrameFactory> timeFrames;
+    protected boolean disableEventListener = false;
+    private DashboardControl controller;
+
+    public ToolBarIntervalSelector() {
+        super();
+    }
 
     public ToolBarIntervalSelector(DashboardControl controller) {
-        super();
+        this();
         this.setAlignment(Pos.CENTER_LEFT);
         JFXButton dateButton = new JFXButton("");
         dateButton.setMinWidth(100);
@@ -49,19 +53,19 @@ public class ToolBarIntervalSelector extends HBox {
 //        dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
 //        dateButton.setTooltip(new JFXTooltipcontroller.getInterval().toString()));
 
-        this.timeFrameEdior = new TimeFrameEdior(controller.getActiveTimeFrame(), controller.getInterval());
-        this.timeFrameEdior.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
+        this.timeFrameEditor = new TimeFrameEditor(controller.getActiveTimeFrame(), controller.getInterval());
+        this.timeFrameEditor.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
             if (disableEventListener) return;
             controller.setInterval(newValue);
         });
 
         dateButton.setOnAction(event -> {
-            if (this.timeFrameEdior.isShowing()) {
-                this.timeFrameEdior.hide();
+            if (this.timeFrameEditor.isShowing()) {
+                this.timeFrameEditor.hide();
             } else {
-                this.timeFrameEdior.setDate(controller.getInterval().getEnd());
+                this.timeFrameEditor.setDate(controller.getInterval().getEnd());
                 Point2D point = dateButton.localToScreen(0.0, 0.0);
-                this.timeFrameEdior.show(dateButton, point.getX() - 40, point.getY() + 40);
+                this.timeFrameEditor.show(dateButton, point.getX() - 40, point.getY() + 40);
             }
         });
 
@@ -103,9 +107,9 @@ public class ToolBarIntervalSelector extends HBox {
         disableEventListener = true;
 
         timeFactoryBox.selectValue(controller.getActiveTimeFrame());
-        timeFrameEdior.setTimeFrame(controller.getActiveTimeFrame());
-        timeFrameEdior.setIntervalProperty(controller.getInterval());
-        timeFrameEdior.setDate(controller.getInterval().getEnd());
+        timeFrameEditor.setTimeFrame(controller.getActiveTimeFrame());
+        timeFrameEditor.setIntervalProperty(controller.getInterval());
+        timeFrameEditor.setDate(controller.getInterval().getEnd());
 
 
         disableEventListener = false;

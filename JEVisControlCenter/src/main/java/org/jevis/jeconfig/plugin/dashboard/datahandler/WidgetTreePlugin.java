@@ -78,14 +78,14 @@ public class WidgetTreePlugin implements TreePlugin {
     private final List<ManipulationMode> customList = new ArrayList<ManipulationMode>() {
         {
             add(ManipulationMode.NONE);
-            add(ManipulationMode.RUNNING_MEAN);
-            add(ManipulationMode.CENTRIC_RUNNING_MEAN);
+//            add(ManipulationMode.RUNNING_MEAN);
+//            add(ManipulationMode.CENTRIC_RUNNING_MEAN);
             add(ManipulationMode.AVERAGE);
             add(ManipulationMode.MEDIAN);
             add(ManipulationMode.MIN);
             add(ManipulationMode.MAX);
-            add(ManipulationMode.SORTED_MIN);
-            add(ManipulationMode.SORTED_MAX);
+//            add(ManipulationMode.SORTED_MIN);
+//            add(ManipulationMode.SORTED_MAX);
         }
     };
 
@@ -846,7 +846,6 @@ public class WidgetTreePlugin implements TreePlugin {
 
                             if (show) {
                                 JFXComboBox<ManipulationMode> mathBox = new JFXComboBox<>();
-
 
                                 Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>> cellFactory = new Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>>() {
                                     @Override

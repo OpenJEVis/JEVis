@@ -42,13 +42,13 @@ import java.util.Optional;
 public class PieWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(PieWidget.class);
     public static String WIDGET_ID = "Pie";
-    private PieChart chart = new PieChart();
-    private NumberFormat nf = NumberFormat.getInstance();
+    private final PieChart chart = new PieChart();
+    private final NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
-    private WidgetLegend legend = new WidgetLegend();
-    private ObjectMapper mapper = new ObjectMapper();
-    private BorderPane borderPane = new BorderPane();
-    private VBox legendPane = new VBox();
+    private final WidgetLegend legend = new WidgetLegend();
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final BorderPane borderPane = new BorderPane();
+    private final VBox legendPane = new VBox();
     private Interval lastInterval;
 
     public PieWidget(DashboardControl control, WidgetPojo config) {
@@ -104,7 +104,7 @@ public class PieWidget extends Widget implements DataModelWidget {
         for (ChartDataRow dataModel : this.sampleHandler.getDataModel()) {
             try {
 //                chartDataModel.setAbsolute(true);
-                Double dataModelTotal = DataModelDataHandler.getTotal(dataModel.getSamples(), dataModel);
+                Double dataModelTotal = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), dataModel.getSamples(), dataModel);
                 total.set(total.get() + dataModelTotal);
                 logger.debug("dataModelTotal: [{}] {}", dataModel.getObject().getName(), dataModelTotal);
             } catch (Exception ex) {
@@ -126,7 +126,7 @@ public class PieWidget extends Widget implements DataModelWidget {
                 if (!hasNoData) {
                     logger.debug("Samples: ({}) {}", dataName, chartDataRow.getSamples());
                     try {
-                        value = DataModelDataHandler.getTotal(chartDataRow.getSamples(), chartDataRow);
+                        value = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), chartDataRow.getSamples(), chartDataRow);
                         logger.debug("part.total: [{}] {}", chartDataRow.getObject().getName(), value);
                         double proC = (value / total.get()) * 100;
                         if (Double.isInfinite(proC)) proC = 100;

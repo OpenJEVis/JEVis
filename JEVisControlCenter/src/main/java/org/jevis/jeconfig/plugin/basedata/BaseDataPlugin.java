@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.basedata;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -54,7 +55,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
     private final Image taskImage = JEConfig.getImage("building_equipment.png");
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final TabPane tabPane = new TabPane();
+    private final JFXTabPane tabPane = new JFXTabPane();
     private boolean initialized = false;
     private JEVisClass baseDataClass;
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.BaseDataPlugin");

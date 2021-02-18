@@ -40,12 +40,12 @@ import java.util.List;
 public class WebPieWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(WebPieWidget.class);
     public static String WIDGET_ID = "Web Pie";
-    private NumberFormat nf = NumberFormat.getInstance();
+    private final NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
-    private ObjectMapper mapper = new ObjectMapper();
-    private BorderPane borderPane = new BorderPane();
-    private VBox legendPane = new VBox();
-    private WebView webView = new WebView();
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final BorderPane borderPane = new BorderPane();
+    private final VBox legendPane = new VBox();
+    private final WebView webView = new WebView();
 
 
     public WebPieWidget(DashboardControl control, WidgetPojo config) {
@@ -93,7 +93,7 @@ public class WebPieWidget extends Widget {
         this.sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
 //                chartDataModel.setAbsolute(true);
-                Double dataModelTotal = DataModelDataHandler.getTotal(chartDataModel.getSamples(), chartDataModel);
+                Double dataModelTotal = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), chartDataModel.getSamples(), chartDataModel);
                 total.set(total.get() + dataModelTotal);
 
             } catch (Exception ex) {
@@ -113,7 +113,7 @@ public class WebPieWidget extends Widget {
                 if (!hasNoData) {
                     logger.error("Samples: ({}) {}", dataName, chartDataModel.getSamples());
                     try {
-                        value = DataModelDataHandler.getTotal(chartDataModel.getSamples(), chartDataModel);
+                        value = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), chartDataModel.getSamples(), chartDataModel);
                         BigDecimal bd = new BigDecimal(value);
                         bd = bd.setScale(5, RoundingMode.HALF_UP);
 //                        value = bd.doubleValue();

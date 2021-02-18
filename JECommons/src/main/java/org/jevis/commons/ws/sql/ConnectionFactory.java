@@ -31,7 +31,7 @@ public class ConnectionFactory {
             String conString = "jdbc:mysql://" + host + ":" + port + "/" + schema + "?"
                     + "characterEncoding=UTF-8&useUnicode=true&character_set_client=UTF-8&character_set_connection=UTF-8&character_set_results=UTF-8";
 //                    + "characterEncoding=UTF-8&amp;useUnicode=true";
-            if (!options.isEmpty()) {
+            if (options != null && !options.isEmpty()) {
                 conString += "&" + options;
             }
 

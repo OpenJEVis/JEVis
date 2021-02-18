@@ -114,7 +114,7 @@ public class TableWidget extends Widget implements DataModelWidget {
 
                     tableDatas.add(new TableData(
                             chartDataModel.getObject().getName(),
-                            this.nf.format(DataModelDataHandler.getTotal(results, chartDataModel)),
+                            this.nf.format(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, chartDataModel)),
                             chartDataModel.getUnitLabel()));
 
 

@@ -51,15 +51,19 @@ public class CleanDataTable extends AlarmTable {
             JEVisAttribute attribute = obj.getAttribute(VALUE_ATTRIBUTE_NAME);
             JEVisAttribute periodAttribute = obj.getAttribute(PERIOD_ATTRIBUTE_NAME);
             JEVisSample lastSample = attribute.getLatestSample();
-            Period period = new Period(periodAttribute.getLatestSample().getValueAsString());
-            if (lastSample != null) {
-                DateTime timestamp = lastSample.getTimestamp();
-                DateTime now = new DateTime();
+            try {
+                Period period = new Period(periodAttribute.getLatestSample().getValueAsString());
+                if (lastSample != null) {
+                    DateTime timestamp = lastSample.getTimestamp();
+                    DateTime now = new DateTime();
 
-                if (lastSample.getTimestamp().isBefore(latestReported)
-                        && (!timestamp.plus(period).equals(now) && !timestamp.plus(period).isAfter(now))) {
-                    outOfBounds.add(obj);
+                    if (lastSample.getTimestamp().isBefore(latestReported)
+                            && (!timestamp.plus(period).equals(now) && !timestamp.plus(period).isAfter(now))) {
+                        outOfBounds.add(obj);
+                    }
                 }
+            } catch (Exception e) {
+                logger.error("Could not get period attribute for object {}:{}", obj.getName(), obj.getID(), e);
             }
         }
 

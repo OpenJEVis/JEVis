@@ -27,6 +27,7 @@ public class AlarmTable {
     protected final String headerCSS = "background-color: #1a719c;"
             + "color: #FFF;";
     protected final String rowCss = "text-color: #024457;padding: 5px;";//"border: 1px solid #D9E4E6;"
+    protected final String redRowCss = "text-color: red;padding: 5px;";//"border: 1px solid #D9E4E6;"
     protected final String highlight = "background-color: #EAF3F3";
     protected final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     protected final String VALUE_ATTRIBUTE_NAME = "Value";
