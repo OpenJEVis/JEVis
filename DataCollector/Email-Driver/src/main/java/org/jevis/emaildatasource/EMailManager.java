@@ -19,18 +19,20 @@
  */
 package org.jevis.emaildatasource;
 
+import jakarta.mail.*;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.search.SearchTerm;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.joda.time.DateTime;
 
-import javax.mail.*;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.search.SearchTerm;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * EMailManager Class is a service that is initiated by the creation and
@@ -212,6 +214,19 @@ public class EMailManager {
                     final long answerDone = System.currentTimeMillis();
                     logger.info(">>Attach to inputstream: {} msec.", (answerDone - start));
 
+                } else {
+                    boolean match;
+                    Pattern p = Pattern.compile(filename);
+                    Matcher m = p.matcher(partName);
+                    match = m.matches();
+
+                    if (match) {
+                        logger.info("Attach found: {}", part.getFileName());
+                        final long start = System.currentTimeMillis();
+                        input.add(toInputStream(part));//add attach to answerlist
+                        final long answerDone = System.currentTimeMillis();
+                        logger.info(">>Attach to inputstream: {} msec.", (answerDone - start));
+                    }
                 }
             }
         } //for multipart check

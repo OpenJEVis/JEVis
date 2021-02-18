@@ -14,6 +14,10 @@
             <groupId>org.jevis.commons</groupId>
             <artifactId>JECommons</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+        </dependency>
     </dependencies>
     <packaging>pom</packaging>
 

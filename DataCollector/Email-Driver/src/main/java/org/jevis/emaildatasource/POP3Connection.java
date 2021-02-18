@@ -22,11 +22,11 @@ package org.jevis.emaildatasource;
 import com.sun.mail.pop3.POP3Folder;
 import com.sun.mail.pop3.POP3SSLStore;
 import com.sun.mail.pop3.POP3Store;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
 import org.apache.logging.log4j.LogManager;
 
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
 
 /**
  *

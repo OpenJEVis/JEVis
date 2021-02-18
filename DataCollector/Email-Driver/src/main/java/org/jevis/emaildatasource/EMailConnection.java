@@ -20,11 +20,12 @@
 
 package org.jevis.emaildatasource;
 
-import javax.mail.Folder;
-import javax.mail.Session;
+import jakarta.mail.Folder;
+import jakarta.mail.Session;
+
 
 /**
- * The EMailConnection interface 
+ * The EMailConnection interface
  *
  * @author Artur Iablokov
  */
