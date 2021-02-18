@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.meters;
 
+import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -58,7 +59,7 @@ public class MeterPlugin extends TablePlugin implements Plugin {
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final TabPane tabPane = new TabPane();
+    private final JFXTabPane tabPane = new JFXTabPane();
     private boolean initialized = false;
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
     private int selectedIndex = 0;

@@ -21,8 +21,8 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 public class ToolBarIntervalSelector extends HBox {
 
     private static final Logger logger = LogManager.getLogger(ToolBarIntervalSelector.class);
-    protected final ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
     private final Double iconSize = 20d;
+    protected final ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
     protected final ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
     protected final TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
     protected TimeFrameEditor timeFrameEditor;

@@ -66,7 +66,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public ValueWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
-        this.label.setStyle("-fx-alignment: CENTER-RIGHT;");
     }
 
     public ValueWidget(DashboardControl control) {
@@ -124,7 +123,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
-                    total.set(DataModelDataHandler.getTotal(results, dataModel));
+                    total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
 
                     displayedSample.setValue(total.get());
                     String valueText = null;
@@ -252,8 +251,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 logger.error(ex);
             }
         }
-
-
     }
 
 
@@ -265,6 +262,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 this.label.setBackground(bgColor);
                 this.label.setTextFill(this.config.getFontColor());
                 this.label.setContentDisplay(ContentDisplay.CENTER);
+                this.label.setAlignment(this.config.getTitlePosition());
             });
         });
 

@@ -172,5 +172,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
 
         endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
         endTimePicker.setValue(LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour(), end.getSecondOfMinute()));
+
+        timeFrameEditor.setDate(end);
     }
 }
