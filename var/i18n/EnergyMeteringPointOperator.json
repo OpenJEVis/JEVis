@@ -16,6 +16,23 @@
   },
   "types": [
     {
+      "type": "Contractor",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragspartner",
+        "ru": "Партнер по контракту",
+        "uk": "Контрактний партнер",
+        "th": "คู่สัญญา",
+        "en": "Contractor"
+      }
+    },
+    {
       "type": "Energy Metering Point Operator Code Number",
       "descriptions": {
         "de": "",

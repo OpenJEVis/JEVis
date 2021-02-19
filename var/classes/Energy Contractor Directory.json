@@ -1,0 +1,33 @@
+{
+  "name": "Energy Contractor Directory",
+  "description": "The class Energy Contractor Directory represents a specific directory for energy contractors.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Contractor Directory",
+      "end": "Energy Contracting Directory",
+      "type": 0
+    },
+    {
+      "start": "Energy Contractor Directory",
+      "end": "Energy Contracting Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Supply Contractor",
+      "end": "Energy Contractor Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Metering Point Operation Contractor",
+      "end": "Energy Contractor Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Grid Operation Contractor",
+      "end": "Energy Contractor Directory",
+      "type": 3
+    }
+  ]
+}
+

@@ -5,6 +5,10 @@
     -jfx-default-color: -fx-base;
 }
 
+.jfx-tab-pane .tab-header-background {
+    -fx-background-color: linear-gradient(-fx-base, #eeeeee);
+}
+
 .button {
     -fx-background-color: #e2e2e2;
 }

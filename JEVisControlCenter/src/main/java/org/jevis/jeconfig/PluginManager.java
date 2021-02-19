@@ -39,6 +39,7 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.map.MapViewPlugin;
+import org.jevis.jeconfig.plugin.accounting.AccountingPlugin;
 import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
@@ -101,6 +102,7 @@ public class PluginManager {
         plugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
         plugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
         plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
+        plugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
         plugins.add(new TRCPlugin(this._ds));
 
 //        plugins.add(new SCADAPlugin(_ds));
@@ -221,6 +223,12 @@ public class PluginManager {
                                                 JEVisClass equipmentClass = this._ds.getJEVisClass(EquipmentPlugin.EQUIPMENT_CLASS);
                                                 List<JEVisObject> allEquipment = this._ds.getObjects(equipmentClass, false);
                                                 if (allEquipment.size() == 0) {
+                                                    continue;
+                                                }
+                                            } else if (plugObj.getJEVisClassName().equals(AccountingPlugin.PLUGIN_NAME)) {
+                                                JEVisClass accountingClass = this._ds.getJEVisClass(AccountingPlugin.ACCOUNTING_CLASS);
+                                                List<JEVisObject> allAccountingDirs = this._ds.getObjects(accountingClass, false);
+                                                if (allAccountingDirs.size() == 0) {
                                                     continue;
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {

@@ -1,0 +1,14 @@
+{
+  "name": "Energy Supply Contractor",
+  "description": "The class Energy Contractor defines non-specified attributes as a base class",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Supply Contractor",
+      "end": "Energy Contractor",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}
