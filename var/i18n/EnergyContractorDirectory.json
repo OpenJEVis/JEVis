@@ -1,0 +1,18 @@
+{
+  "jevisclass": "Energy Contractor Directory",
+  "names": {
+    "de": "Vertragspartner",
+    "ru": "Каталог партнеров по контракту",
+    "uk": "Каталог контрактних партнерів",
+    "en": "Energy Contractor Directory",
+    "th": "ไดเร็กทอรีคู่สัญญา"
+  },
+  "descriptions": {
+    "de": "Im Vertragspartnerverzeichnis werden Informationen zu den Vertragspartnern verwaltet",
+    "ru": "Информация о договорных партнерах находится в каталоге договорных партнеров",
+    "en": "Energy contractors are managed in the Energy Contractor Directory",
+    "uk": "Інформація про контрактних партнерів знаходиться в каталозі контрактних партнерів",
+    "th": "ข้อมูลเกี่ยวกับคู่ค้าตามสัญญาได้รับการจัดการในไดเรกทอรีพันธมิตรตามสัญญา"
+  },
+  "types": []
+}

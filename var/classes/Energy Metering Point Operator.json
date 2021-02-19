@@ -3,13 +3,17 @@
   "description": "The class Energy Metering Point Operator defines non-specified attributes as a base class",
   "unique": false,
   "relationships": [
-    {
-      "start": "Energy Metering Point Operator",
-      "end": "Energy Contractor",
-      "type": 0
-    }
   ],
   "types": [
+    {
+      "name": "Contractor",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Metering Point Operator"
+    },
     {
       "name": "Energy Metering Point Operator Code Number",
       "primitiveType": 0,
