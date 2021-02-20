@@ -11,7 +11,6 @@ import org.jevis.iso.add.TemplateChooser;
 import org.jevis.iso.add.ThemeHelper;
 import org.jevis.iso.add.Translations;
 import org.jevis.rest.Config;
-import sun.misc.Launcher;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -88,8 +87,8 @@ public class Login {
     ) throws Exception {
         JEVisDataSource ds = null;
         try {
-            String nh = new String();
-            String nh2 = new String();
+            String nh = "";
+            String nh2 = "";
             List<ThemeHelper> listThemes = new ArrayList<>();
             List<LangHelper> listLangs = new ArrayList<>();
 
@@ -188,7 +187,7 @@ public class Login {
             }
             jar.close();
         } else { // Run with IDE
-            URL url = Launcher.class.getResource("/" + path);
+            URL url = Login.class.getResource("/" + path);
             if (url != null) {
                 try {
                     File apps = new File(url.toURI());

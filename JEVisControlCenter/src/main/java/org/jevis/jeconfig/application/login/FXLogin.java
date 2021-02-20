@@ -43,7 +43,6 @@ import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.action.Action;
 import org.jevis.api.JEVisClass;
@@ -58,7 +57,6 @@ import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.ParameterHelper;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.jevis.jeconfig.tool.Layouts;
 
 import java.awt.*;
 import java.io.IOException;
@@ -70,6 +68,8 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
+//import org.controlsfx.control.NotificationPane;
 
 /**
  * The FXLogin represents the common JEVis login dialog with all necessary
@@ -90,26 +90,26 @@ public class FXLogin extends AnchorPane {
     private final Preferences jevisPref = Preferences.userRoot().node("JEVis");
     private JEVisDataSource _ds;
     //    private final Preferences serverPref = Preferences.userRoot().node("JEVis.Server");
-    private List<JEVisObject> rootObjects = new ArrayList<>();
-    private List<JEVisClass> classes = new ArrayList<>();
+    private final List<JEVisObject> rootObjects = new ArrayList<>();
+    private final List<JEVisClass> classes = new ArrayList<>();
     //    private final ComboBox<JEVisConfiguration> serverSelection = new ComboBox<>();
-    private String css = "";
+    private final String css = "";
 
-    private int lastServer = -1;
-    private Stage statusDialog = new Stage(StageStyle.TRANSPARENT);
+    private final int lastServer = -1;
+    private final Stage statusDialog = new Stage(StageStyle.TRANSPARENT);
 
     //workaround, need some coll OO implementaion
-    private List<PreloadTask> tasks = new ArrayList<>();
+    private final List<PreloadTask> tasks = new ArrayList<>();
 
-    private SimpleBooleanProperty loginStatus = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty loginStatus = new SimpleBooleanProperty(false);
 //    private final String URL_SYNTAX = "user:password@server:port/jevis";
 
     //    private final ObservableList<JEVisConfiguration> serverConfigurations = FXCollections.observableList(new ArrayList<>());
     private VBox mainHBox = new VBox();
-    private ProgressIndicator progress = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
+    private final ProgressIndicator progress = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
 
     //Workaround replace later, in the moment i have problems showing the xeporion in an thread as an Alart
-    private Exception lastExeption = null;
+    private final Exception lastExeption = null;
 
     private Application.Parameters parameters;
 
@@ -118,7 +118,7 @@ public class FXLogin extends AnchorPane {
     private boolean useCSSFile = false;
     private ApplicationInfo app = new ApplicationInfo("FXLogin", "");
     private Locale selectedLocale = Locale.getDefault();
-    private NotificationPane notificationPane =  new NotificationPane();
+//    private NotificationPane notificationPane =  new NotificationPane();
 
 
     private FXLogin() {
@@ -600,13 +600,14 @@ public class FXLogin extends AnchorPane {
         AnchorPane.setRightAnchor(this.mainHBox, 0.0);
         AnchorPane.setLeftAnchor(this.mainHBox, 0.0);
         AnchorPane.setBottomAnchor(this.mainHBox, 0.0);
-        notificationPane.setContent(this.mainHBox);
+//        notificationPane.setContent(this.mainHBox);
+//
+//        AnchorPane root = new AnchorPane(notificationPane);
+//        Layouts.setAnchor(notificationPane,0);
+//        Layouts.setAnchor(root,0);
+//        getChildren().setAll(root);
 
-        AnchorPane root = new AnchorPane(notificationPane);
-        Layouts.setAnchor(notificationPane,0);
-        Layouts.setAnchor(root,0);
-        getChildren().setAll(root);
-
+        getChildren().setAll(new AnchorPane(this.mainHBox));
     }
 
     public void checkVersion(){
@@ -641,9 +642,9 @@ public class FXLogin extends AnchorPane {
                     openWebAction.setText(I18n.getInstance().getString("fxlogin.update.button"));
 
                     Platform.runLater(() -> {
-                        notificationPane.show(
-                                String.format(I18n.getInstance().getString("fxlogin.update.message"),serverJECCVersion)
-                                ,image,openWebAction);
+//                        notificationPane.show(
+//                                String.format(I18n.getInstance().getString("fxlogin.update.message"),serverJECCVersion)
+//                                ,image,openWebAction);
                     });
 
                     /**
