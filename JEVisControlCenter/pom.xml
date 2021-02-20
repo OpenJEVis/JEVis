@@ -94,7 +94,7 @@
         <dependency>
             <groupId>com.jfoenix</groupId>
             <artifactId>jfoenix</artifactId>
-            <version>9.0.9</version>
+            <version>9.0.10</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jeval</groupId>
@@ -134,11 +134,6 @@
             <version>64.2</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>2.0.16</version>
-        </dependency>
-        <dependency>
             <groupId>de.jollyday</groupId>
             <artifactId>jollyday</artifactId>
             <version>0.5.8</version>
@@ -151,6 +146,11 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
+            <version>11.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
             <version>11.0.2</version>
         </dependency>
         <!-- nice javafx stuff
@@ -170,7 +170,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.0</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -178,7 +178,7 @@
                     <archive>
                         <manifestEntries>
                             <Permissions>all-permissions</Permissions>
-                            <JavaFX-Version>8.0</JavaFX-Version>
+                            <JavaFX-Version>11.0.10</JavaFX-Version>
                             <url>${project.parent.url}</url>
                             <implementation-vendor>${project.organization.name}</implementation-vendor>
                             <implementation-title>${project.name}</implementation-title>

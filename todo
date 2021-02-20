@@ -2,3 +2,10 @@
 - TableViewUtils.resizeColumnToFitContent letzte zeile
 - TreeHelper.openPath
 - org.jevis.jeconfig.plugin.charts TextLayout x3 ...
+
+
+VM Options:
+-XX:+UseG1GC -Dlog4j.configurationFile=etc/log4j2.xml --module-path "Path to OpenJFX modules" --add-modules=javafx.swing,javafx.graphics,javafx.fxml,javafx.media,javafx.web --add-reads javafx.graphics=ALL-UNNAMED --add-opens javafx.controls/com.sun.javafx.charts=ALL-UNNAMED --add-opens javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.css=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.stage=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx.runtime=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx.event=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx.binding=ALL-UNNAMED
+
+Program Arguments:
+--datasource.class=org.jevis.jeapi.ws.JEVisDataSourceWS --datasource.host=http://ip-address:port
