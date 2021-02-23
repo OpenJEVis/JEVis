@@ -15,6 +15,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -23,6 +24,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.control.AnalysisLinkButton;
+import org.jevis.jeconfig.dialog.UnitDialog;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -112,21 +114,34 @@ public abstract class BasicEditor implements AttributeEditor {
             logger.catching(ex);
         }
 
-        hbox.getChildren().addAll(valueField);
+        hbox.getChildren().addAll(new StackPane(valueField));
 
         try {
-            if (att.getInputUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
-                JFXTextField ubutton = new JFXTextField();
-                ubutton.setPrefWidth(45);
-                ubutton.setEditable(false);
-                if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
-                    ubutton.setText(UnitManager.getInstance().format(this.attribute.getDisplayUnit().getLabel()));
-                } else {
-                    ubutton.setText(UnitManager.getInstance().format(this.attribute.getInputUnit().getLabel()));
-                }
 
-                hbox.getChildren().add(ubutton);
+            StackPane stackPane = new StackPane();
+            JFXTextField ubutton = new JFXTextField();
+            ubutton.setPrefWidth(45);
+            ubutton.setEditable(false);
+            stackPane.getChildren().add(ubutton);
+
+            if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
+                ubutton.setText(UnitManager.getInstance().format(this.attribute.getDisplayUnit().getLabel()));
+            } else {
+                ubutton.setText(UnitManager.getInstance().format(this.attribute.getInputUnit().getLabel()));
             }
+
+            ubutton.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    try {
+                        UnitDialog unitDialog = new UnitDialog(stackPane, this.attribute, ubutton);
+                        unitDialog.show();
+                    } catch (JEVisException e) {
+                        logger.error("Could not create unit dialog", e);
+                    }
+                }
+            });
+
+            hbox.getChildren().add(stackPane);
         } catch (Exception ex) {
             logger.error("Could not build unit field: " + ex);
         }
