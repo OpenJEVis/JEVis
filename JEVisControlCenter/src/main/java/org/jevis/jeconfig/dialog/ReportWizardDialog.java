@@ -6,7 +6,6 @@ package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -59,7 +58,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ReportWizardDialog {
     private static final Logger logger = LogManager.getLogger(ReportWizardDialog.class);
     Image imgMarkAll = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
-    Tooltip tooltipMarkAll = new JFXTooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
+    Tooltip tooltipMarkAll = new Tooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
     public static final Image taskImage = JEConfig.getImage("Report.png");
 
     public static String ICON = "Startup Wizard_18228.png";

@@ -120,7 +120,7 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
 
         Platform.runLater(() -> {
             Label label = new Label(columnName);
-            //label.setTooltip(new  JFXTooltip(I18n.getInstance().getString("graph.table.name.tip")));
+            //label.setTooltip(new  Tooltip(I18n.getInstance().getString("graph.table.name.tip")));
             nameColumn.setGraphic(label);
             JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
 

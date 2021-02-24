@@ -3,10 +3,10 @@ package org.jevis.jeconfig.plugin.dtrc;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Region;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
@@ -102,7 +102,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         timeFactoryBox.getItems().setAll(timeFrames.getAll());
 
 //        dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
-//        dateButton.setTooltip(new JFXTooltipcontroller.getInterval().toString()));
+//        dateButton.setTooltip(new Tooltipcontroller.getInterval().toString()));
 
         this.timeFrameEditor = new TimeFrameEditor(activeTimeFrame.get(), interval);
         this.timeFrameEditor.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
@@ -154,10 +154,10 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         spacer.setMinWidth(10);
         spacer.setMaxWidth(10);
 
-        timeFactoryBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.timeinterval")));
-        prevButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.previnterval")));
-        dateButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.dateselector")));
-        nextButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.nextvinterval")));
+        timeFactoryBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.timeinterval")));
+        prevButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.previnterval")));
+        dateButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.dateselector")));
+        nextButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.nextvinterval")));
 
         getChildren().addAll(timeFactoryBox, spacer, prevButton, dateButton, nextButton);
         JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getChildren());

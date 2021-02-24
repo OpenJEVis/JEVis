@@ -23,7 +23,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXTooltip;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
 import eu.hansolo.fx.charts.MatrixPane;
@@ -119,7 +118,7 @@ public class ChartPlugin implements Plugin {
     //this.chartView = new ChartView(dataModel);
     private final VBox vBox = new VBox();
     private final BorderPane border = new BorderPane(sp);
-    private final Tooltip tp = new JFXTooltip("");
+    private final Tooltip tp = new Tooltip("");
     private final HashMap<Integer, Chart> allCharts = new HashMap<>();
     private final Image taskImage = JEConfig.getImage("Analysis.png");
 
@@ -999,7 +998,7 @@ public class ChartPlugin implements Plugin {
                                                 }
                                             }
                                         }
-                                    } else {
+                                    } else if (tp.isShowing()) {
                                         Platform.runLater(() -> tp.hide());
                                     }
                                 }
@@ -1488,5 +1487,9 @@ public class ChartPlugin implements Plugin {
     @Override
     public void lostFocus() {
 
+    }
+
+    public HashMap<Integer, Chart> getAllCharts() {
+        return allCharts;
     }
 }

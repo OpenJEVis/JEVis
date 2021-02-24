@@ -20,7 +20,10 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -508,7 +511,7 @@ public class ChartSelectionDialog {
 
         JFXButton gotoButton = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
                 JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
-        gotoButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+        gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);

@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTooltip;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -218,14 +217,14 @@ public class TablePlugin {
 
                             JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                             manSampleButton.setDisable(true);
-                            manSampleButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
+                            manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
                             JFXButton treeButton = new JFXButton("",
                                     JEConfig.getImage("folders_explorer.png", tableIconSize, tableIconSize));
                             treeButton.wrapTextProperty().setValue(true);
 
                             JFXButton gotoButton = new JFXButton("",
                                     JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
-                            gotoButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+                            gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
                             try {
                                 if (item.hasSample()) {
@@ -410,7 +409,7 @@ public class TablePlugin {
                     foundTarget = true;
                 }
 
-                Platform.runLater(() -> treeButton.setTooltip(new JFXTooltip(bText.toString())));
+                Platform.runLater(() -> treeButton.setTooltip(new Tooltip(bText.toString())));
             }
 
         } catch (Exception ex) {
@@ -500,9 +499,9 @@ public class TablePlugin {
                             JFXButton previewButton = new JFXButton("", JEConfig.getImage("eye_visible.png", tableIconSize, tableIconSize));
                             JFXButton uploadButton = new JFXButton("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
-                            downloadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.download")));
-                            previewButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
-                            uploadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.upload")));
+                            downloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.download")));
+                            previewButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
+                            uploadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.upload")));
 
                             AttributeValueChange valueChange;
                             if (changeMap.get(item) == null) {

@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.alarms;
 
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTooltip;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -595,7 +594,7 @@ public class AlarmPlugin implements Plugin {
                             } else {
                                 checkedButton.setGraphic(notChecked);
                             }
-                            Tooltip checkedTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.alarms.tooltip.checked"));
+                            Tooltip checkedTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.tooltip.checked"));
                             checkedButton.setTooltip(checkedTooltip);
                             GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkedButton);
                             checkedButton.setSelected(item);
@@ -649,7 +648,7 @@ public class AlarmPlugin implements Plugin {
 
     private void initToolBar() {
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
-        Tooltip reloadTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
@@ -732,11 +731,11 @@ public class AlarmPlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
 
-        timeFrameComboBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
-        startDatePicker.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
-        endDatePicker.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
-        filterBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.filter.tooltip")));
-        checkAll.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.checkall.tooltip")));
+        timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
+        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
+        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
+        filterBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.filter.tooltip")));
+        checkAll.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.checkall.tooltip")));
 
         toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, filterBox, sep4, checkAll);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);

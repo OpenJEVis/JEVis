@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.StackPane;
@@ -123,7 +123,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
 
         Platform.runLater(() -> {
             Label label = new Label(columnName);
-            label.setTooltip(new JFXTooltip(I18n.getInstance().getString("graph.table.cleaning.tip")));
+            label.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.cleaning.tip")));
             dataProcessorColumn.setGraphic(label);
             JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
 

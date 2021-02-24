@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.accounting;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXTabPane;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
@@ -46,6 +45,7 @@ import org.jevis.jeconfig.plugin.TablePlugin;
 import org.jevis.jeconfig.plugin.meters.JEVisClassTab;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
+import org.jevis.jeconfig.plugin.object.attribute.PeriodEditor;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
@@ -78,7 +78,10 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private final Image taskImage = JEConfig.getImage("accounting.png");
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final JFXTabPane tabPane = new JFXTabPane();
+    private final JFXTabPane motherTabPane = new JFXTabPane();
+    private final JFXTabPane billingTabPane = new JFXTabPane();
+    private final JFXTabPane enterDataTabPane = new JFXTabPane();
+    private final JFXTabPane configTabPane = new JFXTabPane();
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
     private final Callback<ListView<JEVisObject>, ListCell<JEVisObject>> objectNameCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
         @Override
@@ -123,7 +126,18 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     public AccountingPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
 
-        this.borderPane.setCenter(tabPane);
+        Tab viewTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.view"));
+        viewTab.setContent(billingTabPane);
+
+        Tab enterDataTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
+        enterDataTab.setContent(enterDataTabPane);
+
+        Tab configTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"));
+        configTab.setContent(configTabPane);
+
+        motherTabPane.getTabs().addAll(viewTab, enterDataTab, configTab);
+
+        this.borderPane.setCenter(motherTabPane);
 
         initToolBar();
     }
@@ -175,7 +189,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(replaceButton);
         replaceButton.setOnAction(event -> {
-            JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
+            JEVisClassTab selectedItem = (JEVisClassTab) motherTabPane.getSelectionModel().getSelectedItem();
             TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
 
             EquipmentDialog meterDialog = new EquipmentDialog(ds, selectedItem.getJeVisClass());
@@ -195,7 +209,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
         printButton.setOnAction(event -> {
-            Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
+            Tab selectedItem = motherTabPane.getSelectionModel().getSelectedItem();
             TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
 
             Printer printer = null;
@@ -252,14 +266,14 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
 
-        reload.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.accounting.toolbar.reload.tooltip")));
-        save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.accounting.toolbar.save.tooltip")));
-        newButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.accounting.new.tooltip")));
-        replaceButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.accounting.toolbar.replace.tooltip")));
-        printButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.accounting.toolbar.tooltip.print")));
+        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.reload.tooltip")));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.save.tooltip")));
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.new.tooltip")));
+        replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.replace.tooltip")));
+        printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.tooltip.print")));
 
 
-        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
+        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, sep3, printButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(AccountingPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
@@ -467,7 +481,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     }
 
     private void updateGUI() throws JEVisException {
-        tabPane.getTabs().clear();
+        enterDataTabPane.getTabs().clear();
 
         JEVisClass energySupplyDirectoryClass = ds.getJEVisClass(ENERGY_SUPPLY_DIRECTORY);
         JEVisClass energySupplierClass = ds.getJEVisClass(ENERGY_SUPPLIER);
@@ -484,7 +498,6 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         Tab energySupplierTab = new Tab(I18nWS.getInstance().getClassName(energySupplierClass));
         JFXComboBox<JEVisObject> energySupplierBox = new JFXComboBox<>();
-        energySupplierBox.setPadding(INSETS);
         energySupplierBox.setCellFactory(objectNameCellFactory);
         energySupplierBox.setButtonCell(objectNameCellFactory.call(null));
 
@@ -515,7 +528,6 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         Tab energyMeteringOperatorsTab = new Tab(I18nWS.getInstance().getClassName(energyMeteringOperatorClass));
         JFXComboBox<JEVisObject> energyMeteringOperatorBox = new JFXComboBox<>();
-        energyMeteringOperatorBox.setPadding(INSETS);
         energyMeteringOperatorBox.setCellFactory(objectNameCellFactory);
         energyMeteringOperatorBox.setButtonCell(objectNameCellFactory.call(null));
 
@@ -538,7 +550,6 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         Tab energyGridOperatorsTab = new Tab(I18nWS.getInstance().getClassName(energyGridOperatorClass));
         JFXComboBox<JEVisObject> energyGridOperatorBox = new JFXComboBox<>();
-        energyGridOperatorBox.setPadding(INSETS);
         energyGridOperatorBox.setCellFactory(objectNameCellFactory);
         energyGridOperatorBox.setButtonCell(objectNameCellFactory.call(null));
 
@@ -561,7 +572,6 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         Tab energyContractorTab = new Tab(I18nWS.getInstance().getClassName(energyContractorClass));
         JFXComboBox<ComboBoxItem> energyContractorBox = new JFXComboBox<>();
-        energyContractorBox.setPadding(INSETS);
         energyContractorBox.setCellFactory(comboBoxItemCellFactory);
         energyContractorBox.setButtonCell(comboBoxItemCellFactory.call(null));
 
@@ -585,6 +595,9 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         energyContractorBox.setItems(allContractors);
 
         GridPane cGP = new GridPane();
+        cGP.setPadding(INSETS);
+        cGP.setHgap(6);
+        cGP.setVgap(6);
         VBox cVBox = new VBox(6, energyContractorBox, cGP);
         energyContractorTab.setContent(cVBox);
 
@@ -602,7 +615,6 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         Tab governmentalDuesTab = new Tab(I18nWS.getInstance().getClassName(governmentalDuesClass));
         JFXComboBox<JEVisObject> governmentalDuesBox = new JFXComboBox<>();
-        governmentalDuesBox.setPadding(INSETS);
         governmentalDuesBox.setCellFactory(objectNameCellFactory);
         governmentalDuesBox.setButtonCell(objectNameCellFactory.call(null));
 
@@ -611,6 +623,9 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         governmentalDuesBox.setItems(FXCollections.observableArrayList(allGovernmentalDues));
 
         GridPane gdGP = new GridPane();
+        gdGP.setPadding(INSETS);
+        gdGP.setHgap(6);
+        gdGP.setVgap(6);
         VBox gdVBox = new VBox(6, governmentalDuesBox, gdGP);
         governmentalDuesTab.setContent(gdVBox);
 
@@ -620,7 +635,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         governmentalDuesBox.getSelectionModel().selectFirst();
 
-        Platform.runLater(() -> tabPane.getTabs().addAll(energySupplierTab, energyMeteringOperatorsTab, energyGridOperatorsTab, energyContractorTab, governmentalDuesTab));
+        Platform.runLater(() -> enterDataTabPane.getTabs().addAll(energySupplierTab, energyMeteringOperatorsTab, energyGridOperatorsTab, energyContractorTab, governmentalDuesTab));
     }
 
     private void updateGrid(GridPane gp, JEVisObject selectedObject) {
@@ -674,6 +689,10 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
                     if (!isContractorAttribute) {
                         AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
                         attributeEditor.setReadOnly(false);
+                        if (attribute.getType().getGUIDisplayType().equals("Period")) {
+                            PeriodEditor periodEditor = (PeriodEditor) attributeEditor;
+                            periodEditor.showTs(false);
+                        }
 //                    attributeEditors.add(attributeEditor);
                         editorBox.getChildren().setAll(attributeEditor.getEditor());
                         editorBox.setAlignment(Pos.CENTER);

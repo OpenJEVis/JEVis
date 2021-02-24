@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -75,6 +76,21 @@ public class LoadAnalysisDialog {
     private JFXComboBox<String> comboBoxCustomPeriods;
     private JFXButton loadButton;
     private JFXButton newButton;
+
+    /**
+     * drawOptimization.setOnAction(event -> {
+     * HiddenConfig.CHART_PRECISION_ON = drawOptimization.isSelected();
+     * });
+     **/
+    private final Tooltip pickerDateStartTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.datestart"));
+    //pickerTimeStart.setTooltip(new  Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timestart")));
+    private final Tooltip pickerDateEndTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.dateend"));
+    //pickerTimeEnd.setTooltip(new  Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timeend")));
+    private final Tooltip analysisListViewTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.analysislist"));
+    private final Tooltip aggregationTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.aggregation"));
+    private final Tooltip mathBoxTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.mathBox"));
+    private final Tooltip presetDateBoxTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.presetdate"));
+    private final Tooltip customPeriodsComboBoxTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.customdate"));
     //private JFXCheckBox drawOptimization;
 
 
@@ -458,21 +474,13 @@ public class LoadAnalysisDialog {
 
         });
 
-        /**
-         drawOptimization.setOnAction(event -> {
-         HiddenConfig.CHART_PRECISION_ON = drawOptimization.isSelected();
-         });
-         **/
-
-        pickerDateStart.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.datestart")));
-        //pickerTimeStart.setTooltip(new  JFXTooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timestart")));
-        pickerDateEnd.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.dateend")));
-        //pickerTimeEnd.setTooltip(new  JFXTooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.timeend")));
-        analysisListView.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.analysislist")));
-        aggregationBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.aggregation")));
-        mathBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.mathBox")));
-        presetDateBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.presetdate")));
-        comboBoxCustomPeriods.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.customdate")));
+        pickerDateStart.setTooltip(pickerDateStartTT);
+        pickerDateEnd.setTooltip(pickerDateEndTT);
+        analysisListView.setTooltip(analysisListViewTT);
+        aggregationBox.setTooltip(aggregationTT);
+        mathBox.setTooltip(mathBoxTT);
+        presetDateBox.setTooltip(presetDateBoxTT);
+        comboBoxCustomPeriods.setTooltip(customPeriodsComboBoxTT);
     }
 
     private DisabledItemsComboBox<ManipulationMode> getMathBox() {
@@ -733,8 +741,8 @@ public class LoadAnalysisDialog {
             //drawOptimization = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.analysis.drawopt"));
             //drawOptimization.setSelected(HiddenConfig.CHART_PRECISION_ON);
 
-            loadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
-            newButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
+            loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
+            newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
             loadButton.setDefaultButton(true);
 
             HBox.setHgrow(loadButton, Priority.NEVER);

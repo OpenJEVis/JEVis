@@ -184,7 +184,7 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
         Platform.runLater(() -> {
             Label label = new Label(columnName);
             label.setWrapText(true);
-            //label.setTooltip(new  JFXTooltip(I18n.getInstance().getString("graph.tabs.tab.charttype.tip")));
+            //label.setTooltip(new  Tooltip(I18n.getInstance().getString("graph.tabs.tab.charttype.tip")));
             chartTypeColumn.setGraphic(label);
             JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, label);
 

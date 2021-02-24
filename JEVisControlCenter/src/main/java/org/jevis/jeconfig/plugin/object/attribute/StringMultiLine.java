@@ -21,7 +21,6 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -145,7 +144,7 @@ public class StringMultiLine implements AttributeEditor {
             _field.setId("attributelabel");
 
             if (_attribute.getType().getDescription() != null && !_attribute.getType().getDescription().isEmpty()) {
-                Tooltip tooltip = new JFXTooltip();
+                Tooltip tooltip = new Tooltip();
                 try {
                     tooltip.setText(_attribute.getType().getDescription());
                     tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));

@@ -20,7 +20,6 @@
 package org.jevis.jeconfig.plugin.object;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -30,10 +29,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
@@ -288,7 +284,7 @@ public class ObjectEditor {
                         Label objectName = new Label(obj.getName());
                         objectName.setStyle("-fx-font-weight: bold;");
                         Label classlabel = new Label(I18n.getInstance().getString("plugin.object.editor.type"));
-                        classlabel.setTooltip(new JFXTooltip(obj.getJEVisClassName()));
+                        classlabel.setTooltip(new Tooltip(obj.getJEVisClassName()));
                         //Label className = new Label(obj.getJEVisClass().getName());
                         Label className = new Label(I18nWS.getInstance().getClassName(obj.getJEVisClassName()));
 
