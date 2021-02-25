@@ -18,6 +18,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.datetime.PeriodArithmetic;
 import org.jevis.commons.datetime.PeriodComparator;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.task.LogTaskManager;
@@ -824,6 +825,8 @@ public class CleanDataObject {
                     .minus(maxPeriod)
                     .minus(maxPeriod)
                     .minus(maxPeriod);
+
+            firstDate = PeriodHelper.alignDateToPeriod(firstDate, maxPeriod, getCleanObject());
 
             DateTime lastDate = getLastRawDate();
 

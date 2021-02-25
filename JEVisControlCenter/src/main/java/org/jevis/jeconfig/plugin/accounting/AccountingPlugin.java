@@ -151,6 +151,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private final JFXComboBox<JEVisObject> governmentalDuesBox = new JFXComboBox<>();
     private final List<AttributeEditor> attributeEditors = new ArrayList<>();
     private boolean initialized = false;
+    private boolean guiUpdate = false;
 
     public AccountingPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
@@ -733,7 +734,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private void updateWithChangeCheck(GridPane esGP, JEVisObject newValue) {
         boolean changed = attributeEditors.stream().anyMatch(AttributeEditor::hasChanged);
 
-        if (changed) {
+        if (changed && !guiUpdate) {
             Label saved = new Label(I18n.getInstance().getString("plugin.dashboard.dialog.changed.text"));
             JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
             ok.setDefaultButton(true);
@@ -775,6 +776,8 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     }
 
     private void updateGUI() throws JEVisException {
+        guiUpdate = true;
+
         JEVisObject configComboBoxSelectedItem = configComboBox.getSelectionModel().getSelectedItem();
         JEVisObject energySupplierBoxSelectedItem = energySupplierBox.getSelectionModel().getSelectedItem();
         JEVisObject energyMeteringOperatorBoxSelectedItem = energyMeteringOperatorBox.getSelectionModel().getSelectedItem();
@@ -867,6 +870,8 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         } else {
             governmentalDuesBox.getSelectionModel().selectFirst();
         }
+
+        guiUpdate = false;
     }
 
     private List<JEVisObject> getAllAccountingConfigurations() {
