@@ -233,51 +233,10 @@ public class PrepareStep implements ProcessStep {
 
             DateTime startDate = cleanIntervals.get(0).getDate();
             DateTime endDate = cleanIntervals.get(cleanIntervals.size() - 1).getDate();
-            int startIndex = 0;
-            int endIndex = 0;
 
             logger.info("[{}] {} intervals calculated between {} and {}",
                     cleanDataObject.getCleanObject().getID(), cleanIntervals.size(),
                     startDate, endDate);
-
-
-            List<JEVisSample> rawSamplesDown = resourceManager.getRawSamplesDown();
-            logger.info("[{}] {} raw samples found between {} and {}",
-                    cleanDataObject.getCleanObject().getID(), rawSamplesDown.size(),
-                    rawSamplesDown.get(0).getTimestamp(), rawSamplesDown.get(rawSamplesDown.size() - 1).getTimestamp());
-
-            for (JEVisSample jeVisSample : rawSamplesDown) {
-                if (jeVisSample.getTimestamp().equals(startDate) || jeVisSample.getTimestamp().isAfter(startDate)) {
-                    startIndex = rawSamplesDown.indexOf(jeVisSample);
-                    break;
-                }
-            }
-
-            for (int i = rawSamplesDown.size() - 1; i > 0; i--) {
-                JEVisSample jeVisSample = rawSamplesDown.get(i);
-                if (jeVisSample.getTimestamp().equals(endDate) || jeVisSample.getTimestamp().isBefore(endDate)) {
-                    endIndex = rawSamplesDown.indexOf(jeVisSample);
-                    break;
-                }
-            }
-
-            int i = 2;
-            while (startIndex > 0 && i > 0) {
-                startIndex--;
-                i--;
-            }
-
-            i = 2;
-            while (endIndex < rawSamplesDown.size() - 1 && i > 0) {
-                endIndex++;
-                i--;
-            }
-
-            List<JEVisSample> subList = rawSamplesDown.subList(startIndex, endIndex + 1);
-            logger.info("[{}] {} raw samples in sublist between {} and {}",
-                    cleanDataObject.getCleanObject().getID(), subList.size(),
-                    subList.get(0).getTimestamp(), subList.get(subList.size() - 1).getTimestamp());
-            resourceManager.setRawSamplesDown(subList);
 
             processManager.setFinished(isFinished);
         }

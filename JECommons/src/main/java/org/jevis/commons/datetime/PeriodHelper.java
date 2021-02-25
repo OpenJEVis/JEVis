@@ -213,4 +213,153 @@ public class PeriodHelper {
         }
         return normalPattern;
     }
+
+    public static DateTime alignDateToPeriod(DateTime firstDate, org.joda.time.Period maxPeriod, JEVisObject object) {
+        DateTime alignedDate = null;
+        DateTime lowerTS = null;
+        DateTime higherTS = null;
+        boolean isGreaterThenDays = false;
+        WorkDays workDays = new WorkDays(object);
+
+        if (maxPeriod.equals(org.joda.time.Period.minutes(1))) {
+            lowerTS = firstDate.minusSeconds(30).withSecondOfMinute(0).withMillisOfSecond(0);
+            higherTS = firstDate.plusSeconds(30).withSecondOfMinute(0).withMillisOfSecond(0);
+        } else if (maxPeriod.getMinutes() == 5) {
+            if (firstDate.getMinuteOfHour() == 0) {
+                lowerTS = firstDate.minusMinutes(5).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 5) {
+                lowerTS = firstDate.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(5).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 10) {
+                lowerTS = firstDate.withMinuteOfHour(5).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(10).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 15) {
+                lowerTS = firstDate.withMinuteOfHour(10).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(15).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 20) {
+                lowerTS = firstDate.withMinuteOfHour(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(20).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 25) {
+                lowerTS = firstDate.withMinuteOfHour(20).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(25).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 30) {
+                lowerTS = firstDate.withMinuteOfHour(25).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 35) {
+                lowerTS = firstDate.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(35).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 40) {
+                lowerTS = firstDate.withMinuteOfHour(35).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(40).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 45) {
+                lowerTS = firstDate.withMinuteOfHour(40).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(45).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 50) {
+                lowerTS = firstDate.withMinuteOfHour(45).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(50).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 55) {
+                lowerTS = firstDate.withMinuteOfHour(50).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(55).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 60) {
+                lowerTS = firstDate.withMinuteOfHour(55).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (maxPeriod.getMinutes() == 15) {
+            if (firstDate.getMinuteOfHour() == 0) {
+                lowerTS = firstDate.minusMinutes(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 15) {
+                lowerTS = firstDate.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(15).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 30) {
+                lowerTS = firstDate.withMinuteOfHour(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 45) {
+                lowerTS = firstDate.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(45).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else {
+                lowerTS = firstDate.withMinuteOfHour(45).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (maxPeriod.getMinutes() == 30) {
+            if (firstDate.getMinuteOfHour() == 0) {
+                lowerTS = firstDate.minusMinutes(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMinuteOfHour() < 30) {
+                lowerTS = firstDate.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else {
+                lowerTS = firstDate.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (maxPeriod.getHours() == 1) {
+            lowerTS = firstDate.minusMinutes(30).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            higherTS = firstDate.plusMinutes(30).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+        } else if (maxPeriod.getDays() == 1) {
+            lowerTS = firstDate.minusHours(12).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            higherTS = firstDate.plusHours(12).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            isGreaterThenDays = true;
+        } else if (maxPeriod.getWeeks() == 1) {
+            lowerTS = firstDate.minusHours(84).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            higherTS = firstDate.plusHours(84).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            isGreaterThenDays = true;
+        } else if (maxPeriod.getMonths() == 1) {
+            lowerTS = firstDate.minusHours(363).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            higherTS = firstDate.plusHours(363).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            isGreaterThenDays = true;
+        } else if (maxPeriod.getMonths() == 3) {
+            isGreaterThenDays = true;
+            if (firstDate.getMonthOfYear() <= 3) {
+                lowerTS = firstDate.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMonthOfYear(3).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMonthOfYear() <= 6) {
+                lowerTS = firstDate.withMonthOfYear(3).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMonthOfYear(6).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMonthOfYear() <= 9) {
+                lowerTS = firstDate.withMonthOfYear(6).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMonthOfYear(9).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else if (firstDate.getMonthOfYear() <= 12) {
+                lowerTS = firstDate.withMonthOfYear(9).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = firstDate.withMonthOfYear(12).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (maxPeriod.getYears() == 1) {
+            isGreaterThenDays = true;
+            lowerTS = firstDate.minusDays(182).minusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            higherTS = firstDate.plusDays(182).plusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+        }
+
+        if (isGreaterThenDays && lowerTS != null) {
+            lowerTS = lowerTS.withHourOfDay(workDays.getWorkdayStart().getHour())
+                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
+            higherTS = higherTS.withHourOfDay(workDays.getWorkdayStart().getHour())
+                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
+
+            if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                lowerTS = lowerTS.minusDays(1);
+                higherTS = higherTS.minusDays(1);
+            }
+        }
+
+        if (lowerTS != null && higherTS != null) {
+            long lowerDiff = firstDate.getMillis() - lowerTS.getMillis();
+            long higherDiff = higherTS.getMillis() - firstDate.getMillis();
+
+            if (lowerDiff < higherDiff && !lowerTS.equals(firstDate)) {
+                alignedDate = lowerTS;
+
+            } else if (higherDiff < lowerDiff && !higherTS.equals(firstDate)) {
+                alignedDate = higherTS;
+
+            } else {
+                alignedDate = firstDate;
+            }
+        } else {
+            alignedDate = firstDate;
+        }
+
+        return alignedDate;
+    }
 }

@@ -19,8 +19,6 @@ import javafx.util.Pair;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
-import org.jevis.commons.dataprocessing.CleanDataObject;
-import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
@@ -265,9 +263,8 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 DateTime finalDateTime = dateTime;
 
                 if (!asDuration) {
-                    boolean isCounter = CleanDataObject.isCounter(sample.getAttribute().getObject(), sample);
                     Platform.runLater(() -> tableEntry.setDate(finalDateTime
-                            .toString(PeriodHelper.getFormatString(period, isCounter))));
+                            .toString(xyChartSerie.getSingleRow().getFormatString())));
                 } else {
                     Platform.runLater(() -> tableEntry.setDate((finalDateTime.getMillis() -
                             timestampFromFirstSample.getMillis()) / 1000 / 60 / 60 + " h"));
