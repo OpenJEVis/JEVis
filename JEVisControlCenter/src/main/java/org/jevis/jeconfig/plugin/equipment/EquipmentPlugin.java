@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.equipment;
 
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -285,11 +284,11 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
 
-        reload.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.reload.tooltip")));
-        save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.save.tooltip")));
-        newButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.new.tooltip")));
-        replaceButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.replace.tooltip")));
-        printButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.tooltip.print")));
+        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.reload.tooltip")));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.save.tooltip")));
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.new.tooltip")));
+        replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.replace.tooltip")));
+        printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.tooltip.print")));
 
 
         toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);

@@ -29,6 +29,7 @@ import org.jevis.api.*;
 import org.jevis.commons.constants.EnterDataTypes;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -117,8 +118,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.setTitle(I18n.getInstance().getString("plugin.object.dialog.data.title"));
         this.initOwner(JEConfig.getStage());
         this.setResizable(true);
-        this.getDialogPane().setPrefWidth(350);
-        this.getDialogPane().setPrefHeight(300);
+        this.getDialogPane().setPrefWidth(400);
+        this.getDialogPane().setPrefHeight(350);
 
         this.getDialogPane().getScene().getRoot().setEffect(new DropShadow());
         this.getDialogPane().getScene().setFill(Color.TRANSPARENT);
@@ -183,7 +184,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.APPLY);
 
         getDialogPane().lookupButton(ButtonType.APPLY).addEventFilter(ActionEvent.ACTION, event -> {
-            event.consume();
+//            event.consume();
             if (selectedObject != null) {
                 try {
                     if (ds.getCurrentUser().canWrite(selectedObject.getID())) {
@@ -425,7 +426,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         try {
             if (initSample != null && showValuePrompt) {
 
-                doubleField.setPromptText(initSample.getValueAsString());
+                doubleField.setText(numberFormat.format(initSample.getValueAsDouble()));
                 loadLastValue();
             }
         } catch (Exception ex) {
@@ -635,27 +636,6 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                 logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
             }
 
-            try {
-                JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
-                if (selectedObject.getJEVisClassName().equals("Data")) {
-                    JEVisObject cleanDataObject = selectedObject.getChildren(cleanDataClass, true).get(0);
-                    JEVisAttribute conversionToDiffAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
-
-                    if (conversionToDiffAttribute != null) {
-                        conversionDifferential = conversionToDiffAttribute.getAllSamples();
-
-                        if (!conversionDifferential.isEmpty()) {
-                            JEVisSample sample = conversionDifferential.get(conversionDifferential.size() - 1);
-                            if (sample != null) {
-                                isConversionToDifferential.set(sample.getValueAsBoolean());
-                            }
-                        }
-                    }
-                }
-            } catch (JEVisException e) {
-                logger.error("Could not determine diff or not", e);
-            }
-
             JEVisSample sample = null;
             lastTS = null;
             lastValue = null;
@@ -670,10 +650,17 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                             DateTime finalLastTS = lastTS;
                             Double finalLastValue = lastValue;
                             String finalUnitString = unitString;
-                            Platform.runLater(() -> {
-                                lastTSLabel.setText(finalLastTS.toString("yyyy-MM-dd HH:mm") + " : ");
 
-                                String valueString = numberFormat.format(finalLastValue) + finalUnitString + " @ " + finalLastTS.toString("yyyy-MM-dd HH:mm");
+                            JEVisObject cleanDataObject = selectedObject.getChildren(cleanDataClass, true).get(0);
+                            CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(ds));
+                            isConversionToDifferential.set(CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), lastTS));
+                            Period p = CleanDataObject.getPeriodForDate(cdo.getCleanDataPeriodAlignment(), lastTS);
+
+                            Platform.runLater(() -> {
+                                String normalPattern = PeriodHelper.getFormatString(p, isConversionToDifferential.get());
+                                lastTSLabel.setText(finalLastTS.toString(normalPattern) + " : ");
+
+                                String valueString = numberFormat.format(finalLastValue) + finalUnitString + " @ " + finalLastTS.toString(normalPattern);
                                 lastValueLabel.setText(valueString);
                             });
                         }

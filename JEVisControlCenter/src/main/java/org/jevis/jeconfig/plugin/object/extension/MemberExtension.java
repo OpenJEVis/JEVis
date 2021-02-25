@@ -19,7 +19,10 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -287,7 +290,7 @@ public class MemberExtension implements ObjectEditorExtension {
                 remove.setDisable(true);
             }
 
-            remove.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.member.remove_tooltip")));
+            remove.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.member.remove_tooltip")));
             control.getChildren().setAll(remove);
 
             gridPane.add(userBox, 0, yAxis);

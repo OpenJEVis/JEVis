@@ -22,7 +22,6 @@ package org.jevis.jeconfig.plugin.object.extension;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -211,7 +210,7 @@ public class PermissionExtension implements ObjectEditorExtension {
                 });
 
                 JFXButton forAllChildren = new JFXButton();
-                forAllChildren.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.permissions.include_children")));
+                forAllChildren.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.permissions.include_children")));
                 forAllChildren.setGraphic(JEConfig.getImage("1417642712_sitemap.png", 17, 17));
                 forAllChildren.setOnAction(t -> {
 

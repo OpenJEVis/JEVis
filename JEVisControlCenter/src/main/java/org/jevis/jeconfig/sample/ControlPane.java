@@ -2,7 +2,6 @@ package org.jevis.jeconfig.sample;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -52,7 +51,7 @@ public class ControlPane extends GridPane {
     private final JFXButton cancel = new JFXButton(I18n.getInstance().getString("attribute.editor.cancel"));
 
     private final JFXButton reloadButton = new JFXButton("", JEConfig.getImage("1403018303_Refresh.png", 12, 12));
-    private final Tooltip reloadTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
+    private final Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
     private final Label timeHeader = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
     private final Label processorHeader = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));
     private final Label dataProcessorLabel = new Label(I18n.getInstance().getString("attribute.editor.processor"));
@@ -206,8 +205,8 @@ public class ControlPane extends GridPane {
                 long duration = attribute.getTimestampFromLastSample().getMillis() - attribute.getTimestampFromFirstSample().getMillis();
 
 
-                Tooltip minTSTooltip = new JFXTooltip(attribute.getTimestampFromFirstSample().toString());
-                Tooltip maxTSTooltip = new JFXTooltip(attribute.getTimestampFromLastSample().toString());
+                Tooltip minTSTooltip = new Tooltip(attribute.getTimestampFromFirstSample().toString());
+                Tooltip maxTSTooltip = new Tooltip(attribute.getTimestampFromLastSample().toString());
                 startDate.setTooltip(minTSTooltip);
                 endDate.setTooltip(maxTSTooltip);
 

@@ -1,0 +1,18 @@
+{
+  "jevisclass": "Accounting Configuration Directory",
+  "names": {
+    "de": "Prüfungskonfigurationen",
+    "ru": "Конфигурации экзамена",
+    "uk": "Конфігурації іспиту",
+    "en": "Accounting Configuration Directory",
+    "th": "การกำหนดค่าการสอบ"
+  },
+  "descriptions": {
+    "de": "Im Prüfungskonfigurationverzeichnis werden Prüfungskonfigurationen organisiert",
+    "ru": "Конфигурации экзамена организованы в каталоге конфигурации экзамена.",
+    "en": "Accounting Configurations are managed in the Accounting Configuration Directory",
+    "uk": "Конфігурації іспиту організовані в каталозі конфігурації іспиту",
+    "th": "การกำหนดค่าการสอบจะจัดอยู่ในไดเร็กทอรีการกำหนดค่าการสอบ"
+  },
+  "types": []
+}

@@ -57,6 +57,7 @@ public class PeriodEditor implements AttributeEditor {
     private final JEVisSample originalSample;
     private SamplingRateUI samplingRateUI;
     private JEVisDataSource ds;
+    private final SimpleBooleanProperty showTs = new SimpleBooleanProperty(true);
 
     public PeriodEditor(JEVisAttribute att) {
         this.att = att;
@@ -150,6 +151,8 @@ public class PeriodEditor implements AttributeEditor {
             }
         }
 
+        editor.getChildren().setAll(pickerDate, pickerTime, samplingRateUI);
+
         pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("date changed: " + newValue);
             if (!newValue.equals(oldValue)) {
@@ -171,7 +174,13 @@ public class PeriodEditor implements AttributeEditor {
             }
         });
 
-        editor.getChildren().addAll(pickerDate, pickerTime, samplingRateUI);
+        showTs.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                Platform.runLater(() -> editor.getChildren().setAll(pickerDate, pickerTime, samplingRateUI));
+            } else {
+                Platform.runLater(() -> editor.getChildren().setAll(samplingRateUI));
+            }
+        });
     }
 
     @Override
@@ -211,5 +220,9 @@ public class PeriodEditor implements AttributeEditor {
     public LocalDate toLocalDate(DateTime dateTime) {
         DateTime dateTimeUtc = dateTime.withZone(DateTimeZone.UTC);
         return LocalDate.of(dateTimeUtc.getYear(), dateTimeUtc.getMonthOfYear(), dateTimeUtc.getDayOfMonth());
+    }
+
+    public void showTs(boolean showTs) {
+        this.showTs.set(showTs);
     }
 }

@@ -1,0 +1,23 @@
+{
+  "name": "Accounting Configuration Directory",
+  "description": "The class Energy Grid Operation Directory represents a specific directory for energy grid operation contracts.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Accounting Configuration Directory",
+      "end": "Energy Contracting Directory",
+      "type": 0
+    },
+    {
+      "start": "Accounting Configuration Directory",
+      "end": "Energy Contracting Directory",
+      "type": 3
+    },
+    {
+      "start": "Accounting Configuration Directory",
+      "end": "Energy Grid Operator",
+      "type": 3
+    }
+  ]
+}
+

@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.tool;
 
-import com.jfoenix.controls.JFXTooltip;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
@@ -41,7 +40,7 @@ public class FontTester {
 
                 ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 20, 20));
                 Font font = Font.font(s);
-                Tooltip tooltip = new JFXTooltip("Aktiviere Zyklische update Funktion");
+                Tooltip tooltip = new Tooltip("Aktiviere Zyklische update Funktion");
                 tooltip.setFont(font);
                 newB.setTooltip(tooltip);
                 newB.setOnAction(event -> {

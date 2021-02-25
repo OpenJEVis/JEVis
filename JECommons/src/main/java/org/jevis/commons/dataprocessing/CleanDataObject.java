@@ -21,6 +21,7 @@ import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -276,6 +277,26 @@ public class CleanDataObject {
             }
         }
         return false;
+    }
+
+    public static boolean isCounter(JEVisObject object, JEVisSample latestSample) {
+        boolean isCounter = false;
+        try {
+            JEVisClass dataClass = object.getDataSource().getJEVisClass("Data");
+            JEVisClass cleanDataClass = object.getDataSource().getJEVisClass("Clean Data");
+            if (object.getJEVisClass().equals(dataClass)) {
+                JEVisObject cleanDataObject = CommonMethods.getFirstCleanObject(object);
+                CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(object.getDataSource()));
+                isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
+            } else if (object.getJEVisClass().equals(cleanDataClass)) {
+                CleanDataObject cdo = new CleanDataObject(object, new ObjectHandler(object.getDataSource()));
+                isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
+            }
+        } catch (Exception e) {
+            logger.error("Could not determine diff or not", e);
+        }
+
+        return isCounter;
     }
 
     public void reloadAttributes() throws JEVisException {

@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -267,21 +266,21 @@ public class DashBoardToolbar extends ToolBar {
         //newButton.setDisable(true);
         delete.setDisable(true);
 
-        showGridButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.showgrid")));
-        snapGridButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.usegrid")));
-        unlockButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.unlock")));
-        newB.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.new")));
-        runUpdateButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.update")));
-        reloadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.reload")));
-        save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.save")));
-        listAnalysesComboBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.list")));
-        zoomIn.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
-        zoomOut.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
-        listZoomLevel.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomlevel")));
-        delete.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.delete")));
-        navigator.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.settings")));
-        exportPNG.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.export")));
-        reloadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload")));
+        showGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.showgrid")));
+        snapGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.usegrid")));
+        unlockButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.unlock")));
+        newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.new")));
+        runUpdateButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.update")));
+        reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.reload")));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.save")));
+        listAnalysesComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.list")));
+        zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
+        zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
+        listZoomLevel.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomlevel")));
+        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.delete")));
+        navigator.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.settings")));
+        exportPNG.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.export")));
+        reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload")));
 
 
         Region spacerForRightSide = new Region();
@@ -426,7 +425,8 @@ public class DashBoardToolbar extends ToolBar {
                 System.out.println("obj :" + obj);
                 if (obj instanceof Control) {
                     Control control = (Control) obj;
-                    Tooltip tooltip = control.getTooltip();
+                    Tooltip tooltip = new Tooltip();
+                    control.setTooltip(tooltip);
                     tooltip.setId("hmmmmmmmmmmmmmmm");
                     if (tooltip != null && !tooltip.getText().isEmpty()) {
                         if (tooltip.isShowing()) Platform.runLater(() -> tooltip.hide());

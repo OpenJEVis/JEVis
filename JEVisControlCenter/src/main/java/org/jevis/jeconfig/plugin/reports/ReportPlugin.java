@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.reports;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
@@ -166,7 +165,7 @@ public class ReportPlugin implements Plugin {
 
     private void initToolBar() {
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
-        Tooltip reloadTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.reports.reload.progress.tooltip"));
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
@@ -203,7 +202,7 @@ public class ReportPlugin implements Plugin {
 
         });
         ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
-        Tooltip pdfTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
+        Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
         pdfButton.setTooltip(pdfTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(pdfButton);
 
@@ -228,7 +227,7 @@ public class ReportPlugin implements Plugin {
         });
 
         ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", iconSize, iconSize));
-        Tooltip xlsxTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
+        Tooltip xlsxTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
         xlsxButton.setTooltip(xlsxTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(xlsxButton);
 
@@ -254,7 +253,7 @@ public class ReportPlugin implements Plugin {
 
 
         ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
-        Tooltip printTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
+        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
@@ -277,8 +276,8 @@ public class ReportPlugin implements Plugin {
         zoomIn.setOnAction(event -> zoomFactor.set(zoomFactor.get() + 0.05));
         zoomOut.setOnAction(event -> zoomFactor.set(zoomFactor.get() - 0.05));
 
-        zoomIn.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.zoomin")));
-        zoomOut.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.zoomout")));
+        zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.zoomin")));
+        zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.zoomout")));
 
         Label labelDateTimeComboBox = new Label(I18n.getInstance().getString("plugin.reports.selectionbox.label"));
         labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
@@ -303,7 +302,7 @@ public class ReportPlugin implements Plugin {
 
         fileComboBox.setCellFactory(cellFactory);
         fileComboBox.setButtonCell(cellFactory.call(null));
-        fileComboBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.datelist")));
+        fileComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.datelist")));
 
         prevButton.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
@@ -321,8 +320,8 @@ public class ReportPlugin implements Plugin {
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(prevButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(nextButton);
-        prevButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.prev")));
-        nextButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.next")));
+        prevButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.prev")));
+        nextButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.next")));
 
         fileComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && newValue != null && !newValue.equals(oldValue)) {

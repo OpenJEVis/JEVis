@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
-import com.jfoenix.controls.JFXTooltip;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import org.jevis.api.JEVisClass;
@@ -24,7 +23,7 @@ import java.util.*;
 public interface ChartPluginColumn {
     Image imgMarkAll = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
 
-    Tooltip tooltipMarkAll = new JFXTooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
+    Tooltip tooltipMarkAll = new Tooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
 
     default ChartDataRow getData(JEVisTreeRow row) {
         Long id = Long.parseLong(row.getID());

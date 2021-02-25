@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.object.extension.calculation;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -159,7 +158,7 @@ public class FormulaBox extends HBox {
             if (!outputs.isEmpty()) {//there can only be one output
                 JEVisObject outputObj = outputs.get(0);
                 outputButton.setText(outputObj.getName());
-                Tooltip tt = new JFXTooltip();
+                Tooltip tt = new Tooltip();
                 tt.setText("ID: " + outputObj.getID());
                 outputButton.setTooltip(tt);
             } else {

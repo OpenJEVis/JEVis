@@ -19,7 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -352,11 +351,11 @@ public class ObjectPlugin implements Plugin {
             ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
             infoButton.setOnAction(event -> _editor.toggleHelp());
 
-            save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.toolbar.save")));
-            newB.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.toolbar.new")));
-            delete.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.toolbar.delete")));
-            reload.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.toolbar.reload")));
-            collapseTree.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.toolbar.collapse")));
+            save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.save")));
+            newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.new")));
+            delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.delete")));
+            reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.reload")));
+            collapseTree.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.collapse")));
 
             //JEVisHelp.getInstance().addHelpControl(ObjectPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, save, newB, delete, reload, collapseTree, sep1, helpButton);
             toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);

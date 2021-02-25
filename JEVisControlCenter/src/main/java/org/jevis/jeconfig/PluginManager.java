@@ -19,7 +19,6 @@
  */
 package org.jevis.jeconfig;
 
-import com.jfoenix.controls.JFXTooltip;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -30,6 +29,7 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
@@ -294,7 +294,7 @@ public class PluginManager {
             try {
                 Tab pluginTab = new Tab(plugin.getName());
                 pluginTab.setClosable(false);
-                pluginTab.setTooltip(new JFXTooltip(plugin.getToolTip()));
+                pluginTab.setTooltip(new Tooltip(plugin.getToolTip()));
 //            pluginTab.setContent(plugin.getView().getNode());
                 pluginTab.setContent(plugin.getContentNode());
 

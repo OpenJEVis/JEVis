@@ -112,16 +112,14 @@ public class DateEditor implements AttributeEditor {
             logger.catching(ex);
         }
 
+        editor.getChildren().addAll(pickerDate);
 
         pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            logger.info("///// Value changed: {}", newValue);
+            logger.debug("///// Value changed: {}", newValue);
             if (!newValue.equals(oldValue)) {
                 _changed.setValue(Boolean.TRUE);
             }
         });
-
-
-        editor.getChildren().addAll(pickerDate);
     }
 
     @Override

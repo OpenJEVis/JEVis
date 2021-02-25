@@ -1,7 +1,5 @@
 package org.jevis.jeconfig.plugin.meters;
 
-import com.jfoenix.controls.JFXTabPane;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -23,6 +21,8 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Callback;
 import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.UnitManager;
@@ -40,7 +40,6 @@ import org.jevis.jeconfig.plugin.TablePlugin;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class MeterPlugin extends TablePlugin implements Plugin {
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final JFXTabPane tabPane = new JFXTabPane();
+    private final TabPane tabPane = new TabPane();
     private boolean initialized = false;
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
     private int selectedIndex = 0;
@@ -227,30 +226,10 @@ public class MeterPlugin extends TablePlugin implements Plugin {
                                                         JEVisSample latestSample = att.getLatestSample();
                                                         JEVisSample periodSample = periodAtt.getLatestSample();
                                                         Period period = new Period(periodSample.getValueAsString());
-                                                        boolean isCounter = isCounter(att.getObject(), latestSample);
+                                                        boolean isCounter = CleanDataObject.isCounter(att.getObject(), latestSample);
                                                         JEVisUnit displayUnit = att.getDisplayUnit();
                                                         String unitString = UnitManager.getInstance().format(displayUnit);
-                                                        String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
-
-                                                        try {
-                                                            if (period.equals(Period.days(1))) {
-                                                                normalPattern = "dd. MMMM yyyy";
-                                                            } else if (period.equals(Period.weeks(1))) {
-                                                                normalPattern = "dd. MMMM yyyy";
-                                                            } else if (period.equals(Period.months(1)) && !isCounter) {
-                                                                normalPattern = "MMMM yyyy";
-                                                            } else if (period.equals(Period.months(1)) && isCounter) {
-                                                                normalPattern = "dd. MMMM yyyy";
-                                                            } else if (period.equals(Period.years(1)) && !isCounter) {
-                                                                normalPattern = "yyyy";
-                                                            } else if (period.equals(Period.years(1)) && isCounter) {
-                                                                normalPattern = "dd. MMMM yyyy";
-                                                            } else {
-                                                                normalPattern = "yyyy-MM-dd HH:mm:ss";
-                                                            }
-                                                        } catch (Exception e) {
-                                                            logger.error("Could not determine sample rate, fall back to standard", e);
-                                                        }
+                                                        String normalPattern = PeriodHelper.getFormatString(period, isCounter);
 
                                                         String timeString = latestSample.getTimestamp().toString(normalPattern);
 
@@ -376,11 +355,11 @@ public class MeterPlugin extends TablePlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
 
-        reload.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip")));
-        save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.save.tooltip")));
-        newButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.new.tooltip")));
-        replaceButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.replace.tooltip")));
-        printButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
+        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip")));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.save.tooltip")));
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.new.tooltip")));
+        replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.replace.tooltip")));
+        printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
 
         toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);

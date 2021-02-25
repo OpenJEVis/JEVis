@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.scada;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -248,7 +247,7 @@ public class SCADAPlugin implements Plugin {
                         if (item != null && !empty) {
                             setText(item.getName());
                             setGraphic(null);
-                            JFXTooltip tt = new JFXTooltip();
+                            Tooltip tt = new Tooltip();
                             tt.setText("ID: " + item.getID());
                             setTooltip(tt);
                         }

@@ -3,13 +3,16 @@
   "names": {
     "de": "Analysen",
     "ru": "Аналіз",
-    "ru": "Аналіз",
-    "en": "Analyses"
+    "en": "Analyses",
+    "th": "วิเคราะห์",
+    "uk": "Аналізи"
   },
   "descriptions": {
-    "de": "Das Analysenverzeichnis beeinhaltet die gespeicherten Analysen",
-    "ru": "The Analyses Directory contains the stored analyses",
-    "en": "The Analyses Directory contains the stored analyses"
+    "de": "Das Analysenverzeichnis beinhaltet die gespeicherten Analysen",
+    "ru": "Каталог анализов содержит сохраненные анализы",
+    "en": "The Analyses Directory contains the stored analyses",
+    "th": "ไดเร็กทอรีการวิเคราะห์ประกอบด้วยการวิเคราะห์ที่บันทึกไว้",
+    "uk": "Каталог аналізу містить збережені аналізи"
   },
   "types": []
 }

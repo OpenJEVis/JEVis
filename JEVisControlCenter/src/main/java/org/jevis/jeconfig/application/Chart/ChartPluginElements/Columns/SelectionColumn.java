@@ -240,7 +240,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
 
                                     setText(null);
                                     setGraphic(stackPane);
-                                    //textFieldChartName.setTooltip(new  JFXTooltip(I18n.getInstance().getString("graph.table.selector.tip")));
+                                    //textFieldChartName.setTooltip(new  Tooltip(I18n.getInstance().getString("graph.table.selector.tip")));
                                     //JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, textFieldChartName);
                                 }
                             } catch (Exception e) {

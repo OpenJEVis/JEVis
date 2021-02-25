@@ -55,8 +55,17 @@
     -fx-text-fill: -fx-selection-bar-text;
 }
 
+.table-row-cell{
+    -fx-background-color: white;
+    -fx-text-fill: black !important;
+}
+
 .table-row-cell:odd{
-    -fx-background-color:lightblue;
+    -fx-background-color: lightblue;
+}
+
+.table-row-cell:empty {
+    -fx-background-color: white;
 }
 
 .tree-table-row-cell:odd{
@@ -80,7 +89,7 @@
 }
 
 .tree-cell{
-    -fx-background-color: rgba(0, 100, 100, 0);
+    -fx-background-color: transparent;
 }
 
 .tree-cell:filled:selected:focused, .tree-cell:filled:selected {
@@ -91,10 +100,6 @@
 .tree-cell:filled:selected:default{
     -fx-background-color: lightgray;
     -fx-text-fill: black;
-}
-
-.table-row-cell:empty {
-    -fx-background-color: white;
 }
 
 .search-box{

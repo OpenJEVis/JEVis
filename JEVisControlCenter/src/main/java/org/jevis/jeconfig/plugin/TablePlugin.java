@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTooltip;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -23,7 +22,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
-import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
@@ -218,14 +216,14 @@ public class TablePlugin {
 
                             JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                             manSampleButton.setDisable(true);
-                            manSampleButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
+                            manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
                             JFXButton treeButton = new JFXButton("",
                                     JEConfig.getImage("folders_explorer.png", tableIconSize, tableIconSize));
                             treeButton.wrapTextProperty().setValue(true);
 
                             JFXButton gotoButton = new JFXButton("",
                                     JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
-                            gotoButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+                            gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
                             try {
                                 if (item.hasSample()) {
@@ -410,7 +408,7 @@ public class TablePlugin {
                     foundTarget = true;
                 }
 
-                Platform.runLater(() -> treeButton.setTooltip(new JFXTooltip(bText.toString())));
+                Platform.runLater(() -> treeButton.setTooltip(new Tooltip(bText.toString())));
             }
 
         } catch (Exception ex) {
@@ -434,12 +432,6 @@ public class TablePlugin {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
                             JFXTextField textField = new JFXTextField();
-
-                            if (getTableRow().getIndex() % 2 == 0) {
-                                textField.setStyle("-fx-text-fill: white;");
-                            } else {
-                                textField.setStyle("-fx-text-fill: black;");
-                            }
 
                             try {
                                 JEVisAttribute attribute = registerTableRow.getAttributeMap().get(item.getType());
@@ -500,9 +492,9 @@ public class TablePlugin {
                             JFXButton previewButton = new JFXButton("", JEConfig.getImage("eye_visible.png", tableIconSize, tableIconSize));
                             JFXButton uploadButton = new JFXButton("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
-                            downloadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.download")));
-                            previewButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
-                            uploadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.upload")));
+                            downloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.download")));
+                            previewButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
+                            uploadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.upload")));
 
                             AttributeValueChange valueChange;
                             if (changeMap.get(item) == null) {
@@ -825,43 +817,5 @@ public class TablePlugin {
         return changeMap;
     }
 
-    protected boolean isCounter(JEVisObject object, JEVisSample latestSample) {
-        boolean isCounter = false;
-        try {
-            JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
-            if (object.getJEVisClassName().equals("Data")) {
-                JEVisObject cleanDataObject = object.getChildren(cleanDataClass, true).get(0);
-                JEVisAttribute conversionToDiffAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
 
-                if (conversionToDiffAttribute != null) {
-                    List<JEVisSample> conversionDifferential = conversionToDiffAttribute.getAllSamples();
-
-                    for (int i = 0; i < conversionDifferential.size(); i++) {
-                        JEVisSample cd = conversionDifferential.get(i);
-
-                        DateTime timeStampOfConversion = cd.getTimestamp();
-
-                        DateTime nextTimeStampOfConversion = null;
-                        Boolean conversionToDifferential = cd.getValueAsBoolean();
-                        if (conversionDifferential.size() > (i + 1)) {
-                            nextTimeStampOfConversion = (conversionDifferential.get(i + 1)).getTimestamp();
-                        }
-
-                        if (conversionToDifferential) {
-                            if (latestSample.getTimestamp().equals(timeStampOfConversion)
-                                    || latestSample.getTimestamp().isAfter(timeStampOfConversion)
-                                    && ((nextTimeStampOfConversion == null) || latestSample.getTimestamp().isBefore(nextTimeStampOfConversion))) {
-                                isCounter = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Could not determine diff or not", e);
-        }
-
-        return isCounter;
-    }
 }

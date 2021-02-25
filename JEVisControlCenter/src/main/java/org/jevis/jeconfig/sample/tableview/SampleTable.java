@@ -579,7 +579,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      */
     private void setErrorCellStyle(TableCell cell, Exception ex) {
         cell.setBackground(new Background(new BackgroundFill(COLOR_ERROR, CornerRadii.EMPTY, Insets.EMPTY)));
-        Tooltip tt = new JFXTooltip(ex.getMessage());
+        Tooltip tt = new Tooltip(ex.getMessage());
         cell.setTooltip(tt);
     }
 
@@ -592,7 +592,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      */
     private void setErrorCellStyle(TableCell cell, Exception ex, Control... field) {
         cell.setBackground(new Background(new BackgroundFill(COLOR_ERROR, CornerRadii.EMPTY, Insets.EMPTY)));
-        Tooltip tt = new JFXTooltip(ex.getMessage());
+        Tooltip tt = new Tooltip(ex.getMessage());
         cell.setTooltip(tt);
         for (Control control : field) {
             control.setTooltip(tt);

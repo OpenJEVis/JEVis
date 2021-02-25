@@ -1,8 +1,6 @@
 package org.jevis.jeconfig.plugin.basedata;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTabPane;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
@@ -20,7 +18,9 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -37,7 +37,6 @@ import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
     private final Image taskImage = JEConfig.getImage("building_equipment.png");
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final JFXTabPane tabPane = new JFXTabPane();
+    private final TabPane tabPane = new TabPane();
     private boolean initialized = false;
     private JEVisClass baseDataClass;
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.BaseDataPlugin");
@@ -122,7 +121,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
                                         RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
                                         JEVisAttribute att = registerTableRow.getAttributeMap().get(type);
                                         JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
-                                        manSampleButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
+                                        manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
 
                                         if (att != null) {
                                             try {
@@ -132,32 +131,12 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
                                                     JEVisSample latestSample = att.getLatestSample();
                                                     JEVisSample periodSample = periodAtt.getLatestSample();
                                                     Period period = new Period(periodSample.getValueAsString());
-                                                    boolean isCounter = isCounter(att.getObject(), latestSample);
+                                                    boolean isCounter = CleanDataObject.isCounter(att.getObject(), latestSample);
                                                     JEVisUnit displayUnit = att.getDisplayUnit();
                                                     String unitString = UnitManager.getInstance().format(displayUnit);
-                                                    String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+                                                    String normalPattern = PeriodHelper.getFormatString(period, isCounter);
 
                                                     addEventManSampleAction(new VirtualSample(new DateTime(), att.getObject().getID() + ":" + att.getName()), manSampleButton, registerTableRow.getName());
-
-                                                    try {
-                                                        if (period.equals(Period.days(1))) {
-                                                            normalPattern = "dd. MMMM yyyy";
-                                                        } else if (period.equals(Period.weeks(1))) {
-                                                            normalPattern = "dd. MMMM yyyy";
-                                                        } else if (period.equals(Period.months(1)) && !isCounter) {
-                                                            normalPattern = "MMMM yyyy";
-                                                        } else if (period.equals(Period.months(1)) && isCounter) {
-                                                            normalPattern = "dd. MMMM yyyy";
-                                                        } else if (period.equals(Period.years(1)) && !isCounter) {
-                                                            normalPattern = "yyyy";
-                                                        } else if (period.equals(Period.years(1)) && isCounter) {
-                                                            normalPattern = "dd. MMMM yyyy";
-                                                        } else {
-                                                            normalPattern = "yyyy-MM-dd HH:mm:ss";
-                                                        }
-                                                    } catch (Exception e) {
-                                                        logger.error("Could not determine sample rate, fall back to standard", e);
-                                                    }
 
                                                     String timeString = latestSample.getTimestamp().toString(normalPattern);
 
@@ -210,7 +189,7 @@ public class BaseDataPlugin extends TablePlugin implements Plugin {
 
     private void initToolBar() {
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
-        Tooltip reloadTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.basedata.reload.progress.tooltip"));
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.basedata.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
