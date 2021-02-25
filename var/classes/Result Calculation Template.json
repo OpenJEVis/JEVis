@@ -5,7 +5,7 @@
   "relationships": [
     {
       "start": "Result Calculation Template",
-      "end": "Analyses Directory",
+      "end": "Template Calculation Directory",
       "type": 3
     }
   ],

@@ -68,33 +68,10 @@ public abstract class BasicEditor implements AttributeEditor {
 
 
     private Node buildGui(JEVisAttribute att) {
-        HBox hbox = new HBox();
+        HBox hbox = new HBox(6);
         JFXTextField valueField = new JFXTextField();
 
         valueField.getValidators().add(getValidator());
-        valueField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                try {
-                    if ((valueField.getText().isEmpty() && validateEmptyValue())
-                            || (!valueField.getText().isEmpty())) {
-
-                        if (valueField.validate()) {
-                            this.isValid.setValue(true);
-                            this.finalNewValue = parseValue(valueField.getText());
-                            this.changedProperty.setValue(true);
-                        } else {
-                            this.isValid.setValue(false);
-                        }
-                    } else {
-                        this.isValid.setValue(true);
-                    }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-
 
         valueField.setPrefWidth(this.maxWidth);
         valueField.setAlignment(Pos.CENTER_RIGHT);
@@ -149,6 +126,29 @@ public abstract class BasicEditor implements AttributeEditor {
         if (attribute.getName().equals("Value") || attribute.getName().equals("value")) {
             hbox.getChildren().add(new AnalysisLinkButton(att));
         }
+
+        valueField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                try {
+                    if ((valueField.getText().isEmpty() && validateEmptyValue())
+                            || (!valueField.getText().isEmpty())) {
+
+                        if (valueField.validate()) {
+                            this.isValid.setValue(true);
+                            this.finalNewValue = parseValue(valueField.getText());
+                            this.changedProperty.setValue(true);
+                        } else {
+                            this.isValid.setValue(false);
+                        }
+                    } else {
+                        this.isValid.setValue(true);
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
 
         return hbox;
     }

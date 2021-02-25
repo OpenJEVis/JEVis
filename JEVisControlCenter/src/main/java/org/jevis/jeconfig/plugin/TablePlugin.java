@@ -22,7 +22,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
-import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
@@ -434,12 +433,6 @@ public class TablePlugin {
 
                             JFXTextField textField = new JFXTextField();
 
-                            if (getTableRow().getIndex() % 2 == 0) {
-                                textField.setStyle("-fx-text-fill: white;");
-                            } else {
-                                textField.setStyle("-fx-text-fill: black;");
-                            }
-
                             try {
                                 JEVisAttribute attribute = registerTableRow.getAttributeMap().get(item.getType());
                                 if (attribute != null && attribute.hasSample()) {
@@ -824,43 +817,5 @@ public class TablePlugin {
         return changeMap;
     }
 
-    protected boolean isCounter(JEVisObject object, JEVisSample latestSample) {
-        boolean isCounter = false;
-        try {
-            JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
-            if (object.getJEVisClassName().equals("Data")) {
-                JEVisObject cleanDataObject = object.getChildren(cleanDataClass, true).get(0);
-                JEVisAttribute conversionToDiffAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
 
-                if (conversionToDiffAttribute != null) {
-                    List<JEVisSample> conversionDifferential = conversionToDiffAttribute.getAllSamples();
-
-                    for (int i = 0; i < conversionDifferential.size(); i++) {
-                        JEVisSample cd = conversionDifferential.get(i);
-
-                        DateTime timeStampOfConversion = cd.getTimestamp();
-
-                        DateTime nextTimeStampOfConversion = null;
-                        Boolean conversionToDifferential = cd.getValueAsBoolean();
-                        if (conversionDifferential.size() > (i + 1)) {
-                            nextTimeStampOfConversion = (conversionDifferential.get(i + 1)).getTimestamp();
-                        }
-
-                        if (conversionToDifferential) {
-                            if (latestSample.getTimestamp().equals(timeStampOfConversion)
-                                    || latestSample.getTimestamp().isAfter(timeStampOfConversion)
-                                    && ((nextTimeStampOfConversion == null) || latestSample.getTimestamp().isBefore(nextTimeStampOfConversion))) {
-                                isCounter = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Could not determine diff or not", e);
-        }
-
-        return isCounter;
-    }
 }

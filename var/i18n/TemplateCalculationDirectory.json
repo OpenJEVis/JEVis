@@ -1,0 +1,18 @@
+{
+  "jevisclass": "Template Calculation Directory",
+  "names": {
+    "de": "Berechnungsvorlagen",
+    "ru": "Шаблоны расчетов",
+    "uk": "Шаблони розрахунків",
+    "en": "Calculation Templates",
+    "th": "เทมเพลตการคำนวณ"
+  },
+  "descriptions": {
+    "de": "Das Berechnungsvorlagenverzeichnis beinhaltet die gespeicherten Berechnungsvorlagen",
+    "ru": "Каталог шаблонов расчета содержит сохраненные шаблоны расчетов.",
+    "en": "The Analyses Directory contains the stored analyses",
+    "uk": "Каталог шаблонів розрахунків містить збережені шаблони розрахунків",
+    "th": "ไดเร็กทอรีเทมเพลตการคำนวณมีเทมเพลตการคำนวณที่บันทึกไว้"
+  },
+  "types": []
+}

@@ -1084,10 +1084,12 @@ public class XYChart implements Chart {
                     DateTime finalNearest = nearest;
                     if (!asDuration) {
 
+                        boolean isCounter = CleanDataObject.isCounter(sample.getAttribute().getObject(), sample);
+
                         Platform.runLater(() -> {
                             if (finalNearest != null) {
                                 tableEntry.setDate(finalNearest
-                                        .toString(PeriodHelper.getStandardPatternForPeriod(period)));
+                                        .toString(PeriodHelper.getFormatString(period, isCounter)));
                             } else tableEntry.setValue("-");
                         });
                     } else {

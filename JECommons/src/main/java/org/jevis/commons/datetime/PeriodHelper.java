@@ -177,24 +177,6 @@ public class PeriodHelper {
         return dateHelper;
     }
 
-    public static String getStandardPatternForPeriod(org.joda.time.Period period) {
-        String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
-
-        if (period != null) {
-            if (period.getYears() > 0) {
-                normalPattern = "yyyy";
-            } else if (period.getMonths() > 0) {
-                normalPattern = "MMMM yyyy";
-            } else if (period.getWeeks() > 0) {
-                normalPattern = "dd. MMMM yyyy";
-            } else if (period.getDays() > 0) {
-                normalPattern = "dd. MMMM yyyy";
-            }
-        }
-
-        return normalPattern;
-    }
-
     public static int getLastSunday(int month, int year) {
         Calendar cal = Calendar.getInstance();
         cal.set(year, month, 1);
@@ -205,5 +187,30 @@ public class PeriodHelper {
 
     public static boolean isGreaterThenDays(org.joda.time.Period period) {
         return IntStream.of(period.getYears(), period.getMonths(), period.getWeeks(), period.getDays()).anyMatch(i -> i > 0);
+    }
+
+    public static String getFormatString(org.joda.time.Period period, boolean isCounter) {
+        String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+
+        try {
+            if (period.equals(org.joda.time.Period.days(1))) {
+                normalPattern = "dd. MMM (EEE)";
+            } else if (period.equals(org.joda.time.Period.weeks(1))) {
+                normalPattern = "dd. MMMM yyyy";
+            } else if (period.equals(org.joda.time.Period.months(1)) && !isCounter) {
+                normalPattern = "MMMM yyyy";
+            } else if (period.equals(org.joda.time.Period.months(1)) && isCounter) {
+                normalPattern = "dd. MMMM yyyy";
+            } else if (period.equals(org.joda.time.Period.years(1)) && !isCounter) {
+                normalPattern = "yyyy";
+            } else if (period.equals(org.joda.time.Period.years(1)) && isCounter) {
+                normalPattern = "dd. MMMM yyyy";
+            } else {
+                normalPattern = "yyyy-MM-dd HH:mm:ss";
+            }
+        } catch (Exception e) {
+            logger.error("Could not determine sample rate, fall back to standard", e);
+        }
+        return normalPattern;
     }
 }

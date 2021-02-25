@@ -12,7 +12,10 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
@@ -27,7 +30,6 @@ import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.*;
@@ -113,6 +115,8 @@ public class TableChartV extends XYChart {
             List<TableColumn> tableColumns = new ArrayList<>();
             Map<DateTime, TableSample> tableSamples = new HashMap<>();
             Period p = null;
+            JEVisObject object = null;
+            JEVisSample latestSample = null;
 
             for (XYChartSerie xyChartSerie : xyChartSerieList) {
                 int index = xyChartSerieList.indexOf(xyChartSerie);
@@ -123,6 +127,9 @@ public class TableChartV extends XYChart {
                         p = new Period(samples.get(0).getTimestamp(),
                                 samples.get(1).getTimestamp());
                         setPeriod(p);
+                        latestSample = samples.get(0);
+                        object = latestSample.getAttribute().getObject();
+
                         break;
                     } catch (Exception e) {
                         logger.error("Could not get period from samples", e);
@@ -131,6 +138,8 @@ public class TableChartV extends XYChart {
                     try {
                         p = xyChartSerie.getSingleRow().getPeriod();
                         setPeriod(p);
+                        latestSample = samples.get(0);
+                        object = latestSample.getAttribute().getObject();
                         break;
                     } catch (Exception e) {
                         logger.error("Could not get period from attribute", e);
@@ -138,17 +147,8 @@ public class TableChartV extends XYChart {
                 }
             }
 
-            String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
-
-            if (getPeriod().equals(Period.days(1))) {
-                normalPattern = "dd. MMM (EEE)";
-            } else if (getPeriod().equals(Period.weeks(1))) {
-                normalPattern = "dd. MMMM yyyy";
-            } else if (getPeriod().equals(Period.months(1))) {
-                normalPattern = "MMMM yyyy";
-            } else if (getPeriod().equals(Period.years(1))) {
-                normalPattern = "yyyy";
-            }
+            boolean isCounter = CleanDataObject.isCounter(object, latestSample);
+            String normalPattern = PeriodHelper.getFormatString(p, isCounter);
 
             TableColumn<TableSample, DateTime> dateColumn = buildDateColumn(normalPattern);
 

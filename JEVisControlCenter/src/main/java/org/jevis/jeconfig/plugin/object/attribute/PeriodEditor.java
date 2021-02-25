@@ -151,6 +151,8 @@ public class PeriodEditor implements AttributeEditor {
             }
         }
 
+        editor.getChildren().setAll(pickerDate, pickerTime, samplingRateUI);
+
         pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("date changed: " + newValue);
             if (!newValue.equals(oldValue)) {
@@ -171,8 +173,6 @@ public class PeriodEditor implements AttributeEditor {
                 _changed.setValue(Boolean.TRUE);
             }
         });
-
-        editor.getChildren().setAll(pickerDate, pickerTime, samplingRateUI);
 
         showTs.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
