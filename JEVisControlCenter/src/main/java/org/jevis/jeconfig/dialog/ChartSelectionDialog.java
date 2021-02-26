@@ -20,23 +20,15 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTimePicker;
+import com.jfoenix.controls.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -44,7 +36,6 @@ import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ColorMappingBox;
@@ -63,7 +54,6 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.tool.NumberSpinner;
-import org.jevis.jeconfig.tool.ScreenSize;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 
 import java.math.BigDecimal;
@@ -73,55 +63,36 @@ import java.util.List;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class ChartSelectionDialog {
+public class ChartSelectionDialog extends JFXDialog {
 
     private static final Logger logger = LogManager.getLogger(ChartSelectionDialog.class);
     private final JEVisDataSource _ds;
-    private Response _response = Response.CANCEL;
+    private final TabPane tabPaneCharts;
     private AnalysisDataModel data;
-    private Stage stage;
     private final boolean init = true;
     private JEVisTree tree;
     //    private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private ChartPluginTree chartPlugin = null;
     private Long defaultChartsPerScreen;
-    private TabPane tabPaneCharts;
+    private Response response = Response.CANCEL;
 
     /**
      * @param ds
      * @param data
      */
-    public ChartSelectionDialog(JEVisDataSource ds, AnalysisDataModel data) {
+    public ChartSelectionDialog(StackPane dialogContainer, JEVisDataSource ds, AnalysisDataModel data) {
+        super();
+
+        setDialogContainer(dialogContainer);
+
         this._ds = ds;
         this.data = data;
 
         this.tree = JEVisTreeFactory.buildDefaultGraphTree(ds, data);
 
-    }
-
-    public Response show() {
-        _response = Response.CANCEL;
-
-        if (stage != null) {
-            stage.close();
-            stage = null;
-        }
-
-        stage = new Stage();
-
-        stage.setTitle(I18n.getInstance().getString("graph.selection.title"));
-
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.initOwner(JEConfig.getStage());
+        response = Response.CANCEL;
 
         //1180 for the columns
-
-        double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
-        stage.setWidth(maxScreenWidth - 20);
-        stage.setHeight(ScreenSize.fitScreenHeight(768));
-        stage.setWidth(ScreenSize.fitScreenWidth(1980));
-        stage.setResizable(true);
 
         TabPane mainTabPane = new TabPane();
         VBox.setVgrow(mainTabPane, Priority.ALWAYS);
@@ -169,7 +140,8 @@ public class ChartSelectionDialog {
 
         mainTabPane.getTabs().addAll(tabConfiguration, tabChartsSettings);
 
-        VBox root = new VBox();
+        VBox vBox = new VBox(4);
+        vBox.setPadding(new Insets(15));
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         VBox.setVgrow(sep, Priority.NEVER);
@@ -178,6 +150,7 @@ public class ChartSelectionDialog {
         VBox.setVgrow(buttonBox, Priority.NEVER);
 
         Region spacer = new Region();
+        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
         JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.selection.load"));
         JFXButton removeAllSelections = new JFXButton(I18n.getInstance().getString("graph.selection.removeselections"));
 
@@ -188,21 +161,22 @@ public class ChartSelectionDialog {
             }
         });
 
+        cancel.setCancelButton(true);
         ok.setDefaultButton(true);
 
         HBox.setHgrow(removeAllSelections, Priority.NEVER);
+        HBox.setHgrow(cancel, Priority.NEVER);
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setMargin(removeAllSelections, new Insets(10));
+        HBox.setMargin(cancel, new Insets(10));
         HBox.setMargin(ok, new Insets(10));
 
-        buttonBox.getChildren().setAll(tree.getSearchFilterBar(), spacer, removeAllSelections, ok);
+        buttonBox.getChildren().setAll(tree.getSearchFilterBar(), spacer, removeAllSelections, cancel, ok);
 
-        root.getChildren().addAll(mainTabPane, sep, buttonBox);
+        vBox.getChildren().addAll(mainTabPane, sep, buttonBox);
 
-        Scene scene = new Scene(root);
-        TopMenu.applyActiveTheme(scene);
-        stage.setScene(scene);
+        setContent(vBox);
 
         if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
             List<UserSelection> listUS = new ArrayList<>();
@@ -226,12 +200,15 @@ public class ChartSelectionDialog {
         ok.setOnAction(event -> {
             tree.setUserSelectionEnded();
             tree = null;
+            response = Response.OK;
+            this.close();
+        });
 
-            _response = Response.OK;
-
-            stage.close();
-            stage = null;
-
+        cancel.setOnAction(event -> {
+            tree.setUserSelectionEnded();
+            tree = null;
+            response = Response.CANCEL;
+            this.close();
         });
 
         chartPlugin.addedChartProperty().addListener((observable, oldValue, newValue) -> {
@@ -244,20 +221,10 @@ public class ChartSelectionDialog {
             }
         });
 
-
-        stage.showingProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                JEVisHelp.getInstance().setActiveSubModule(ChartSelectionDialog.class.getSimpleName());
-                JEVisHelp.getInstance().update();
-            }
-        });
-
-        stage.showAndWait();
-        JEVisHelp.getInstance().deactivatePluginModule();
+        JEVisHelp.getInstance().setActiveSubModule(ChartSelectionDialog.class.getSimpleName());
+        JEVisHelp.getInstance().update();
 
         removeEmptyCharts();
-
-        return _response;
     }
 
     private void removeEmptyCharts() {
@@ -596,5 +563,9 @@ public class ChartSelectionDialog {
 
         });
         return limitDataBox;
+    }
+
+    public Response getResponse() {
+        return response;
     }
 }

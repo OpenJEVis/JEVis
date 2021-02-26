@@ -37,10 +37,7 @@ import org.mariuszgromada.math.mxparser.Expression;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class OutputView extends Tab {
@@ -245,6 +242,24 @@ public class OutputView extends Tab {
             } else ungroupedInputs.add(templateInput);
         }
 
+        for (TemplateInput ungroupedInput : ungroupedInputs) {
+            Label label = new Label(I18nWS.getInstance().getClassName(ungroupedInput.getObjectClass()));
+            label.setAlignment(Pos.CENTER_LEFT);
+
+            try {
+                JFXComboBox<JEVisObject> objectSelector = createObjectSelector(label, Collections.singletonList(ds.getObject(ungroupedInput.getObjectID())));
+
+                objectSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                    if (!newValue.equals(oldValue)) {
+                        update();
+                    }
+                });
+
+                Platform.runLater(() -> objectSelector.getSelectionModel().selectFirst());
+            } catch (JEVisException e) {
+                logger.error("Could not get object selector for template input {}", ungroupedInput, e);
+            }
+        }
 
         for (Map.Entry<JEVisClass, List<TemplateInput>> templateInput : groupedInputsMap.entrySet()) {
             JEVisClass inputClass = templateInput.getKey();
@@ -256,7 +271,7 @@ public class OutputView extends Tab {
                 e.printStackTrace();
             }
             Label label = new Label(className);
-            label.setAlignment(Pos.CENTER);
+            label.setAlignment(Pos.CENTER_LEFT);
             List<JEVisObject> objects = null;
             try {
                 objects = ds.getObjects(ds.getJEVisClass(inputClass.getName()), false);
@@ -298,35 +313,7 @@ public class OutputView extends Tab {
             } catch (JEVisException e) {
                 logger.error("Could not get JEVisClass {}", className, e);
             }
-            JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
-            Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-                @Override
-                public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                    return new JFXListCell<JEVisObject>() {
-                        @Override
-                        protected void updateItem(JEVisObject obj, boolean empty) {
-                            super.updateItem(obj, empty);
-                            if (obj == null || empty) {
-                                setGraphic(null);
-                                setText(null);
-                            } else {
-                                try {
-                                    if (!obj.getJEVisClassName().equals("Clean Data")) {
-                                        setText(obj.getName());
-                                    } else {
-                                        setText(TRCPlugin.getRealName(obj));
-                                    }
-                                } catch (JEVisException e) {
-                                    logger.error("Could not get JEVisClass of object {}:{}", obj.getName(), obj.getID(), e);
-                                }
-                            }
-                        }
-                    };
-                }
-            };
-
-            objectSelector.setCellFactory(attributeCellFactory);
-            objectSelector.setButtonCell(attributeCellFactory.call(null));
+            JFXComboBox<JEVisObject> objectSelector = createObjectSelector(label, objects);
 
             objectSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue.equals(oldValue)) {
@@ -335,16 +322,55 @@ public class OutputView extends Tab {
                 }
             });
 
-            VBox vBox = new VBox(label);
-            vBox.setAlignment(Pos.CENTER);
-            HBox templateBox = new HBox(4, vBox, objectSelector);
-            viewInputs.getChildren().add(templateBox);
-
             Platform.runLater(() -> objectSelector.getSelectionModel().selectFirst());
         }
     }
 
+    private JFXComboBox<JEVisObject> createObjectSelector(Label label, List<JEVisObject> objects) {
+        JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
+
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new JFXListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            try {
+                                if (!obj.getJEVisClassName().equals("Clean Data")) {
+                                    setText(obj.getName());
+                                } else {
+                                    setText(TRCPlugin.getRealName(obj));
+                                }
+                            } catch (JEVisException e) {
+                                logger.error("Could not get JEVisClass of object {}:{}", obj.getName(), obj.getID(), e);
+                            }
+                        }
+                    }
+                };
+            }
+        };
+
+        objectSelector.setCellFactory(attributeCellFactory);
+        objectSelector.setButtonCell(attributeCellFactory.call(null));
+
+
+        VBox vBox = new VBox(label);
+        vBox.setAlignment(Pos.CENTER);
+        HBox templateBox = new HBox(4, vBox, objectSelector);
+        viewInputs.getChildren().add(templateBox);
+        return objectSelector;
+    }
+
     public void showInputs(boolean show) {
         showInputs.set(show);
+    }
+
+    public FlowPane getViewInputs() {
+        return viewInputs;
     }
 }

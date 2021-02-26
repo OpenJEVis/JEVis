@@ -248,7 +248,6 @@ public class PrepareStep implements ProcessStep {
         return cleanIntervals;
     }
 
-
     private List<CleanInterval> getIntervalsFromRawSamples(CleanDataObject cleanDataObject, List<JEVisSample> rawSamples) throws Exception {
         List<CleanInterval> cleanIntervals = new ArrayList<>();
 

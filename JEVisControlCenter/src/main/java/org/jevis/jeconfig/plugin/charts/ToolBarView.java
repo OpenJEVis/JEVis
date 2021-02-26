@@ -214,20 +214,22 @@ public class ToolBarView {
 
     private void loadNewDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, model);
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin.getDialogContainer(), ds, model);
 
         dialog.show();
 
-        if (dialog.getResponse() == Response.NEW) {
+        dialog.setOnDialogClosed(event -> {
+            if (dialog.getResponse() == Response.NEW) {
 
-            getGraphPluginView().handleRequest(Constants.Plugin.Command.NEW);
-        } else if (dialog.getResponse() == Response.LOAD) {
+                getGraphPluginView().handleRequest(Constants.Plugin.Command.NEW);
+            } else if (dialog.getResponse() == Response.LOAD) {
 
-            final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
-            if (!previewPref.getBoolean("enabled", true)) {
-                model.setAnalysisTimeFrameForAllModels(model.getGlobalAnalysisTimeFrame());
+                final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
+                if (!previewPref.getBoolean("enabled", true)) {
+                    model.setAnalysisTimeFrameForAllModels(model.getGlobalAnalysisTimeFrame());
+                }
             }
-        }
+        });
     }
 
     private void hideShowIconsInGraph() {
@@ -307,14 +309,18 @@ public class ToolBarView {
     }
 
     private void changeSettings() {
-        ChartSelectionDialog dia = new ChartSelectionDialog(ds, model);
+        ChartSelectionDialog dia = new ChartSelectionDialog(chartPlugin.getDialogContainer(), ds, model);
+        dia.show();
 
-        if (dia.show() == Response.OK) {
+        dia.setOnDialogClosed(event -> {
+            if (dia.getResponse() == Response.OK) {
 
-            model.setCharts(dia.getChartPlugin().getData().getCharts());
-            model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
-            changed = true;
-        }
+                model.setCharts(dia.getChartPlugin().getData().getCharts());
+                model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
+                changed = true;
+            }
+            JEVisHelp.getInstance().deactivatePluginModule();
+        });
     }
 
 
