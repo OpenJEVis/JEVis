@@ -73,6 +73,7 @@ public class ExporterLauncher extends AbstractCliApp {
             if (!runningJobs.containsKey(exporterObject.getObjectID())) {
                 Runnable runnable = () -> {
                     try {
+                        logger.error("exportJobs: {}", exporterObject.getObjectID());
                         Thread.currentThread().setName(exporterObject.toString());
                         runningJobs.put(exporterObject.getObjectID(), new DateTime());
 
@@ -82,7 +83,10 @@ public class ExporterLauncher extends AbstractCliApp {
                         exporterObject.executeExport();
 
                         if (exporterObject.hasNewData()) {
+                            logger.error("Send Mail");
                             exporterObject.sendNotification();
+                        } else {
+                            logger.error("Has no new Data");
                         }
 
                     } catch (Exception e) {
@@ -157,41 +161,41 @@ public class ExporterLauncher extends AbstractCliApp {
                     e.printStackTrace();
                 }
 
-            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
 
-                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+                    getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
-                /** reload drivers and set Config context drivers **/
-                try {
-                    JEVisClass jenotifierClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
-                    JEVisClass emailDriver = ds.getJEVisClass(EmailNotificationDriver._type);
-                    JEVisObject jenotifierObjct = ds.getObjects(jenotifierClass, true).get(0);
+                    /** reload drivers and set Config context drivers **/
+                    try {
+                        JEVisClass jenotifierClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
+                        JEVisClass emailDriver = ds.getJEVisClass(EmailNotificationDriver._type);
+                        JEVisObject jenotifierObjct = ds.getObjects(jenotifierClass, true).get(0);
 
-                    for (JEVisObject eDriverObject : jenotifierObjct.getChildren(emailDriver, true)) {
-                        JEVisAttribute defaultAttribute = eDriverObject.getAttribute("Default");
-                        if (defaultAttribute != null && defaultAttribute.getLatestSample() != null) {
-                            if (defaultAttribute.getLatestSample().getValueAsBoolean()) {
+                        for (JEVisObject eDriverObject : jenotifierObjct.getChildren(emailDriver, true)) {
+                            JEVisAttribute defaultAttribute = eDriverObject.getAttribute("Default");
+                            if (defaultAttribute != null && defaultAttribute.getLatestSample() != null) {
+                                if (defaultAttribute.getLatestSample().getValueAsBoolean()) {
 
-                                EmailNotificationDriver emailNotificationDriver = new EmailNotificationDriver();
-                                emailNotificationDriver.setNotificationDriverObject(eDriverObject);
-                                logger.debug("---------------------- user: " + emailNotificationDriver.getUser());
-                                this.jeNotifierConfig.setDefaultEmailNotificationDriver(emailNotificationDriver);
+                                    EmailNotificationDriver emailNotificationDriver = new EmailNotificationDriver();
+                                    emailNotificationDriver.setNotificationDriverObject(eDriverObject);
+                                    logger.debug("---------------------- user: " + emailNotificationDriver.getUser());
+                                    this.jeNotifierConfig.setDefaultEmailNotificationDriver(emailNotificationDriver);
+                                }
                             }
                         }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+
+
+                    List<JEVisObject> reports = getAllExports();
+                    executeReports(reports);
+                } else {
+                    logger.info("Service was disabled.");
                 }
-
-
-                List<JEVisObject> reports = getAllExports();
-                executeReports(reports);
             } else {
-                logger.info("Service was disabled.");
+                logger.info("Still running queue. Going to sleep again.");
             }
-        } else {
-            logger.info("Still running queue. Going to sleep again.");
-        }
         }
 
         sleep();
