@@ -148,7 +148,9 @@ public class JEVisTreeFactory {
                     clipboard.setContent(content);
                     t.consume();
                 } else if (cutObj.match(t)) {
-                    tree.setCopyObject(selectedObj.getValue().getJEVisObject(), true);
+                    //tree.setCopyObject(selectedObj.getValue().getJEVisObject(), true);
+                    tree.setCopyObjectsBySelection(true);
+                    t.consume();
                 } else if (pasteObj.match(t)) {
                     if (tree.getCopyObject() != null) {
                         if (tree.isCut()) {
