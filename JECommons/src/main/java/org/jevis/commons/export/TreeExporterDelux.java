@@ -50,7 +50,7 @@ public class TreeExporterDelux {
 
     public void createObject(JsonNode jsonNode, JEVisObject parent, StringProperty message) {
         try {
-            System.out.println("Create Object: " + jsonNode.get(OBJECT_NAME) + "[" + jsonNode.get(OBJECT_CLASS) + "]");
+            logger.error("Create Object: {} [{}]", jsonNode.get(OBJECT_NAME), jsonNode.get(OBJECT_CLASS));
             message.setValue("Create Object " + jsonNode.get(OBJECT_NAME) + "[" + jsonNode.get(OBJECT_CLASS) + "]");
             JEVisClass objClass = parent.getDataSource().getJEVisClass(jsonNode.get(OBJECT_CLASS).asText());
             if (objClass == null) {
