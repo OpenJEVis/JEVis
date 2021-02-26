@@ -45,15 +45,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import static org.jevis.jeconfig.plugin.dtrc.TRCPlugin.TEMPLATE_CLASS;
+
 public class AccountingPlugin extends TablePlugin implements Plugin {
     public static final String ACCOUNTING_CLASS = "Energy Contracting Directory";
-
-    public static final String ENERGY_CONTRACTOR = "Energy Contractor";
-    public static final String GOVERNMENTAL_DUES = "Governmental Dues";
-    public static final String ENERGY_SUPPLY_DIRECTORY = "Energy Supply Directory";
-    public static final String ENERGY_METERING_POINT_OPERATION_DIRECTORY = "Energy Metering Point Operation Directory";
-    public static final String ENERGY_GRID_OPERATION_DIRECTORY = "Energy Grid Operation Directory";
-    public static final String ENERGY_CONTRACTOR_DIRECTORY = "Energy Contractor Directory";
     private static final String PLUGIN_CLASS_NAME = "Accounting Plugin";
     private static final Insets INSETS = new Insets(12);
     private static final double EDITOR_MAX_HEIGHT = 50;
@@ -84,6 +79,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private final Tab energyGridOperatorsTab = new Tab();
     private final Tab energyContractorTab = new Tab();
     private final Tab governmentalDuesTab = new Tab();
+    private final JFXComboBox<JEVisObject> trcs = new JFXComboBox<>();
     private final Callback<ListView<JEVisClass>, ListCell<JEVisClass>> classNameCellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
         @Override
         public ListCell<JEVisClass> call(ListView<JEVisClass> param) {
@@ -152,14 +148,15 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private final List<AttributeEditor> attributeEditors = new ArrayList<>();
     private boolean initialized = false;
     private boolean guiUpdate = false;
+    private final TemplateHandler templateHandler = new TemplateHandler();
+    private final OutputView viewTab;
 
     public AccountingPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
 
-        TemplateHandler templateHandler = new TemplateHandler();
         accountingDirectories = new AccountingDirectories(ds);
 
-        OutputView viewTab = new OutputView(I18n.getInstance().getString("plugin.accounting.tab.view"), ds, templateHandler);
+        viewTab = new OutputView(I18n.getInstance().getString("plugin.accounting.tab.view"), ds, templateHandler);
 
         enterDataTab.setContent(enterDataStackPane);
 
@@ -173,6 +170,15 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         Tab configTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"));
         configTab.setContent(configTabPane);
         configTab.setClosable(false);
+
+        Tab inputs = new Tab(I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
+        inputs.setClosable(false);
+
+        VBox configVBox = new VBox(6, trcs, viewTab.getViewInputs());
+        configVBox.setPadding(INSETS);
+
+        inputs.setContent(configVBox);
+        configTabPane.getTabs().add(inputs);
 
         configComboBox.setCellFactory(objectNameCellFactory);
         configComboBox.setButtonCell(objectNameCellFactory.call(null));
@@ -207,8 +213,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.new.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.tooltip.print")));
 
-//        motherTabPane.getTabs().addAll(viewTab, enterDataTab, configTab);
-        motherTabPane.getTabs().addAll(enterDataTab);
+        motherTabPane.getTabs().addAll(viewTab, enterDataTab, configTab);
 
         motherTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.equals(enterDataTab)) {
@@ -651,6 +656,37 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     }
 
     public void initGUI() throws JEVisException {
+
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new JFXListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(obj.getName());
+                        }
+                    }
+                };
+            }
+        };
+
+        trcs.setCellFactory(attributeCellFactory);
+        trcs.setButtonCell(attributeCellFactory.call(null));
+
+        trcs.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                templateHandler.setTemplateObject(newValue);
+
+                viewTab.updateViewInputFlowPane();
+                viewTab.update();
+            }
+        });
+
         GridPane esGP = new GridPane();
         esGP.setPadding(INSETS);
         esGP.setHgap(6);
@@ -765,12 +801,14 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
                         logger.error("Could not save attribute editor {}", attributeEditor, e);
                     }
                 }
+                attributeEditors.clear();
                 dialog.close();
                 updateGrid(esGP, newValue);
             });
 
             dialog.show();
         } else {
+            attributeEditors.clear();
             updateGrid(esGP, newValue);
         }
     }
@@ -791,6 +829,10 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         energyGridOperatorBox.getItems().clear();
         energyContractorBox.getItems().clear();
         governmentalDuesBox.getItems().clear();
+        trcs.getItems().clear();
+
+        trcs.getItems().addAll(getAllTemplateCalculations());
+        trcs.getSelectionModel().selectFirst();
 
         configComboBox.getItems().addAll(getAllAccountingConfigurations());
 
@@ -1005,6 +1047,19 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
                 e.printStackTrace();
             }
         }
+    }
+
+    private List<JEVisObject> getAllTemplateCalculations() {
+        List<JEVisObject> list = new ArrayList<>();
+        try {
+            JEVisClass templateClass = getDataSource().getJEVisClass(TEMPLATE_CLASS);
+            list = getDataSource().getObjects(templateClass, true);
+            list.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 
     @Override
