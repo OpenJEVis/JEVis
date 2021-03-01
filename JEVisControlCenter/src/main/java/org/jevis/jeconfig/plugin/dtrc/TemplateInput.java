@@ -80,35 +80,40 @@ public class TemplateInput extends TemplateSelected {
             throw new JEVisException("No selected object for class " + getObjectClass(), 4573895);
         }
 
-        JEVisAttribute attribute = ds.getObject(getObjectID()).getAttribute(getAttributeName());
+        if (!getAttributeName().equals("name")) {
+            JEVisAttribute attribute = ds.getObject(getObjectID()).getAttribute(getAttributeName());
 
-        if (getVariableType() == null
-                || (getVariableType() != null
-                && (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())))) {
+            if (getVariableType() == null
+                    || (getVariableType() != null
+                    && (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())))) {
 
-            QuantityUnits quantityUnits = new QuantityUnits();
-            boolean isQuantity = quantityUnits.isQuantityUnit(attribute.getInputUnit());
-            isQuantity = quantityUnits.isQuantityIfCleanData(attribute, isQuantity);
+                QuantityUnits quantityUnits = new QuantityUnits();
+                boolean isQuantity = quantityUnits.isQuantityUnit(attribute.getInputUnit());
+                isQuantity = quantityUnits.isQuantityIfCleanData(attribute, isQuantity);
 
-            List<JEVisSample> samples = attribute.getSamples(start, end);
-            double sum = 0d;
-            for (JEVisSample jeVisSample : samples) {
-                sum += jeVisSample.getValueAsDouble();
-            }
+                List<JEVisSample> samples = attribute.getSamples(start, end);
+                double sum = 0d;
+                for (JEVisSample jeVisSample : samples) {
+                    sum += jeVisSample.getValueAsDouble();
+                }
 
-            if (!isQuantity || getVariableType().equals(InputVariableType.AVG.toString())) sum = sum / samples.size();
+                if (!isQuantity || getVariableType().equals(InputVariableType.AVG.toString()))
+                    sum = sum / samples.size();
 
-            return String.valueOf(sum);
-        } else if (getVariableType() != null
-                && getVariableType().equals(InputVariableType.LAST.toString())) {
-            List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0, 0), start);
+                return String.valueOf(sum);
+            } else if (getVariableType() != null
+                    && getVariableType().equals(InputVariableType.LAST.toString())) {
+                List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0, 0), start);
 
-            return String.valueOf(samples.get(samples.size() - 1).getValueAsDouble());
-        } else if (getVariableType() != null
-                && getVariableType().equals(InputVariableType.STRING.toString())) {
-            List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0, 0), start);
-            return samples.get(samples.size() - 1).getValueAsString();
-        } else return String.valueOf(0d);
+                return String.valueOf(samples.get(samples.size() - 1).getValueAsDouble());
+            } else if (getVariableType() != null
+                    && getVariableType().equals(InputVariableType.STRING.toString())) {
+                List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0, 0), start);
+                return samples.get(samples.size() - 1).getValueAsString();
+            } else return String.valueOf(0d);
+        } else {
+            return ds.getObject(getObjectID()).getName();
+        }
     }
 
     @Override

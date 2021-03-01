@@ -51,6 +51,7 @@ import java.util.prefs.Preferences;
 
 public class TRCPlugin implements Plugin {
     public static final String TEMPLATE_CLASS = "Result Calculation Template";
+    public static final String TEMPLATE_DIRECTORY_CLASS = "Template Calculation Directory";
     private static final String PLUGIN_CLASS_NAME = "Template Result Calculation Plugin";
     private static final Logger logger = LogManager.getLogger(TRCPlugin.class);
     private static final String DATA_MODEL_ATTRIBUTE = "Template File";
@@ -388,13 +389,13 @@ public class TRCPlugin implements Plugin {
                 try {
                     JEVisClass templateClass = ds.getJEVisClass(TEMPLATE_CLASS);
 
-                    SaveUnderDialog.saveUnderAnalysis(ds, templateHandler.getTemplateObject(), templateClass, templateHandler.getTitle(), (target, sameObject) -> {
+                    SaveUnderDialog saveUnderDialog = new SaveUnderDialog(dialogStackPane, ds, TEMPLATE_DIRECTORY_CLASS, templateHandler.getTemplateObject(), templateClass, templateHandler.getTitle(), (target, sameObject) -> {
 
                         JEVisAttribute dataModel = null;
                         try {
                             templateHandler.setTitle(target.getName());
 
-                            dataModel = templateHandler.getTemplateObject().getAttribute(DATA_MODEL_ATTRIBUTE);
+                            dataModel = target.getAttribute(DATA_MODEL_ATTRIBUTE);
 
                             JEVisFileImp jsonFile = new JEVisFileImp(
                                     templateHandler.getTitle() + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
@@ -406,6 +407,8 @@ public class TRCPlugin implements Plugin {
                         }
                         return true;
                     });
+
+                    saveUnderDialog.show();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -652,10 +655,9 @@ public class TRCPlugin implements Plugin {
     }
 
     private void updateFormulas() {
-        int size = configFormulas.getChildren().size();
-        if (size > 1) {
-            configFormulas.getChildren().remove(1, size);
-        }
+
+        configFormulas.getChildren().clear();
+        configFormulas.getChildren().add(buildAddFormulaButton());
 
         for (TemplateFormula templateFormula : templateHandler.getRcTemplate().getTemplateFormulas()) {
             int index = templateHandler.getRcTemplate().getTemplateFormulas().indexOf(templateFormula);
@@ -664,10 +666,9 @@ public class TRCPlugin implements Plugin {
     }
 
     private void updateInputs() {
-        int size = configInputs.getChildren().size();
-        if (size > 1) {
-            configInputs.getChildren().remove(1, size);
-        }
+
+        configInputs.getChildren().clear();
+        configInputs.getChildren().add(buildAddInputButton());
 
         for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
             configInputs.getChildren().add(createInputButton(templateInput));

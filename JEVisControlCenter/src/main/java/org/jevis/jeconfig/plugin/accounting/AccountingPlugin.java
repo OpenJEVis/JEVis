@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.plugin.accounting;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -23,6 +26,7 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.Constants;
@@ -30,6 +34,7 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.TablePlugin;
 import org.jevis.jeconfig.plugin.dtrc.OutputView;
@@ -40,6 +45,7 @@ import org.jevis.jeconfig.plugin.object.attribute.PeriodEditor;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -52,6 +58,9 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private static final String PLUGIN_CLASS_NAME = "Accounting Plugin";
     private static final Insets INSETS = new Insets(12);
     private static final double EDITOR_MAX_HEIGHT = 50;
+    private static final String ACCOUNTING_CONFIGURATION = "Accounting Configuration";
+    private static final String ACCOUNTING_CONFIGURATION_DIRECTORY = "Accounting Configuration Directory";
+    private static final String DATA_MODEL_ATTRIBUTE = "Template File";
     public static String PLUGIN_NAME = "Accounting Plugin";
 
     private static final Logger logger = LogManager.getLogger(AccountingPlugin.class);
@@ -60,6 +69,8 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private final Image taskImage = JEConfig.getImage("accounting.png");
     private final ToolBar toolBar = new ToolBar();
     private final AccountingDirectories accountingDirectories;
+    private final AccountingTemplateHandler ath = new AccountingTemplateHandler();
+    private final ObjectMapper mapper = new ObjectMapper();
     private final ToggleButton newButton = new ToggleButton("", JEConfig.getImage("list-add.png", toolBarIconSize, toolBarIconSize));
     private final ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
     private final ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", toolBarIconSize, toolBarIconSize));
@@ -73,6 +84,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private final TabPane configTabPane = new TabPane();
     private final JFXComboBox<JEVisObject> configComboBox = new JFXComboBox<>();
     private final StackPane enterDataStackPane = new StackPane(enterDataTabPane);
+    private final StackPane configStackPane = new StackPane(configTabPane);
     private final Tab enterDataTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
     private final Tab energySupplierTab = new Tab();
     private final Tab energyMeteringOperatorsTab = new Tab();
@@ -150,11 +162,15 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private boolean guiUpdate = false;
     private final TemplateHandler templateHandler = new TemplateHandler();
     private final OutputView viewTab;
+    private final Tab configTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"));
 
     public AccountingPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
 
         accountingDirectories = new AccountingDirectories(ds);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         viewTab = new OutputView(I18n.getInstance().getString("plugin.accounting.tab.view"), ds, templateHandler);
 
@@ -167,14 +183,17 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         energyContractorTab.setClosable(false);
         governmentalDuesTab.setClosable(false);
 
-        Tab configTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"));
-        configTab.setContent(configTabPane);
+        configTab.setContent(configStackPane);
         configTab.setClosable(false);
 
         Tab inputs = new Tab(I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
         inputs.setClosable(false);
 
-        VBox configVBox = new VBox(6, trcs, viewTab.getViewInputs());
+        Label trcsLabel = new Label(I18nWS.getInstance().getClassName(TEMPLATE_CLASS));
+        HBox trcsBox = new HBox(6, trcsLabel, trcs);
+        viewTab.getViewInputs().setOrientation(Orientation.VERTICAL);
+
+        VBox configVBox = new VBox(6, trcsBox, viewTab.getViewInputs());
         configVBox.setPadding(INSETS);
 
         inputs.setContent(configVBox);
@@ -444,18 +463,46 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     public void handleRequest(int cmdType) {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
-                for (AttributeEditor attributeEditor : attributeEditors) {
+                if (motherTabPane.getSelectionModel().getSelectedItem().equals(enterDataTab)) {
+                    for (AttributeEditor attributeEditor : attributeEditors) {
+                        try {
+                            attributeEditor.commit();
+                        } catch (JEVisException e) {
+                            logger.error("Could not save {}", attributeEditor, e);
+                        }
+                    }
                     try {
-                        attributeEditor.commit();
+                        attributeEditors.clear();
+                        updateGUI();
                     } catch (JEVisException e) {
-                        logger.error("Could not save {}", attributeEditor, e);
+                        logger.error("Error while updating GUI", e);
                     }
                 }
-                try {
-                    attributeEditors.clear();
-                    updateGUI();
-                } catch (JEVisException e) {
-                    logger.error("Error while updating GUI", e);
+                if (motherTabPane.getSelectionModel().getSelectedItem().equals(configTab)) {
+                    try {
+                        JEVisClass templateClass = ds.getJEVisClass(ACCOUNTING_CONFIGURATION);
+
+                        SaveUnderDialog saveUnderDialog = new SaveUnderDialog(configStackPane, ds, ACCOUNTING_CONFIGURATION_DIRECTORY, ath.getTemplateObject(), templateClass, ath.getTitle(), (target, sameObject) -> {
+
+                            try {
+                                ath.setTitle(target.getName());
+
+                                JEVisAttribute dataModel = target.getAttribute(DATA_MODEL_ATTRIBUTE);
+
+                                JEVisFileImp jsonFile = new JEVisFileImp(
+                                        ath.getTitle() + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
+                                        , this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(ath.toJsonNode()).getBytes(StandardCharsets.UTF_8));
+                                JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
+                                newSample.commit();
+                            } catch (Exception e) {
+                                logger.error("Could not save template", e);
+                            }
+                            return true;
+                        });
+                        saveUnderDialog.show();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
                 break;
             case Constants.Plugin.Command.DELETE:
@@ -578,6 +625,8 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
                     });
 
                     dialog.show();
+                } else if (motherTabPane.getSelectionModel().getSelectedItem().equals(configTab)) {
+
                 }
                 break;
             case Constants.Plugin.Command.RELOAD:
@@ -648,7 +697,20 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         try {
             initialized = true;
+
             initGUI();
+
+            List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
+            if (allAccountingConfigurations.isEmpty()) {
+                SelectionTemplate selectionTemplate = new SelectionTemplate();
+                ath.setSelectionTemplate(selectionTemplate);
+                viewTab.setSelectionTemplate(selectionTemplate);
+            } else {
+                configComboBox.getItems().clear();
+                configComboBox.getItems().addAll(allAccountingConfigurations);
+                configComboBox.getSelectionModel().selectFirst();
+            }
+
         } catch (JEVisException e) {
             e.printStackTrace();
         }
@@ -681,9 +743,25 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         trcs.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 templateHandler.setTemplateObject(newValue);
+                ath.getSelectionTemplate().setTemplateSelection(newValue.getID());
 
                 viewTab.updateViewInputFlowPane();
                 viewTab.update();
+            }
+        });
+
+        configComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                ath.setTemplateObject(newValue);
+
+                try {
+                    JEVisObject selectedObject = ds.getObject(ath.getSelectionTemplate().getTemplateSelection());
+                    viewTab.setSelectionTemplate(ath.getSelectionTemplate());
+                    trcs.getSelectionModel().select(null);
+                    trcs.getSelectionModel().select(selectedObject);
+                } catch (JEVisException e) {
+                    logger.error("Could not get selected object from selection template {}", ath.getSelectionTemplate().getTemplateSelection(), e);
+                }
             }
         });
 
@@ -832,7 +910,6 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
         trcs.getItems().clear();
 
         trcs.getItems().addAll(getAllTemplateCalculations());
-        trcs.getSelectionModel().selectFirst();
 
         configComboBox.getItems().addAll(getAllAccountingConfigurations());
 

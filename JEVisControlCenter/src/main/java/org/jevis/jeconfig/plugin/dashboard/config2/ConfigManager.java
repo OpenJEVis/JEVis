@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import org.apache.logging.log4j.LogManager;
@@ -46,6 +47,7 @@ import static org.jevis.jeconfig.plugin.dashboard.config2.JsonNames.Dashboard.*;
 public class ConfigManager {
 
 
+    private final StackPane dialogPane;
     private final JEVisDataSource jeVisDataSource;
     private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(ConfigManager.class);
@@ -53,7 +55,8 @@ public class ConfigManager {
     private JEVisObject dashboardObject = null;
     private final ObjectRelations objectRelations;
 
-    public ConfigManager(JEVisDataSource dataSource) {
+    public ConfigManager(StackPane dialogPane, JEVisDataSource dataSource) {
+        this.dialogPane = dialogPane;
         this.jeVisDataSource = dataSource;
         this.objectRelations = new ObjectRelations(jeVisDataSource);
         this.timeFrames = new TimeFrames(this.jeVisDataSource);
@@ -389,8 +392,7 @@ public class ConfigManager {
             logger.error("openSaveUnder: {},{},{},{}", dashboardPojo, wallpaper);
             JEVisClass dashboardClass = jeVisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
 
-
-            SaveUnderDialog.saveUnderAnalysis(jeVisDataSource, dashboardPojo.getDashboardObject(), dashboardClass, dashboardPojo.getTitle(), (target, sameObject) -> {
+            SaveUnderDialog saveUnderDialog = new SaveUnderDialog(dialogPane, jeVisDataSource, dashboardPojo.getDashboardObject(), dashboardClass, dashboardPojo.getTitle(), (target, sameObject) -> {
                 logger.error("Start save");
                 try {
 
@@ -419,6 +421,7 @@ public class ConfigManager {
                 }
                 return true;
             });
+            saveUnderDialog.show();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

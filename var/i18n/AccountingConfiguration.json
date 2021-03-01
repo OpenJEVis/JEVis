@@ -1,0 +1,36 @@
+{
+  "jevisclass": "Accounting Configuration",
+  "names": {
+    "de": "Prüfungskonfiguration",
+    "ru": "Конфигурация экзамена",
+    "en": "Accounting Configuration",
+    "th": "การกำหนดค่าการสอบ",
+    "uk": "Конфігурація іспиту"
+  },
+  "descriptions": {
+    "de": "Die Prüfungskonfiguration beinhaltet das Datenmodell aus der Rechnungsprüfung. Alle wichtigen Einstellungen zu der entsprechenden Prüfung sind hier abgelegt.",
+    "ru": "Конфигурация аудита содержит модель данных из аудита счетов. Здесь хранятся все важные настройки для соответствующего теста.",
+    "en": "The audit configuration contains the data model from the invoice audit. All the important settings for the relevant test are stored here.",
+    "th": "การกำหนดค่าการตรวจสอบประกอบด้วยโมเดลข้อมูลจากการตรวจสอบใบแจ้งหนี้ การตั้งค่าที่สำคัญทั้งหมดสำหรับการทดสอบที่เกี่ยวข้องจะถูกเก็บไว้ที่นี่",
+    "uk": "Конфігурація аудиту містить модель даних аудиту рахунків-фактур. Тут зберігаються всі важливі налаштування для відповідного тесту."
+  },
+  "types": [
+    {
+      "type": "Template",
+      "descriptions": {
+        "de": "Beinhaltet das Datenmodell zur gespeicherten Prüfung",
+        "ru": "Содержит модель данных для сохраненного теста",
+        "en": "Contains the data model for the saved test",
+        "th": "มีโมเดลข้อมูลสำหรับการทดสอบที่บันทึกไว้",
+        "uk": "Містить модель даних для збереженого тесту"
+      },
+      "names": {
+        "de": "Datenmodell",
+        "ru": "Модель данных",
+        "en": "Data Model",
+        "th": "แบบจำลองข้อมูล",
+        "uk": "Модель даних"
+      }
+    }
+  ]
+}

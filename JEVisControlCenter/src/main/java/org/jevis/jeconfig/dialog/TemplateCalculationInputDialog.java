@@ -19,6 +19,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.dtrc.InputVariableType;
+import org.jevis.jeconfig.plugin.dtrc.JEVisNameType;
 import org.jevis.jeconfig.plugin.dtrc.TRCPlugin;
 import org.jevis.jeconfig.plugin.dtrc.TemplateInput;
 
@@ -236,6 +237,8 @@ public class TemplateCalculationInputDialog extends JFXDialog {
                 }
                 return 0;
             });
+            types.add(new JEVisNameType(ds, firstClass));
+
             JFXComboBox<JEVisType> attributeSelector = new JFXComboBox<>(FXCollections.observableArrayList(types));
             Callback<ListView<JEVisType>, ListCell<JEVisType>> attributeCellFactory = new Callback<ListView<JEVisType>, ListCell<JEVisType>>() {
                 @Override
@@ -249,7 +252,11 @@ public class TemplateCalculationInputDialog extends JFXDialog {
                                 setText(null);
                             } else {
                                 try {
-                                    setText(I18nWS.getInstance().getTypeName(classSelector.getSelectionModel().getSelectedItem().getName(), obj.getName()));
+                                    if (!obj.getName().equals("name")) {
+                                        setText(I18nWS.getInstance().getTypeName(classSelector.getSelectionModel().getSelectedItem().getName(), obj.getName()));
+                                    } else {
+                                        setText(I18n.getInstance().getString("plugin.graph.table.name"));
+                                    }
                                 } catch (JEVisException e) {
                                     logger.error("Could not get type name", e);
                                 }
@@ -284,6 +291,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
                             }
                             return 0;
                         });
+                        newTypes.add(new JEVisNameType(ds, newValue));
 
                         List<JEVisObject> newObjects = ds.getObjects(newValue, false);
 
