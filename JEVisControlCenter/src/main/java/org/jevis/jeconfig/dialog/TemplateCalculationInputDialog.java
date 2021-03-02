@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -78,8 +79,20 @@ public class TemplateCalculationInputDialog extends JFXDialog {
                                 case AVG:
                                     setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.avg"));
                                     break;
+                                case MIN:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.min"));
+                                    break;
+                                case MAX:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.max"));
+                                    break;
+                                case YEARLY_VALUE:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.yearlyvalue"));
+                                    break;
                                 case LAST:
                                     setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.last"));
+                                    break;
+                                case NON_PERIODIC:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.nonperiodic"));
                                     break;
                                 case STRING:
                                     setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.string"));
@@ -131,6 +144,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         JFXComboBox<JEVisClass> classSelector = new JFXComboBox<>();
 
         JFXListView<JEVisObject> listView = new JFXListView<>();
+        listView.setMinSize(450, 550);
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> listViewCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -355,6 +369,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         });
 
         HBox buttonBar = new HBox(8, delete, cancel, ok);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
         gridPane.add(buttonBar, 1, 5, 2, 1);
 
         setContent(gridPane);

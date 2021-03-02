@@ -272,7 +272,6 @@ public class TRCPlugin implements Plugin {
                 updateFormulas();
                 updateInputs();
                 updateOutputs();
-                viewTab.updateViewInputFlowPane();
                 viewTab.update();
             }
         });
@@ -582,7 +581,11 @@ public class TRCPlugin implements Plugin {
 
         configVBox.setPadding(new Insets(12));
 
-        dialogStackPane = new StackPane(configVBox);
+        ScrollPane configScrollPane = new ScrollPane(configVBox);
+        configScrollPane.setFitToHeight(true);
+        configScrollPane.setFitToWidth(true);
+
+        dialogStackPane = new StackPane(configScrollPane);
 
         configurationTab.setContent(dialogStackPane);
 
@@ -658,6 +661,7 @@ public class TRCPlugin implements Plugin {
 
         configFormulas.getChildren().clear();
         configFormulas.getChildren().add(buildAddFormulaButton());
+        templateHandler.getRcTemplate().getTemplateFormulas().sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
 
         for (TemplateFormula templateFormula : templateHandler.getRcTemplate().getTemplateFormulas()) {
             int index = templateHandler.getRcTemplate().getTemplateFormulas().indexOf(templateFormula);
@@ -669,6 +673,7 @@ public class TRCPlugin implements Plugin {
 
         configInputs.getChildren().clear();
         configInputs.getChildren().add(buildAddInputButton());
+        templateHandler.getRcTemplate().getTemplateInputs().sort((o1, o2) -> alphanumComparator.compare(o1.getVariableName(), o2.getVariableName()));
 
         for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
             configInputs.getChildren().add(createInputButton(templateInput));

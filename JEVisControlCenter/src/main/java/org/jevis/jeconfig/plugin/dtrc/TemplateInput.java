@@ -6,6 +6,7 @@ import org.jevis.api.*;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.joda.time.DateTime;
+import org.joda.time.Days;
 
 import java.util.List;
 
@@ -85,7 +86,8 @@ public class TemplateInput extends TemplateSelected {
 
             if (getVariableType() == null
                     || (getVariableType() != null
-                    && (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())))) {
+                    && (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())
+                    || getVariableType().equals(InputVariableType.MIN.toString()) || getVariableType().equals(InputVariableType.MAX.toString())))) {
 
                 QuantityUnits quantityUnits = new QuantityUnits();
                 boolean isQuantity = quantityUnits.isQuantityUnit(attribute.getInputUnit());
@@ -93,23 +95,42 @@ public class TemplateInput extends TemplateSelected {
 
                 List<JEVisSample> samples = attribute.getSamples(start, end);
                 double sum = 0d;
+                double min = Double.MAX_VALUE;
+                double max = -Double.MAX_VALUE;
                 for (JEVisSample jeVisSample : samples) {
-                    sum += jeVisSample.getValueAsDouble();
+                    Double d = jeVisSample.getValueAsDouble();
+                    sum += d;
+                    min = Math.min(min, d);
+                    max = Math.max(max, d);
                 }
 
                 if (!isQuantity || getVariableType().equals(InputVariableType.AVG.toString()))
                     sum = sum / samples.size();
 
-                return String.valueOf(sum);
+                if (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())) {
+                    return String.valueOf(sum);
+                } else if (getVariableType().equals(InputVariableType.MIN.toString())) {
+                    return String.valueOf(min);
+                } else {
+                    return String.valueOf(max);
+                }
             } else if (getVariableType() != null
-                    && getVariableType().equals(InputVariableType.LAST.toString())) {
-                List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0, 0), start);
-
+                    && getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
+                List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0), start);
                 return String.valueOf(samples.get(samples.size() - 1).getValueAsDouble());
             } else if (getVariableType() != null
+                    && getVariableType().equals(InputVariableType.LAST.toString())) {
+                JEVisSample sample = attribute.getLatestSample();
+                return String.valueOf(sample.getValueAsDouble());
+            } else if (getVariableType() != null
+                    && getVariableType().equals(InputVariableType.YEARLY_VALUE.toString())) {
+                JEVisSample sample = attribute.getLatestSample();
+                int days = Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays();
+                return String.valueOf(sample.getValueAsDouble() / days);
+            } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.STRING.toString())) {
-                List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0, 0), start);
-                return samples.get(samples.size() - 1).getValueAsString();
+                JEVisSample latestSample = attribute.getLatestSample();
+                return latestSample.getValueAsString();
             } else return String.valueOf(0d);
         } else {
             return ds.getObject(getObjectID()).getName();

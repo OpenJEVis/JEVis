@@ -87,6 +87,7 @@ public class TemplateHandler {
             outputNode.put("row", templateOutput.getRow());
             outputNode.put("colSpan", templateOutput.getColSpan());
             outputNode.put("rowSpan", templateOutput.getRowSpan());
+            outputNode.put("separator", templateOutput.getSeparator());
 
             templateOutputsArrayNode.add(outputNode);
         });

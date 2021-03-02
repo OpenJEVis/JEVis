@@ -12,6 +12,7 @@ public class TemplateOutput {
     private Integer rowSpan = 1;
     private Boolean nameBold = false;
     private Boolean resultBold = false;
+    private Boolean separator = false;
 
     public String getName() {
         return name;
@@ -91,6 +92,14 @@ public class TemplateOutput {
 
     public void setNameBold(Boolean nameBold) {
         this.nameBold = nameBold;
+    }
+
+    public Boolean getSeparator() {
+        return separator;
+    }
+
+    public void setSeparator(Boolean separator) {
+        this.separator = separator;
     }
 
     @Override

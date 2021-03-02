@@ -7,6 +7,7 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
@@ -75,6 +76,9 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         JFXCheckBox resultBold = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.bold"));
         resultBold.setSelected(templateOutput.getResultBold());
 
+        JFXCheckBox separatorToggle = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.separator"));
+        separatorToggle.setSelected(templateOutput.getSeparator());
+
         nameField.textProperty().addListener((observable, oldValue, newValue) -> templateOutput.setName(newValue));
         variableNameField.textProperty().addListener((observable, oldValue, newValue) -> templateOutput.setVariableName(newValue));
         unitField.textProperty().addListener((observable, oldValue, newValue) -> templateOutput.setUnit(newValue));
@@ -84,6 +88,7 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         rowSpanSpinner.numberProperty().addListener((observable, oldValue, newValue) -> templateOutput.setRowSpan(newValue.intValue()));
         nameBold.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setNameBold(newValue));
         resultBold.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setResultBold(newValue));
+        separatorToggle.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setSeparator(newValue));
 
         JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {
@@ -101,6 +106,7 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         });
 
         HBox buttonBar = new HBox(8, delete, cancel, ok);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
 
         int row = 0;
         gridPane.add(nameLabel, 0, row);
@@ -115,6 +121,9 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
 
         gridPane.add(unitLabel, 0, row);
         gridPane.add(unitField, 1, row);
+        row++;
+
+        gridPane.add(separatorToggle, 0, row, 2, 1);
         row++;
 
         Separator separator1 = new Separator(Orientation.HORIZONTAL);

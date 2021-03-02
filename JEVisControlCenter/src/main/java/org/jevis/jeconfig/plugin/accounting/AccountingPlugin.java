@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.accounting;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -22,9 +23,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFDataFormat;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
@@ -37,14 +45,17 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.TablePlugin;
-import org.jevis.jeconfig.plugin.dtrc.OutputView;
-import org.jevis.jeconfig.plugin.dtrc.TemplateHandler;
+import org.jevis.jeconfig.plugin.dtrc.*;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.attribute.PeriodEditor;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
+import org.mariuszgromada.math.mxparser.Expression;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -70,11 +81,13 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     private final ToolBar toolBar = new ToolBar();
     private final AccountingDirectories accountingDirectories;
     private final AccountingTemplateHandler ath = new AccountingTemplateHandler();
+    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
     private final ObjectMapper mapper = new ObjectMapper();
     private final ToggleButton newButton = new ToggleButton("", JEConfig.getImage("list-add.png", toolBarIconSize, toolBarIconSize));
     private final ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
     private final ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", toolBarIconSize, toolBarIconSize));
     private final ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
+    private final ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", toolBarIconSize, toolBarIconSize));
     private final ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", toolBarIconSize, toolBarIconSize));
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
@@ -191,7 +204,6 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         Label trcsLabel = new Label(I18nWS.getInstance().getClassName(TEMPLATE_CLASS));
         HBox trcsBox = new HBox(6, trcsLabel, trcs);
-        viewTab.getViewInputs().setOrientation(Orientation.VERTICAL);
 
         VBox configVBox = new VBox(6, trcsBox, viewTab.getViewInputs());
         configVBox.setPadding(INSETS);
@@ -299,6 +311,25 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
         Separator sep3 = new Separator(Orientation.VERTICAL);
 
+
+        Tooltip xlsxTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
+        xlsxButton.setTooltip(xlsxTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(xlsxButton);
+
+        xlsxButton.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("XLSX File Destination");
+            FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", ".xlsx");
+            fileChooser.getExtensionFilters().addAll(pdfFilter);
+            fileChooser.setSelectedExtensionFilter(pdfFilter);
+
+            File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
+            if (selectedFile != null) {
+                JEConfig.setLastPath(selectedFile);
+                createExcelFile(selectedFile);
+            }
+        });
+
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
         printButton.setDisable(true);
         printButton.setOnAction(event -> {
@@ -356,9 +387,75 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
             }
         });
 
-        toolBar.getItems().setAll(configComboBox, sep1, reload, sep2, save, newButton, delete, sep3, printButton);
+        toolBar.getItems().setAll(configComboBox, sep1, reload, sep2, save, newButton, delete, sep3, xlsxButton, printButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(AccountingPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+    }
+
+    private void createExcelFile(File destinationFile) {
+
+        XSSFWorkbook workbook = new XSSFWorkbook(); //create workbook
+
+        XSSFDataFormat dataFormatDates = workbook.createDataFormat();
+        dataFormatDates.putFormat((short) 165, "YYYY-MM-dd HH:MM:ss");
+        CellStyle cellStyleDateTime = workbook.createCellStyle();
+        cellStyleDateTime.setDataFormat((short) 165);
+
+        CellStyle cellStyleValues = workbook.createCellStyle();
+        cellStyleValues.setDataFormat((short) 4);
+
+        Sheet sheet = workbook.createSheet(I18n.getInstance().getString("plugin.dtrc.view.output"));
+
+        for (TemplateOutput templateOutput : templateHandler.getRcTemplate().getTemplateOutputs()) {
+
+            Cell cell = getOrCreateCell(sheet, templateOutput.getRow(), templateOutput.getColumn());
+            boolean hasLabel = false;
+            if (templateOutput.getName() != null && !templateOutput.getName().equals("")) {
+                cell.setCellValue(templateOutput.getName());
+                hasLabel = true;
+            }
+            TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getVariableName())).findFirst().orElse(null);
+
+            if (formula != null) {
+                String formulaString = formula.getFormula();
+                boolean isText = false;
+                for (TemplateInput templateInput : formula.getInputs()) {
+                    try {
+                        if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
+                            isText = true;
+                        }
+
+                        formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, viewTab.getStart(), viewTab.getEnd()));
+
+                    } catch (JEVisException e) {
+                        logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
+                    }
+                }
+
+                String resultString = "";
+                if (!isText) {
+                    Expression expression = new Expression(formulaString);
+                    resultString = nf.format(expression.calculate()) + " " + templateOutput.getUnit();
+                } else {
+                    resultString = formulaString;
+                }
+
+                if (hasLabel) {
+                    cell.setCellValue(cell.getStringCellValue() + ": " + resultString);
+                } else {
+                    cell.setCellValue(resultString);
+                }
+            }
+        }
+
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(destinationFile);
+            workbook.write(fileOutputStream);
+            workbook.close();
+            fileOutputStream.close();
+        } catch (IOException e) {
+            logger.error("Could not save file {}", destinationFile, e);
+        }
     }
 
     @Override
@@ -1152,5 +1249,19 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
     @Override
     public int getPrefTapPos() {
         return 6;
+    }
+
+    private org.apache.poi.ss.usermodel.Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {
+        Row row = sheet.getRow(rowIdx);
+        if (row == null) {
+            row = sheet.createRow(rowIdx);
+        }
+
+        Cell cell = row.getCell(colIdx);
+        if (cell == null) {
+            cell = row.createCell(colIdx);
+        }
+
+        return cell;
     }
 }
