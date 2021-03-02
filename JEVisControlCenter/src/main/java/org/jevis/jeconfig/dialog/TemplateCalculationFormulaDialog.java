@@ -4,7 +4,9 @@ import com.jfoenix.controls.*;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.*;
@@ -109,11 +111,15 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         });
 
         HBox buttonBar = new HBox(8, delete, cancel, ok);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+
+        ScrollPane outputsScrollPane = new ScrollPane(outputsGridPane);
+        outputsScrollPane.setMinHeight(550);
 
         VBox vBox = new VBox(4, new HBox(4, nameLabel, jfxTextField), separator1,
                 formulaLabel, jfxTextArea, separator2,
                 inputsLabel, inputsFlowPane, separator3,
-                outputsLabel, outputsGridPane, separator4,
+                outputsLabel, outputsScrollPane, separator4,
                 buttonBar);
 
         vBox.setPadding(new Insets(12));

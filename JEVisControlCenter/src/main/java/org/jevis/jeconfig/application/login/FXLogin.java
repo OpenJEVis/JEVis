@@ -449,7 +449,7 @@ public class FXLogin extends AnchorPane {
 
         HBox buttonBox = new HBox(10);
         Node link = buildLink();
-        buttonBox.getChildren().setAll(link, spacer, this.loginButton, this.closeButton);
+        buttonBox.getChildren().setAll(link, spacer, this.closeButton, this.loginButton);
         HBox.setHgrow(link, Priority.NEVER);
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setHgrow(this.loginButton, Priority.NEVER);
@@ -602,13 +602,13 @@ public class FXLogin extends AnchorPane {
         notificationPane.setContent(this.mainHBox);
 
         AnchorPane root = new AnchorPane(notificationPane);
-        Layouts.setAnchor(notificationPane,0);
-        Layouts.setAnchor(root,0);
+        Layouts.setAnchor(notificationPane, 0);
+        Layouts.setAnchor(root, 0);
         getChildren().setAll(root);
 
     }
 
-    public void checkVersion(){
+    public void checkVersion() {
         try {
             String serverJECCVersion = ((JEVisDataSourceWS) _ds).getJEVisCCVersion();
             if (serverJECCVersion != "0") {
@@ -618,7 +618,7 @@ public class FXLogin extends AnchorPane {
                     //notificationPane.setStyle("-fx-focus-color: transparent;");
                     //notificationPane.getStyleClass().add(NotificationPane.STYLE_CLASS_DARK);
 
-                    ImageView image = new ImageView(new Image(FXLogin.class.getResourceAsStream("/icons/update.png" )));
+                    ImageView image = new ImageView(new Image(FXLogin.class.getResourceAsStream("/icons/update.png")));
                     image.fitHeightProperty().set(32);
                     image.fitWidthProperty().set(32);
 
@@ -629,10 +629,10 @@ public class FXLogin extends AnchorPane {
                             try {
                                 if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                                     Desktop.getDesktop().browse(new URI(getHost()));
-                                }else{
+                                } else {
                                     new ProcessBuilder("x-www-browser", getHost()).start();
                                 }
-                            }catch (Exception ex){
+                            } catch (Exception ex) {
                                 logger.error(ex);
                             }
                         }
@@ -641,17 +641,16 @@ public class FXLogin extends AnchorPane {
 
                     Platform.runLater(() -> {
                         notificationPane.show(
-                                String.format(I18n.getInstance().getString("fxlogin.update.message"),serverJECCVersion)
-                                ,image,openWebAction);
+                                String.format(I18n.getInstance().getString("fxlogin.update.message"), serverJECCVersion)
+                                , image, openWebAction);
                     });
 
                     /**
-                    Notifications.create()
-                            .title("JEVis Control Center Update")
-                            .text("New version " + serverJECCVersion + " is available")
-                            .hideAfter(Duration.INDEFINITE)
-                            .showInformation();
-
+                     Notifications.create()
+                     .title("JEVis Control Center Update")
+                     .text("New version " + serverJECCVersion + " is available")
+                     .hideAfter(Duration.INDEFINITE)
+                     .showInformation();
                      **/
                 } else {
                     logger.debug("We are up to date");
@@ -659,17 +658,17 @@ public class FXLogin extends AnchorPane {
             } else {
                 logger.error("Could not fetch JEVisCC Server Version");
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }
 
-    private String getHost(){
+    private String getHost() {
         for (JEVisOption opt : configuration) {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
                 try {
                     URI uri = new URI(opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue());
-                    return uri.getScheme()+"://"+uri.getHost();
+                    return uri.getScheme() + "://" + uri.getHost();
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }

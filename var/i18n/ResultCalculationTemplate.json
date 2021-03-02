@@ -1,0 +1,36 @@
+{
+  "jevisclass": "Result Calculation Template",
+  "names": {
+    "de": "Berechnungsvorlage",
+    "ru": "Шаблон расчета результатов",
+    "en": "Result Calculation Template",
+    "th": "เทมเพลตการคำนวณผลลัพธ์",
+    "uk": "Шаблон розрахунку результатів"
+  },
+  "descriptions": {
+    "de": "Die Berechnungsvorlage beinhaltet das Datenmodell aus der Ergebnisberechnung. Alle wichtigen Einstellungen zu der entsprechenden Berechnung sind hier abgelegt.",
+    "ru": "Шаблон расчета результатов содержит модель данных из расчета результатов. Здесь хранятся все важные настройки для соответствующего расчета.",
+    "en": "The result calculation template contains the data model from the result calculation. All important settings for the corresponding calculation are stored here.",
+    "th": "เทมเพลตการคำนวณผลลัพธ์ประกอบด้วยแบบจำลองข้อมูลจากการคำนวณผลลัพธ์ การตั้งค่าที่สำคัญทั้งหมดสำหรับการคำนวณที่เกี่ยวข้องจะถูกเก็บไว้ที่นี่",
+    "uk": "Шаблон розрахунку результату містить модель даних із розрахунку результату. Тут зберігаються всі важливі налаштування для відповідного розрахунку."
+  },
+  "types": [
+    {
+      "type": "Template",
+      "descriptions": {
+        "de": "Beinhaltet das Datenmodell zur gespeicherten Berechnung",
+        "ru": "Содержит модель данных для сохраненного расчета",
+        "en": "Contains the data model for the saved calculation",
+        "th": "มีโมเดลข้อมูลสำหรับการคำนวณที่บันทึกไว้",
+        "uk": "Містить модель даних для збереженого розрахунку"
+      },
+      "names": {
+        "de": "Datenmodell",
+        "ru": "Модель данных",
+        "en": "Data Model",
+        "th": "แบบจำลองข้อมูล",
+        "uk": "Модель даних"
+      }
+    }
+  ]
+}

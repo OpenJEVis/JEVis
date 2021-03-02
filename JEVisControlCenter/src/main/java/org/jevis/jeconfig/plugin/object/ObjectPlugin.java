@@ -39,6 +39,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,7 +84,8 @@ public class ObjectPlugin implements Plugin {
     private final StringProperty name = new SimpleStringProperty("*NO_NAME*");
     private final StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
-    private BorderPane viewPane;
+    private final BorderPane viewPane = new BorderPane();
+    private final StackPane dialogContainer = new StackPane(viewPane);
     //    private ObjectTree tf;
 //    private ObjectTree tree;
     private JEVisTree tree;
@@ -200,13 +202,13 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        if (viewPane == null) {
+        if (viewPane.getChildren().isEmpty()) {
 
             initGUI();
 
         }
 
-        return viewPane;
+        return dialogContainer;
     }
 
     public void initGUI() {
@@ -273,7 +275,6 @@ public class ObjectPlugin implements Plugin {
         treeLoadingPane.endLoading();
         editorLoadingPane.endLoading();
 
-        viewPane = new BorderPane();
         viewPane.setCenter(sp);
         viewPane.getStyleClass().add("main-view-pane");
 //        viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);

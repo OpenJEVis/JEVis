@@ -1,5 +1,5 @@
 package org.jevis.jeconfig.plugin.dtrc;
 
 public enum InputVariableType {
-    SUM, AVG, LAST, STRING
+    SUM, AVG, MIN, MAX, YEARLY_VALUE, LAST, NON_PERIODIC, STRING
 }

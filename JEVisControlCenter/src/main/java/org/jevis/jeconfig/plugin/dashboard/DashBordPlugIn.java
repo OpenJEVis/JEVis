@@ -13,6 +13,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.NotificationPane;
@@ -46,6 +47,7 @@ public class DashBordPlugIn implements Plugin {
     private final DashBoardPane dashBoardPane;
     private final DashBoardToolbar toolBar;
     private final AnchorPane rootPane = new AnchorPane();
+    private final StackPane dialogPane = new StackPane(rootPane);
     private final ScrollPane scrollPane = new ScrollPane();
     /**
      * pane which gets the zoomed size of the dashboard so the layout of the ScrollPane is ok
@@ -84,7 +86,7 @@ public class DashBordPlugIn implements Plugin {
 
         this.rootPane.getChildren().setAll(this.scrollPane);
 
-        notificationPane = new NotificationPane(rootPane);
+        notificationPane = new NotificationPane(dialogPane);
 //        notificationPane.setStyle("-fx-background-color: red;");
         notificationPane.setStyle("-fx-focus-color: transparent;");
         rootPane.setStyle("-fx-focus-color: transparent;");
@@ -298,4 +300,7 @@ public class DashBordPlugIn implements Plugin {
     }
 
 
+    public StackPane getDialogPane() {
+        return dialogPane;
+    }
 }
