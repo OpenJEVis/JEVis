@@ -47,6 +47,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
@@ -294,10 +295,8 @@ public class AlarmPlugin implements Plugin {
                         } else {
                             String text = "";
                             try {
-                                for (JEVisObject parent : item.getParents()) {
-                                    text += parent.getName();
-                                    break;
-                                }
+
+                                text += getFullName(item);
 
                                 if (getTableRow() != null && getTableRow().getItem() != null) {
                                     AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
@@ -637,6 +636,30 @@ public class AlarmPlugin implements Plugin {
 
 
     }
+
+    private String getFullName(JEVisObject item) throws JEVisException {
+        String name = "";
+        JEVisObject firstParentalDataObject = DataMethods.getFirstParentalDataObject(item);
+
+        if (firstParentalDataObject != null) {
+            name += firstParentalDataObject.getName();
+            name += getFollowUpName(firstParentalDataObject, item);
+        }
+        return name;
+    }
+
+    private String getFollowUpName(JEVisObject firstParentalDataObject, JEVisObject item) throws JEVisException {
+        String name = "";
+        for (JEVisObject parent : item.getParents()) {
+            if (!parent.equals(firstParentalDataObject)) {
+                name += " - ";
+                name += parent.getName();
+                name += getFollowUpName(firstParentalDataObject, parent);
+            }
+        }
+        return name;
+    }
+
 
     private Object getAnalysisRequest(AlarmRow alarmRow, JEVisObject item) {
         DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
