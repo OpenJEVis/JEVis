@@ -51,8 +51,16 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         Label attributeLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.attributelabel"));
         GridPane.setHgrow(attributeLabel, Priority.ALWAYS);
 
+        Label variableNameLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.variablenamelabel"));
+        GridPane.setHgrow(variableNameLabel, Priority.ALWAYS);
+
         Label typeLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.typelabel"));
         GridPane.setHgrow(typeLabel, Priority.ALWAYS);
+
+        JFXTextField variableNameField = new JFXTextField(templateInput.getVariableName());
+        GridPane.setHgrow(variableNameField, Priority.ALWAYS);
+
+        variableNameField.textProperty().addListener((observable, oldValue, newValue) -> templateInput.setVariableName(newValue));
 
         JFXComboBox<InputVariableType> inputVariableTypeJFXComboBox = new JFXComboBox<>(FXCollections.observableArrayList(InputVariableType.values()));
         Callback<ListView<InputVariableType>, ListCell<InputVariableType>> inputVariableTypeJFXComboBoxCellFactory = new Callback<ListView<InputVariableType>, ListCell<InputVariableType>>() {
@@ -330,6 +338,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
                     try {
                         templateInput.setAttributeName(newValue.getName());
                         templateInput.buildVariableName(classSelector.getSelectionModel().getSelectedItem(), newValue);
+                        variableNameField.setText(templateInput.getVariableName());
                     } catch (JEVisException e) {
                         logger.error("Could not set new attribute name", e);
                     }
@@ -417,6 +426,10 @@ public class TemplateCalculationInputDialog extends JFXDialog {
 
         gridPane.add(attributeLabel, 0, row);
         gridPane.add(attributeSelector, 1, row);
+        row++;
+
+        gridPane.add(variableNameLabel, 0, row);
+        gridPane.add(variableNameField, 1, row);
         row++;
 
         gridPane.add(typeLabel, 0, row);
