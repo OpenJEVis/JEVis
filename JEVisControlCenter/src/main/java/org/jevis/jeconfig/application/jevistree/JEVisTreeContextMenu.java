@@ -24,6 +24,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,12 +51,14 @@ import java.util.List;
  */
 public class JEVisTreeContextMenu extends ContextMenu {
     private static final Logger logger = LogManager.getLogger(JEVisTreeContextMenu.class);
+    private final StackPane dialogContainer;
 
     private JEVisObject obj;
     private JEVisTree tree;
 
-    public JEVisTreeContextMenu() {
+    public JEVisTreeContextMenu(StackPane dialogContainer) {
         super();
+        this.dialogContainer = dialogContainer;
     }
 
     public void setTree(JEVisTree tree) {
@@ -172,11 +175,11 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
     public List<MenuItem> buildMenuNewContent() {
 
-        System.out.println("buildMenuNewContent()");
+        logger.debug("buildMenuNewContent()");
         Object obj2 = this.getUserData();
-        System.out.println("obj2: " + obj2);
+        logger.debug("obj2: " + obj2);
         Object obj3 = this.getOwnerNode();
-        System.out.println("obj3: " + obj3);
+        logger.debug("obj3: " + obj3);
 
         List<MenuItem> newContent = new ArrayList<>();
         try {
@@ -188,7 +191,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                                           @Override
                                           public void handle(ActionEvent t) {
-                                              TreeHelper.EventNew(tree, obj);
+                                              TreeHelper.EventNew(dialogContainer, tree, obj);
                                           }
                                       }
                 );
@@ -207,7 +210,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    TreeHelper.createCalcInput(obj, null);
+                    TreeHelper.createCalcInput(dialogContainer, obj, null);
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }
@@ -241,7 +244,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             public void handle(ActionEvent event) {
                 try {
                     JEVisSample lastValue = obj.getAttribute("Value").getLatestSample();
-                    EnterDataDialog enterDataDialog = new EnterDataDialog(obj.getDataSource());
+                    EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, obj.getDataSource());
                     enterDataDialog.setTarget(false, obj.getAttribute("Value"));
                     enterDataDialog.setSample(lastValue);
                     enterDataDialog.setShowValuePrompt(true);
@@ -265,7 +268,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                 Platform.runLater(() -> {
                     try {
-                        TreeHelper.EventExportTree(obj);
+                        TreeHelper.EventExportTree(dialogContainer, obj);
                     } catch (JEVisException ex) {
                         logger.fatal(ex);
                     }
@@ -318,9 +321,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent t) {
                 Object obj2 = getUserData();
-                System.out.println("userdate: " + obj2);
-                System.out.println("new event");
-                TreeHelper.EventNew(tree, obj);
+                logger.debug("userdate: " + obj2);
+                logger.debug("new event");
+                TreeHelper.EventNew(dialogContainer, tree, obj);
 
             }
         });

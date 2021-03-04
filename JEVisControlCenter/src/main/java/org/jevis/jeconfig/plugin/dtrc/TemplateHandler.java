@@ -67,6 +67,7 @@ public class TemplateHandler {
             inputNode.put("attributeName", templateInput.getAttributeName());
             inputNode.put("variableName", templateInput.getVariableName());
             inputNode.put("variableType", templateInput.getVariableType());
+            inputNode.put("templateFormula", templateInput.getTemplateFormula());
             inputNode.put("filter", templateInput.getFilter());
             inputNode.put("group", templateInput.getGroup());
 

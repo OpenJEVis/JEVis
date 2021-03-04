@@ -38,6 +38,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -427,10 +428,6 @@ public class JEConfig extends Application {
                     }
                 });
 
-                pluginManager = new PluginManager(_mainDS);
-                menu = new TopMenu();
-                pluginManager.setMenuBar(menu);
-
                 final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
                 final KeyCombination deleteCombo = new KeyCodeCombination(KeyCode.DELETE);
                 final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
@@ -483,20 +480,29 @@ public class JEConfig extends Application {
                 });
 
 //                GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
+
+                VBox vbox = new VBox();
+                StackPane dialogContainer = new StackPane();
+                BorderPane border = new BorderPane(dialogContainer);
+
+                vbox.setStyle("-fx-background-color: black;");
+                border.setTop(vbox);
+
+                menu = new TopMenu(dialogContainer);
+
+//                statusBar = new Statusbar(_mainDS);
+                pluginManager = new PluginManager(_mainDS);
+                pluginManager.setMenuBar(menu);
+
                 try {
                     pluginManager.addPluginsByUserSetting(_mainDS.getCurrentUser());
                 } catch (JEVisException jex) {
                     logger.error(jex);
                 }
 
-                BorderPane border = new BorderPane();
-                VBox vbox = new VBox();
-                vbox.setStyle("-fx-background-color: black;");
+                dialogContainer.getChildren().add(pluginManager.getView());
                 vbox.getChildren().addAll(menu, pluginManager.getToolbar());
-                border.setTop(vbox);
-                border.setCenter(pluginManager.getView());
 
-//                statusBar = new Statusbar(_mainDS);
                 statusBar.setDataSource(_mainDS);
                 statusBar.initView();
 

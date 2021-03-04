@@ -31,6 +31,7 @@ import javafx.scene.control.TreeSortMode;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.input.*;
+import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,7 +67,7 @@ public class JEVisTreeFactory {
     private static final Logger logger = LogManager.getLogger(JEVisTreeFactory.class);
     public static ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
 
-    public static void addDefaultKeys(JEVisTree tree) {
+    public static void addDefaultKeys(StackPane dialogContainer, JEVisTree tree) {
 
         final KeyCombination copyIDandValue = new KeyCodeCombination(KeyCode.F4);
         final KeyCombination copyObj = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
@@ -108,7 +109,7 @@ public class JEVisTreeFactory {
                     }
                     t.consume();
                 } else if (add.match(t)) {
-                    TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
+                    TreeHelper.EventNew(dialogContainer, tree, selectedObj.getValue().getJEVisObject());
                     t.consume();
                 } else if (delete.match(t)) {
                     TreeHelper.EventDelete(tree);
@@ -177,22 +178,22 @@ public class JEVisTreeFactory {
 
     }
 
-    public static JEVisTree buildBasicDefault(JEVisDataSource ds, boolean withMinMaxTSColumn) {
+    public static JEVisTree buildBasicDefault(StackPane dialogContainer, JEVisDataSource ds, boolean withMinMaxTSColumn) {
 
         BasicCellFilter cellFilter = new BasicCellFilter(I18n.getInstance().getString("tree.filter.nofilter"));
         cellFilter.addItemFilter(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
 
-        return buildBasicDefault(ds, cellFilter, withMinMaxTSColumn);
+        return buildBasicDefault(dialogContainer, ds, cellFilter, withMinMaxTSColumn);
     }
 
-    private static void addContextMenu(JEVisTree tree) {
+    private static void addContextMenu(StackPane dialogContainer, JEVisTree tree) {
 
-        final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu();
+        final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu(dialogContainer);
         contextMenu.setTree(tree);
         tree.setContextMenu(contextMenu);
     }
 
-    public static JEVisTree buildBasicDefault(JEVisDataSource ds, JEVisTreeFilter filter, boolean withMinMaxTSColumn) {
+    public static JEVisTree buildBasicDefault(StackPane dialogContainer, JEVisDataSource ds, JEVisTreeFilter filter, boolean withMinMaxTSColumn) {
 
         TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
         TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
@@ -221,8 +222,8 @@ public class JEVisTreeFactory {
             tree.getColumns().addAll(minTS, maxTS);
         }
 
-        addDefaultKeys(tree);
-        addContextMenu(tree);
+        addDefaultKeys(dialogContainer, tree);
+        addContextMenu(dialogContainer, tree);
 
         return tree;
     }

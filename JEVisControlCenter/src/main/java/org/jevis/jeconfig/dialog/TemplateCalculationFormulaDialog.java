@@ -16,11 +16,10 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.plugin.dtrc.RCTemplate;
 import org.jevis.jeconfig.plugin.dtrc.TemplateFormula;
 import org.jevis.jeconfig.plugin.dtrc.TemplateInput;
 import org.jevis.jeconfig.plugin.dtrc.TemplateOutput;
-
-import java.util.List;
 
 public class TemplateCalculationFormulaDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(TemplateCalculationFormulaDialog.class);
@@ -29,7 +28,7 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
     private FilteredList<JEVisObject> filteredList;
     private Response response = Response.CANCEL;
 
-    public TemplateCalculationFormulaDialog(StackPane dialogContainer, JEVisDataSource ds, List<TemplateInput> templateInputList, List<TemplateOutput> templateOutputList, TemplateFormula templateFormula) {
+    public TemplateCalculationFormulaDialog(StackPane dialogContainer, JEVisDataSource ds, RCTemplate rcTemplate, TemplateFormula templateFormula) {
         super();
 
         setDialogContainer(dialogContainer);
@@ -51,7 +50,7 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         Label inputsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
         FlowPane inputsFlowPane = new FlowPane(4, 4);
 
-        for (TemplateInput templateInput : templateInputList) {
+        for (TemplateInput templateInput : rcTemplate.getTemplateInputs()) {
             JFXCheckBox jfxCheckBox = new JFXCheckBox(templateInput.getVariableName());
             jfxCheckBox.setMnemonicParsing(false);
             if (templateFormula.getInputs().contains(templateInput)) {
@@ -77,7 +76,7 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         outputsGridPane.setVgap(6);
         final ToggleGroup outputsToggleGroup = new ToggleGroup();
 
-        for (TemplateOutput templateOutput : templateOutputList) {
+        for (TemplateOutput templateOutput : rcTemplate.getTemplateOutputs()) {
             JFXRadioButton jfxRadioButton = new JFXRadioButton();
 
             if (templateOutput.getName() != null) {

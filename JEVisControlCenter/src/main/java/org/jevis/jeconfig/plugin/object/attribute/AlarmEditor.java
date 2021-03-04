@@ -21,6 +21,7 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -29,12 +30,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,6 +68,7 @@ public class AlarmEditor implements AttributeEditor {
 
     private final ObservableList<AlarmConstants.Operator> operator = FXCollections.observableArrayList(AlarmConstants.Operator.SMALLER, AlarmConstants.Operator.BIGGER, AlarmConstants.Operator.EQUALS,
             AlarmConstants.Operator.SMALLER_EQUALS, AlarmConstants.Operator.BIGGER_EQUALS, AlarmConstants.Operator.NOT_EQUALS);
+    private final StackPane dialogContainer;
     public JEVisAttribute _attribute;
     private final HBox box = new HBox(12);
     private JEVisSample _newSample;
@@ -76,7 +76,8 @@ public class AlarmEditor implements AttributeEditor {
     private List<JsonAlarmConfig> _listConfig;
     private final boolean delete = false;
 
-    public AlarmEditor(JEVisAttribute att) {
+    public AlarmEditor(StackPane dialogContainer, JEVisAttribute att) {
+        this.dialogContainer = dialogContainer;
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
@@ -219,14 +220,8 @@ public class AlarmEditor implements AttributeEditor {
         tabPane.setPrefWidth(480);
         tabPane.setPrefHeight(350);
 
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setResizable(true);
-
-
-        dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.dialog.title"));
-        dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.dialog.header"));
-        dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));
-        dialog.getDialogPane().getButtonTypes().setAll();
+        JFXDialog dialog = new JFXDialog();
+        dialog.setDialogContainer(dialogContainer);
 
         for (JsonAlarmConfig config : _listConfig) {
             Tab newTab = new Tab(config.getName());
@@ -235,27 +230,36 @@ public class AlarmEditor implements AttributeEditor {
 
         }
 
-        dialog.getDialogPane().contentProperty().setValue(tabPane);
+        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
+        ok.setDefaultButton(true);
+        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
+        cancel.setCancelButton(true);
 
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.FINISH);
-        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
+        HBox buttonBar = new HBox(6, cancel, ok);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        buttonBar.setPadding(new Insets(12));
 
+        Separator separator = new Separator(Orientation.HORIZONTAL);
+        separator.setPadding(new Insets(8, 0, 8, 0));
 
-        dialog.showAndWait()
-                .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode().equals(ButtonType.FINISH.getButtonData().getTypeCode())) {
-                        try {
-                            _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                            _changed.setValue(true);
-                            logger.debug("Commit: {}", _newSample.getValueAsString());
-                            commit();
-                        } catch (JEVisException e) {
-                            logger.error("Could not commit.");
-                        }
-                    }
-                });
+        VBox vBox = new VBox(6, tabPane, separator, buttonBar);
+        dialog.setContent(vBox);
 
+        ok.setOnAction(event -> {
+            try {
+                _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
+                _changed.setValue(true);
+                logger.debug("Commit: {}", _newSample.getValueAsString());
+                commit();
+            } catch (JEVisException e) {
+                logger.error("Could not commit.");
+            }
+            dialog.close();
+        });
+
+        cancel.setOnAction(event -> dialog.close());
+
+        dialog.show();
     }
 
     /**
@@ -352,8 +356,6 @@ public class AlarmEditor implements AttributeEditor {
             allFilter.add(allDataFilter);
             allFilter.add(allAttributesFilter);
 
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
-
             List<UserSelection> openList = new ArrayList<>();
             if (th != null && !th.getAttribute().isEmpty()) {
                 for (JEVisAttribute att : th.getAttribute())
@@ -364,35 +366,36 @@ public class AlarmEditor implements AttributeEditor {
             }
 
             try {
-                if (selectTargetDialog.show(
-                        _attribute.getDataSource(),
-                        I18n.getInstance().getString("dialog.target.data.title"),
-                        openList
-                ) == SelectTargetDialog.Response.OK) {
-                    logger.trace("Selection Done");
+                SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, _attribute.getDataSource(), openList);
 
-                    StringBuilder newTarget = new StringBuilder();
-                    List<UserSelection> selections = selectTargetDialog.getUserSelection();
-                    for (UserSelection us : selections) {
-                        int index = selections.indexOf(us);
-                        if (index > 0) newTarget.append(";");
+                selectTargetDialog.setOnDialogClosed(event1 -> {
+                    if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                        logger.trace("Selection Done");
 
-                        newTarget.append(us.getSelectedObject().getID());
-                        if (us.getSelectedAttribute() != null) {
-                            newTarget.append(":");
-                            newTarget.append(us.getSelectedAttribute().getName());
-                        } else {
-                            newTarget.append(":Value");
+                        StringBuilder newTarget = new StringBuilder();
+                        List<UserSelection> selections = selectTargetDialog.getUserSelection();
+                        for (UserSelection us : selections) {
+                            int index = selections.indexOf(us);
+                            if (index > 0) newTarget.append(";");
+
+                            newTarget.append(us.getSelectedObject().getID());
+                            if (us.getSelectedAttribute() != null) {
+                                newTarget.append(":");
+                                newTarget.append(us.getSelectedAttribute().getName());
+                            } else {
+                                newTarget.append(":Value");
+                            }
                         }
+
+                        treeButton.setText(newTarget.toString());
+                        config.setLimitData(newTarget.toString());
                     }
 
-                    treeButton.setText(newTarget.toString());
-                    config.setLimitData(newTarget.toString());
-                }
-            } catch (JEVisException e) {
-                logger.error("Could not opern target dialog.");
+                });
+                selectTargetDialog.show();
+            } catch (Exception e) {
+                logger.error(e);
             }
-
         });
 
         JFXTextField limitField = new JFXTextField();

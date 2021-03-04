@@ -35,6 +35,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
@@ -61,10 +62,12 @@ public class RootExtension implements ObjectEditorExtension {
 
     private static final String TITLE = I18n.getInstance().getString("plugin.object.root.title");
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private final StackPane dialogContainer;
     private final JEVisObject _obj;
     private final BorderPane _view = new BorderPane();
 
-    public RootExtension(JEVisObject obj) {
+    public RootExtension(StackPane dialogContainer, JEVisObject obj) {
+        this.dialogContainer = dialogContainer;
         this._obj = obj;
     }
 
@@ -244,22 +247,28 @@ public class RootExtension implements ObjectEditorExtension {
                 JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllObjects();
                 allFilter.add(basicFilter);
 
-                SelectTargetDialog dia = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.MULTIPLE);
+                SelectTargetDialog dia = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.MULTIPLE, _obj.getDataSource(), new ArrayList<>());
 
-                if (dia.show(obj.getDataSource(), I18n.getInstance().getString("plugin.object.root.select.title"),
-                        new ArrayList<>()) == SelectTargetDialog.Response.OK) {
-                    for (UserSelection selection : dia.getUserSelection()) {
-                        obj.buildRelationship(selection.getSelectedObject(), JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
+                dia.setOnDialogClosed(event -> {
+                    try {
+                        if (dia.getResponse() == SelectTargetDialog.Response.OK) {
+                            for (UserSelection selection : dia.getUserSelection()) {
+                                obj.buildRelationship(selection.getSelectedObject(), JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
 
-                        Platform.runLater(() -> {
-                            try {
-                                build(_obj);
-                            } catch (Exception ex) {
-                                logger.fatal(ex);
+                                Platform.runLater(() -> {
+                                    try {
+                                        build(_obj);
+                                    } catch (Exception ex) {
+                                        logger.fatal(ex);
+                                    }
+                                });
                             }
-                        });
+                        }
+                    } catch (Exception ex) {
+                        logger.fatal(ex);
                     }
-                }
+                });
+                dia.show();
             } catch (Exception ex) {
                 logger.fatal(ex);
             }

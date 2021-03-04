@@ -341,7 +341,7 @@ public class WidgetNavigator {
         });
 
 
-        NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvabableWidgets(control, new WidgetPojo()));
+        NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(control, new WidgetPojo()));
         widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
             Widget newWidget = widgetSelector.getSelectedWidget();
             control.addWidget(newWidget);

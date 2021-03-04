@@ -600,7 +600,7 @@ public class TRCPlugin implements Plugin {
         addFormulaButton.setOnAction(event -> {
             TemplateFormula templateFormula = new TemplateFormula();
 
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate().getTemplateInputs(), templateHandler.getRcTemplate().getTemplateOutputs(), templateFormula);
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula);
             templateCalculationFormulaDialog.show();
             templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
                 if (templateCalculationFormulaDialog.getResponse() == Response.OK) {
@@ -619,7 +619,7 @@ public class TRCPlugin implements Plugin {
         addInputButton.setOnAction(event -> {
             TemplateInput templateInput = new TemplateInput();
 
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateInput);
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
             templateCalculationInputDialog.show();
 
             templateCalculationInputDialog.setOnDialogClosed(event1 -> {
@@ -734,7 +734,7 @@ public class TRCPlugin implements Plugin {
             formulaButton.setText(String.valueOf(index));
 
         formulaButton.setOnAction(event -> {
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate().getTemplateInputs(), templateHandler.getRcTemplate().getTemplateOutputs(), templateFormula);
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula);
             templateCalculationFormulaDialog.show();
 
             templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
@@ -753,7 +753,7 @@ public class TRCPlugin implements Plugin {
         inputButton.setMnemonicParsing(false);
 
         inputButton.setOnAction(event -> {
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateInput);
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
             templateCalculationInputDialog.show();
 
             templateCalculationInputDialog.setOnDialogClosed(event1 -> {

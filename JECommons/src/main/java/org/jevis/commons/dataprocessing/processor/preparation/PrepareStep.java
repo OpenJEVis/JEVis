@@ -256,12 +256,13 @@ public class PrepareStep implements ProcessStep {
         List<CleanInterval> intervalsToRemove = new ArrayList<>();
         for (int i = cleanIntervals.size() - 1; i > -1; i--) {
             CleanInterval cleanInterval = cleanIntervals.get(i);
-            Interval interval = cleanInterval.getInterval();
+            DateTime start = cleanInterval.getInterval().getStart();
+            DateTime end = cleanInterval.getInterval().getEnd();
             boolean hasSamples = false;
 
             for (int j = samples.size() - 1; j > -1; j--) {
                 JEVisSample sample = samples.get(j);
-                if (interval.contains(sample.getTimestamp())) {
+                if (sample.getTimestamp().equals(end) || (sample.getTimestamp().isAfter(start) && sample.getTimestamp().isBefore(end))) {
                     hasSamples = true;
                     break;
                 }

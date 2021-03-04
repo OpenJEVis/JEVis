@@ -41,6 +41,7 @@ import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class OutputView extends Tab {
     private static final Logger logger = LogManager.getLogger(OutputView.class);
@@ -164,7 +165,22 @@ public class OutputView extends Tab {
         DateTime start = getStart();
         DateTime end = getEnd();
 
-        for (TemplateOutput templateOutput : templateHandler.getRcTemplate().getTemplateOutputs()) {
+        //Sort outputs by formula
+        List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
+        templateOutputs.sort((o1, o2) -> {
+            TemplateFormula formulaO1 = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(o1.getVariableName())).findFirst().orElse(null);
+            TemplateFormula formulaO2 = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(o2.getVariableName())).findFirst().orElse(null);
+            if (formulaO1 != null && formulaO2 != null) {
+                List<TemplateInput> formulaInputsO1 = formulaO1.getInputs().stream().filter(templateInput -> templateInput.getTemplateFormula() != null).collect(Collectors.toList());
+                List<TemplateInput> formulaInputsO2 = formulaO2.getInputs().stream().filter(templateInput -> templateInput.getTemplateFormula() != null).collect(Collectors.toList());
+
+                return Integer.compare(formulaInputsO1.size(), formulaInputsO2.size());
+            }
+            return -1;
+        });
+
+        Map<String, Double> resultMap = new HashMap<>();
+        for (TemplateOutput templateOutput : templateOutputs) {
             if (!templateOutput.getSeparator()) {
                 Label label = new Label(templateOutput.getName());
                 if (templateOutput.getNameBold()) {
@@ -205,7 +221,11 @@ public class OutputView extends Tab {
                                         isText = true;
                                     }
 
-                                    formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
+                                    if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                                        formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
+                                    } else {
+                                        formulaString = formulaString.replace(templateInput.getTemplateFormula(), resultMap.get(templateInput.getTemplateFormula()).toString());
+                                    }
 
                                 } catch (JEVisException e) {
                                     logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
@@ -214,7 +234,9 @@ public class OutputView extends Tab {
 
                             if (!isText) {
                                 Expression expression = new Expression(formulaString);
-                                result = nf.format(expression.calculate()) + " " + templateOutput.getUnit();
+                                Double calculate = expression.calculate();
+                                resultMap.put(formula.getName(), calculate);
+                                result = nf.format(calculate) + " " + templateOutput.getUnit();
                             } else result = formulaString;
                         } else result = "";
 

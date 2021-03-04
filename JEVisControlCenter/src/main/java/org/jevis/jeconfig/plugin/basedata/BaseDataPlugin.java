@@ -27,7 +27,6 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.TablePlugin;
@@ -46,7 +45,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
 
-public class BaseDataPlugin extends TablePlugin implements Plugin {
+public class BaseDataPlugin extends TablePlugin {
     public static final String BASE_DATA_CLASS = "Base Data";
     private static final Logger logger = LogManager.getLogger(BaseDataPlugin.class);
     private static final double EDITOR_MAX_HEIGHT = 50;

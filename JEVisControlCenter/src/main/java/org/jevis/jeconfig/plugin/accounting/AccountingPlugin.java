@@ -40,7 +40,6 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -64,7 +63,7 @@ import java.util.prefs.Preferences;
 
 import static org.jevis.jeconfig.plugin.dtrc.TRCPlugin.TEMPLATE_CLASS;
 
-public class AccountingPlugin extends TablePlugin implements Plugin {
+public class AccountingPlugin extends TablePlugin {
     public static final String ACCOUNTING_CLASS = "Energy Contracting Directory";
     private static final String PLUGIN_CLASS_NAME = "Accounting Plugin";
     private static final Insets INSETS = new Insets(12);
@@ -1150,7 +1149,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
                     VBox editorBox = new VBox();
 
                     if (!isContractorAttribute) {
-                        AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
+                        AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(enterDataStackPane, attribute.getType(), attribute);
                         attributeEditor.setReadOnly(false);
                         if (attribute.getType().getGUIDisplayType().equals("Period")) {
                             PeriodEditor periodEditor = (PeriodEditor) attributeEditor;

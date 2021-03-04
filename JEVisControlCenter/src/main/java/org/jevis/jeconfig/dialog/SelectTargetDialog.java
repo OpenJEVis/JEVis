@@ -20,28 +20,17 @@
 package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.scene.layout.*;
 import javafx.stage.Window;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.*;
 import org.jevis.jeconfig.application.jevistree.filter.BasicCellFilter;
@@ -49,23 +38,24 @@ import org.jevis.jeconfig.application.jevistree.filter.FilterFactory;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
-import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 import java.util.List;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class SelectTargetDialog {
+public class SelectTargetDialog extends JFXDialog {
 
     public static final String VALUE = "Value";
     private final SelectionMode selectionMode;
     private final JEVisTreeFilter basicFilter;
     private final JFXButton ok = new JFXButton("OK");
     private final String ICON = "1404313956_evolution-tasks.png";
+    private final StackPane dialogContainer;
+    private final JEVisDataSource ds;
+    private final List<UserSelection> userSelections;
     private JEVisDataSource _ds;
-    private Stage stage;
-    private Response _response = Response.CANCEL;
+    private Response response = Response.CANCEL;
     private JEVisTree tree;
     private final SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
     private final ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
@@ -77,11 +67,18 @@ public class SelectTargetDialog {
      * @param filters
      * @param selected Filter who should selected by default, if null the first will be taken.
      */
-    public SelectTargetDialog(List<JEVisTreeFilter> filters, JEVisTreeFilter basicFilter, JEVisTreeFilter selected, SelectionMode selectionMode) {
+    public SelectTargetDialog(StackPane dialogContainer, List<JEVisTreeFilter> filters, JEVisTreeFilter basicFilter, JEVisTreeFilter selected, SelectionMode selectionMode, JEVisDataSource ds, List<UserSelection> userSelections) {
+        super();
+        setDialogContainer(dialogContainer);
+        this.dialogContainer = dialogContainer;
+        this.ds = ds;
+        this.userSelections = userSelections;
         this.filterTypes.addAll(filters);
         this.basicFilter = basicFilter;
         this.selectedFilter = selected;
         this.selectionMode = selectionMode;
+
+        setContent(build(userSelections));
     }
 
     public static JEVisTreeFilter buildMultiClassFilter(JEVisClass firstClass, List<JEVisClass> classes) {
@@ -349,48 +346,14 @@ public class SelectTargetDialog {
         return allAttributes;
     }
 
-    public Response show(JEVisDataSource ds, String title, List<UserSelection> userSelections) {
-        stage = new Stage();
-        _ds = ds;
-
-        stage.setTitle(I18n.getInstance().getString("dialog.selection.title"));
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initOwner(JEConfig.getStage());
-
-        VBox root = build(ds, title, userSelections);
-
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.setWidth(700);
-        stage.setHeight(800);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(true);
-        stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
-        stage.setAlwaysOnTop(true);
-//        stage.sizeToScene();
-        stage.toFront();
-        if (dialogOwner != null) {
-            stage.initOwner(dialogOwner);
-        }
-        stage.sceneProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                TopMenu.applyActiveTheme(scene);
-            }
-        });
-        stage.showAndWait();
-
-        return _response;
-    }
-
-    private VBox build(JEVisDataSource ds, String title, List<UserSelection> userSelections) {
+    private VBox build(List<UserSelection> userSelections) {
         VBox root = new VBox(0);
 //        root.setPadding(new Insets(10));
-        Node header = DialogHeader.getDialogHeader(ICON, title);
         HBox buttonPanel = new HBox(8);
         VBox content = new VBox();
 
 
-        tree = JEVisTreeFactory.buildBasicDefault(ds, basicFilter, false);
+        tree = JEVisTreeFactory.buildBasicDefault(dialogContainer, ds, basicFilter, false);
 
         tree.getPlugins().add(simpleTargetPlugin);
 
@@ -410,21 +373,11 @@ public class SelectTargetDialog {
 
         JFXButton cancel = new JFXButton(I18n.getInstance().getString("dialog.selection.cancel"));
         cancel.setCancelButton(true);
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
+        cancel.setOnAction(event -> close());
 
-            @Override
-            public void handle(ActionEvent t) {
-                stage.hide();
-            }
-        });
-
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
-                _response = Response.OK;
-                stage.hide();
-            }
+        ok.setOnAction(event -> {
+            response = Response.OK;
+            close();
         });
 
 
@@ -433,12 +386,9 @@ public class SelectTargetDialog {
 
         buttonPanel.getChildren().setAll(searchBar, spacer, cancel, ok);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonPanel.setPadding(new Insets(5));
-
-
+        buttonPanel.setPadding(new Insets(12));
 //        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL_TOP_LEFT), content, buttonPanel);
-        root.getChildren().setAll(header, content, buttonPanel);
-        VBox.setVgrow(header, Priority.NEVER);
+        root.getChildren().setAll(content, buttonPanel);
         VBox.setVgrow(content, Priority.ALWAYS);
         VBox.setVgrow(tree, Priority.ALWAYS);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
@@ -468,5 +418,9 @@ public class SelectTargetDialog {
 
     public void setFilter(JEVisTreeFilter filter) {
         tree.setFilter(filter);
+    }
+
+    public Response getResponse() {
+        return response;
     }
 }
