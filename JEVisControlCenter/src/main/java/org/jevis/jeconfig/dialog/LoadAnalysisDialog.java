@@ -727,7 +727,7 @@ public class LoadAnalysisDialog extends JFXDialog {
             HBox.setMargin(newButton, new Insets(10));
             //HBox.setMargin(drawOptimization, new Insets(10));
 
-            buttonBox.getChildren().setAll(spacer, cancelButton, loadButton, newButton);
+            buttonBox.getChildren().setAll(cancelButton, spacer, newButton, loadButton);
             VBox vBox = new VBox(4);
             vBox.setPadding(new Insets(15));
 

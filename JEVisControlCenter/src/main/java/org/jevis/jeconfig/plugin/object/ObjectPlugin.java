@@ -212,7 +212,7 @@ public class ObjectPlugin implements Plugin {
     }
 
     public void initGUI() {
-        tree = JEVisTreeFactory.buildBasicDefault(ds, true);
+        tree = JEVisTreeFactory.buildBasicDefault(dialogContainer, ds, true);
         tree.setId("objecttree");
 //            tree.getStylesheets().add("/styles/Styles.css");
 //        tree.setStyle("-fx-background-color: #E2E2E2;");
@@ -481,7 +481,7 @@ public class ObjectPlugin implements Plugin {
                     });
                     break;
                 case Constants.Plugin.Command.NEW:
-                    TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
+                    TreeHelper.EventNew(dialogContainer, tree, selectedObj.getValue().getJEVisObject());
                     break;
                 case Constants.Plugin.Command.RELOAD:
                     ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();

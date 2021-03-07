@@ -16,7 +16,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Callback;
@@ -30,7 +29,6 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -49,14 +47,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
 
-public class MeterPlugin extends TablePlugin implements Plugin {
+public class MeterPlugin extends TablePlugin {
     public static final String MEASUREMENT_INSTRUMENT_CLASS = "Measurement Instrument";
     private static final double EDITOR_MAX_HEIGHT = 50;
     public static String PLUGIN_NAME = "Meter Plugin";
     private final Image taskImage = JEConfig.getImage("measurement_instrument.png");
 
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
-    private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
     private final TabPane tabPane = new TabPane();
     private boolean initialized = false;
@@ -281,10 +278,13 @@ public class MeterPlugin extends TablePlugin implements Plugin {
             JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
             TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
 
-            MeterDialog meterDialog = new MeterDialog(getDataSource(), selectedItem.getJeVisClass());
-            if (meterDialog.showReplaceWindow(tableView.getSelectionModel().getSelectedItem().getObject()) == Response.OK) {
-                handleRequest(Constants.Plugin.Command.RELOAD);
-            }
+            MeterDialog meterDialog = new MeterDialog(dialogContainer, getDataSource(), selectedItem.getJeVisClass());
+            meterDialog.setOnDialogClosed(event1 -> {
+                if (meterDialog.getResponse() == Response.OK) {
+                    handleRequest(Constants.Plugin.Command.RELOAD);
+                }
+            });
+            meterDialog.showReplaceWindow(tableView.getSelectionModel().getSelectedItem().getObject());
         });
         replaceButton.setDisable(true);
 
@@ -508,10 +508,14 @@ public class MeterPlugin extends TablePlugin implements Plugin {
             case Constants.Plugin.Command.EXPAND:
                 break;
             case Constants.Plugin.Command.NEW:
-                MeterDialog meterDialog = new MeterDialog(getDataSource(), ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
-                if (meterDialog.showNewWindow() == Response.OK) {
-                    handleRequest(Constants.Plugin.Command.RELOAD);
-                }
+                MeterDialog meterDialog = new MeterDialog(dialogContainer, getDataSource(), ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
+                meterDialog.setOnDialogClosed(event -> {
+                    if (meterDialog.getResponse() == Response.OK) {
+                        handleRequest(Constants.Plugin.Command.RELOAD);
+                    }
+                });
+
+                meterDialog.show();
                 break;
             case Constants.Plugin.Command.RELOAD:
                 Platform.runLater(() -> replaceButton.setDisable(true));
@@ -558,11 +562,6 @@ public class MeterPlugin extends TablePlugin implements Plugin {
             case Constants.Plugin.Command.FIND_AGAIN:
                 break;
         }
-    }
-
-    @Override
-    public Node getContentNode() {
-        return borderPane;
     }
 
     private void loadTabs(Map<JEVisClass, List<JEVisObject>> allMeters, List<JEVisClass> classes) throws InterruptedException {

@@ -16,11 +16,10 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.plugin.dtrc.RCTemplate;
 import org.jevis.jeconfig.plugin.dtrc.TemplateFormula;
 import org.jevis.jeconfig.plugin.dtrc.TemplateInput;
 import org.jevis.jeconfig.plugin.dtrc.TemplateOutput;
-
-import java.util.List;
 
 public class TemplateCalculationFormulaDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(TemplateCalculationFormulaDialog.class);
@@ -29,7 +28,7 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
     private FilteredList<JEVisObject> filteredList;
     private Response response = Response.CANCEL;
 
-    public TemplateCalculationFormulaDialog(StackPane dialogContainer, JEVisDataSource ds, List<TemplateInput> templateInputList, List<TemplateOutput> templateOutputList, TemplateFormula templateFormula) {
+    public TemplateCalculationFormulaDialog(StackPane dialogContainer, JEVisDataSource ds, RCTemplate rcTemplate, TemplateFormula templateFormula) {
         super();
 
         setDialogContainer(dialogContainer);
@@ -51,18 +50,18 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         Label inputsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
         FlowPane inputsFlowPane = new FlowPane(4, 4);
 
-        for (TemplateInput templateInput : templateInputList) {
+        for (TemplateInput templateInput : rcTemplate.getTemplateInputs()) {
             JFXCheckBox jfxCheckBox = new JFXCheckBox(templateInput.getVariableName());
             jfxCheckBox.setMnemonicParsing(false);
-            if (templateFormula.getInputs().contains(templateInput)) {
+            if (templateFormula.getInputIds().contains(templateInput.getId())) {
                 jfxCheckBox.setSelected(true);
             }
 
             jfxCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue && !templateFormula.getInputs().contains(templateInput)) {
-                    templateFormula.getInputs().add(templateInput);
+                if (newValue && !templateFormula.getInputIds().contains(templateInput.getId())) {
+                    templateFormula.getInputIds().add(templateInput.getId());
                     jfxTextArea.setText(jfxTextArea.getText() + templateInput.getVariableName());
-                } else templateFormula.getInputs().remove(templateInput);
+                } else templateFormula.getInputIds().remove(templateInput.getId());
             });
 
             inputsFlowPane.getChildren().add(jfxCheckBox);
@@ -77,17 +76,17 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         outputsGridPane.setVgap(6);
         final ToggleGroup outputsToggleGroup = new ToggleGroup();
 
-        for (TemplateOutput templateOutput : templateOutputList) {
+        for (TemplateOutput templateOutput : rcTemplate.getTemplateOutputs()) {
             JFXRadioButton jfxRadioButton = new JFXRadioButton();
 
             if (templateOutput.getName() != null) {
                 jfxRadioButton.setText(templateOutput.getName());
             } else jfxRadioButton.setText(templateOutput.getVariableName());
 
-            if (templateFormula.getOutput() != null && templateFormula.getOutput().equals(templateOutput.getVariableName())) {
+            if (templateFormula.getOutput() != null && templateFormula.getOutput().equals(templateOutput.getId())) {
                 jfxRadioButton.setSelected(true);
             }
-            jfxRadioButton.selectedProperty().addListener((observable, oldValue, newValue) -> templateFormula.setOutput(templateOutput.getVariableName()));
+            jfxRadioButton.selectedProperty().addListener((observable, oldValue, newValue) -> templateFormula.setOutput(templateOutput.getId()));
             jfxRadioButton.setToggleGroup(outputsToggleGroup);
             outputsGridPane.add(jfxRadioButton, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan());
         }
@@ -119,7 +118,7 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         VBox vBox = new VBox(4, new HBox(4, nameLabel, jfxTextField), separator1,
                 formulaLabel, jfxTextArea, separator2,
                 inputsLabel, inputsFlowPane, separator3,
-                outputsLabel, outputsScrollPane, separator4,
+                outputsLabel, outputsScrollPane, new Label("UUID: " + templateFormula.getId()), separator4,
                 buttonBar);
 
         vBox.setPadding(new Insets(12));

@@ -7,18 +7,34 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 import java.util.List;
+import java.util.UUID;
 
 public class TemplateInput extends TemplateSelected {
     private static final Logger logger = LogManager.getLogger(TemplateInput.class);
 
+    private String id;
     private String objectClass;
     private String attributeName;
     private String variableName;
     private String variableType;
+    private String templateFormula;
     private String filter;
     private Boolean group;
+
+    public TemplateInput() {
+        id = UUID.randomUUID().toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getObjectClass() {
         return objectClass;
@@ -50,6 +66,14 @@ public class TemplateInput extends TemplateSelected {
 
     public void setVariableType(String variableType) {
         this.variableType = variableType;
+    }
+
+    public String getTemplateFormula() {
+        return templateFormula;
+    }
+
+    public void setTemplateFormula(String templateFormula) {
+        this.templateFormula = templateFormula;
     }
 
     public String getFilter() {
@@ -111,9 +135,9 @@ public class TemplateInput extends TemplateSelected {
                     return String.valueOf(sum);
                 } else if (getVariableType().equals(InputVariableType.MIN.toString())) {
                     return String.valueOf(min);
-                } else {
+                } else if (getVariableType().equals(InputVariableType.MAX.toString())) {
                     return String.valueOf(max);
-                }
+                } else return "";
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
                 List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0), start);
@@ -125,8 +149,10 @@ public class TemplateInput extends TemplateSelected {
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.YEARLY_VALUE.toString())) {
                 JEVisSample sample = attribute.getLatestSample();
-                int days = Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays();
-                return String.valueOf(sample.getValueAsDouble() / days);
+                LocalDate ld = new LocalDate(start.getYear(), 1, 1);
+                int daysOfYear = Days.daysBetween(ld, ld.plusYears(1)).getDays();
+                int daysOfInterval = Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays();
+                return String.valueOf(sample.getValueAsDouble() / daysOfYear * daysOfInterval);
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.STRING.toString())) {
                 JEVisSample latestSample = attribute.getLatestSample();
@@ -142,8 +168,7 @@ public class TemplateInput extends TemplateSelected {
 
         if (obj instanceof TemplateInput) {
             TemplateInput otherObj = (TemplateInput) obj;
-
-            return this.getVariableName().equals(otherObj.getVariableName());
+            return this.getId().equals(otherObj.getId());
         }
 
         return false;

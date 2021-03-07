@@ -85,7 +85,6 @@ public class TRCPlugin implements Plugin {
         this.objectRelations = new ObjectRelations(ds);
         this.title = getTitleFromPlugin();
         this.viewTab = new OutputView(I18n.getInstance().getString("menu.view"), ds, templateHandler);
-        this.viewTab.showInputs(true);
 
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -272,7 +271,7 @@ public class TRCPlugin implements Plugin {
                 updateFormulas();
                 updateInputs();
                 updateOutputs();
-                viewTab.update();
+                viewTab.requestUpdate();
             }
         });
 
@@ -406,12 +405,16 @@ public class TRCPlugin implements Plugin {
                         }
                         return true;
                     });
+                    saveUnderDialog.setOnDialogClosed(event -> {
+                        if (saveUnderDialog.getResponse() == Response.OK) {
+                            handleRequest(Constants.Plugin.Command.RELOAD);
+                        }
+                    });
 
                     saveUnderDialog.show();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-
                 break;
             case Constants.Plugin.Command.DELETE:
                 //TODO: Delete Function
@@ -559,7 +562,7 @@ public class TRCPlugin implements Plugin {
 
         if (templateHandler.getRcTemplate() != null) {
             viewTab.updateViewInputFlowPane();
-            viewTab.update();
+            viewTab.requestUpdate();
         }
 
         configFormulas.getChildren().add(buildAddFormulaButton());
@@ -600,11 +603,14 @@ public class TRCPlugin implements Plugin {
         addFormulaButton.setOnAction(event -> {
             TemplateFormula templateFormula = new TemplateFormula();
 
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate().getTemplateInputs(), templateHandler.getRcTemplate().getTemplateOutputs(), templateFormula);
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula);
             templateCalculationFormulaDialog.show();
             templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
                 if (templateCalculationFormulaDialog.getResponse() == Response.OK) {
                     templateHandler.getRcTemplate().getTemplateFormulas().add(templateFormula);
+
+                    createInputFromFormula(templateFormula);
+
                     updateFormulas();
                 }
             });
@@ -613,13 +619,31 @@ public class TRCPlugin implements Plugin {
         return addFormulaButton;
     }
 
+    private void createInputFromFormula(TemplateFormula templateFormula) {
+        TemplateInput formulaInput = new TemplateInput();
+        formulaInput.setVariableName(templateFormula.getName());
+        formulaInput.setTemplateFormula(templateFormula.getName());
+        formulaInput.setVariableType(InputVariableType.FORMULA.toString());
+        templateHandler.getRcTemplate().getTemplateInputs().add(formulaInput);
+    }
+
+    private void deleteInputFromFormula(TemplateFormula templateFormula) {
+        List<TemplateInput> templateInputsToRemove = new ArrayList<>();
+        templateHandler.getRcTemplate().getTemplateInputs().forEach(templateInput -> {
+            if (templateInput.getVariableName().equals(templateFormula.getName()) && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                templateInputsToRemove.add(templateInput);
+            }
+        });
+        templateHandler.getRcTemplate().getTemplateInputs().removeAll(templateInputsToRemove);
+    }
+
     private JFXButton buildAddInputButton() {
         JFXButton addInputButton = new JFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
 
         addInputButton.setOnAction(event -> {
             TemplateInput templateInput = new TemplateInput();
 
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateInput);
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
             templateCalculationInputDialog.show();
 
             templateCalculationInputDialog.setOnDialogClosed(event1 -> {
@@ -734,12 +758,14 @@ public class TRCPlugin implements Plugin {
             formulaButton.setText(String.valueOf(index));
 
         formulaButton.setOnAction(event -> {
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate().getTemplateInputs(), templateHandler.getRcTemplate().getTemplateOutputs(), templateFormula);
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula);
             templateCalculationFormulaDialog.show();
 
             templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
                 if (templateCalculationFormulaDialog.getResponse() == Response.DELETE) {
                     templateHandler.getRcTemplate().getTemplateFormulas().remove(templateFormula);
+
+                    deleteInputFromFormula(templateFormula);
                 }
                 updateFormulas();
             });
@@ -753,7 +779,7 @@ public class TRCPlugin implements Plugin {
         inputButton.setMnemonicParsing(false);
 
         inputButton.setOnAction(event -> {
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateInput);
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
             templateCalculationInputDialog.show();
 
             templateCalculationInputDialog.setOnDialogClosed(event1 -> {

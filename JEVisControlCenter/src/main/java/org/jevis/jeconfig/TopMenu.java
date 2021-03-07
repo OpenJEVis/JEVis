@@ -27,6 +27,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,6 +57,7 @@ import java.util.prefs.Preferences;
 public class TopMenu extends MenuBar {
     private static final Logger logger = LogManager.getLogger(TopMenu.class);
     private final List<MenuItem> items = new ArrayList<>();
+    private final StackPane dialogContainer;
     private Plugin activePlugin;
     private static final String stylesString = "/styles/Styles.css";
     private static final String chartString = "/styles/charts.css";
@@ -70,8 +72,9 @@ public class TopMenu extends MenuBar {
             greenString, indigoString, redString, whiteString);
     private static String activeTheme;
 
-    public TopMenu() {
+    public TopMenu(StackPane dialogContainer) {
         super();
+        this.dialogContainer = dialogContainer;
 
         updateLayout();
 
@@ -120,7 +123,7 @@ public class TopMenu extends MenuBar {
         });
 
         manualData.setOnAction(event -> {
-            EnterDataDialog enterDataDialog = new EnterDataDialog(activePlugin.getDataSource());
+            EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, activePlugin.getDataSource());
             enterDataDialog.show();
         });
 

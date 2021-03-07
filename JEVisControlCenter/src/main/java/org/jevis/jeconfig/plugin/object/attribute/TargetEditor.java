@@ -17,6 +17,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -43,6 +44,7 @@ public class TargetEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(TargetEditor.class);
     private final MODE mode;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private final StackPane dialogContainer;
     public JEVisAttribute _attribute;
     private final HBox box = new HBox();
     private final boolean _hasChanged = false;
@@ -51,7 +53,8 @@ public class TargetEditor implements AttributeEditor {
     JEVisSample newSample;
     private JFXButton _treeButton;
 
-    public TargetEditor(JEVisAttribute att, MODE mode, JEVisTree tree) {
+    public TargetEditor(StackPane dialogContainer, JEVisAttribute att, MODE mode, JEVisTree tree) {
+        this.dialogContainer = dialogContainer;
         _attribute = att;
         this.mode = mode;
         this.tree = tree;
@@ -172,16 +175,6 @@ public class TargetEditor implements AttributeEditor {
                 allFilter.add(allDataFilter);
                 allFilter.add(allAttributesFilter);
 
-                if (_attribute.getObject().getJEVisClassName().equals("Alarm Configuration")) {
-
-                    selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.MULTIPLE);
-
-                } else {
-
-                    selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
-                }
-                selectTargetDialog.setInitOwner(_treeButton.getScene().getWindow());
-
                 List<UserSelection> openList = new ArrayList<>();
                 if (th != null && !th.getAttribute().isEmpty()) {
                     for (JEVisAttribute att : th.getAttribute())
@@ -191,30 +184,40 @@ public class TargetEditor implements AttributeEditor {
                         openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
                 }
 
-                if (selectTargetDialog.show(
-                        _attribute.getDataSource(),
-                        I18n.getInstance().getString("dialog.target.data.title"),
-                        openList
-                ) == SelectTargetDialog.Response.OK) {
-                    logger.trace("Selection Done");
-
-                    String newTarget = "";
-                    List<UserSelection> selections = selectTargetDialog.getUserSelection();
-                    for (UserSelection us : selections) {
-                        int index = selections.indexOf(us);
-                        if (index > 0) newTarget += ";";
-
-                        newTarget += us.getSelectedObject().getID();
-                        if (us.getSelectedAttribute() != null) {
-                            newTarget += ":" + us.getSelectedAttribute().getName();
-                        } else {
-                            newTarget += ":Value";
-                        }
-                    }
-                    JEVisSample newSample = _attribute.buildSample(DateTime.now(), newTarget);
-                    newSample.commit();
+                if (_attribute.getObject().getJEVisClassName().equals("Alarm Configuration")) {
+                    selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.MULTIPLE, _attribute.getDataSource(), openList);
+                } else {
+                    selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, _attribute.getDataSource(), openList);
                 }
-                setButtonText();
+
+                SelectTargetDialog finalSelectTargetDialog = selectTargetDialog;
+                selectTargetDialog.setOnDialogClosed(event -> {
+                    try {
+                        if (finalSelectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                            logger.trace("Selection Done");
+
+                            String newTarget = "";
+                            List<UserSelection> selections = finalSelectTargetDialog.getUserSelection();
+                            for (UserSelection us : selections) {
+                                int index = selections.indexOf(us);
+                                if (index > 0) newTarget += ";";
+
+                                newTarget += us.getSelectedObject().getID();
+                                if (us.getSelectedAttribute() != null) {
+                                    newTarget += ":" + us.getSelectedAttribute().getName();
+                                } else {
+                                    newTarget += ":Value";
+                                }
+                            }
+                            JEVisSample newSample = _attribute.buildSample(DateTime.now(), newTarget);
+                            newSample.commit();
+                            setButtonText();
+                        }
+                    } catch (Exception ex) {
+                        logger.catching(ex);
+                    }
+                });
+                selectTargetDialog.show();
 
             } catch (Exception ex) {
                 logger.catching(ex);

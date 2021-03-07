@@ -1,26 +1,16 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTimePicker;
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.ActionEvent;
 import javafx.event.EventTarget;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.Node;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
-import javafx.stage.StageStyle;
+import javafx.scene.layout.*;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
@@ -55,9 +45,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class EnterDataDialog extends Dialog implements EventTarget {
+public class EnterDataDialog extends JFXDialog implements EventTarget {
     private static final Logger logger = LogManager.getLogger(EnterDataDialog.class);
     public static String ICON = "Startup Wizard_18228.png";
+    private final StackPane dialogContainer;
     private final JEVisDataSource ds;
     private final ObjectRelations objectRelations;
 
@@ -97,8 +88,10 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     private DateTime lastTS;
     private List<JEVisSample> conversionDifferential;
 
-    public EnterDataDialog(JEVisDataSource dataSource) {
+    public EnterDataDialog(StackPane dialogContainer, JEVisDataSource dataSource) {
         super();
+        this.dialogContainer = dialogContainer;
+        setDialogContainer(dialogContainer);
 
         this.ds = dataSource;
         this.objectRelations = new ObjectRelations(ds);
@@ -109,20 +102,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
     public void init() {
         GridPane gridPane = buildForm();
-        this.getDialogPane().setContent(gridPane);
         this.window = this;
-
-        this.initStyle(StageStyle.UTILITY);
-        this.initModality(Modality.APPLICATION_MODAL);
-        this.initOwner(JEConfig.getStage());
-        this.setTitle(I18n.getInstance().getString("plugin.object.dialog.data.title"));
-        this.initOwner(JEConfig.getStage());
-        this.setResizable(true);
-        this.getDialogPane().setPrefWidth(400);
-        this.getDialogPane().setPrefHeight(350);
-
-        this.getDialogPane().getScene().getRoot().setEffect(new DropShadow());
-        this.getDialogPane().getScene().setFill(Color.TRANSPARENT);
 
         this.timePicker.set24HourView(true);
         this.timePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -151,8 +131,6 @@ public class EnterDataDialog extends Dialog implements EventTarget {
             JEVisTreeFilter allCurrentClassFilter = SelectTargetDialog.buildAllDataFilter();
             allFilter.add(allCurrentClassFilter);
 
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE);
-
             List<UserSelection> openList = new ArrayList<>();
 
             if (th != null && !th.getObject().isEmpty()) {
@@ -160,30 +138,43 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                     openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
             }
 
-            if (selectTargetDialog.show(
-                    ds,
-                    I18n.getInstance().getString("dialog.target.data.title"),
-                    openList
-            ) == SelectTargetDialog.Response.OK) {
-                logger.trace("Selection Done");
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE, ds, openList);
 
-                List<UserSelection> selections = selectTargetDialog.getUserSelection();
-                for (UserSelection us : selections) {
-                    selectedObject = us.getSelectedObject();
-                    break;
+            selectTargetDialog.setOnDialogClosed(event1 -> {
+                if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                    logger.trace("Selection Done");
+
+                    List<UserSelection> selections = selectTargetDialog.getUserSelection();
+                    for (UserSelection us : selections) {
+                        selectedObject = us.getSelectedObject();
+                        break;
+                    }
+
+                    treeButton.setText(selectedObject.getName());
+                    searchIdField.setText(selectedObject.getID().toString());
+
+                    loadLastValue();
                 }
-
-                treeButton.setText(selectedObject.getName());
-                searchIdField.setText(selectedObject.getID().toString());
-
-                loadLastValue();
-            }
+            });
+            selectTargetDialog.show();
         });
 
+        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
+        ok.setDefaultButton(true);
+        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
+        cancel.setCancelButton(true);
 
-        getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.APPLY);
+        HBox buttonBar = new HBox(6, cancel, ok);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        buttonBar.setPadding(new Insets(12));
 
-        getDialogPane().lookupButton(ButtonType.APPLY).addEventFilter(ActionEvent.ACTION, event -> {
+        Separator separator = new Separator(Orientation.HORIZONTAL);
+        separator.setPadding(new Insets(8, 0, 8, 0));
+
+        VBox vBox = new VBox(6, gridPane, separator, buttonBar);
+        setContent(vBox);
+
+        ok.setOnAction(event -> {
 //            event.consume();
             if (selectedObject != null) {
                 try {
@@ -377,21 +368,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                 }
             }
         });
-    }
 
-    public void showPopup(Node parent, String headerText) {
-        this.setHeaderText(headerText);
-        this.getDialogPane().setContent(buildForm());
-
-//        JFXButton pButton = (Button) parent;
-//        Bounds layoutBounds = pButton.localToScene(pButton.getLayoutBounds());
-
-//        System.out.println("X: " + layoutBounds.getMinX() + " Y:" + layoutBounds.getMinY());
-
-//        this.getDialogPane().getScene().getWindow().setX(layoutBounds.getMinX() + (layoutBounds.getWidth() / 2));
-//        this.getDialogPane().getScene().getWindow().setX(layoutBounds.getMinY() + (layoutBounds.getHeight() / 2));
-
-        this.showAndWait();
+        cancel.setOnAction(event -> close());
     }
 
     public ObjectProperty<JEVisSample> getNewSampleProperty() {
@@ -501,8 +479,6 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
         gridPane.add(new Label(I18n.getInstance().getString("status.table.captions.lastrawvalue")), 0, row, 1, 1);
         gridPane.add(lastValueLabel, 1, row, 2, 1);
-        row++;
-        gridPane.add(sep, 0, row, 3, 1);
         row++;
 
         filterGridPane(gridPane, yearBox, dayBox, monthBox, dateLabel, datePicker, timePicker, dataTypeBox.getSelectionModel().getSelectedItem());
@@ -650,19 +626,25 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                             DateTime finalLastTS = lastTS;
                             Double finalLastValue = lastValue;
                             String finalUnitString = unitString;
+                            Period p = null;
+                            if (!selectedObject.getChildren().isEmpty()) {
+                                JEVisObject cleanDataObject = selectedObject.getChildren(cleanDataClass, true).get(0);
+                                CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(ds));
+                                isConversionToDifferential.set(CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), lastTS));
+                                p = CleanDataObject.getPeriodForDate(cdo.getCleanDataPeriodAlignment(), lastTS);
+                            } else {
+                                p = CleanDataObject.getPeriodForDate(selectedObject, lastTS);
+                            }
 
-                            JEVisObject cleanDataObject = selectedObject.getChildren(cleanDataClass, true).get(0);
-                            CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(ds));
-                            isConversionToDifferential.set(CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), lastTS));
-                            Period p = CleanDataObject.getPeriodForDate(cdo.getCleanDataPeriodAlignment(), lastTS);
-
+                            Period finalP = p;
                             Platform.runLater(() -> {
-                                String normalPattern = PeriodHelper.getFormatString(p, isConversionToDifferential.get());
+                                String normalPattern = PeriodHelper.getFormatString(finalP, isConversionToDifferential.get());
                                 lastTSLabel.setText(finalLastTS.toString(normalPattern) + " : ");
 
                                 String valueString = numberFormat.format(finalLastValue) + finalUnitString + " @ " + finalLastTS.toString(normalPattern);
                                 lastValueLabel.setText(valueString);
                             });
+
                         }
                     }
                 } catch (Exception e) {

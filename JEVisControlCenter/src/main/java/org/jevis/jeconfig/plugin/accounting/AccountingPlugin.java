@@ -40,7 +40,6 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -64,7 +63,7 @@ import java.util.prefs.Preferences;
 
 import static org.jevis.jeconfig.plugin.dtrc.TRCPlugin.TEMPLATE_CLASS;
 
-public class AccountingPlugin extends TablePlugin implements Plugin {
+public class AccountingPlugin extends TablePlugin {
     public static final String ACCOUNTING_CLASS = "Energy Contracting Directory";
     private static final String PLUGIN_CLASS_NAME = "Accounting Plugin";
     private static final Insets INSETS = new Insets(12);
@@ -419,16 +418,18 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
             if (formula != null) {
                 String formulaString = formula.getFormula();
                 boolean isText = false;
-                for (TemplateInput templateInput : formula.getInputs()) {
-                    try {
-                        if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
-                            isText = true;
+                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                    if (formula.getInputIds().contains(templateInput.getId())) {
+                        try {
+                            if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
+                                isText = true;
+                            }
+
+                            formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, viewTab.getStart(), viewTab.getEnd()));
+
+                        } catch (JEVisException e) {
+                            logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
                         }
-
-                        formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, viewTab.getStart(), viewTab.getEnd()));
-
-                    } catch (JEVisException e) {
-                        logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
                     }
                 }
 
@@ -797,6 +798,11 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
 
             initGUI();
 
+            viewTab.showDatePicker(false);
+            viewTab.showInputs(false);
+            viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(0, 2);
+            viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(2, viewTab.getIntervalSelector().getTimeFactoryBox().getItems().size());
+
             List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
             if (allAccountingConfigurations.isEmpty()) {
                 SelectionTemplate selectionTemplate = new SelectionTemplate();
@@ -843,7 +849,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
                 ath.getSelectionTemplate().setTemplateSelection(newValue.getID());
 
                 viewTab.updateViewInputFlowPane();
-                viewTab.update();
+                viewTab.requestUpdate();
             }
         });
 
@@ -1150,7 +1156,7 @@ public class AccountingPlugin extends TablePlugin implements Plugin {
                     VBox editorBox = new VBox();
 
                     if (!isContractorAttribute) {
-                        AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
+                        AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(enterDataStackPane, attribute.getType(), attribute);
                         attributeEditor.setReadOnly(false);
                         if (attribute.getType().getGUIDisplayType().equals("Period")) {
                             PeriodEditor periodEditor = (PeriodEditor) attributeEditor;

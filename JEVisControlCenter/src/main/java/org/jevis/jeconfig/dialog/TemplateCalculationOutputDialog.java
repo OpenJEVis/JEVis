@@ -147,6 +147,9 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         gridPane.add(rowSpanSpinner, 1, row);
         row++;
 
+        gridPane.add(new Label("UUID: " + templateOutput.getId()), 0, row);
+        row++;
+
         Separator separator2 = new Separator(Orientation.HORIZONTAL);
         separator2.setPadding(new Insets(8, 0, 8, 0));
         gridPane.add(separator2, 0, row, 3, 1);

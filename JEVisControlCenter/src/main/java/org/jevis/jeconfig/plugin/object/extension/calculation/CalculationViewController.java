@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
@@ -127,6 +128,7 @@ public class CalculationViewController {
     private VariablesBox variablesBox;
     @FXML
     private JFXButton buttonVerify;
+    private StackPane dialogContainer;
 
     @FXML
     public void initialize() {
@@ -413,8 +415,14 @@ public class CalculationViewController {
         variablesScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     }
 
+
     public String getFormula() {
         return formulaBox.getExpression();
     }
 
+    public void setDialogContainer(StackPane dialogContainer) {
+        this.dialogContainer = dialogContainer;
+        this.formulaBox.setDialogContainer(dialogContainer);
+        this.variablesBox.setDialogContainer(dialogContainer);
+    }
 }

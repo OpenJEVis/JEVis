@@ -141,7 +141,6 @@ public class ChartSelectionDialog extends JFXDialog {
         mainTabPane.getTabs().addAll(tabConfiguration, tabChartsSettings);
 
         VBox vBox = new VBox(4);
-        vBox.setPadding(new Insets(15));
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         VBox.setVgrow(sep, Priority.NEVER);
@@ -530,8 +529,6 @@ public class ChartSelectionDialog extends JFXDialog {
             JEVisTreeFilter allDataFilter = SelectTargetDialog.buildClassFilter(_ds, "Calculation");
             allFilter.add(allDataFilter);
 
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
-
             List<UserSelection> openList = new ArrayList<>();
             if (th != null && !th.getAttribute().isEmpty()) {
                 for (JEVisAttribute att : th.getAttribute())
@@ -541,26 +538,26 @@ public class ChartSelectionDialog extends JFXDialog {
                     openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
             }
 
-            if (selectTargetDialog.show(
-                    _ds,
-                    I18n.getInstance().getString("dialog.target.data.title"),
-                    openList
-            ) == SelectTargetDialog.Response.OK) {
-                logger.trace("Selection Done");
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(getDialogContainer(), allFilter, allDataFilter, null, SelectionMode.SINGLE, _ds, openList);
 
-                StringBuilder newTarget = new StringBuilder();
-                List<UserSelection> selections = selectTargetDialog.getUserSelection();
-                for (UserSelection us : selections) {
-                    int index = selections.indexOf(us);
-                    if (index > 0) newTarget.append(";");
+            selectTargetDialog.setOnDialogClosed(event1 -> {
+                if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                    logger.trace("Selection Done");
 
-                    newTarget.append(us.getSelectedObject().getID());
+                    StringBuilder newTarget = new StringBuilder();
+                    List<UserSelection> selections = selectTargetDialog.getUserSelection();
+                    for (UserSelection us : selections) {
+                        int index = selections.indexOf(us);
+                        if (index > 0) newTarget.append(";");
+
+                        newTarget.append(us.getSelectedObject().getID());
+                    }
+
+                    treeButton.setText(newTarget.toString());
+                    model.setCalculationObject(newTarget.toString());
                 }
-
-                treeButton.setText(newTarget.toString());
-                model.setCalculationObject(newTarget.toString());
-            }
-
+            });
+            selectTargetDialog.show();
         });
         return limitDataBox;
     }

@@ -130,6 +130,9 @@ public class FXLogin extends AnchorPane {
         this.app = app;
         this.parameters = parameters;
 
+        this.loginButton.getStyleClass().add("button-raised");
+        this.closeButton.getStyleClass().add("button-raised");
+
         this.configuration = parseConfig(parameters);
         for (JEVisOption opt : this.configuration) {
             if (opt.equals(CommonOptions.FXLogin.FXLogin)) {

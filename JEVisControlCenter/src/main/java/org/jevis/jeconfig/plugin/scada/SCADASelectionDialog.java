@@ -21,30 +21,20 @@ package org.jevis.jeconfig.plugin.scada;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.scene.layout.*;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
-import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.dialog.DialogHeader;
 
 import java.util.List;
@@ -52,46 +42,26 @@ import java.util.List;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class SCADASelectionDialog {
+public class SCADASelectionDialog extends JFXDialog {
 
     //    private VBox root = new VBox();
     private final JFXButton ok = new JFXButton("OK");
     private final JFXButton clear = new JFXButton("Clear");
     private final String ICON = "1404313956_evolution-tasks.png";
-    private JEVisDataSource _ds;
-    private Stage stage;
-    private Response _response = Response.CANCEL;
+    private final StackPane dialogContainer;
+    private final JEVisDataSource _ds;
+    private Response response = Response.CANCEL;
     private JEVisTree tree;
     private final SimpleTargetPlugin stp = new SimpleTargetPlugin();
     private MODE mode = MODE.OBJECT;
 
-    public Response show(Stage owner, JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
-
-        stage = new Stage();
+    public SCADASelectionDialog(StackPane dialogContainer, JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
+        this.dialogContainer = dialogContainer;
+        setDialogContainer(dialogContainer);
         _ds = ds;
         this.mode = mode;
 
-        stage.setTitle("Selection");
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initOwner(owner);
-
-        VBox root = build(ds, title, uselection);
-
-        Scene scene = new Scene(root);
-        TopMenu.applyActiveTheme(scene);
-        stage.setScene(scene);
-        stage.setWidth(524);
-        stage.setHeight(768);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(true);
-        stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
-//        stage.setAlwaysOnTop(true);
-        stage.sizeToScene();
-        stage.toFront();
-
-        stage.showAndWait();
-
-        return _response;
+        setContent(build(ds, title, uselection));
     }
 
     public void allowMultySelect(boolean allowMulty) {
@@ -105,7 +75,7 @@ public class SCADASelectionDialog {
         HBox buttonPanel = new HBox(8);
         VBox content = new VBox();
 
-        tree = JEVisTreeFactory.buildBasicDefault(ds, false);
+        tree = JEVisTreeFactory.buildBasicDefault(dialogContainer, ds, false);
         if (mode == MODE.ATTRIBUTE) {
 //            tree.getFilter().showAttributes(true);
         }
@@ -181,23 +151,12 @@ public class SCADASelectionDialog {
 
         JFXButton cancel = new JFXButton("Cancel");
         cancel.setCancelButton(true);
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
+        cancel.setOnAction(event -> close());
 
-            @Override
-            public void handle(ActionEvent t) {
-                stage.hide();
-            }
+        ok.setOnAction(event -> {
+            response = Response.OK;
+            close();
         });
-
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
-                _response = Response.OK;
-                stage.hide();
-            }
-        });
-
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -230,4 +189,7 @@ public class SCADASelectionDialog {
         OBJECT, ATTRIBUTE
     }
 
+    public Response getResponse() {
+        return response;
+    }
 }

@@ -3,6 +3,7 @@ package org.jevis.jeconfig.application.jevistree.dialog;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -21,7 +22,7 @@ public class NewObject {
 
     private static final Logger logger = LogManager.getLogger(NewObject.class);
 
-    public static void NewObject(final JEVisTree tree, JEVisObject parent) {
+    public static void NewObject(StackPane dialogContainer, final JEVisTree tree, JEVisObject parent) {
         try {
             if (parent != null && tree.getJEVisDataSource().getCurrentUser().canCreate(parent.getID())) {
                 NewObjectDialog dia = new NewObjectDialog();
@@ -45,7 +46,7 @@ public class NewObject {
                                     newObject.commit();
 
                                     try {
-                                        createDefaultValues(newObject, dia.isWithCleanData());
+                                        createDefaultValues(dialogContainer, newObject, dia.isWithCleanData());
                                     } catch (Exception ex) {
                                         logger.error("Error while setting default values; {}", ex, ex);
                                     }
@@ -101,7 +102,7 @@ public class NewObject {
         }
     }
 
-    public static void createDefaultValues(JEVisObject newObject, boolean isCleanData) throws JEVisException {
+    public static void createDefaultValues(StackPane dialogContainer, JEVisObject newObject, boolean isCleanData) throws JEVisException {
         JEVisClass dataClass = newObject.getDataSource().getJEVisClass("Data");
         JEVisClass cleanDataClass = newObject.getDataSource().getJEVisClass("Clean Data");
         JEVisClass reportClass = newObject.getDataSource().getJEVisClass("Periodic Report");
@@ -125,7 +126,7 @@ public class NewObject {
             }
 
         } else if (createClass.equals(reportClass)) {
-            Platform.runLater(() -> new ReportWizardDialog(newObject));
+            Platform.runLater(() -> new ReportWizardDialog(dialogContainer, newObject));
         } else if (createClass.equals(calculationClass)) {
             JEVisAttribute div0Att = newObject.getAttribute("DIV0 Handling");
             JEVisAttribute staticValueAtt = newObject.getAttribute("Static Value");

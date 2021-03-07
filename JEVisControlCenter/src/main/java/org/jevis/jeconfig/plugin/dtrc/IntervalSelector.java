@@ -175,4 +175,6 @@ public class IntervalSelector extends ToolBarIntervalSelector {
 
         timeFrameEditor.setDate(end);
     }
+
+
 }

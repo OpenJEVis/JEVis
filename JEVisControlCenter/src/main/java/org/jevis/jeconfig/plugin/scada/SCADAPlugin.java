@@ -56,6 +56,7 @@ public class SCADAPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(SCADAPlugin.class);
     private final DateTimeFormatter dfp = DateTimeFormat.forPattern("HH:mm:ss dd.MM.YYYY");
     private final BorderPane root = new BorderPane();
+    private final StackPane dialogContainer = new StackPane(root);
     private final FileChooser fileChooser = new FileChooser();
     private JEVisDataSource ds;
     private final StackPane viewArea = new StackPane();
@@ -394,35 +395,35 @@ public class SCADAPlugin implements Plugin {
         });
 
         treeButton.setOnAction((ActionEvent e) -> {
-            SCADASelectionDialog selectionDialog = new SCADASelectionDialog();
-
-
-            selectionDialog.allowMultySelect(true);
-            if (selectionDialog.show(
-                    JEConfig.getStage(),//JEConfig.getStage()
-                    ds,
+            SCADASelectionDialog selectionDialog = new SCADASelectionDialog(dialogContainer, ds,
                     I18n.getInstance().getString("plugin.dashboard.att_select.title"),
                     userSelection.getValue(),
                     SCADASelectionDialog.MODE.ATTRIBUTE
-            ) == SCADASelectionDialog.Response.OK) {
-                analyses.getElements().clear();
-                userSelection.setValue(selectionDialog.getUserSelection());
-                for (UserSelection us : selectionDialog.getUserSelection()) {
-                    /**
-                     * TODO: add type based user selection
-                     */
-                    SCADAElement newEle = new LabelElement(analyses);
-                    newEle.setAttribute(us.getSelectedAttribute());
-                    newEle.titleProperty().setValue(us.getSelectedAttribute().getName() + ":");
-                    newEle.yPositionProperty().setValue(ThreadLocalRandom.current().nextInt(10, 50));
-                    newEle.xPositionProperty().setValue(ThreadLocalRandom.current().nextInt(10, 50));
+            );
 
-                    analyses.getElements().add(newEle);
+            selectionDialog.allowMultySelect(true);
 
+            selectionDialog.setOnDialogClosed(event -> {
+                if (selectionDialog.getResponse() == SCADASelectionDialog.Response.OK) {
+                    analyses.getElements().clear();
+                    userSelection.setValue(selectionDialog.getUserSelection());
+                    for (UserSelection us : selectionDialog.getUserSelection()) {
+                        /**
+                         * TODO: add type based user selection
+                         */
+                        SCADAElement newEle = new LabelElement(analyses);
+                        newEle.setAttribute(us.getSelectedAttribute());
+                        newEle.titleProperty().setValue(us.getSelectedAttribute().getName() + ":");
+                        newEle.yPositionProperty().setValue(ThreadLocalRandom.current().nextInt(10, 50));
+                        newEle.xPositionProperty().setValue(ThreadLocalRandom.current().nextInt(10, 50));
+
+                        analyses.getElements().add(newEle);
+
+                    }
+                    loadAnalysisPane(analyses);
                 }
-                loadAnalysisPane(analyses);
-            }
-
+            });
+            selectionDialog.show();
         });
 
         delete.setOnAction(event -> {
@@ -659,7 +660,7 @@ public class SCADAPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return root;
+        return dialogContainer;
     }
 
     @Override

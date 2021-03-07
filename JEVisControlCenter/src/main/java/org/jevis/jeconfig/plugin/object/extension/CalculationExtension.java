@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,13 +45,15 @@ public class CalculationExtension implements ObjectEditorExtension {
     private final BorderPane view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _enabledChanged = new SimpleBooleanProperty(false);
+    private final StackPane dialogContainer;
     private final JEVisObject _obj;
     private CalculationViewController control;
     private String oldExpression = "";
     private final JEVisSample lastSampleEnabeld = null;
     private JEVisSample _newSampleEnabled = null;
 
-    public CalculationExtension(JEVisObject _obj) {
+    public CalculationExtension(StackPane dialogContainer, JEVisObject _obj) {
+        this.dialogContainer = dialogContainer;
         this._obj = _obj;
     }
 
@@ -94,6 +97,7 @@ public class CalculationExtension implements ObjectEditorExtension {
             final ScrollPane editConfigPane = fxmlLoader.load();
             control = fxmlLoader.getController();
             control.setData(_obj, buttonOutput);
+            control.setDialogContainer(dialogContainer);
 
             JEVisAttribute aExprsssion = _obj.getAttribute("Expression");
             JEVisSample lastValue = aExprsssion.getLatestSample();

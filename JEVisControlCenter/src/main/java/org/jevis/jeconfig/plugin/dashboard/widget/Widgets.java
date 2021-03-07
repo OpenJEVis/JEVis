@@ -28,7 +28,7 @@ public class Widgets {
         }
     };
 
-    public static List<Widget> getAvabableWidgets(DashboardControl control, WidgetPojo config) {
+    public static List<Widget> getAvailableWidgets(DashboardControl control, WidgetPojo config) {
         List<Widget> widgetList = new ArrayList<>();
 
         widgetList.add(new PieWidget(control, config));

@@ -272,24 +272,24 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
-        enterDataDialog = new EnterDataDialog(getDataSource());
-        enterDataDialog.getNewSampleProperty().addListener((observable, oldValue, newValue) -> {
-            this.updateData(lastInterval);
-        });
 
         GridPane gridPane = new GridPane();
+        StackPane dialogContainer = new StackPane(gridPane);
         gridPane.setPadding(new Insets(8));
         gridPane.add(labelTimeStamp, 0, 0);
         gridPane.addRow(1, labelValue);
 
         GridPane.setHgrow(labelValue, Priority.ALWAYS);
-        setGraphic(gridPane);
+        setGraphic(dialogContainer);
 
-
+        enterDataDialog = new EnterDataDialog(dialogContainer, getDataSource());
+        enterDataDialog.getNewSampleProperty().addListener((observable, oldValue, newValue) -> {
+            this.updateData(lastInterval);
+        });
 
         labelValue.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
-                enterDataDialog.showPopup(labelTimeStamp, this.getConfig().getTitle());
+                enterDataDialog.show();
             }
 
         });

@@ -239,6 +239,22 @@ public class CleanDataObject {
         }
     }
 
+    public static Period getPeriodForDate(JEVisObject object, DateTime dateTime) {
+        List<PeriodRule> periodRules = getPeriodAlignmentForObject(object);
+        for (PeriodRule periodRule : periodRules) {
+            PeriodRule nextRule = null;
+            if (periodRules.size() > periodRules.indexOf(periodRule) + 1) {
+                nextRule = periodRules.get(periodRules.indexOf(periodRule) + 1);
+            }
+
+            DateTime ts = periodRule.getStartOfPeriod();
+            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
+                return periodRule.getPeriod();
+            }
+        }
+        return Period.ZERO;
+    }
+
     public static Period getPeriodForDate(List<PeriodRule> periodRules, DateTime dateTime) {
         for (PeriodRule periodRule : periodRules) {
             PeriodRule nextRule = null;
@@ -427,6 +443,30 @@ public class CleanDataObject {
             }
         }
         return periodCleanData;
+    }
+
+    public static List<PeriodRule> getPeriodAlignmentForObject(JEVisObject object) {
+        List<PeriodRule> periodList = new ArrayList<>();
+        List<JEVisSample> allSamples = new SampleHandler().getAllSamples(object, PERIOD.getAttributeName());
+
+        for (JEVisSample jeVisSample : allSamples) {
+
+            try {
+                DateTime startOfPeriod = jeVisSample.getTimestamp();
+                String periodString = jeVisSample.getValueAsString();
+                Period p = new Period(periodString);
+                periodList.add(new PeriodRule(startOfPeriod, p));
+            } catch (Exception e) {
+                logger.error("Could not create Period rule for sample {}", jeVisSample, e);
+            }
+        }
+
+        if (allSamples.isEmpty()) {
+            periodList.add(new PeriodRule(
+                    new DateTime(2001, 1, 1, 0, 0, 0, 0),
+                    Period.ZERO));
+        }
+        return periodList;
     }
 
     public Integer getPeriodOffset() {
@@ -837,6 +877,15 @@ public class CleanDataObject {
                 rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), lastDate);
                 lastDate = lastDate.minus(rawDataPeriod);
                 l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
+            }
+
+            Period cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), firstDate);
+            l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), cleanDataPeriod);
+
+            while (l > processingSize * 2d) {
+                cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), lastDate);
+                lastDate = lastDate.minus(cleanDataPeriod);
+                l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), cleanDataPeriod);
             }
 
             rawSamplesDown = sampleHandler.getSamplesInPeriod(

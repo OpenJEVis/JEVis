@@ -25,6 +25,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +39,8 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
+import org.jevis.jeconfig.dialog.JsonExportDialog;
+import org.jevis.jeconfig.dialog.KPIWizard;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
 
@@ -50,12 +53,14 @@ import java.util.List;
  */
 public class JEVisTreeContextMenu extends ContextMenu {
     private static final Logger logger = LogManager.getLogger(JEVisTreeContextMenu.class);
+    private final StackPane dialogContainer;
 
     private JEVisObject obj;
     private JEVisTree tree;
 
-    public JEVisTreeContextMenu() {
+    public JEVisTreeContextMenu(StackPane dialogContainer) {
         super();
+        this.dialogContainer = dialogContainer;
     }
 
     public void setTree(JEVisTree tree) {
@@ -87,6 +92,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     getItems().add(buildOCP());
                 } else if (obj.getAttribute("Value") != null) {
                     getItems().add(buildManualSample());
+                } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
+                    getItems().addAll(new SeparatorMenuItem(),
+                            buildKPIWizard());
                 }
 
 
@@ -130,6 +138,16 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildCut() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.cut"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
         menu.setOnAction(t -> tree.setCopyObjectsBySelection(true)
+        );
+        return menu;
+    }
+
+    private MenuItem buildKPIWizard() {
+        MenuItem menu = new MenuItem("KPI Wizard", ResourceLoader.getImage("Startup Wizard_18228.png", 20, 20));
+        menu.setOnAction(t -> {
+                    KPIWizard wizard = new KPIWizard(dialogContainer, obj);
+                    wizard.show();
+                }
         );
         return menu;
     }
@@ -195,11 +213,11 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
     public List<MenuItem> buildMenuNewContent() {
 
-        System.out.println("buildMenuNewContent()");
+        logger.debug("buildMenuNewContent()");
         Object obj2 = this.getUserData();
-        System.out.println("obj2: " + obj2);
+        logger.debug("obj2: " + obj2);
         Object obj3 = this.getOwnerNode();
-        System.out.println("obj3: " + obj3);
+        logger.debug("obj3: " + obj3);
 
         List<MenuItem> newContent = new ArrayList<>();
         try {
@@ -211,7 +229,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                                           @Override
                                           public void handle(ActionEvent t) {
-                                              TreeHelper.EventNew(tree, obj);
+                                              TreeHelper.EventNew(dialogContainer, tree, obj);
                                           }
                                       }
                 );
@@ -230,7 +248,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    TreeHelper.createCalcInput(obj, null);
+                    TreeHelper.createCalcInput(dialogContainer, obj, null);
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }
@@ -264,7 +282,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             public void handle(ActionEvent event) {
                 try {
                     JEVisSample lastValue = obj.getAttribute("Value").getLatestSample();
-                    EnterDataDialog enterDataDialog = new EnterDataDialog(obj.getDataSource());
+                    EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, obj.getDataSource());
                     enterDataDialog.setTarget(false, obj.getAttribute("Value"));
                     enterDataDialog.setSample(lastValue);
                     enterDataDialog.setShowValuePrompt(true);
@@ -288,7 +306,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                 Platform.runLater(() -> {
                     try {
-                        TreeHelper.EventExportTree(obj);
+                        TreeHelper.EventExportTree(dialogContainer, obj);
                     } catch (JEVisException ex) {
                         logger.fatal(ex);
                     }
@@ -341,9 +359,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent t) {
                 Object obj2 = getUserData();
-                System.out.println("userdate: " + obj2);
-                System.out.println("new event");
-                TreeHelper.EventNew(tree, obj);
+                logger.debug("userdate: " + obj2);
+                logger.debug("new event");
+                TreeHelper.EventNew(dialogContainer, tree, obj);
 
             }
         });

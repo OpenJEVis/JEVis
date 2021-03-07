@@ -7,6 +7,8 @@ import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -40,6 +42,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 public class OutputView extends Tab {
@@ -53,10 +56,13 @@ public class OutputView extends Tab {
     private final JFXTimePicker endTime = new JFXTimePicker(LocalTime.of(23, 59, 59));
     private final TemplateHandler templateHandler;
     private final GridPane gridPane = new GridPane();
-    private final SimpleBooleanProperty showInputs = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty showInputs = new SimpleBooleanProperty(true);
+    private final SimpleBooleanProperty showDatePicker = new SimpleBooleanProperty(true);
     private final VBox viewVBox;
     private final GridPane viewInputs = new GridPane();
     private SelectionTemplate selectionTemplate;
+    private final IntervalSelector intervalSelector;
+    private final ConcurrentHashMap<String, Double> resultMap = new ConcurrentHashMap<>();
 
     public OutputView(String title, JEVisDataSource ds, TemplateHandler templateHandler) {
         super(title);
@@ -88,12 +94,25 @@ public class OutputView extends Tab {
         endTime.set24HourView(true);
         endTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        startTime.valueProperty().addListener((observable, oldValue, newValue) -> update());
-        endTime.valueProperty().addListener((observable, oldValue, newValue) -> update());
-        startDate.valueProperty().addListener((observable, oldValue, newValue) -> update());
-        endDate.valueProperty().addListener((observable, oldValue, newValue) -> update());
 
-        IntervalSelector intervalSelector = new IntervalSelector(ds, startDate, startTime, endDate, endTime);
+        ChangeListener<LocalTime> updateTimeListener = new ChangeListener<LocalTime>() {
+            @Override
+            public void changed(ObservableValue<? extends LocalTime> observable, LocalTime oldValue, LocalTime newValue) {
+                requestUpdate();
+            }
+        };
+        startTime.valueProperty().addListener(updateTimeListener);
+        endTime.valueProperty().addListener(updateTimeListener);
+        ChangeListener<? super LocalDate> updateDateListener = new ChangeListener<LocalDate>() {
+            @Override
+            public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
+                requestUpdate();
+            }
+        };
+        startDate.valueProperty().addListener(updateDateListener);
+        endDate.valueProperty().addListener(updateDateListener);
+
+        intervalSelector = new IntervalSelector(ds, startDate, startTime, endDate, endTime);
 
         GridPane datePane = new GridPane();
         datePane.setPadding(new Insets(4));
@@ -128,10 +147,19 @@ public class OutputView extends Tab {
 
         viewVBox = new VBox(4,
                 dateBox, separator1,
+                inputsLabel, viewInputs, separator2,
                 outputsLabel, gridPane);
         viewVBox.setPadding(new Insets(12));
 
         setContent(viewVBox);
+
+        showDatePicker.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                dateBox.getChildren().setAll(intervalSelector, datePane);
+            } else {
+                dateBox.getChildren().setAll(intervalSelector);
+            }
+        });
 
         showInputs.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -158,13 +186,54 @@ public class OutputView extends Tab {
                 endTime.getValue().getHour(), endTime.getValue().getMinute(), endTime.getValue().getSecond());
     }
 
-    public void update() {
+    public void requestUpdate() {
+
         Platform.runLater(() -> gridPane.getChildren().clear());
 
         DateTime start = getStart();
         DateTime end = getEnd();
 
-        for (TemplateOutput templateOutput : templateHandler.getRcTemplate().getTemplateOutputs()) {
+        //Sort outputs by formula
+        List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
+        templateOutputs.sort((o1, o2) -> {
+            TemplateFormula formulaO1 = null;
+            for (TemplateFormula formula : templateHandler.getRcTemplate().getTemplateFormulas()) {
+                if (formula.getOutput().equals(o1.getVariableName())) {
+                    formulaO1 = formula;
+                    break;
+                }
+            }
+            TemplateFormula formulaO2 = null;
+            for (TemplateFormula templateFormula : templateHandler.getRcTemplate().getTemplateFormulas()) {
+                if (templateFormula.getOutput().equals(o2.getVariableName())) {
+                    formulaO2 = templateFormula;
+                    break;
+                }
+            }
+            if (formulaO1 != null && formulaO2 == null) {
+                return 1;
+            } else if (formulaO1 == null && formulaO2 != null) {
+                return -1;
+            } else if (formulaO1 != null && formulaO2 != null) {
+                List<TemplateInput> formulaInputsO1 = new ArrayList<>();
+                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                    if (formulaO1.getInputIds().contains(templateInput.getId()) && templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                        formulaInputsO1.add(templateInput);
+                    }
+                }
+                List<TemplateInput> formulaInputsO2 = new ArrayList<>();
+                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                    if (formulaO1.getInputIds().contains(templateInput.getId()) && templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                        formulaInputsO2.add(templateInput);
+                    }
+                }
+
+                return Integer.compare(formulaInputsO1.size(), formulaInputsO2.size());
+            }
+            return -1;
+        });
+
+        for (TemplateOutput templateOutput : templateOutputs) {
             if (!templateOutput.getSeparator()) {
                 Label label = new Label(templateOutput.getName());
                 if (templateOutput.getNameBold()) {
@@ -193,29 +262,49 @@ public class OutputView extends Tab {
                     protected String call() {
                         String result = NO_RESULT;
 
-                        TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getVariableName())).findFirst().orElse(null);
+                        TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
 
                         if (formula != null) {
-                            linkInputs(formula, templateHandler.getRcTemplate().getTemplateInputs());
                             String formulaString = formula.getFormula();
                             boolean isText = false;
-                            for (TemplateInput templateInput : formula.getInputs()) {
-                                try {
-                                    if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
-                                        isText = true;
+                            for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                                if (formula.getInputIds().contains(templateInput.getId())) {
+                                    try {
+                                        if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
+                                            isText = true;
+                                        }
+
+                                        if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                                            formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
+                                        } else {
+                                            Double d = resultMap.get(templateInput.getVariableName());
+                                            if (d != null) {
+                                                formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
+                                            }
+                                        }
+
+                                    } catch (JEVisException e) {
+                                        logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
                                     }
-
-                                    formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
-
-                                } catch (JEVisException e) {
-                                    logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
                                 }
                             }
 
                             if (!isText) {
-                                Expression expression = new Expression(formulaString);
-                                result = nf.format(expression.calculate()) + " " + templateOutput.getUnit();
-                            } else result = formulaString;
+                                try {
+                                    Expression expression = new Expression(formulaString);
+                                    Double calculate = expression.calculate();
+                                    if (!calculate.isNaN()) {
+                                        resultMap.put(formula.getName(), calculate);
+                                    }
+                                    result = nf.format(calculate) + " " + templateOutput.getUnit();
+                                    succeeded();
+                                } catch (Exception e) {
+                                    logger.error("Error in formula {}", formula.getName(), e);
+                                }
+                            } else {
+                                result = formulaString;
+                                succeeded();
+                            }
                         } else result = "";
 
                         return result;
@@ -232,7 +321,7 @@ public class OutputView extends Tab {
                     }
                 }));
 
-                JEConfig.getStatusBar().addTask(TRCPlugin.class.getSimpleName(), task, null, true);
+                JEConfig.getStatusBar().addTask(OutputView.class.getSimpleName(), task, null, true);
 
                 Platform.runLater(() -> gridPane.add(hBox, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan()));
             } else {
@@ -251,12 +340,6 @@ public class OutputView extends Tab {
         }
     }
 
-    private void linkInputs(TemplateFormula formula, List<TemplateInput> templateInputs) {
-        for (TemplateInput templateInput : formula.getInputs()) {
-            templateInputs.stream().filter(input1 -> templateInput.getVariableName().equals(input1.getVariableName())).findFirst().ifPresent(templateInput::clone);
-        }
-    }
-
     public void updateViewInputFlowPane() {
         viewInputs.getChildren().clear();
         if (selectionTemplate != null) {
@@ -266,7 +349,7 @@ public class OutputView extends Tab {
         Map<JEVisClass, List<TemplateInput>> groupedInputsMap = new HashMap<>();
         List<TemplateInput> ungroupedInputs = new ArrayList<>();
         for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-            if (templateInput.getGroup() == null || templateInput.getGroup()) {
+            if ((templateInput.getGroup() == null || templateInput.getGroup()) && templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
                 JEVisClass jeVisClass = null;
                 try {
                     jeVisClass = ds.getJEVisClass(templateInput.getObjectClass());
@@ -281,7 +364,9 @@ public class OutputView extends Tab {
                 } else {
                     groupedInputsMap.get(jeVisClass).add(templateInput);
                 }
-            } else ungroupedInputs.add(templateInput);
+            } else if (templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                ungroupedInputs.add(templateInput);
+            }
         }
 
         int row = 0;
@@ -329,7 +414,7 @@ public class OutputView extends Tab {
 
                 objectSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {
-                        update();
+                        requestUpdate();
                     }
                 });
 
@@ -431,7 +516,7 @@ public class OutputView extends Tab {
             objectSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue.equals(oldValue)) {
                     groupedInputs.forEach(templateInput1 -> templateInput1.setObjectID(newValue.getID()));
-                    update();
+                    requestUpdate();
                 }
             });
 
@@ -496,11 +581,19 @@ public class OutputView extends Tab {
         showInputs.set(show);
     }
 
+    public void showDatePicker(boolean show) {
+        showDatePicker.set(show);
+    }
+
     public GridPane getViewInputs() {
         return viewInputs;
     }
 
     public void setSelectionTemplate(SelectionTemplate selectionTemplate) {
         this.selectionTemplate = selectionTemplate;
+    }
+
+    public IntervalSelector getIntervalSelector() {
+        return intervalSelector;
     }
 }
