@@ -418,16 +418,18 @@ public class AccountingPlugin extends TablePlugin {
             if (formula != null) {
                 String formulaString = formula.getFormula();
                 boolean isText = false;
-                for (TemplateInput templateInput : formula.getInputs()) {
-                    try {
-                        if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
-                            isText = true;
+                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                    if (formula.getInputIds().contains(templateInput.getId())) {
+                        try {
+                            if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
+                                isText = true;
+                            }
+
+                            formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, viewTab.getStart(), viewTab.getEnd()));
+
+                        } catch (JEVisException e) {
+                            logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
                         }
-
-                        formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, viewTab.getStart(), viewTab.getEnd()));
-
-                    } catch (JEVisException e) {
-                        logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
                     }
                 }
 
@@ -796,6 +798,11 @@ public class AccountingPlugin extends TablePlugin {
 
             initGUI();
 
+            viewTab.showDatePicker(false);
+            viewTab.showInputs(false);
+            viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(0, 2);
+            viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(2, viewTab.getIntervalSelector().getTimeFactoryBox().getItems().size());
+
             List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
             if (allAccountingConfigurations.isEmpty()) {
                 SelectionTemplate selectionTemplate = new SelectionTemplate();
@@ -842,7 +849,7 @@ public class AccountingPlugin extends TablePlugin {
                 ath.getSelectionTemplate().setTemplateSelection(newValue.getID());
 
                 viewTab.updateViewInputFlowPane();
-                viewTab.update();
+                viewTab.requestUpdate();
             }
         });
 

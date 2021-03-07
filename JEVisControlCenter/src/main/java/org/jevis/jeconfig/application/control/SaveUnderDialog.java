@@ -25,6 +25,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jeconfig.dialog.Response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public class SaveUnderDialog extends JFXDialog {
 
     private static final Logger logger = LogManager.getLogger(SaveUnderDialog.class);
     private JEVisObject target;
+    private Response response = Response.CANCEL;
 
     public SaveUnderDialog(StackPane dialogContainer, JEVisDataSource jeVisDataSource, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {
         this(dialogContainer, jeVisDataSource, "Analyses Directory", selectedObj, analysisClass, promptName, saver);
@@ -205,7 +207,7 @@ public class SaveUnderDialog extends JFXDialog {
                 }
                 saver.save(target, sameObject);
 
-
+                response = Response.OK;
                 //dashboardPojo.setTitle(name.getText());
                 //saveDashboard(dashboardPojo, widgetList, name.getText(), currentSaveDirectory.getValue(), wallpaper);
             } catch (Exception ex) {
@@ -228,5 +230,7 @@ public class SaveUnderDialog extends JFXDialog {
 
     }
 
-
+    public Response getResponse() {
+        return response;
+    }
 }

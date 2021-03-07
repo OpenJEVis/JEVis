@@ -6,10 +6,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -388,7 +390,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         });
 
         if (templateInput.getTemplateFormula() != null) {
-            TemplateFormula selectedFormula = formulaBox.getItems().stream().filter(templateFormula -> templateFormula.getName().equals(templateInput.getTemplateFormula())).findFirst().orElse(null);
+            TemplateFormula selectedFormula = formulaBox.getItems().stream().filter(templateFormula -> templateFormula.getId().equals(templateInput.getTemplateFormula())).findFirst().orElse(null);
             if (selectedFormula != null)
                 formulaBox.getSelectionModel().select(selectedFormula);
             else {
@@ -398,7 +400,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
             formulaBox.getSelectionModel().selectFirst();
         }
 
-        formulaBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> templateInput.setTemplateFormula(newValue.getName()));
+        formulaBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> templateInput.setTemplateFormula(newValue.getId()));
 
         JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {
@@ -421,7 +423,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         int row = 0;
         gridPane.add(classesLabel, 0, row);
         gridPane.add(classSelector, 1, row);
-        gridPane.add(listView, 2, row, 1, 5);
+        gridPane.add(listView, 2, row, 1, 8);
         row++;
 
         gridPane.add(attributeLabel, 0, row);
@@ -447,7 +449,15 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         gridPane.add(groupCheckBox, 0, row, 2, 1);
         row++;
 
-        gridPane.add(buttonBar, 1, row, 2, 1);
+        gridPane.add(new Label("UUID: " + templateInput.getId()), 0, row);
+        row++;
+
+        Separator separator2 = new Separator(Orientation.HORIZONTAL);
+        separator2.setPadding(new Insets(8, 0, 8, 0));
+        gridPane.add(separator2, 0, row, 3, 1);
+        row++;
+
+        gridPane.add(buttonBar, 1, row, 3, 1);
 
         setContent(gridPane);
     }

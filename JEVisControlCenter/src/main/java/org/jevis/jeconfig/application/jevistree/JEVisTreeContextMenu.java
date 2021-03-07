@@ -35,10 +35,12 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dimpex.DimpEX;
 import org.jevis.commons.dimpex.DimpexObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.JsonExportDialog;
+import org.jevis.jeconfig.dialog.KPIWizard;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
 
@@ -90,6 +92,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     getItems().add(buildOCP());
                 } else if (obj.getAttribute("Value") != null) {
                     getItems().add(buildManualSample());
+                } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
+                    getItems().addAll(new SeparatorMenuItem(),
+                            buildKPIWizard());
                 }
 
 
@@ -133,6 +138,16 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildCut() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.cut"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
         menu.setOnAction(t -> tree.setCopyObjectsBySelection(true)
+        );
+        return menu;
+    }
+
+    private MenuItem buildKPIWizard() {
+        MenuItem menu = new MenuItem("KPI Wizard", ResourceLoader.getImage("Startup Wizard_18228.png", 20, 20));
+        menu.setOnAction(t -> {
+                    KPIWizard wizard = new KPIWizard(dialogContainer, obj);
+                    wizard.show();
+                }
         );
         return menu;
     }

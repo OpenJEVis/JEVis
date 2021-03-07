@@ -115,5 +115,7 @@ public class ToolBarIntervalSelector extends HBox {
         disableEventListener = false;
     }
 
-
+    public TimeFactoryBox getTimeFactoryBox() {
+        return timeFactoryBox;
+    }
 }

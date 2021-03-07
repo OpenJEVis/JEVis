@@ -10,10 +10,12 @@ import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
 import java.util.List;
+import java.util.UUID;
 
 public class TemplateInput extends TemplateSelected {
     private static final Logger logger = LogManager.getLogger(TemplateInput.class);
 
+    private String id;
     private String objectClass;
     private String attributeName;
     private String variableName;
@@ -21,6 +23,18 @@ public class TemplateInput extends TemplateSelected {
     private String templateFormula;
     private String filter;
     private Boolean group;
+
+    public TemplateInput() {
+        id = UUID.randomUUID().toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getObjectClass() {
         return objectClass;
@@ -121,9 +135,9 @@ public class TemplateInput extends TemplateSelected {
                     return String.valueOf(sum);
                 } else if (getVariableType().equals(InputVariableType.MIN.toString())) {
                     return String.valueOf(min);
-                } else {
+                } else if (getVariableType().equals(InputVariableType.MAX.toString())) {
                     return String.valueOf(max);
-                }
+                } else return "";
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
                 List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0), start);
@@ -154,8 +168,7 @@ public class TemplateInput extends TemplateSelected {
 
         if (obj instanceof TemplateInput) {
             TemplateInput otherObj = (TemplateInput) obj;
-
-            return this.getVariableName().equals(otherObj.getVariableName());
+            return this.getId().equals(otherObj.getId());
         }
 
         return false;

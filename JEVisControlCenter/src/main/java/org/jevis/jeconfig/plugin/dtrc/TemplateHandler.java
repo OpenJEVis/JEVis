@@ -51,8 +51,24 @@ public class TemplateHandler {
     public void jsonToModel(JsonNode jsonNode) {
         try {
             this.rcTemplate = this.mapper.treeToValue(jsonNode, RCTemplate.class);
+
+            checkForMissingFormulaInputs();
         } catch (JsonProcessingException e) {
             logger.error("Could not parse json model", e);
+        }
+    }
+
+    private void checkForMissingFormulaInputs() {
+        for (TemplateFormula templateFormula : getRcTemplate().getTemplateFormulas()) {
+            boolean hasInput = getRcTemplate().getTemplateInputs().stream().anyMatch(templateInput -> templateInput.getTemplateFormula() != null && templateInput.getTemplateFormula().equals(templateFormula.getName()));
+
+            if (!hasInput) {
+                TemplateInput formulaInput = new TemplateInput();
+                formulaInput.setVariableName(templateFormula.getName());
+                formulaInput.setTemplateFormula(templateFormula.getName());
+                formulaInput.setVariableType(InputVariableType.FORMULA.toString());
+                getRcTemplate().getTemplateInputs().add(formulaInput);
+            }
         }
     }
 
@@ -64,6 +80,7 @@ public class TemplateHandler {
 
             ObjectNode inputNode = JsonNodeFactory.instance.objectNode();
             inputNode.put("objectClass", templateInput.getObjectClass());
+            inputNode.put("id", templateInput.getId());
             inputNode.put("attributeName", templateInput.getAttributeName());
             inputNode.put("variableName", templateInput.getVariableName());
             inputNode.put("variableType", templateInput.getVariableType());
@@ -78,6 +95,7 @@ public class TemplateHandler {
         this.rcTemplate.getTemplateOutputs().forEach(templateOutput -> {
 
             ObjectNode outputNode = JsonNodeFactory.instance.objectNode();
+            outputNode.put("id", templateOutput.getId());
             outputNode.put("name", templateOutput.getName());
             outputNode.put("nameBold", templateOutput.getNameBold());
             outputNode.put("variableName", templateOutput.getVariableName());
@@ -97,19 +115,15 @@ public class TemplateHandler {
         this.rcTemplate.getTemplateFormulas().forEach(templateFormula -> {
 
             ObjectNode formulaNode = JsonNodeFactory.instance.objectNode();
+            formulaNode.put("id", templateFormula.getId());
             formulaNode.put("name", templateFormula.getName());
             formulaNode.put("formula", templateFormula.getFormula());
             formulaNode.put("output", templateFormula.getOutput());
 
-            ArrayNode inputsArrayNode = JsonNodeFactory.instance.arrayNode();
-            templateFormula.getInputs().forEach(templateInput -> {
-                ObjectNode input = JsonNodeFactory.instance.objectNode();
-                input.put("variableName", templateInput.getVariableName());
+            ArrayNode inputIdsArrayNode = JsonNodeFactory.instance.arrayNode();
+            templateFormula.getInputIds().forEach(id -> inputIdsArrayNode.add(JsonNodeFactory.instance.textNode(id)));
 
-                inputsArrayNode.add(input);
-            });
-
-            formulaNode.set("inputs", inputsArrayNode);
+            formulaNode.set("inputIds", inputIdsArrayNode);
 
             formulasArrayNode.add(formulaNode);
         });

@@ -77,6 +77,7 @@ public class SelectTargetDialog extends JFXDialog {
         this.basicFilter = basicFilter;
         this.selectedFilter = selected;
         this.selectionMode = selectionMode;
+        this.ok.getStyleClass().add("button-raised");
 
         setContent(build(userSelections));
     }
@@ -372,6 +373,7 @@ public class SelectTargetDialog extends JFXDialog {
         ok.setDefaultButton(true);
 
         JFXButton cancel = new JFXButton(I18n.getInstance().getString("dialog.selection.cancel"));
+        cancel.getStyleClass().add("button-raised");
         cancel.setCancelButton(true);
         cancel.setOnAction(event -> close());
 

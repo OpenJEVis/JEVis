@@ -53,15 +53,15 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         for (TemplateInput templateInput : rcTemplate.getTemplateInputs()) {
             JFXCheckBox jfxCheckBox = new JFXCheckBox(templateInput.getVariableName());
             jfxCheckBox.setMnemonicParsing(false);
-            if (templateFormula.getInputs().contains(templateInput)) {
+            if (templateFormula.getInputIds().contains(templateInput.getId())) {
                 jfxCheckBox.setSelected(true);
             }
 
             jfxCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue && !templateFormula.getInputs().contains(templateInput)) {
-                    templateFormula.getInputs().add(templateInput);
+                if (newValue && !templateFormula.getInputIds().contains(templateInput.getId())) {
+                    templateFormula.getInputIds().add(templateInput.getId());
                     jfxTextArea.setText(jfxTextArea.getText() + templateInput.getVariableName());
-                } else templateFormula.getInputs().remove(templateInput);
+                } else templateFormula.getInputIds().remove(templateInput.getId());
             });
 
             inputsFlowPane.getChildren().add(jfxCheckBox);
@@ -83,10 +83,10 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
                 jfxRadioButton.setText(templateOutput.getName());
             } else jfxRadioButton.setText(templateOutput.getVariableName());
 
-            if (templateFormula.getOutput() != null && templateFormula.getOutput().equals(templateOutput.getVariableName())) {
+            if (templateFormula.getOutput() != null && templateFormula.getOutput().equals(templateOutput.getId())) {
                 jfxRadioButton.setSelected(true);
             }
-            jfxRadioButton.selectedProperty().addListener((observable, oldValue, newValue) -> templateFormula.setOutput(templateOutput.getVariableName()));
+            jfxRadioButton.selectedProperty().addListener((observable, oldValue, newValue) -> templateFormula.setOutput(templateOutput.getId()));
             jfxRadioButton.setToggleGroup(outputsToggleGroup);
             outputsGridPane.add(jfxRadioButton, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan());
         }
@@ -118,7 +118,7 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         VBox vBox = new VBox(4, new HBox(4, nameLabel, jfxTextField), separator1,
                 formulaLabel, jfxTextArea, separator2,
                 inputsLabel, inputsFlowPane, separator3,
-                outputsLabel, outputsScrollPane, separator4,
+                outputsLabel, outputsScrollPane, new Label("UUID: " + templateFormula.getId()), separator4,
                 buttonBar);
 
         vBox.setPadding(new Insets(12));

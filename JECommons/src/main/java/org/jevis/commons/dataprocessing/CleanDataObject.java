@@ -879,6 +879,15 @@ public class CleanDataObject {
                 l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
             }
 
+            Period cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), firstDate);
+            l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), cleanDataPeriod);
+
+            while (l > processingSize * 2d) {
+                cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), lastDate);
+                lastDate = lastDate.minus(cleanDataPeriod);
+                l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), cleanDataPeriod);
+            }
+
             rawSamplesDown = sampleHandler.getSamplesInPeriod(
                     rawDataObject,
                     VALUE_ATTRIBUTE_NAME,
