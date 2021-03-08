@@ -195,43 +195,7 @@ public class OutputView extends Tab {
 
         //Sort outputs by formula
         List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
-        templateOutputs.sort((o1, o2) -> {
-            TemplateFormula formulaO1 = null;
-            for (TemplateFormula formula : templateHandler.getRcTemplate().getTemplateFormulas()) {
-                if (formula.getOutput().equals(o1.getVariableName())) {
-                    formulaO1 = formula;
-                    break;
-                }
-            }
-            TemplateFormula formulaO2 = null;
-            for (TemplateFormula templateFormula : templateHandler.getRcTemplate().getTemplateFormulas()) {
-                if (templateFormula.getOutput().equals(o2.getVariableName())) {
-                    formulaO2 = templateFormula;
-                    break;
-                }
-            }
-            if (formulaO1 != null && formulaO2 == null) {
-                return 1;
-            } else if (formulaO1 == null && formulaO2 != null) {
-                return -1;
-            } else if (formulaO1 != null && formulaO2 != null) {
-                List<TemplateInput> formulaInputsO1 = new ArrayList<>();
-                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-                    if (formulaO1.getInputIds().contains(templateInput.getId()) && templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-                        formulaInputsO1.add(templateInput);
-                    }
-                }
-                List<TemplateInput> formulaInputsO2 = new ArrayList<>();
-                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-                    if (formulaO1.getInputIds().contains(templateInput.getId()) && templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-                        formulaInputsO2.add(templateInput);
-                    }
-                }
-
-                return Integer.compare(formulaInputsO1.size(), formulaInputsO2.size());
-            }
-            return -1;
-        });
+        templateOutputs.sort(this::compareTemplateOutputs);
 
         for (TemplateOutput templateOutput : templateOutputs) {
             if (!templateOutput.getSeparator()) {
@@ -595,5 +559,43 @@ public class OutputView extends Tab {
 
     public IntervalSelector getIntervalSelector() {
         return intervalSelector;
+    }
+
+    public int compareTemplateOutputs(TemplateOutput o1, TemplateOutput o2) {
+        TemplateFormula formulaO1 = null;
+        for (TemplateFormula formula : templateHandler.getRcTemplate().getTemplateFormulas()) {
+            if (formula.getOutput().equals(o1.getVariableName())) {
+                formulaO1 = formula;
+                break;
+            }
+        }
+        TemplateFormula formulaO2 = null;
+        for (TemplateFormula templateFormula : templateHandler.getRcTemplate().getTemplateFormulas()) {
+            if (templateFormula.getOutput().equals(o2.getVariableName())) {
+                formulaO2 = templateFormula;
+                break;
+            }
+        }
+        if (formulaO1 != null && formulaO2 == null) {
+            return 1;
+        } else if (formulaO1 == null && formulaO2 != null) {
+            return -1;
+        } else if (formulaO1 != null && formulaO2 != null) {
+            List<TemplateInput> formulaInputsO1 = new ArrayList<>();
+            for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                if (formulaO1.getInputIds().contains(templateInput.getId()) && templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                    formulaInputsO1.add(templateInput);
+                }
+            }
+            List<TemplateInput> formulaInputsO2 = new ArrayList<>();
+            for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                if (formulaO1.getInputIds().contains(templateInput.getId()) && templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                    formulaInputsO2.add(templateInput);
+                }
+            }
+
+            return Integer.compare(formulaInputsO1.size(), formulaInputsO2.size());
+        }
+        return -1;
     }
 }

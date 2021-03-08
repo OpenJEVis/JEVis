@@ -56,9 +56,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 import static org.jevis.jeconfig.plugin.dtrc.TRCPlugin.TEMPLATE_CLASS;
@@ -405,46 +403,69 @@ public class AccountingPlugin extends TablePlugin {
 
         Sheet sheet = workbook.createSheet(I18n.getInstance().getString("plugin.dtrc.view.output"));
 
-        for (TemplateOutput templateOutput : templateHandler.getRcTemplate().getTemplateOutputs()) {
+        List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
+        templateOutputs.sort(viewTab::compareTemplateOutputs);
+        Map<String, Double> resultMap = new HashMap<>();
 
-            Cell cell = getOrCreateCell(sheet, templateOutput.getRow(), templateOutput.getColumn());
-            boolean hasLabel = false;
-            if (templateOutput.getName() != null && !templateOutput.getName().equals("")) {
-                cell.setCellValue(templateOutput.getName());
-                hasLabel = true;
-            }
-            TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getVariableName())).findFirst().orElse(null);
+        DateTime start = viewTab.getStart();
+        DateTime end = viewTab.getEnd();
 
-            if (formula != null) {
-                String formulaString = formula.getFormula();
-                boolean isText = false;
-                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-                    if (formula.getInputIds().contains(templateInput.getId())) {
-                        try {
-                            if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
-                                isText = true;
+        for (TemplateOutput templateOutput : templateOutputs) {
+            if (!templateOutput.getSeparator()) {
+                Cell cell = getOrCreateCell(sheet, templateOutput.getRow(), templateOutput.getColumn());
+                boolean hasLabel = false;
+                if (templateOutput.getName() != null && !templateOutput.getName().equals("")) {
+                    cell.setCellValue(templateOutput.getName());
+                    hasLabel = true;
+                }
+                TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
+                String result = "";
+                if (formula != null) {
+                    String formulaString = formula.getFormula();
+                    boolean isText = false;
+                    for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                        if (formula.getInputIds().contains(templateInput.getId())) {
+                            try {
+                                if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
+                                    isText = true;
+                                }
+
+                                if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                                    formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
+                                } else {
+                                    Double d = resultMap.get(templateInput.getVariableName());
+                                    if (d != null) {
+                                        formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
+                                    }
+                                }
+
+                            } catch (JEVisException e) {
+                                logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
                             }
-
-                            formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, viewTab.getStart(), viewTab.getEnd()));
-
-                        } catch (JEVisException e) {
-                            logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
                         }
                     }
-                }
 
-                String resultString = "";
-                if (!isText) {
-                    Expression expression = new Expression(formulaString);
-                    resultString = nf.format(expression.calculate()) + " " + templateOutput.getUnit();
-                } else {
-                    resultString = formulaString;
-                }
+                    if (!isText) {
+                        try {
+                            Expression expression = new Expression(formulaString);
+                            Double calculate = expression.calculate();
+                            if (!calculate.isNaN()) {
+                                resultMap.put(formula.getName(), calculate);
+                            }
+                            result = nf.format(calculate) + " " + templateOutput.getUnit();
+                        } catch (Exception e) {
+                            logger.error("Error in formula {}", formula.getName(), e);
+                        }
+                    } else {
+                        result = formulaString;
+                    }
+                } else result = "";
+
 
                 if (hasLabel) {
-                    cell.setCellValue(cell.getStringCellValue() + ": " + resultString);
+                    cell.setCellValue(cell.getStringCellValue() + ": " + result);
                 } else {
-                    cell.setCellValue(resultString);
+                    cell.setCellValue(result);
                 }
             }
         }

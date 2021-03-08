@@ -50,7 +50,41 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.47------\n" +
+            "------Version 3.9.48------\n" +
+                    "JECC - AccountingPlugin - added xlsx output function\n" +
+                    "JECC - AccountingPlugin - enabled view/configuration\n" +
+                    "JECC - AccountingPlugin - removed no supported yet\n" +
+                    "JECC - AlarmPlugin - fixed some problem with data row name\n" +
+                    "JECC - BasicEditor - added double click event to unit box to change unit everywhere\n" +
+                    "JECC - ChartPlugin - fixed auto range of y-axis on zoom in\n" +
+                    "JECC - Charts - XYChart - fixed mouse moved performance\n" +
+                    "JECC - Charts - XYChart - fixed mouse moved performance\n" +
+                    "JECC - Charts - XYChart - fixed mouse moved performance  \n" +
+                    "JECC - DataPointTableViewPointer - fixed event performance\n" +
+                    "JECC - DataPointTableViewPointer - fixed event performance\n" +
+                    "JECC - DataPointTableViewPointer - fixed event performance\n" +
+                    "JECC - KPIWizard - fixed name of output\n" +
+                    "JECC - ObjectPlugin - Import and Export\n" +
+                    "JECC - ObjectPlugin - KPIWizard\n" +
+                    "JECC - ObjectPlugin - Multiselect delete each element has to be confirmed for deletion \n" +
+                    "JECC - ObjectPlugin - Multiselect for moving doesnt work\n" +
+                    "JECC - TRCPlugin - added MIN/MAX/YearlyValue as input types\n" +
+                    "JECC - TRCPlugin - added field for variable name\n" +
+                    "JECC - TRCPlugin - added separator output\n" +
+                    "JECC - TRCPlugin - changed input variable pane to grid pane\n" +
+                    "JECC - TRCPlugin - small fixes\n" +
+                    "JECC - TRCPlugin - sorted config panes\n" +
+                    "JECC - TRCPlugin - visibly marked formula inputs\n" +
+                    "JECC - added missing icon\n" +
+                    "JECC - reverted JFXTooltips to normal ones\n" +
+                    "\n" +
+                    "Classes - EnergyContracting - improved scalability\n" +
+                    "Classes - allow energy contracting dir under organisation\n" +
+                    "\n" +
+                    "JEComons - PrepareStep - fixed some probem with x -> daily aggregation\n" +
+                    "\n" +
+                    "JEDataProcessor - fixed recurring sample error for 15->1\n\n" +
+                    "------Version 3.9.47------\n" +
                     "Classes - added energy contracting classes\n" +
                     "Classes - allow clean data below math data\n" +
                     "\n" +
