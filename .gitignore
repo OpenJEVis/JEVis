@@ -5,6 +5,7 @@ etc/jevis.conf
 etc/log4j2.xml
 etc/log4j.properties
 etc/keystore.jks
+var/files/
 
 # Created by https://www.gitignore.io/api/intellij
 
