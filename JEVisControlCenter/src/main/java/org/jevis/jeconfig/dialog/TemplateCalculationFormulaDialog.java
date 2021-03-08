@@ -16,10 +16,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jeconfig.plugin.dtrc.RCTemplate;
-import org.jevis.jeconfig.plugin.dtrc.TemplateFormula;
-import org.jevis.jeconfig.plugin.dtrc.TemplateInput;
-import org.jevis.jeconfig.plugin.dtrc.TemplateOutput;
+import org.jevis.jeconfig.plugin.dtrc.*;
 
 public class TemplateCalculationFormulaDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(TemplateCalculationFormulaDialog.class);
@@ -52,7 +49,11 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
 
         for (TemplateInput templateInput : rcTemplate.getTemplateInputs()) {
             JFXCheckBox jfxCheckBox = new JFXCheckBox(templateInput.getVariableName());
+            if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                jfxCheckBox.setStyle("-fx-text-fill: red !important;");
+            }
             jfxCheckBox.setMnemonicParsing(false);
+
             if (templateFormula.getInputIds().contains(templateInput.getId())) {
                 jfxCheckBox.setSelected(true);
             }

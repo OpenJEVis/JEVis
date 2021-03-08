@@ -124,7 +124,7 @@ public class KPIWizard extends JFXDialog {
 
                         if (notForAll != null && notForAll.getSelectedItems() != null) {
                             for (int i = 0; i < notForAll.getSelectedItems().size(); i++) {
-                                String kpiName = "KPI - " + useForName.getSelectedItems().get(0).getName();
+                                String kpiName = "KPI - " + useForName.getSelectedItems().get(i).getName();
                                 JEVisObject calculation = calcDir.buildObject(kpiName, finalCalcClass);
                                 calculation.commit();
                                 JEVisAttribute calculationEnabledAttribute = calculation.getAttribute("Enabled");
