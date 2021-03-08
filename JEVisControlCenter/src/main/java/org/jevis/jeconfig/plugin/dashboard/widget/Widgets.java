@@ -23,6 +23,7 @@ public class Widgets {
             put(ValueEditWidget.WIDGET_ID, ValueEditWidget.class.getName());
             put(DashboadLinkWidget.WIDGET_ID, DashboadLinkWidget.class.getName());
             put(ArrowWidget.WIDGET_ID, ArrowWidget.class.getName());
+            put(SankeyWidget.WIDGET_ID, SankeyWidget.class.getName());
 
         }
     };
@@ -40,6 +41,7 @@ public class Widgets {
         widgetList.add(new LinkerWidget(control, config));
         widgetList.add(new DashboadLinkWidget(control, config));
         widgetList.add(new ArrowWidget(control, config));
+        //widgetList.add(new SankeyWidget(control, config));
 
         return widgetList;
     }

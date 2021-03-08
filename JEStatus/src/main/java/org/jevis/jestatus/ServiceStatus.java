@@ -51,6 +51,10 @@ public class ServiceStatus extends AlarmTable {
 
         fs.getFileStores().forEach(store -> {
             try {
+                /** ignore 0 size stores **/
+                if (store.getTotalSpace() <= 0) return;
+
+
                 double totalSpace = store.getTotalSpace() / 1024d / 1024d / 1024d;
                 double usableSpace = store.getUsableSpace() / 1024d / 1024d / 1024d;
                 double percent = usableSpace / totalSpace * 100d;

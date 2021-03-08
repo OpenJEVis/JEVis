@@ -106,87 +106,107 @@ public class TreeHelper {
     public static void EventDelete(JEVisTree tree) {
         logger.debug("EventDelete");
         if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
-            String question = I18n.getInstance().getString("jevistree.dialog.delete.message");
+            String question = I18n.getInstance().getString("jevistree.dialog.delete.message") + "\n\n";
             ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
             for (TreeItem<JEVisTreeRow> item : items) {
-                question += item.getValue().getJEVisObject().getName();
+                question += item.getValue().getJEVisObject().getName() + "\n";
             }
-            question += "?";
+            //question += "?";
 
             try {
-                for (TreeItem<JEVisTreeRow> treeItem : items) {
-                    if (treeItem.getValue().getJEVisObject().getDataSource().getCurrentUser().canDelete(treeItem.getValue().getJEVisObject().getID())) {
 
-                        Alert alert = new Alert(AlertType.CONFIRMATION);
-                        alert.setTitle(I18n.getInstance().getString("jevistree.dialog.delete.title"));
-                        alert.setHeaderText(null);
-                        alert.setContentText(question);
-                        TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
 
-                        alert.showAndWait().ifPresent(buttonType -> {
-                            if (buttonType.equals(ButtonType.OK)) {
-                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
+                Alert alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle(I18n.getInstance().getString("jevistree.dialog.delete.title"));
+                alert.setHeaderText(null);
+                alert.setContentText(question);
+                TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
 
-                                Task<Void> delete = new Task<Void>() {
-                                    @Override
-                                    protected Void call() throws Exception {
+                alert.showAndWait().ifPresent(buttonType -> {
+                    if (buttonType.equals(ButtonType.OK)) {
+                        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
+
+                        Task<Void> delete = new Task<Void>() {
+                            @Override
+                            protected Void call() throws Exception {
+                                try {
+                                    List<JEVisObject> tmpObjects = new ArrayList<>();
+                                    List<TreeItem<JEVisTreeRow>> deletedObj = new ArrayList<>();
+                                    for (TreeItem<JEVisTreeRow> treeItem : items) {
+                                        tmpObjects.add(treeItem.getValue().getJEVisObject());
+                                    }
+
+
+                                    for (JEVisObject object : tmpObjects) {
+                                        if (object.getDataSource().getCurrentUser().canDelete(object.getID())) {
+                                            Long id = object.getID();
+
+                                            for (TreeItem<JEVisTreeRow> treeItem : items) {
+                                                if (treeItem.getValue().getJEVisObject().getID().equals(object.getID())) {
+                                                    deletedObj.add(treeItem);
+                                                }
+                                            }
+                                            object.getDataSource().deleteObject(id);
+
+
+                                        } else {
+                                            Platform.runLater(() -> {
+                                                Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                                                alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                                                TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
+                                                alert1.showAndWait();
+                                            });
+
+                                        }
+                                    }
+
+                                    deletedObj.forEach(aLong -> {
+                                        System.out.println("ID: " + aLong);
+                                    });
+
+                                    for (TreeItem<JEVisTreeRow> treeItem : deletedObj) {
                                         try {
-                                            Long id = treeItem.getValue().getJEVisObject().getID();
-                                            System.out.println("Delete Object: " + treeItem.getValue().getJEVisObject());
-                                            treeItem.getValue().getJEVisObject().getDataSource().deleteObject(id);
                                             if (treeItem.getParent() != null) {
                                                 treeItem.getParent().getChildren().remove(treeItem);
                                             }
-                                            /**
-                                             for (TreeItem<JEVisTreeRow> item : items) {
-                                             Long id = item.getValue().getJEVisObject().getID();
-                                             System.out.println("Delete Object: " + item.getValue().getJEVisObject());
-                                             item.getValue().getJEVisObject().getDataSource().deleteObject(id);
-                                             if (item.getParent() != null) {
-                                             item.getParent().getChildren().remove(item);
-                                             }
-                                             }
-                                             **/
                                         } catch (Exception ex) {
-                                            logger.catching(ex);
-                                            CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
-                                                    I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                                            ex.printStackTrace();
                                         }
-                                        return null;
                                     }
-                                };
-                                delete.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                delete.setOnCancelled(event -> {
-                                    logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
-                                    pForm.getDialogStage().hide();
-                                });
 
-                                delete.setOnFailed(event -> {
-                                    logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                pForm.activateProgressBar(delete);
-                                pForm.getDialogStage().show();
-
-                                new Thread(delete).start();
-
-                            } else {
-                                // ... user chose CANCEL or closed the dialog
+                                } catch (Exception ex) {
+                                    logger.catching(ex);
+                                    CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                            I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                                }
+                                return null;
                             }
-                        });
-                    } else {
-                        Platform.runLater(() -> {
-                            Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
-                            alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
-                            TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
-                            alert1.showAndWait();
+                        };
+                        delete.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                        delete.setOnCancelled(event -> {
+                            logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
+                            pForm.getDialogStage().hide();
                         });
 
+                        delete.setOnFailed(event -> {
+                            logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
+                            pForm.getDialogStage().hide();
+                        });
+
+                        pForm.activateProgressBar(delete);
+                        pForm.getDialogStage().show();
+
+                        new Thread(delete).start();
+
+                    } else {
+                        // ... user chose CANCEL or closed the dialog
                     }
-                }
-            } catch (JEVisException e) {
+                });
+
+
+            } catch (Exception e) {
                 logger.error("Could not get JEVis data source. ", e);
             }
 

@@ -20,6 +20,7 @@
 package org.jevis.jeconfig.application.jevistree;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
@@ -32,8 +33,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dimpex.DimpEX;
-import org.jevis.commons.dimpex.DimpexObject;
+import org.jevis.commons.export.TreeExporterDelux;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
@@ -79,7 +79,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     buildPaste(),
                     new SeparatorMenuItem(),
 
-                    buildMenuExport(),
+                    buildExport(),
                     buildImport()
             );
 
@@ -155,7 +155,27 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildExport() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
         menu.setOnAction(t -> {
-                    JsonExportDialog dia = new JsonExportDialog("Import", obj);
+                    TreeExporterDelux exportMaster = new TreeExporterDelux();
+
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Save");
+                    fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JEVis Export", "*.jex"));
+                    File file = fileChooser.showSaveDialog(JEConfig.getStage());
+
+                    if (file != null) {
+                        List<JEVisObject> objects = new ArrayList<>();
+                        tree.getSelectionModel().getSelectedItems().forEach(o -> {
+                            JEVisTreeItem jeVisTreeItem = (JEVisTreeItem) o;
+                            objects.add(jeVisTreeItem.getValue().getJEVisObject());
+                        });
+
+                        Task exportTask = exportMaster.exportToFileTask(file, objects);
+                        JEConfig.getStatusBar().addTask("Tree Exporter", exportTask, JEConfig.getImage("save.gif"), true);
+
+                    }
+                    // JsonExportDialog dia = new JsonExportDialog("Import", obj);
+
+
                 }
         );
         return menu;
@@ -170,13 +190,16 @@ public class JEVisTreeContextMenu extends ContextMenu {
                                  FileChooser fileChooser = new FileChooser();
                                  fileChooser.setTitle("Open JEVis File");
                                  fileChooser.getExtensionFilters().addAll(
-                                         new FileChooser.ExtensionFilter("JEVis File", "*.json"),
+                                         new FileChooser.ExtensionFilter("JEVis Export", "*.jex"),
                                          new FileChooser.ExtensionFilter("All Files", "*.*"));
                                  File selectedFile = fileChooser.showOpenDialog(null);
                                  if (selectedFile != null) {
                                      try {
-                                         List<DimpexObject> objects = DimpEX.readFile(selectedFile);
-                                         DimpEX.importALL(obj.getDataSource(), objects, obj);
+                                         TreeExporterDelux exportMaster = new TreeExporterDelux();
+                                         Task exportTask = exportMaster.importFromFile(selectedFile, obj);
+                                         JEConfig.getStatusBar().addTask("Tree Importer", exportTask, JEConfig.getImage("save.gif"), true);
+                                         //List<DimpexObject> objects = DimpEX.readFile(selectedFile);
+                                         //DimpEX.importALL(obj.getDataSource(), objects, obj);
                                      } catch (Exception ex) {
                                          logger.fatal(ex);
                                      }
