@@ -115,12 +115,6 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         inputVariableTypeJFXComboBox.setButtonCell(inputVariableTypeJFXComboBoxCellFactory.call(null));
         GridPane.setHgrow(inputVariableTypeJFXComboBox, Priority.ALWAYS);
 
-        if (templateInput.getVariableType() != null) {
-            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
-        } else {
-            inputVariableTypeJFXComboBox.getSelectionModel().selectFirst();
-        }
-
         Label limiterLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
         GridPane.setHgrow(limiterLabel, Priority.ALWAYS);
 
@@ -353,6 +347,9 @@ public class TemplateCalculationInputDialog extends JFXDialog {
 
         Label formulaLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
         JFXComboBox<TemplateFormula> formulaBox = new JFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateFormulas()));
+        TemplateFormula none = new TemplateFormula();
+        none.setName(I18n.getInstance().getString("dialog.regression.type.none"));
+        formulaBox.getItems().add(0, none);
         Callback<ListView<TemplateFormula>, ListCell<TemplateFormula>> formulaCellFactory = new Callback<ListView<TemplateFormula>, ListCell<TemplateFormula>>() {
             @Override
             public ListCell<TemplateFormula> call(ListView<TemplateFormula> param) {
@@ -373,6 +370,18 @@ public class TemplateCalculationInputDialog extends JFXDialog {
 
         formulaBox.setCellFactory(formulaCellFactory);
         formulaBox.setButtonCell(formulaCellFactory.call(null));
+
+        if (templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
+            formulaLabel.setVisible(false);
+            formulaBox.setVisible(false);
+        } else if (templateInput.getVariableType() != null) {
+            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
+            formulaLabel.setVisible(true);
+            formulaBox.setVisible(true);
+        } else {
+            inputVariableTypeJFXComboBox.getSelectionModel().selectFirst();
+        }
 
         inputVariableTypeJFXComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             templateInput.setVariableType(newValue.toString());
@@ -400,7 +409,13 @@ public class TemplateCalculationInputDialog extends JFXDialog {
             formulaBox.getSelectionModel().selectFirst();
         }
 
-        formulaBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> templateInput.setTemplateFormula(newValue.getId()));
+        formulaBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.getName().equals(none.getId())) {
+                templateInput.setTemplateFormula(newValue.getId());
+            } else {
+                templateInput.setTemplateFormula(null);
+            }
+        });
 
         JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {

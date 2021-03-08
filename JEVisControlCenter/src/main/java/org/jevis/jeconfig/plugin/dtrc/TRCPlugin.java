@@ -777,6 +777,9 @@ public class TRCPlugin implements Plugin {
     private JFXButton createInputButton(TemplateInput templateInput) {
         JFXButton inputButton = new JFXButton(templateInput.getVariableName());
         inputButton.setMnemonicParsing(false);
+        if (templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+            inputButton.setStyle("-fx-background-color: derive(-fx-base, 120%);");
+        }
 
         inputButton.setOnAction(event -> {
             TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);

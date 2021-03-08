@@ -349,7 +349,7 @@ public class OutputView extends Tab {
         Map<JEVisClass, List<TemplateInput>> groupedInputsMap = new HashMap<>();
         List<TemplateInput> ungroupedInputs = new ArrayList<>();
         for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-            if ((templateInput.getGroup() == null || templateInput.getGroup()) && templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+            if (((templateInput.getGroup() == null || templateInput.getGroup()) && templateInput.getVariableType() != null) && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
                 JEVisClass jeVisClass = null;
                 try {
                     jeVisClass = ds.getJEVisClass(templateInput.getObjectClass());

@@ -256,6 +256,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                                         warning.showAndWait().ifPresent(response -> {
                                             if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
                                                 buildSample(finalValueAttribute, finalTs, newVal);
+                                                close();
                                             } else {
 
                                             }
@@ -308,6 +309,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
                                         if (!hasError) {
                                             buildSample(valueAttribute, ts, newVal);
+                                            close();
                                         }
                                     }
                                 } else {
@@ -348,6 +350,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
                                     if (!hasError) {
                                         buildSample(valueAttribute, ts, newVal);
+                                        close();
                                     }
                                 }
 
