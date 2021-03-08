@@ -2,12 +2,12 @@ package org.jevis.jeconfig.plugin.object.extension.OPC;
 
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Modality;
@@ -80,7 +80,7 @@ public class OPCBrowser {
                                 //String security = item.getSecurityMode() + " " + item.getSecurityLevel();
                                 String security = item.getSecurityPolicyUri().split("#")[1];
                                 setText(tuUserString(item));
-                                setTooltip(new JFXTooltip(item.toString()));
+                                setTooltip(new Tooltip(item.toString()));
 
                             } else {
                                 setText(null);

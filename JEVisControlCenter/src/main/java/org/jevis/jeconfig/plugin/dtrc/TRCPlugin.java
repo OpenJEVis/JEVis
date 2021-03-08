@@ -3,30 +3,25 @@ package org.jevis.jeconfig.plugin.dtrc;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.ibm.icu.text.NumberFormat;
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXListCell;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.print.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Callback;
-import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -39,7 +34,6 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -49,25 +43,18 @@ import org.jevis.jeconfig.dialog.TemplateCalculationInputDialog;
 import org.jevis.jeconfig.dialog.TemplateCalculationOutputDialog;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
-import org.mariuszgromada.math.mxparser.Expression;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
 public class TRCPlugin implements Plugin {
     public static final String TEMPLATE_CLASS = "Result Calculation Template";
+    public static final String TEMPLATE_DIRECTORY_CLASS = "Template Calculation Directory";
     private static final String PLUGIN_CLASS_NAME = "Template Result Calculation Plugin";
     private static final Logger logger = LogManager.getLogger(TRCPlugin.class);
     private static final String DATA_MODEL_ATTRIBUTE = "Template File";
-    private static final String NO_RESULT = I18n.getInstance().getString("plugin.dtrc.noresult");
     private static final double EDITOR_MAX_HEIGHT = 50;
     public static String PLUGIN_NAME = "Template Result Calculation Plugin";
     protected final JEVisDataSource ds;
@@ -84,36 +71,25 @@ public class TRCPlugin implements Plugin {
     private final FlowPane configInputs = new FlowPane(4, 4);
     private final GridPane configOutputs = new GridPane();
     private final Tab configurationTab = new Tab(I18n.getInstance().getString("graph.tabs.configuration"));
-    private final JFXTabPane tabPane = new JFXTabPane();
-    private final Tab viewTab = new Tab(I18n.getInstance().getString("menu.view"));
+    private final TabPane tabPane = new TabPane();
+    private final OutputView viewTab;
     private final ObjectMapper mapper = new ObjectMapper();
     private final TemplateHandler templateHandler = new TemplateHandler();
-    private final FlowPane viewInputs = new FlowPane(4, 4);
-    private final GridPane viewOutputs = new GridPane();
-    private final JFXDatePicker startDatePicker = new JFXDatePicker(LocalDate.now());
-    private final JFXDatePicker endDatePicker = new JFXDatePicker(LocalDate.now());
-    private final JFXTimePicker startTimePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
-    private final JFXTimePicker endTimePicker = new JFXTimePicker(LocalTime.of(23, 59, 59));
-    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
-    private boolean initialized = false;
+
+    private final boolean initialized = false;
     private JFXComboBox<JEVisObject> trcs;
+    private StackPane dialogStackPane;
 
     public TRCPlugin(JEVisDataSource ds) {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.title = getTitleFromPlugin();
+        this.viewTab = new OutputView(I18n.getInstance().getString("menu.view"), ds, templateHandler);
 
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-        this.nf.setMinimumFractionDigits(2);
-        this.nf.setMaximumFractionDigits(2);
-
-        this.viewOutputs.setPadding(new Insets(4));
-        this.viewOutputs.setVgap(6);
-        this.viewOutputs.setHgap(6);
 
         this.configOutputs.setPadding(new Insets(4));
         this.configOutputs.setVgap(6);
@@ -260,11 +236,11 @@ public class TRCPlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
 
-        reload.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip")));
-        save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.save.tooltip")));
-        newButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.new.tooltip")));
+        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip")));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.save.tooltip")));
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.new.tooltip")));
 
-        printButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
+        printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
 
         trcs = new JFXComboBox<>();
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
@@ -295,8 +271,7 @@ public class TRCPlugin implements Plugin {
                 updateFormulas();
                 updateInputs();
                 updateOutputs();
-                updateViewInputFlowPane();
-                updateViewOutputGridPane();
+                viewTab.requestUpdate();
             }
         });
 
@@ -412,13 +387,13 @@ public class TRCPlugin implements Plugin {
                 try {
                     JEVisClass templateClass = ds.getJEVisClass(TEMPLATE_CLASS);
 
-                    SaveUnderDialog.saveUnderAnalysis(ds, templateHandler.getTemplateObject(), templateClass, templateHandler.getTitle(), (target, sameObject) -> {
+                    SaveUnderDialog saveUnderDialog = new SaveUnderDialog(dialogStackPane, ds, TEMPLATE_DIRECTORY_CLASS, templateHandler.getTemplateObject(), templateClass, templateHandler.getTitle(), (target, sameObject) -> {
 
                         JEVisAttribute dataModel = null;
                         try {
                             templateHandler.setTitle(target.getName());
 
-                            dataModel = templateHandler.getTemplateObject().getAttribute(DATA_MODEL_ATTRIBUTE);
+                            dataModel = target.getAttribute(DATA_MODEL_ATTRIBUTE);
 
                             JEVisFileImp jsonFile = new JEVisFileImp(
                                     templateHandler.getTitle() + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
@@ -430,10 +405,16 @@ public class TRCPlugin implements Plugin {
                         }
                         return true;
                     });
+                    saveUnderDialog.setOnDialogClosed(event -> {
+                        if (saveUnderDialog.getResponse() == Response.OK) {
+                            handleRequest(Constants.Plugin.Command.RELOAD);
+                        }
+                    });
+
+                    saveUnderDialog.show();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-
                 break;
             case Constants.Plugin.Command.DELETE:
                 //TODO: Delete Function
@@ -477,11 +458,14 @@ public class TRCPlugin implements Plugin {
             case Constants.Plugin.Command.RELOAD:
                 //TODO: Reload Function
                 List<JEVisObject> allTemplateCalculations = getAllTemplateCalculations();
-                trcs.setItems(FXCollections.observableArrayList(allTemplateCalculations));
                 if (allTemplateCalculations.isEmpty()) {
                     templateHandler.setRcTemplate(new RCTemplate());
                 } else {
-                    Platform.runLater(() -> trcs.getSelectionModel().selectFirst());
+                    Platform.runLater(() -> {
+                        trcs.getItems().clear();
+                        trcs.getItems().addAll(allTemplateCalculations);
+                        trcs.getSelectionModel().selectFirst();
+                    });
                 }
 //                Platform.runLater(() -> replaceButton.setDisable(true));
 //                selectedIndex = tabPane.getSelectionModel().getSelectedIndex();
@@ -559,28 +543,16 @@ public class TRCPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
+        List<JEVisObject> allTemplateCalculations = getAllTemplateCalculations();
+        if (allTemplateCalculations.isEmpty()) {
+            templateHandler.setRcTemplate(new RCTemplate());
+        } else {
+            trcs.getItems().clear();
+            trcs.getItems().addAll(allTemplateCalculations);
+            trcs.getSelectionModel().selectFirst();
+        }
 
         initGui();
-
-        Task loadTask = new Task() {
-            @Override
-            protected Object call() throws Exception {
-                try {
-                    this.updateTitle(I18n.getInstance().getString("plugin.meters.load"));
-                    if (!initialized) {
-                        initialized = true;
-                        handleRequest(Constants.Plugin.Command.RELOAD);
-                    }
-                    succeeded();
-                } catch (Exception ex) {
-                    failed();
-                } finally {
-                    done();
-                }
-                return null;
-            }
-        };
-        JEConfig.getStatusBar().addTask(PLUGIN_NAME, loadTask, JEConfig.getImage("measurement_instrument.png"), true);
 
     }
 
@@ -588,70 +560,10 @@ public class TRCPlugin implements Plugin {
         viewTab.setClosable(false);
         configurationTab.setClosable(false);
 
-        Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
-        Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
-
-        startDatePicker.setPrefWidth(120d);
-        endDatePicker.setPrefWidth(120d);
-
-        startTimePicker.setPrefWidth(100d);
-        startTimePicker.setMaxWidth(100d);
-        startTimePicker.set24HourView(true);
-        startTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        endTimePicker.setPrefWidth(100d);
-        endTimePicker.setMaxWidth(100d);
-        endTimePicker.set24HourView(true);
-        endTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        startTimePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateViewOutputGridPane());
-        endTimePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateViewOutputGridPane());
-        startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateViewOutputGridPane());
-        endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateViewOutputGridPane());
-
-        IntervalSelector intervalSelector = new IntervalSelector(ds, startDatePicker, startTimePicker, endDatePicker, endTimePicker);
-
-
-        GridPane datePane = new GridPane();
-        datePane.setPadding(new Insets(4));
-        datePane.setHgap(6);
-        datePane.setVgap(6);
-
-        datePane.add(startText, 0, 0);
-        datePane.add(startDatePicker, 1, 0);
-        datePane.add(startTimePicker, 2, 0);
-
-        datePane.add(endText, 0, 1);
-        datePane.add(endDatePicker, 1, 1);
-        datePane.add(endTimePicker, 2, 1);
-
-        HBox dateBox = new HBox(4, datePane, intervalSelector);
-
         if (templateHandler.getRcTemplate() != null) {
-            updateViewInputFlowPane();
-            updateViewOutputGridPane();
+            viewTab.updateViewInputFlowPane();
+            viewTab.requestUpdate();
         }
-
-        Label inputsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.view.input"));
-        inputsLabel.setPadding(new Insets(8, 0, 8, 0));
-        inputsLabel.setFont(new Font(18));
-        Label outputsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.view.output"));
-        outputsLabel.setPadding(new Insets(8, 0, 8, 0));
-        outputsLabel.setFont(new Font(18));
-
-        Separator separator1 = new Separator(Orientation.HORIZONTAL);
-        separator1.setPadding(new Insets(8, 0, 8, 0));
-
-        Separator separator2 = new Separator(Orientation.HORIZONTAL);
-        separator2.setPadding(new Insets(8, 0, 8, 0));
-
-        VBox viewVBox = new VBox(4,
-                dateBox, separator1,
-                inputsLabel, viewInputs, separator2,
-                outputsLabel, viewOutputs);
-
-        viewVBox.setPadding(new Insets(12));
-        viewTab.setContent(viewVBox);
 
         configFormulas.getChildren().add(buildAddFormulaButton());
         configInputs.getChildren().add(buildAddInputButton());
@@ -671,211 +583,18 @@ public class TRCPlugin implements Plugin {
                 new HBox(outputsLabel2, buildAddOutputButton()), configOutputs);
 
         configVBox.setPadding(new Insets(12));
-        configurationTab.setContent(configVBox);
+
+        ScrollPane configScrollPane = new ScrollPane(configVBox);
+        configScrollPane.setFitToHeight(true);
+        configScrollPane.setFitToWidth(true);
+
+        dialogStackPane = new StackPane(configScrollPane);
+
+        configurationTab.setContent(dialogStackPane);
 
         tabPane.getTabs().setAll(viewTab, configurationTab);
 
         borderPane.setCenter(tabPane);
-    }
-
-    private void updateViewInputFlowPane() {
-        viewInputs.getChildren().clear();
-
-        Map<JEVisClass, List<TemplateInput>> groupedInputsMap = new HashMap<>();
-        List<TemplateInput> ungroupedInputs = new ArrayList<>();
-        for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-            if (templateInput.getGroup() == null || templateInput.getGroup()) {
-                JEVisClass jeVisClass = null;
-                try {
-                    jeVisClass = ds.getJEVisClass(templateInput.getObjectClass());
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
-
-                if (groupedInputsMap.get(jeVisClass) == null) {
-                    List<TemplateInput> list = new ArrayList<>();
-                    list.add(templateInput);
-                    groupedInputsMap.put(jeVisClass, list);
-                } else {
-                    groupedInputsMap.get(jeVisClass).add(templateInput);
-                }
-            } else ungroupedInputs.add(templateInput);
-        }
-
-
-        for (Map.Entry<JEVisClass, List<TemplateInput>> templateInput : groupedInputsMap.entrySet()) {
-            JEVisClass inputClass = templateInput.getKey();
-            List<TemplateInput> groupedInputs = templateInput.getValue();
-            String className = null;
-            try {
-                className = I18nWS.getInstance().getClassName(inputClass);
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-            Label label = new Label(className);
-            label.setAlignment(Pos.CENTER);
-            List<JEVisObject> objects = null;
-            try {
-                objects = ds.getObjects(ds.getJEVisClass(inputClass.getName()), false);
-                List<JEVisObject> filteredObjects = new ArrayList<>();
-                String filter = groupedInputs.get(0).getFilter();
-                for (JEVisObject jeVisObject : objects) {
-                    String objectName = getRealName(jeVisObject);
-
-                    if (filter != null && filter.contains(" ")) {
-                        String[] result = filter.split(" ");
-                        String string = objectName.toLowerCase();
-                        boolean[] results = new boolean[result.length];
-                        for (int i = 0, resultLength = result.length; i < resultLength; i++) {
-                            String value = result[i];
-                            String subString = value.toLowerCase();
-                            results[i] = string.contains(subString);
-                        }
-
-                        boolean allFound = true;
-                        for (boolean b : results) {
-                            if (!b) {
-                                allFound = false;
-                                break;
-                            }
-                        }
-                        if (allFound) {
-                            filteredObjects.add(jeVisObject);
-                        }
-
-                    } else if (filter != null) {
-                        String string = objectName.toLowerCase();
-                        if (string.contains(filter.toLowerCase())) {
-                            filteredObjects.add(jeVisObject);
-                        }
-                    } else filteredObjects.add(jeVisObject);
-                }
-
-                objects = filteredObjects;
-            } catch (JEVisException e) {
-                logger.error("Could not get JEVisClass {}", className, e);
-            }
-            JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
-            Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-                @Override
-                public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                    return new JFXListCell<JEVisObject>() {
-                        @Override
-                        protected void updateItem(JEVisObject obj, boolean empty) {
-                            super.updateItem(obj, empty);
-                            if (obj == null || empty) {
-                                setGraphic(null);
-                                setText(null);
-                            } else {
-                                try {
-                                    if (!obj.getJEVisClassName().equals("Clean Data")) {
-                                        setText(obj.getName());
-                                    } else {
-                                        setText(getRealName(obj));
-                                    }
-                                } catch (JEVisException e) {
-                                    logger.error("Could not get JEVisClass of object {}:{}", obj.getName(), obj.getID(), e);
-                                }
-                            }
-                        }
-                    };
-                }
-            };
-
-            objectSelector.setCellFactory(attributeCellFactory);
-            objectSelector.setButtonCell(attributeCellFactory.call(null));
-
-            objectSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue.equals(oldValue)) {
-                    groupedInputs.forEach(templateInput1 -> templateInput1.setObjectID(newValue.getID()));
-                    updateViewOutputGridPane();
-                }
-            });
-
-            VBox vBox = new VBox(label);
-            vBox.setAlignment(Pos.CENTER);
-            HBox templateBox = new HBox(4, vBox, objectSelector);
-            viewInputs.getChildren().add(templateBox);
-
-            Platform.runLater(() -> objectSelector.getSelectionModel().selectFirst());
-        }
-    }
-
-    private void updateViewOutputGridPane() {
-        Platform.runLater(() -> viewOutputs.getChildren().clear());
-
-        DateTime start = new DateTime(startDatePicker.getValue().getYear(), startDatePicker.getValue().getMonthValue(), startDatePicker.getValue().getDayOfMonth(),
-                startTimePicker.getValue().getHour(), startTimePicker.getValue().getMinute(), startTimePicker.getValue().getSecond());
-        DateTime end = new DateTime(endDatePicker.getValue().getYear(), endDatePicker.getValue().getMonthValue(), endDatePicker.getValue().getDayOfMonth(),
-                endTimePicker.getValue().getHour(), endTimePicker.getValue().getMinute(), endTimePicker.getValue().getSecond());
-
-        for (TemplateOutput templateOutput : templateHandler.getRcTemplate().getTemplateOutputs()) {
-
-            Label label = new Label(templateOutput.getName());
-            if (templateOutput.getNameBold()) {
-                label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, label.getFont().getSize()));
-            }
-            Label result = new Label();
-            result.setTextAlignment(TextAlignment.RIGHT);
-            if (templateOutput.getResultBold()) {
-                result.setFont(Font.font(result.getFont().getFamily(), FontWeight.BOLD, result.getFont().getSize()));
-            }
-            HBox hBox = new HBox(label, result);
-
-            Task<String> task = new Task<String>() {
-                @Override
-                protected String call() {
-                    String result = NO_RESULT;
-
-                    TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getVariableName())).findFirst().orElse(null);
-
-                    if (formula != null) {
-                        linkInputs(formula, templateHandler.getRcTemplate().getTemplateInputs());
-                        String formulaString = formula.getFormula();
-                        boolean isText = false;
-                        for (TemplateInput templateInput : formula.getInputs()) {
-                            try {
-                                if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
-                                    isText = true;
-                                }
-
-                                formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
-
-                            } catch (JEVisException e) {
-                                logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
-                            }
-                        }
-
-                        if (!isText) {
-                            Expression expression = new Expression(formulaString);
-                            result = nf.format(expression.calculate()) + " " + templateOutput.getUnit();
-                        } else result = formulaString;
-                    } else result = "";
-
-                    return result;
-                }
-            };
-
-            task.setOnSucceeded(event -> Platform.runLater(() -> {
-                try {
-                    result.setText(task.get());
-                } catch (InterruptedException e) {
-                    logger.error("InterruptedException", e);
-                } catch (ExecutionException e) {
-                    logger.error("ExecutionException", e);
-                }
-            }));
-
-            JEConfig.getStatusBar().addTask(TRCPlugin.class.getSimpleName(), task, null, true);
-
-            Platform.runLater(() -> this.viewOutputs.add(hBox, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan()));
-        }
-    }
-
-    private void linkInputs(TemplateFormula formula, List<TemplateInput> templateInputs) {
-        for (TemplateInput templateInput : formula.getInputs()) {
-            templateInputs.stream().filter(input1 -> templateInput.getVariableName().equals(input1.getVariableName())).findFirst().ifPresent(templateInput::clone);
-        }
     }
 
     private JFXButton buildAddFormulaButton() {
@@ -884,14 +603,38 @@ public class TRCPlugin implements Plugin {
         addFormulaButton.setOnAction(event -> {
             TemplateFormula templateFormula = new TemplateFormula();
 
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog();
-            if (templateCalculationFormulaDialog.show(ds, templateHandler.getRcTemplate().getTemplateInputs(), templateHandler.getRcTemplate().getTemplateOutputs(), templateFormula) == Response.OK) {
-                templateHandler.getRcTemplate().getTemplateFormulas().add(templateFormula);
-                updateFormulas();
-            }
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula);
+            templateCalculationFormulaDialog.show();
+            templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
+                if (templateCalculationFormulaDialog.getResponse() == Response.OK) {
+                    templateHandler.getRcTemplate().getTemplateFormulas().add(templateFormula);
+
+                    createInputFromFormula(templateFormula);
+
+                    updateFormulas();
+                }
+            });
         });
 
         return addFormulaButton;
+    }
+
+    private void createInputFromFormula(TemplateFormula templateFormula) {
+        TemplateInput formulaInput = new TemplateInput();
+        formulaInput.setVariableName(templateFormula.getName());
+        formulaInput.setTemplateFormula(templateFormula.getName());
+        formulaInput.setVariableType(InputVariableType.FORMULA.toString());
+        templateHandler.getRcTemplate().getTemplateInputs().add(formulaInput);
+    }
+
+    private void deleteInputFromFormula(TemplateFormula templateFormula) {
+        List<TemplateInput> templateInputsToRemove = new ArrayList<>();
+        templateHandler.getRcTemplate().getTemplateInputs().forEach(templateInput -> {
+            if (templateInput.getVariableName().equals(templateFormula.getName()) && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                templateInputsToRemove.add(templateInput);
+            }
+        });
+        templateHandler.getRcTemplate().getTemplateInputs().removeAll(templateInputsToRemove);
     }
 
     private JFXButton buildAddInputButton() {
@@ -900,11 +643,15 @@ public class TRCPlugin implements Plugin {
         addInputButton.setOnAction(event -> {
             TemplateInput templateInput = new TemplateInput();
 
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog();
-            if (templateCalculationInputDialog.show(ds, templateInput) == Response.OK) {
-                templateHandler.getRcTemplate().getTemplateInputs().add(templateInput);
-                updateInputs();
-            }
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
+            templateCalculationInputDialog.show();
+
+            templateCalculationInputDialog.setOnDialogClosed(event1 -> {
+                if (templateCalculationInputDialog.getResponse() == Response.OK) {
+                    templateHandler.getRcTemplate().getTemplateInputs().add(templateInput);
+                    updateInputs();
+                }
+            });
         });
 
         return addInputButton;
@@ -920,21 +667,25 @@ public class TRCPlugin implements Plugin {
             templateOutput.setColumn(0);
             templateOutput.setRow(index);
 
-            TemplateCalculationOutputDialog templateCalculationOutputDialog = new TemplateCalculationOutputDialog();
-            if (templateCalculationOutputDialog.show(ds, templateOutput) == Response.OK) {
-                templateHandler.getRcTemplate().getTemplateOutputs().add(templateOutput);
-                updateOutputs();
-            }
+            TemplateCalculationOutputDialog templateCalculationOutputDialog = new TemplateCalculationOutputDialog(dialogStackPane, ds, templateOutput);
+            templateCalculationOutputDialog.show();
+
+            templateCalculationOutputDialog.setOnDialogClosed(event1 -> {
+                if (templateCalculationOutputDialog.getResponse() == Response.OK) {
+                    templateHandler.getRcTemplate().getTemplateOutputs().add(templateOutput);
+                    updateOutputs();
+                }
+            });
         });
 
         return addOutputButton;
     }
 
     private void updateFormulas() {
-        int size = configFormulas.getChildren().size();
-        if (size > 1) {
-            configFormulas.getChildren().remove(1, size);
-        }
+
+        configFormulas.getChildren().clear();
+        configFormulas.getChildren().add(buildAddFormulaButton());
+        templateHandler.getRcTemplate().getTemplateFormulas().sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
 
         for (TemplateFormula templateFormula : templateHandler.getRcTemplate().getTemplateFormulas()) {
             int index = templateHandler.getRcTemplate().getTemplateFormulas().indexOf(templateFormula);
@@ -943,16 +694,16 @@ public class TRCPlugin implements Plugin {
     }
 
     private void updateInputs() {
-        int size = configInputs.getChildren().size();
-        if (size > 1) {
-            configInputs.getChildren().remove(1, size);
-        }
+
+        configInputs.getChildren().clear();
+        configInputs.getChildren().add(buildAddInputButton());
+        templateHandler.getRcTemplate().getTemplateInputs().sort((o1, o2) -> alphanumComparator.compare(o1.getVariableName(), o2.getVariableName()));
 
         for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
             configInputs.getChildren().add(createInputButton(templateInput));
         }
 
-        updateViewInputFlowPane();
+        viewTab.updateViewInputFlowPane();
     }
 
     private void updateOutputs() {
@@ -1007,11 +758,17 @@ public class TRCPlugin implements Plugin {
             formulaButton.setText(String.valueOf(index));
 
         formulaButton.setOnAction(event -> {
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog();
-            if (templateCalculationFormulaDialog.show(ds, templateHandler.getRcTemplate().getTemplateInputs(), templateHandler.getRcTemplate().getTemplateOutputs(), templateFormula) == Response.DELETE) {
-                templateHandler.getRcTemplate().getTemplateFormulas().remove(templateFormula);
-            }
-            updateFormulas();
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula);
+            templateCalculationFormulaDialog.show();
+
+            templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
+                if (templateCalculationFormulaDialog.getResponse() == Response.DELETE) {
+                    templateHandler.getRcTemplate().getTemplateFormulas().remove(templateFormula);
+
+                    deleteInputFromFormula(templateFormula);
+                }
+                updateFormulas();
+            });
         });
 
         return formulaButton;
@@ -1020,13 +777,20 @@ public class TRCPlugin implements Plugin {
     private JFXButton createInputButton(TemplateInput templateInput) {
         JFXButton inputButton = new JFXButton(templateInput.getVariableName());
         inputButton.setMnemonicParsing(false);
+        if (templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+            inputButton.setStyle("-fx-background-color: derive(-fx-base, 120%);");
+        }
 
         inputButton.setOnAction(event -> {
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog();
-            if (templateCalculationInputDialog.show(ds, templateInput) == Response.DELETE) {
-                templateHandler.getRcTemplate().getTemplateInputs().remove(templateInput);
-            }
-            updateInputs();
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
+            templateCalculationInputDialog.show();
+
+            templateCalculationInputDialog.setOnDialogClosed(event1 -> {
+                if (templateCalculationInputDialog.getResponse() == Response.DELETE) {
+                    templateHandler.getRcTemplate().getTemplateInputs().remove(templateInput);
+                }
+                updateInputs();
+            });
         });
 
         return inputButton;
@@ -1037,11 +801,15 @@ public class TRCPlugin implements Plugin {
         outputButton.setMnemonicParsing(false);
 
         outputButton.setOnAction(event -> {
-            TemplateCalculationOutputDialog templateCalculationOutputDialog = new TemplateCalculationOutputDialog();
-            if (templateCalculationOutputDialog.show(ds, templateOutput) == Response.DELETE) {
-                templateHandler.getRcTemplate().getTemplateOutputs().remove(templateOutput);
-            }
-            updateOutputs();
+            TemplateCalculationOutputDialog templateCalculationOutputDialog = new TemplateCalculationOutputDialog(dialogStackPane, ds, templateOutput);
+            templateCalculationOutputDialog.show();
+
+            templateCalculationOutputDialog.setOnDialogClosed(event1 -> {
+                if (templateCalculationOutputDialog.getResponse() == Response.DELETE) {
+                    templateHandler.getRcTemplate().getTemplateOutputs().remove(templateOutput);
+                }
+                updateOutputs();
+            });
         });
 
         return outputButton;

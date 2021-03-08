@@ -1,0 +1,19 @@
+{
+  "jevisclass": "Energy Supply Contractor",
+  "names": {
+    "de": "Energielieferant",
+    "ru": "Партнер по договору энергоснабжения",
+    "uk": "Договірний партнер з енергопостачання",
+    "en": "Energy Supply Contractor",
+    "th": "คู่สัญญาจัดหาพลังงาน"
+  },
+  "descriptions": {
+    "de": "Die Klasse Energielieferungsvertragspartner definiert die Basisattribute für Energielieferungsvertragspartner",
+    "ru": "Класс партнера по контракту на поставку энергии определяет основные атрибуты партнеров по контракту на поставку энергии",
+    "en": "The class Energy Supply Contractor defines the base attributes of specific energy supply contractors",
+    "uk": "Клас партнерів за контрактом на енергопостачання визначає основні характеристики партнерів за контрактом на енергопостачання",
+    "th": "ระดับคู่ค้าสัญญาจัดหาพลังงานกำหนดคุณลักษณะพื้นฐานสำหรับคู่ค้าสัญญาจัดหาพลังงาน"
+  },
+  "types": [
+  ]
+}

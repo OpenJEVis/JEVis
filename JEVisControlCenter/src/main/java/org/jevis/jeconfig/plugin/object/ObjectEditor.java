@@ -20,7 +20,6 @@
 package org.jevis.jeconfig.plugin.object;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -30,10 +29,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
@@ -73,10 +69,10 @@ public class ObjectEditor {
     private final BooleanProperty showWebHelp = new SimpleBooleanProperty(false);
 
 
-    private final HiddenSidesPane _view;
+    private final HiddenSidesPane _view = new HiddenSidesPane();
+    private final StackPane dialogContainer = new StackPane(_view);
 
     public ObjectEditor() {
-        _view = new HiddenSidesPane();
         _view.setId("objecteditorpane");
     }
 
@@ -142,7 +138,7 @@ public class ObjectEditor {
 //        }
 //    }
     public Node getView() {
-        return _view;
+        return dialogContainer;
     }
 
     public void setTree(JEVisTree tree) {
@@ -178,8 +174,8 @@ public class ObjectEditor {
                     List<TitledPane> tabs = new ArrayList<>();
                     installedExtensions = new ArrayList<>();
 
-                    installedExtensions.add(new CalculationExtension(obj));
-                    installedExtensions.add(new CleanDataExtension(obj));
+                    installedExtensions.add(new CalculationExtension(dialogContainer, obj));
+                    installedExtensions.add(new CleanDataExtension(dialogContainer, obj));
                     installedExtensions.add(new MemberExtension(obj));
                     installedExtensions.add(new RoleExtention(obj));
 
@@ -190,7 +186,7 @@ public class ObjectEditor {
                         this.installedExtensions.add(new ChildrenEditorPlugin(obj));
                     }
                     this.installedExtensions.add(new PermissionExtension(obj));
-                    this.installedExtensions.add(new RootExtension(obj));
+                    this.installedExtensions.add(new RootExtension(dialogContainer, obj));
                     this.installedExtensions.add(new LinkExtension(obj));
 
                     activeExtensions = new ArrayList<>();
@@ -288,7 +284,7 @@ public class ObjectEditor {
                         Label objectName = new Label(obj.getName());
                         objectName.setStyle("-fx-font-weight: bold;");
                         Label classlabel = new Label(I18n.getInstance().getString("plugin.object.editor.type"));
-                        classlabel.setTooltip(new JFXTooltip(obj.getJEVisClassName()));
+                        classlabel.setTooltip(new Tooltip(obj.getJEVisClassName()));
                         //Label className = new Label(obj.getJEVisClass().getName());
                         Label className = new Label(I18nWS.getInstance().getClassName(obj.getJEVisClassName()));
 

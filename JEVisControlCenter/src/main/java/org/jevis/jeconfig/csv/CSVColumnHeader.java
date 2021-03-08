@@ -90,9 +90,11 @@ public class CSVColumnHeader {
 
     private SimpleDateFormat dateFormatter = new SimpleDateFormat();
     private Meaning currentMeaning = Meaning.Ignore;
+    private final StackPane dialogContainer;
     private int columnNr = -1;
 
-    public CSVColumnHeader(CSVTable table, int column) {
+    public CSVColumnHeader(StackPane dialogContainer, CSVTable table, int column) {
+        this.dialogContainer = dialogContainer;
         columnNr = column;
         _table = table;
 
@@ -730,24 +732,21 @@ public class CSVColumnHeader {
                 allFilter.add(basicFilter);
 
 
-                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
+                SelectTargetDialog selectionDialog = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.SINGLE, _table.getDataSource(), new ArrayList<UserSelection>());
                 selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
-                selectionDialog.setInitOwner(button.getScene().getWindow());
-                if (selectionDialog.show(
-                        _table.getDataSource(),
-                        I18n.getInstance().getString("csv.target.title"),
-                        new ArrayList<UserSelection>()
-                ) == SelectTargetDialog.Response.OK) {
-                    logger.trace("Selection Done");
-                    for (UserSelection us : selectionDialog.getUserSelection()) {
-                        try {
-                            String buttonText = "";
-                            if (us.getSelectedObject() != null) {
-                                logger.trace("us: {}", us.getSelectedObject().getID());
-                                buttonText += us.getSelectedObject().getName();
-                            }
-                            if (us.getSelectedAttribute() != null) {
-                                logger.trace("att: {}", us.getSelectedAttribute().getName());
+
+                selectionDialog.setOnDialogClosed(event -> {
+                    if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                        logger.trace("Selection Done");
+                        for (UserSelection us : selectionDialog.getUserSelection()) {
+                            try {
+                                String buttonText = "";
+                                if (us.getSelectedObject() != null) {
+                                    logger.trace("us: {}", us.getSelectedObject().getID());
+                                    buttonText += us.getSelectedObject().getName();
+                                }
+                                if (us.getSelectedAttribute() != null) {
+                                    logger.trace("att: {}", us.getSelectedAttribute().getName());
                                 _target = us.getSelectedAttribute();
                                 buttonText += "." + _target.getName();
                             }
@@ -759,17 +758,19 @@ public class CSVColumnHeader {
                             }
                             formatAllRows();
 
-                        } catch (Exception ex) {
-                            logger.catching(ex);
-                            Alert alert = new Alert(AlertType.ERROR);
-                            alert.setTitle(I18n.getInstance().getString("csv.target.error.title"));
-                            alert.setHeaderText(I18n.getInstance().getString("csv.target.error.message"));
-                            alert.setContentText(ex.getMessage());
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                Alert alert = new Alert(AlertType.ERROR);
+                                alert.setTitle(I18n.getInstance().getString("csv.target.error.title"));
+                                alert.setHeaderText(I18n.getInstance().getString("csv.target.error.message"));
+                                alert.setContentText(ex.getMessage());
 
-                            alert.showAndWait();
+                                alert.showAndWait();
+                            }
                         }
                     }
-                }
+                });
+                selectionDialog.show();
             }
         });
 

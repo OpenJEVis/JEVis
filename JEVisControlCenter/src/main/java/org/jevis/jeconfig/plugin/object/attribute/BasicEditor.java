@@ -6,7 +6,6 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTooltip;
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -15,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -23,6 +23,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.control.AnalysisLinkButton;
+import org.jevis.jeconfig.dialog.UnitDialog;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -67,12 +68,67 @@ public abstract class BasicEditor implements AttributeEditor {
 
 
     private Node buildGui(JEVisAttribute att) {
-        HBox hbox = new HBox();
+        HBox hbox = new HBox(6);
         JFXTextField valueField = new JFXTextField();
 
         valueField.getValidators().add(getValidator());
-        valueField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
+
+        valueField.setPrefWidth(this.maxWidth);
+        valueField.setAlignment(Pos.CENTER_RIGHT);
+
+        try {
+            if (this.orgSample != null) {
+                valueField.setText(formatSample(this.orgSample));
+                this.isValid.setValue(true);
+
+                Tooltip tt = new Tooltip("TimeStamp: " + this.orgSample.getTimestamp().toString(DateTimeFormat.patternForStyle("MS", I18n.getInstance().getLocale())));
+                tt.setOpacity(0.5);
+                valueField.setTooltip(tt);
+            }
+
+        } catch (Exception ex) {
+            logger.catching(ex);
+        }
+
+        hbox.getChildren().addAll(new StackPane(valueField));
+
+        try {
+
+            StackPane stackPane = new StackPane();
+            JFXTextField ubutton = new JFXTextField();
+            ubutton.setPrefWidth(45);
+            ubutton.setEditable(false);
+            stackPane.getChildren().add(ubutton);
+
+            if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
+                ubutton.setText(UnitManager.getInstance().format(this.attribute.getDisplayUnit().getLabel()));
+            } else {
+                ubutton.setText(UnitManager.getInstance().format(this.attribute.getInputUnit().getLabel()));
+            }
+
+            ubutton.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    try {
+                        UnitDialog unitDialog = new UnitDialog(stackPane, this.attribute, ubutton);
+                        unitDialog.show();
+                    } catch (JEVisException e) {
+                        logger.error("Could not create unit dialog", e);
+                    }
+                }
+            });
+
+            hbox.getChildren().add(stackPane);
+        } catch (Exception ex) {
+            logger.error("Could not build unit field: " + ex);
+        }
+
+
+        if (attribute.getName().equals("Value") || attribute.getName().equals("value")) {
+            hbox.getChildren().add(new AnalysisLinkButton(att));
+        }
+
+        valueField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
                 try {
                     if ((valueField.getText().isEmpty() && validateEmptyValue())
                             || (!valueField.getText().isEmpty())) {
@@ -93,48 +149,6 @@ public abstract class BasicEditor implements AttributeEditor {
                 }
             }
         });
-
-
-        valueField.setPrefWidth(this.maxWidth);
-        valueField.setAlignment(Pos.CENTER_RIGHT);
-
-        try {
-            if (this.orgSample != null) {
-                valueField.setText(formatSample(this.orgSample));
-                this.isValid.setValue(true);
-
-                Tooltip tt = new JFXTooltip("TimeStamp: " + this.orgSample.getTimestamp().toString(DateTimeFormat.patternForStyle("MS", I18n.getInstance().getLocale())));
-                tt.setOpacity(0.5);
-                valueField.setTooltip(tt);
-            }
-
-        } catch (Exception ex) {
-            logger.catching(ex);
-        }
-
-        hbox.getChildren().addAll(valueField);
-
-        try {
-            if (att.getInputUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
-                JFXTextField ubutton = new JFXTextField();
-                ubutton.setPrefWidth(45);
-                ubutton.setEditable(false);
-                if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
-                    ubutton.setText(UnitManager.getInstance().format(this.attribute.getDisplayUnit().getLabel()));
-                } else {
-                    ubutton.setText(UnitManager.getInstance().format(this.attribute.getInputUnit().getLabel()));
-                }
-
-                hbox.getChildren().add(ubutton);
-            }
-        } catch (Exception ex) {
-            logger.error("Could not build unit field: " + ex);
-        }
-
-
-        if (attribute.getName().equals("Value") || attribute.getName().equals("value")) {
-            hbox.getChildren().add(new AnalysisLinkButton(att));
-        }
 
         return hbox;
     }

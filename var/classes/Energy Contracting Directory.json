@@ -17,6 +17,16 @@
       "start": "Energy Contracting Directory",
       "end": "Building",
       "type": 3
+    },
+    {
+      "start": "Data Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Data Directory",
+      "end": "Monitored Object",
+      "type": 3
     }
   ]
 }

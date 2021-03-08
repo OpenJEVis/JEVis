@@ -15,6 +15,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -68,6 +69,7 @@ public class ChartDataRow {
      * Maximum number of parallel running getSamples(), not the Dashboard need multiple
      */
     private JEVisAttribute forecastDataAttribute;
+    private String formatString = "yyyy-MM-dd HH:mm:ss";
 
     public ChartDataRow(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -381,12 +383,28 @@ public class ChartDataRow {
                 }
 
                 this.samples = samples;
+                updateFormatString(samples);
 
             } catch (Exception ex) {
                 logger.error(ex);
             }
         }
         return samples;
+    }
+
+    private void updateFormatString(List<JEVisSample> samples) {
+        if (samples.size() > 0) {
+            try {
+                boolean isCounter = CleanDataObject.isCounter(samples.get(0).getAttribute().getObject(), samples.get(0));
+
+                if (samples.size() > 1) {
+
+                    this.formatString = PeriodHelper.getFormatString(new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp()), isCounter);
+                }
+            } catch (Exception e) {
+                logger.error("Could not get format string", e);
+            }
+        }
     }
 
     public Map<DateTime, JEVisSample> getSamplesMap() throws JEVisException {
@@ -880,5 +898,9 @@ public class ChartDataRow {
 
     public void setCustomCSS(String customCSS) {
         this.customCSS = customCSS;
+    }
+
+    public String getFormatString() {
+        return formatString;
     }
 }

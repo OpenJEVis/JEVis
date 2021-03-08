@@ -166,7 +166,9 @@ public class SearchFilterBar extends VBox {
         Label replaceLabel = new Label(I18n.getInstance().getString("searchbar.label.replacewith"));
         JFXTextField replaceField = new JFXTextField();
         JFXButton replace = new JFXButton(I18n.getInstance().getString("searchbar.button.replace"));
+        replace.getStyleClass().add("button-raised");
         JFXButton replaceAll = new JFXButton(I18n.getInstance().getString("searchbar.button.alltreedown"));
+        replaceAll.getStyleClass().add("button-raised");
 
         replacementHbox = new HBox(replaceLabel, replaceField, replace, replaceAll);
         replacementHbox.setSpacing(10);

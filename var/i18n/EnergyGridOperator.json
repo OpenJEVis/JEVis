@@ -1,7 +1,7 @@
 {
   "jevisclass": "Energy Grid Operator",
   "names": {
-    "de": "Netzbetreiber",
+    "de": "Netzbetrieb",
     "ru": "Оператор сети",
     "uk": "Оператор мережі",
     "en": "Energy Grid Operator",
@@ -15,6 +15,23 @@
     "th": "คลาสผู้ให้บริการเครือข่ายกำหนดคุณลักษณะพื้นฐานสำหรับตัวดำเนินการเครือข่าย"
   },
   "types": [
+    {
+      "type": "Contractor",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragspartner",
+        "ru": "Партнер по контракту",
+        "uk": "Контрактний партнер",
+        "th": "คู่สัญญา",
+        "en": "Contractor"
+      }
+    },
     {
       "type": "Energy Grid Operator Code Number",
       "descriptions": {

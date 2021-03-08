@@ -1,0 +1,32 @@
+{
+  "name": "Template Calculation Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Template Calculation Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Result Calculation Template",
+      "end": "Analyses Directory",
+      "type": 3
+    },
+    {
+      "start": "Template Calculation Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Template Calculation Directory",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "Template Calculation Directory",
+      "end": "System",
+      "type": 3
+    }
+  ],
+  "types": []
+}

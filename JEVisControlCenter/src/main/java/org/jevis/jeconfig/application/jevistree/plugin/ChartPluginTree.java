@@ -21,6 +21,7 @@ import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
+import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ public class ChartPluginTree implements TreePlugin {
     private JEVisDataSource dataSource;
     private final SimpleBooleanProperty addedChart = new SimpleBooleanProperty(false);
     private ColorColumn colorColumn;
+    private ChartSelectionDialog dialog;
 
     public ChartPluginTree(AnalysisDataModel data) {
         this.data = data;

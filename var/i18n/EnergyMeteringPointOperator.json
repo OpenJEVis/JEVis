@@ -1,7 +1,7 @@
 {
   "jevisclass": "Energy Metering Point Operator",
   "names": {
-    "de": "Messstellenbetreiber",
+    "de": "Messstellenbetrieb",
     "ru": "Оператор счетчика",
     "uk": "Оператор лічильника",
     "en": "Energy Metering Point Operator",
@@ -15,6 +15,23 @@
     "th": "คลาสตัวดำเนินการมิเตอร์กำหนดคุณลักษณะพื้นฐานสำหรับตัวดำเนินการมิเตอร์เฉพาะ"
   },
   "types": [
+    {
+      "type": "Contractor",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Vertragspartner",
+        "ru": "Партнер по контракту",
+        "uk": "Контрактний партнер",
+        "th": "คู่สัญญา",
+        "en": "Contractor"
+      }
+    },
     {
       "type": "Energy Metering Point Operator Code Number",
       "descriptions": {

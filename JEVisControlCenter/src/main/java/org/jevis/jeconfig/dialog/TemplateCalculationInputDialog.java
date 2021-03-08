@@ -6,17 +6,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,29 +20,22 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
-import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.jevis.jeconfig.plugin.dtrc.InputVariableType;
-import org.jevis.jeconfig.plugin.dtrc.TRCPlugin;
-import org.jevis.jeconfig.plugin.dtrc.TemplateInput;
+import org.jevis.jeconfig.plugin.dtrc.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TemplateCalculationInputDialog {
+public class TemplateCalculationInputDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(TemplateCalculationInputDialog.class);
     private final String ICON = "1404313956_evolution-tasks.png";
     private final AlphanumComparator ac = new AlphanumComparator();
     private Response response = Response.CANCEL;
 
-    public Response show(JEVisDataSource ds, TemplateInput templateInput) {
-        Stage stage = new Stage();
+    public TemplateCalculationInputDialog(StackPane dialogContainer, JEVisDataSource ds, RCTemplate rcTemplate, TemplateInput templateInput) {
+        super();
 
-        stage.setTitle(I18n.getInstance().getString("dialog.selection.title"));
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initOwner(JEConfig.getStage());
+        setDialogContainer(dialogContainer);
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(6));
@@ -59,16 +48,21 @@ public class TemplateCalculationInputDialog {
         gridPane.getColumnConstraints().add(1, fieldWidth);
 
         Label classesLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.classlabel"));
-        gridPane.add(classesLabel, 0, 0);
         GridPane.setHgrow(classesLabel, Priority.ALWAYS);
 
         Label attributeLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.attributelabel"));
-        gridPane.add(attributeLabel, 0, 1);
         GridPane.setHgrow(attributeLabel, Priority.ALWAYS);
 
+        Label variableNameLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.variablenamelabel"));
+        GridPane.setHgrow(variableNameLabel, Priority.ALWAYS);
+
         Label typeLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.typelabel"));
-        gridPane.add(typeLabel, 0, 2);
         GridPane.setHgrow(typeLabel, Priority.ALWAYS);
+
+        JFXTextField variableNameField = new JFXTextField(templateInput.getVariableName());
+        GridPane.setHgrow(variableNameField, Priority.ALWAYS);
+
+        variableNameField.textProperty().addListener((observable, oldValue, newValue) -> templateInput.setVariableName(newValue));
 
         JFXComboBox<InputVariableType> inputVariableTypeJFXComboBox = new JFXComboBox<>(FXCollections.observableArrayList(InputVariableType.values()));
         Callback<ListView<InputVariableType>, ListCell<InputVariableType>> inputVariableTypeJFXComboBoxCellFactory = new Callback<ListView<InputVariableType>, ListCell<InputVariableType>>() {
@@ -89,11 +83,26 @@ public class TemplateCalculationInputDialog {
                                 case AVG:
                                     setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.avg"));
                                     break;
+                                case MIN:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.min"));
+                                    break;
+                                case MAX:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.max"));
+                                    break;
+                                case YEARLY_VALUE:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.yearlyvalue"));
+                                    break;
                                 case LAST:
                                     setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.last"));
                                     break;
+                                case NON_PERIODIC:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.nonperiodic"));
+                                    break;
                                 case STRING:
                                     setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.string"));
+                                    break;
+                                case FORMULA:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
                                     break;
                             }
                         }
@@ -104,25 +113,13 @@ public class TemplateCalculationInputDialog {
 
         inputVariableTypeJFXComboBox.setCellFactory(inputVariableTypeJFXComboBoxCellFactory);
         inputVariableTypeJFXComboBox.setButtonCell(inputVariableTypeJFXComboBoxCellFactory.call(null));
-
-        gridPane.add(inputVariableTypeJFXComboBox, 1, 2);
         GridPane.setHgrow(inputVariableTypeJFXComboBox, Priority.ALWAYS);
 
-        inputVariableTypeJFXComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> templateInput.setVariableType(newValue.toString()));
-
-        if (templateInput.getVariableType() != null) {
-            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
-        } else {
-            inputVariableTypeJFXComboBox.getSelectionModel().selectFirst();
-        }
-
         Label limiterLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
-        gridPane.add(limiterLabel, 0, 3);
         GridPane.setHgrow(limiterLabel, Priority.ALWAYS);
 
         JFXTextField filterField = new JFXTextField();
         filterField.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
-        gridPane.add(filterField, 1, 3);
         GridPane.setHgrow(filterField, Priority.ALWAYS);
 
         if (templateInput.getFilter() != null) {
@@ -130,7 +127,6 @@ public class TemplateCalculationInputDialog {
         }
 
         JFXCheckBox groupCheckBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.grouplabel"));
-        gridPane.add(groupCheckBox, 0, 4, 2, 1);
         GridPane.setHgrow(groupCheckBox, Priority.ALWAYS);
 
         if (templateInput.getGroup() != null) {
@@ -140,8 +136,10 @@ public class TemplateCalculationInputDialog {
         groupCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> templateInput.setGroup(newValue));
 
         JFXComboBox<JEVisClass> classSelector = new JFXComboBox<>();
+        JFXComboBox<JEVisType> attributeSelector = new JFXComboBox<>();
 
         JFXListView<JEVisObject> listView = new JFXListView<>();
+        listView.setMinSize(450, 550);
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> listViewCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -169,8 +167,6 @@ public class TemplateCalculationInputDialog {
             }
         };
         listView.setCellFactory(listViewCellFactory);
-
-        gridPane.add(listView, 2, 0, 1, 5);
         GridPane.setHgrow(listView, Priority.ALWAYS);
 
         try {
@@ -248,7 +244,9 @@ public class TemplateCalculationInputDialog {
                 }
                 return 0;
             });
-            JFXComboBox<JEVisType> attributeSelector = new JFXComboBox<>(FXCollections.observableArrayList(types));
+            types.add(new JEVisNameType(ds, firstClass));
+
+            attributeSelector.getItems().setAll(types);
             Callback<ListView<JEVisType>, ListCell<JEVisType>> attributeCellFactory = new Callback<ListView<JEVisType>, ListCell<JEVisType>>() {
                 @Override
                 public ListCell<JEVisType> call(ListView<JEVisType> param) {
@@ -261,7 +259,11 @@ public class TemplateCalculationInputDialog {
                                 setText(null);
                             } else {
                                 try {
-                                    setText(I18nWS.getInstance().getTypeName(classSelector.getSelectionModel().getSelectedItem().getName(), obj.getName()));
+                                    if (!obj.getName().equals("name")) {
+                                        setText(I18nWS.getInstance().getTypeName(classSelector.getSelectionModel().getSelectedItem().getName(), obj.getName()));
+                                    } else {
+                                        setText(I18n.getInstance().getString("plugin.graph.table.name"));
+                                    }
                                 } catch (JEVisException e) {
                                     logger.error("Could not get type name", e);
                                 }
@@ -296,6 +298,7 @@ public class TemplateCalculationInputDialog {
                             }
                             return 0;
                         });
+                        newTypes.add(new JEVisNameType(ds, newValue));
 
                         List<JEVisObject> newObjects = ds.getObjects(newValue, false);
 
@@ -331,54 +334,147 @@ public class TemplateCalculationInputDialog {
                     try {
                         templateInput.setAttributeName(newValue.getName());
                         templateInput.buildVariableName(classSelector.getSelectionModel().getSelectedItem(), newValue);
+                        variableNameField.setText(templateInput.getVariableName());
                     } catch (JEVisException e) {
                         logger.error("Could not set new attribute name", e);
                     }
                 }
             });
 
-            gridPane.add(classSelector, 1, 0);
-            gridPane.add(attributeSelector, 1, 1);
-        } catch (
-                JEVisException e) {
+        } catch (JEVisException e) {
             logger.error("Could not load JEVisClasses", e);
         }
+
+        Label formulaLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
+        JFXComboBox<TemplateFormula> formulaBox = new JFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateFormulas()));
+        TemplateFormula none = new TemplateFormula();
+        none.setName(I18n.getInstance().getString("dialog.regression.type.none"));
+        formulaBox.getItems().add(0, none);
+        Callback<ListView<TemplateFormula>, ListCell<TemplateFormula>> formulaCellFactory = new Callback<ListView<TemplateFormula>, ListCell<TemplateFormula>>() {
+            @Override
+            public ListCell<TemplateFormula> call(ListView<TemplateFormula> param) {
+                return new JFXListCell<TemplateFormula>() {
+                    @Override
+                    protected void updateItem(TemplateFormula obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(obj.getName());
+                        }
+                    }
+                };
+            }
+        };
+
+        formulaBox.setCellFactory(formulaCellFactory);
+        formulaBox.setButtonCell(formulaCellFactory.call(null));
+
+        if (templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
+            formulaLabel.setVisible(false);
+            formulaBox.setVisible(false);
+        } else if (templateInput.getVariableType() != null) {
+            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
+            formulaLabel.setVisible(true);
+            formulaBox.setVisible(true);
+        } else {
+            inputVariableTypeJFXComboBox.getSelectionModel().selectFirst();
+        }
+
+        inputVariableTypeJFXComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            templateInput.setVariableType(newValue.toString());
+            if (newValue.equals(InputVariableType.FORMULA)) {
+                Platform.runLater(() -> {
+                    formulaLabel.setVisible(true);
+                    formulaBox.setVisible(true);
+                });
+            } else {
+                Platform.runLater(() -> {
+                    formulaLabel.setVisible(false);
+                    formulaBox.setVisible(false);
+                });
+            }
+        });
+
+        if (templateInput.getTemplateFormula() != null) {
+            TemplateFormula selectedFormula = formulaBox.getItems().stream().filter(templateFormula -> templateFormula.getId().equals(templateInput.getTemplateFormula())).findFirst().orElse(null);
+            if (selectedFormula != null)
+                formulaBox.getSelectionModel().select(selectedFormula);
+            else {
+                formulaBox.getSelectionModel().selectFirst();
+            }
+        } else {
+            formulaBox.getSelectionModel().selectFirst();
+        }
+
+        formulaBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.getName().equals(none.getId())) {
+                templateInput.setTemplateFormula(newValue.getId());
+            } else {
+                templateInput.setTemplateFormula(null);
+            }
+        });
 
         JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {
             response = Response.OK;
-            stage.close();
+            this.close();
         });
 
         JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setOnAction(event -> stage.close());
+        cancel.setOnAction(event -> this.close());
 
         JFXButton delete = new JFXButton(I18n.getInstance().getString("jevistree.menu.delete"));
         delete.setOnAction(event -> {
             response = Response.DELETE;
-            stage.close();
+            this.close();
         });
 
         HBox buttonBar = new HBox(8, delete, cancel, ok);
-        gridPane.add(buttonBar, 1, 5, 2, 1);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
 
-        Scene scene = new Scene(gridPane);
-        stage.setScene(scene);
-        stage.setWidth(650);
-        stage.setHeight(350);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(true);
-        stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
-        stage.setAlwaysOnTop(true);
-        stage.toFront();
-        stage.sceneProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                TopMenu.applyActiveTheme(scene);
-            }
-        });
-        stage.showAndWait();
+        int row = 0;
+        gridPane.add(classesLabel, 0, row);
+        gridPane.add(classSelector, 1, row);
+        gridPane.add(listView, 2, row, 1, 8);
+        row++;
 
-        return response;
+        gridPane.add(attributeLabel, 0, row);
+        gridPane.add(attributeSelector, 1, row);
+        row++;
+
+        gridPane.add(variableNameLabel, 0, row);
+        gridPane.add(variableNameField, 1, row);
+        row++;
+
+        gridPane.add(typeLabel, 0, row);
+        gridPane.add(inputVariableTypeJFXComboBox, 1, row);
+        row++;
+
+        gridPane.add(formulaLabel, 0, row);
+        gridPane.add(formulaBox, 1, row);
+        row++;
+
+        gridPane.add(limiterLabel, 0, row);
+        gridPane.add(filterField, 1, row);
+        row++;
+
+        gridPane.add(groupCheckBox, 0, row, 2, 1);
+        row++;
+
+        gridPane.add(new Label("UUID: " + templateInput.getId()), 0, row);
+        row++;
+
+        Separator separator2 = new Separator(Orientation.HORIZONTAL);
+        separator2.setPadding(new Insets(8, 0, 8, 0));
+        gridPane.add(separator2, 0, row, 3, 1);
+        row++;
+
+        gridPane.add(buttonBar, 1, row, 3, 1);
+
+        setContent(gridPane);
     }
 
     private void createFilterList(TemplateInput templateInput, JFXTextField limiterField, JFXListView<JEVisObject> listView, ObservableList<JEVisObject> objects) {
@@ -418,4 +514,7 @@ public class TemplateCalculationInputDialog {
         listView.setItems(filteredList);
     }
 
+    public Response getResponse() {
+        return response;
+    }
 }

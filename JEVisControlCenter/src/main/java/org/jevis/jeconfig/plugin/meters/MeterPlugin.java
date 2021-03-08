@@ -1,7 +1,5 @@
 package org.jevis.jeconfig.plugin.meters;
 
-import com.jfoenix.controls.JFXTabPane;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -18,11 +16,12 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Callback;
 import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.UnitManager;
@@ -30,7 +29,6 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -40,7 +38,6 @@ import org.jevis.jeconfig.plugin.TablePlugin;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -50,16 +47,15 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
 
-public class MeterPlugin extends TablePlugin implements Plugin {
+public class MeterPlugin extends TablePlugin {
     public static final String MEASUREMENT_INSTRUMENT_CLASS = "Measurement Instrument";
     private static final double EDITOR_MAX_HEIGHT = 50;
     public static String PLUGIN_NAME = "Meter Plugin";
     private final Image taskImage = JEConfig.getImage("measurement_instrument.png");
 
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
-    private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final JFXTabPane tabPane = new JFXTabPane();
+    private final TabPane tabPane = new TabPane();
     private boolean initialized = false;
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
     private int selectedIndex = 0;
@@ -227,30 +223,10 @@ public class MeterPlugin extends TablePlugin implements Plugin {
                                                         JEVisSample latestSample = att.getLatestSample();
                                                         JEVisSample periodSample = periodAtt.getLatestSample();
                                                         Period period = new Period(periodSample.getValueAsString());
-                                                        boolean isCounter = isCounter(att.getObject(), latestSample);
+                                                        boolean isCounter = CleanDataObject.isCounter(att.getObject(), latestSample);
                                                         JEVisUnit displayUnit = att.getDisplayUnit();
                                                         String unitString = UnitManager.getInstance().format(displayUnit);
-                                                        String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
-
-                                                        try {
-                                                            if (period.equals(Period.days(1))) {
-                                                                normalPattern = "dd. MMMM yyyy";
-                                                            } else if (period.equals(Period.weeks(1))) {
-                                                                normalPattern = "dd. MMMM yyyy";
-                                                            } else if (period.equals(Period.months(1)) && !isCounter) {
-                                                                normalPattern = "MMMM yyyy";
-                                                            } else if (period.equals(Period.months(1)) && isCounter) {
-                                                                normalPattern = "dd. MMMM yyyy";
-                                                            } else if (period.equals(Period.years(1)) && !isCounter) {
-                                                                normalPattern = "yyyy";
-                                                            } else if (period.equals(Period.years(1)) && isCounter) {
-                                                                normalPattern = "dd. MMMM yyyy";
-                                                            } else {
-                                                                normalPattern = "yyyy-MM-dd HH:mm:ss";
-                                                            }
-                                                        } catch (Exception e) {
-                                                            logger.error("Could not determine sample rate, fall back to standard", e);
-                                                        }
+                                                        String normalPattern = PeriodHelper.getFormatString(period, isCounter);
 
                                                         String timeString = latestSample.getTimestamp().toString(normalPattern);
 
@@ -302,10 +278,13 @@ public class MeterPlugin extends TablePlugin implements Plugin {
             JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
             TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
 
-            MeterDialog meterDialog = new MeterDialog(getDataSource(), selectedItem.getJeVisClass());
-            if (meterDialog.showReplaceWindow(tableView.getSelectionModel().getSelectedItem().getObject()) == Response.OK) {
-                handleRequest(Constants.Plugin.Command.RELOAD);
-            }
+            MeterDialog meterDialog = new MeterDialog(dialogContainer, getDataSource(), selectedItem.getJeVisClass());
+            meterDialog.setOnDialogClosed(event1 -> {
+                if (meterDialog.getResponse() == Response.OK) {
+                    handleRequest(Constants.Plugin.Command.RELOAD);
+                }
+            });
+            meterDialog.showReplaceWindow(tableView.getSelectionModel().getSelectedItem().getObject());
         });
         replaceButton.setDisable(true);
 
@@ -376,11 +355,11 @@ public class MeterPlugin extends TablePlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
 
-        reload.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip")));
-        save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.save.tooltip")));
-        newButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.new.tooltip")));
-        replaceButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.alarms.reload.replace.tooltip")));
-        printButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
+        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip")));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.save.tooltip")));
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.new.tooltip")));
+        replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.replace.tooltip")));
+        printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
 
         toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
@@ -529,10 +508,14 @@ public class MeterPlugin extends TablePlugin implements Plugin {
             case Constants.Plugin.Command.EXPAND:
                 break;
             case Constants.Plugin.Command.NEW:
-                MeterDialog meterDialog = new MeterDialog(getDataSource(), ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
-                if (meterDialog.showNewWindow() == Response.OK) {
-                    handleRequest(Constants.Plugin.Command.RELOAD);
-                }
+                MeterDialog meterDialog = new MeterDialog(dialogContainer, getDataSource(), ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
+                meterDialog.setOnDialogClosed(event -> {
+                    if (meterDialog.getResponse() == Response.OK) {
+                        handleRequest(Constants.Plugin.Command.RELOAD);
+                    }
+                });
+
+                meterDialog.show();
                 break;
             case Constants.Plugin.Command.RELOAD:
                 Platform.runLater(() -> replaceButton.setDisable(true));
@@ -579,11 +562,6 @@ public class MeterPlugin extends TablePlugin implements Plugin {
             case Constants.Plugin.Command.FIND_AGAIN:
                 break;
         }
-    }
-
-    @Override
-    public Node getContentNode() {
-        return borderPane;
     }
 
     private void loadTabs(Map<JEVisClass, List<JEVisObject>> allMeters, List<JEVisClass> classes) throws InterruptedException {

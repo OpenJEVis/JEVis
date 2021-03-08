@@ -2,39 +2,51 @@
   "jevisclass": "Analysis",
   "names": {
     "de": "Analyse",
-    "ru": "Analysis",
-    "en": "Analysis"
+    "ru": "Анализ",
+    "en": "Analysis",
+    "th": "การวิเคราะห์",
+    "uk": "Аналіз"
   },
   "descriptions": {
-    "de": "Das Analysenobjekt beeinhaltet das Daten Modell aus Graph. Alle wichtigen Einstellungen zu der entsprechenden Analyse sind hier abgelegt.",
-    "ru": "The analysis object contains the data model from graph. All important settings for the corresponding analysis are stored here.",
-    "en": "The analysis object contains the data model from graph. All important settings for the corresponding analysis are stored here."
+    "de": "Das Analyseobjekt beinhaltet das Datenmodell aus dem Diagramm Plugin. Alle wichtigen Einstellungen zu der entsprechenden Analyse sind hier abgelegt.",
+    "ru": "Объект анализа содержит модель данных из плагина диаграммы. Здесь хранятся все важные настройки для соответствующего анализа.",
+    "en": "The analysis object contains the data model from graph. All important settings for the corresponding analysis are stored here.",
+    "th": "ออบเจ็กต์การวิเคราะห์ประกอบด้วยโมเดลข้อมูลจากปลั๊กอินไดอะแกรม การตั้งค่าที่สำคัญทั้งหมดสำหรับการวิเคราะห์ที่เกี่ยวข้องจะถูกเก็บไว้ที่นี่",
+    "uk": "Об'єкт аналізу містить модель даних із плагіна діаграми. Тут зберігаються всі важливі налаштування для відповідного аналізу."
   },
   "types": [
     {
       "type": "Data Model",
       "descriptions": {
-        "de": "Beeinhaltet das Datenmodell zur gespeicherten Analyse",
-        "ru": "Includes the data model for stored analysis",
-        "en": "Includes the data model for stored analysis"
+        "de": "Beinhaltet das Datenmodell zur gespeicherten Analyse",
+        "ru": "Содержит модель данных для сохраненного анализа",
+        "en": "Includes the data model for stored analysis",
+        "th": "มีโมเดลข้อมูลสำหรับการวิเคราะห์ที่บันทึกไว้",
+        "uk": "Містить модель даних для збереженого аналізу"
       },
       "names": {
         "de": "Datenmodell",
-        "ru": "Data Model",
-        "en": "Data Model"
+        "ru": "Модель данных",
+        "en": "Data Model",
+        "th": "แบบจำลองข้อมูล",
+        "uk": "Модель даних"
       }
     },
     {
       "type": "Charts",
       "descriptions": {
-        "de": "Beeinhaltet die Einstellungen der Diagramme zur gespeicherten Analyse",
-        "ru": "Includes the settings of the charts for stored analysis",
-        "en": "Includes the settings of the charts for stored analysis"
+        "de": "Beinhaltet die Einstellungen der Diagramme zur gespeicherten Analyse",
+        "ru": "Содержит настройки диаграмм для сохраненного анализа.",
+        "en": "Includes the settings of the charts for stored analysis",
+        "th": "ประกอบด้วยการตั้งค่าของไดอะแกรมสำหรับการวิเคราะห์ที่บันทึกไว้",
+        "uk": "Містить налаштування діаграм для збереженого аналізу"
       },
       "names": {
         "de": "Diagramme",
-        "ru": "Charts",
-        "en": "Charts"
+        "ru": "Диаграммы",
+        "en": "Charts",
+        "th": "ไดอะแกรม",
+        "uk": "Діаграми"
       }
     }
   ]

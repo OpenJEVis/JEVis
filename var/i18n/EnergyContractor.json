@@ -1,16 +1,16 @@
 {
   "jevisclass": "Energy Contractor",
   "names": {
-    "de": "Energie Vertragsnehmer",
+    "de": "Vertragspartner",
     "ru": "поставщик энергии",
     "uk": "постачальник енергії",
     "en": "Energy Contractor",
     "th": "ผู้จัดหาพลังงาน"
   },
   "descriptions": {
-    "de": "Die Klasse Energielieferant definiert die Grundattribute für die spezifischen Energielieferanten",
+    "de": "Die Klasse Vertragspartner definiert die Grundattribute für die spezifischen Vertragspartner",
     "ru": "Класс поставщика энергии определяет основные атрибуты конкретного поставщика энергии.",
-    "en": "The class Energy Contractor defines the base attributes of specific energy suppliers",
+    "en": "The class Energy Contractor defines the base attributes of specific energy contractor",
     "uk": "Клас постачальника енергії визначає основні атрибути конкретного постачальника енергії",
     "th": "ระดับผู้จัดหาพลังงานกำหนดคุณลักษณะพื้นฐานสำหรับผู้จัดหาพลังงานเฉพาะ"
   },

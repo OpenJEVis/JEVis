@@ -1,0 +1,24 @@
+{
+  "name": "Accounting Configuration",
+  "description": "",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Accounting Configuration",
+      "end": "Accounting Configuration Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Template File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Accounting Configuration"
+    }
+  ]
+}
+

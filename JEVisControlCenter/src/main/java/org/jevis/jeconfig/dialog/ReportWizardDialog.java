@@ -6,7 +6,6 @@ package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -15,10 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,8 +54,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ReportWizardDialog {
     private static final Logger logger = LogManager.getLogger(ReportWizardDialog.class);
+    private final StackPane dialogContainer;
     Image imgMarkAll = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
-    Tooltip tooltipMarkAll = new JFXTooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
+    Tooltip tooltipMarkAll = new Tooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
     public static final Image taskImage = JEConfig.getImage("Report.png");
 
     public static String ICON = "Startup Wizard_18228.png";
@@ -82,7 +79,8 @@ public class ReportWizardDialog {
     private Integer maxColumnIndex = 0;
     private Integer maxRowIndex = 0;
 
-    public ReportWizardDialog(JEVisObject newObject) {
+    public ReportWizardDialog(StackPane dialogContainer, JEVisObject newObject) {
+        this.dialogContainer = dialogContainer;
         JEVisClass reportLinkClass = null;
         JEVisClass reportAttributeClass = null;
         JEVisClass reportPeriodConfigurationClass = null;
@@ -332,34 +330,31 @@ public class ReportWizardDialog {
         allFilter.add(basicFilter);
         allFilter.add(allAttributeFilter);
 
-        SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.MULTIPLE);
+        SelectTargetDialog selectionDialog = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.MULTIPLE, ds, new ArrayList<>());
 
-        List<UserSelection> openList = new ArrayList<>();
+        selectionDialog.setOnDialogClosed(event -> {
+            if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                logger.trace("Selection Done");
 
-        if (selectionDialog.show(
-                ds,
-                I18n.getInstance().getString("dialog.target.data.title"),
-                openList
-        ) == SelectTargetDialog.Response.OK) {
-            logger.trace("Selection Done");
+                selections = selectionDialog.getUserSelection();
+                for (UserSelection us : selections) {
 
-            selections = selectionDialog.getUserSelection();
-            for (UserSelection us : selections) {
+                    ReportLink newLink = new ReportLink("", us.getSelectedObject().getID(), false, "",
+                            new ReportAttribute("Value",
+                                    new ReportPeriodConfiguration(AggregationPeriod.NONE, ManipulationMode.NONE, PeriodMode.CURRENT, FixedPeriod.NONE)));
+                    if (us.getSelectedAttribute() != null) {
+                        newLink.getReportAttribute().setAttributeName(us.getSelectedAttribute().getName());
+                    } else {
+                        newLink.getReportAttribute().setAttributeName("Value");
+                    }
 
-                ReportLink newLink = new ReportLink("", us.getSelectedObject().getID(), false, "",
-                        new ReportAttribute("Value",
-                                new ReportPeriodConfiguration(AggregationPeriod.NONE, ManipulationMode.NONE, PeriodMode.CURRENT, FixedPeriod.NONE)));
-                if (us.getSelectedAttribute() != null) {
-                    newLink.getReportAttribute().setAttributeName(us.getSelectedAttribute().getName());
-                } else {
-                    newLink.getReportAttribute().setAttributeName("Value");
+                    updateName(newLink);
+
+                    createNewReportLink(true, newLink);
                 }
-
-                updateName(newLink);
-
-                createNewReportLink(true, newLink);
             }
-        }
+        });
+        selectionDialog.show();
     }
 
     private void openSingleSelect() {
@@ -369,30 +364,27 @@ public class ReportWizardDialog {
         allFilter.add(basicFilter);
         allFilter.add(allAttributeFilter);
 
-        SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
+        SelectTargetDialog selectionDialog = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.SINGLE, ds, new ArrayList<>());
 
-        List<UserSelection> openList = new ArrayList<>();
+        selectionDialog.setOnDialogClosed(event -> {
+            if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                logger.trace("Selection Done");
 
-        if (selectionDialog.show(
-                ds,
-                I18n.getInstance().getString("dialog.target.data.title"),
-                openList
-        ) == SelectTargetDialog.Response.OK) {
-            logger.trace("Selection Done");
+                selections = selectionDialog.getUserSelection();
+                for (UserSelection us : selections) {
+                    allAttributesRootObject = us.getSelectedObject();
 
-            selections = selectionDialog.getUserSelection();
-            for (UserSelection us : selections) {
-                allAttributesRootObject = us.getSelectedObject();
-
-                JEVisClass directoryClass = null;
-                try {
-                    directoryClass = ds.getJEVisClass("Directory");
-                    createAllAttributeLinks(directoryClass, us.getSelectedObject());
-                } catch (JEVisException e) {
-                    e.printStackTrace();
+                    JEVisClass directoryClass = null;
+                    try {
+                        directoryClass = ds.getJEVisClass("Directory");
+                        createAllAttributeLinks(directoryClass, us.getSelectedObject());
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        }
+        });
+        selectionDialog.show();
     }
 
     private void createAllAttributeLinks(JEVisClass directoryClass, JEVisObject selectedObject) throws JEVisException {
@@ -571,8 +563,6 @@ public class ReportWizardDialog {
             }
         }
 
-        SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
-
         targetsButton.setOnAction(event -> {
             TargetHelper th = null;
             if (targetString.get() != null) {
@@ -592,40 +582,41 @@ public class ReportWizardDialog {
                     openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
             }
 
-            if (selectionDialog.show(
-                    ds,
-                    I18n.getInstance().getString("dialog.target.data.title"),
-                    openList
-            ) == SelectTargetDialog.Response.OK) {
-                logger.trace("Selection Done");
+            SelectTargetDialog selectionDialog = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.SINGLE, ds, openList);
 
-                String newTarget = "";
-                selections = selectionDialog.getUserSelection();
-                for (UserSelection us : selections) {
-                    int index = selections.indexOf(us);
-                    if (index > 0) newTarget += ";";
+            selectionDialog.setOnDialogClosed(event1 -> {
+                if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                    logger.trace("Selection Done");
 
-                    newTarget += us.getSelectedObject().getID();
-                    reportLink.setjEVisID(us.getSelectedObject().getID());
+                    String newTarget = "";
+                    selections = selectionDialog.getUserSelection();
+                    for (UserSelection us : selections) {
+                        int index = selections.indexOf(us);
+                        if (index > 0) newTarget += ";";
 
-                    Platform.runLater(() -> updateName(reportLink));
+                        newTarget += us.getSelectedObject().getID();
+                        reportLink.setjEVisID(us.getSelectedObject().getID());
 
-                    ReportAttribute reportAttribute = reportLink.getReportAttribute();
-                    if (us.getSelectedAttribute() != null) {
-                        reportAttribute.setAttributeName(us.getSelectedAttribute().getName());
-                    } else {
-                        reportAttribute.setAttributeName("Value");
+                        Platform.runLater(() -> updateName(reportLink));
+
+                        ReportAttribute reportAttribute = reportLink.getReportAttribute();
+                        if (us.getSelectedAttribute() != null) {
+                            reportAttribute.setAttributeName(us.getSelectedAttribute().getName());
+                        } else {
+                            reportAttribute.setAttributeName("Value");
+                        }
+
+                        if (us.getSelectedAttribute() != null) {
+                            newTarget += ":" + us.getSelectedAttribute().getName();
+                        } else {
+                            newTarget += ":Value";
+                        }
                     }
-
-                    if (us.getSelectedAttribute() != null) {
-                        newTarget += ":" + us.getSelectedAttribute().getName();
-                    } else {
-                        newTarget += ":Value";
-                    }
+                    targetString.set(newTarget);
                 }
-                targetString.set(newTarget);
-            }
-            setButtonText(targetString.get(), targetsButton);
+                setButtonText(targetString.get(), targetsButton);
+            });
+            selectionDialog.show();
         });
 
         aggregationPeriodComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {

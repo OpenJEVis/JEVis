@@ -1,0 +1,18 @@
+{
+  "jevisclass": "Energy Governmental Dues Directory",
+  "names": {
+    "de": "Staatliche Abgaben",
+    "ru": "Государственный налоговый каталог",
+    "uk": "Державний податковий довідник",
+    "en": "Energy Governmental Dues Directory",
+    "th": "ไดเรกทอรีภาษีของรัฐ"
+  },
+  "descriptions": {
+    "de": "In den staatlichen Abgaben werden nähere Informationen zu den staatlichen Abgaben organisiert",
+    "ru": "Более подробная информация о государственных налогах организована в государственных налогах.",
+    "en": "Detailed information concerning energy governmental dues are managed in the Energy Governmental Dues Directory",
+    "uk": "Більше інформації про державні податки організовується у державних податках",
+    "th": "ข้อมูลเพิ่มเติมเกี่ยวกับภาษีของรัฐจัดอยู่ในภาษีของรัฐ"
+  },
+  "types": []
+}

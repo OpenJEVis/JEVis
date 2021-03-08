@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
-import com.jfoenix.controls.JFXTooltip;
 import de.jollyday.Holiday;
 import eu.hansolo.fx.charts.ChartType;
 import eu.hansolo.fx.charts.MatrixPane;
@@ -244,7 +243,7 @@ public class HeatMapChart implements Chart {
                 }
                 tsRight.setTextFill(Color.RED);
                 if (!toolTipString.equals("")) {
-                    Tooltip tooltip = new JFXTooltip(toolTipString);
+                    Tooltip tooltip = new Tooltip(toolTipString);
                     Tooltip.install(tsRight, tooltip);
                 }
             }

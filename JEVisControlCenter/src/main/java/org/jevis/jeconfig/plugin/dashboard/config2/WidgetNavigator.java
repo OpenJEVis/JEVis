@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -306,7 +305,7 @@ public class WidgetNavigator {
                 highlightButton.setGraphic(this.unlockIcon);
             }
         });
-        highlightButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
+        highlightButton.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         delete.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.delete")));
@@ -342,7 +341,7 @@ public class WidgetNavigator {
         });
 
 
-        NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvabableWidgets(control, new WidgetPojo()));
+        NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(control, new WidgetPojo()));
         widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
             Widget newWidget = widgetSelector.getSelectedWidget();
             control.addWidget(newWidget);

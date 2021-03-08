@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.object.extension.calculation;
 
 import com.jfoenix.controls.JFXButton;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
@@ -16,6 +17,7 @@ public class VariablesBox extends FlowPane {
 
 
     private final List<JEVisObject> variables = new ArrayList<>();
+    private StackPane dialogContainer;
     private FormulaBox expression;
 
     public VariablesBox() {
@@ -65,7 +67,7 @@ public class VariablesBox extends FlowPane {
         JFXButton addInputButton = new JFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
         addInputButton.setOnAction(event -> {
             try {
-                TreeHelper.createCalcInput(obj, null);
+                TreeHelper.createCalcInput(dialogContainer, obj, null);
                 listVariables(obj);
                 expression.updateVariables();
             } catch (Exception ex) {
@@ -86,5 +88,7 @@ public class VariablesBox extends FlowPane {
         }
     }
 
-
+    public void setDialogContainer(StackPane dialogContainer) {
+        this.dialogContainer = dialogContainer;
+    }
 }

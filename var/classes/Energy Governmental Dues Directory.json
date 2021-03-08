@@ -1,0 +1,23 @@
+{
+  "name": "Energy Governmental Dues Directory",
+  "description": "The class Energy Governmental Dues Directory represents a specific directory for energy governmental dues.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Governmental Dues Directory",
+      "end": "Energy Contracting Directory",
+      "type": 0
+    },
+    {
+      "start": "Energy Governmental Dues Directory",
+      "end": "Energy Contracting Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Governmental Dues Directory",
+      "end": "Governmental Dues",
+      "type": 3
+    }
+  ]
+}
+

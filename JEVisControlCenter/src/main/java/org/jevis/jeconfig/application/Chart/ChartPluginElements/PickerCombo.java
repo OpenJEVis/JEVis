@@ -3,14 +3,10 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.jfoenix.controls.JFXTooltip;
 import com.jfoenix.skins.JFXComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.scene.control.DateCell;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -104,9 +100,9 @@ public class PickerCombo {
         final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
         final String preview = I18n.getInstance().getString("plugin.graph.changedate.preview");
 
-        presetDateBox.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.presetdate")));
-        startDatePicker.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
-        endDatePicker.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
+        presetDateBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.presetdate")));
+        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
+        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
 
 
         List<AnalysisTimeFrame> analysisTimeFrameList = new ArrayList<>();

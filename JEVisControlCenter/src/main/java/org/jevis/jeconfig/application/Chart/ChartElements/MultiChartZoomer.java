@@ -1,19 +1,15 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTooltip;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
-import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.plugins.MouseEventsHelper;
 import de.gsi.chart.plugins.Panner;
 import de.gsi.chart.plugins.Zoomer;
 import de.gsi.chart.ui.ObservableDeque;
 import de.gsi.chart.ui.geometry.Side;
-import de.gsi.dataset.DataSet;
-import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -30,6 +26,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
@@ -38,7 +35,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.glyphfont.Glyph;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.application.Chart.Charts.PieChart;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -541,16 +541,16 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         buttonBar.setPadding(new Insets(1, 1, 1, 1));
         final JFXButton zoomOut = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf0b2").size(FONT_SIZE));
         zoomOut.setPadding(new Insets(3, 3, 3, 3));
-        zoomOut.setTooltip(new JFXTooltip("zooms to origin and enables auto-ranging"));
+        zoomOut.setTooltip(new Tooltip("zooms to origin and enables auto-ranging"));
         final JFXButton zoomModeXY = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf047").size(FONT_SIZE));
         zoomModeXY.setPadding(new Insets(3, 3, 3, 3));
-        zoomModeXY.setTooltip(new JFXTooltip("set zoom-mode to X & Y range (N.B. disables auto-ranging)"));
+        zoomModeXY.setTooltip(new Tooltip("set zoom-mode to X & Y range (N.B. disables auto-ranging)"));
         final JFXButton zoomModeX = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf07e").size(FONT_SIZE));
         zoomModeX.setPadding(new Insets(3, 3, 3, 3));
-        zoomModeX.setTooltip(new JFXTooltip("set zoom-mode to X range (N.B. disables auto-ranging)"));
+        zoomModeX.setTooltip(new Tooltip("set zoom-mode to X range (N.B. disables auto-ranging)"));
         final JFXButton zoomModeY = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf07d").size(FONT_SIZE));
         zoomModeY.setPadding(new Insets(3, 3, 3, 3));
-        zoomModeY.setTooltip(new JFXTooltip("set zoom-mode to Y range (N.B. disables auto-ranging)"));
+        zoomModeY.setTooltip(new Tooltip("set zoom-mode to Y range (N.B. disables auto-ranging)"));
 
         zoomOut.setOnAction(evt -> {
             zoomOrigin();
@@ -851,17 +851,38 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
             double dataMin;
             double dataMax;
             if (axis.getSide().isVertical()) {
-                dataMin = axis.getValueForDisplay(minPlotCoordinate.getY());
 
-                dataMax = getMaxYFromZoomWindow(axis, minX, maxX, maxPlotCoordinate.getY()) * 1.1;
-//                dataMax = axis.getValueForDisplay(maxPlotCoordinate.getY());
+                Axis xAxis = getChart().getAxes().stream().filter(axis1 -> axis1.getSide().isHorizontal()).findFirst().orElse(null);
+                if (xAxis != null) {
+                    Double dataMinX = xAxis.getValueForDisplay(minPlotCoordinate.getX());
+                    Double dataMaxX = xAxis.getValueForDisplay(maxPlotCoordinate.getX());
+                    double[] data = new double[0];
+                    try {
+                        data = getMinMax(axis, dataMinX, dataMaxX);
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
 
+                    dataMin = data[0];
+                    dataMax = data[1];
+                } else {
+                    dataMin = axis.getValueForDisplay(minPlotCoordinate.getY());
+                    dataMax = axis.getValueForDisplay(maxPlotCoordinate.getY());
+                }
             } else {
                 dataMin = axis.getValueForDisplay(minPlotCoordinate.getX());
                 dataMax = axis.getValueForDisplay(maxPlotCoordinate.getX());
             }
             switch (getAxisMode()) {
-
+                case X:
+                    if (axis.getSide().isHorizontal()) {
+                        axisStateMap.put(axis,
+                                new ZoomState(dataMin, dataMax, axis.isAutoRanging(), axis.isAutoGrowRanging()));
+                    } else if (axis.getSide().isVertical()) {
+                        axisStateMap.put(axis,
+                                new ZoomState(dataMin, dataMax, axis.isAutoRanging(), axis.isAutoGrowRanging()));
+                    }
+                    break;
                 case Y:
                     if (axis.getSide().isVertical()) {
                         axisStateMap.put(axis,
@@ -869,57 +890,47 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
                     }
                     break;
                 case XY:
-                case X:
-
                 default:
                     axisStateMap.put(axis, new ZoomState(dataMin, dataMax, axis.isAutoRanging(), axis.isAutoGrowRanging()));
                     break;
             }
-
         }
 
         return axisStateMap;
     }
 
-    private double getMaxYFromZoomWindow(Axis axis, double minX, double maxX, double y) {
-        double max = 0;
-        Axis xAxis = null;
-        DefaultNumericAxis yAxis = (DefaultNumericAxis) axis;
-        Side side = yAxis.getSide();
-        for (Axis axis1 : getChart().getAxes()) {
-            if (axis1.getSide() == Side.BOTTOM) {
-                xAxis = axis1;
+    private double[] getMinMax(Axis axis, Double dataMinX, Double dataMaxX) throws JEVisException {
+        double[] d = new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
+
+        long startMillis = dataMinX.longValue() * 1000;
+        long endMillis = dataMaxX.longValue() * 1000;
+
+        Axis firstVertical = null;
+        for (Axis a : getChart().getAxes()) {
+            if (a.getSide().isVertical()) {
+                firstVertical = a;
+                break;
             }
         }
 
-        ObservableList<DataSet> datasets = null;
-        if (side == Side.LEFT) {
-            datasets = getChart().getRenderers().get(0).getDatasets();
-        } else if (side == Side.RIGHT) {
-            datasets = getChart().getRenderers().get(1).getDatasets();
-        }
+        boolean isFirst = axis.equals(firstVertical);
 
-        if (xAxis != null && datasets != null) {
-            double minXX = xAxis.getValueForDisplay(minX);
-            double maxXX = xAxis.getValueForDisplay(maxX);
-
-            for (DataSet dataSet : datasets) {
-                if (dataSet instanceof DoubleDataSet) {
-                    DoubleDataSet ds = (DoubleDataSet) dataSet;
-                    for (int i = 0; i < ds.getDataCount(); i++) {
-                        double x = ds.getX(i);
-                        if (x >= minXX && x <= maxXX) {
-                            max = Math.max(max, ds.getY(i));
-                        }
+        for (ChartDataRow chartDataRow : getCurrentChart().getChartDataRows()) {
+            if ((isFirst && chartDataRow.getAxis() == 0) || (!isFirst && chartDataRow.getAxis() == 1)) {
+                for (JEVisSample jeVisSample : chartDataRow.getSamples()) {
+                    long millis = jeVisSample.getTimestamp().getMillis();
+                    if (millis >= startMillis && millis < endMillis) {
+                        d[0] = Math.min(d[0], jeVisSample.getValueAsDouble());
+                        d[1] = Math.max(d[1], jeVisSample.getValueAsDouble());
                     }
                 }
             }
         }
-        if (max > 0) {
-            return max;
-        } else {
-            return axis.getValueForDisplay(y);
-        }
+
+        if (d[0] > 0) d[0] = 0;
+        if (d[1] < 0) d[1] = 0;
+
+        return d;
     }
 
     private void installDragCursor() {
@@ -1072,9 +1083,8 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         }
 
         Axis axis = zoomStateEntry.getKey();
-        if (isZoomIn && ((axis.getSide().isHorizontal() && getAxisMode().allowsX())
-//                || (axis.getSide().isVertical() && getAxisMode().allowsY()))) {
-                || (axis.getSide().isVertical()))) {
+//        if (isZoomIn && ((axis.getSide().isHorizontal() && getAxisMode().allowsX()) || (axis.getSide().isVertical() && getAxisMode().allowsY()))) {
+        if (isZoomIn && ((axis.getSide().isHorizontal() && getAxisMode().allowsX()) || axis.getSide().isVertical())) {
             // perform only zoom-in if axis is horizontal (or vertical) and corresponding horizontal (or vertical)
             // zooming is allowed
             axis.setAutoRanging(false);
@@ -1136,8 +1146,15 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         ConcurrentHashMap<Axis, ZoomState> axisStateMap = new ConcurrentHashMap<>();
         for (Axis axis : getChart().getAxes()) {
             switch (getAxisMode()) {
-//                    if (axis.getSide().isHorizontal()) {
-//                    }
+                case X:
+                    if (axis.getSide().isHorizontal()) {
+                        axisStateMap.put(axis, new ZoomState(axis.getMin(), axis.getMax(), axis.isAutoRanging(),
+                                axis.isAutoGrowRanging())); // NOPMD necessary in-loop instantiation
+                    } else if (axis.getSide().isVertical()) {
+                        axisStateMap.put(axis, new ZoomState(axis.getMin(), axis.getMax(), axis.isAutoRanging(),
+                                axis.isAutoGrowRanging())); // NOPMD necessary in-loop instantiation
+                    }
+                    break;
                 case Y:
                     if (axis.getSide().isVertical()) {
                         axisStateMap.put(axis, new ZoomState(axis.getMin(), axis.getMax(), axis.isAutoRanging(),
@@ -1145,10 +1162,12 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
                     }
                     break;
                 case XY:
-                case X:
                 default:
                     axisStateMap.put(axis,
-                            new ZoomState(axis.getMin(), axis.getMax(), axis.isAutoRanging(), axis.isAutoGrowRanging())); // NOPMD necessary in-loop instantiation
+                            new ZoomState(axis.getMin(), axis.getMax(), axis.isAutoRanging(), axis.isAutoGrowRanging())); // NOPMD
+                    // necessary
+                    // in-loop
+                    // instantiation
                     break;
             }
         }

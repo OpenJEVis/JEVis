@@ -5,15 +5,10 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +19,6 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.DataTypeBox;
 import org.jevis.jeconfig.application.control.DayBox;
@@ -42,13 +36,13 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeterDialog {
+public class MeterDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(MeterDialog.class);
     private final JEVisClass jeVisClass;
     private final List<JEVisClass> possibleParents = new ArrayList<>();
+    private final StackPane dialogContainer;
     private final JEVisDataSource ds;
     private Response response;
-    private Stage stage;
     private GridPane gp;
     private JEVisObject newObject;
     private final List<AttributeEditor> attributeEditors = new ArrayList<>();
@@ -69,9 +63,12 @@ public class MeterDialog {
     private int row;
     private int column;
 
-    public MeterDialog(JEVisDataSource ds, JEVisClass jeVisClass) {
+    public MeterDialog(StackPane dialogContainer, JEVisDataSource ds, JEVisClass jeVisClass) {
+        super();
+        this.dialogContainer = dialogContainer;
         this.ds = ds;
         this.jeVisClass = jeVisClass;
+        setDialogContainer(dialogContainer);
 
         dataTypeBox.getSelectionModel().select(EnterDataTypes.DAY);
         monthBox.setRelations(yearBox, dayBox, null);
@@ -121,29 +118,7 @@ public class MeterDialog {
         }
 
         possibleParents.remove(jeVisClass);
-    }
-
-    public Response showNewWindow() {
         response = Response.CANCEL;
-
-        if (stage != null) {
-            stage.close();
-            stage = null;
-        }
-
-        stage = new Stage();
-
-        stage.setTitle(I18n.getInstance().getString("graph.selection.title"));
-
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.initOwner(JEConfig.getStage());
-
-        double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
-        stage.setWidth(maxScreenWidth * 0.85);
-
-        stage.setHeight(768);
-        stage.setResizable(true);
 
         VBox vBox = new VBox();
         vBox.setPadding(new Insets(12));
@@ -152,9 +127,6 @@ public class MeterDialog {
         gp = new GridPane();
         gp.setHgap(12);
         gp.setVgap(12);
-
-        Scene scene = new Scene(vBox);
-        stage.setScene(scene);
 
         Label parentLabel = new Label(I18n.getInstance().getString("jevis.types.parent"));
         VBox parentVBox = new VBox(parentLabel);
@@ -199,42 +171,37 @@ public class MeterDialog {
             JEVisTreeFilter allCurrentClassFilter = SelectTargetDialog.buildMultiClassFilter(jeVisClass, possibleParents);
             allFilter.add(allCurrentClassFilter);
 
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE);
-            selectTargetDialog.setInitOwner(stage.getScene().getWindow());
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE, ds, null);
 
             List<UserSelection> openList = new ArrayList<>();
 
+            selectTargetDialog.setOnDialogClosed(event1 -> {
+                if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                    logger.trace("Selection Done");
 
-            if (selectTargetDialog.show(
-                    ds,
-                    I18n.getInstance().getString("dialog.target.data.title"),
-                    openList
-            ) == SelectTargetDialog.Response.OK) {
-                logger.trace("Selection Done");
-
-                List<UserSelection> selections = selectTargetDialog.getUserSelection();
-                for (UserSelection us : selections) {
-                    try {
-                        newObject = us.getSelectedObject().buildObject(I18n.getInstance().getString("newobject.new.title"), jeVisClass);
-                        newObject.commit();
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
+                    List<UserSelection> selections = selectTargetDialog.getUserSelection();
+                    for (UserSelection us : selections) {
+                        try {
+                            newObject = us.getSelectedObject().buildObject(I18n.getInstance().getString("newobject.new.title"), jeVisClass);
+                            newObject.commit();
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                        break;
                     }
-                    break;
+
+                    treeButton.setText(newObject.getName());
+                    nameField.setText(newObject.getName());
+
+                    nameField.textProperty().addListener((observable, oldValue, newValue) -> {
+                        if (!newValue.equals(oldValue)) {
+                            name = newValue;
+                        }
+                    });
+
+                    updateGrid(false);
                 }
-
-                treeButton.setText(newObject.getName());
-                nameField.setText(newObject.getName());
-
-                nameField.textProperty().addListener((observable, oldValue, newValue) -> {
-                    if (!newValue.equals(oldValue)) {
-                        name = newValue;
-                    }
-                });
-
-                updateGrid(false);
-            }
-
+            });
         });
 
         ok.setOnAction(event -> {
@@ -256,12 +223,11 @@ public class MeterDialog {
             }
 
             response = Response.OK;
-            stage.close();
+            close();
         });
 
         cancel.setOnAction(event -> {
             response = Response.CANCEL;
-            stage.close();
             if (newObject != null) {
                 try {
                     ds.deleteObject(newObject.getID());
@@ -269,38 +235,14 @@ public class MeterDialog {
                     e.printStackTrace();
                 }
             }
+            close();
         });
 
-        stage.sceneProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                TopMenu.applyActiveTheme(scene);
-            }
-        });
-        stage.showAndWait();
-        return response;
+        setContent(vBox);
     }
 
-    public Response showReplaceWindow(JEVisObject selectedMeter) {
+    public void showReplaceWindow(JEVisObject selectedMeter) {
         response = Response.CANCEL;
-
-        if (stage != null) {
-            stage.close();
-            stage = null;
-        }
-
-        stage = new Stage();
-
-        stage.setTitle(I18n.getInstance().getString("graph.selection.title"));
-
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.initOwner(JEConfig.getStage());
-
-        double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
-        stage.setWidth(maxScreenWidth * 0.85);
-
-        stage.setHeight(768);
-        stage.setResizable(true);
 
         VBox vBox = new VBox();
         vBox.setPadding(new Insets(12));
@@ -309,9 +251,6 @@ public class MeterDialog {
         gp = new GridPane();
         gp.setHgap(12);
         gp.setVgap(12);
-
-        Scene scene = new Scene(vBox);
-        stage.setScene(scene);
 
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
@@ -438,17 +377,16 @@ public class MeterDialog {
             }
 
             response = Response.OK;
-            stage.close();
+            close();
         });
 
         cancel.setOnAction(event -> {
             response = Response.CANCEL;
-            stage.close();
+            close();
         });
 
-        stage.showAndWait();
-
-        return response;
+        setContent(vBox);
+        show();
     }
 
     private void updateGrid(boolean showCounterValues) {
@@ -484,7 +422,7 @@ public class MeterDialog {
                     VBox typeBox = new VBox(typeName);
                     typeBox.setAlignment(Pos.CENTER);
 
-                    AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
+                    AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(dialogContainer, attribute.getType(), attribute);
                     attributeEditor.setReadOnly(false);
                     attributeEditors.add(attributeEditor);
                     VBox editorBox = new VBox(attributeEditor.getEditor());
@@ -549,5 +487,9 @@ public class MeterDialog {
                 Platform.runLater(() -> innerGridPane.addRow(1, dateLabel, datePicker, timePicker));
                 break;
         }
+    }
+
+    public Response getResponse() {
+        return response;
     }
 }

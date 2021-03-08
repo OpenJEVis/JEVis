@@ -3,13 +3,17 @@
   "description": "The class Energy Supplier defines non-specified attributes as a base class",
   "unique": false,
   "relationships": [
-    {
-      "start": "Energy Supplier",
-      "end": "Energy Contractor",
-      "type": 0
-    }
   ],
   "types": [
+    {
+      "name": "Contractor",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Supplier"
+    },
     {
       "name": "Contract Number",
       "primitiveType": 0,

@@ -1,13 +1,13 @@
 package org.jevis.jeconfig.tool.datepicker;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
@@ -204,7 +204,7 @@ final class MonthView extends DatePane {
                 JFXButton control = (JFXButton) getChildren().get(i);
 
                 control.setText(Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)));
-                control.setTooltip(new JFXTooltip(dateFormat.format(currentDate)));
+                control.setTooltip(new Tooltip(dateFormat.format(currentDate)));
 
                 boolean disabled = this.calendarView.getDisabledWeekdays().contains(calendar.get(Calendar.DAY_OF_WEEK));
 

@@ -1,11 +1,11 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.ImageView;
@@ -143,7 +143,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
         Platform.runLater(() -> {
             Label aggregationLabel = new Label(columnName);
-            aggregationLabel.setTooltip(new JFXTooltip(I18n.getInstance().getString("graph.table.interval.tip")));
+            aggregationLabel.setTooltip(new Tooltip(I18n.getInstance().getString("graph.table.interval.tip")));
             aggregationColumn.setGraphic(aggregationLabel);
             //JEVisHelp.getInstance().addHelpControl(GraphPluginView.class.getSimpleName(), ChartSelectionDialog.class.getSimpleName(), JEVisHelp.LAYOUT.HORIZONTAL_TOP_CENTERED, aggregationLabel);
 

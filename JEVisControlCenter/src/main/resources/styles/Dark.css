@@ -58,6 +58,7 @@
 .table-row-cell:even,
 .table-row-cell:odd{
     -fx-control-inner-background: derive(-fx-base, 15%);
+    -fx-text-color: white;
 }
 
 .list-cell:empty,

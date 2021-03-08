@@ -1,0 +1,14 @@
+{
+  "name": "Energy Grid Operation Contractor",
+  "description": "The class Energy Contractor defines non-specified attributes as a base class",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Grid Operation Contractor",
+      "end": "Energy Contractor",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

@@ -11,7 +11,6 @@ import org.jevis.iso.add.LangHelper;
 import org.jevis.iso.add.TemplateChooser;
 import org.jevis.iso.add.ThemeHelper;
 import org.jevis.iso.add.Translations;
-import sun.misc.Launcher;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -188,7 +187,7 @@ public class Login {
             }
             jar.close();
         } else { // Run with IDE
-            URL url = Launcher.class.getResource("/" + path);
+            URL url = Login.class.getResource("/" + path);
             if (url != null) {
                 try {
                     File apps = new File(url.toURI());

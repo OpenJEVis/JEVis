@@ -1,7 +1,10 @@
 package org.jevis.jeconfig.plugin.dtrc;
 
+import java.util.UUID;
+
 public class TemplateOutput {
 
+    private String id;
     private String name;
     private String variableName;
     private String unit;
@@ -12,6 +15,19 @@ public class TemplateOutput {
     private Integer rowSpan = 1;
     private Boolean nameBold = false;
     private Boolean resultBold = false;
+    private Boolean separator = false;
+
+    public TemplateOutput() {
+        id = UUID.randomUUID().toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -93,15 +109,19 @@ public class TemplateOutput {
         this.nameBold = nameBold;
     }
 
+    public Boolean getSeparator() {
+        return separator;
+    }
+
+    public void setSeparator(Boolean separator) {
+        this.separator = separator;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof TemplateOutput) {
             TemplateOutput otherObj = (TemplateOutput) obj;
-            if (this.getVariableName() != null && otherObj.getVariableName() != null) {
-                return this.getVariableName().equals(otherObj.getVariableName());
-            } else if (this.getName() != null && otherObj.getName() != null) {
-                return this.getColumn().equals(otherObj.getColumn()) && this.getRow().equals(otherObj.getRow());
-            }
+            return this.getId().equals(otherObj.getId());
         }
 
         return false;

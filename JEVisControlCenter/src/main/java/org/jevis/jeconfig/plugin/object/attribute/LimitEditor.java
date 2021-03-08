@@ -22,6 +22,7 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -29,12 +30,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,7 +49,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -70,6 +69,7 @@ public class LimitEditor implements AttributeEditor {
             GapFillingBoundToSpecific.WEEKOFYEAR, GapFillingBoundToSpecific.MONTHOFYEAR);
     private final ObservableList<GapFillingType> optionsType = FXCollections.observableArrayList(GapFillingType.NONE, GapFillingType.INTERPOLATION, GapFillingType.AVERAGE,
             GapFillingType.DEFAULT_VALUE, GapFillingType.STATIC, GapFillingType.MINIMUM, GapFillingType.MAXIMUM, GapFillingType.MEDIAN, GapFillingType.DELETE);
+    private final StackPane dialogContainer;
     private String unitString = "";
     public JEVisAttribute _attribute;
     private final HBox box = new HBox(12);
@@ -78,7 +78,8 @@ public class LimitEditor implements AttributeEditor {
     private List<JsonLimitsConfig> _listConfig;
     private final boolean delete = false;
 
-    public LimitEditor(JEVisAttribute att) {
+    public LimitEditor(StackPane dialogContainer, JEVisAttribute att) {
+        this.dialogContainer = dialogContainer;
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
@@ -218,15 +219,8 @@ public class LimitEditor implements AttributeEditor {
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setResizable(true);
-        dialog.setHeight(450);
-        dialog.setWidth(620);
-
-        dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.limitseditor.dialog.title"));
-        dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.limitseditor.dialog.header"));
-        dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));
-        dialog.getDialogPane().getButtonTypes().setAll();
+        JFXDialog dialog = new JFXDialog();
+        dialog.setDialogContainer(dialogContainer);
 
         for (JsonLimitsConfig config : _listConfig) {
             Tab newTab = new Tab(config.getName());
@@ -235,25 +229,35 @@ public class LimitEditor implements AttributeEditor {
 
         }
 
-        dialog.getDialogPane().contentProperty().setValue(tabPane);
+        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
+        ok.setDefaultButton(true);
+        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
+        cancel.setCancelButton(true);
 
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
-        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
+        HBox buttonBar = new HBox(6, cancel, ok);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        buttonBar.setPadding(new Insets(12));
 
-        dialog.showAndWait()
-                .ifPresent(response -> {
-                    if (response.getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
-                        try {
-                            _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                            _changed.setValue(true);
-                            commit();
-                        } catch (JEVisException e) {
-                            logger.error("Could not write limit config to JEVis System: " + e);
-                        }
-                    }
-                });
+        Separator separator = new Separator(Orientation.HORIZONTAL);
+        separator.setPadding(new Insets(8, 0, 8, 0));
 
+        VBox vBox = new VBox(6, tabPane, separator, buttonBar);
+        dialog.setContent(vBox);
+
+        ok.setOnAction(event -> {
+            try {
+                _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
+                _changed.setValue(true);
+                commit();
+            } catch (JEVisException e) {
+                logger.error("Could not write limit config to JEVis System: " + e);
+            }
+            dialog.close();
+        });
+
+        cancel.setOnAction(event -> dialog.close());
+
+        dialog.show();
     }
 
     /**

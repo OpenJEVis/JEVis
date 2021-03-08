@@ -269,3 +269,21 @@
 .search-box .button:hover {
     -fx-background-image: url("/icons/1394564949_search_48.png");
 }
+
+.combo-box-popup .list-cell {
+    -fx-padding: 4 0 4 20 ;
+}
+
+.combo-box-popup .list-cell:section-header {
+    -fx-font: italic 10pt sans-serif ;
+    -fx-padding: 4 0 4 5 ;
+}
+
+.button-raised{
+    -fx-padding: 0.7em 0.57em;
+    -fx-font-size: 14px;
+    -jfx-button-type: RAISED;
+    -fx-background-color: -fx-base;
+    -fx-pref-width: 200;
+    -fx-text-fill: -fx-accent;
+}

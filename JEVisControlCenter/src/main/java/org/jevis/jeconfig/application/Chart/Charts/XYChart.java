@@ -30,7 +30,6 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
-import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
@@ -1083,11 +1082,10 @@ public class XYChart implements Chart {
 
                     DateTime finalNearest = nearest;
                     if (!asDuration) {
-
                         Platform.runLater(() -> {
                             if (finalNearest != null) {
                                 tableEntry.setDate(finalNearest
-                                        .toString(PeriodHelper.getStandardPatternForPeriod(period)));
+                                        .toString(serie.getSingleRow().getFormatString()));
                             } else tableEntry.setValue("-");
                         });
                     } else {

@@ -100,7 +100,7 @@ public class DashboardControl {
 
 
     public DashboardControl(DashBordPlugIn plugin) {
-        this.configManager = new ConfigManager(plugin.getDataSource());
+        this.configManager = new ConfigManager(plugin.getDialogPane(), plugin.getDataSource());
         this.dashBordPlugIn = plugin;
         this.jevisDataSource = plugin.getDataSource();
 

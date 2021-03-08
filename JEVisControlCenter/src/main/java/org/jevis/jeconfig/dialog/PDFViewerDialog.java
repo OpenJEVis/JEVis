@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
@@ -123,7 +122,7 @@ public class PDFViewerDialog {
         headerBox.setSpacing(4);
 
         ToggleButton pdfButton = new ToggleButton("", pdfIcon);
-        Tooltip pdfTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
+        Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
         pdfButton.setTooltip(pdfTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(pdfButton);
 
@@ -147,7 +146,7 @@ public class PDFViewerDialog {
         });
 
         ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
-        Tooltip printTooltip = new JFXTooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
+        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 

@@ -3,17 +3,20 @@ package org.jevis.jeconfig.plugin;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTooltip;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -23,13 +26,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
-import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
@@ -55,7 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-public class TablePlugin {
+public class TablePlugin implements Plugin {
     protected static final Logger logger = LogManager.getLogger(TablePlugin.class);
     private static Method columnToFitMethod;
 
@@ -71,12 +74,13 @@ public class TablePlugin {
     protected final JEVisDataSource ds;
     protected final int toolBarIconSize = 20;
     protected final int tableIconSize = 18;
-    protected final SimpleBooleanProperty openedDataDialog = new SimpleBooleanProperty(false);
     protected final Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
     protected final ObjectRelations objectRelations;
     protected final String title;
     protected final AlphanumComparator alphanumComparator = new AlphanumComparator();
     protected final JFXTextField filterInput = new JFXTextField();
+    protected final BorderPane borderPane = new BorderPane();
+    protected final StackPane dialogContainer = new StackPane(borderPane);
 
     public TablePlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -218,14 +222,14 @@ public class TablePlugin {
 
                             JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                             manSampleButton.setDisable(true);
-                            manSampleButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
+                            manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
                             JFXButton treeButton = new JFXButton("",
                                     JEConfig.getImage("folders_explorer.png", tableIconSize, tableIconSize));
                             treeButton.wrapTextProperty().setValue(true);
 
                             JFXButton gotoButton = new JFXButton("",
                                     JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
-                            gotoButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+                            gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
                             try {
                                 if (item.hasSample()) {
@@ -251,7 +255,6 @@ public class TablePlugin {
 
                             treeButton.setOnAction(event -> {
                                 try {
-                                    SelectTargetDialog selectTargetDialog = null;
                                     JEVisSample latestSample = item.getLatestSample();
                                     TargetHelper th = null;
                                     if (latestSample != null) {
@@ -266,9 +269,6 @@ public class TablePlugin {
                                     JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataFilter();
                                     allFilter.add(allDataFilter);
 
-                                    selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
-                                    selectTargetDialog.setInitOwner(treeButton.getScene().getWindow());
-
                                     List<UserSelection> openList = new ArrayList<>();
 
                                     if (th != null && !th.getObject().isEmpty()) {
@@ -277,46 +277,49 @@ public class TablePlugin {
                                         }
                                     }
 
-                                    if (selectTargetDialog.show(
-                                            ds,
-                                            I18n.getInstance().getString("dialog.target.data.title"),
-                                            openList
-                                    ) == SelectTargetDialog.Response.OK) {
-                                        logger.trace("Selection Done");
+                                    SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, getDataSource(), openList);
 
-                                        String newTarget = "";
-                                        List<UserSelection> selections = selectTargetDialog.getUserSelection();
-                                        for (UserSelection us : selections) {
-                                            int index = selections.indexOf(us);
-                                            if (index > 0) newTarget += ";";
-
-                                            newTarget += us.getSelectedObject().getID();
-                                            if (us.getSelectedAttribute() != null) {
-                                                newTarget += ":" + us.getSelectedAttribute().getName();
-
-                                            } else {
-                                                newTarget += ":Value";
-                                            }
-                                        }
-
-
-                                        JEVisSample newTargetSample = item.buildSample(new DateTime(), newTarget);
-                                        newTargetSample.commit();
+                                    selectTargetDialog.setOnDialogClosed(event1 -> {
                                         try {
-                                            addEventManSampleAction(newTargetSample, manSampleButton, registerTableRow.getName());
-                                            manSampleButton.setDisable(false);
+                                            if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                                                logger.trace("Selection Done");
+
+                                                String newTarget = "";
+                                                List<UserSelection> selections = selectTargetDialog.getUserSelection();
+                                                for (UserSelection us : selections) {
+                                                    int index = selections.indexOf(us);
+                                                    if (index > 0) newTarget += ";";
+
+                                                    newTarget += us.getSelectedObject().getID();
+                                                    if (us.getSelectedAttribute() != null) {
+                                                        newTarget += ":" + us.getSelectedAttribute().getName();
+
+                                                    } else {
+                                                        newTarget += ":Value";
+                                                    }
+                                                }
+
+
+                                                JEVisSample newTargetSample = item.buildSample(new DateTime(), newTarget);
+                                                newTargetSample.commit();
+                                                try {
+                                                    addEventManSampleAction(newTargetSample, manSampleButton, registerTableRow.getName());
+                                                    manSampleButton.setDisable(false);
+                                                } catch (Exception ex) {
+                                                    ex.printStackTrace();
+                                                }
+
+                                            }
+                                            setToolTipText(treeButton, item);
                                         } catch (Exception ex) {
-                                            ex.printStackTrace();
+                                            logger.catching(ex);
                                         }
-
-                                    }
-                                    setToolTipText(treeButton, item);
-
+                                    });
+                                    selectTargetDialog.show();
                                 } catch (Exception ex) {
                                     logger.catching(ex);
                                 }
                             });
-
 
                             HBox hBox = new HBox(treeButton, manSampleButton);
                             hBox.setAlignment(Pos.CENTER);
@@ -340,28 +343,21 @@ public class TablePlugin {
     protected void addEventManSampleAction(JEVisSample targetSample, JFXButton buttonToAddEvent, String headerText) {
 
         buttonToAddEvent.setOnAction(event -> {
-            if (!openedDataDialog.get()) {
-                openedDataDialog.set(true);
+            if (targetSample != null) {
+                try {
+                    TargetHelper th = new TargetHelper(getDataSource(), targetSample.getValueAsString());
+                    if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+                        JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
 
-                if (targetSample != null) {
-                    try {
-                        TargetHelper th = new TargetHelper(getDataSource(), targetSample.getValueAsString());
-                        if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
-                            JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
+                        EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, getDataSource());
+                        enterDataDialog.setTarget(false, th.getAttribute().get(0));
+                        enterDataDialog.setSample(lastValue);
+                        enterDataDialog.setShowValuePrompt(true);
 
-                            EnterDataDialog enterDataDialog = new EnterDataDialog(getDataSource());
-                            enterDataDialog.setTarget(false, th.getAttribute().get(0));
-                            enterDataDialog.setSample(lastValue);
-                            enterDataDialog.setShowValuePrompt(true);
-
-                            enterDataDialog.setOnCloseRequest(event1 -> openedDataDialog.set(false));
-                            enterDataDialog.showPopup(buttonToAddEvent, headerText);
-                        } else {
-                            openedDataDialog.set(false);
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                        enterDataDialog.show();
                     }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
         });
@@ -410,7 +406,7 @@ public class TablePlugin {
                     foundTarget = true;
                 }
 
-                Platform.runLater(() -> treeButton.setTooltip(new JFXTooltip(bText.toString())));
+                Platform.runLater(() -> treeButton.setTooltip(new Tooltip(bText.toString())));
             }
 
         } catch (Exception ex) {
@@ -434,12 +430,6 @@ public class TablePlugin {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
                             JFXTextField textField = new JFXTextField();
-
-                            if (getTableRow().getIndex() % 2 == 0) {
-                                textField.setStyle("-fx-text-fill: white;");
-                            } else {
-                                textField.setStyle("-fx-text-fill: black;");
-                            }
 
                             try {
                                 JEVisAttribute attribute = registerTableRow.getAttributeMap().get(item.getType());
@@ -500,9 +490,9 @@ public class TablePlugin {
                             JFXButton previewButton = new JFXButton("", JEConfig.getImage("eye_visible.png", tableIconSize, tableIconSize));
                             JFXButton uploadButton = new JFXButton("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
-                            downloadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.download")));
-                            previewButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
-                            uploadButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.meters.table.upload")));
+                            downloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.download")));
+                            previewButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
+                            uploadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.upload")));
 
                             AttributeValueChange valueChange;
                             if (changeMap.get(item) == null) {
@@ -817,51 +807,116 @@ public class TablePlugin {
         };
     }
 
+    @Override
+    public String getClassName() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public void setName(String name) {
+
+    }
+
+    @Override
+    public StringProperty nameProperty() {
+        return null;
+    }
+
+    @Override
+    public String getUUID() {
+        return null;
+    }
+
+    @Override
+    public void setUUID(String id) {
+
+    }
+
+    @Override
+    public String getToolTip() {
+        return null;
+    }
+
+    @Override
+    public StringProperty uuidProperty() {
+        return null;
+    }
+
+    @Override
+    public Node getMenu() {
+        return null;
+    }
+
+    @Override
+    public boolean supportsRequest(int cmdType) {
+        return false;
+    }
+
+    @Override
+    public Node getToolbar() {
+        return null;
+    }
+
+    @Override
+    public void updateToolbar() {
+
+    }
+
     public JEVisDataSource getDataSource() {
         return ds;
+    }
+
+    @Override
+    public void setDataSource(JEVisDataSource ds) {
+
+    }
+
+    @Override
+    public void handleRequest(int cmdType) {
+
     }
 
     public Map<JEVisAttribute, AttributeValueChange> getChangeMap() {
         return changeMap;
     }
 
-    protected boolean isCounter(JEVisObject object, JEVisSample latestSample) {
-        boolean isCounter = false;
-        try {
-            JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
-            if (object.getJEVisClassName().equals("Data")) {
-                JEVisObject cleanDataObject = object.getChildren(cleanDataClass, true).get(0);
-                JEVisAttribute conversionToDiffAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
+    @Override
+    public Node getContentNode() {
+        return dialogContainer;
+    }
 
-                if (conversionToDiffAttribute != null) {
-                    List<JEVisSample> conversionDifferential = conversionToDiffAttribute.getAllSamples();
+    @Override
+    public ImageView getIcon() {
+        return null;
+    }
 
-                    for (int i = 0; i < conversionDifferential.size(); i++) {
-                        JEVisSample cd = conversionDifferential.get(i);
+    @Override
+    public void fireCloseEvent() {
 
-                        DateTime timeStampOfConversion = cd.getTimestamp();
+    }
 
-                        DateTime nextTimeStampOfConversion = null;
-                        Boolean conversionToDifferential = cd.getValueAsBoolean();
-                        if (conversionDifferential.size() > (i + 1)) {
-                            nextTimeStampOfConversion = (conversionDifferential.get(i + 1)).getTimestamp();
-                        }
+    @Override
+    public void setHasFocus() {
 
-                        if (conversionToDifferential) {
-                            if (latestSample.getTimestamp().equals(timeStampOfConversion)
-                                    || latestSample.getTimestamp().isAfter(timeStampOfConversion)
-                                    && ((nextTimeStampOfConversion == null) || latestSample.getTimestamp().isBefore(nextTimeStampOfConversion))) {
-                                isCounter = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Could not determine diff or not", e);
-        }
+    }
 
-        return isCounter;
+    @Override
+    public void lostFocus() {
+
+    }
+
+    @Override
+    public void openObject(Object object) {
+
+    }
+
+    @Override
+    public int getPrefTapPos() {
+        return 0;
     }
 }

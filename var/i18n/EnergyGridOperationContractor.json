@@ -1,0 +1,19 @@
+{
+  "jevisclass": "Energy Grid Operation Contractor",
+  "names": {
+    "de": "Netzbetreiber",
+    "ru": "Партнер по контракту на сетевые операции",
+    "uk": "Контрактний партнер з експлуатації мережі",
+    "en": "Energy Grid Operation Contractor",
+    "th": "พันธมิตรสัญญาการดำเนินงานเครือข่าย"
+  },
+  "descriptions": {
+    "de": "Die Klasse Netzbetrieb Vertragspartner definiert die Basisattribute für Netzbetrieb Vertragspartner",
+    "ru": "Класс партнера по контракту сетевой операции определяет основные атрибуты партнера по контракту сетевой операции",
+    "en": "The class Energy Grid Operation Contractor defines the base attributes of specific energy grid operation contractors",
+    "uk": "Клас партнера за контрактом на експлуатацію мережі визначає основні атрибути для партнера з контракту на експлуатацію мережі",
+    "th": "คลาสพันธมิตรสัญญาการดำเนินงานเครือข่ายกำหนดคุณลักษณะพื้นฐานสำหรับคู่ค้าสัญญาการดำเนินงานเครือข่าย"
+  },
+  "types": [
+  ]
+}

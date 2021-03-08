@@ -24,12 +24,16 @@ import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
@@ -51,12 +55,13 @@ public class PeriodEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(PeriodEditor.class);
     private final JFXDatePicker pickerDate = new JFXDatePicker();
     private final JFXTimePicker pickerTime = new JFXTimePicker();
-    private final HBox editor = new HBox();
+    private final HBox editor = new HBox(4);
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final JEVisSample originalSample;
     private SamplingRateUI samplingRateUI;
     private JEVisDataSource ds;
+    private final SimpleBooleanProperty showTs = new SimpleBooleanProperty(true);
 
     public PeriodEditor(JEVisAttribute att) {
         this.att = att;
@@ -150,6 +155,13 @@ public class PeriodEditor implements AttributeEditor {
             }
         }
 
+        Label validFrom = new Label(I18n.getInstance().getString("plugin.object.attribute.periodeditor.validfrom"));
+        validFrom.setAlignment(Pos.CENTER);
+        VBox vBox = new VBox(validFrom);
+        vBox.setAlignment(Pos.CENTER);
+
+        editor.getChildren().setAll(samplingRateUI, vBox, pickerDate, pickerTime);
+
         pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("date changed: " + newValue);
             if (!newValue.equals(oldValue)) {
@@ -171,7 +183,13 @@ public class PeriodEditor implements AttributeEditor {
             }
         });
 
-        editor.getChildren().addAll(pickerDate, pickerTime, samplingRateUI);
+        showTs.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                Platform.runLater(() -> editor.getChildren().setAll(samplingRateUI, validFrom, pickerDate, pickerTime));
+            } else {
+                Platform.runLater(() -> editor.getChildren().setAll(samplingRateUI));
+            }
+        });
     }
 
     @Override
@@ -211,5 +229,9 @@ public class PeriodEditor implements AttributeEditor {
     public LocalDate toLocalDate(DateTime dateTime) {
         DateTime dateTimeUtc = dateTime.withZone(DateTimeZone.UTC);
         return LocalDate.of(dateTimeUtc.getYear(), dateTimeUtc.getMonthOfYear(), dateTimeUtc.getDayOfMonth());
+    }
+
+    public void showTs(boolean showTs) {
+        this.showTs.set(showTs);
     }
 }

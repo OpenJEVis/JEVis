@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.common;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTooltip;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Tooltip;
 import org.jevis.api.JEVisDataSource;
@@ -72,7 +71,7 @@ public class GraphAnalysisLinker {
             if (this.node.getGraphAnalysisObject() > 0) {
                 JEVisObject jeVisObject = this.dataSource.getObject(this.node.getGraphAnalysisObject());
                 if (jeVisObject != null) {
-                    Tooltip tooltip = new JFXTooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
+                    Tooltip tooltip = new Tooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
                     button.setTooltip(tooltip);
                     targetIsreachable = true;
                 }
@@ -113,7 +112,7 @@ public class GraphAnalysisLinker {
 //        try {
 //            JEVisObject jeVisObject = this.dataSource.getObject(this.node.getGraphAnalysisObject());
 //            if (jeVisObject != null) {
-//                Tooltip tooltip = new  JFXTooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
+//                Tooltip tooltip = new  Tooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
 //                button.setTooltip(tooltip);
 //            }
 //

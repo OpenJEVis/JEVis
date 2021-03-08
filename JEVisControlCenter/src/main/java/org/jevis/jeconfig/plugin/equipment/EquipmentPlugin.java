@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.equipment;
 
-import com.jfoenix.controls.JFXTooltip;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -17,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +28,6 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -47,7 +46,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
 
-public class EquipmentPlugin extends TablePlugin implements Plugin {
+public class EquipmentPlugin extends TablePlugin {
     public static final String EQUIPMENT_CLASS = "Building Equipment";
     private static final Logger logger = LogManager.getLogger(EquipmentPlugin.class);
     private static final double EDITOR_MAX_HEIGHT = 50;
@@ -55,6 +54,7 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.EquipmentPlugin");
     private final Image taskImage = JEConfig.getImage("building_equipment.png");
     private final BorderPane borderPane = new BorderPane();
+    private final StackPane dialogContainer = new StackPane(borderPane);
     private final ToolBar toolBar = new ToolBar();
     private final TabPane tabPane = new TabPane();
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
@@ -211,10 +211,13 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
             JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
             TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
 
-            EquipmentDialog meterDialog = new EquipmentDialog(ds, selectedItem.getJeVisClass());
-            if (meterDialog.showReplaceWindow(tableView.getSelectionModel().getSelectedItem().getObject()) == Response.OK) {
-                handleRequest(Constants.Plugin.Command.RELOAD);
-            }
+            EquipmentDialog meterDialog = new EquipmentDialog(dialogContainer, ds, selectedItem.getJeVisClass());
+            meterDialog.setOnDialogClosed(event1 -> {
+                if (meterDialog.getResponse() == Response.OK) {
+                    handleRequest(Constants.Plugin.Command.RELOAD);
+                }
+            });
+            meterDialog.showReplaceWindow(tableView.getSelectionModel().getSelectedItem().getObject());
         });
         replaceButton.setDisable(true);
 
@@ -285,11 +288,11 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
 
-        reload.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.reload.tooltip")));
-        save.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.save.tooltip")));
-        newButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.new.tooltip")));
-        replaceButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.replace.tooltip")));
-        printButton.setTooltip(new JFXTooltip(I18n.getInstance().getString("plugin.equipment.toolbar.tooltip.print")));
+        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.reload.tooltip")));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.save.tooltip")));
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.new.tooltip")));
+        replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.replace.tooltip")));
+        printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.tooltip.print")));
 
 
         toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
@@ -443,10 +446,13 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
             case Constants.Plugin.Command.EXPAND:
                 break;
             case Constants.Plugin.Command.NEW:
-                EquipmentDialog equipmentDialog = new EquipmentDialog(ds, ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
-                if (equipmentDialog.showNewWindow() == Response.OK) {
-                    handleRequest(Constants.Plugin.Command.RELOAD);
-                }
+                EquipmentDialog equipmentDialog = new EquipmentDialog(dialogContainer, ds, ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
+                equipmentDialog.setOnDialogClosed(event -> {
+                    if (equipmentDialog.getResponse() == Response.OK) {
+                        handleRequest(Constants.Plugin.Command.RELOAD);
+                    }
+                });
+                equipmentDialog.show();
                 break;
             case Constants.Plugin.Command.RELOAD:
                 Platform.runLater(() -> replaceButton.setDisable(true));
@@ -496,7 +502,7 @@ public class EquipmentPlugin extends TablePlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return borderPane;
+        return dialogContainer;
     }
 
     private void loadTabs(Map<JEVisClass, List<JEVisObject>> allEquipment, List<JEVisClass> classes) throws InterruptedException {
