@@ -7,6 +7,7 @@ import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.text.NumberFormat;
@@ -49,15 +50,14 @@ public class ServiceStatus extends AlarmTable {
         nf.setMinimumFractionDigits(2);
         nf.setMaximumFractionDigits(2);
 
-        fs.getFileStores().forEach(store -> {
+        for (FileStore store : fs.getFileStores()) {
             try {
-                /** ignore 0 size stores **/
-                if (store.getTotalSpace() <= 0) return;
-
-
                 double totalSpace = store.getTotalSpace() / 1024d / 1024d / 1024d;
                 double usableSpace = store.getUsableSpace() / 1024d / 1024d / 1024d;
                 double percent = usableSpace / totalSpace * 100d;
+
+                /** ignore 0 size stores **/
+                if (Math.round(totalSpace) <= 0) continue;
 
                 sb.append("<tr>");
                 sb.append("<td style=\"");
@@ -88,7 +88,7 @@ public class ServiceStatus extends AlarmTable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+        }
 
         sb.append("</table>");
         sb.append("<br>");
