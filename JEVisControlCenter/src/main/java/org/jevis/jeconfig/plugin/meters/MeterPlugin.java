@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.meters;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -15,6 +16,8 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
@@ -49,67 +52,25 @@ import java.util.prefs.Preferences;
 
 public class MeterPlugin extends TablePlugin {
     public static final String MEASUREMENT_INSTRUMENT_CLASS = "Measurement Instrument";
+    public static final String MEASUREMENT_INSTRUMENT_DIRECTORY_CLASS = "Measurement Directory";
     private static final double EDITOR_MAX_HEIGHT = 50;
     public static String PLUGIN_NAME = "Meter Plugin";
     private final Image taskImage = JEConfig.getImage("measurement_instrument.png");
 
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
     private final ToolBar toolBar = new ToolBar();
-    private final TabPane tabPane = new TabPane();
     private boolean initialized = false;
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
     private int selectedIndex = 0;
+    private final JFXButton renameButton = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
 
     public MeterPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
         this.borderPane.setCenter(tabPane);
 
-        this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue) {
-                Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
-                Platform.runLater(() -> {
-                    if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
-
-                        TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
-
-                        if (tableView.getSelectionModel().getSelectedItem() != null) {
-                            Platform.runLater(() -> replaceButton.setDisable(false));
-                        } else {
-                            Platform.runLater(() -> replaceButton.setDisable(true));
-                        }
-
-                        autoFitTable(tableView);
-                    }
-                });
-            }
-        });
+        borderPane.setOnKeyPressed(this::handleRename);
 
         initToolBar();
-    }
-
-    private boolean isMultiSite() {
-
-        try {
-            JEVisClass measurementInstrumentDirectoryClass = ds.getJEVisClass("Measurement Directory");
-            List<JEVisObject> objects = ds.getObjects(measurementInstrumentDirectoryClass, true);
-
-            List<JEVisObject> buildingParents = new ArrayList<>();
-            for (JEVisObject jeVisObject : objects) {
-                JEVisObject buildingParent = objectRelations.getBuildingParent(jeVisObject);
-                if (!buildingParents.contains(buildingParent)) {
-                    buildingParents.add(buildingParent);
-
-                    if (buildingParents.size() > 1) {
-                        return true;
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-
-        }
-
-        return false;
     }
 
     private void createColumns(TableView<RegisterTableRow> tableView, JEVisClass jeVisClass) {
@@ -288,6 +249,9 @@ public class MeterPlugin extends TablePlugin {
         });
         replaceButton.setDisable(true);
 
+        renameButton.setTooltip(new Tooltip("F2"));
+        renameButton.setOnAction(event -> openRenameDialog());
+
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         delete.setOnAction(event -> handleRequest(Constants.Plugin.Command.DELETE));
@@ -361,7 +325,7 @@ public class MeterPlugin extends TablePlugin {
         replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.replace.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
 
-        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
+        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, renameButton, sep3, printButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
         JEVisHelp.getInstance().addHelpItems(MeterPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
@@ -607,11 +571,19 @@ public class MeterPlugin extends TablePlugin {
 
                             tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                                 if (newValue != oldValue && newValue != null) {
-                                    Platform.runLater(() -> replaceButton.setDisable(false));
+                                    Platform.runLater(() -> {
+                                        replaceButton.setDisable(false);
+                                        renameButton.setDisable(false);
+                                    });
                                 } else {
-                                    Platform.runLater(() -> replaceButton.setDisable(true));
+                                    Platform.runLater(() -> {
+                                        replaceButton.setDisable(true);
+                                        renameButton.setDisable(true);
+                                    });
                                 }
                             });
+
+                            tableView.setOnKeyPressed(event -> handleRename(event));
 
                             ObservableList<RegisterTableRow> registerTableRows = FXCollections.observableArrayList();
                             JEVisType onlineIdType = jeVisClass.getType("Online ID");
@@ -656,9 +628,8 @@ public class MeterPlugin extends TablePlugin {
                                 registerTableRows.add(tableData);
                             }
 
-                            FilteredList<RegisterTableRow> filteredList = new FilteredList<>(registerTableRows, s -> true);
-                            addListener(filteredList);
-                            tableView.setItems(filteredList);
+                            tab.setFilteredList(new FilteredList<>(registerTableRows, s -> true));
+                            Platform.runLater(() -> tableView.setItems(tab.getFilteredList()));
                             this.succeeded();
                         } catch (Exception e) {
                             logger.error(e);
@@ -771,6 +742,7 @@ public class MeterPlugin extends TablePlugin {
                     this.updateTitle(I18n.getInstance().getString("plugin.meters.load"));
                     if (!initialized) {
                         initialized = true;
+                        boolean isMultiSite = isMultiSite(MeterPlugin.MEASUREMENT_INSTRUMENT_DIRECTORY_CLASS);
                         updateList();
                     }
                     succeeded();
@@ -801,4 +773,26 @@ public class MeterPlugin extends TablePlugin {
         return 5;
     }
 
+    private void handleRename(KeyEvent event) {
+        if (event.getCode() == KeyCode.F2) {
+            openRenameDialog();
+        }
+    }
+
+    private void openRenameDialog() {
+        Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
+        if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
+
+            TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
+
+            if (tableView.getSelectionModel().getSelectedItem() != null) {
+                try {
+                    MeterRenameDialog meterRenameDialog = new MeterRenameDialog(dialogContainer, tableView.getSelectionModel().getSelectedItem());
+                    meterRenameDialog.show();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

@@ -33,7 +33,7 @@
       "jevisClass": "Energy Grid Operator"
     },
     {
-      "name": "Energy Price Grid",
+      "name": "Net Cost",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 13,
@@ -42,10 +42,19 @@
       "jevisClass": "Energy Grid Operator"
     },
     {
+      "name": "Energy Price Grid",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 14,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Grid Operator"
+    },
+    {
       "name": "Market Location Identification Number",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 14,
+      "guiposition": 15,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Grid Operator"

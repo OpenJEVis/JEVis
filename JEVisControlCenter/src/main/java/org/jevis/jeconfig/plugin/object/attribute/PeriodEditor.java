@@ -28,6 +28,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
@@ -56,6 +57,7 @@ public class PeriodEditor implements AttributeEditor {
     private final JFXDatePicker pickerDate = new JFXDatePicker();
     private final JFXTimePicker pickerTime = new JFXTimePicker();
     private final HBox editor = new HBox(4);
+    private final StackPane dialogContainer;
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final JEVisSample originalSample;
@@ -63,7 +65,8 @@ public class PeriodEditor implements AttributeEditor {
     private JEVisDataSource ds;
     private final SimpleBooleanProperty showTs = new SimpleBooleanProperty(true);
 
-    public PeriodEditor(JEVisAttribute att) {
+    public PeriodEditor(StackPane dialogContainer, JEVisAttribute att) {
+        this.dialogContainer = dialogContainer;
         this.att = att;
         originalSample = att.getLatestSample();
         buildGUI();

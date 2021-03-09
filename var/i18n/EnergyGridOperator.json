@@ -67,6 +67,23 @@
       }
     },
     {
+      "type": "Net Cost",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Grundpreis",
+        "ru": "Базисная цена",
+        "uk": "Базова ціна",
+        "th": "ราคาพื้นฐาน",
+        "en": "Net Cost"
+      }
+    },
+    {
       "type": "Energy Price Grid",
       "descriptions": {
         "de": "",

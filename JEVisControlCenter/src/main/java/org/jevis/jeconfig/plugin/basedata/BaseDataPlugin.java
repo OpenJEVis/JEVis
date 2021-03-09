@@ -47,13 +47,13 @@ import java.util.prefs.Preferences;
 
 public class BaseDataPlugin extends TablePlugin {
     public static final String BASE_DATA_CLASS = "Base Data";
+    public static final String BASE_DATA_DIRECTORY_CLASS = "Base Data Directory";
     private static final Logger logger = LogManager.getLogger(BaseDataPlugin.class);
     private static final double EDITOR_MAX_HEIGHT = 50;
     public static String PLUGIN_NAME = "Base Data Plugin";
     private final Image taskImage = JEConfig.getImage("building_equipment.png");
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final TabPane tabPane = new TabPane();
     private boolean initialized = false;
     private JEVisClass baseDataClass;
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.BaseDataPlugin");
@@ -62,20 +62,6 @@ public class BaseDataPlugin extends TablePlugin {
     public BaseDataPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
         this.borderPane.setCenter(tabPane);
-
-        this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue) {
-                Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
-                Platform.runLater(() -> {
-                    if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
-
-                        TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
-
-                        autoFitTable(tableView);
-                    }
-                });
-            }
-        });
 
         initToolBar();
 
@@ -159,31 +145,6 @@ public class BaseDataPlugin extends TablePlugin {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
-    }
-
-    private boolean isMultiSite() {
-
-        try {
-            JEVisClass baseDataClass = ds.getJEVisClass(BASE_DATA_CLASS);
-            List<JEVisObject> objects = ds.getObjects(baseDataClass, true);
-
-            List<JEVisObject> buildingParents = new ArrayList<>();
-            for (JEVisObject jeVisObject : objects) {
-                JEVisObject buildingParent = objectRelations.getBuildingParent(jeVisObject);
-                if (!buildingParents.contains(buildingParent)) {
-                    buildingParents.add(buildingParent);
-
-                    if (buildingParents.size() > 1) {
-                        return true;
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-
-        }
-
-        return false;
     }
 
     private void initToolBar() {
@@ -421,9 +382,8 @@ public class BaseDataPlugin extends TablePlugin {
                                 registerTableRows.add(tableData);
                             }
 
-                            FilteredList<RegisterTableRow> filteredList = new FilteredList<>(registerTableRows, s -> true);
-                            addListener(filteredList);
-                            tableView.setItems(filteredList);
+                            tab.setFilteredList(new FilteredList<>(registerTableRows, s -> true));
+                            Platform.runLater(() -> tableView.setItems(tab.getFilteredList()));
                             this.succeeded();
                         } catch (Exception e) {
                             logger.error(e);
@@ -530,6 +490,7 @@ public class BaseDataPlugin extends TablePlugin {
                     this.updateTitle(I18n.getInstance().getString("plugin.meters.load"));
                     if (!initialized) {
                         initialized = true;
+                        boolean isMultiSite = isMultiSite(BaseDataPlugin.BASE_DATA_DIRECTORY_CLASS);
                         updateList();
                     }
                     succeeded();

@@ -96,7 +96,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                 try {
 
                     if (guiDisplayType == null || guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
-                        editor = new StringEditor(att);
+                        editor = new StringEditor(dialogContainer, att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
                         editor = new StringMultiLine(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
@@ -132,11 +132,11 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.WEB_VIEW.getId())) {
                         editor = new WebViewEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.PERIOD.getId())) {
-                        editor = new PeriodEditor(att);
+                        editor = new PeriodEditor(dialogContainer, att);
                     }
                 } catch (Exception e) {
                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());
-                    editor = new StringEditor(att);
+                    editor = new StringEditor(dialogContainer, att);
                 }
 
                 break;
@@ -155,15 +155,15 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                 } else if (guiDisplayType.equals(GUIConstants.BASIC_FILER.getId())) {
                     editor = new FileEditor(att);
                 } else {
-                    editor = new StringEditor(att);
+                    editor = new StringEditor(dialogContainer, att);
                 }
                 break;
             case JEVisConstants.PrimitiveType.DOUBLE:
 
                 if (guiDisplayType == null) {
-                    editor = new DoubleEditor(att);
+                    editor = new DoubleEditor(dialogContainer, att);
                 } else {
-                    editor = new DoubleEditor(att);
+                    editor = new DoubleEditor(dialogContainer, att);
                 }
                 break;
             case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
@@ -177,15 +177,15 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                 try {
                     //TODO
-                    editor = new LongEditor(att);
+                    editor = new LongEditor(dialogContainer, att);
                 } catch (Exception e) {
                     logger.catching(e);
-                    editor = new LongEditor(att);
+                    editor = new LongEditor(dialogContainer, att);
                 }
                 break;
 
             default:
-                editor = new StringEditor(att);
+                editor = new StringEditor(dialogContainer, att);
                 break;
 
         }

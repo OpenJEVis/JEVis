@@ -38,6 +38,7 @@ import java.text.ParseException;
 public abstract class BasicEditor implements AttributeEditor {
 
     private static final Logger logger = LogManager.getLogger(BasicEditor.class);
+    private final StackPane dialogContainer;
     private final JEVisAttribute attribute;
     private final BooleanProperty changedProperty = new SimpleBooleanProperty(false);
     private final double height = 28;
@@ -51,7 +52,8 @@ public abstract class BasicEditor implements AttributeEditor {
     /**
      * @param att
      */
-    public BasicEditor(JEVisAttribute att) {
+    public BasicEditor(StackPane dialogContainer, JEVisAttribute att) {
+        this.dialogContainer = dialogContainer;
         this.attribute = att;
         this.orgSample = att.getLatestSample();
     }
@@ -90,15 +92,13 @@ public abstract class BasicEditor implements AttributeEditor {
             logger.catching(ex);
         }
 
-        hbox.getChildren().addAll(new StackPane(valueField));
+        hbox.getChildren().addAll(valueField);
 
         try {
 
-            StackPane stackPane = new StackPane();
             JFXTextField ubutton = new JFXTextField();
             ubutton.setPrefWidth(45);
             ubutton.setEditable(false);
-            stackPane.getChildren().add(ubutton);
 
             if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
                 ubutton.setText(UnitManager.getInstance().format(this.attribute.getDisplayUnit().getLabel()));
@@ -109,7 +109,7 @@ public abstract class BasicEditor implements AttributeEditor {
             ubutton.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
                     try {
-                        UnitDialog unitDialog = new UnitDialog(stackPane, this.attribute, ubutton);
+                        UnitDialog unitDialog = new UnitDialog(dialogContainer, this.attribute, ubutton);
                         unitDialog.show();
                     } catch (JEVisException e) {
                         logger.error("Could not create unit dialog", e);
@@ -117,7 +117,7 @@ public abstract class BasicEditor implements AttributeEditor {
                 }
             });
 
-            hbox.getChildren().add(stackPane);
+            hbox.getChildren().add(ubutton);
         } catch (Exception ex) {
             logger.error("Could not build unit field: " + ex);
         }
