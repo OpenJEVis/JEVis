@@ -33,6 +33,23 @@
       }
     },
     {
+      "type": "Vendor Number",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Kreditorennummer",
+        "ru": "Номер поставщика",
+        "uk": "Номер постачальника",
+        "th": "หมายเลขผู้ขาย",
+        "en": "Vendor Number"
+      }
+    },
+    {
       "type": "Energy Contractor Number",
       "descriptions": {
         "de": "",

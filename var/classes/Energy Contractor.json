@@ -15,7 +15,7 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "Energy Contractor Number",
+      "name": "Vendor Number",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 1,
@@ -24,7 +24,7 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "Customer Number",
+      "name": "Energy Contractor Number",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 2,
@@ -33,7 +33,7 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "Company",
+      "name": "Customer Number",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 3,
@@ -42,7 +42,7 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "Address",
+      "name": "Company",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 4,
@@ -51,7 +51,7 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "Zip Code",
+      "name": "Address",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 5,
@@ -60,7 +60,7 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "City",
+      "name": "Zip Code",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 6,
@@ -69,7 +69,7 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "Contact Name",
+      "name": "City",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 7,
@@ -78,7 +78,7 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "Contact phone",
+      "name": "Contact Name",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 8,
@@ -87,7 +87,7 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "Contact mobile",
+      "name": "Contact phone",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 9,
@@ -96,10 +96,19 @@
       "jevisClass": "Energy Contractor"
     },
     {
-      "name": "Contact mail",
+      "name": "Contact mobile",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 10,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Contractor"
+    },
+    {
+      "name": "Contact mail",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 11,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Contractor"

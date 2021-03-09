@@ -48,6 +48,7 @@ import java.util.prefs.Preferences;
 
 public class EquipmentPlugin extends TablePlugin {
     public static final String EQUIPMENT_CLASS = "Building Equipment";
+    public static final String EQUIPMENT_DIRECTORY_CLASS = "Equipment Register";
     private static final Logger logger = LogManager.getLogger(EquipmentPlugin.class);
     private static final double EDITOR_MAX_HEIGHT = 50;
     public static String PLUGIN_NAME = "Equipment Plugin";
@@ -56,33 +57,12 @@ public class EquipmentPlugin extends TablePlugin {
     private final BorderPane borderPane = new BorderPane();
     private final StackPane dialogContainer = new StackPane(borderPane);
     private final ToolBar toolBar = new ToolBar();
-    private final TabPane tabPane = new TabPane();
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
     private boolean initialized = false;
 
     public EquipmentPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
         this.borderPane.setCenter(tabPane);
-
-        this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue) {
-                Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
-                Platform.runLater(() -> {
-                    if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
-
-                        TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
-
-                        if (tableView.getSelectionModel().getSelectedItem() != null) {
-                            Platform.runLater(() -> replaceButton.setDisable(false));
-                        } else {
-                            Platform.runLater(() -> replaceButton.setDisable(true));
-                        }
-
-                        autoFitTable(tableView);
-                    }
-                });
-            }
-        });
 
         initToolBar();
     }
@@ -160,31 +140,6 @@ public class EquipmentPlugin extends TablePlugin {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
-    }
-
-    private boolean isMultiSite() {
-
-        try {
-            JEVisClass equipmentRegisterClass = ds.getJEVisClass("Equipment Register");
-            List<JEVisObject> objects = ds.getObjects(equipmentRegisterClass, true);
-
-            List<JEVisObject> buildingParents = new ArrayList<>();
-            for (JEVisObject jeVisObject : objects) {
-                JEVisObject buildingParent = objectRelations.getBuildingParent(jeVisObject);
-                if (!buildingParents.contains(buildingParent)) {
-                    buildingParents.add(buildingParent);
-
-                    if (buildingParents.size() > 1) {
-                        return true;
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-
-        }
-
-        return false;
     }
 
     private void initToolBar() {
@@ -592,9 +547,8 @@ public class EquipmentPlugin extends TablePlugin {
                                 registerTableRows.add(tableData);
                             }
 
-                            FilteredList<RegisterTableRow> filteredList = new FilteredList<>(registerTableRows, s -> true);
-                            addListener(filteredList);
-                            Platform.runLater(() -> tableView.setItems(filteredList));
+                            tab.setFilteredList(new FilteredList<>(registerTableRows, s -> true));
+                            Platform.runLater(() -> tableView.setItems(tab.getFilteredList()));
                             this.succeeded();
                         } catch (Exception e) {
                             logger.error(e);
@@ -700,6 +654,7 @@ public class EquipmentPlugin extends TablePlugin {
                     this.updateTitle(I18n.getInstance().getString("plugin.meters.load"));
                     if (!initialized) {
                         initialized = true;
+                        boolean isMultiSite = isMultiSite(EquipmentPlugin.EQUIPMENT_DIRECTORY_CLASS);
                         updateList();
                     }
                     succeeded();

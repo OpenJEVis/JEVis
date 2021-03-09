@@ -1,5 +1,6 @@
 {
   "name": "Calculation",
+  "description": "The class Calculation represents a container for a calculation object",
   "unique": false,
   "relationships": [
     {

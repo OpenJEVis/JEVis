@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.object.attribute;
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.DefaultProperty;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.layout.StackPane;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
@@ -11,11 +12,11 @@ import org.jevis.commons.i18n.I18n;
 
 public class DoubleEditor extends BasicEditor {
 
-    private JEVisAttribute attribute;
-    private DoubleValidator validator = DoubleValidator.getInstance();
+    private final JEVisAttribute attribute;
+    private final DoubleValidator validator = DoubleValidator.getInstance();
 
-    public DoubleEditor(JEVisAttribute att) {
-        super(att);
+    public DoubleEditor(StackPane dialogContainer, JEVisAttribute att) {
+        super(dialogContainer, att);
         this.attribute = att;
     }
 

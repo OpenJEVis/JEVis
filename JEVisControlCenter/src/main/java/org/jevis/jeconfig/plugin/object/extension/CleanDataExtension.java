@@ -34,6 +34,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.dialog.ProgressForm;
+import org.jevis.jeconfig.dialog.UnitDialog;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
@@ -408,11 +409,10 @@ public class CleanDataExtension implements ObjectEditorExtension {
         }
         AttributeAdvSettingDialogButton advSettingDialogButtonValue = new AttributeAdvSettingDialogButton(valueAttribute);
         TimeStampEditor valueTimeStamp = new TimeStampEditor(valueAttribute);
-        valueTimeStamp.getEditor().setDisable(true);
         JFXTextField value = new JFXTextField();
+        value.setEditable(false);
         JFXTextField unitValue = new JFXTextField();
 
-        value.setDisable(true);
         if (valueLastSample != null) {
             value.setText(nf.format(valueLastSample.getValueAsDouble()));
         }
@@ -421,7 +421,17 @@ public class CleanDataExtension implements ObjectEditorExtension {
         } else {
             unitValue.setText(UnitManager.getInstance().format(valueAttribute.getInputUnit().getLabel()));
         }
-        unitValue.setDisable(true);
+        unitValue.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                try {
+                    UnitDialog unitDialog = new UnitDialog(dialogContainer, valueAttribute, unitValue);
+                    unitDialog.show();
+                } catch (JEVisException e) {
+                    logger.error("Could not create unit dialog", e);
+                }
+            }
+        });
+        unitValue.setEditable(false);
 
         /**
          *  Value Offset

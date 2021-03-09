@@ -43,6 +43,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.dialog.RenameDialog;
 import org.jevis.jeconfig.plugin.TablePlugin;
 import org.jevis.jeconfig.plugin.dtrc.*;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
@@ -260,32 +261,6 @@ public class AccountingPlugin extends TablePlugin {
         this.borderPane.setCenter(motherTabPane);
 
         initToolBar();
-    }
-
-
-    private boolean isMultiSite() {
-
-        try {
-            JEVisClass equipmentRegisterClass = ds.getJEVisClass(ACCOUNTING_CLASS);
-            List<JEVisObject> objects = ds.getObjects(equipmentRegisterClass, false);
-
-            List<JEVisObject> buildingParents = new ArrayList<>();
-            for (JEVisObject jeVisObject : objects) {
-                JEVisObject buildingParent = objectRelations.getBuildingParent(jeVisObject);
-                if (!buildingParents.contains(buildingParent)) {
-                    buildingParents.add(buildingParent);
-
-                    if (buildingParents.size() > 1) {
-                        return true;
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-
-        }
-
-        return false;
     }
 
     private void initToolBar() {
@@ -816,6 +791,7 @@ public class AccountingPlugin extends TablePlugin {
 
         try {
             initialized = true;
+            boolean isMultiSite = isMultiSite(AccountingPlugin.ACCOUNTING_CLASS);
 
             initGUI();
 
@@ -883,7 +859,7 @@ public class AccountingPlugin extends TablePlugin {
                     viewTab.setSelectionTemplate(ath.getSelectionTemplate());
                     trcs.getSelectionModel().select(null);
                     trcs.getSelectionModel().select(selectedObject);
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Could not get selected object from selection template {}", ath.getSelectionTemplate().getTemplateSelection(), e);
                 }
             }
@@ -897,7 +873,18 @@ public class AccountingPlugin extends TablePlugin {
         Separator separator1 = new Separator(Orientation.HORIZONTAL);
         separator1.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox esVBox = new VBox(6, energySupplierBox, separator1, esGP);
+        JFXButton esRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
+        esRename.setOnAction(event -> {
+            if (energySupplierBox.getSelectionModel().getSelectedItem() != null) {
+                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, energySupplierBox.getSelectionModel().getSelectedItem());
+                renameDialog.show();
+            }
+        });
+        VBox es0VBox = new VBox(esRename);
+        es0VBox.setAlignment(Pos.CENTER);
+        HBox esHBox = new HBox(6, energySupplierBox, es0VBox);
+
+        VBox esVBox = new VBox(6, esHBox, separator1, esGP);
         energySupplierTab.setContent(esVBox);
 
         energySupplierBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -912,7 +899,18 @@ public class AccountingPlugin extends TablePlugin {
         Separator separator2 = new Separator(Orientation.HORIZONTAL);
         separator2.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox emoVBox = new VBox(6, energyMeteringOperatorBox, separator2, emoGP);
+        JFXButton emoRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
+        emoRename.setOnAction(event -> {
+            if (energyMeteringOperatorBox.getSelectionModel().getSelectedItem() != null) {
+                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, energyMeteringOperatorBox.getSelectionModel().getSelectedItem());
+                renameDialog.show();
+            }
+        });
+        VBox emo0VBox = new VBox(emoRename);
+        emo0VBox.setAlignment(Pos.CENTER);
+        HBox emoHBox = new HBox(6, energyMeteringOperatorBox, emo0VBox);
+
+        VBox emoVBox = new VBox(6, emoHBox, separator2, emoGP);
         energyMeteringOperatorsTab.setContent(emoVBox);
 
         energyMeteringOperatorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -927,7 +925,18 @@ public class AccountingPlugin extends TablePlugin {
         Separator separator3 = new Separator(Orientation.HORIZONTAL);
         separator3.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox egoVBox = new VBox(6, energyGridOperatorBox, separator3, egoGP);
+        JFXButton egoRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
+        egoRename.setOnAction(event -> {
+            if (energyGridOperatorBox.getSelectionModel().getSelectedItem() != null) {
+                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, energyGridOperatorBox.getSelectionModel().getSelectedItem());
+                renameDialog.show();
+            }
+        });
+        VBox ego0VBox = new VBox(egoRename);
+        ego0VBox.setAlignment(Pos.CENTER);
+        HBox egoHBox = new HBox(6, energyGridOperatorBox, ego0VBox);
+
+        VBox egoVBox = new VBox(6, egoHBox, separator3, egoGP);
         energyGridOperatorsTab.setContent(egoVBox);
 
         energyGridOperatorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -942,7 +951,18 @@ public class AccountingPlugin extends TablePlugin {
         Separator separator4 = new Separator(Orientation.HORIZONTAL);
         separator4.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox cVBox = new VBox(6, energyContractorBox, separator4, cGP);
+        JFXButton cvRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
+        cvRename.setOnAction(event -> {
+            if (energyContractorBox.getSelectionModel().getSelectedItem() != null) {
+                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, energyContractorBox.getSelectionModel().getSelectedItem().getObject());
+                renameDialog.show();
+            }
+        });
+        VBox cv0VBox = new VBox(cvRename);
+        cv0VBox.setAlignment(Pos.CENTER);
+        HBox cvHBox = new HBox(6, energyContractorBox, cv0VBox);
+
+        VBox cVBox = new VBox(6, cvHBox, separator4, cGP);
         energyContractorTab.setContent(cVBox);
 
         energyContractorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -957,7 +977,19 @@ public class AccountingPlugin extends TablePlugin {
         Separator separator5 = new Separator(Orientation.HORIZONTAL);
         separator5.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox gdVBox = new VBox(6, governmentalDuesBox, separator5, gdGP);
+        JFXButton gdRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
+        gdRename.setOnAction(event -> {
+            if (governmentalDuesBox.getSelectionModel().getSelectedItem() != null) {
+                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, governmentalDuesBox.getSelectionModel().getSelectedItem());
+                renameDialog.show();
+            }
+        });
+        VBox gd0VBox = new VBox(gdRename);
+        gd0VBox.setAlignment(Pos.CENTER);
+
+        HBox gdHBox = new HBox(6, governmentalDuesBox, gd0VBox);
+
+        VBox gdVBox = new VBox(6, gdHBox, separator5, gdGP);
         governmentalDuesTab.setContent(gdVBox);
 
         governmentalDuesBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -1136,8 +1168,6 @@ public class AccountingPlugin extends TablePlugin {
             Platform.runLater(() -> gp.getChildren().clear());
 
             try {
-                int column = 0;
-                int row = 0;
 
                 List<JEVisAttribute> attributes = selectedObject.getAttributes();
                 attributes.sort(Comparator.comparingInt(o -> {
@@ -1149,8 +1179,14 @@ public class AccountingPlugin extends TablePlugin {
                     return -1;
                 }));
 
-                for (JEVisAttribute attribute : attributes) {
-                    int index = attributes.indexOf(attribute);
+                int halfAttributesSize = attributes.size() / 2;
+                if (attributes.size() % 2 != 0) {
+                    halfAttributesSize++;
+                }
+                int row = 0;
+                int column = 0;
+                for (int i = 0, size = attributes.size(); i < size; i++) {
+                    JEVisAttribute attribute = attributes.get(i);
                     JEVisObject contractor = null;
                     boolean isContractorAttribute = false;
                     if (attribute.getName().equals("Contractor")) {
@@ -1166,9 +1202,9 @@ public class AccountingPlugin extends TablePlugin {
                         }
                     }
 
-                    if (index == 2 || (index > 2 && index % 2 == 0)) {
-                        column = 0;
-                        row++;
+                    if (i == halfAttributesSize) {
+                        row = 0;
+                        column += 3;
                     }
 
                     Label typeName = new Label(I18nWS.getInstance().getTypeName(attribute.getType()));
@@ -1222,27 +1258,18 @@ public class AccountingPlugin extends TablePlugin {
 
                     int finalColumn = column;
                     int finalRow = row;
-                    if (column < 2) {
-                        Platform.runLater(() -> gp.add(typeBox, finalColumn, finalRow));
-                    } else {
-                        Platform.runLater(() -> gp.add(typeBox, finalColumn + 1, finalRow));
-                    }
-                    column++;
-
-                    int finalColumn2 = column;
-                    if (column < 2) {
-                        Platform.runLater(() -> gp.add(editorBox, finalColumn2, finalRow));
-                    } else {
-                        Platform.runLater(() -> gp.add(editorBox, finalColumn2 + 1, finalRow));
-                    }
-                    column++;
+                    Platform.runLater(() -> {
+                        gp.add(typeBox, finalColumn, finalRow);
+                        gp.add(editorBox, finalColumn + 1, finalRow);
+                    });
+                    row++;
                 }
 
                 Separator separator = new Separator(Orientation.VERTICAL);
-                int finalRow = row;
-                Platform.runLater(() -> gp.add(separator, 2, 0, 1, finalRow + 1));
+                separator.setPadding(new Insets(0, 8, 0, 8));
+                int finalHalfAttributesSize = halfAttributesSize;
+                Platform.runLater(() -> gp.add(separator, 2, 0, 1, finalHalfAttributesSize + 1));
 
-                row++;
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1275,7 +1302,7 @@ public class AccountingPlugin extends TablePlugin {
 
     @Override
     public int getPrefTapPos() {
-        return 6;
+        return 8;
     }
 
     private org.apache.poi.ss.usermodel.Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {

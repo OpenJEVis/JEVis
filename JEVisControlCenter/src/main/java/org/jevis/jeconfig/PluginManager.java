@@ -221,7 +221,7 @@ public class PluginManager {
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
                                                 JEVisClass equipmentClass = this._ds.getJEVisClass(EquipmentPlugin.EQUIPMENT_CLASS);
-                                                List<JEVisObject> allEquipment = this._ds.getObjects(equipmentClass, false);
+                                                List<JEVisObject> allEquipment = this._ds.getObjects(equipmentClass, true);
                                                 if (allEquipment.size() == 0) {
                                                     continue;
                                                 }

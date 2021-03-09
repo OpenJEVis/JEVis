@@ -50,7 +50,7 @@
       }
     },
     {
-      "type": "Energy Tax",
+      "type": "Energy Tax Gas",
       "descriptions": {
         "de": "",
         "ru": "",
@@ -59,7 +59,24 @@
         "en": ""
       },
       "names": {
-        "de": "Energiesteuer",
+        "de": "Energiesteuer Gas",
+        "ru": "Налог на энергию",
+        "uk": "Податок на енергію",
+        "th": "ภาษีพลังงาน",
+        "en": "Energy Tax"
+      }
+    },
+    {
+      "type": "Energy Tax Electricity",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Energiesteuer Strom",
         "ru": "Налог на энергию",
         "uk": "Податок на енергію",
         "th": "ภาษีพลังงาน",
@@ -110,7 +127,7 @@
         "en": ""
       },
       "names": {
-        "de": "§ 10 Abs. 2 StromNEV",
+        "de": "§ 19 Abs. 2 StromNEV (<=1 mio kWh)",
         "ru": "",
         "uk": "",
         "th": "",
@@ -127,7 +144,7 @@
         "en": ""
       },
       "names": {
-        "de": "§ 17f EnWG",
+        "de": "§ 19 Abs. 2 StromNEV (>1 mio kWh)",
         "ru": "",
         "uk": "",
         "th": "",
@@ -144,7 +161,7 @@
         "en": ""
       },
       "names": {
-        "de": "§ 18 AbLaV",
+        "de": "§ 17f EnWG",
         "ru": "",
         "uk": "",
         "th": "",
@@ -161,7 +178,7 @@
         "en": ""
       },
       "names": {
-        "de": "Ökosteuer",
+        "de": "§ 18 AbLaV",
         "ru": "",
         "uk": "",
         "th": "",
@@ -178,7 +195,7 @@
         "en": ""
       },
       "names": {
-        "de": "CO2-Abgabe",
+        "de": "Ökosteuer",
         "ru": "",
         "uk": "",
         "th": "",
@@ -195,7 +212,7 @@
         "en": ""
       },
       "names": {
-        "de": "Abgabe 08",
+        "de": "CO2-Abgabe",
         "ru": "",
         "uk": "",
         "th": "",

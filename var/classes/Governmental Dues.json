@@ -29,7 +29,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Energy Tax",
+      "name": "Energy Tax Gas",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 2,
@@ -38,7 +38,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 01",
+      "name": "Energy Tax Electricity",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 3,
@@ -47,7 +47,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 02",
+      "name": "Allocation 01",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 4,
@@ -56,7 +56,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 03",
+      "name": "Allocation 02",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 5,
@@ -65,7 +65,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 04",
+      "name": "Allocation 03",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 6,
@@ -74,7 +74,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 05",
+      "name": "Allocation 04",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 7,
@@ -83,7 +83,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 06",
+      "name": "Allocation 05",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 8,
@@ -92,7 +92,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 07",
+      "name": "Allocation 06",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 9,
@@ -101,7 +101,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 08",
+      "name": "Allocation 07",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 10,
@@ -110,7 +110,7 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 09",
+      "name": "Allocation 08",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 11,
@@ -119,10 +119,19 @@
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "Allocation 10",
+      "name": "Allocation 09",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 12,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "Allocation 10",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 13,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Governmental Dues"

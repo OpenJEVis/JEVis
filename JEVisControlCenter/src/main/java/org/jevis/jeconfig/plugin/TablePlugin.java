@@ -6,7 +6,6 @@ import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
-import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -40,6 +39,7 @@ import org.jevis.jeconfig.dialog.ImageViewerDialog;
 import org.jevis.jeconfig.dialog.PDFViewerDialog;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.meters.AttributeValueChange;
+import org.jevis.jeconfig.plugin.meters.JEVisClassTab;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
@@ -61,6 +61,8 @@ import java.util.function.UnaryOperator;
 public class TablePlugin implements Plugin {
     protected static final Logger logger = LogManager.getLogger(TablePlugin.class);
     private static Method columnToFitMethod;
+    protected final TabPane tabPane = new TabPane();
+    private Boolean multiSite;
 
     static {
         try {
@@ -87,6 +89,15 @@ public class TablePlugin implements Plugin {
         this.objectRelations = new ObjectRelations(ds);
         this.title = title;
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
+        addListener();
+
+        this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                JEVisClassTab selectedItem = (JEVisClassTab) this.tabPane.getSelectionModel().getSelectedItem();
+                String filter = filterInput.getText();
+                setFilterForTab(filter, selectedItem);
+            }
+        });
     }
 
     public static void autoFitTable(TableView<RegisterTableRow> tableView) {
@@ -102,33 +113,38 @@ public class TablePlugin implements Plugin {
         }
     }
 
-    protected void addListener(FilteredList<RegisterTableRow> filteredList) {
+    protected void addListener() {
         filterInput.textProperty().addListener(obs -> {
             String filter = filterInput.getText();
-            if (filter == null || filter.length() == 0) {
-                filteredList.setPredicate(s -> true);
-            } else {
-                if (filter.contains(" ")) {
-                    String[] result = filter.split(" ");
-                    filteredList.setPredicate(s -> {
-                        boolean match = false;
-                        String string = (objectRelations.getObjectPath(s.getObject()) + s.getObject().getName()).toLowerCase();
-                        for (String value : result) {
-                            String subString = value.toLowerCase();
-                            if (!string.contains(subString))
-                                return false;
-                            else match = true;
-                        }
-                        return match;
-                    });
-                } else {
-                    filteredList.setPredicate(s -> {
-                        String string = (objectRelations.getObjectPath(s.getObject()) + s.getObject().getName()).toLowerCase();
-                        return string.contains(filter.toLowerCase());
-                    });
-                }
-            }
+            JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
+            setFilterForTab(filter, selectedItem);
         });
+    }
+
+    private void setFilterForTab(String filter, JEVisClassTab selectedItem) {
+        if (filter == null || filter.length() == 0) {
+            selectedItem.getFilteredList().setPredicate(s -> true);
+        } else {
+            if (filter.contains(" ")) {
+                String[] result = filter.split(" ");
+                selectedItem.getFilteredList().setPredicate(s -> {
+                    boolean match = false;
+                    String string = s.getName().toLowerCase();
+                    for (String value : result) {
+                        String subString = value.toLowerCase();
+                        if (!string.contains(subString))
+                            return false;
+                        else match = true;
+                    }
+                    return match;
+                });
+            } else {
+                selectedItem.getFilteredList().setPredicate(s -> {
+                    String string = s.getName().toLowerCase();
+                    return string.contains(filter.toLowerCase());
+                });
+            }
+        }
     }
 
     protected Callback<TableColumn<RegisterTableRow, JEVisAttribute>, TableCell<RegisterTableRow, JEVisAttribute>> valueCellDateTime() {
@@ -918,5 +934,36 @@ public class TablePlugin implements Plugin {
     @Override
     public int getPrefTapPos() {
         return 0;
+    }
+
+    protected boolean isMultiSite(String directoryClassName) {
+        if (multiSite == null) {
+            boolean is = false;
+            try {
+                JEVisClass directoryClass = ds.getJEVisClass(directoryClassName);
+                List<JEVisObject> objects = ds.getObjects(directoryClass, true);
+
+                List<JEVisObject> buildingParents = new ArrayList<>();
+                for (JEVisObject jeVisObject : objects) {
+                    JEVisObject buildingParent = objectRelations.getBuildingParent(jeVisObject);
+                    if (!buildingParents.contains(buildingParent)) {
+                        buildingParents.add(buildingParent);
+
+                        if (buildingParents.size() > 1) {
+                            is = true;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            multiSite = is;
+        }
+
+        return multiSite;
+    }
+
+    protected boolean isMultiSite() {
+        return multiSite;
     }
 }

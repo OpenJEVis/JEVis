@@ -15,13 +15,44 @@
       "type": "Location",
       "descriptions": {
         "de": "Der Ort gibt die räumliche Lage des Messgeräts an.",
-        "ru": "The location indicates the spatial position of the measuring device.",
         "en": "The location indicates the spatial position of the measuring device."
       },
       "names": {
         "de": "Ort",
-        "ru": "Location",
         "en": "Location"
+      }
+    },
+    {
+      "type": "Company",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Firma",
+        "en": "Company"
+      }
+    },
+    {
+      "type": "Cost Center",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Kostenstelle",
+        "en": "Cost Center"
+      }
+    },
+    {
+      "type": "Meter Point",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Zählpunkt",
+        "en": "Meter Point"
       }
     },
     {
@@ -41,12 +72,10 @@
       "type": "Measuring Point ID",
       "descriptions": {
         "de": "Die Messpunkt ID gibt die interne Zuordnung an.",
-        "ru": "The measuring point ID indicates the internal assignment.",
         "en": "The measuring point ID indicates the internal assignment."
       },
       "names": {
         "de": "Messpunkt ID",
-        "ru": "Measuring Point ID",
         "en": "Measuring Point ID"
       }
     },
@@ -54,12 +83,10 @@
       "type": "Measuring Point Name",
       "descriptions": {
         "de": "Der Messpunktname gibt den Namen der Messstelle an.",
-        "ru": "The measuring point name indicates the name of the measuring point.",
         "en": "The measuring point name indicates the name of the measuring point."
       },
       "names": {
         "de": "Messpunktname",
-        "ru": "Measuring Point Name",
         "en": "Measuring Point Name"
       }
     },
@@ -67,12 +94,10 @@
       "type": "Serial Number",
       "descriptions": {
         "de": "Die Seriennummer gibt die externe Zuordnung an.",
-        "ru": "The serial number indicates the external assignment.",
         "en": "The serial number indicates the external assignment."
       },
       "names": {
         "de": "Seriennummer",
-        "ru": "Serial Number",
         "en": "Serial Number"
       }
     },
@@ -80,12 +105,10 @@
       "type": "Type",
       "descriptions": {
         "de": "Gibt den Gerätetyp an.",
-        "ru": "Indicates the device model.",
         "en": "Indicates the device model."
       },
       "names": {
         "de": "Gerätetyp",
-        "ru": "Device Model",
         "en": "Device Model"
       }
     },
@@ -93,12 +116,10 @@
       "type": "Datasheet",
       "descriptions": {
         "de": "Ermöglicht es, ein Datenblatt für das Gerät zu hinterlegen.",
-        "ru": "Allows to store a data sheet for the device.",
         "en": "Allows to store a data sheet for the device."
       },
       "names": {
         "de": "Datenblatt",
-        "ru": "Datasheet",
         "en": "Datasheet"
       }
     },
@@ -106,12 +127,10 @@
       "type": "Accuracy",
       "descriptions": {
         "de": "Spezifiziert die technische Genauigkeit des Messgeräts.",
-        "ru": "Specifies the technical accuracy of the meter.",
         "en": "Specifies the technical accuracy of the meter."
       },
       "names": {
         "de": "Genauigkeit",
-        "ru": "Accuracy",
         "en": "Accuracy"
       }
     },
@@ -119,12 +138,10 @@
       "type": "Conversion Factor",
       "descriptions": {
         "de": "Der Umrechenfaktor gibt den Zahlenwert an, mit welchem das Messergebnis multipliziert werden muss, um den wahren Wert zu erhalten.",
-        "ru": "The conversion factor indicates the numerical value with which the measurement result must be multiplied in order to obtain the true value.",
         "en": "The conversion factor indicates the numerical value with which the measurement result must be multiplied in order to obtain the true value."
       },
       "names": {
         "de": "Umrechenfaktor",
-        "ru": "Conversion Factor",
         "en": "Conversion Factor"
       }
     },
@@ -132,12 +149,10 @@
       "type": "Installation Date",
       "descriptions": {
         "de": "Gibt das Datum des Einbaus des Messgeräts an.",
-        "ru": "Specifies the date of installation of the meter.",
         "en": "Specifies the date of installation of the meter."
       },
       "names": {
         "de": "Einbau",
-        "ru": "Installation",
         "en": "Installation"
       }
     },
@@ -145,12 +160,10 @@
       "type": "Verification Date",
       "descriptions": {
         "de": "Das Überprüfungsdatum gibt an, wann das Messgerät das nächste mal kontrolliert und ggf. kalibriert werden muss, um die Messgenauigkeit sicherzustelen.",
-        "ru": "The verification date indicates when the meter must next be checked and, if necessary, calibrated to ensure measurement accuracy.",
         "en": "The verification date indicates when the meter must next be checked and, if necessary, calibrated to ensure measurement accuracy."
       },
       "names": {
         "de": "Überprüfung",
-        "ru": "Verification",
         "en": "Verification"
       }
     },
@@ -158,25 +171,54 @@
       "type": "Online ID",
       "descriptions": {
         "de": "Die Online ID verweist auf die im JEVis System gespeicherten Daten.",
-        "ru": "The online ID refers to the data stored in the JEVis system.",
         "en": "The online ID refers to the data stored in the JEVis system."
       },
       "names": {
         "de": "Online ID",
-        "ru": "Online ID",
         "en": "Online ID"
+      }
+    },
+    {
+      "type": "Device IP",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Geräte IP",
+        "en": "Device IP"
+      }
+    },
+    {
+      "type": "Device Number",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Gerätenummer",
+        "en": "Device Number"
+      }
+    },
+    {
+      "type": "Connection",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Verbindung",
+        "en": "Connection"
       }
     },
     {
       "type": "Remarks",
       "descriptions": {
         "de": "Platz für zusätzliche Anmerkungen zu dem Messgerät und dem Messaufbau.",
-        "ru": "Space for additional notes on the meter and the test setup.",
         "en": "Space for additional notes on the meter and the test setup."
       },
       "names": {
         "de": "Anmerkungen",
-        "ru": "Remarks",
         "en": "Remarks"
       }
     }

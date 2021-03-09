@@ -412,7 +412,8 @@ public class ChartPlugin implements Plugin {
         try {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
-                    new SaveAnalysisDialog(ds, dataModel, toolBarView);
+                    SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(dialogContainer, ds, dataModel, toolBarView);
+                    saveAnalysisDialog.show();
                     break;
                 case Constants.Plugin.Command.DELETE:
                     new DeleteAnalysisDialog(ds, dataModel, toolBarView.getListAnalysesComboBox());
@@ -428,6 +429,7 @@ public class ChartPlugin implements Plugin {
                     AggregationPeriod currentAggregationPeriod = dataModel.getAggregationPeriod();
                     AnalysisTimeFrame currentTimeframe = dataModel.getGlobalAnalysisTimeFrame();
                     dataModel.setCurrentAnalysis(null);
+                    dataModel.updateListAnalyses();
                     dataModel.setCurrentAnalysis(currentAnalysis);
                     dataModel.setCharts(new ChartSettings());
                     dataModel.updateSelectedData();
