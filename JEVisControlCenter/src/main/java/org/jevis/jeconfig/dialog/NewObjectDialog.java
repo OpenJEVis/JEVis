@@ -278,7 +278,8 @@ public class NewObjectDialog {
 
         final ButtonType ok = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.ok"), ButtonBar.ButtonData.FINISH);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
+
+        dialog.getDialogPane().getButtonTypes().addAll(cancel, ok);
 
         Platform.runLater(() -> fName.requestFocus());
         dialog.showAndWait()

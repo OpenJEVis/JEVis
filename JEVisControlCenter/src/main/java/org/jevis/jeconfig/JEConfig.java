@@ -565,8 +565,8 @@ public class JEConfig extends Application {
         AnchorPane.setLeftAnchor(login, 0.0);
         AnchorPane.setBottomAnchor(login, 0.0);
 
-        scene.getStylesheets().add("/styles/Styles.css");
-        scene.getStylesheets().add("/styles/charts.css");
+        //scene.getStylesheets().add("/styles/Styles.css");
+        //scene.getStylesheets().add("/styles/charts.css");
         primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
         primaryStage.setTitle("JEVis Control Center");
 
