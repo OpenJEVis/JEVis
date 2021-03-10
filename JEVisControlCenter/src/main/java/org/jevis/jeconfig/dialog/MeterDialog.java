@@ -202,6 +202,8 @@ public class MeterDialog extends JFXDialog {
                     updateGrid(false);
                 }
             });
+
+            selectTargetDialog.show();
         });
 
         ok.setOnAction(event -> {
