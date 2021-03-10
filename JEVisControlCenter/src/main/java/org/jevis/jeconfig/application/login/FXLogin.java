@@ -30,8 +30,8 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -130,8 +130,20 @@ public class FXLogin extends AnchorPane {
         this.app = app;
         this.parameters = parameters;
 
-        this.loginButton.getStyleClass().add("button-raised");
-        this.closeButton.getStyleClass().add("button-raised");
+        //this.loginButton.getStyleClass().add("button-raised");
+        //loginButton.setId("ok-button");
+
+
+        //loginButton.setRipplerFill(javafx.scene.paint.Paint.valueOf("#FFFFFF"));
+        //closeButton.getStyleClass().add("button-raised");
+        //closeButton.setButtonType(JFXButton.ButtonType.RAISED);
+        //loginButton.setButtonType(JFXButton.ButtonType.RAISED);
+        loginButton.setStyle("-fx-background-color: #4dadf7");
+        loginButton.setTextFill(javafx.scene.paint.Paint.valueOf("#FFFFFF"));
+
+        closeButton.setStyle("-fx-background-color: #adb5bd");
+        closeButton.setTextFill(javafx.scene.paint.Paint.valueOf("#FFFFFF"));
+
 
         this.configuration = parseConfig(parameters);
         for (JEVisOption opt : this.configuration) {
@@ -485,8 +497,8 @@ public class FXLogin extends AnchorPane {
         this.closeButton.setCancelButton(true);
 
         langSelect.setId("fxlogin-form-language");
-        this.loginButton.setId("fxlogin-form-login");
-        this.closeButton.setId("fxlogin-form-close");
+        //this.loginButton.setId("fxlogin-form-login");
+        //this.closeButton.setId("fxlogin-form-close");
         this.userName.setId("fxlogin-form-username");
         this.userPassword.setId("fxlogin-form-password");
         this.authGrid.setId("fxlogin-form");
