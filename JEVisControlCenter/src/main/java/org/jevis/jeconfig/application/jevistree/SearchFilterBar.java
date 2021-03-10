@@ -2,12 +2,13 @@ package org.jevis.jeconfig.application.jevistree;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
@@ -16,19 +17,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 
 import java.util.List;
 
-public class SearchFilterBar extends VBox {
+public class SearchFilterBar extends GridPane {
     private static final Logger logger = LogManager.getLogger(SearchFilterBar.class);
     private final Finder finder;
     private final Label labelFilter = new Label(I18n.getInstance().getString("searchbar.filter"));
     private final Label labelSearch = new Label(I18n.getInstance().getString("searchbar.search"));
-    //    private JFXTextField searchField = new JFXTextField();
     private final Spinner<String> searchField = new Spinner<>();
     private final JFXComboBox<JEVisTreeFilter> filterBox;
-    private final HBox replacementHbox;
+    public final BooleanProperty showReplace = new SimpleBooleanProperty(false);
     boolean replaceMode = false;
 
     private void filter(JEVisTree tree, String newValue, Background originalBackground) {
@@ -55,28 +56,15 @@ public class SearchFilterBar extends VBox {
         finder.goNext();
     }
 
-    public void hideFilter(boolean hide) {
-        labelFilter.setVisible(!hide);
-        filterBox.setVisible(!hide);
-    }
-
-    public void hideSearchField(boolean hide) {
-        labelSearch.setVisible(!hide);
-        searchField.setVisible(!hide);
-    }
-
-    public void showObject(JEVisObject object) {
-        finder.showObject(object);
-    }
-
     public SearchFilterBar(JEVisTree tree, List<JEVisTreeFilter> filter, Finder finder) {
-        super(4);
+        //super(4);
         setPadding(new Insets(8));
-
+        this.setBackground(new Background(new BackgroundFill(Color.web("#f4f4f4"), CornerRadii.EMPTY, new Insets(0))));
         this.finder = finder;
 
         ObservableList<JEVisTreeFilter> filterList = FXCollections.observableArrayList(filter);
         filterBox = new JFXComboBox<>(filterList);
+        filterBox.setMaxWidth(Double.MAX_VALUE);
         filterBox.setButtonCell(new ListCell<JEVisTreeFilter>() {
             @Override
             protected void updateItem(JEVisTreeFilter item, boolean empty) {
@@ -110,18 +98,6 @@ public class SearchFilterBar extends VBox {
                 return;
             }
             filter(tree, newValue, originalBackground);
-
-
-//            if (!newValue.isEmpty() && newValue.length() > 0) {
-//                if (finder.findMatch(newValue)) {
-//                    searchField.getEditor().setBackground(originalBackground);
-//                } else {
-//                    searchField.getEditor().setBackground(new Background(new BackgroundFill(Color.ORANGERED, new CornerRadii(2), new Insets(2))));
-//                }
-//            } else {
-//                searchField.getEditor().setBackground(originalBackground);
-//                tree.getHighlighterList().clear();
-//            }
         });
 
 
@@ -147,32 +123,46 @@ public class SearchFilterBar extends VBox {
         searchField.setEditable(true);
 
 
-        this.setAlignment(Pos.CENTER);
-        HBox hBox = new HBox(labelFilter, filterBox, labelSearch, searchField);
-        hBox.setSpacing(10);
-        hBox.setAlignment(Pos.BASELINE_LEFT);
-        this.getChildren().add(hBox);
-
-//        Platform.runLater(() -> {
-//            filterBox.getSelectionModel().selectLast();
-//            System.out.println("select Filter: " + filterBox.getSelectionModel().getSelectedItem().getName());
-//            filterBox.getSelectionModel().selectFirst();
-//            if (!filter.isEmpty()) {
-//                tree.setFilter(filter.get(0));
-//            }
-
-//        });
-
         Label replaceLabel = new Label(I18n.getInstance().getString("searchbar.label.replacewith"));
-        JFXTextField replaceField = new JFXTextField();
+        TextField replaceField = new TextField();
         JFXButton replace = new JFXButton(I18n.getInstance().getString("searchbar.button.replace"));
-        replace.getStyleClass().add("button-raised");
         JFXButton replaceAll = new JFXButton(I18n.getInstance().getString("searchbar.button.alltreedown"));
-        replaceAll.getStyleClass().add("button-raised");
 
-        replacementHbox = new HBox(replaceLabel, replaceField, replace, replaceAll);
-        replacementHbox.setSpacing(10);
-        replacementHbox.setAlignment(Pos.BASELINE_LEFT);
+        this.setHgap(5);
+        this.setVgap(12);
+        this.setPadding(new Insets(8));
+
+        Separator separator = new Separator(Orientation.HORIZONTAL);
+        HBox replaceButtons = new HBox(replace, replaceAll);
+        replaceButtons.setSpacing(5);
+
+        Region spacer = new Region();
+        spacer.setPrefWidth(10);
+
+        this.add(labelSearch, 0, 0);
+        this.add(searchField, 1, 0);
+        this.add(spacer, 2, 0);
+        this.add(labelFilter, 3, 0);
+        this.add(filterBox, 4, 0);
+
+        showReplace.addListener((observable, oldValue, newValue) -> {
+            System.out.println("Show replacement gui: " + newValue);
+            if (newValue) {
+                SearchFilterBar.this.add(replaceLabel, 0, 1);
+                SearchFilterBar.this.add(replaceField, 1, 1);
+                SearchFilterBar.this.add(replaceButtons, 3, 1, 2, 1);
+
+            } else {
+                SearchFilterBar.this.getChildren().remove(replaceLabel);
+                SearchFilterBar.this.getChildren().remove(replaceField);
+                SearchFilterBar.this.getChildren().remove(replaceButtons);
+            }
+        });
+
+        replaceMode = JEConfig.getExpert();
+        Platform.runLater(() -> {
+            showReplace.setValue(replaceMode);
+        });
 
         replace.setOnAction(event -> {
             final JEVisObject selectedObject = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
@@ -185,20 +175,15 @@ public class SearchFilterBar extends VBox {
     }
 
     public void enableReplaceMode() {
-
         if (!replaceMode) {
             replaceMode = true;
-            Platform.runLater(() -> {
-//                setPrefHeight(2 * getHeight());
-                getChildren().add(replacementHbox);
-            });
         } else {
             replaceMode = false;
-            Platform.runLater(() -> {
-                getChildren().remove(replacementHbox);
-//                setPrefHeight(getHeight() / 2);
-            });
         }
+        Platform.runLater(() -> {
+            showReplace.setValue(replaceMode);
+        });
+
     }
 
     private void replaceInObjectName(JEVisObject object, String replacementValue, String newValue, boolean recursive) {
