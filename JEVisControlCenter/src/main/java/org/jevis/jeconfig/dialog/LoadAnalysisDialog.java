@@ -412,6 +412,7 @@ public class LoadAnalysisDialog extends JFXDialog {
             }
         });
 
+
         loadButton.setOnAction(event -> {
             response = Response.LOAD;
 
@@ -708,11 +709,12 @@ public class LoadAnalysisDialog extends JFXDialog {
             HBox buttonBox = new HBox(10);
             Region spacer = new Region();
             cancelButton = new JFXButton(I18n.getInstance().getString("plugin.graph.changedate.cancel"));
+            cancelButton.setId("cancel-button");
             loadButton = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"));
             newButton = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"));
             //drawOptimization = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.analysis.drawopt"));
             //drawOptimization.setSelected(HiddenConfig.CHART_PRECISION_ON);
-
+            loadButton.setId("ok-button");
             loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
             newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
             cancelButton.setCancelButton(true);
