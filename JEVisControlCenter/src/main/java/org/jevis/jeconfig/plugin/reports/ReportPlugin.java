@@ -9,6 +9,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
@@ -37,12 +38,12 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.report.JEVisFileWithSample;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.resource.PDFModel;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
-import org.jevis.jeconfig.dialog.PDFViewerDialog;
 import org.joda.time.DateTime;
 
 import java.awt.print.PrinterException;
@@ -53,6 +54,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ReportPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ReportPlugin.class);
@@ -65,11 +68,10 @@ public class ReportPlugin implements Plugin {
     private final ObjectRelations objectRelations;
     private final ToolBar toolBar = new ToolBar();
     private boolean initialized = false;
-    private final JFXListView<JEVisObject> listView = new JFXListView<>();
     private final Pagination pagination = new Pagination();
-    private final JFXComboBox<JEVisFileWithSample> fileComboBox = new JFXComboBox<>(FXCollections.observableArrayList());
-    private final Map<JEVisFile, JEVisSample> sampleMap = new HashMap<>();
-    private List<JEVisObject> disabledItemList;
+    private final JFXComboBox<String> fileComboBox = new JFXComboBox<>();
+    private final Map<String, JEVisFileWithSample> sampleMap = new HashMap<>();
+    private final List<JEVisObject> disabledItemList = new ArrayList<>();
     private final JFXTextField filterInput = new JFXTextField();
     private final int iconSize = 20;
     private boolean multipleDirectories;
@@ -81,12 +83,20 @@ public class ReportPlugin implements Plugin {
     private final ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
     private boolean newReport = false;
     private final AlphanumComparator alphanumComparator = new AlphanumComparator();
+    private final ObservableList<JEVisObject> reports = FXCollections.observableArrayList();
+    private final FilteredList<JEVisObject> filteredData = new FilteredList<>(reports, s -> true);
+    private final JFXListView<JEVisObject> listView = new JFXListView<>();
+    private final ObservableList<String> fileNames = FXCollections.observableArrayList();
+    private final SortedList<String> sortedList = new SortedList<>(fileNames);
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
 
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
+
+        sortedList.setComparator(alphanumComparator);
+        fileComboBox.setItems(sortedList);
 
         VBox view = new VBox(pagination);
         view.setFillWidth(true);
@@ -144,6 +154,40 @@ public class ReportPlugin implements Plugin {
 
         this.objectRelations = new ObjectRelations(ds);
 
+        filterInput.setPadding(new Insets(10));
+        filterInput.textProperty().addListener(obs -> {
+            String filter = filterInput.getText();
+            if (filter == null || filter.length() == 0) {
+                filteredData.setPredicate(s -> true);
+            } else {
+                if (filter.contains(" ")) {
+                    String[] result = filter.split(" ");
+                    filteredData.setPredicate(s -> {
+                        boolean match = false;
+                        String string = (objectRelations.getObjectPath(s) + s.getName()).toLowerCase();
+                        for (String value : result) {
+                            String subString = value.toLowerCase();
+                            if (!string.contains(subString))
+                                return false;
+                            else match = true;
+                        }
+                        return match;
+                    });
+                } else {
+                    filteredData.setPredicate(s -> (objectRelations.getObjectPath(s) + s.getName()).toLowerCase().contains(filter.toLowerCase()));
+                }
+            }
+        });
+
+        listView.setItems(filteredData);
+        listView.setPrefWidth(250);
+        setupCellFactory(listView);
+
+        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                loadReport(newValue);
+            }
+        });
     }
 
     public HBox createPage(int pageIndex) {
@@ -169,38 +213,7 @@ public class ReportPlugin implements Plugin {
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
-        reload.setOnAction(event -> {
-            initialized = false;
-
-            final String loading = I18n.getInstance().getString("plugin.reports.reload.progress.message");
-            Service<Void> service = new Service<Void>() {
-                @Override
-                protected Task<Void> createTask() {
-                    return new Task<Void>() {
-                        @Override
-                        protected Void call() {
-                            updateMessage(loading);
-                            try {
-                                ds.clearCache();
-                                ds.preload();
-
-                                getContentNode();
-                            } catch (JEVisException e) {
-                                e.printStackTrace();
-                            }
-                            return null;
-                        }
-                    };
-                }
-            };
-            ProgressDialog pd = new ProgressDialog(service);
-            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
-            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
-            pd.getDialogPane().setContent(null);
-
-            service.start();
-
-        });
+        reload.setOnAction(event -> handleRequest(Constants.Plugin.Command.RELOAD));
         ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
         Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
         pdfButton.setTooltip(pdfTooltip);
@@ -213,7 +226,7 @@ public class ReportPlugin implements Plugin {
             fileChooser.getExtensionFilters().addAll(pdfFilter);
             fileChooser.setSelectedExtensionFilter(pdfFilter);
 
-            JEVisFile pdfFile = fileComboBox.getSelectionModel().getSelectedItem().getPdfFile();
+            JEVisFile pdfFile = sampleMap.get(fileComboBox.getSelectionModel().getSelectedItem()).getPdfFile();
             fileChooser.setInitialFileName(pdfFile.getFilename());
             File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
             if (selectedFile != null) {
@@ -238,7 +251,7 @@ public class ReportPlugin implements Plugin {
             fileChooser.getExtensionFilters().addAll(pdfFilter);
             fileChooser.setSelectedExtensionFilter(pdfFilter);
 
-            JEVisFile xlsxFile = fileComboBox.getSelectionModel().getSelectedItem().getXlsxFile();
+            JEVisFile xlsxFile = sampleMap.get(fileComboBox.getSelectionModel().getSelectedItem()).getXlsxFile();
             fileChooser.setInitialFileName(xlsxFile.getFilename());
             File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
             if (selectedFile != null) {
@@ -260,7 +273,7 @@ public class ReportPlugin implements Plugin {
         printButton.setOnAction(event -> {
             PrinterJob printerJob = PrinterJob.getPrinterJob();
             try {
-                PDDocument document = PDDocument.load(fileComboBox.getSelectionModel().getSelectedItem().getPdfFile().getBytes());
+                PDDocument document = PDDocument.load(sampleMap.get(fileComboBox.getSelectionModel().getSelectedItem()).getPdfFile().getBytes());
                 printerJob.setPageable(new PDFPageable(document));
                 if (printerJob.printDialog()) {
                     printerJob.print();
@@ -282,26 +295,6 @@ public class ReportPlugin implements Plugin {
         Label labelDateTimeComboBox = new Label(I18n.getInstance().getString("plugin.reports.selectionbox.label"));
         labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
 
-        Callback<ListView<JEVisFileWithSample>, ListCell<JEVisFileWithSample>> cellFactory = new Callback<ListView<JEVisFileWithSample>, ListCell<JEVisFileWithSample>>() {
-            @Override
-            public ListCell<JEVisFileWithSample> call(ListView<JEVisFileWithSample> param) {
-                return new ListCell<JEVisFileWithSample>() {
-                    @Override
-                    protected void updateItem(JEVisFileWithSample obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(obj.getPdfFile().getFilename());
-                        }
-                    }
-                };
-            }
-        };
-
-        fileComboBox.setCellFactory(cellFactory);
-        fileComboBox.setButtonCell(cellFactory.call(null));
         fileComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.datelist")));
 
         prevButton.setOnMouseClicked(event -> {
@@ -326,7 +319,7 @@ public class ReportPlugin implements Plugin {
         fileComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && newValue != null && !newValue.equals(oldValue)) {
                 try {
-                    byte[] bytesFromSampleMap = newValue.getPdfFile().getBytes();
+                    byte[] bytesFromSampleMap = sampleMap.get(newValue).getPdfFile().getBytes();
                     model.setBytes(bytesFromSampleMap);
                     pagination.setPageCount(model.numPages());
                     zoomFactor.set(0.3);
@@ -338,7 +331,7 @@ public class ReportPlugin implements Plugin {
                         }
                     });
                 } catch (Exception e) {
-                    logger.error("Could not load report for ts {}", newValue.toString(), e);
+                    logger.error("Could not load report for ts {}", newValue, e);
                 }
             }
         });
@@ -404,7 +397,36 @@ public class ReportPlugin implements Plugin {
 
     @Override
     public boolean supportsRequest(int cmdType) {
-        return false;
+        switch (cmdType) {
+            case Constants.Plugin.Command.SAVE:
+                return false;
+            case Constants.Plugin.Command.DELETE:
+                return false;
+            case Constants.Plugin.Command.EXPAND:
+                return false;
+            case Constants.Plugin.Command.NEW:
+                return false;
+            case Constants.Plugin.Command.RELOAD:
+                return true;
+            case Constants.Plugin.Command.ADD_TABLE:
+                return false;
+            case Constants.Plugin.Command.EDIT_TABLE:
+                return false;
+            case Constants.Plugin.Command.CREATE_WIZARD:
+                return false;
+            case Constants.Plugin.Command.FIND_OBJECT:
+                return false;
+            case Constants.Plugin.Command.PASTE:
+                return false;
+            case Constants.Plugin.Command.COPY:
+                return false;
+            case Constants.Plugin.Command.CUT:
+                return false;
+            case Constants.Plugin.Command.FIND_AGAIN:
+                return false;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -429,67 +451,84 @@ public class ReportPlugin implements Plugin {
 
     @Override
     public void handleRequest(int cmdType) {
+        switch (cmdType) {
+            case Constants.Plugin.Command.SAVE:
+                break;
+            case Constants.Plugin.Command.DELETE:
+                break;
+            case Constants.Plugin.Command.EXPAND:
+                break;
+            case Constants.Plugin.Command.NEW:
+                break;
+            case Constants.Plugin.Command.RELOAD:
+                final String loading = I18n.getInstance().getString("plugin.reports.reload.progress.message");
+                Service<Void> service = new Service<Void>() {
+                    @Override
+                    protected Task<Void> createTask() {
+                        return new Task<Void>() {
+                            @Override
+                            protected Void call() {
+                                updateMessage(loading);
+                                try {
+                                    ds.clearCache();
+                                    ds.preload();
 
+                                    loadReports();
+                                } catch (JEVisException e) {
+                                    e.printStackTrace();
+                                }
+                                return null;
+                            }
+                        };
+                    }
+                };
+                ProgressDialog pd = new ProgressDialog(service);
+                pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
+                pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
+                pd.getDialogPane().setContent(null);
+
+                service.start();
+                break;
+            case Constants.Plugin.Command.ADD_TABLE:
+                break;
+            case Constants.Plugin.Command.EDIT_TABLE:
+                break;
+            case Constants.Plugin.Command.CREATE_WIZARD:
+                break;
+            case Constants.Plugin.Command.FIND_OBJECT:
+                break;
+            case Constants.Plugin.Command.PASTE:
+                break;
+            case Constants.Plugin.Command.COPY:
+                break;
+            case Constants.Plugin.Command.CUT:
+                break;
+            case Constants.Plugin.Command.FIND_AGAIN:
+                break;
+        }
     }
 
     @Override
     public Node getContentNode() {
-        if (!initialized) {
-            init();
-        }
         return borderPane;
     }
 
-    private void init() {
+    private void loadReports() {
 
-        ObservableList<JEVisObject> reports = FXCollections.observableArrayList(getAllReports());
         AlphanumComparator ac = new AlphanumComparator();
-        reports.sort((o1, o2) -> {
+
+        filteredData.clear();
+        disabledItemList.clear();
+
+        List<JEVisObject> allReports = getAllReports();
+        allReports.sort((o1, o2) -> {
             String name1 = objectRelations.getObjectPath(o1) + o1.getName();
             String name2 = objectRelations.getObjectPath(o2) + o2.getName();
             return ac.compare(name1, name2);
         });
 
-        FilteredList<JEVisObject> filteredData = new FilteredList<>(reports, s -> true);
-
-        filterInput.setPadding(new Insets(10));
-
-        filterInput.textProperty().addListener(obs -> {
-            String filter = filterInput.getText();
-            if (filter == null || filter.length() == 0) {
-                filteredData.setPredicate(s -> true);
-            } else {
-                if (filter.contains(" ")) {
-                    String[] result = filter.split(" ");
-                    filteredData.setPredicate(s -> {
-                        boolean match = false;
-                        String string = (objectRelations.getObjectPath(s) + s.getName()).toLowerCase();
-                        for (String value : result) {
-                            String subString = value.toLowerCase();
-                            if (!string.contains(subString))
-                                return false;
-                            else match = true;
-                        }
-                        return match;
-                    });
-                } else {
-                    filteredData.setPredicate(s -> (objectRelations.getObjectPath(s) + s.getName()).toLowerCase().contains(filter.toLowerCase()));
-                }
-            }
-        });
-
-        listView.setItems(filteredData);
-        listView.setPrefWidth(250);
-        disabledItemList = getDisabledItems(reports);
-        setupCellFactory(listView);
-
-        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue != oldValue) {
-                loadReport(newValue);
-            }
-        });
-
-        initialized = true;
+        Platform.runLater(() -> reports.addAll(allReports));
+        disabledItemList.addAll(getDisabledItems(reports));
     }
 
     private List<JEVisObject> getDisabledItems(ObservableList<JEVisObject> reports) {
@@ -510,9 +549,13 @@ public class ReportPlugin implements Plugin {
         }
 
         return list;
+
     }
 
     private void loadReport(JEVisObject reportObject) {
+        JEConfig.getStatusBar().stopTasks(ReportPlugin.class.getName());
+        fileNames.clear();
+        sampleMap.clear();
 
         Task loadOtherFilesInBackground = new Task() {
             @Override
@@ -528,9 +571,11 @@ public class ReportPlugin implements Plugin {
                     }
 
                     if (lastReportPDFAttribute != null && lastReportXLSXAttribute != null) {
-                        sampleMap.clear();
-                        Platform.runLater(() -> fileComboBox.getItems().clear());
                         List<JEVisSample> allPDFSamples = lastReportPDFAttribute.getAllSamples();
+                        for (JEVisSample allPDFSample : allPDFSamples) {
+                            fileNames.add(allPDFSample.getValueAsString());
+                        }
+
                         List<JEVisSample> allXLSXSamples = lastReportXLSXAttribute.getAllSamples();
                         if (allPDFSamples.size() > 0) {
                             JEVisFile lastSampleValueAsFile = allPDFSamples.get(allPDFSamples.size() - 1).getValueAsFile();
@@ -560,11 +605,12 @@ public class ReportPlugin implements Plugin {
                                     return null;
                                 }
                             };
-                            JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadLastReport, ReportPlugin.this.getIcon().getImage(), true);
+                            JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadLastReport, getIcon().getImage(), true);
 
                             for (JEVisSample pdfSample : allPDFSamples) {
                                 try {
                                     JEVisFile pdfFile = pdfSample.getValueAsFile();
+                                    String name = pdfSample.getValueAsString();
 
                                     JEVisFile xlsxFile = null;
                                     DateTime pdfTSLower = pdfSample.getTimestamp().minusMinutes(1);
@@ -578,11 +624,7 @@ public class ReportPlugin implements Plugin {
 
                                     JEVisFileWithSample jeVisFileWithSample = new JEVisFileWithSample(pdfSample, pdfFile, xlsxFile);
 
-                                    Platform.runLater(() -> {
-                                        fileComboBox.getItems().add(jeVisFileWithSample);
-                                        fileComboBox.getItems().sort((o1, o2) -> alphanumComparator.compare(o2.getPdfFile().getFilename(), o1.getPdfFile().getFilename()));
-                                    });
-                                    sampleMap.put(pdfFile, pdfSample);
+                                    sampleMap.put(name, jeVisFileWithSample);
 
                                 } catch (JEVisException e) {
                                     logger.error("Could not add date to date list.");
@@ -590,10 +632,11 @@ public class ReportPlugin implements Plugin {
                             }
                         }
                     }
+                    succeeded();
                 } catch (Exception e) {
                     failed();
                 } finally {
-                    succeeded();
+
                 }
                 return null;
             }
@@ -601,9 +644,34 @@ public class ReportPlugin implements Plugin {
 
         loadOtherFilesInBackground.setOnSucceeded(event -> Platform.runLater(() -> fileComboBox.getSelectionModel().selectFirst()));
 
-        JEConfig.getStatusBar().addTask(PDFViewerDialog.class.getName(), loadOtherFilesInBackground, this.getIcon().getImage(), true);
-    }
+        Task<Void> checkForActiveLoading = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Platform.runLater(() -> {
+                    fileComboBox.getItems().clear();
+                    sampleMap.clear();
+                });
 
+                AtomicBoolean hasActiveLoadTask = new AtomicBoolean(false);
+                ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
+                for (Map.Entry<Task, String> entry : taskList.entrySet()) {
+                    String s = entry.getValue();
+                    if (s.equals(ReportPlugin.class.getName())) {
+                        hasActiveLoadTask.set(true);
+                        break;
+                    }
+                }
+                if (!hasActiveLoadTask.get()) {
+                    JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadOtherFilesInBackground, getIcon().getImage(), true);
+                } else {
+                    Thread.sleep(500);
+                    JEConfig.getStatusBar().addTask("Waiting", this, ReportPlugin.this.getIcon().getImage(), true);
+                }
+                return null;
+            }
+        };
+        JEConfig.getStatusBar().addTask("Waiting", checkForActiveLoading, ReportPlugin.this.getIcon().getImage(), true);
+    }
 
     private void setupCellFactory(ListView<JEVisObject> listView) {
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
@@ -673,7 +741,10 @@ public class ReportPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-
+        if (!initialized) {
+            loadReports();
+            initialized = true;
+        }
     }
 
     @Override
