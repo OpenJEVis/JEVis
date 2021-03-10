@@ -39,7 +39,6 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
-import org.jevis.jeconfig.dialog.SaveAnalysisDialog;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 
@@ -491,9 +490,7 @@ public class ToolBarView {
 
         });
 
-        save.setOnAction(action -> {
-            new SaveAnalysisDialog(ds, model, this);
-        });
+        save.setOnAction(action -> chartPlugin.handleRequest(Constants.Plugin.Command.SAVE));
 
         loadNew.setOnAction(event -> {
             loadNewDialog();

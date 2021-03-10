@@ -13,6 +13,7 @@ public class RegisterTableRow {
     private JEVisObject object;
     private Map<JEVisType, JEVisAttribute> attributeMap;
     private ObjectRelations objectRelations;
+    private String fullName;
 
     public RegisterTableRow(Map<JEVisType, JEVisAttribute> attributeMap, JEVisObject object, Boolean isMultiSite) {
         this.object = object;

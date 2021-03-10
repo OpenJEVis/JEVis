@@ -64,10 +64,31 @@
 
 .table-row-cell:odd{
     -fx-background-color: lightblue;
+        -fx-highlight-text-fill: black;
+}
+
+.table-row-cell: hover {
+     -fx-background-color: #0096c9;
+     -fx-highlight-text-fill: white;
+}
+
+.table-row-cell: selected{
+      -fx-background-color: #0096c9;
+      -fx-highlight-text-fill: white;
 }
 
 .table-row-cell:empty {
     -fx-background-color: white;
+}
+
+.table-cell:filled:selected:focused, .table-cell:filled:selected {
+    -fx-background-color: lightgray;
+    -fx-text-fill: black;
+}
+
+.table-cell:filled:selected:default{
+    -fx-background-color: lightgray;
+    -fx-text-fill: black;
 }
 
 .tree-table-row-cell:odd{

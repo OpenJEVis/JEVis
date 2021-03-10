@@ -22,7 +22,7 @@
 </security>
 
 <resources>
-    <j2se version="1.8+" href="http://java.sun.com/products/autodl/j2se"  java-vm-args="-XX:+UseG1GC"/>
+    <j2se version="1.8+" href="http://java.sun.com/products/autodl/j2se" java-vm-args="-d64 -XX:+UseG1GC"/>
 
     <jar href="JEVisControlCenter-3.8.19-jar-with-dependencies.jar"/>
 

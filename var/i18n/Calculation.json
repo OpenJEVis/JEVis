@@ -7,7 +7,13 @@
     "en": "Calculation",
     "th": "การคำนวณ"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "In Berechnungen werden Anweisung für die Berechnungsschnittstelle gespeichert",
+    "ru": "Инструкции для интерфейса расчетов хранятся в расчетах.",
+    "uk": "Інструкції щодо інтерфейсу розрахунку зберігаються в розрахунках",
+    "th": "คำแนะนำสำหรับอินเทอร์เฟซการคำนวณจะถูกเก็บไว้ในการคำนวณ",
+    "en": "The class Calculation represents a container for a calculation object"
+  },
   "types": [
     {
       "type": "Enabled",

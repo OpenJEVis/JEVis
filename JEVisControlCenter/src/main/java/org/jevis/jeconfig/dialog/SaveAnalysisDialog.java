@@ -1,12 +1,16 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +18,6 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.*;
 import org.jevis.commons.relationship.ObjectRelations;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
@@ -28,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SaveAnalysisDialog {
+public class SaveAnalysisDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(SaveAnalysisDialog.class);
     private final JEVisDataSource ds;
     private final AnalysisDataModel model;
@@ -39,7 +42,8 @@ public class SaveAnalysisDialog {
     private Boolean changed;
     private JEVisObject currentAnalysisDirectory = null;
 
-    public SaveAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, ToolBarView toolBarView) {
+    public SaveAnalysisDialog(StackPane dialogContainer, JEVisDataSource ds, AnalysisDataModel model, ToolBarView toolBarView) {
+        setDialogContainer(dialogContainer);
         this.ds = ds;
         this.model = model;
         this.toolBarView = toolBarView;
@@ -48,13 +52,6 @@ public class SaveAnalysisDialog {
         this.listAnalysesComboBox = toolBarView.getListAnalysesComboBox();
         this.changed = toolBarView.getChanged();
 
-        saveCurrentAnalysis();
-    }
-
-    private void saveCurrentAnalysis() {
-
-        Dialog<ButtonType> newAnalysis = new Dialog<>();
-        newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
         JFXTextField name = new JFXTextField();
@@ -122,8 +119,8 @@ public class SaveAnalysisDialog {
             }
         }));
 
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
-        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
+        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
 
         GridPane gridLayout = new GridPane();
         gridLayout.setPadding(new Insets(10, 10, 10, 10));
@@ -133,79 +130,88 @@ public class SaveAnalysisDialog {
         gridLayout.add(parentsDirectories, 0, 1, 2, 1);
         GridPane.setFillWidth(parentsDirectories, true);
         parentsDirectories.setMinWidth(200);
+
         gridLayout.add(newText, 0, 2);
         gridLayout.add(name, 0, 3, 2, 1);
         GridPane.setFillWidth(name, true);
         name.setMinWidth(200);
 
-        newAnalysis.getDialogPane().setContent(gridLayout);
-        newAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
-        newAnalysis.getDialogPane().setPrefWidth(450d);
-        newAnalysis.initOwner(JEConfig.getStage());
+        HBox buttonBar = new HBox(6, cancel, ok);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        buttonBar.setPadding(new Insets(12));
 
-        newAnalysis.showAndWait()
-                .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                        List<String> check = new ArrayList<>();
-                        AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
-                        try {
-                            currentAnalysisDirectory.getChildren().forEach(jeVisObject -> {
-                                if (!check.contains(jeVisObject.getName())) {
-                                    check.add(jeVisObject.getName());
-                                }
-                            });
-                            currentAnalysisDirectory.getChildren().forEach(jeVisObject -> {
-                                if (jeVisObject.getName().equals(name.getText())) currentAnalysis.set(jeVisObject);
-                            });
-                        } catch (JEVisException e) {
-                            logger.error("Error in current analysis directory: " + e);
-                        }
-                        if (!check.contains(name.getText())) {
-                            JEVisObject newAnalysisObject = null;
-                            try {
-                                JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
-                                newAnalysisObject = currentAnalysisDirectory.buildObject(name.getText(), classAnalysis);
-                                newAnalysisObject.commit();
+        Separator separator = new Separator(Orientation.HORIZONTAL);
+        separator.setPadding(new Insets(8, 0, 8, 0));
 
-                            } catch (JEVisException e) {
-                                e.printStackTrace();
-                            }
-                            if (newAnalysisObject != null) {
-                                saveDataModel(newAnalysisObject, model.getSelectedData(), model.getCharts());
+        VBox vBox = new VBox(6, gridLayout, separator, buttonBar);
+        setContent(vBox);
 
-                                model.setCurrentAnalysisNOEVENT(newAnalysisObject);
-                                model.updateListAnalyses();
-                                model.isGlobalAnalysisTimeFrame(true);
-                                toolBarView.updateLayout();
-                            }
-                        } else {
-                            Dialog<ButtonType> dialogOverwrite = new Dialog<>();
-                            dialogOverwrite.setResizable(true);
-                            dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
-                            dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
-                            final ButtonType overwrite_ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
-                            final ButtonType overwrite_cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-
-                            dialogOverwrite.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
-
-                            dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
-                                if (overwrite_response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                    if (currentAnalysis.get() != null) {
-                                        saveDataModel(currentAnalysis.get(), model.getSelectedData(), model.getCharts());
-
-                                        model.setCurrentAnalysisNOEVENT(currentAnalysis.get());
-                                        model.updateListAnalyses();
-                                        toolBarView.updateLayout();
-                                    }
-                                } else {
-
-                                }
-                            });
-
-                        }
-
+        ok.setOnAction(event -> {
+            List<String> check = new ArrayList<>();
+            AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
+            try {
+                currentAnalysisDirectory.getChildren().forEach(jeVisObject -> {
+                    if (!check.contains(jeVisObject.getName())) {
+                        check.add(jeVisObject.getName());
                     }
                 });
+                currentAnalysisDirectory.getChildren().forEach(jeVisObject -> {
+                    if (jeVisObject.getName().equals(name.getText())) currentAnalysis.set(jeVisObject);
+                });
+            } catch (JEVisException e) {
+                logger.error("Error in current analysis directory: " + e);
+            }
+            if (!check.contains(name.getText())) {
+                JEVisObject newAnalysisObject = null;
+                try {
+                    JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
+                    newAnalysisObject = currentAnalysisDirectory.buildObject(name.getText(), classAnalysis);
+                    newAnalysisObject.commit();
+
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+                if (newAnalysisObject != null) {
+                    saveDataModel(newAnalysisObject, model.getSelectedData(), model.getCharts());
+
+                    model.setCurrentAnalysisNOEVENT(newAnalysisObject);
+                    model.updateListAnalyses();
+                    model.isGlobalAnalysisTimeFrame(true);
+                    toolBarView.updateLayout();
+                }
+            } else {
+                JFXAlert dialogOverwrite = new JFXAlert(this.getScene().getWindow());
+                dialogOverwrite.setResizable(true);
+                dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
+                Label message = new Label(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
+                final JFXButton overwrite_ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"));
+                final JFXButton overwrite_cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"));
+                overwrite_cancel.setOnAction(event1 -> close());
+
+                HBox buttonBox = new HBox(6, overwrite_cancel, overwrite_ok);
+                buttonBox.setAlignment(Pos.CENTER_RIGHT);
+
+                Separator separator2 = new Separator(Orientation.HORIZONTAL);
+                separator2.setPadding(new Insets(8, 0, 8, 0));
+
+                VBox vBox1 = new VBox(6, message, separator2, buttonBox);
+                vBox1.setPadding(new Insets(12));
+
+                dialogOverwrite.setContent(vBox1);
+
+                overwrite_ok.setOnAction(event1 -> {
+                    if (currentAnalysis.get() != null) {
+                        saveDataModel(currentAnalysis.get(), model.getSelectedData(), model.getCharts());
+
+                        model.setCurrentAnalysisNOEVENT(currentAnalysis.get());
+                        model.updateListAnalyses();
+                        toolBarView.updateLayout();
+                    }
+                });
+
+                dialogOverwrite.showAndWait();
+            }
+        });
     }
 
     public static JsonChartSettings getJsonChartSettings(ChartSettings chartSettings) {

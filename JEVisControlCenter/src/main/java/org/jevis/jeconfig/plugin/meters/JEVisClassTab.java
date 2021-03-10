@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.meters;
 
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import org.jevis.api.JEVisClass;
@@ -7,6 +8,7 @@ import org.jevis.api.JEVisClass;
 public class JEVisClassTab extends Tab {
 
     private JEVisClass jeVisClass;
+    private FilteredList<RegisterTableRow> filteredList;
 
     public JEVisClassTab() {
         super();
@@ -36,5 +38,13 @@ public class JEVisClassTab extends Tab {
 
     public JEVisClass getJeVisClass() {
         return jeVisClass;
+    }
+
+    public FilteredList<RegisterTableRow> getFilteredList() {
+        return filteredList;
+    }
+
+    public void setFilteredList(FilteredList<RegisterTableRow> filteredList) {
+        this.filteredList = filteredList;
     }
 }

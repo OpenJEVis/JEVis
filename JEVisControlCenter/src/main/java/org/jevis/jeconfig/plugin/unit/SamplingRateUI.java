@@ -63,6 +63,7 @@ public class SamplingRateUI extends JFXComboBox<Period> {
     public SamplingRateUI(Period period) {
         super();
         this.periodProperty = new SimpleObjectProperty<>(period);
+        this.setMaxWidth(Double.MAX_VALUE);
 //        this.period = period;
 
         this.getItems().add(Period.minutes(15));
