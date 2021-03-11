@@ -28,7 +28,25 @@
       "name": "Demand Charge",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "guiposition": 24,
+      "guiposition": 25,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Gas Supply Contractor"
+    },
+    {
+      "name": "Heating Value",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 26,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Gas Supply Contractor"
+    },
+    {
+      "name": "State Number",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 27,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Gas Supply Contractor"
