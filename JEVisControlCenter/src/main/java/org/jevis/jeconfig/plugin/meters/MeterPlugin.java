@@ -251,6 +251,7 @@ public class MeterPlugin extends TablePlugin {
 
         renameButton.setTooltip(new Tooltip("F2"));
         renameButton.setOnAction(event -> openRenameDialog());
+        renameButton.setDisable(true);
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
@@ -482,7 +483,10 @@ public class MeterPlugin extends TablePlugin {
                 meterDialog.show();
                 break;
             case Constants.Plugin.Command.RELOAD:
-                Platform.runLater(() -> replaceButton.setDisable(true));
+                Platform.runLater(() -> {
+                    replaceButton.setDisable(true);
+                    renameButton.setDisable(true);
+                });
                 selectedIndex = tabPane.getSelectionModel().getSelectedIndex();
 
                 Task clearCacheTask = new Task() {
