@@ -30,7 +30,7 @@ public class SearchFilterBar extends GridPane {
     private final Spinner<String> searchField = new Spinner<>();
     private final JFXComboBox<JEVisTreeFilter> filterBox;
     public final BooleanProperty showReplace = new SimpleBooleanProperty(false);
-    boolean replaceMode = false;
+    boolean replaceMode = true;
 
     private void filter(JEVisTree tree, String newValue, Background originalBackground) {
         if (finder.findMatch(newValue)) {
@@ -48,6 +48,7 @@ public class SearchFilterBar extends GridPane {
 
     }
 
+
     public void goPrevious() {
         finder.goPrevious();
     }
@@ -56,7 +57,8 @@ public class SearchFilterBar extends GridPane {
         finder.goNext();
     }
 
-    public SearchFilterBar(JEVisTree tree, List<JEVisTreeFilter> filter, Finder finder) {
+
+    public SearchFilterBar(JEVisTree tree, List<JEVisTreeFilter> filter, Finder finder, boolean showReplaceBar) {
         //super(4);
         setPadding(new Insets(8));
         this.setBackground(new Background(new BackgroundFill(Color.web("#f4f4f4"), CornerRadii.EMPTY, new Insets(0))));
@@ -159,7 +161,7 @@ public class SearchFilterBar extends GridPane {
             }
         });
 
-        replaceMode = JEConfig.getExpert();
+        replaceMode = JEConfig.getExpert() && showReplaceBar;
         Platform.runLater(() -> {
             showReplace.setValue(replaceMode);
         });
@@ -173,6 +175,11 @@ public class SearchFilterBar extends GridPane {
             replaceInObjectName(selectedObject, searchField.getEditor().getText(), replaceField.getText(), true);
         });
     }
+
+    public SearchFilterBar(JEVisTree tree, List<JEVisTreeFilter> filter, Finder finder) {
+        this(tree, filter, finder, true);
+    }
+
 
     public void enableReplaceMode() {
         if (!replaceMode) {

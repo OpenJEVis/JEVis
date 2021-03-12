@@ -30,8 +30,8 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
 import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -140,7 +140,6 @@ public class FXLogin extends AnchorPane {
         //loginButton.setButtonType(JFXButton.ButtonType.RAISED);
         loginButton.setStyle("-fx-background-color: #4dadf7");
         loginButton.setTextFill(javafx.scene.paint.Paint.valueOf("#FFFFFF"));
-
         closeButton.setStyle("-fx-background-color: #adb5bd");
         closeButton.setTextFill(javafx.scene.paint.Paint.valueOf("#FFFFFF"));
 

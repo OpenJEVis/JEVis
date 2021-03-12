@@ -344,7 +344,7 @@ public class JEVisTreeFactory {
         allFilter.add(dataBasicFilter);
 
         Finder finder = new Finder(tree);
-        SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
+        SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder, false);
         tree.setSearchFilterBar(searchBar);
 
         TreePlugin bp = new ChartPluginTree(analysisDataModel);

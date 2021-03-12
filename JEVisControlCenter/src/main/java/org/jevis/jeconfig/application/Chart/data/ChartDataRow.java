@@ -395,10 +395,12 @@ public class ChartDataRow {
     private void updateFormatString(List<JEVisSample> samples) {
         if (samples.size() > 0) {
             try {
-                boolean isCounter = CleanDataObject.isCounter(samples.get(0).getAttribute().getObject(), samples.get(0));
+                boolean isCounter = false;
+                if (samples.get(0).getAttribute() != null) {
+                    isCounter = CleanDataObject.isCounter(samples.get(0).getAttribute().getObject(), samples.get(0));
+                }
 
                 if (samples.size() > 1) {
-
                     this.formatString = PeriodHelper.getFormatString(new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp()), isCounter);
                 }
             } catch (Exception e) {

@@ -29,20 +29,17 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.export.TreeExporterDelux;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
-import org.jevis.jeconfig.dialog.JsonExportDialog;
 import org.jevis.jeconfig.dialog.KPIWizard;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
+import org.jevis.jeconfig.tool.AttributeCopy;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -78,7 +75,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     buildCut(),
                     buildPaste(),
                     new SeparatorMenuItem(),
-
+                    buildCopyFormat(),
+                    buildParsedFormat(),
+                    new SeparatorMenuItem(),
                     buildExport(),
                     buildImport()
             );
@@ -399,6 +398,37 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent t) {
                 TreeHelper.EventDelete(tree);
+            }
+        });
+        return menu;
+    }
+
+
+    private MenuItem buildCopyFormat() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.copyformat"), ResourceLoader.getImage("pipette.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                AttributeCopy attributeCopy = new AttributeCopy();
+                attributeCopy.showAttributeSelection(obj);
+                tree.setConfigObject(AttributeCopy.CONFIG_NAME, attributeCopy.getSelectedAttributes());
+
+            }
+        });
+        return menu;
+    }
+
+    private MenuItem buildParsedFormat() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("dialog.attributecopy.paste"), ResourceLoader.getImage("Asset.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                AttributeCopy attributeCopy = new AttributeCopy();
+                List<JEVisAttribute> jeVisAttributes = (List<JEVisAttribute>) tree.getConfigObject(AttributeCopy.CONFIG_NAME);
+                attributeCopy.startPaste(jeVisAttributes, tree.getSelectionModel().getSelectedItems());
+
             }
         });
         return menu;

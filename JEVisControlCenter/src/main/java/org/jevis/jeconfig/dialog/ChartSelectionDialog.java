@@ -82,7 +82,6 @@ public class ChartSelectionDialog extends JFXDialog {
      */
     public ChartSelectionDialog(StackPane dialogContainer, JEVisDataSource ds, AnalysisDataModel data) {
         super();
-
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
 
@@ -175,8 +174,10 @@ public class ChartSelectionDialog extends JFXDialog {
         buttonBox.getChildren().setAll(tree.getSearchFilterBar(), spacer, removeAllSelections, cancel, ok);
 
         vBox.getChildren().addAll(mainTabPane, sep, buttonBox);
-
+        /** same color as the searchbar **/
+        vBox.setBackground(new Background(new BackgroundFill(Color.web("#f4f4f4"), CornerRadii.EMPTY, new Insets(0))));
         setContent(vBox);
+
 
         if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
             List<UserSelection> listUS = new ArrayList<>();
