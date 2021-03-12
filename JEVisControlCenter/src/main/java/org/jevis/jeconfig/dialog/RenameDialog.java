@@ -21,6 +21,7 @@ public class RenameDialog extends JFXDialog {
     public RenameDialog(StackPane dialogContainer, JEVisObject selectedItem) {
         super();
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name.prompt"));
         VBox nameVBox = new VBox(nameLabel);

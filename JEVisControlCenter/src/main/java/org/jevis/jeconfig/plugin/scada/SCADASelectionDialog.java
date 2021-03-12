@@ -58,6 +58,8 @@ public class SCADASelectionDialog extends JFXDialog {
     public SCADASelectionDialog(StackPane dialogContainer, JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
         this.dialogContainer = dialogContainer;
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
+
         _ds = ds;
         this.mode = mode;
 

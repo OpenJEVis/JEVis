@@ -222,6 +222,7 @@ public class AlarmEditor implements AttributeEditor {
 
         JFXDialog dialog = new JFXDialog();
         dialog.setDialogContainer(dialogContainer);
+        dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
 
         for (JsonAlarmConfig config : _listConfig) {
             Tab newTab = new Tab(config.getName());

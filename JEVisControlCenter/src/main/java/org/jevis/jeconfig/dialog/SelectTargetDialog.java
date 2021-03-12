@@ -70,6 +70,8 @@ public class SelectTargetDialog extends JFXDialog {
     public SelectTargetDialog(StackPane dialogContainer, List<JEVisTreeFilter> filters, JEVisTreeFilter basicFilter, JEVisTreeFilter selected, SelectionMode selectionMode, JEVisDataSource ds, List<UserSelection> userSelections) {
         super();
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
+
         this.dialogContainer = dialogContainer;
         this.ds = ds;
         this.userSelections = userSelections;

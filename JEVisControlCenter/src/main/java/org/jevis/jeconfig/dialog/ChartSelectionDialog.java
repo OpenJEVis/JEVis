@@ -83,6 +83,7 @@ public class ChartSelectionDialog extends JFXDialog {
     public ChartSelectionDialog(StackPane dialogContainer, JEVisDataSource ds, AnalysisDataModel data) {
         super();
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         this._ds = ds;
         this.data = data;
@@ -201,6 +202,7 @@ public class ChartSelectionDialog extends JFXDialog {
             tree.setUserSelectionEnded();
             tree = null;
             response = Response.OK;
+            removeEmptyCharts();
             this.close();
         });
 
@@ -208,6 +210,7 @@ public class ChartSelectionDialog extends JFXDialog {
             tree.setUserSelectionEnded();
             tree = null;
             response = Response.CANCEL;
+            removeEmptyCharts();
             this.close();
         });
 
@@ -223,8 +226,6 @@ public class ChartSelectionDialog extends JFXDialog {
 
         JEVisHelp.getInstance().setActiveSubModule(ChartSelectionDialog.class.getSimpleName());
         JEVisHelp.getInstance().update();
-
-        removeEmptyCharts();
     }
 
     private void removeEmptyCharts() {

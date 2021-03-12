@@ -69,6 +69,7 @@ public class MeterDialog extends JFXDialog {
         this.ds = ds;
         this.jeVisClass = jeVisClass;
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         dataTypeBox.getSelectionModel().select(EnterDataTypes.DAY);
         monthBox.setRelations(yearBox, dayBox, null);
@@ -202,6 +203,8 @@ public class MeterDialog extends JFXDialog {
                     updateGrid(false);
                 }
             });
+
+            selectTargetDialog.show();
         });
 
         ok.setOnAction(event -> {

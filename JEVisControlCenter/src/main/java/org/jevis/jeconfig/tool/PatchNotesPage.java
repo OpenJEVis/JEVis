@@ -50,7 +50,22 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.48------\n" +
+            "------Version 3.9.49------\n" +
+                    "JECC - BaseDataPlugin - changed icon\n" +
+                    "JECC - Changed button layouts\n" +
+                    "JECC - Changed search and replace bar\n" +
+                    "JECC - ChartPlugin - fixed save dialog\n" +
+                    "JECC - CleanDataExtension - improved unit visibility and unit dialog on double click\n" +
+                    "JECC - EquipmentPlugin - fixed enabling check\n" +
+                    "JECC - MeterPlugin - added rename button / F2 renaming function\n" +
+                    "JECC - MeterPlugin - fixed target selection dialog for new meter\n" +
+                    "JECC - PeriodEditor - improved scaling of editor\n" +
+                    "JECC - ReportPlugin - Loading a new report, while the previously selected report is still loading leads to problems\n" +
+                    "JECC - TablePlugin - improved multisite check for redundancy\n" +
+                    "\n" +
+                    "Classes - Calculation.json - added description\n" +
+                    "Classes - Energy Contracting - added missing attributes\n\n" +
+                    "------Version 3.9.48------\n" +
                     "JECC - AccountingPlugin - added xlsx output function\n" +
                     "JECC - AccountingPlugin - enabled view/configuration\n" +
                     "JECC - AccountingPlugin - removed no supported yet\n" +

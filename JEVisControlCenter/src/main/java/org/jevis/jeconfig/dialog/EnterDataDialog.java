@@ -92,6 +92,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
         super();
         this.dialogContainer = dialogContainer;
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         this.ds = dataSource;
         this.objectRelations = new ObjectRelations(ds);

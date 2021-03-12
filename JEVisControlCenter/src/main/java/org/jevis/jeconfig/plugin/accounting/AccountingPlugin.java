@@ -561,18 +561,17 @@ public class AccountingPlugin extends TablePlugin {
                     for (AttributeEditor attributeEditor : attributeEditors) {
                         try {
                             attributeEditor.commit();
-                        } catch (JEVisException e) {
+                        } catch (Exception e) {
                             logger.error("Could not save {}", attributeEditor, e);
                         }
                     }
                     try {
                         attributeEditors.clear();
                         updateGUI();
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         logger.error("Error while updating GUI", e);
                     }
-                }
-                if (motherTabPane.getSelectionModel().getSelectedItem().equals(configTab)) {
+                } else if (motherTabPane.getSelectionModel().getSelectedItem().equals(configTab)) {
                     try {
                         JEVisClass templateClass = ds.getJEVisClass(ACCOUNTING_CONFIGURATION);
 
@@ -622,7 +621,7 @@ public class AccountingPlugin extends TablePlugin {
                     cancel.setCancelButton(true);
 
                     JFXDialog dialog = new JFXDialog(enterDataStackPane, new VBox(12, really, new HBox(6, cancel, ok)), JFXDialog.DialogTransition.CENTER);
-
+                    dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
                     cancel.setOnAction(event -> dialog.close());
                     JEVisObject finalObjectToDelete = objectToDelete;
                     ok.setOnAction(event -> {
@@ -697,7 +696,7 @@ public class AccountingPlugin extends TablePlugin {
                     vBox.setPadding(INSETS);
 
                     JFXDialog dialog = new JFXDialog(enterDataStackPane, vBox, JFXDialog.DialogTransition.CENTER);
-
+                    dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
                     cancel.setOnAction(event -> dialog.close());
                     JEVisObject finalDirectory = directory;
                     JFXComboBox<JEVisObject> finalSelected = selected;
@@ -749,7 +748,6 @@ public class AccountingPlugin extends TablePlugin {
                     }
                 };
                 JEConfig.getStatusBar().addTask(PLUGIN_NAME, clearCacheTask, JEConfig.getImage("accounting.png"), true);
-
                 break;
             case Constants.Plugin.Command.ADD_TABLE:
                 break;
@@ -1021,7 +1019,7 @@ public class AccountingPlugin extends TablePlugin {
             vBox.setPadding(INSETS);
 
             JFXDialog dialog = new JFXDialog(enterDataStackPane, vBox, JFXDialog.DialogTransition.CENTER);
-
+            dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
             cancel.setOnAction(event -> {
                 dialog.close();
                 updateGrid(esGP, newValue);
@@ -1069,17 +1067,20 @@ public class AccountingPlugin extends TablePlugin {
 
         configComboBox.getItems().addAll(getAllAccountingConfigurations());
 
-        if (configComboBoxSelectedItem != null) {
-            configComboBox.getSelectionModel().select(configComboBoxSelectedItem);
-        } else {
-            configComboBox.getSelectionModel().selectFirst();
+        try {
+            if (configComboBoxSelectedItem != null && configComboBox.getItems().contains(configComboBoxSelectedItem)) {
+                configComboBox.getSelectionModel().select(configComboBoxSelectedItem);
+            } else {
+                configComboBox.getSelectionModel().selectFirst();
+            }
+        } catch (Exception e) {
         }
 
         List<JEVisObject> allEnergySupplier = ds.getObjects(accountingDirectories.getEnergySupplierClass(), true);
         allEnergySupplier.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
         energySupplierBox.getItems().addAll(allEnergySupplier);
 
-        if (energySupplierBoxSelectedItem != null) {
+        if (energySupplierBoxSelectedItem != null && energySupplierBox.getItems().contains(energySupplierBoxSelectedItem)) {
             energySupplierBox.getSelectionModel().select(energySupplierBoxSelectedItem);
         } else {
             energySupplierBox.getSelectionModel().selectFirst();
@@ -1089,7 +1090,7 @@ public class AccountingPlugin extends TablePlugin {
         allEnergyMeteringOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
         energyMeteringOperatorBox.getItems().addAll(allEnergyMeteringOperators);
 
-        if (energyMeteringOperatorBoxSelectedItem != null) {
+        if (energyMeteringOperatorBoxSelectedItem != null && energyMeteringOperatorBox.getItems().contains(energyMeteringOperatorBoxSelectedItem)) {
             energyMeteringOperatorBox.getSelectionModel().select(energyMeteringOperatorBoxSelectedItem);
         } else {
             energyMeteringOperatorBox.getSelectionModel().selectFirst();
@@ -1099,7 +1100,7 @@ public class AccountingPlugin extends TablePlugin {
         allEnergyGridOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
         energyGridOperatorBox.getItems().addAll(allEnergyGridOperators);
 
-        if (energyGridOperatorBoxSelectedItem != null) {
+        if (energyGridOperatorBoxSelectedItem != null && energyGridOperatorBox.getItems().contains(energyGridOperatorBoxSelectedItem)) {
             energyGridOperatorBox.getSelectionModel().select(energyGridOperatorBoxSelectedItem);
         } else {
             energyGridOperatorBox.getSelectionModel().selectFirst();
@@ -1124,7 +1125,7 @@ public class AccountingPlugin extends TablePlugin {
 
         energyContractorBox.getItems().addAll(allContractors);
 
-        if (energyContractorBoxSelectedItem != null) {
+        if (energyContractorBoxSelectedItem != null && energyContractorBox.getItems().contains(energyContractorBoxSelectedItem)) {
             energyContractorBox.getSelectionModel().select(energyContractorBoxSelectedItem);
         } else {
             if (!energySupplyContractors.isEmpty()) {
@@ -1140,7 +1141,7 @@ public class AccountingPlugin extends TablePlugin {
         allGovernmentalDues.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
         governmentalDuesBox.getItems().addAll(allGovernmentalDues);
 
-        if (governmentalDuesBoxSelectedItem != null) {
+        if (governmentalDuesBoxSelectedItem != null && governmentalDuesBox.getItems().contains(governmentalDuesBoxSelectedItem)) {
             governmentalDuesBox.getSelectionModel().select(governmentalDuesBoxSelectedItem);
         } else {
             governmentalDuesBox.getSelectionModel().selectFirst();
@@ -1165,10 +1166,9 @@ public class AccountingPlugin extends TablePlugin {
 
     private void updateGrid(GridPane gp, JEVisObject selectedObject) {
         if (selectedObject != null) {
-            Platform.runLater(() -> gp.getChildren().clear());
+            gp.getChildren().clear();
 
             try {
-
                 List<JEVisAttribute> attributes = selectedObject.getAttributes();
                 attributes.sort(Comparator.comparingInt(o -> {
                     try {

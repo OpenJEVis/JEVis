@@ -42,6 +42,7 @@ public class EquipmentDialog extends JFXDialog {
         this.ds = ds;
         this.jeVisClass = jeVisClass;
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         try {
             for (JEVisClass aClass : ds.getJEVisClasses()) {

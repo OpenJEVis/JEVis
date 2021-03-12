@@ -25,6 +25,7 @@ public class UnitDialog extends JFXDialog {
     public UnitDialog(StackPane parent, JEVisAttribute attribute, JFXTextField ubutton) throws JEVisException {
         super();
         setDialogContainer(parent);
+        setTransitionType(DialogTransition.NONE);
 
         JEVisDataSource ds = attribute.getDataSource();
 

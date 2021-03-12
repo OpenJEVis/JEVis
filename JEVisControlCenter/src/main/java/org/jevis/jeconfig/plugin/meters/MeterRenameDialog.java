@@ -24,6 +24,7 @@ public class MeterRenameDialog extends JFXDialog {
     public MeterRenameDialog(StackPane dialogContainer, RegisterTableRow selectedItem) throws JEVisException {
         super();
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         GridPane gp = new GridPane();
         gp.setVgap(6);

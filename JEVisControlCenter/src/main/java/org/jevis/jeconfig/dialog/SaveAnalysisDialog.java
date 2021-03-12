@@ -44,6 +44,8 @@ public class SaveAnalysisDialog extends JFXDialog {
 
     public SaveAnalysisDialog(StackPane dialogContainer, JEVisDataSource ds, AnalysisDataModel model, ToolBarView toolBarView) {
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
+
         this.ds = ds;
         this.model = model;
         this.toolBarView = toolBarView;
@@ -121,6 +123,7 @@ public class SaveAnalysisDialog extends JFXDialog {
 
         final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
         final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
+        cancel.setOnAction(event -> close());
 
         GridPane gridLayout = new GridPane();
         gridLayout.setPadding(new Insets(10, 10, 10, 10));
@@ -186,7 +189,7 @@ public class SaveAnalysisDialog extends JFXDialog {
                 Label message = new Label(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
                 final JFXButton overwrite_ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"));
                 final JFXButton overwrite_cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"));
-                overwrite_cancel.setOnAction(event1 -> close());
+                overwrite_cancel.setOnAction(event1 -> dialogOverwrite.close());
 
                 HBox buttonBox = new HBox(6, overwrite_cancel, overwrite_ok);
                 buttonBox.setAlignment(Pos.CENTER_RIGHT);
@@ -207,10 +210,12 @@ public class SaveAnalysisDialog extends JFXDialog {
                         model.updateListAnalyses();
                         toolBarView.updateLayout();
                     }
+                    dialogOverwrite.close();
                 });
 
                 dialogOverwrite.showAndWait();
             }
+            close();
         });
     }
 

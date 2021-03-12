@@ -48,6 +48,40 @@
         "th": "ราคาประสิทธิภาพ",
         "en": "Demand Charge"
       }
+    },
+    {
+      "type": "Heating Value",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Brennwert",
+        "ru": "Теплотворная способность",
+        "uk": "Калорійність",
+        "th": "ค่าความร้อน",
+        "en": "Heating Value"
+      }
+    },
+    {
+      "type": "State Number",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Zustandszahl",
+        "ru": "Государственный номер",
+        "uk": "Номер штату",
+        "th": "หมายเลขรัฐ",
+        "en": "State Number"
+      }
     }
   ]
 }
