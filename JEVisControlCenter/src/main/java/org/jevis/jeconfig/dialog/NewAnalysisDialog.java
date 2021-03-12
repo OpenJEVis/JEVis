@@ -28,7 +28,6 @@ public class NewAnalysisDialog {
         AnalysisDataModel newModel = new AnalysisDataModel(ds, chartPlugin);
 
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(dialogContainer, ds, newModel);
-        selectionDialog.show();
 
         selectionDialog.setOnDialogClosed(event -> {
             if (selectionDialog.getResponse() == Response.OK) {
@@ -41,5 +40,7 @@ public class NewAnalysisDialog {
 
             JEVisHelp.getInstance().deactivatePluginModule();
         });
+
+        selectionDialog.show();
     }
 }

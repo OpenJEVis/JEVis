@@ -279,13 +279,15 @@
     -fx-padding: 4 0 4 5 ;
 }
 
-
-
-
 .button:default {
     -fx-background-color: -fx-default-button-background;
     -fx-text-fill: -fx-default-button-text-fill;
 }
 
+.jfx-dialog-overlay-pane > StackPane{
+    -fx-effect: null;
+}
 
-
+.jfx-check-box{
+    -fx-effect: null;
+}

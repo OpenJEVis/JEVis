@@ -33,6 +33,7 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         super();
 
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(6));

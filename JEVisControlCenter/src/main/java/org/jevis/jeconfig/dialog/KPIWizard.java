@@ -41,6 +41,8 @@ public class KPIWizard extends JFXDialog {
     public KPIWizard(StackPane dialogContainer, JEVisObject object) {
         super();
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
+
         JEVisClass calcClass = null;
         JEVisClass dataClass = null;
         JEVisClass cleanDataClass = null;

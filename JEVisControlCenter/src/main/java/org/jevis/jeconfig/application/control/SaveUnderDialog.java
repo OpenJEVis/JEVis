@@ -46,6 +46,7 @@ public class SaveUnderDialog extends JFXDialog {
     public SaveUnderDialog(StackPane dialogContainer, JEVisDataSource jeVisDataSource, String directoryClass, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {
         super();
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));

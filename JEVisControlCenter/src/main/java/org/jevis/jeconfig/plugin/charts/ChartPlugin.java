@@ -101,6 +101,7 @@ public class ChartPlugin implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(ChartPlugin.class);
     public static String PLUGIN_NAME = "Graph Plugin";
+    public static String ANALYSIS_CLASS = "Analysis";
     //    private final List<ChartView> charts = new ArrayList<>();
     private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
     private final ToolBarView toolBarView;
@@ -326,7 +327,6 @@ public class ChartPlugin implements Plugin {
     private void newAnalysis() {
 
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(dialogContainer, ds, dataModel);
-        selectionDialog.show();
 
 //        AnalysisTimeFrame atf = new AnalysisTimeFrame();
 //        atf.setActiveTimeFrame(TimeFrame.CUSTOM);
@@ -342,6 +342,8 @@ public class ChartPlugin implements Plugin {
             }
             JEVisHelp.getInstance().deactivatePluginModule();
         });
+
+        selectionDialog.show();
 
     }
 

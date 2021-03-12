@@ -621,7 +621,7 @@ public class AccountingPlugin extends TablePlugin {
                     cancel.setCancelButton(true);
 
                     JFXDialog dialog = new JFXDialog(enterDataStackPane, new VBox(12, really, new HBox(6, cancel, ok)), JFXDialog.DialogTransition.CENTER);
-
+                    dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
                     cancel.setOnAction(event -> dialog.close());
                     JEVisObject finalObjectToDelete = objectToDelete;
                     ok.setOnAction(event -> {
@@ -696,7 +696,7 @@ public class AccountingPlugin extends TablePlugin {
                     vBox.setPadding(INSETS);
 
                     JFXDialog dialog = new JFXDialog(enterDataStackPane, vBox, JFXDialog.DialogTransition.CENTER);
-
+                    dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
                     cancel.setOnAction(event -> dialog.close());
                     JEVisObject finalDirectory = directory;
                     JFXComboBox<JEVisObject> finalSelected = selected;
@@ -1019,7 +1019,7 @@ public class AccountingPlugin extends TablePlugin {
             vBox.setPadding(INSETS);
 
             JFXDialog dialog = new JFXDialog(enterDataStackPane, vBox, JFXDialog.DialogTransition.CENTER);
-
+            dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
             cancel.setOnAction(event -> {
                 dialog.close();
                 updateGrid(esGP, newValue);

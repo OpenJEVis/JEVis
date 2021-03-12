@@ -94,6 +94,7 @@ public class LoadAnalysisDialog extends JFXDialog {
         this.objectRelations = new ObjectRelations(ds);
 
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         filteredData = new FilteredList<>(analysisDataModel.getObservableListAnalyses(), s -> true);
 

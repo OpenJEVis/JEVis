@@ -94,16 +94,7 @@ public class PluginManager {
      */
     public List<Plugin> getInstalledPlugins() {
         List<Plugin> plugins = new ArrayList<>();
-        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-        plugins.add(new ChartPlugin(this._ds, I18n.getInstance().getString("plugin.graph.title")));
-        plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
-        plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
-        plugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
-        plugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
-        plugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
-        plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
-        plugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
-        plugins.add(new TRCPlugin(this._ds));
+
 
 //        plugins.add(new SCADAPlugin(_ds));
         plugins.add(new ISO50001Browser(this._ds));
@@ -136,7 +127,6 @@ public class PluginManager {
      * @param user
      */
     public void addPluginsByUserSetting(JEVisUser user) {
-        List<Plugin> plugins = getInstalledPlugins();
         List<Plugin> enabledPlugins = new ArrayList<>();
         //debug
 
@@ -153,99 +143,131 @@ public class PluginManager {
             List<JEVisObject> servicesDir = this._ds.getObjects(servicesClass, false);
             if (servicesDir == null || servicesDir.isEmpty()) {
                 logger.info("Warning missing ServicesDirectory");
-                this._plugins.add(plugins.get(0));
+                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
                 return;
             }
 
             List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
             if (controlCenterObj == null || controlCenterObj.isEmpty()) {
                 logger.info("Warning missing ControlCenter");
-                this._plugins.add(plugins.get(0));
+                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
                 return;
             }
 
             List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
             if (pluginObjs == null || pluginObjs.isEmpty()) {
                 logger.info("Warning No Plugins installed");
-                this._plugins.add(plugins.get(0));
+                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
                 return;
             }
 
             if (user.isSysAdmin()) {
-                this._plugins.addAll(plugins);
+                this._plugins.addAll(Arrays.asList(
+                        new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")),
+                        new ChartPlugin(this._ds, I18n.getInstance().getString("plugin.graph.title")),
+                        new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")),
+                        new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")),
+                        new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")),
+                        new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")),
+                        new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")),
+                        new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")),
+                        new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")),
+                        new TRCPlugin(this._ds)
+                ));
             } else {
                 for (JEVisObject plugObj : pluginObjs) {
                     try {
-                        for (Plugin plugin : plugins) {
-                            try {
-                                if (plugin.getClassName().equals(plugObj.getJEVisClassName())) {
-                                    JEVisAttribute enabled = plugObj.getAttribute("Enable");
-                                    if (enabled == null) {
-                                        continue;
-                                    }
-                                    JEVisSample value = enabled.getLatestSample();
-                                    if (value != null) {
-                                        if (value.getValueAsBoolean() || (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME) && user.isSysAdmin())) {
-                                            /** Workaround to manage the dashboard and report access,
-                                             *  hide the dashboard/report if the user has no analyses.
-                                             */
-                                            if (plugObj.getJEVisClassName().equals(DashBordPlugIn.PLUGIN_NAME)) {
-                                                JEVisClass scadaAnalysis = this._ds.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-                                                List<JEVisObject> allAnalyses = this._ds.getObjects(scadaAnalysis, false);
-                                                if (allAnalyses.size() == 0) {
-                                                    continue;
-                                                }
-                                            } else if (plugObj.getJEVisClassName().equals(ReportPlugin.PLUGIN_NAME)) {
-                                                JEVisClass reportClass = this._ds.getJEVisClass(ReportPlugin.REPORT_CLASS);
-                                                List<JEVisObject> allReports = this._ds.getObjects(reportClass, true);
-                                                if (allReports.size() == 0) {
-                                                    continue;
-                                                }
-                                            } else if (plugObj.getJEVisClassName().equals(AlarmPlugin.PLUGIN_NAME)) {
-                                                JEVisClass alarmClass = this._ds.getJEVisClass(AlarmPlugin.ALARM_CONFIG_CLASS);
-                                                List<JEVisObject> allAlarms = this._ds.getObjects(alarmClass, true);
-                                                if (allAlarms.size() == 0) {
-                                                    continue;
-                                                }
-                                            } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
-                                                JEVisClass measurementInstrumentClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
-                                                List<JEVisObject> allMeasurementInstruments = this._ds.getObjects(measurementInstrumentClass, true);
-                                                if (allMeasurementInstruments.size() == 0) {
-                                                    continue;
-                                                }
-                                            } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
-                                                JEVisClass baseDataClass = this._ds.getJEVisClass(BaseDataPlugin.BASE_DATA_CLASS);
-                                                List<JEVisObject> allBaseData = this._ds.getObjects(baseDataClass, false);
-                                                if (allBaseData.size() == 0) {
-                                                    continue;
-                                                }
-                                            } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
-                                                JEVisClass equipmentClass = this._ds.getJEVisClass(EquipmentPlugin.EQUIPMENT_CLASS);
-                                                List<JEVisObject> allEquipment = this._ds.getObjects(equipmentClass, true);
-                                                if (allEquipment.size() == 0) {
-                                                    continue;
-                                                }
-                                            } else if (plugObj.getJEVisClassName().equals(AccountingPlugin.PLUGIN_NAME)) {
-                                                JEVisClass accountingClass = this._ds.getJEVisClass(AccountingPlugin.ACCOUNTING_CLASS);
-                                                List<JEVisObject> allAccountingDirs = this._ds.getObjects(accountingClass, false);
-                                                if (allAccountingDirs.size() == 0) {
-                                                    continue;
-                                                }
-                                            } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
-                                                JEVisClass templateClass = this._ds.getJEVisClass(TRCPlugin.TEMPLATE_CLASS);
-                                                List<JEVisObject> allTemplates = this._ds.getObjects(templateClass, false);
-                                                if (allTemplates.size() == 0) {
-                                                    continue;
-                                                }
-                                            }
+                        try {
 
-                                            enabledPlugins.add(plugin);
+                            JEVisAttribute enabled = plugObj.getAttribute("Enable");
+                            if (enabled == null) {
+                                continue;
+                            }
+                            JEVisSample value = enabled.getLatestSample();
+                            if (value != null) {
+                                if (value.getValueAsBoolean() || (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME) && user.isSysAdmin())) {
+                                    /** Workaround to manage the dashboard and report access,
+                                     *  hide the dashboard/report if the user has no analyses.
+                                     */
+                                    if (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME)) {
+                                        _plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
+                                    } else if (plugObj.getJEVisClassName().equals(ChartPlugin.PLUGIN_NAME)) {
+                                        JEVisClass chartAnalysis = this._ds.getJEVisClass(ChartPlugin.ANALYSIS_CLASS);
+                                        List<JEVisObject> allAnalyses = this._ds.getObjects(chartAnalysis, false);
+                                        if (allAnalyses.size() == 0) {
+                                            continue;
+                                        } else {
+                                            _plugins.add(new ChartPlugin(this._ds, I18n.getInstance().getString("plugin.graph.title")));
+                                        }
+                                    } else if (plugObj.getJEVisClassName().equals(DashBordPlugIn.PLUGIN_NAME)) {
+                                        JEVisClass scadaAnalysis = this._ds.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+                                        List<JEVisObject> allAnalyses = this._ds.getObjects(scadaAnalysis, false);
+                                        if (allAnalyses.size() == 0) {
+                                            continue;
+                                        } else {
+                                            _plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
+                                        }
+                                    } else if (plugObj.getJEVisClassName().equals(ReportPlugin.PLUGIN_NAME)) {
+                                        JEVisClass reportClass = this._ds.getJEVisClass(ReportPlugin.REPORT_CLASS);
+                                        List<JEVisObject> allReports = this._ds.getObjects(reportClass, true);
+                                        if (allReports.size() == 0) {
+                                            continue;
+                                        } else {
+                                            _plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
+                                        }
+                                    } else if (plugObj.getJEVisClassName().equals(AlarmPlugin.PLUGIN_NAME)) {
+                                        JEVisClass alarmClass = this._ds.getJEVisClass(AlarmPlugin.ALARM_CONFIG_CLASS);
+                                        List<JEVisObject> allAlarms = this._ds.getObjects(alarmClass, true);
+                                        if (allAlarms.size() == 0) {
+                                            continue;
+                                        } else {
+                                            _plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
+                                        }
+                                    } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
+                                        JEVisClass measurementInstrumentClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
+                                        List<JEVisObject> allMeasurementInstruments = this._ds.getObjects(measurementInstrumentClass, true);
+                                        if (allMeasurementInstruments.size() == 0) {
+                                            continue;
+                                        } else {
+                                            _plugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
+                                        }
+                                    } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
+                                        JEVisClass baseDataClass = this._ds.getJEVisClass(BaseDataPlugin.BASE_DATA_CLASS);
+                                        List<JEVisObject> allBaseData = this._ds.getObjects(baseDataClass, false);
+                                        if (allBaseData.size() == 0) {
+                                            continue;
+                                        } else {
+                                            _plugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
+                                        }
+                                    } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
+                                        JEVisClass equipmentClass = this._ds.getJEVisClass(EquipmentPlugin.EQUIPMENT_CLASS);
+                                        List<JEVisObject> allEquipment = this._ds.getObjects(equipmentClass, true);
+                                        if (allEquipment.size() == 0) {
+                                            continue;
+                                        } else {
+                                            _plugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
+                                        }
+                                    } else if (plugObj.getJEVisClassName().equals(AccountingPlugin.PLUGIN_NAME)) {
+                                        JEVisClass accountingClass = this._ds.getJEVisClass(AccountingPlugin.ACCOUNTING_CLASS);
+                                        List<JEVisObject> allAccountingDirs = this._ds.getObjects(accountingClass, false);
+                                        if (allAccountingDirs.size() == 0) {
+                                            continue;
+                                        } else {
+                                            _plugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
+                                        }
+                                    } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
+                                        JEVisClass templateClass = this._ds.getJEVisClass(TRCPlugin.TEMPLATE_CLASS);
+                                        List<JEVisObject> allTemplates = this._ds.getObjects(templateClass, false);
+                                        if (allTemplates.size() == 0) {
+                                            continue;
+                                        } else {
+                                            _plugins.add(new TRCPlugin(this._ds));
                                         }
                                     }
                                 }
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
                             }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -256,7 +278,7 @@ public class PluginManager {
             }
 
             if (this._plugins.isEmpty()) {
-                this._plugins.add(plugins.get(0));
+                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
             }
 
             try {
