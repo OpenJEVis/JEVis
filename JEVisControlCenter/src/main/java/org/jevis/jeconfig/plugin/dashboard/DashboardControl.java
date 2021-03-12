@@ -106,7 +106,7 @@ public class DashboardControl {
 
         //TaskWindow taskWindow = new TaskWindow(runningUpdateTaskList);
 
-        widgetNavigator = new WidgetNavigator(this);
+        widgetNavigator = new WidgetNavigator(plugin.getDialogPane(), this);
         initTimeFrameFactory();
         this.activeDashboard = this.configManager.createEmptyDashboard();
     }

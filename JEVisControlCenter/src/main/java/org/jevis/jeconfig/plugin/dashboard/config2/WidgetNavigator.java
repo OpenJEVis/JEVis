@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,21 +10,14 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
-import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.plugin.dashboard.DashBoardToolbar;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
@@ -32,10 +26,9 @@ import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 import org.jevis.jeconfig.tool.Layouts;
-import org.jevis.jeconfig.tool.ScreenSize;
 
 
-public class WidgetNavigator {
+public class WidgetNavigator extends JFXDialog {
     private final double iconSize = 16;
     final ImageView lockIcon = JEConfig.getImage("eye_visible.png", this.iconSize, this.iconSize);
     final ImageView unlockIcon = JEConfig.getImage("eye_hidden.png", this.iconSize, this.iconSize);
@@ -45,30 +38,49 @@ public class WidgetNavigator {
     private final DashboardControl control;
     private TableView<Widget> table;
 
-    public WidgetNavigator(DashboardControl control) {
+    public WidgetNavigator(StackPane dialogContainer, DashboardControl control) {
         this.control = control;
+        setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
+        setOverlayClose(false);
+
+        setMinHeight(800);
+//        final Stage stage = new Stage(StageStyle.UTILITY);
+//
+//
+//        stage.setTitle(I18n.getInstance().getString("attribute.editor.title"));
+//        stage.initModality(Modality.NONE);
+//        stage.initOwner(JEConfig.getStage());
+//
+//        AnchorPane root = new AnchorPane();
+
+
+//        final Scene scene = new Scene(root);
+//        TopMenu.applyActiveTheme(scene);
+//        stage.setScene(scene);
+//
+//        stage.setWidth(ScreenSize.fitScreenWidth(1100));
+//        stage.setHeight(800);
+//        stage.initStyle(StageStyle.UTILITY);
+//        stage.setResizable(true);
+//        scene.setFill(Color.TRANSPARENT);
+
+
     }
 
-
+    @Override
     public void show() {
-        final Stage stage = new Stage(StageStyle.UTILITY);
-
-
-        stage.setTitle(I18n.getInstance().getString("attribute.editor.title"));
-        stage.initModality(Modality.NONE);
-        stage.initOwner(JEConfig.getStage());
-
-        AnchorPane root = new AnchorPane();
+        super.show();
 
         Control table = buildTable();
 
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(table);
 
-        Node header = DialogHeader.getDialogHeader("if_table_gear_64761.png", I18n.getInstance().getString("dashboard.navigator.setting.title"));
+//        Node header = DialogHeader.getDialogHeader("if_table_gear_64761.png", I18n.getInstance().getString("dashboard.navigator.setting.title"));
         Node contentPane = buildGeneralSetting();
         BorderPane topBorderPane = new BorderPane();
-        topBorderPane.setTop(header);
+//        topBorderPane.setTop(header);
         topBorderPane.setCenter(contentPane);
 
         AnchorPane anchorPane = new AnchorPane(topBorderPane);
@@ -77,35 +89,21 @@ public class WidgetNavigator {
 
 
         Layouts.setAnchor(borderPane, 0d);
-        root.getChildren().add(borderPane);
-
-        final Scene scene = new Scene(root);
-        TopMenu.applyActiveTheme(scene);
-        stage.setScene(scene);
-
-        stage.setWidth(ScreenSize.fitScreenWidth(1100));
-        stage.setHeight(800);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(true);
-        scene.setFill(Color.TRANSPARENT);
+        setContent(borderPane);
 
         JFXButton finishButton = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"));
         finishButton.setDefaultButton(true);
         finishButton.setOnAction(event -> {
-            stage.hide();
+            close();
         });
-        stage.setOnHiding(event -> this.control.enableHighlightGlow(false));
-
+        setOnDialogClosed(event -> this.control.enableHighlightGlow(false));
 
         HBox buttonBox = new HBox(18);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         buttonBox.getChildren().addAll(finishButton);
         buttonBox.setPadding(new Insets(12));
         borderPane.setBottom(buttonBox);
-
-        stage.show();
     }
-
 
     private Node buildGeneralSetting() {
         Label nameLabel = new Label(I18n.getInstance().getString("dashboard.navigator.namelabel"));

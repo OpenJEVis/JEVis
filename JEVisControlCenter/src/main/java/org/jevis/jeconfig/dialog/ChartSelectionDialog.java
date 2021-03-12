@@ -85,6 +85,8 @@ public class ChartSelectionDialog extends JFXDialog {
 
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
+        setOverlayClose(false);
+        setMinHeight(800);
 
         this._ds = ds;
         this.data = data;
