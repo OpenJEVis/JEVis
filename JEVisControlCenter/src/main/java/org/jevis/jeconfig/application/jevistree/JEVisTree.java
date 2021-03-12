@@ -20,25 +20,25 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
-import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.*;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisItemLoader;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,7 +47,7 @@ import java.util.UUID;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class JEVisTree extends JFXTreeTableView {
+public class JEVisTree extends TreeTableView {
     private static final Logger logger = LogManager.getLogger(JEVisTree.class);
     private final ObservableList<TreePlugin> plugins = FXCollections.observableArrayList();
     private final JEVisDataSource ds;
@@ -59,6 +59,9 @@ public class JEVisTree extends JFXTreeTableView {
     private final ObservableList<JEVisObject> highlighterList = FXCollections.observableArrayList();
     private boolean isCut = false;
     private SearchFilterBar searchBar;
+    private HashMap<String, Object> configMap = new HashMap<>();
+    private List<Long> calculationIDs = new ArrayList<>();
+
 
     /**
      * Create an default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
@@ -68,6 +71,7 @@ public class JEVisTree extends JFXTreeTableView {
      */
     public JEVisTree(JEVisDataSource ds, JEVisTreeFilter filter) {
         super();
+        logger.error("Create new JEVis tree: ds: {}", ds);
         this.setId("JEVisTree");
         this.ds = ds;
 //        cellFilter = FilterFactory.buildDefaultItemFilter();
@@ -75,7 +79,64 @@ public class JEVisTree extends JFXTreeTableView {
         this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
 //        addCellFactory();
-        init();
+        initialize();
+
+    }
+
+    protected void initialize() {
+        try {
+            Benchmark b = new Benchmark();
+            loadCalcFilter();
+            b.printBenchmarkDetail("Time to load Calc Tree Filter");
+
+            this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), this.ds.getRootObjects());
+            this.itemLoader.filterTree(this.cellFilter);
+            setShowRoot(false);
+
+            setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
+            setTableMenuButtonVisible(true);
+
+            this.plugins.addListener(this::onChanged);
+
+        } catch (Exception ex) {
+            logger.fatal(ex);
+        }
+    }
+
+    public List<Long> getCalculationIDs() {
+        return calculationIDs;
+    }
+
+    private void loadCalcFilter() {
+        try {
+            JEVisClass calcClass = ds.getJEVisClass("Calculation");
+            JEVisClass outputClass = ds.getJEVisClass("Output");
+            List<JEVisObject> objects = new ArrayList<>();
+            objects = ds.getObjects(calcClass, false);
+
+
+            ds.getObjects(outputClass, true).forEach(object -> {
+                try {
+                    TargetHelper th = new TargetHelper(ds, object.getAttribute("Output"));
+                    calculationIDs.add(th.getObject().get(0).getID());
+                } catch (Exception e) {
+                    logger.error("Found calculation without valid target; {}", object.getID());
+                }
+            });
+
+            objects.forEach(object -> {
+
+            });
+
+            /**
+             System.out.println("----");
+             calculationIDs.forEach(aLong -> {
+             System.out.println("Calculation target: " + aLong);
+             });
+             **/
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
 
@@ -164,7 +225,7 @@ public class JEVisTree extends JFXTreeTableView {
     }
 
     public void reload() {
-        init();
+        //init();
     }
 
     public ObservableList<JEVisObject> getVisibleObjects() {
@@ -217,26 +278,6 @@ public class JEVisTree extends JFXTreeTableView {
 
     }
 
-
-    /**
-     * Initialize the jevis tree
-     */
-    @Override
-    protected void init() {
-        try {
-            this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), this.ds.getRootObjects());
-            this.itemLoader.filterTree(this.cellFilter);
-            setShowRoot(false);
-
-            setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
-            setTableMenuButtonVisible(true);
-
-            this.plugins.addListener(this::onChanged);
-
-        } catch (Exception ex) {
-            logger.fatal(ex);
-        }
-    }
 
     @Deprecated
     public JEVisTreeRow getDragRow() {
@@ -451,6 +492,14 @@ public class JEVisTree extends JFXTreeTableView {
         logger.debug("Did not find Column: " + columnName);
         return null;
 
+    }
+
+    public void setConfigObject(String key, Object object) {
+        configMap.put(key, object);
+    }
+
+    public Object getConfigObject(String key) {
+        return configMap.get(key);
     }
 
     public SearchFilterBar getSearchFilterBar() {

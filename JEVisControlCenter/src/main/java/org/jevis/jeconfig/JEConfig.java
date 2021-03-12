@@ -99,8 +99,11 @@ public class JEConfig extends Application {
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
     private static final Statusbar statusBar = new Statusbar();
+    private static StackPane dialogContainer = new StackPane();
+
     private TopMenu menu;
     public static Date startDate = new Date();
+
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -483,7 +486,8 @@ public class JEConfig extends Application {
 //                GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
 
                 VBox vbox = new VBox();
-                StackPane dialogContainer = new StackPane();
+                //StackPane dialogContainer = new StackPane();
+
                 BorderPane border = new BorderPane(dialogContainer);
 
                 vbox.setStyle("-fx-background-color: black;");
@@ -576,6 +580,8 @@ public class JEConfig extends Application {
         StyleManager.getInstance().addUserAgentStylesheet("/styles/ToolTip.css");
 
         jeconfigRoot.getChildren().setAll(login);
+
+
         //checkVersion(login.getDataSource());
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -629,6 +635,16 @@ public class JEConfig extends Application {
         _primaryStage = primaryStage;
         initGUI(primaryStage);
     }
+
+    /**
+     * StackPane for JFXDialogs without parents
+     *
+     * @return
+     */
+    public static StackPane getStackPane() {
+        return dialogContainer;
+    }
+
 
     public static final class OsUtils {
         private static String OS = null;
