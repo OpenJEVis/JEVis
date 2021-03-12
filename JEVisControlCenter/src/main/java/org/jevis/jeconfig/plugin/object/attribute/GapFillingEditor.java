@@ -480,6 +480,7 @@ public class GapFillingEditor implements AttributeEditor {
 
         JFXDialog dialog = new JFXDialog();
         dialog.setDialogContainer(dialogContainer);
+        dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
         //dialog.setHeight(450);
         //dialog.setWidth(620);
 

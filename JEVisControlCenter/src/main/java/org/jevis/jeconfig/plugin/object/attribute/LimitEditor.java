@@ -221,6 +221,7 @@ public class LimitEditor implements AttributeEditor {
 
         JFXDialog dialog = new JFXDialog();
         dialog.setDialogContainer(dialogContainer);
+        dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
 
         for (JsonLimitsConfig config : _listConfig) {
             Tab newTab = new Tab(config.getName());

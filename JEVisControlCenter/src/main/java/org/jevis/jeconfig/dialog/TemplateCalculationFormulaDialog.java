@@ -29,6 +29,7 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         super();
 
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         Label nameLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.namelabel"));
         JFXTextField jfxTextField = new JFXTextField(templateFormula.getName());

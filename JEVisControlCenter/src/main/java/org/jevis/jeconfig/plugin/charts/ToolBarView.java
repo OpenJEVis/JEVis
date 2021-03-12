@@ -309,7 +309,6 @@ public class ToolBarView {
 
     private void changeSettings() {
         ChartSelectionDialog dia = new ChartSelectionDialog(chartPlugin.getDialogContainer(), ds, model);
-        dia.show();
 
         dia.setOnDialogClosed(event -> {
             if (dia.getResponse() == Response.OK) {
@@ -320,6 +319,8 @@ public class ToolBarView {
             }
             JEVisHelp.getInstance().deactivatePluginModule();
         });
+
+        dia.show();
     }
 
 

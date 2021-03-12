@@ -59,6 +59,7 @@ public class NewObjectUnderDialog extends JFXDialog {
         this._ds = ds;
         this.mode = mode;
         setDialogContainer(dialogContainer);
+        setTransitionType(DialogTransition.NONE);
 
         setContent(build(ds, title, userSelection));
     }
