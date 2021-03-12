@@ -39,6 +39,7 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisItemLoader;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,6 +60,8 @@ public class JEVisTree extends JFXTreeTableView {
     private final ObservableList<JEVisObject> highlighterList = FXCollections.observableArrayList();
     private boolean isCut = false;
     private SearchFilterBar searchBar;
+    private HashMap<String, Object> configMap = new HashMap<>();
+
 
     /**
      * Create an default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
@@ -451,6 +454,14 @@ public class JEVisTree extends JFXTreeTableView {
         logger.debug("Did not find Column: " + columnName);
         return null;
 
+    }
+
+    public void setConfigObject(String key, Object object) {
+        configMap.put(key, object);
+    }
+
+    public Object getConfigObject(String key) {
+        return configMap.get(key);
     }
 
     public SearchFilterBar getSearchFilterBar() {
