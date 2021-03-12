@@ -20,14 +20,10 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
-import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.*;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -51,7 +47,7 @@ import java.util.UUID;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class JEVisTree extends JFXTreeTableView {
+public class JEVisTree extends TreeTableView {
     private static final Logger logger = LogManager.getLogger(JEVisTree.class);
     private final ObservableList<TreePlugin> plugins = FXCollections.observableArrayList();
     private final JEVisDataSource ds;
@@ -83,7 +79,28 @@ public class JEVisTree extends JFXTreeTableView {
         this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
 //        addCellFactory();
-        init();
+        initialize();
+
+    }
+
+    protected void initialize() {
+        try {
+            Benchmark b = new Benchmark();
+            loadCalcFilter();
+            b.printBenchmarkDetail("Time to load Calc Tree Filter");
+
+            this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), this.ds.getRootObjects());
+            this.itemLoader.filterTree(this.cellFilter);
+            setShowRoot(false);
+
+            setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
+            setTableMenuButtonVisible(true);
+
+            this.plugins.addListener(this::onChanged);
+
+        } catch (Exception ex) {
+            logger.fatal(ex);
+        }
     }
 
     public List<Long> getCalculationIDs() {
@@ -92,7 +109,6 @@ public class JEVisTree extends JFXTreeTableView {
 
     private void loadCalcFilter() {
         try {
-            /** to Gerrit: warum wird das im Pluginmager- Alarm aufgerufen ohne das vorher der Construcktor aufgerufen wurde* **/
             JEVisClass calcClass = ds.getJEVisClass("Calculation");
             JEVisClass outputClass = ds.getJEVisClass("Output");
             List<JEVisObject> objects = new ArrayList<>();
@@ -104,7 +120,7 @@ public class JEVisTree extends JFXTreeTableView {
                     TargetHelper th = new TargetHelper(ds, object.getAttribute("Output"));
                     calculationIDs.add(th.getObject().get(0).getID());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Found calculation without valid target; {}", object.getID());
                 }
             });
 
@@ -209,7 +225,7 @@ public class JEVisTree extends JFXTreeTableView {
     }
 
     public void reload() {
-        init();
+        //init();
     }
 
     public ObservableList<JEVisObject> getVisibleObjects() {
@@ -262,30 +278,6 @@ public class JEVisTree extends JFXTreeTableView {
 
     }
 
-
-    /**
-     * Initialize the jevis tree
-     */
-    @Override
-    protected void init() {
-        try {
-            Benchmark b = new Benchmark();
-            loadCalcFilter();
-            b.printBenchmarkDetail("Time to load Calc Tree Filter");
-
-            this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), this.ds.getRootObjects());
-            this.itemLoader.filterTree(this.cellFilter);
-            setShowRoot(false);
-
-            setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
-            setTableMenuButtonVisible(true);
-
-            this.plugins.addListener(this::onChanged);
-
-        } catch (Exception ex) {
-            logger.fatal(ex);
-        }
-    }
 
     @Deprecated
     public JEVisTreeRow getDragRow() {

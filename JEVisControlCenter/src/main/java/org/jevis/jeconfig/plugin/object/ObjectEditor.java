@@ -274,7 +274,7 @@ public class ObjectEditor {
                     ImageView classIcon;
                     try {
                         if (tree.getCalculationIDs().contains(obj.getID())) {
-                            ImageView iv = new ImageView(JEConfig.getImage("DataCalc.png"));
+                            ImageView iv = new ImageView(JEConfig.getImage("virt_data.png"));
                             iv.fitHeightProperty().setValue(60);
                             iv.fitWidthProperty().setValue(60);
                             iv.setSmooth(true);

@@ -137,7 +137,7 @@ public class ColumnFactory {
                                                                       if (jevisTree.getCalculationIDs().contains(jeVisObject.getID())) {
                                                                           {
                                                                               if (!classIconCache.containsKey("Fake_Virtual_DataPoints")) {
-                                                                                  classIconCache.put("Fake_Virtual_DataPoints", JEConfig.getImage("DataCalc.png"));
+                                                                                  classIconCache.put("Fake_Virtual_DataPoints", JEConfig.getImage("virt_data.png"));
                                                                               }
                                                                               ImageView iv = new ImageView(classIconCache.get("Fake_Virtual_DataPoints"));
                                                                               iv.fitHeightProperty().setValue(18);
