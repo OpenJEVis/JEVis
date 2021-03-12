@@ -273,7 +273,15 @@ public class ObjectEditor {
                     //Header
                     ImageView classIcon;
                     try {
-                        classIcon = ImageConverter.convertToImageView(obj.getJEVisClass().getIcon(), 60, 60);
+                        if (tree.getCalculationIDs().contains(obj.getID())) {
+                            ImageView iv = new ImageView(JEConfig.getImage("DataCalc.png"));
+                            iv.fitHeightProperty().setValue(60);
+                            iv.fitWidthProperty().setValue(60);
+                            iv.setSmooth(true);
+                            classIcon = iv;
+                        } else {
+                            classIcon = ImageConverter.convertToImageView(obj.getJEVisClass().getIcon(), 60, 60);
+                        }
                     } catch (Exception ex) {
                         classIcon = JEConfig.getImage("1390343812_folder-open.png", 20, 20);
                     }

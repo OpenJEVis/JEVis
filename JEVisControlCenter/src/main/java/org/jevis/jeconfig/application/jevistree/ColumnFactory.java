@@ -42,6 +42,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.joda.time.format.DateTimeFormat;
@@ -128,8 +129,27 @@ public class ColumnFactory {
                                                       if (item.getType() == JEVisTreeRow.TYPE.OBJECT) {
                                                           nameLabel.setText(jeVisObject.getName());
                                                           try {
+                                                              JEVisTree jevisTree = (JEVisTree) this.getTreeTableView();
                                                               if (!jeVisObject.getJEVisClassName().equals("Link")) {
                                                                   icon = getClassIcon(jeVisObject.getJEVisClass(), 18, 18);
+
+                                                                  try {
+                                                                      if (jevisTree.getCalculationIDs().contains(jeVisObject.getID())) {
+                                                                          {
+                                                                              if (!classIconCache.containsKey("Fake_Virtual_DataPoints")) {
+                                                                                  classIconCache.put("Fake_Virtual_DataPoints", JEConfig.getImage("DataCalc.png"));
+                                                                              }
+                                                                              ImageView iv = new ImageView(classIconCache.get("Fake_Virtual_DataPoints"));
+                                                                              iv.fitHeightProperty().setValue(18);
+                                                                              iv.fitWidthProperty().setValue(18);
+                                                                              iv.setSmooth(true);
+                                                                              icon = iv;
+                                                                          }
+                                                                      }
+                                                                  } catch (Exception ex) {
+                                                                      ex.printStackTrace();
+                                                                  }
+
                                                               } else {
                                                                   JEVisObject linkedObject = jeVisObject.getLinkedObject();
                                                                   icon = getClassIcon(linkedObject.getJEVisClass(), 18, 18);
