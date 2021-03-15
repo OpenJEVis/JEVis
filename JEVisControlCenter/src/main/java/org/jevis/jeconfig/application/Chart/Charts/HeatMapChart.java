@@ -105,8 +105,8 @@ public class HeatMapChart implements Chart {
                 logger.error("Error while getting input sample rate", e);
             }
         } else {
-            logger.warn("Only got {} samples, aborting", samples.size());
-            return;
+            logger.warn("Only got {} samples, fallback to default", samples.size());
+            inputSampleRate = chartDataRow.getAttribute().getInputSampleRate();
         }
 
         HashMap<DateTime, JEVisSample> sampleHashMap = new HashMap<>();
@@ -117,12 +117,7 @@ public class HeatMapChart implements Chart {
                 logger.error("Error while getting sample timestamp of sample {}", jeVisSample, e);
             }
         });
-        DateTime currentTS = null;
-        try {
-            currentTS = samples.get(0).getTimestamp();
-        } catch (JEVisException e) {
-            logger.error("Could not get current time stamp while getting time stamp of sample {}", samples.get(0), e);
-        }
+        DateTime currentTS = chartDataRow.getSelectedStart();
 
         double minValue = Double.MAX_VALUE;
         double maxValue = -Double.MAX_VALUE;
@@ -131,16 +126,10 @@ public class HeatMapChart implements Chart {
 
         boolean isCustomStart = false;
         if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+            LocalTime of = LocalTime.of(chartDataRow.getSelectedStart().getHourOfDay(), chartDataRow.getSelectedStart().getMinuteOfHour());
 
-            LocalTime of = null;
-            try {
-                of = LocalTime.of(samples.get(0).getTimestamp().getHourOfDay(), samples.get(0).getTimestamp().getMinuteOfHour());
-
-                if (workDays.getWorkdayStart().equals(of)) {
-                    isCustomStart = true;
-                }
-            } catch (JEVisException e) {
-                logger.error("Error while getting custom work day start and end", e);
+            if (workDays.getWorkdayStart().equals(of)) {
+                isCustomStart = true;
             }
         }
 
@@ -185,13 +174,9 @@ public class HeatMapChart implements Chart {
             }
         }
 
-        try {
-            DateTime lastTs = samples.get(samples.size() - 1).getTimestamp();
-            yAxisList.removeAll(yAxisList.stream().filter(dateTime -> dateTime.isAfter(lastTs)).collect(Collectors.toList()));
-            ROWS = (long) yAxisList.size();
-        } catch (JEVisException e) {
-            logger.error("Error while getting row length of heat map", e);
-        }
+        DateTime lastTs = chartDataRow.getSelectedEnd();
+        yAxisList.removeAll(yAxisList.stream().filter(dateTime -> dateTime.isAfter(lastTs)).collect(Collectors.toList()));
+        ROWS = (long) yAxisList.size();
 
         this.maxValue = maxValue;
 
