@@ -215,9 +215,10 @@ public class HeatMapChart implements Chart {
 
             Label tsRight = new Label(dateTime.toString(Y2_FORMAT));
             String toolTipString = "";
-            if (Holidays.getDefaultHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()))
-                    || (Holidays.getSiteHolidayManager() != null && Holidays.getSiteHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()), Holidays.getStateCode()))
-                    || (Holidays.getCustomHolidayManager() != null && Holidays.getCustomHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale())))) {
+            Calendar dtToCal = dateTime.toCalendar(I18n.getInstance().getLocale());
+            if (Holidays.getDefaultHolidayManager().isHoliday(dtToCal)
+                    || (Holidays.getSiteHolidayManager() != null && Holidays.getSiteHolidayManager().isHoliday(dtToCal, Holidays.getStateCode()))
+                    || (Holidays.getCustomHolidayManager() != null && Holidays.getCustomHolidayManager().isHoliday(dtToCal))) {
                 LocalDate localDate = LocalDate.of(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
 
                 Set<Holiday> holidays = Holidays.getDefaultHolidayManager().getHolidays(localDate, localDate, "");
@@ -242,6 +243,7 @@ public class HeatMapChart implements Chart {
                     }
                 }
                 tsRight.setTextFill(Color.RED);
+                tsRight.setStyle("-fx-text-fill: red !important;");
                 if (!toolTipString.equals("")) {
                     Tooltip tooltip = new Tooltip(toolTipString);
                     Tooltip.install(tsRight, tooltip);
