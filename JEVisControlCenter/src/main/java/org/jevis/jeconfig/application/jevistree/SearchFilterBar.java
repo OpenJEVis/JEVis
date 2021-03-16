@@ -182,11 +182,7 @@ public class SearchFilterBar extends GridPane {
 
 
     public void enableReplaceMode() {
-        if (!replaceMode) {
-            replaceMode = true;
-        } else {
-            replaceMode = false;
-        }
+        replaceMode = !replaceMode;
         Platform.runLater(() -> {
             showReplace.setValue(replaceMode);
         });
@@ -199,8 +195,10 @@ public class SearchFilterBar extends GridPane {
                 String oldName = object.getName();
                 String newName = oldName.replace(replacementValue, newValue);
 
-                object.setName(newName);
-                object.commit();
+                if (!newName.equals(oldName)) {
+                    object.setName(newName);
+                    object.commit();
+                }
             } catch (Exception e) {
                 logger.error(e);
             }
