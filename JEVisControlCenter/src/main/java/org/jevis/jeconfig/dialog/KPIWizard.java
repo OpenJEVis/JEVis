@@ -76,7 +76,7 @@ public class KPIWizard extends JFXDialog {
 
         add.setOnAction(event -> {
             KPIVariable kpiVariable = new KPIVariable(objects, objectRelations, index);
-            kpiVariable.getVariableButton().setOnAction(event1 -> formula.setText(formula.getText() + "Var" + kpiVariable.getIndex()));
+            kpiVariable.getVariableButton().setOnAction(event1 -> formula.setText("#{" + formula.getText() + "Var" + kpiVariable.getIndex() + "}"));
             variables.add(kpiVariable);
             variablePane.getChildren().add(kpiVariable);
             index++;
