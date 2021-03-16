@@ -1,9 +1,9 @@
 {
   "jevisclass": "Dashboard Analysis",
   "names": {
-    "de": "Dashboard Analyse",
-    "ru": "Dashboard Analysis",
-    "en": "Dashboard Analysis"
+    "de": "Dashboard",
+    "ru": "Dashboard",
+    "en": "Dashboard"
   },
   "descriptions": {
     "de": "Das Analysenobjekt beeinhaltet das Daten Modell aus Graph. Alle wichtigen Einstellungen zu der entsprechenden Analyse sind hier abgelegt.",
