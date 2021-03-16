@@ -62,7 +62,6 @@ public class JEVisTree extends TreeTableView {
     private HashMap<String, Object> configMap = new HashMap<>();
     private List<Long> calculationIDs = new ArrayList<>();
 
-
     /**
      * Create an default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
      * root objects.
