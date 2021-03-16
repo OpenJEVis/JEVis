@@ -161,12 +161,12 @@ public class PieChart implements Chart {
                     }
 
                     listSumsPiePieces.add(sumPiePiece);
-                    if (!listTableEntryNames.contains(clonedModel.getObject().getName()) && !singleRow.hasForecastData()) {
-                        listTableEntryNames.add(clonedModel.getObject().getName());
-                    } else if (!listTableEntryNames.contains(clonedModel.getObject().getName()) && singleRow.hasForecastData()) {
-                        listTableEntryNames.add(clonedModel.getObject().getName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
+                    if (!listTableEntryNames.contains(clonedModel.getTitle()) && !singleRow.hasForecastData()) {
+                        listTableEntryNames.add(clonedModel.getTitle());
+                    } else if (!listTableEntryNames.contains(clonedModel.getTitle()) && singleRow.hasForecastData()) {
+                        listTableEntryNames.add(clonedModel.getTitle() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
                     } else {
-                        listTableEntryNames.add(clonedModel.getObject().getName() + " " + chartDataRows.indexOf(singleRow));
+                        listTableEntryNames.add(clonedModel.getTitle() + " " + chartDataRows.indexOf(singleRow));
                     }
                     if (!singleRow.hasForecastData()) {
                         hexColors.add(ColorHelper.toColor(clonedModel.getColor()));
