@@ -85,7 +85,6 @@ public class ChartSelectionDialog extends JFXDialog {
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
         setOverlayClose(false);
-        setMinHeight(800);
 
         this._ds = ds;
         this.data = data;
@@ -143,6 +142,8 @@ public class ChartSelectionDialog extends JFXDialog {
         mainTabPane.getTabs().addAll(tabConfiguration, tabChartsSettings);
 
         VBox vBox = new VBox(4);
+        vBox.setMinWidth(1000);
+        vBox.setMinHeight(800);
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         VBox.setVgrow(sep, Priority.NEVER);
