@@ -19,12 +19,17 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.export.TreeExporterDelux;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
@@ -44,6 +50,7 @@ import org.jevis.jeconfig.tool.AttributeCopy;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -89,13 +96,15 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 } else if (obj.getJEVisClassName().equals("OPC UA Server")) {
                     getItems().add(new SeparatorMenuItem());
                     getItems().add(buildOCP());
-                } else if (obj.getAttribute("Value") != null) {
-                    getItems().add(buildManualSample());
                 } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
-                    getItems().addAll(new SeparatorMenuItem(),
-                            buildKPIWizard());
+                    getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
+                } else if (obj.getJEVisClassName().equals("Data")) {
+                    getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
                 }
 
+                if (obj.getAttribute("Value") != null) {
+                    getItems().add(buildManualSample());
+                }
 
             } catch (Exception ex) {
                 logger.fatal(ex);
@@ -107,6 +116,112 @@ public class JEVisTreeContextMenu extends ContextMenu {
         return ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
     }
 
+
+    private MenuItem buildGoToSource() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.gotosrc"), ResourceLoader.getImage("1476393792_Gnome-Go-Jump-32.png", 20, 20));
+        menu.setOnAction(t -> {
+                    try {
+                        AtomicBoolean foundTarget = new AtomicBoolean(false);
+                        JEVisDataSource ds = obj.getDataSource();
+
+                        if (tree.getCalculationIDs().contains(obj.getID())) {
+                            logger.error("target is a calculation");
+                            try {
+                                JEVisClass outputClass = ds.getJEVisClass("Output");
+
+                                ds.getObjects(outputClass, false).forEach(object -> {
+                                    try {
+                                        if (object.getAttribute("Output").hasSample()) {
+                                            TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute("Output"));
+                                            if ((targetHelper.hasObject() || targetHelper.hasAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
+                                                foundTarget.set(true);
+
+                                                List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);
+                                                toOpen.add(object);
+                                                TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+
+
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        } else {
+                            logger.error("target is no a calculation");
+                            try {
+                                JEVisClass loytecOutput = ds.getJEVisClass("Loytec XML-DL Channel");
+                                JEVisClass vida350Target = ds.getJEVisClass("VIDA350 Channel");
+
+                                List<JEVisObject> objects = new ArrayList<>();
+                                objects.addAll(ds.getObjects(loytecOutput, true));
+                                objects.addAll(ds.getObjects(vida350Target, true));
+
+                                objects.forEach(object -> {
+                                    try {
+                                        String attributeName = "NOTFOUND";
+                                        if (object.getJEVisClassName().equals("Loytec XML-DL Channel")) {
+                                            attributeName = "Target ID";
+                                        } else if (object.getJEVisClassName().equals("VIDA350 Channel")) {
+                                            attributeName = "Target";
+                                        }
+
+
+                                        if (object.getAttribute(attributeName).hasSample()) {
+                                            TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute(attributeName));
+                                            if ((targetHelper.hasObject() || targetHelper.hasAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
+                                                logger.error("found target");
+                                                foundTarget.set(true);
+                                                List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);
+                                                toOpen.add(object);
+                                                TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                                            }
+                                        }
+                                    } catch (JEVisException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+
+                        }
+
+                        if (!foundTarget.get()) {
+
+                            JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.menu.gotosrc.close"));
+                            GridPane gridPane = new GridPane();
+                            gridPane.setPadding(new Insets(8));
+                            gridPane.setHgap(8);
+                            gridPane.setVgap(8);
+
+                            gridPane.add(new Label(I18n.getInstance().getString("jevistree.menu.gotosrc.error")), 0, 0);
+                            gridPane.add(new Separator(), 0, 1);
+                            gridPane.add(ok, 0, 2);
+                            GridPane.setHalignment(ok, HPos.RIGHT);
+                            JFXDialog jfxDialog = new JFXDialog(JEConfig.getStackPane(), gridPane, JFXDialog.DialogTransition.CENTER);
+
+                            ok.setDefaultButton(true);
+                            ok.setOnAction(event -> {
+                                jfxDialog.close();
+                            });
+
+                            jfxDialog.show();
+                        }
+
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+        );
+        return menu;
+    }
 
     private MenuItem buildOCP() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.opc"), ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
