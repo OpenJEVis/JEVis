@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
+import org.jevis.jeconfig.plugin.dtrc.InputVariableType;
 
 public class AccountingTemplateHandler {
     public final static String TYPE = "SimpleDataHandler";
@@ -30,7 +31,7 @@ public class AccountingTemplateHandler {
 
     public SelectionTemplate getSelectionTemplate() {
         if (selectionTemplate == null && templateObject != null) {
-
+            logger.warn("Could not read json file, selection template is null");
         }
 
         return selectionTemplate;
@@ -61,17 +62,18 @@ public class AccountingTemplateHandler {
 
         ArrayNode templateInputsArrayNode = JsonNodeFactory.instance.arrayNode();
         this.selectionTemplate.getSelectedInputs().forEach(templateInput -> {
+            if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                ObjectNode inputNode = JsonNodeFactory.instance.objectNode();
+                inputNode.put("objectClass", templateInput.getObjectClass());
+                inputNode.put("attributeName", templateInput.getAttributeName());
+                inputNode.put("variableName", templateInput.getVariableName());
+                inputNode.put("variableType", templateInput.getVariableType());
+                inputNode.put("filter", templateInput.getFilter());
+                inputNode.put("group", templateInput.getGroup());
+                inputNode.put("objectID", templateInput.getObjectID());
 
-            ObjectNode inputNode = JsonNodeFactory.instance.objectNode();
-            inputNode.put("objectClass", templateInput.getObjectClass());
-            inputNode.put("attributeName", templateInput.getAttributeName());
-            inputNode.put("variableName", templateInput.getVariableName());
-            inputNode.put("variableType", templateInput.getVariableType());
-            inputNode.put("filter", templateInput.getFilter());
-            inputNode.put("group", templateInput.getGroup());
-            inputNode.put("objectID", templateInput.getObjectID());
-
-            templateInputsArrayNode.add(inputNode);
+                templateInputsArrayNode.add(inputNode);
+            }
         });
 
         dataHandlerNode.set("selectedInputs", templateInputsArrayNode);

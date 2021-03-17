@@ -24,60 +24,6 @@
       "jevisClass": "Energy Supplier"
     },
     {
-      "name": "Contract Conclusion",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "guiposition": 12,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "Contract Start",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "guiposition": 13,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "Contract End",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "guiposition": 14,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "Period of Notice",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 15,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "Product",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 16,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "Net Cost",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 17,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
       "name": "Billing Cycle",
       "primitiveType": 0,
       "guiType": "Period",

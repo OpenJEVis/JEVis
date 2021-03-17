@@ -37,7 +37,7 @@
       "name": "Demand Charge",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "guiposition": 25,
+      "guiposition": 26,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Electricity Supply Contractor"

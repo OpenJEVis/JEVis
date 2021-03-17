@@ -101,6 +101,23 @@
       }
     },
     {
+      "type": "Demand Charge",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Leistungspreis",
+        "ru": "Цена исполнения",
+        "uk": "Ціна виконання",
+        "th": "ราคาประสิทธิภาพ",
+        "en": "Demand Charge"
+      }
+    },
+    {
       "type": "Market Location Identification Number",
       "descriptions": {
         "de": "",
