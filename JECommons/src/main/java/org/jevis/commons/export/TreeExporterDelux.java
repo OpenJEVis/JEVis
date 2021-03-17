@@ -54,7 +54,7 @@ public class TreeExporterDelux {
             message.setValue("Create Object " + jsonNode.get(OBJECT_NAME) + "[" + jsonNode.get(OBJECT_CLASS) + "]");
             JEVisClass objClass = parent.getDataSource().getJEVisClass(jsonNode.get(OBJECT_CLASS).asText());
             if (objClass == null) {
-                logger.error("Class does not exist, skiping to next: {}", jsonNode.get(OBJECT_CLASS));
+                logger.error("Class does not exist, skipping to next: {}", jsonNode.get(OBJECT_CLASS));
                 return;
             }
 
@@ -63,6 +63,17 @@ public class TreeExporterDelux {
                 return;
             }
             JEVisObject newJEVisObject = parent.buildObject(jsonNode.get(OBJECT_NAME).asText(), objClass);
+
+            if (jsonNode.get(OBJECT_LANG).isArray()) {
+                jsonNode.get(OBJECT_LANG).forEach(jsonNode1 -> {
+                    jsonNode1.fieldNames().forEachRemaining(s -> {
+                        newJEVisObject.setLocalName(s, jsonNode1.get(s).asText());
+                    });
+
+                });
+            }
+
+
             newJEVisObject.commit();
             JsonNode jAttributes = jsonNode.get(OBJECT_ATTRIBUTES);
             logger.error("Attribute Count: {}", jAttributes.size());
@@ -85,8 +96,6 @@ public class TreeExporterDelux {
                                     String unitString = mapper.writeValueAsString(unit);
                                     JEVisUnitImp jevUnitImp = new JEVisUnitImp(mapper.readValue(unitString, org.jevis.commons.ws.json.JsonUnit.class));
 
-
-                                    System.out.println("sdfs: " + jevUnitImp);
                                     jevisAttribute.setInputUnit(jevUnitImp);
                                     jevisAttribute.setDisplayUnit(jevUnitImp);
                                 } catch (Exception ex) {
@@ -133,7 +142,7 @@ public class TreeExporterDelux {
             if (jChildren != null && jChildren.isArray()) {
                 for (JsonNode jchild : jChildren) {
                     try {
-                        logger.error("Create Child: {} under {}", jchild, newJEVisObject);
+                        logger.debug("Create Child: {} under {}", jchild, newJEVisObject);
                         createObject(jchild, newJEVisObject, message);
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -286,7 +295,6 @@ public class TreeExporterDelux {
             JsonUnit junit = JsonFactory.buildUnit(jeVisAttribute.getInputUnit());
             //JsonTools.objectMapper().writeValueAsString(junit);
             attributeNode.putPOJO(ATTRIBUTE_UNIT, junit);
-            System.out.println("?????? " + junit.toString());
             //attributeNode.put(ATTRIBUTE_UNIT, jeVisAttribute.getInputUnit().toJSON());
         }
 

@@ -39,23 +39,23 @@ public class AttributeCopy {
         return selectedAttributes;
     }
 
-    private void doPaste(List<JEVisAttribute> jeVisAttributes, List<JEVisObject> objectsTargets) {
+    private void doPaste(List<JEVisAttribute> jeVisAttributes, List<JEVisObject> objectsTargets, boolean overwrite) {
         objectsTargets.forEach(object -> {
-            System.out.println("- copy to Object: " + object);
+            logger.error("- Checking objetc Object: {}", object);
 
             try {
                 for (JEVisAttribute targetAttribute : object.getAttributes()) {
-                    System.out.println("Attribute zu kopieren: " + targetAttribute.getAllSamples().size());
+                    //System.out.println("Attribute zu kopieren: " + targetAttribute.getAllSamples().size());
                     jeVisAttributes.forEach(sourceAttribute -> {
                         if (targetAttribute.getName().equals(sourceAttribute.getName())) {
-                            System.out.println("target attribute: " + sourceAttribute);
+                            //System.out.println("target attribute: " + sourceAttribute);
                             javafx.concurrent.Task<Object> task = new javafx.concurrent.Task<Object>() {
                                 @Override
                                 protected Object call() throws Exception {
                                     StringProperty name = new SimpleStringProperty();
                                     try {
-                                        logger.error("Starting Updates");
-                                        System.out.println("--- Copy attribute: " + sourceAttribute.getName());
+                                        logger.error("Starting copy for: {}", targetAttribute);
+                                        //System.out.println("--- Copy attribute: " + sourceAttribute.getName());
                                         name.set("[" + object.getID() + "] " + object + ":" + sourceAttribute.getName());
                                         /**
                                          JEConfig.getStatusBar().startProgressJob("Copy setting"
@@ -64,13 +64,15 @@ public class AttributeCopy {
                                          **/
                                         Platform.runLater(() -> this.updateTitle("Copy setting to " + name.get()));
 
-                                        targetAttribute.deleteAllSample();
+                                        if (overwrite) {
+                                            logger.error("Delete samples for: {}", targetAttribute);
+                                            targetAttribute.deleteAllSample();
+                                        }
+
                                         if (sourceAttribute.hasSample()) {
                                             targetAttribute.addSamples(sourceAttribute.getAllSamples());
-                                            targetAttribute.getAllSamples().forEach(jeVisSample -> {
-                                                System.out.println("Sample to copy: " + jeVisSample);
-                                            });
-                                            targetAttribute.commit();
+                                            logger.error("Sample to copy: {}", targetAttribute.getSampleCount());
+                                            //targetAttribute.commit();
                                         }
 
 
@@ -116,15 +118,18 @@ public class AttributeCopy {
         spacer.setMinWidth(20);
 
         final JFXCheckBox question = new JFXCheckBox(I18n.getInstance().getString("dialog.attributecopy.replace"));
+        final JFXCheckBox clearBefore = new JFXCheckBox(I18n.getInstance().getString("dialog.attributecopy.delete"));
+        clearBefore.selectedProperty().set(true);
         HBox hBox = new HBox(ok, cancel);
         hBox.setSpacing(10);
         hBox.setAlignment(Pos.BOTTOM_RIGHT);
 
         gridLayout.add(header, 0, 0, 1, 1);
-        gridLayout.add(new Separator(), 0, 1, 1, 1);
+        //gridLayout.add(new Separator(), 0, 1, 1, 1);
         gridLayout.add(question, 0, 3, 1, 1);
-        gridLayout.add(new Separator(), 4, 1, 1, 1);
-        gridLayout.add(hBox, 0, 5, 1, 1);
+        gridLayout.add(clearBefore, 0, 4, 1, 1);
+        //gridLayout.add(new Separator(), 5, 1, 1, 1);
+        gridLayout.add(hBox, 0, 6, 1, 1);
 
         ok.setOnAction(event -> {
             List<JEVisObject> objectList = new ArrayList<>();
@@ -140,7 +145,7 @@ public class AttributeCopy {
                 }
             });
             objectList.addAll(childList);
-            doPaste(jeVisAttributes, objectList);
+            doPaste(jeVisAttributes, objectList, clearBefore.isSelected());
             jfxDialog.close();
         });
         cancel.setOnAction(event -> {
