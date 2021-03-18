@@ -77,10 +77,11 @@ public class VariablesBox extends FlowPane {
         getChildren().add(addInputButton);
 
         try {
-            JEVisClass input = obj.getDataSource().getJEVisClass("Input");
+            JEVisClass inputClass = obj.getDataSource().getJEVisClass("Input");
             for (JEVisObject var : obj.getChildren()) {
-
-                buildVarButton(var);
+                if (var.getJEVisClass().equals(inputClass)) {
+                    buildVarButton(var);
+                }
             }
 
         } catch (Exception ex) {

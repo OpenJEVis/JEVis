@@ -204,7 +204,7 @@ public class FormulaBox extends HBox {
                 try {
                     if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
                         for (UserSelection us : selectionDialog.getUserSelection()) {
-
+                            JEVisObject outputObject = out;
                             JEVisAttribute targetAtt = us.getSelectedAttribute();
                             if (targetAtt == null) {
                                 targetAtt = us.getSelectedObject().getAttribute("Value");
@@ -217,28 +217,27 @@ public class FormulaBox extends HBox {
                                  *  Create an new target Object if not exists
                                  */
                                 try {
-                                    if (out == null) {
+                                    if (outputObject == null) {
                                         JEVisObject newObject = this.calcObj.buildObject(CalculationNameFormatter.createVariableName(us.getSelectedObject()), outputClass);
                                         newObject.commit();
+                                        outputObject = newObject;
                                     }
                                 } catch (Exception ex) {
                                     logger.error(ex);
                                     ExceptionDialog2.showException(JEConfig.getStage(), ex);
-
                                 }
-
 
                                 /**
                                  * Add an new Sample with the new target
                                  */
 
-                                JEVisSample newSample = out.getAttribute("Output").buildSample(new DateTime(), th.getSourceString());
+                                JEVisSample newSample = outputObject.getAttribute("Output").buildSample(new DateTime(), th.getSourceString());
                                 newSample.commit();
 
                                 /** update output variable name **/
-                                if (!out.getName().equals(CalculationNameFormatter.createVariableName(us.getSelectedObject()))) {
-                                    out.setName(CalculationNameFormatter.createVariableName(us.getSelectedObject()));
-                                    out.commit();
+                                if (!outputObject.getName().equals(CalculationNameFormatter.createVariableName(us.getSelectedObject()))) {
+                                    outputObject.setName(CalculationNameFormatter.createVariableName(us.getSelectedObject()));
+                                    outputObject.commit();
                                 }
                                 outputButton.setText(th.getObject().get(0).getName() + "." + th.getAttribute().get(0).getName());
 
