@@ -261,7 +261,7 @@ public class PluginManager {
                                         if (allTemplates.size() == 0) {
                                             continue;
                                         } else {
-                                            _plugins.add(new TRCPlugin(this._ds));
+//                                            _plugins.add(new TRCPlugin(this._ds));
                                         }
                                     }
                                 }

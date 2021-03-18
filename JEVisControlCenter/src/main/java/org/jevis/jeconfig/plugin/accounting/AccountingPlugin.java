@@ -560,6 +560,8 @@ public class AccountingPlugin extends TablePlugin {
                 if (motherTabPane.getSelectionModel().getSelectedItem().equals(enterDataTab)) {
                     for (AttributeEditor attributeEditor : attributeEditors) {
                         try {
+                            logger.debug("Saving on object {}:{} attribute {}", attributeEditor.getAttribute().getObject().getName(), attributeEditor.getAttribute().getObject().getID(),
+                                    attributeEditor.getAttribute().getName());
                             attributeEditor.commit();
                         } catch (Exception e) {
                             logger.error("Could not save {}", attributeEditor, e);
@@ -999,7 +1001,7 @@ public class AccountingPlugin extends TablePlugin {
         updateGUI();
     }
 
-    private void updateWithChangeCheck(GridPane esGP, JEVisObject newValue) {
+    private void updateWithChangeCheck(GridPane gridPane, JEVisObject newValue) {
         boolean changed = attributeEditors.stream().anyMatch(AttributeEditor::hasChanged);
 
         if (changed && !guiUpdate) {
@@ -1022,7 +1024,7 @@ public class AccountingPlugin extends TablePlugin {
             dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
             cancel.setOnAction(event -> {
                 dialog.close();
-                updateGrid(esGP, newValue);
+                updateGrid(gridPane, newValue);
             });
 
             ok.setOnAction(event -> {
@@ -1035,13 +1037,12 @@ public class AccountingPlugin extends TablePlugin {
                 }
                 attributeEditors.clear();
                 dialog.close();
-                updateGrid(esGP, newValue);
+                updateGrid(gridPane, newValue);
             });
 
             dialog.show();
         } else {
-            attributeEditors.clear();
-            updateGrid(esGP, newValue);
+            updateGrid(gridPane, newValue);
         }
     }
 
