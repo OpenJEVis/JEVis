@@ -50,7 +50,39 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.49------\n" +
+            "------Version 3.9.50------\n" +
+                    "JECC - AccountingPlugin - small fixes\n" +
+                    "JECC - AccountingPlugin - small improvements\n" +
+                    "JECC - CalculationExtension - fixed no object selected on selecting new output object  \n" +
+                    "JECC - ChartPlugin - HeatMapChart - fixed holiday marking\n" +
+                    "JECC - ChartPlugin - HeatMapChart - fixed zero sample bug\n" +
+                    "JECC - ChartPlugin - PieChart - fixed new name for legend\n" +
+                    "JECC - ChartPlugin - selection dialog searchbar color fix\n" +
+                    "JECC - ChartsPlugin - fixed new analysis loading on second try\n" +
+                    "JECC - DashboardPlugin - Changed dashboard translation\n" +
+                    "JECC - ObjectPlugin - Add Virtual Data Point markers\n" +
+                    "JECC - ObjectPlugin - Add go to source function for data objects  \n" +
+                    "JECC - ObjectPlugin - Add new attribute copy function\n" +
+                    "JECC - ObjectPlugin - Add object translation to import/export\n" +
+                    "JECC - ObjectPlugin - Add overwrite mode to teh attribute copy format\n" +
+                    "JECC - ObjectPlugin - Add virtual data icon\n" +
+                    "JECC - ObjectPlugin - Changed Data icons\n" +
+                    "JECC - ObjectPlugin - Copy Setting - Progress View not working\n" +
+                    "JECC - ObjectPlugin - Fixed init bug in JEVisTree\n" +
+                    "JECC - ObjectPlugin - Fixed unit string if the samples are from an virtual datapoint\n" +
+                    "JECC - ObjectPlugin - KPIWizard - fixed formula output\n" +
+                    "JECC - ObjectPlugin - SearchFilterBar - fixed object commit for not replaced names\n" +
+                    "JECC - Removed dialog shadows\n" +
+                    "JECC - Removed dialog transitions\n" +
+                    "JECC - disabled overlay close on important dialogs\n" +
+                    "\n" +
+                    "Classes - Energy Contracting - changed attributes\n" +
+                    "Classes - Gas Supply Contractor - added heating value\n" +
+                    "Classes - Gas Supply Contractor - state number\n" +
+                    "Classes - new icons\n" +
+                    "\n" +
+                    "JEDataProcessor - fixed note constant for period alignment\n\n" +
+                    "------Version 3.9.49------\n" +
                     "JECC - BaseDataPlugin - changed icon\n" +
                     "JECC - Changed button layouts\n" +
                     "JECC - Changed search and replace bar\n" +
