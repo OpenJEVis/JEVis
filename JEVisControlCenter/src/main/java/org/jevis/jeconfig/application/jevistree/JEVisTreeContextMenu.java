@@ -46,6 +46,7 @@ import org.jevis.jeconfig.dialog.KPIWizard;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
 import org.jevis.jeconfig.tool.AttributeCopy;
+import org.jevis.jeconfig.tool.Calculations;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -93,6 +94,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 if (obj.getJEVisClassName().equals("Calculation")) {
                     getItems().add(new SeparatorMenuItem());
                     getItems().add(buildMenuAddInput());
+                    getItems().add(buildRecalculate());
                 } else if (obj.getJEVisClassName().equals("OPC UA Server")) {
                     getItems().add(new SeparatorMenuItem());
                     getItems().add(buildOCP());
@@ -219,6 +221,16 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     }
                 }
 
+        );
+        return menu;
+    }
+
+    private MenuItem buildRecalculate() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.recalculate"), ResourceLoader.getImage("calc.png", 20, 20));
+
+        menu.setOnAction(t -> {
+                    Calculations.createCalcJobs(tree);
+                }
         );
         return menu;
     }
