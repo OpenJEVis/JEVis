@@ -14,6 +14,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
@@ -209,10 +210,15 @@ public class XYChartSerie {
                         case NONE:
                         default:
                             JEVisAttribute attribute = samples.get(0).getAttribute();
-                            if (attribute != null && !attribute.getInputSampleRate().equals(Period.ZERO)) {
-                                s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
-                            } else if (attribute != null && attribute.getInputSampleRate().equals(Period.ZERO)) {
-                                s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
+
+                            if (attribute != null && attribute.getObject().getAttribute("Period") != null) {
+                                Period periodForDate = CleanDataObject.getPeriodForDate(attribute.getObject(), finalFirstTS);
+
+                                if (!periodForDate.equals(Period.ZERO)) {
+                                    s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                                } else if (periodForDate.equals(Period.ZERO)) {
+                                    s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
+                                }
                             } else if (attribute == null) {
                                 s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
                             }
