@@ -343,7 +343,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                                           @Override
                                           public void handle(ActionEvent t) {
-                                              TreeHelper.EventNew(dialogContainer, tree, obj);
+                                              TreeHelper.EventNew(tree, obj);
                                           }
                                       }
                 );
@@ -475,7 +475,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 Object obj2 = getUserData();
                 logger.debug("userdate: " + obj2);
                 logger.debug("new event");
-                TreeHelper.EventNew(dialogContainer, tree, obj);
+                TreeHelper.EventNew(tree, obj);
 
             }
         });

@@ -481,7 +481,7 @@ public class ObjectPlugin implements Plugin {
                     });
                     break;
                 case Constants.Plugin.Command.NEW:
-                    TreeHelper.EventNew(dialogContainer, tree, selectedObj.getValue().getJEVisObject());
+                    TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
                     break;
                 case Constants.Plugin.Command.RELOAD:
                     ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
