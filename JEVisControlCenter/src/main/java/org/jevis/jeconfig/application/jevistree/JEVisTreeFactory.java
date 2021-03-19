@@ -67,7 +67,7 @@ public class JEVisTreeFactory {
     private static final Logger logger = LogManager.getLogger(JEVisTreeFactory.class);
     public static ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
 
-    public static void addDefaultKeys(StackPane dialogContainer, JEVisTree tree) {
+    public static void addDefaultKeys(JEVisTree tree) {
 
         final KeyCombination copyIDandValue = new KeyCodeCombination(KeyCode.F4);
         final KeyCombination copyObj = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
@@ -109,7 +109,7 @@ public class JEVisTreeFactory {
                     }
                     t.consume();
                 } else if (add.match(t)) {
-                    TreeHelper.EventNew(dialogContainer, tree, selectedObj.getValue().getJEVisObject());
+                    TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
                     t.consume();
                 } else if (delete.match(t)) {
                     TreeHelper.EventDelete(tree);
@@ -224,7 +224,7 @@ public class JEVisTreeFactory {
             tree.getColumns().addAll(minTS, maxTS);
         }
 
-        addDefaultKeys(dialogContainer, tree);
+        addDefaultKeys(tree);
         addContextMenu(dialogContainer, tree);
 
         return tree;

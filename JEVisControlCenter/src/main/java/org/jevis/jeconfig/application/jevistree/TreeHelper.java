@@ -1500,8 +1500,8 @@ public class TreeHelper {
      * @param tree
      * @param parent
      */
-    public static void EventNew(StackPane dialogContainer, final JEVisTree tree, JEVisObject parent) {
-        NewObject.NewObject(dialogContainer, tree, parent);
+    public static void EventNew(final JEVisTree tree, JEVisObject parent) {
+        NewObject.NewObject(tree, parent);
     }
 
     public static void EventExportTree(StackPane dialogContainer, JEVisObject obj) throws JEVisException {
@@ -1635,9 +1635,9 @@ public class TreeHelper {
      *
      * @param tree
      */
-    public static void EventNew(StackPane dialogContainer, final JEVisTree tree) {
+    public static void EventNew(final JEVisTree tree) {
         final TreeItem<JEVisTreeRow> parent = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
-        EventNew(dialogContainer, tree, parent.getValue().getJEVisObject());
+        EventNew(tree, parent.getValue().getJEVisObject());
     }
 
     public static void EventSetEnableAll(JEVisTree tree, boolean b) {
