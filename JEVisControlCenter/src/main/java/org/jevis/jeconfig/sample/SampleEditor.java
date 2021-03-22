@@ -44,6 +44,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
+import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
@@ -89,8 +90,8 @@ public class SampleEditor {
         String headerString = "";
         try {
             JEVisClass objectClass = attribute.getObject().getJEVisClass();
-            if (objectClass.getName().equals("Clean Data")) {
-                headerString += attribute.getObject().getParents().get(0).getName() + " / " + attribute.getObject().getName();
+            if (!objectClass.getName().equals("Data")) {
+                headerString += DataMethods.getFirstParentalDataObject(attribute.getObject()) + " / " + attribute.getObject().getName();
             } else {
                 headerString += attribute.getObject().getName();
             }
