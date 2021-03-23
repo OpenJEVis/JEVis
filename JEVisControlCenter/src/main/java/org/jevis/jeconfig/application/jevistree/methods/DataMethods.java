@@ -15,16 +15,18 @@ import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class DataMethods extends CommonMethods {
     private static final Logger logger = LogManager.getLogger(DataMethods.class);
 
+    public static List<String> DATA_CHILDREN = Arrays.asList("Clean Data", "Math Data", "Forecast Data");
+    public static List<String> DATA_TYPES = Arrays.asList("Data", "Clean Data", "Base Data", "Math Data", "String Data");
+
     public static void setUnitAndPeriod(ProgressForm pForm, JEVisObject jeVisObject, boolean isUnit, UnitSelectUI unit, boolean isPeriod, boolean isNewType, DateTime dateTime, SamplingRateUI rate) throws JEVisException {
-        if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")
-                || jeVisObject.getJEVisClassName().equals("Base Data") || jeVisObject.getJEVisClassName().equals("Math Data")
-                || jeVisObject.getJEVisClassName().equals("String Data")) {
+        if (DATA_TYPES.contains(jeVisObject.getJEVisClassName())) {
             JEVisAttribute valueAtt = jeVisObject.getAttribute("Value");
             if (isUnit) {
                 pForm.addMessage("Setting unit for object " + jeVisObject.getName() + ":" + jeVisObject.getID());

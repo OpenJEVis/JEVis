@@ -46,9 +46,10 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 
 /**
  * this Class handles all the JEVisSample related requests
@@ -318,7 +319,49 @@ public class ResourceSample {
 
                     if ((aggregationPeriod.equals("") && manipulationMode.equals(""))
                             || (aggregationPeriod.equals("NONE") && manipulationMode.equals("NONE"))) {
-                        list = ds.getSamples(id, attribute, startDate, endDate, limit);
+
+                        //missing user samples
+                        JsonObject correspondingUserDataObject = null;
+                        boolean foundUserDataObject = false;
+
+                        for (JsonRelationship rel : ds.getRelationships(id)) {
+                            if (rel.getType() == 1) {
+                                JsonObject parent = ds.getObject(rel.getTo());
+                                for (JsonRelationship pRel : ds.getRelationships(parent.getId())) {
+                                    if (rel.getType() == 1) {
+                                        JsonObject child = ds.getObject(pRel.getFrom());
+                                        if (child.getJevisClass().equals("User Data")) {
+                                            correspondingUserDataObject = child;
+                                            foundUserDataObject = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (foundUserDataObject) {
+
+                            SortedMap<DateTime, JsonSample> map = ds.getSamples(id, att.getType(), startDate, endDate, limit).stream().collect(Collectors.toMap(jeVisSample -> new DateTime(jeVisSample.getTs()), jeVisSample -> jeVisSample, (a, b) -> b, TreeMap::new));
+
+                            List<JsonSample> userValues = ds.getSamples(correspondingUserDataObject.getId(), "Value", startDate, endDate, limit);
+
+                            for (JsonSample userValue : userValues) {
+                                String note = map.get(new DateTime(userValue.getTs())).getNote();
+                                JsonSample jsonSample = new JsonSample();
+                                jsonSample.setTs(userValue.getTs());
+                                jsonSample.setValue(userValue.getValue());
+                                jsonSample.setNote(note + "," + USER_VALUE);
+
+                                map.remove(new DateTime(userValue.getTs()));
+                                map.put(new DateTime(jsonSample.getTs()), jsonSample);
+                            }
+
+                            list = new ArrayList<>(map.values());
+                            list.sort(Comparator.comparing(o -> new DateTime(o.getTs())));
+                        } else {
+                            list = ds.getSamples(id, attribute, startDate, endDate, limit);
+                        }
                     } else {
                         AggregationPeriod ap = AggregationPeriod.parseAggregation(aggregationPeriod);
                         ManipulationMode mm = ManipulationMode.parseManipulation(manipulationMode);
