@@ -14,9 +14,11 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
@@ -41,6 +43,8 @@ public class TableChartV extends XYChart {
     private TableHeaderTable tableHeader;
     private boolean blockDatePickerEvent = false;
     private final DateTime maxDate = new DateTime(9999, 1, 1, 0, 0, 0, 0);
+    private Boolean showRowSums = false;
+    private Boolean showColumnSums = false;
 
     public TableChartV() {
     }
@@ -218,59 +222,82 @@ public class TableChartV extends XYChart {
                 tableColumns.add(column);
             }
 
-            if (showSum) {
+            if (showSum || showRowSums || showColumnSums) {
+                if (showSum) {
+                    showRowSums = true;
+                    showColumnSums = true;
+                }
+
                 TableSample sumSample = new TableSample(maxDate, xyChartSerieList.size());
+                QuantityUnits qu = new QuantityUnits();
+
                 columnSums.forEach(aDouble -> {
                     String string = "";
-                    if (!xyChartSerieList.get(0).getSingleRow().getUnit().toString().equals("")) {
-                        string = nf.format(aDouble) + " " + xyChartSerieList.get(0).getSingleRow().getUnit();
+                    ChartDataRow singleRow = xyChartSerieList.get(columnSums.indexOf(aDouble)).getSingleRow();
+                    JEVisUnit unit = singleRow.getUnit();
+
+                    if (!unit.toString().equals("")) {
+                        boolean isQuantity = qu.isQuantityUnit(unit);
+                        isQuantity = qu.isQuantityIfCleanData(singleRow.getAttribute(), isQuantity);
+
+                        Double d = aDouble;
+                        if (!isQuantity) d = d / singleRow.getSamples().size();
+
+                        string = nf.format(d) + " " + unit;
                     } else {
                         string = nf.format(aDouble);
                     }
                     sumSample.getColumnValues().set(columnSums.indexOf(aDouble), string);
                 });
-                tableSamples.put(maxDate, sumSample);
-                rowSums.put(maxDate, columnSums.stream().mapToDouble(aDouble -> aDouble).sum());
 
-                tableSamples.forEach((dateTime, tableSample) -> {
-                    if (!xyChartSerieList.get(0).getSingleRow().getUnit().toString().equals("")) {
-                        tableSample.getColumnValues().add(nf.format(rowSums.get(dateTime)) + " " + xyChartSerieList.get(0).getSingleRow().getUnit());
-                    } else {
-                        tableSample.getColumnValues().add(nf.format(rowSums.get(dateTime)));
-                    }
-                });
+                if (showRowSums) {
+                    tableSamples.put(maxDate, sumSample);
+                    rowSums.put(maxDate, columnSums.stream().mapToDouble(aDouble -> aDouble).sum());
+                }
 
-                TableColumn<TableSample, String> column = new TableColumn<>((I18n.getInstance().getString("plugin.graph.table.sum")));
-                column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getColumnValues().get(param.getValue().getColumnValues().size() - 1)));
+                if (showColumnSums) {
+                    tableSamples.forEach((dateTime, tableSample) -> {
+                        if (!xyChartSerieList.get(0).getSingleRow().getUnit().toString().equals("")) {
+                            tableSample.getColumnValues().add(nf.format(rowSums.get(dateTime)) + " " + xyChartSerieList.get(0).getSingleRow().getUnit());
+                        } else {
+                            tableSample.getColumnValues().add(nf.format(rowSums.get(dateTime)));
+                        }
+                    });
+                }
 
-                column.setCellFactory(new Callback<TableColumn<TableSample, String>, TableCell<TableSample, String>>() {
-                    @Override
-                    public TableCell<TableSample, String> call(TableColumn<TableSample, String> param) {
-                        TableCell<TableSample, String> cell = new TableCell<TableSample, String>() {
+                if (showColumnSums) {
+                    TableColumn<TableSample, String> column = new TableColumn<>((I18n.getInstance().getString("plugin.graph.table.sum")));
+                    column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getColumnValues().get(param.getValue().getColumnValues().size() - 1)));
 
-                            @Override
-                            protected void updateItem(String item, boolean empty) {
-                                super.updateItem(item, empty);
+                    column.setCellFactory(new Callback<TableColumn<TableSample, String>, TableCell<TableSample, String>>() {
+                        @Override
+                        public TableCell<TableSample, String> call(TableColumn<TableSample, String> param) {
+                            TableCell<TableSample, String> cell = new TableCell<TableSample, String>() {
 
-                                if (!empty) {
-                                    try {
-                                        JFXTextField jfxTextField = new JFXTextField(item);
-                                        jfxTextField.setStyle("-fx-alignment: CENTER-RIGHT;");
-                                        setGraphic(jfxTextField);
+                                @Override
+                                protected void updateItem(String item, boolean empty) {
+                                    super.updateItem(item, empty);
 
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                                    if (!empty) {
+                                        try {
+                                            JFXTextField jfxTextField = new JFXTextField(item);
+                                            jfxTextField.setStyle("-fx-alignment: CENTER-RIGHT;");
+                                            setGraphic(jfxTextField);
+
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
-                            }
 
-                        };
+                            };
 
-                        return cell;
-                    }
-                });
+                            return cell;
+                        }
+                    });
 
-                tableColumns.add(column);
+                    tableColumns.add(column);
+                }
             }
 
             AlphanumComparator ac = new AlphanumComparator();
@@ -301,7 +328,7 @@ public class TableChartV extends XYChart {
                 nts.getColumnValues().set(index, nf.format(jeVisSample.getValueAsDouble()));
             }
 
-            if (showSum) {
+            if (showSum || showRowSums || showColumnSums) {
                 Double oldValue = sums.get(xyChartSerieList.indexOf(xyChartSerie));
                 sums.set(xyChartSerieList.indexOf(xyChartSerie), oldValue + jeVisSample.getValueAsDouble());
             }
@@ -419,5 +446,13 @@ public class TableChartV extends XYChart {
             }
             return false;
         }
+    }
+
+    public void showRowSums(Boolean showRowSums) {
+        this.showRowSums = showRowSums;
+    }
+
+    public void showColumnSums(Boolean showColumnSums) {
+        this.showColumnSums = showColumnSums;
     }
 }

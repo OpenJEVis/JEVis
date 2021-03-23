@@ -83,7 +83,7 @@ public class HeatMapChart implements Chart {
         ChartDataRow chartDataRow = chartDataRows.get(0);
         unit = UnitManager.getInstance().format(chartDataRow.getUnit());
         Period period = new Period(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
-        Period inputSampleRate = chartDataRow.getAttribute().getInputSampleRate();
+        Period inputSampleRate = chartDataRow.getPeriod();
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
@@ -106,7 +106,7 @@ public class HeatMapChart implements Chart {
             }
         } else {
             logger.warn("Only got {} samples, fallback to default", samples.size());
-            inputSampleRate = chartDataRow.getAttribute().getInputSampleRate();
+            inputSampleRate = chartDataRow.getPeriod();
         }
 
         HashMap<DateTime, JEVisSample> sampleHashMap = new HashMap<>();

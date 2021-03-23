@@ -22,9 +22,7 @@ public class DataMethods extends CommonMethods {
     private static final Logger logger = LogManager.getLogger(DataMethods.class);
 
     public static void setUnitAndPeriod(ProgressForm pForm, JEVisObject jeVisObject, boolean isUnit, UnitSelectUI unit, boolean isPeriod, boolean isNewType, DateTime dateTime, SamplingRateUI rate) throws JEVisException {
-        if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")
-                || jeVisObject.getJEVisClassName().equals("Base Data") || jeVisObject.getJEVisClassName().equals("Math Data")
-                || jeVisObject.getJEVisClassName().equals("String Data")) {
+        if (org.jevis.commons.utils.CommonMethods.DATA_TYPES.contains(jeVisObject.getJEVisClassName())) {
             JEVisAttribute valueAtt = jeVisObject.getAttribute("Value");
             if (isUnit) {
                 pForm.addMessage("Setting unit for object " + jeVisObject.getName() + ":" + jeVisObject.getID());

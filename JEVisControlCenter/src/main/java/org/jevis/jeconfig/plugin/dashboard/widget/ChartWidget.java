@@ -129,6 +129,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
                 if (isOnlyTable) {
                     TableChartV tableChart = new TableChartV();
+                    tableChart.showRowSums(true);
 
                     Label titleLabel = new Label(chartSetting.getName());
                     titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");

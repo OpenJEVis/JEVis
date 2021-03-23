@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.PeriodArithmetic;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -163,7 +164,9 @@ public class CalcJobFactory {
         if (lastEndTime == null) {
             startTime = getStartTimeFromOutputs(ds, outputAttributes, getCalcInputObjects(jevisObject));
             if (outputAttributes.size() == 1 && !startTime.equals(new DateTime(0))) {
-                startTime = startTime.minus(outputAttributes.get(0).getInputSampleRate());
+                JEVisObject object = outputAttributes.get(0).getObject();
+                Period period = CleanDataObject.getPeriodForDate(object, startTime);
+                startTime = startTime.minus(period);
             }
 
         } else startTime = lastEndTime;
@@ -238,7 +241,8 @@ public class CalcJobFactory {
                     JEVisSample smp = valueAttribute.getLatestSample();
 
                     if (startTime == null && smp != null) {
-                        ts = smp.getTimestamp().plus(valueAttribute.getInputSampleRate());
+                        Period period = CleanDataObject.getPeriodForDate(valueAttribute.getObject(), smp.getTimestamp());
+                        ts = smp.getTimestamp().plus(period);
                     }
 
                     if (ts != null && !ts.equals(ultimateStart)) {
@@ -369,7 +373,8 @@ public class CalcJobFactory {
 
                 if (fromTo == null && startTime.isBefore(endTime)) {
                     fromTo = new Interval(startTime, endTime);
-                    period = valueAttribute.getInputSampleRate();
+
+                    period = CleanDataObject.getPeriodForDate(valueAttribute.getObject(), startTime);
 
                     if (PeriodArithmetic.periodsInAnInterval(fromTo, period) < 10000) {
                         calcJob.setHasProcessedAllInputSamples(true);

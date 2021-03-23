@@ -12,6 +12,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -155,11 +156,12 @@ public class RowNote {
 
                     DateTime timestamp = sample.getTimestamp();
                     JEVisAttribute rawDataValueAttribute = object.getParents().get(0).getAttribute("Value");
+                    JEVisAttribute rawDataPeriodAttribute = object.getParents().get(0).getAttribute("Period");
                     if (!cleanDataObject.getDifferentialRules().isEmpty()) {
                         for (DifferentialRule jeVisSample : cleanDataObject.getDifferentialRules()) {
                             if (jeVisSample.isDifferential()) {
                                 if (timestamp.isAfter(jeVisSample.getStartOfPeriod())) {
-                                    List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp.minus(rawDataValueAttribute.getInputSampleRate()), timestamp);
+                                    List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp.minus(new Period(rawDataPeriodAttribute.getLatestSample().getValueAsString())), timestamp);
                                     if (samples.size() == 2) {
                                         formattedNote.append("Original Value: ");
                                         formattedNote.append(nf.format(samples.get(1).getValueAsDouble() - samples.get(0).getValueAsDouble()));

@@ -9,10 +9,14 @@ import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class CommonMethods {
     private static final Logger logger = LogManager.getLogger(CommonMethods.class);
+
+    public static List<String> DATA_CHILDREN = Arrays.asList("Clean Data", "Math Data", "Forecast Data");
+    public static List<String> DATA_TYPES = Arrays.asList("Data", "Clean Data", "Base Data", "Math Data", "String Data");
 
     public static JEVisObject getFirstParentalDataObject(JEVisObject jeVisObject) throws JEVisException {
         for (JEVisObject object : jeVisObject.getParents()) {

@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 
@@ -179,18 +180,9 @@ public class InputFunction implements ProcessFunction {
 
                     if (foundUserDataObject && att != null) {
 
-                        SortedMap<DateTime, JsonSample> map = new TreeMap<>();
-                        for (JsonSample jeVisSample : sql.getSamples(object.getId(), att.getType(), startEnd[0], startEnd[1], LIMIT)) {
-                            map.put(new DateTime(jeVisSample.getTs()), jeVisSample);
-                        }
+                        SortedMap<DateTime, JsonSample> map = sql.getSamples(object.getId(), att.getType(), startEnd[0], startEnd[1], LIMIT).stream().collect(Collectors.toMap(jeVisSample -> new DateTime(jeVisSample.getTs()), jeVisSample -> jeVisSample, (a, b) -> b, TreeMap::new));
 
-                        JsonAttribute userDataValueAttribute = null;
-                        for (JsonAttribute attribute : sql.getAttributes(correspondingUserDataObject.getId())) {
-                            if (attribute.getType().equals("Value")) {
-                                userDataValueAttribute = attribute;
-                            }
-                        }
-                        List<JsonSample> userValues = sql.getSamples(correspondingUserDataObject.getId(), userDataValueAttribute.getType(), startEnd[0], startEnd[1], LIMIT);
+                        List<JsonSample> userValues = sql.getSamples(correspondingUserDataObject.getId(), "Value", startEnd[0], startEnd[1], LIMIT);
 
                         for (JsonSample userValue : userValues) {
                             String note = map.get(new DateTime(userValue.getTs())).getNote();

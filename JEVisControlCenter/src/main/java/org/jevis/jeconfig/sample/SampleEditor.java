@@ -90,8 +90,8 @@ public class SampleEditor {
         String headerString = "";
         try {
             JEVisClass objectClass = attribute.getObject().getJEVisClass();
-            if (!objectClass.getName().equals("Data")) {
-                headerString += DataMethods.getFirstParentalDataObject(attribute.getObject()) + " / " + attribute.getObject().getName();
+            if (CommonMethods.DATA_CHILDREN.contains(objectClass.getName())) {
+                headerString += DataMethods.getFirstParentalDataObject(attribute.getObject()).getName() + " / " + attribute.getObject().getName();
             } else {
                 headerString += attribute.getObject().getName();
             }
@@ -166,7 +166,6 @@ public class SampleEditor {
 
 
         ControlPane controlPane = new ControlPane(_attribute);
-
 
         final TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);

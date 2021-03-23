@@ -299,13 +299,21 @@ public class CleanDataObject {
     public static boolean isCounter(JEVisObject object, JEVisSample latestSample) {
         boolean isCounter = false;
         try {
-            JEVisClass dataClass = object.getDataSource().getJEVisClass("Data");
-            JEVisClass cleanDataClass = object.getDataSource().getJEVisClass("Clean Data");
-            if (object.getJEVisClass().equals(dataClass)) {
+            JEVisDataSource ds = null;
+            if (object == null && latestSample.getDataSource() != null) {
+                ds = latestSample.getDataSource();
+                object = latestSample.getAttribute().getObject();
+            } else if (object != null) {
+                ds = object.getDataSource();
+            } else return false;
+
+            JEVisClass dataClass = ds.getJEVisClass("Data");
+            JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
+            if (object != null && object.getJEVisClass().equals(dataClass)) {
                 JEVisObject cleanDataObject = CommonMethods.getFirstCleanObject(object);
                 CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(object.getDataSource()));
                 isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
-            } else if (object.getJEVisClass().equals(cleanDataClass)) {
+            } else if (object != null && object.getJEVisClass().equals(cleanDataClass)) {
                 CleanDataObject cdo = new CleanDataObject(object, new ObjectHandler(object.getDataSource()));
                 isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
             }

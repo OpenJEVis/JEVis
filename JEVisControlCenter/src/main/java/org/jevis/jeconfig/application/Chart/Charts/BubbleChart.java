@@ -139,7 +139,7 @@ public class BubbleChart extends XYChart {
                 isEnPI = true;
                 chartDataRowY = model;
             } else {
-                if (model.getAttribute().getInputSampleRate().equals(Period.ZERO)) {
+                if (model.getPeriod().equals(Period.ZERO)) {
                     async = true;
                 }
             }
