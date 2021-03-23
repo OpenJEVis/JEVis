@@ -61,6 +61,7 @@ public class ChartDataRow {
     private double avg = 0d;
     private Double sum = 0d;
     private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
+    private Map<DateTime, JEVisSample> userUserDataMap = new TreeMap<>();
     private final Map<DateTime, Alarm> alarmMap = new TreeMap<>();
     private boolean customWorkDay = true;
     private String customCSS;
@@ -133,6 +134,31 @@ public class ChartDataRow {
         }
         userNoteMap = noteSample;
         return noteSample;
+    }
+
+    public Map<DateTime, JEVisSample> getUserDataSamples() {
+        if (userUserDataMap == null) {
+            Map<DateTime, JEVisSample> userDataSamples = new TreeMap<>();
+            try {
+                final JEVisClass userDataClass = attribute.getDataSource().getJEVisClass("User Data");
+                for (JEVisObject obj : attribute.getObject().getParents().get(0).getChildren(userDataClass, true)) {
+                    if (obj.getName().contains(attribute.getObject().getName())) {
+                        JEVisAttribute userDataValueAttribute = obj.getAttribute("Value");
+                        if (userDataValueAttribute.hasSample()) {
+                            for (JEVisSample smp : userDataValueAttribute.getAllSamples()) {
+                                userDataSamples.put(smp.getTimestamp(), smp);
+                            }
+                        }
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            userUserDataMap = userDataSamples;
+        }
+
+        return userUserDataMap;
     }
 
     public Map<DateTime, Alarm> getAlarms() {
@@ -288,11 +314,12 @@ public class ChartDataRow {
                 if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                     try {
                         if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-
+                            List<JEVisSample> unmodifiedSamples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString());
                             if (!isStringData) {
-                                samples = factorizeSamples(attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString()));
+                                applyUserData(unmodifiedSamples);
+                                samples = factorizeSamples(unmodifiedSamples);
                             } else {
-                                samples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString());
+                                samples = unmodifiedSamples;
                             }
 
                         } else {
@@ -390,6 +417,28 @@ public class ChartDataRow {
             }
         }
         return samples;
+    }
+
+    private void applyUserData(List<JEVisSample> unmodifiedSamples) throws JEVisException {
+        if (!getUserDataSamples().isEmpty()) {
+            List<JEVisSample> samplesToRemove = new ArrayList<>();
+            for (JEVisSample sample : unmodifiedSamples) {
+                if (getUserDataSamples().containsKey(sample.getTimestamp())) {
+                    samplesToRemove.add(sample);
+                }
+            }
+
+            unmodifiedSamples.removeAll(samplesToRemove);
+            unmodifiedSamples.addAll(getUserDataSamples().values());
+            unmodifiedSamples.sort(Comparator.comparing(sample -> {
+                try {
+                    return sample.getTimestamp();
+                } catch (JEVisException e) {
+                    logger.error("Could not compare sample {}", sample, e);
+                }
+                return null;
+            }));
+        }
     }
 
     private void updateFormatString(List<JEVisSample> samples) {
