@@ -60,8 +60,8 @@ public class ChartDataRow {
     private double max = 0d;
     private double avg = 0d;
     private Double sum = 0d;
-    private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
-    private Map<DateTime, JEVisSample> userUserDataMap = new TreeMap<>();
+    private final Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
+    private final Map<DateTime, JEVisSample> userDataMap = new TreeMap<>();
     private final Map<DateTime, Alarm> alarmMap = new TreeMap<>();
     private boolean customWorkDay = true;
     private String customCSS;
@@ -108,57 +108,48 @@ public class ChartDataRow {
     }
 
     public Map<DateTime, JEVisSample> getNoteSamples() {
-        if (userNoteMap != null) {
+        if (!somethingChanged) {
             return userNoteMap;
         }
 
-        Map<DateTime, JEVisSample> noteSample = new TreeMap<>();
+        userNoteMap.clear();
         try {
             JEVisClass noteclass = getObject().getDataSource().getJEVisClass("Data Notes");
             for (JEVisObject jeVisObject : getObject().getChildren(noteclass, false)) {
-                try {
-                    jeVisObject.getAttribute("User Notes").getSamples(getSelectedStart(), getSelectedEnd()).forEach(jeVisSample -> {
-                        try {
-                            noteSample.put(jeVisSample.getTimestamp(), jeVisSample);
-                        } catch (Exception ex) {
-
-                        }
-                    });
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                for (JEVisSample jeVisSample : jeVisObject.getAttribute("User Notes").getSamples(getSelectedStart(), getSelectedEnd())) {
+                    userNoteMap.put(jeVisSample.getTimestamp(), jeVisSample);
                 }
-
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while creating note map for object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
         }
-        userNoteMap = noteSample;
-        return noteSample;
+        return userNoteMap;
     }
 
-    public Map<DateTime, JEVisSample> getUserDataSamples() {
-        if (userUserDataMap == null) {
-            Map<DateTime, JEVisSample> userDataSamples = new TreeMap<>();
-            try {
-                final JEVisClass userDataClass = attribute.getDataSource().getJEVisClass("User Data");
-                for (JEVisObject obj : attribute.getObject().getParents().get(0).getChildren(userDataClass, true)) {
-                    if (obj.getName().contains(attribute.getObject().getName())) {
-                        JEVisAttribute userDataValueAttribute = obj.getAttribute("Value");
-                        if (userDataValueAttribute.hasSample()) {
-                            for (JEVisSample smp : userDataValueAttribute.getAllSamples()) {
-                                userDataSamples.put(smp.getTimestamp(), smp);
-                            }
-                        }
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            userUserDataMap = userDataSamples;
+    public Map<DateTime, JEVisSample> getUserDataMap() {
+        if (!somethingChanged) {
+            return userDataMap;
         }
 
-        return userUserDataMap;
+        userDataMap.clear();
+        try {
+            final JEVisClass userDataClass = attribute.getDataSource().getJEVisClass("User Data");
+            for (JEVisObject obj : attribute.getObject().getParents().get(0).getChildren(userDataClass, true)) {
+                if (obj.getName().contains(attribute.getObject().getName())) {
+                    JEVisAttribute userDataValueAttribute = obj.getAttribute("Value");
+                    if (userDataValueAttribute.hasSample()) {
+                        for (JEVisSample smp : userDataValueAttribute.getSamples(selectedStart, selectedEnd)) {
+                            userDataMap.put(smp.getTimestamp(), smp);
+                        }
+                    }
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error while creating user data map for object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
+        }
+
+        return userDataMap;
     }
 
     public Map<DateTime, Alarm> getAlarms() {
@@ -301,15 +292,18 @@ public class ChartDataRow {
         if (this.somethingChanged || this.samples.isEmpty()) {
             try {
                 List<JEVisSample> samples = new ArrayList<>();
-                userNoteMap = null;//reset userNote list
                 getAttribute();
-
-                somethingChanged = false;
 
                 if (getSelectedStart() == null || getSelectedEnd() == null) {
                     this.samples = samples;
                     return this.samples;
                 }
+
+                getNoteSamples();
+                getUserDataMap();
+                getAlarms();
+
+                somethingChanged = false;
 
                 if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                     try {
@@ -395,7 +389,7 @@ public class ChartDataRow {
                     }
 
                     try {
-                        userNoteMap = getNoteSamples();
+                        getNoteSamples();
                     } catch (Exception ex) {
                         logger.error(ex);
                     }
@@ -420,16 +414,16 @@ public class ChartDataRow {
     }
 
     private void applyUserData(List<JEVisSample> unmodifiedSamples) throws JEVisException {
-        if (!getUserDataSamples().isEmpty()) {
+        if (!getUserDataMap().isEmpty()) {
             List<JEVisSample> samplesToRemove = new ArrayList<>();
             for (JEVisSample sample : unmodifiedSamples) {
-                if (getUserDataSamples().containsKey(sample.getTimestamp())) {
+                if (getUserDataMap().containsKey(sample.getTimestamp())) {
                     samplesToRemove.add(sample);
                 }
             }
 
             unmodifiedSamples.removeAll(samplesToRemove);
-            unmodifiedSamples.addAll(getUserDataSamples().values());
+            unmodifiedSamples.addAll(getUserDataMap().values());
             unmodifiedSamples.sort(Comparator.comparing(sample -> {
                 try {
                     return sample.getTimestamp();
