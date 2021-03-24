@@ -15,6 +15,9 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.calculation.CalcJob;
+import org.jevis.commons.calculation.CalcJobFactory;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
@@ -222,6 +225,7 @@ public class TableChartV extends XYChart {
                 tableColumns.add(column);
             }
 
+            Map<Integer, JEVisObject> enpis = new HashMap<>();
             if (showSum || showRowSums || showColumnSums) {
                 if (showSum) {
                     showRowSums = true;
@@ -241,7 +245,12 @@ public class TableChartV extends XYChart {
                         isQuantity = qu.isQuantityIfCleanData(singleRow.getAttribute(), isQuantity);
 
                         Double d = aDouble;
-                        if (!isQuantity) d = d / singleRow.getSamples().size();
+                        if (!isQuantity) {
+                            d = d / singleRow.getSamples().size();
+                            if (singleRow.getEnPI()) {
+                                enpis.put(columnSums.indexOf(aDouble), singleRow.getCalculationObject());
+                            }
+                        }
 
                         string = nf.format(d) + " " + unit;
                     } else {
@@ -308,6 +317,41 @@ public class TableChartV extends XYChart {
             values.sort((o1, o2) -> DateTimeComparator.getInstance().compare(o1.getTimeStamp(), o2.getTimeStamp()));
 
             tableHeader.getItems().addAll(values);
+
+            for (Map.Entry<Integer, JEVisObject> entry : enpis.entrySet()) {
+                Task task = new Task() {
+                    @Override
+                    protected Object call() throws Exception {
+                        try {
+                            CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                            CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), entry.getValue(),
+                                    singleRow.getSelectedStart(), singleRow.getSelectedEnd(), true);
+                            List<JEVisSample> results = calcJob.getResults();
+                            JEVisUnit unit = xyChartSerieList.get(entry.getKey()).getSingleRow().getUnit();
+
+                            if (results.size() == 1) {
+                                Platform.runLater(() -> {
+                                    try {
+                                        values.get(values.size() - 1).getColumnValues().set(entry.getKey(), nf.format(results.get(0).getValueAsDouble()) + " " + unit);
+                                    } catch (JEVisException e) {
+                                        logger.error("Couldn't get calculation result");
+                                    }
+                                });
+                            } else {
+                                values.get(values.size() - 1).getColumnValues().set(entry.getKey(), "- " + unit);
+                            }
+                        } catch (Exception e) {
+                            failed();
+                        } finally {
+                            succeeded();
+                            Platform.runLater(tableHeader::refresh);
+                        }
+                        return null;
+                    }
+                };
+                JEConfig.getStatusBar().addTask(TableChartV.class.getName(), task, TableChartV.taskImage, true);
+            }
 
             Platform.runLater(() -> {
                 tableHeader.getColumns().clear();
