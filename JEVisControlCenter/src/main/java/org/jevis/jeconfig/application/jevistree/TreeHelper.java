@@ -1547,7 +1547,7 @@ public class TreeHelper {
 
     public static void createCalcInput(StackPane dialogContainer, JEVisObject calcObject, JEVisAttribute currentTarget) throws
             JEVisException {
-        logger.info("Event Create new Input");
+        logger.debug("Event Create new Input");
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
         JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();

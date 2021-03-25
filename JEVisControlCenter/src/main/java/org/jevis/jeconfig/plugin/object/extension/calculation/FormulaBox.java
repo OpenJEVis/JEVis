@@ -104,15 +104,15 @@ public class FormulaBox extends HBox {
             String value = eval.evaluate();
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Erfolg");
+            alert.setTitle(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.title"));
             alert.setHeaderText(null);
-            alert.setContentText("Keinen Fehler gefunden.");
+            alert.setContentText(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.success"));
 
             alert.showAndWait();
 
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Warning");
+            alert.setTitle(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.fail"));
             alert.setHeaderText(null);
             alert.setContentText(getErrorMessage(ex));
             alert.showAndWait();
@@ -124,13 +124,12 @@ public class FormulaBox extends HBox {
     }
 
     private String getErrorMessage(Exception ex) {
-        String message = "Unknows error";
+        String message = I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.fail");
         try {
             message = ex.getCause().toString();
         } catch (NullPointerException np) {
             message = ex.getMessage();
         }
-
 
         return message;
     }
@@ -169,7 +168,7 @@ public class FormulaBox extends HBox {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        logger.info("Button.text: " + buttonOutput.getText());
+        logger.debug("Button.text: " + buttonOutput.getText());
         outputButton.textProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("Button text changed: " + oldValue + " new: " + newValue);
         });
