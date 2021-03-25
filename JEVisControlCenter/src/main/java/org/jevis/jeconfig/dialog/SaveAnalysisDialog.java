@@ -79,10 +79,16 @@ public class SaveAnalysisDialog extends JFXDialog {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (!model.getMultipleDirectories())
+                            if (!model.isMultiDir() && !model.isMultiSite())
                                 setText(obj.getName());
                             else {
-                                String prefix = objectRelations.getObjectPath(obj);
+                                String prefix = "";
+                                if (model.isMultiSite()) {
+                                    prefix += objectRelations.getObjectPath(obj);
+                                }
+                                if (model.isMultiDir()) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
 
                                 setText(prefix + obj.getName());
                             }

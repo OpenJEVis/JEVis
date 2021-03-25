@@ -15,6 +15,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
@@ -56,6 +57,7 @@ public class ChartDataRow {
     private boolean isStringData = false;
     private boolean hasForecastData = false;
     private Double scaleFactor = 1d;
+    private Double timeFactor = 1d;
     private double min = 0d;
     private double max = 0d;
     private double avg = 0d;
@@ -535,9 +537,33 @@ public class ChartDataRow {
             ChartUnits cu = new ChartUnits();
             scaleFactor = cu.scaleValue(inputUnit, outputUnit);
 
+            if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
+                    && (outputUnit.equals("kW") || outputUnit.equals("W") || outputUnit.equals("MW") || outputUnit.equals("GW"))) {
+                Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                PeriodComparator periodComparator = new PeriodComparator();
+                int compare = periodComparator.compare(currentPeriod, rowPeriod);
+
+                if (!currentPeriod.equals(rowPeriod) && compare > 0) {
+                    if (currentPeriod.equals(Period.hours(1))) {
+                        timeFactor *= 1 / 4d;
+                    } else if (currentPeriod.equals(Period.days(1))) {
+                        timeFactor *= 1 / 4d / 24;
+                    } else if (currentPeriod.equals(Period.weeks(1))) {
+                        timeFactor *= 1 / 4d / 24 / 7;
+                    } else if (currentPeriod.equals(Period.months(1))) {
+                        timeFactor *= 1 / 4d / 24 / 30.25;
+                    } else if (currentPeriod.equals(Period.months(3))) {
+                        timeFactor *= 1 / 4d / 24 / 30.25 / 3;
+                    } else if (currentPeriod.equals(Period.years(1))) {
+                        timeFactor *= 1 / 4d / 24 / 365.25;
+                    }
+                }
+            }
+
             inputList.forEach(sample -> {
                 try {
-                    sample.setValue(sample.getValueAsDouble() * scaleFactor);
+                    sample.setValue(sample.getValueAsDouble() * scaleFactor * timeFactor);
                 } catch (Exception e) {
                     try {
                         logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue()
@@ -846,6 +872,14 @@ public class ChartDataRow {
 
     public Double getScaleFactor() {
         return scaleFactor;
+    }
+
+    public Double getTimeFactor() {
+        return timeFactor;
+    }
+
+    public void setTimeFactor(Double timeFactor) {
+        this.timeFactor = timeFactor;
     }
 
     public double getMin() {
