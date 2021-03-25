@@ -66,6 +66,8 @@ import org.jevis.jeconfig.dialog.FindDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.object.attribute.GapFillingEditor;
+import org.jevis.jeconfig.plugin.object.extension.calculation.FormulaBox;
+import org.jevis.jeconfig.plugin.object.extension.calculation.VariablesBox;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
@@ -1545,7 +1547,7 @@ public class TreeHelper {
         });
     }
 
-    public static void createCalcInput(StackPane dialogContainer, JEVisObject calcObject, JEVisAttribute currentTarget) throws
+    public static void createCalcInput(StackPane dialogContainer, JEVisObject calcObject, JEVisAttribute currentTarget, VariablesBox variablesBox, FormulaBox formulaBox) throws
             JEVisException {
         logger.debug("Event Create new Input");
 
@@ -1622,6 +1624,13 @@ public class TreeHelper {
                                 logger.info("Target is not valid");
                             }
                         }
+                    }
+                    if (formulaBox != null) {
+                        formulaBox.updateVariables();
+                    }
+
+                    if (variablesBox != null) {
+                        variablesBox.listVariables(calcObject);
                     }
                 }
             } catch (JEVisException e) {

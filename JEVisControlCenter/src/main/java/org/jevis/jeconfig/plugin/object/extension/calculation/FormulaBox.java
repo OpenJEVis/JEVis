@@ -135,18 +135,21 @@ public class FormulaBox extends HBox {
     }
 
     public void updateVariables() throws JEVisException {
+        variables.clear();
         JEVisClass input = calcObj.getDataSource().getJEVisClass("Input");
         for (JEVisObject inpuObject : calcObj.getChildren()) {
-            try {
-                JEVisAttribute id = inpuObject.getAttribute("Identifier");
-                if (id != null) {
-                    JEVisSample value = id.getLatestSample();
-                    if (value != null && !value.getValueAsString().isEmpty()) {
-                        variables.add(value.getValueAsString());
+            if (inpuObject.getJEVisClass().equals(input)) {
+                try {
+                    JEVisAttribute id = inpuObject.getAttribute("Identifier");
+                    if (id != null) {
+                        JEVisSample value = id.getLatestSample();
+                        if (value != null && !value.getValueAsString().isEmpty()) {
+                            variables.add(value.getValueAsString());
+                        }
                     }
+                } catch (Exception inputEx) {
+                    inputEx.printStackTrace();
                 }
-            } catch (Exception inputEx) {
-                inputEx.printStackTrace();
             }
         }
     }
