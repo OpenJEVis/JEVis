@@ -787,14 +787,20 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
 
         if (!followUpZoom) {
             notActive.forEach(chart -> {
-                chart.getChart().getPlugins().forEach(chartPlugin -> {
-                    if (chartPlugin instanceof MultiChartZoomer) {
-                        MultiChartZoomer zoomer = (MultiChartZoomer) chartPlugin;
-                        zoomer.setFollowUpZoom(true);
-                        zoomer.zoomOrigin();
-                        zoomer.setFollowUpZoom(false);
-                    }
-                });
+                if (chart instanceof org.jevis.jeconfig.application.Chart.Charts.XYChart) {
+                    chart.getChart().getPlugins().forEach(chartPlugin -> {
+                        if (chartPlugin instanceof MultiChartZoomer) {
+                            MultiChartZoomer zoomer = (MultiChartZoomer) chartPlugin;
+                            zoomer.setFollowUpZoom(true);
+                            zoomer.zoomOrigin();
+                            zoomer.setFollowUpZoom(false);
+                        }
+                    });
+                } else if (chart instanceof PieChart) {
+                    double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMin();
+                    double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
+                    chart.updateTableZoom(min, max);
+                }
             });
         }
 

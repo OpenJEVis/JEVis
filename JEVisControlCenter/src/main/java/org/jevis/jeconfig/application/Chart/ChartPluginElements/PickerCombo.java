@@ -370,8 +370,7 @@ public class PickerCombo {
                 if (chartDataRows == null && analysisDataModel != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime startDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
-                            analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getHourOfDay(), analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getMinuteOfHour(),
-                            analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getSecondOfMinute());
+                            startTimePicker.getValue().getHour(), startTimePicker.getValue().getMinute(), startTimePicker.getValue().getSecond());
                     analysisTimeFrame.setStart(startDate);
                     analysisTimeFrame.setEnd(analysisDataModel.getGlobalAnalysisTimeFrame().getEnd());
 
@@ -380,8 +379,7 @@ public class PickerCombo {
                 } else if (analysisDataModel != null && chartDataRows != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime startDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
-                            analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getHourOfDay(), analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getMinuteOfHour(),
-                            analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getSecondOfMinute());
+                            startTimePicker.getValue().getHour(), startTimePicker.getValue().getMinute(), startTimePicker.getValue().getSecond());
                     analysisTimeFrame.setStart(startDate);
                     analysisTimeFrame.setEnd(analysisDataModel.getGlobalAnalysisTimeFrame().getEnd());
 
@@ -396,8 +394,7 @@ public class PickerCombo {
                 if (chartDataRows == null && analysisDataModel != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
-                            analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getHourOfDay(), analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getMinuteOfHour(),
-                            analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
+                            endTimePicker.getValue().getHour(), endTimePicker.getValue().getMinute(), endTimePicker.getValue().getSecond());
                     analysisTimeFrame.setStart(analysisDataModel.getGlobalAnalysisTimeFrame().getStart());
                     analysisTimeFrame.setEnd(endDate);
 
@@ -406,8 +403,7 @@ public class PickerCombo {
                 } else if (analysisDataModel != null && chartDataRows != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
-                            analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getHourOfDay(), analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getMinuteOfHour(),
-                            analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
+                            endTimePicker.getValue().getHour(), endTimePicker.getValue().getMinute(), endTimePicker.getValue().getSecond());
                     analysisTimeFrame.setStart(analysisDataModel.getGlobalAnalysisTimeFrame().getStart());
                     analysisTimeFrame.setEnd(endDate);
 
