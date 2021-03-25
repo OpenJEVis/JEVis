@@ -30,9 +30,11 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.Chart;
 import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -45,6 +47,7 @@ import org.joda.time.DateTime;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Objects;
 import java.util.prefs.Preferences;
 
@@ -155,11 +158,21 @@ public class ToolBarView {
     }
 
     private void resetZoom() {
-        chartPlugin.getAllCharts().forEach((integer, chart) -> {
+        for (Map.Entry<Integer, Chart> entry : chartPlugin.getAllCharts().entrySet()) {
+            Integer integer = entry.getKey();
+            Chart chart = entry.getValue();
             if (chart.getChart() != null) {
-                Platform.runLater(() -> chart.getChart().getAxes().forEach(axis -> axis.setAutoRanging(true)));
+                for (de.gsi.chart.plugins.ChartPlugin chartPlugin : chart.getChart().getPlugins()) {
+                    if (chartPlugin instanceof MultiChartZoomer) {
+                        MultiChartZoomer multiChartZoomer = (MultiChartZoomer) chartPlugin;
+                        multiChartZoomer.setFollowUpZoom(false);
+                        Platform.runLater(multiChartZoomer::zoomOrigin);
+                        break;
+                    }
+                }
+                break;
             }
-        });
+        }
     }
 
     private void addSeriesRunningMean() {
