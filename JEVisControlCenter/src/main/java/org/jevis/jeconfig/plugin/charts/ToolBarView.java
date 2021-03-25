@@ -178,10 +178,16 @@ public class ToolBarView {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            if (!model.getMultipleDirectories())
+                            if (!model.isMultiSite() && !model.isMultiDir())
                                 setText(obj.getName());
                             else {
-                                String prefix = objectRelations.getObjectPath(obj);
+                                String prefix = "";
+                                if (model.isMultiSite()) {
+                                    prefix += objectRelations.getObjectPath(obj);
+                                }
+                                if (model.isMultiDir()) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
 
                                 setText(prefix + obj.getName());
                             }

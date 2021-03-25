@@ -144,10 +144,15 @@ public class LoadAnalysisDialog extends JFXDialog {
                 if (empty || obj == null || obj.getName() == null) {
                     setText("");
                 } else {
-                    if (!analysisDataModel.getMultipleDirectories())
+                    if (!analysisDataModel.isMultiSite() && !analysisDataModel.isMultiDir())
                         setText(obj.getName());
                     else {
-                        String prefix = objectRelations.getObjectPath(obj);
+                        String prefix = "";
+                        if (analysisDataModel.isMultiSite())
+                            prefix += objectRelations.getObjectPath(obj);
+                        if (analysisDataModel.isMultiDir()) {
+                            prefix += objectRelations.getRelativePath(obj);
+                        }
 
                         setText(prefix + obj.getName());
                     }
@@ -701,7 +706,7 @@ public class LoadAnalysisDialog extends JFXDialog {
 
             GridPane.setFillWidth(analysisListView, true);
             GridPane.setFillHeight(analysisListView, true);
-            if (!analysisDataModel.getMultipleDirectories()) analysisListView.setMinWidth(600d);
+            if (!analysisDataModel.isMultiSite() && !analysisDataModel.isMultiDir()) analysisListView.setMinWidth(600d);
             else analysisListView.setMinWidth(900d);
 //            analysisListView.setMaxWidth(600d);
             GridPane.setHgrow(analysisListView, Priority.ALWAYS);
