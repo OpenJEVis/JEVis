@@ -50,7 +50,29 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.50------\n" +
+            "------Version 3.9.51------\n" +
+                    "JECC - ChartPlugin - BubbleChart - using new period attribute\n" +
+                    "JECC - ChartPlugin - HeatMapChart - using new period attribute\n" +
+                    "JECC - ChartPlugin - RowNote - using new period attribute\n" +
+                    "JECC - ChartPlugin - changin date resets time\n" +
+                    "JECC - ChartPlugin - changing unit transform with only prefix not working properly\n" +
+                    "JECC - ChartPlugin - reset zoom button is not working\n" +
+                    "JECC - ChartPlugin - supporting multiple analyses directories\n" +
+                    "JECC - DashboardPlugin - TableChart - added sum for rows only\n" +
+                    "JECC - DashboardPlugin - sum in table plugin respects calculation \"sum\"  \n" +
+                    "JECC - EnterDataDialog - using new period attribute\n" +
+                    "JECC - ObjectPlugin - CalculationExtension - fixed not updating input variables\n" +
+                    "JECC - ObjectPlugin - CalculationExtension - no translation for formula check\n" +
+                    "JECC - TreeHelper - removed usage of old sample rate\n" +
+                    "JECC - icons - added new cut icon\n" +
+                    "\n" +
+                    "Classes - allow Analyses Directory in Analyses Directory\n" +
+                    "\n" +
+                    "JECommons - CalcJobFactory - fixed input sample rate to new attribute sample rate\n" +
+                    "JECommons - SampleHandler - removed input sample rate function -> use static method from CleanDataObject class\n" +
+                    "\n" +
+                    "JEWebService - user values are ignored for unaggregated samples\n\n" +
+                    "------Version 3.9.50------\n" +
                     "JECC - AccountingPlugin - small fixes\n" +
                     "JECC - AccountingPlugin - small improvements\n" +
                     "JECC - CalculationExtension - fixed no object selected on selecting new output object  \n" +
