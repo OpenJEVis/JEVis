@@ -186,6 +186,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                         if (newVal != null) {
 
                             JEVisAttribute valueAttribute = null;
+                            JEVisAttribute periodAttribute = null;
                             JEVisAttribute diffAttribute = null;
                             Map<JsonLimitsConfig, JEVisObject> limitsConfigs = new HashMap<>();
                             try {
@@ -197,6 +198,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                                         limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
                                     }
                                 }
+                                periodAttribute = selectedObject.getAttribute("Period");
                             } catch (Exception e) {
                                 logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
                             }
@@ -265,7 +267,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
                                     } else {
                                         boolean hasError = false;
-                                        DateTime prevTs = ts.minus(valueAttribute.getInputSampleRate());
+                                        DateTime prevTs = ts.minus(new Period(periodAttribute.getLatestSample().getValueAsString()));
                                         List<JEVisSample> previousSample = valueAttribute.getSamples(prevTs, prevTs);
                                         Double prevValue = newVal;
                                         try {

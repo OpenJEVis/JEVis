@@ -66,6 +66,8 @@ import org.jevis.jeconfig.dialog.FindDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.object.attribute.GapFillingEditor;
+import org.jevis.jeconfig.plugin.object.extension.calculation.FormulaBox;
+import org.jevis.jeconfig.plugin.object.extension.calculation.VariablesBox;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
@@ -734,12 +736,13 @@ public class TreeHelper {
                     final JEVisObject object = DataMethods.getFirstCleanObject(items.get(0).getValue().getJEVisObject());
 
                     JEVisAttribute valueAtt = object.getAttribute("Value");
+                    JEVisAttribute periodAtt = object.getAttribute("Period");
 
                     UnitSelectUI unitUI = new UnitSelectUI(ds, valueAtt.getInputUnit());
                     unitUI.getPrefixBox().setPrefWidth(95);
                     unitUI.getUnitButton().setPrefWidth(95);
                     unitUI.getSymbolField().setPrefWidth(95);
-                    SamplingRateUI periodUI = new SamplingRateUI(valueAtt.getInputSampleRate());
+                    SamplingRateUI periodUI = new SamplingRateUI(new Period(periodAtt.getLatestSample().getValueAsString()));
 
                     gp.add(unitUI.getPrefixBox(), 1, 1);
                     gp.add(unitUI.getUnitButton(), 1, 2);
@@ -1500,8 +1503,8 @@ public class TreeHelper {
      * @param tree
      * @param parent
      */
-    public static void EventNew(StackPane dialogContainer, final JEVisTree tree, JEVisObject parent) {
-        NewObject.NewObject(dialogContainer, tree, parent);
+    public static void EventNew(final JEVisTree tree, JEVisObject parent) {
+        NewObject.NewObject(tree, parent);
     }
 
     public static void EventExportTree(StackPane dialogContainer, JEVisObject obj) throws JEVisException {
@@ -1544,9 +1547,9 @@ public class TreeHelper {
         });
     }
 
-    public static void createCalcInput(StackPane dialogContainer, JEVisObject calcObject, JEVisAttribute currentTarget) throws
+    public static void createCalcInput(StackPane dialogContainer, JEVisObject calcObject, JEVisAttribute currentTarget, VariablesBox variablesBox, FormulaBox formulaBox) throws
             JEVisException {
-        logger.info("Event Create new Input");
+        logger.debug("Event Create new Input");
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
         JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
@@ -1622,6 +1625,13 @@ public class TreeHelper {
                             }
                         }
                     }
+                    if (formulaBox != null) {
+                        formulaBox.updateVariables();
+                    }
+
+                    if (variablesBox != null) {
+                        variablesBox.listVariables(calcObject);
+                    }
                 }
             } catch (JEVisException e) {
                 e.printStackTrace();
@@ -1635,9 +1645,9 @@ public class TreeHelper {
      *
      * @param tree
      */
-    public static void EventNew(StackPane dialogContainer, final JEVisTree tree) {
+    public static void EventNew(final JEVisTree tree) {
         final TreeItem<JEVisTreeRow> parent = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
-        EventNew(dialogContainer, tree, parent.getValue().getJEVisObject());
+        EventNew(tree, parent.getValue().getJEVisObject());
     }
 
     public static void EventSetEnableAll(JEVisTree tree, boolean b) {
@@ -1916,13 +1926,14 @@ public class TreeHelper {
                                 for (JEVisSample sample : allSamples) {
                                     DateTime oldTS = sample.getTimestamp();
                                     DateTime movedTimeStamp = null;
+                                    Period p = CleanDataObject.getPeriodForDate(dataObject, oldTS);
 
-                                    if (value.getInputSampleRate().equals(Period.years(1))) {
+                                    if (p.equals(Period.years(1))) {
                                         movedTimeStamp = oldTS.plusYears(periodIncrease).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
-                                    } else if (value.getInputSampleRate().equals(Period.months(1))) {
+                                    } else if (p.equals(Period.months(1))) {
                                         movedTimeStamp = oldTS.plusMonths(periodIncrease).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
                                     } else {
-                                        movedTimeStamp = oldTS.plusMillis(Math.toIntExact(value.getInputSampleRate().toStandardDuration().getMillis() * periodIncrease));
+                                        movedTimeStamp = oldTS.plusMillis(Math.toIntExact(p.toStandardDuration().getMillis() * periodIncrease));
                                     }
 
                                     JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());

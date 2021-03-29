@@ -65,4 +65,40 @@ public class ObjectRelations {
         return s;
     }
 
+    public String getRelativePath(JEVisObject object) {
+
+        StringBuilder s = new StringBuilder();
+        JEVisObject primaryParent = getPrimaryParent(object);
+
+        try {
+            for (JEVisObject parent : object.getParents()) {
+                if (!parent.equals(primaryParent)) {
+                    s.append(parent.getName());
+                    s.append(" / ");
+                    s.append(getRelativePath(parent));
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        return s.toString();
+    }
+
+    public JEVisObject getPrimaryParent(JEVisObject object) {
+        JEVisObject primaryParent = null;
+        try {
+            for (JEVisObject dir : object.getParents()) {
+                if (dir.getJEVisClassName().equals("Building")) {
+                    primaryParent = object;
+                    break;
+                } else {
+                    primaryParent = getPrimaryParent(dir);
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+        return primaryParent;
+    }
 }

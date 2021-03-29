@@ -369,8 +369,7 @@ public class SelectTargetDialog extends JFXDialog {
         simpleTargetPlugin.setUserSelection(userSelections);
 
         Finder finder = new Finder(tree);
-        SearchFilterBar searchBar = new SearchFilterBar(tree, filterTypes, finder);
-
+        SearchFilterBar searchBar = new SearchFilterBar(tree, filterTypes, finder, false);
 
         ok.setDefaultButton(true);
 

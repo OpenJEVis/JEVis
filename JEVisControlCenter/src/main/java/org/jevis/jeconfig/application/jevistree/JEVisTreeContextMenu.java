@@ -262,7 +262,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildCut() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.cut"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.cut"), ResourceLoader.getImage("cut_17352.png", 20, 20));
         menu.setOnAction(t -> tree.setCopyObjectsBySelection(true)
         );
         return menu;
@@ -355,7 +355,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                                           @Override
                                           public void handle(ActionEvent t) {
-                                              TreeHelper.EventNew(dialogContainer, tree, obj);
+                                              TreeHelper.EventNew(tree, obj);
                                           }
                                       }
                 );
@@ -374,7 +374,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    TreeHelper.createCalcInput(dialogContainer, obj, null);
+                    TreeHelper.createCalcInput(dialogContainer, obj, null, null, null);
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }
@@ -487,7 +487,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 Object obj2 = getUserData();
                 logger.debug("userdate: " + obj2);
                 logger.debug("new event");
-                TreeHelper.EventNew(dialogContainer, tree, obj);
+                TreeHelper.EventNew(tree, obj);
 
             }
         });

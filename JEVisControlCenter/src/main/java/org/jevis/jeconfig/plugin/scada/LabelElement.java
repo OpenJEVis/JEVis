@@ -42,19 +42,19 @@ public class LabelElement extends MoveableNode implements SCADAElement {
 
 
     public static String TYPE = "LabelElement";
-    private static Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
+    private static final Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
 
 
-    private StringProperty titleProperty = new SimpleStringProperty();
-    private DoubleProperty xPositionProperty = new SimpleDoubleProperty();
-    private DoubleProperty yPositionProperty = new SimpleDoubleProperty();
+    private final StringProperty titleProperty = new SimpleStringProperty();
+    private final DoubleProperty xPositionProperty = new SimpleDoubleProperty();
+    private final DoubleProperty yPositionProperty = new SimpleDoubleProperty();
     private JEVisAttribute attribute;
-    private HBox view = new HBox(8);
-    private Label label = new Label();
-    private Label text = new Label();
-    private ImageView warningImage = JEConfig.getImage("Warning-icon.png", 15, 15);
+    private final HBox view = new HBox(8);
+    private final Label label = new Label();
+    private final Label text = new Label();
+    private final ImageView warningImage = JEConfig.getImage("Warning-icon.png", 15, 15);
     private ScadaElementData data = new ScadaElementData();
-    private SCADAAnalysis analysis;
+    private final SCADAAnalysis analysis;
 
 
     public LabelElement(SCADAAnalysis analysis) {
@@ -334,7 +334,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
 
 
             try {
-                logger.info("imput rate: " + attribute.getInputSampleRate());
+                logger.info("input rate: " + attribute.getInputSampleRate());
                 if (attribute.getInputSampleRate() != null &&
                         attribute.getInputSampleRate().getMillis() > 1) {
                     DateTime now = new DateTime();

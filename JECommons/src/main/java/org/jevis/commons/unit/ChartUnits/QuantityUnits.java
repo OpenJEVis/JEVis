@@ -171,47 +171,47 @@ public class QuantityUnits {
     }
 
     public JEVisUnit getSumUnit(JEVisUnit unit) {
-        if (unit.equals(W)) {
+        if (unit.equals(W) || unit.getLabel().equals(W.getLabel())) {
             return Wh;
-        } else if (unit.equals(kW)) {
+        } else if (unit.equals(kW) || unit.getLabel().equals(kW.getLabel())) {
             return kWh;
-        } else if (unit.equals(MW)) {
+        } else if (unit.equals(MW) || unit.getLabel().equals(MW.getLabel())) {
             return MWh;
-        } else if (unit.equals(GW)) {
+        } else if (unit.equals(GW) || unit.getLabel().equals(GW.getLabel())) {
             return GWh;
-        } else if (unit.equals(va)) {
+        } else if (unit.equals(va) || unit.getLabel().equals(va.getLabel())) {
             return vah;
-        } else if (unit.equals(var)) {
+        } else if (unit.equals(var) || unit.getLabel().equals(var.getLabel())) {
             return varh;
-        } else if (unit.equals(kva)) {
+        } else if (unit.equals(kva) || unit.getLabel().equals(kva.getLabel())) {
             return kvah;
-        } else if (unit.equals(kvar)) {
+        } else if (unit.equals(kvar) || unit.getLabel().equals(kvar.getLabel())) {
             return kvarh;
-        } else if (unit.equals(Wh)) {
+        } else if (unit.equals(Wh) || unit.getLabel().equals(Wh.getLabel())) {
             return Wh;
-        } else if (unit.equals(kWh)) {
+        } else if (unit.equals(kWh) || unit.getLabel().equals(kWh.getLabel())) {
             return kWh;
-        } else if (unit.equals(MWh)) {
+        } else if (unit.equals(MWh) || unit.getLabel().equals(MWh.getLabel())) {
             return MWh;
-        } else if (unit.equals(GWh)) {
+        } else if (unit.equals(GWh) || unit.getLabel().equals(GWh.getLabel())) {
             return GWh;
-        } else if (unit.equals(vah)) {
+        } else if (unit.equals(vah) || unit.getLabel().equals(vah.getLabel())) {
             return vah;
-        } else if (unit.equals(varh)) {
+        } else if (unit.equals(varh) || unit.getLabel().equals(varh.getLabel())) {
             return varh;
-        } else if (unit.equals(kvah)) {
+        } else if (unit.equals(kvah) || unit.getLabel().equals(kvah.getLabel())) {
             return kvah;
-        } else if (unit.equals(kvarh)) {
+        } else if (unit.equals(kvarh) || unit.getLabel().equals(kvarh.getLabel())) {
             return kvarh;
-        } else if (unit.equals(mg)) {
+        } else if (unit.equals(mg) || unit.getLabel().equals(mg.getLabel())) {
             return mg;
-        } else if (unit.equals(g)) {
+        } else if (unit.equals(g) || unit.getLabel().equals(g.getLabel())) {
             return g;
-        } else if (unit.equals(kg)) {
+        } else if (unit.equals(kg) || unit.getLabel().equals(kg.getLabel())) {
             return kg;
-        } else if (unit.equals(kkg)) {
+        } else if (unit.equals(kkg) || unit.getLabel().equals(kkg.getLabel())) {
             return kkg;
-        } else if (unit.equals(t)) {
+        } else if (unit.equals(t) || unit.getLabel().equals(t.getLabel())) {
             return t;
         } else return null;
     }
@@ -294,5 +294,46 @@ public class QuantityUnits {
         }
 
         return isQuantityTemp;
+    }
+
+    public boolean isDiffPrefix(JEVisUnit inputUnit, JEVisUnit unit) {
+        if (inputUnit.equals(W)
+                && (unit.equals(kW) || unit.equals(MW) || unit.equals(GW))) {
+            return true;
+        } else if (inputUnit.equals(kW)
+                && (unit.equals(W) || unit.equals(MW) || unit.equals(GW))) {
+            return true;
+        } else if (inputUnit.equals(MW)
+                && (unit.equals(W) || unit.equals(kW) || unit.equals(GW))) {
+            return true;
+        } else if (inputUnit.equals(GW)
+                && (unit.equals(W) || unit.equals(kW) || unit.equals(MW))) {
+            return true;
+        } else if (inputUnit.equals(Wh)
+                && (unit.equals(kWh) || unit.equals(MWh) || unit.equals(GWh))) {
+            return true;
+        } else if (inputUnit.equals(kWh)
+                && (unit.equals(Wh) || unit.equals(MWh) || unit.equals(GWh))) {
+            return true;
+        } else if (inputUnit.equals(MWh)
+                && (unit.equals(Wh) || unit.equals(kWh) || unit.equals(GWh))) {
+            return true;
+        } else if (inputUnit.equals(GWh)
+                && (unit.equals(Wh) || unit.equals(kWh) || unit.equals(MWh))) {
+            return true;
+        } else if (inputUnit.equals(mg)
+                && (unit.equals(g) || unit.equals(kg) || unit.equals(kkg) || unit.equals(t))) {
+            return true;
+        } else if (inputUnit.equals(g)
+                && (unit.equals(mg) || unit.equals(kg) || unit.equals(kkg) || unit.equals(t))) {
+            return true;
+        } else if (inputUnit.equals(kg)
+                && (unit.equals(mg) || unit.equals(g) || unit.equals(kkg) || unit.equals(t))) {
+            return true;
+        } else if (inputUnit.equals(kkg)
+                && (unit.equals(mg) || unit.equals(g) || unit.equals(kg) || unit.equals(t))) {
+            return true;
+        } else return inputUnit.equals(t)
+                && (unit.equals(mg) || unit.equals(g) || unit.equals(kg) || unit.equals(kkg));
     }
 }

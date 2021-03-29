@@ -15,6 +15,7 @@ public class AggregationBox extends JFXComboBox<AggregationPeriod> {
 
     public AggregationBox(AggregationPeriod period) {
         final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
+        final String keyMinutely = I18n.getInstance().getString("plugin.unit.samplingrate.everyminute");
         final String keyQuarterHourly = I18n.getInstance().getString("plugin.graph.interval.quarterhourly");
         final String keyHourly = I18n.getInstance().getString("plugin.graph.interval.hourly");
         final String keyDaily = I18n.getInstance().getString("plugin.graph.interval.daily");
@@ -37,8 +38,8 @@ public class AggregationBox extends JFXComboBox<AggregationPeriod> {
                         } else {
                             String text = "";
                             switch (aggregationPeriod) {
-                                case NONE:
-                                    text = keyPreset;
+                                case MINUTELY:
+                                    text = keyMinutely;
                                     break;
                                 case QUARTER_HOURLY:
                                     text = keyQuarterHourly;
@@ -60,6 +61,10 @@ public class AggregationBox extends JFXComboBox<AggregationPeriod> {
                                     break;
                                 case YEARLY:
                                     text = keyYearly;
+                                    break;
+                                default:
+                                case NONE:
+                                    text = keyPreset;
                                     break;
                             }
                             setText(text);

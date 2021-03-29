@@ -527,11 +527,11 @@ public class ReportPlugin implements Plugin {
             return ac.compare(name1, name2);
         });
 
+        disabledItemList.addAll(getDisabledItems(allReports));
         Platform.runLater(() -> reports.addAll(allReports));
-        disabledItemList.addAll(getDisabledItems(reports));
     }
 
-    private List<JEVisObject> getDisabledItems(ObservableList<JEVisObject> reports) {
+    private List<JEVisObject> getDisabledItems(List<JEVisObject> reports) {
         List<JEVisObject> list = new ArrayList<>();
         for (JEVisObject reportObject : reports) {
             JEVisAttribute lastReportPDFAttribute = null;

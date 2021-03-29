@@ -61,15 +61,13 @@ public class VariablesBox extends FlowPane {
         }
     }
 
-    private void listVariables(JEVisObject obj) {
+    public void listVariables(JEVisObject obj) {
         getChildren().clear();
 
         JFXButton addInputButton = new JFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
         addInputButton.setOnAction(event -> {
             try {
-                TreeHelper.createCalcInput(dialogContainer, obj, null);
-                listVariables(obj);
-                expression.updateVariables();
+                TreeHelper.createCalcInput(dialogContainer, obj, null, this, expression);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

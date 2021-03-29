@@ -14,8 +14,10 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
@@ -209,10 +211,15 @@ public class XYChartSerie {
                         case NONE:
                         default:
                             JEVisAttribute attribute = samples.get(0).getAttribute();
-                            if (attribute != null && !attribute.getInputSampleRate().equals(Period.ZERO)) {
-                                s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
-                            } else if (attribute != null && attribute.getInputSampleRate().equals(Period.ZERO)) {
-                                s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
+
+                            if (attribute != null && attribute.getObject().getAttribute("Period") != null) {
+                                Period periodForDate = CleanDataObject.getPeriodForDate(attribute.getObject(), finalFirstTS);
+
+                                if (!periodForDate.equals(Period.ZERO)) {
+                                    s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                                } else if (periodForDate.equals(Period.ZERO)) {
+                                    s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
+                                }
                             } else if (attribute == null) {
                                 s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
                             }
@@ -301,9 +308,20 @@ public class XYChartSerie {
             } else {
                 if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                     try {
-                        sum = sum / singleRow.getScaleFactor();
+                        JEVisUnit sumUnit = qu.getSumUnit(unit);
+                        ChartUnits cu = new ChartUnits();
+                        double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
+                        JEVisUnit inputUnit = singleRow.getAttribute().getInputUnit();
+                        JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
+
+                        if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
+                            sum = sum * newScaleFactor / singleRow.getTimeFactor();
+                        } else {
+                            sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
+                        }
+
                         Double finalSum1 = sum;
-                        Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum1) + " " + qu.getSumUnit(unit)));
+                        Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum1) + " " + sumUnit));
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");
                         Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));

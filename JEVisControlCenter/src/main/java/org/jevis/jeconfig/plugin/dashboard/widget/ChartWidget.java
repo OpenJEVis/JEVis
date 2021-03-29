@@ -116,25 +116,27 @@ public class ChartWidget extends Widget implements DataModelWidget {
             chartSetting.setChartType(null);
             model.getCharts().setListSettings(Collections.singletonList(chartSetting));
 
-            Platform.runLater(() -> {
-                this.borderPane.setCenter(null);
+            this.borderPane.setCenter(null);
 
-                boolean isOnlyTable = true;
-                for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
-                    if (!chartDataRow.getChartType().equals(ChartType.TABLE_V)) {
-                        isOnlyTable = false;
-                        break;
-                    }
+            boolean isOnlyTable = true;
+            for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
+                if (!chartDataRow.getChartType().equals(ChartType.TABLE_V)) {
+                    isOnlyTable = false;
+                    break;
                 }
+            }
 
-                if (isOnlyTable) {
+            if (isOnlyTable) {
+                Platform.runLater(() -> {
                     TableChartV tableChart = new TableChartV();
+                    tableChart.showRowSums(true);
 
                     Label titleLabel = new Label(chartSetting.getName());
                     titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");
                     titleLabel.setAlignment(Pos.CENTER);
                     HBox hBox = new HBox(titleLabel);
                     hBox.setAlignment(Pos.CENTER);
+
 
                     TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
                     tableChart.setTableHeader(tableHeaderTable);
@@ -149,24 +151,27 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
                     this.borderPane.setCenter(vBox);
                     this.legend.getItems().clear();
-
-                } else {
+                });
+            } else {
+                Platform.runLater(() -> {
                     this.xyChart = new XYChart();
                     this.xyChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
 
                     this.borderPane.setCenter(this.xyChart.getChart());
-                }
+                });
+            }
 
-                Size configSize = getConfig().getSize();
-                xyChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight());
-                updateConfig();
-            });
+            Size configSize = getConfig().getSize();
+            Platform.runLater(() -> xyChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight()));
+            updateConfig();
+
             /** workaround because we make a new chart every time**/
         } catch (Exception ex) {
             logger.error(ex);
         }
 
         showProgressIndicator(false);
+
     }
 
 

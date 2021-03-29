@@ -88,7 +88,8 @@ public class AnalysisDataModel {
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis = null;
-    private Boolean multipleDirectories = false;
+    private Boolean multiSite = false;
+    private Boolean multiDir = false;
     private Long chartsPerScreen = 2L;
     private Long horizontalPies = 2L;
     private Long horizontalTables = 3L;
@@ -824,16 +825,58 @@ public class AnalysisDataModel {
         }
     }
 
+    public boolean isMultiSite() {
+        if (multiSite == null) {
+            boolean is = false;
+            try {
+                JEVisClass directoryClass = ds.getJEVisClass("Analysis Directory");
+                List<JEVisObject> objects = ds.getObjects(directoryClass, true);
+
+                List<JEVisObject> buildingParents = new ArrayList<>();
+                for (JEVisObject jeVisObject : objects) {
+                    JEVisObject buildingParent = objectRelations.getBuildingParent(jeVisObject);
+                    if (!buildingParents.contains(buildingParent)) {
+                        buildingParents.add(buildingParent);
+
+                        if (buildingParents.size() > 1) {
+                            is = true;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            multiSite = is;
+        }
+
+        return multiSite;
+    }
+
+    public boolean isMultiDir() {
+        if (multiDir == null) {
+            boolean is = false;
+            try {
+                JEVisClass directoryClass = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
+                List<JEVisObject> objects = ds.getObjects(directoryClass, true);
+                if (objects.size() > 1) {
+                    is = true;
+                }
+            } catch (Exception ignored) {
+            }
+            multiDir = is;
+        }
+
+        return multiDir;
+    }
+
     public void updateListAnalyses() {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
+        multiDir = null;
+        multiSite = null;
 
         try {
             JEVisClass analysesDirectory = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
             listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
-
-            if (listAnalysesDirectories.size() > 1) {
-                multipleDirectories = true;
-            }
 
             if (listAnalysesDirectories.size() > 0
                     && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
@@ -868,16 +911,29 @@ public class AnalysisDataModel {
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        if (!multipleDirectories) observableListAnalyses.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+        if (!isMultiDir() && !isMultiSite())
+            observableListAnalyses.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
         else {
             observableListAnalyses.sort((o1, o2) -> {
 
                 String prefix1 = "";
                 String prefix2 = "";
 
-                prefix1 = objectRelations.getObjectPath(o1) + o1.getName();
+                if (isMultiSite()) {
+                    prefix1 += objectRelations.getObjectPath(o1);
+                }
+                if (isMultiDir()) {
+                    prefix1 += objectRelations.getRelativePath(o1);
+                }
+                prefix1 += o1.getName();
 
-                prefix2 = objectRelations.getObjectPath(o2) + o2.getName();
+                if (isMultiSite()) {
+                    prefix2 += objectRelations.getObjectPath(o2);
+                }
+                if (isMultiDir()) {
+                    prefix2 += objectRelations.getRelativePath(o2);
+                }
+                prefix2 += o2.getName();
 
                 return ac.compare(prefix1, prefix2);
             });
@@ -1233,10 +1289,6 @@ public class AnalysisDataModel {
         if (selectedData != null && !selectedData.isEmpty()) {
             selectedData.forEach(chartDataModel -> chartDataModel.setManipulationMode(manipulationMode));
         }
-    }
-
-    public Boolean getMultipleDirectories() {
-        return multipleDirectories;
     }
 
     public Long getChartsPerScreen() {
