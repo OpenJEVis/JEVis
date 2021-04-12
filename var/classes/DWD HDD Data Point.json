@@ -1,0 +1,35 @@
+{
+  "name": "DWD HDD Data Point",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "DWD HDD Data Point",
+      "end": "Data Point",
+      "type": 0
+    },
+    {
+      "start": "DWD HDD Data Point",
+      "end": "DWD Data Point Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Station",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD HDD Data Point"
+    },
+    {
+      "name": "Heating Degree Days Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD HDD Data Point"
+    }
+  ]
+}
