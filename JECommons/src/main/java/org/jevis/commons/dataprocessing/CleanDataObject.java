@@ -688,12 +688,17 @@ public class CleanDataObject {
         Map<DateTime, JEVisSample> userDataMap = new HashMap<>();
         try {
             final JEVisClass userDataClass = rawDataObject.getDataSource().getJEVisClass("User Data");
-            for (JEVisObject obj : cleanObject.getParents().get(0).getChildren(userDataClass, true)) {
-                if (obj.getName().contains(cleanObject.getName())) {
-                    JEVisAttribute userDataValueAttribute = obj.getAttribute("Value");
-                    if (userDataValueAttribute.hasSample()) {
-                        for (JEVisSample smp : userDataValueAttribute.getAllSamples()) {
-                            userDataMap.put(smp.getTimestamp(), smp);
+            for (JEVisObject parent : cleanObject.getParents()) {
+                String parentName = parent.getName();
+                for (JEVisObject parentParent : parent.getParents()) {
+                    for (JEVisObject obj : parentParent.getChildren(userDataClass, true)) {
+                        if (obj.getName().contains(parentName)) {
+                            JEVisAttribute userDataValueAttribute = obj.getAttribute("Value");
+                            if (userDataValueAttribute.hasSample()) {
+                                for (JEVisSample smp : userDataValueAttribute.getAllSamples()) {
+                                    userDataMap.put(smp.getTimestamp(), smp);
+                                }
+                            }
                         }
                     }
                 }
