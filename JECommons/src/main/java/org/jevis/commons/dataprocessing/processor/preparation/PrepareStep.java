@@ -254,18 +254,24 @@ public class PrepareStep implements ProcessStep {
     private void removeLastIntervalsWithoutSamples(CleanDataObject cleanDataObject, List<CleanInterval> cleanIntervals) throws JEVisException {
         List<JEVisSample> samples = cleanDataObject.getRawSamplesDown();
         List<CleanInterval> intervalsToRemove = new ArrayList<>();
+        int lastSample = samples.size() - 1;
+
         for (int i = cleanIntervals.size() - 1; i > -1; i--) {
             CleanInterval cleanInterval = cleanIntervals.get(i);
             DateTime start = cleanInterval.getInterval().getStart();
             DateTime end = cleanInterval.getInterval().getEnd();
             boolean hasSamples = false;
 
-            for (int j = samples.size() - 1; j > -1; j--) {
-                JEVisSample sample = samples.get(j);
+            while (lastSample > -1) {
+                JEVisSample sample = samples.get(lastSample);
                 if (sample.getTimestamp().equals(end) || (sample.getTimestamp().isAfter(start) && sample.getTimestamp().isBefore(end))) {
                     hasSamples = true;
                     break;
                 }
+
+                if (lastSample > 0) {
+                    lastSample--;
+                } else break;
             }
 
             if (!hasSamples) {
