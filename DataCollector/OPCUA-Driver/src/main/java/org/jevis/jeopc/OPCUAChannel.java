@@ -11,16 +11,17 @@ import org.joda.time.DateTime;
 /**
  * This implements the channel and related functions
  */
-public class UPCUAChannel {
+public class OPCUAChannel {
 
     public final static String JEVIS_CLASS = "OPC UA Channel";
     public final static String DIR_JEVIS_CLASS = "OPC UA Channel Directory";
-    private final static Logger log = LogManager.getLogger(UPCUAChannel.class.getName());
+    private final static Logger log = LogManager.getLogger(OPCUAChannel.class.getName());
     private final static String NODE_ID = "Node ID";
     private final static String TARGET_ID = "Target ID";
     private final static String LAST_READOUT = "Last Readout";
     private final static String STATUS_LOG = "Status Log";
-
+    private final static String FUNCTION_NODE = "Function Node ID";
+    private final static String FUNCTION_INTERVAL = "Function Interval";
 
     private final JEVisObject channelObject;
     private String name;
@@ -31,29 +32,28 @@ public class UPCUAChannel {
     private JEVisObject targetObj;
     private final Helper helper = new Helper();
     private String targetString;
+    private String functionNodeID;
+    private double functionInterval;
+
 
     //private DateTime lastSampleTimeStamp = DateTime.now();
 
-    public UPCUAChannel(JEVisObject channelObject) throws JEVisException {
+    /** manual constructor for debug use **/
+    public OPCUAChannel(String nodeID, String functionNodeID, double  functionInterval){
+        channelObject = null;
+        this.nodeId = nodeID;
+        this.functionNodeID=functionNodeID;
+        this.functionInterval = functionInterval;
+    }
+
+    public OPCUAChannel(JEVisObject channelObject) throws JEVisException {
         log.error("UPCUAChannel init: {}", channelObject);
 
         this.channelObject = channelObject;
-
         this.update();
 
         log.error("UPC Channel: {}", toString());
 
-    }
-
-    public NodeId getOPCNodeId() {
-        //NodeId nodeIdNumeric = new NodeId(1, 20100);
-
-        NodeId nodeIdName = NodeId.parse(nodeId); //20100
-        return nodeIdName;
-    }
-
-    public JEVisAttribute getTarget() {
-        return targetAtt;
     }
 
     private void update() throws JEVisException {
@@ -84,6 +84,27 @@ public class UPCUAChannel {
         lastReadout = DatabaseHelper.getObjectAsDate(channelObject, readoutType);
         JEVisType statusLogType = channelClass.getType(STATUS_LOG);
         statusLog = channelObject.getAttribute(statusLogType);
+
+        functionNodeID = helper.getValue(channelObject, FUNCTION_NODE);
+        try {
+            String intervalStr = helper.getValue(channelObject, FUNCTION_INTERVAL);
+            if(intervalStr!=null && !intervalStr.isEmpty()){
+                functionInterval = Double.parseDouble(intervalStr);
+            }
+        }catch (Exception e){
+            log.warn("Error parsing Interval: "+e);
+        }
+    }
+
+    public NodeId getOPCNodeId() {
+        //NodeId nodeIdNumeric = new NodeId(1, 20100);
+
+        NodeId nodeIdName = NodeId.parse(nodeId); //20100
+        return nodeIdName;
+    }
+
+    public JEVisAttribute getTarget() {
+        return targetAtt;
     }
 
     public String getTargetAttribute() {
@@ -116,6 +137,14 @@ public class UPCUAChannel {
 
     public JEVisAttribute getStatusLog() {
         return statusLog;
+    }
+
+    public String getFunctionNode(){
+        return functionNodeID;
+    }
+
+    public double getFunctionInterval(){
+        return functionInterval;
     }
 
     @Override
