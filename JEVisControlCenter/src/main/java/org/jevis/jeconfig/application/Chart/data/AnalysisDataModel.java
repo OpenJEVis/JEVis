@@ -88,8 +88,8 @@ public class AnalysisDataModel {
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis = null;
-    private Boolean multiSite = false;
-    private Boolean multiDir = false;
+    private Boolean multiSite = null;
+    private Boolean multiDir = null;
     private Long chartsPerScreen = 2L;
     private Long horizontalPies = 2L;
     private Long horizontalTables = 3L;
@@ -829,7 +829,7 @@ public class AnalysisDataModel {
         if (multiSite == null) {
             boolean is = false;
             try {
-                JEVisClass directoryClass = ds.getJEVisClass("Analysis Directory");
+                JEVisClass directoryClass = ds.getJEVisClass("Analyses Directory");
                 List<JEVisObject> objects = ds.getObjects(directoryClass, true);
 
                 List<JEVisObject> buildingParents = new ArrayList<>();

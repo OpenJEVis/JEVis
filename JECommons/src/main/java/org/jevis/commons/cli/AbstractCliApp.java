@@ -400,6 +400,7 @@ public abstract class AbstractCliApp {
     protected void checkForTimeout() {
         if (!runningJobs.isEmpty() && maxThreadTime != 0L) {
             SampleHandler sampleHandler = new SampleHandler();
+            List<Long> toRemove = new ArrayList<>();
             for (Map.Entry<Long, DateTime> entry : runningJobs.entrySet()) {
                 try {
                     Interval interval = new Interval(entry.getValue(), new DateTime());
@@ -408,8 +409,13 @@ public abstract class AbstractCliApp {
                     Long maxTime = sampleHandler.getLastSample(object, "Max thread time", maxThreadTime);
                     if (interval.toDurationMillis() > maxTime) {
                         logger.warn("Task for {} is out of time, trying to cancel", entry.getKey());
-                        runnables.get(entry.getKey()).cancel(true);
-                        runningJobs.remove(entry.getKey());
+                        try {
+                            runnables.get(entry.getKey()).cancel(true);
+                            logger.warn("Runnable for {} cancelled successfully", entry.getKey());
+                        } catch (Exception e) {
+                            logger.error("Could not cancel job {}", entry.getKey(), e);
+                        }
+                        toRemove.add(entry.getKey());
                         plannedJobs.remove(entry.getKey());
                         LogTaskManager.getInstance().getTask(entry.getKey()).setStatus(Task.Status.FAILED);
                     }
@@ -417,6 +423,8 @@ public abstract class AbstractCliApp {
                     logger.error("Could not stop object with id {}", entry.getKey(), e);
                 }
             }
+
+            toRemove.forEach(runnables::remove);
         }
     }
 

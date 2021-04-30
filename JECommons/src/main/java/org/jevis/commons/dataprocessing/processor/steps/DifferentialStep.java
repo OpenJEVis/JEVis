@@ -52,6 +52,11 @@ public class DifferentialStep implements ProcessStep {
             while (samplesInInterval && rawPointer < rawSamples.size()) {
                 JEVisSample jeVisSample = rawSamples.get(rawPointer);
                 DateTime timeStamp = jeVisSample.getTimestamp();
+
+                if (userDataMap.containsKey(timeStamp)) {
+                    jeVisSample = userDataMap.get(timeStamp);
+                }
+
                 if (compare > 0 && timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
                     //raw data  period is smaller then clean data period, e.g. 15-minute values -> day values
                     interval.getRawSamples().add(jeVisSample);

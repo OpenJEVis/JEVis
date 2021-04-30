@@ -4,6 +4,8 @@
     <file url="file://$PROJECT_DIR$/DataCollector" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataCollector/CSV-Driver" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataCollector/CSV-Driver/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/DWDHDDParser/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/DWDHDDParser/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataCollector/Email-Driver" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataCollector/Email-Driver/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataCollector/FTP-Driver" charset="UTF-8" />
