@@ -17,8 +17,8 @@ import java.io.PrintWriter;
 public class SendNotification implements Runnable {
     private static final Logger logger = LogManager.getLogger(SendNotification.class);
 
-    private Notification _noti;
-    private NotificationDriver _driver;
+    private final Notification _noti;
+    private final NotificationDriver _driver;
     private PrintWriter _writer;
     private String _customMessage;
 
@@ -38,6 +38,8 @@ public class SendNotification implements Runnable {
 //        _socket = socket;
         _writer = writer;
     }
+
+    int retry = 0;
 
     @Override
     public void run() {
@@ -64,6 +66,16 @@ public class SendNotification implements Runnable {
                     if (_writer != null) {
                         _writer.println("------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " Send failed by " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + "-------");
                         _writer.flush();
+                    }
+
+                    if (retry < 5) {
+                        try {
+                            retry++;
+                            Thread.sleep(5000);
+                            run();
+                        } catch (Exception e) {
+                            logger.error("Error in retry queue for report notification");
+                        }
                     }
                 }
             }

@@ -110,9 +110,10 @@ public class DBHelper {
                             return getDefValue(defValue, error);
                         }
                         try {
-                            datetime = DateTimeFormat.forPattern(EMailConstants.ValidValues.TIMEFORMAT).parseDateTime(value);
+                            datetime = new DateTime(value);
                         } catch (Exception ex) {
                             logger.error("the format of the {} is not valid.", error.getMessage());
+                            datetime = DateTime.parse(value, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
                         }
                         return (T) datetime;
 
@@ -139,7 +140,7 @@ public class DBHelper {
         if (defValue != null) {
             return defValue;
         } else {
-            throw new NullPointerException(error.getMessage() + " defualt value is wrong");
+            throw new NullPointerException(error.getMessage() + " default value is wrong");
         }
     }
 
@@ -152,7 +153,7 @@ public class DBHelper {
 
             String lts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").print(timestamp);
             lastReadout.buildSample(new DateTime(), lts).commit();
-            logger.debug("Set LastReadout to: " + timestamp.toString());
+            logger.debug("Set LastReadout to: " + timestamp);
 
         } catch (Exception ex) {
             logger.error("Error while setting lastReadout");
