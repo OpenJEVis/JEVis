@@ -488,8 +488,11 @@ public class DashboardControl {
         return date;
     }
 
-    public void openWidgetNavigator() {
+    public void redrawDashboardPane() {
+        dashboardPane.redrawWidgets(this.widgetList);
+    }
 
+    public void openWidgetNavigator() {
         widgetNavigator.show();
     }
 
@@ -964,5 +967,7 @@ public class DashboardControl {
 
     }
 
+
+    public void add
 
 }

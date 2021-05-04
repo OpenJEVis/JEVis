@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -76,6 +77,8 @@ public abstract class Widget extends Region {
         this.config = config;
 
         initLayout();
+        setCacheHint(CacheHint.DEFAULT);
+        setCache(true);
     }
 
     /**
@@ -127,6 +130,8 @@ public abstract class Widget extends Region {
         setOnMouseClicked(event -> {
             if (event.isShiftDown()) {
                 debug();
+            } else if (event.isControlDown()) {
+                
             }
         });
 
@@ -274,13 +279,33 @@ public abstract class Widget extends Region {
             @Override
             public void handle(ActionEvent e) {
                 try {
-                    Widget.this.openConfig();
+                    Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() - 1);
+                    System.out.println("Widget: " + Widget.this.getConfig().getLayer());
+                    control.redrawDashboardPane();
                 } catch (Exception ex) {
                     logger.error(ex);
                     ex.printStackTrace();
                 }
             }
         });
+
+        MenuItem layerUPItem = new MenuItem("Layer UP", JEConfig.getImage("arrow_up.png", 18, 18));
+        layerUPItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                try {
+                    Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() + 1);
+                    System.out.println("Widget: " + Widget.this.getConfig().getLayer());
+                    control.redrawDashboardPane();
+                } catch (Exception ex) {
+                    logger.error(ex);
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+
+        MenuItem layerDownItem = new MenuItem("Layer Down", JEConfig.getImage("arrow_down.png", 18, 18));
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(8);
@@ -300,7 +325,7 @@ public abstract class Widget extends Region {
         SeparatorMenuItem separatorMenuItem = new SeparatorMenuItem();
 
 
-        contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, delete);
+        contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, layerUPItem, layerDownItem, new SeparatorMenuItem(), delete);
 
         this.editPane.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {

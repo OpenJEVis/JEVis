@@ -43,11 +43,13 @@ public class DashBoardPane extends Pane {
     private final Background defaultBackground;
     private boolean gridIsVisible = false;
 
-    /** Dummy Pane fif no Dashboard is loaded **/
-    public DashBoardPane(){
-        jeVisDataSource=null;
-        control=null;
-        defaultBackground=null;
+    /**
+     * Dummy Pane fif no Dashboard is loaded
+     **/
+    public DashBoardPane() {
+        jeVisDataSource = null;
+        control = null;
+        defaultBackground = null;
         setBorder(null);
     }
 
@@ -146,6 +148,40 @@ public class DashBoardPane extends Pane {
 //        this.scale.setY(analysis.getZoomFactor());
     }
 
+
+    public void redrawWidgets(List<Widget> widgetList) {
+
+        Platform.runLater(() -> {
+            getChildren().clear();
+        });
+
+        sortWidgets(widgetList);
+        widgetList.forEach(widget -> {
+            addWidget(widget);
+        });
+
+
+    }
+
+    private void sortWidgets(List<Widget> widgetList) {
+        widgetList.sort(new Comparator<Widget>() {
+            @Override
+            public int compare(Widget o1, Widget o2) {
+                try {
+                    int layerC = o1.getConfig().getLayer().compareTo(o2.config.getLayer());
+                    if (layerC == 0) {
+                        return Integer.compare(o1.getConfig().getUuid(), o2.getConfig().getUuid());
+                    } else {
+                        return layerC;
+                    }
+                } catch (Exception ex) {
+                    return 1;
+                }
+            }
+        });
+    }
+
+
     public void addWidget(Widget widget) {
         Platform.runLater(() -> {
             try {
@@ -176,11 +212,10 @@ public class DashBoardPane extends Pane {
     }
 
 
-
     public void setScale(double x, double y) {
-        logger.debug("Set Zoom: x:{} y:{}", x,y);
+        logger.debug("Set Zoom: x:{} y:{}", x, y);
         Platform.runLater(() -> {
-            getTransforms().removeAll( this.scale);
+            getTransforms().removeAll(this.scale);
             this.scale.setY(y);
             this.scale.setX(x);
             getTransforms().addAll(this.scale);
@@ -188,9 +223,8 @@ public class DashBoardPane extends Pane {
     }
 
 
-
     public void setZoom(double zoom) {
-        setScale(zoom,zoom);
+        setScale(zoom, zoom);
     }
 
 
@@ -261,7 +295,7 @@ public class DashBoardPane extends Pane {
         gridIsVisible = show;
         Platform.runLater(() -> {
             if (show) {
-                if(!DashBoardPane.this.getChildren().contains(visibleGrid.get(0))) {
+                if (!DashBoardPane.this.getChildren().contains(visibleGrid.get(0))) {
                     DashBoardPane.this.getChildren().addAll(this.visibleGrid);
                 }
             } else {
@@ -281,7 +315,7 @@ public class DashBoardPane extends Pane {
      * @param yGridInterval
      */
     public void createGrid(double xGridInterval, double yGridInterval) {
-        logger.debug("createGrid: {},{}",xGridInterval,yGridInterval);
+        logger.debug("createGrid: {},{}", xGridInterval, yGridInterval);
         getChildren().removeAll(visibleGrid);
 
 

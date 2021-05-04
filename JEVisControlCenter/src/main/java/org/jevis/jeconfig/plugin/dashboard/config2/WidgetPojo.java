@@ -31,6 +31,8 @@ public class WidgetPojo {
     private Boolean showShadow = true;
     private Integer decimals = 2;
     private String type = "";
+    private Integer layer = 1;
+
     private JsonNode dataHandlerJson;
     private static final Logger logger = LogManager.getLogger(WidgetPojo.class);
     private final JsonNode jsonNode;
@@ -135,6 +137,12 @@ public class WidgetPojo {
 
             try {
                 this.decimals = 2;
+            } catch (Exception ex) {
+                logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
+            }
+
+            try {
+                this.layer = jsonNode.get(LAYER).asInt(1);
             } catch (Exception ex) {
                 logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
             }
@@ -284,6 +292,14 @@ public class WidgetPojo {
         this.type = type;
     }
 
+    public Integer getLayer() {
+        return layer;
+    }
+
+    public void setLayer(Integer layer) {
+        this.layer = layer;
+    }
+
     public WidgetPojo copy() {
 
         WidgetPojo copy = new WidgetPojo();
@@ -302,6 +318,7 @@ public class WidgetPojo {
         copy.setFontSize(this.getFontSize());
         copy.setType(this.getType());
         copy.setyPosition(this.getyPosition());
+        copy.setLayer(this.getLayer());
 
 
         return copy;

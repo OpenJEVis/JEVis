@@ -231,14 +231,14 @@ public class ConfigManager {
 
             try {
                 dashboardPojo.setxGridInterval(jsonNode.get(X_GRID_INTERVAL).asDouble(25d));
-                dashboardPojo.setxGridInterval(25d);//tmp workaround
+                //dashboardPojo.setxGridInterval(25d);//tmp workaround
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", X_GRID_INTERVAL, ex);
             }
 
             try {
                 dashboardPojo.setyGridInterval(jsonNode.get(Y_GRID_INTERVAL).asDouble(25d));
-                dashboardPojo.setyGridInterval(25d);//tmp workaround
+                //dashboardPojo.setyGridInterval(25d);//tmp workaround
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", Y_GRID_INTERVAL, ex);
             }
