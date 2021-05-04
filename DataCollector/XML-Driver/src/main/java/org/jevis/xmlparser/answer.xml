@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://www.loytec.com/wsdl/XMLDL/1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <soap:Body>
         <LogReadResponse xmlns="http://www.loytec.com/wsdl/XMLDL/1.0/">
             <ReplyBase logHandle="00/var/lib//dpal/trend-3180.bin"/>

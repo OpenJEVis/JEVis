@@ -23,6 +23,7 @@ import org.eclipse.milo.opcua.stack.core.types.structured.HistoryReadResult;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeopc.OPCClient;
+import org.jevis.jeopc.OPCUAChannel;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -137,7 +138,9 @@ public class DataValueTable {
                         DateTime untilts = new DateTime(untilDatePicker.valueProperty().get().getYear(), untilDatePicker.valueProperty().get().getMonthValue(), untilDatePicker.valueProperty().get().getDayOfMonth(), 23, 59, 59);
 
                         logger.error("historyReadResult: id={} from={} until={},", selectedtNodeId.getIdentifier(), fromts, untilts);
-                        HistoryReadResult historyReadResult = opcClient.getHistory(selectedtNodeId, fromts, untilts);
+                        OPCUAChannel opcuaChannel = new OPCUAChannel(selectedtNodeId.getIdentifier().toString(),null,0d);//not tested
+
+                        HistoryReadResult historyReadResult = opcClient.getHistory(opcuaChannel, fromts, untilts);
                         List<DataValue> valueList = opcClient.getDateValues(historyReadResult);
                         valueList.forEach(dataValue -> {
                             try {

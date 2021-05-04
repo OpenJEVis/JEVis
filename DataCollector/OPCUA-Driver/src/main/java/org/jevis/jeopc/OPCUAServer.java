@@ -63,7 +63,7 @@ public class OPCUAServer {
     private final String user;
     private final String password;
     private final DateTimeZone timezone;
-    private final List<UPCUAChannel> channelDirectories = new ArrayList<>();
+    private final List<OPCUAChannel> channelDirectories = new ArrayList<>();
     private final JEVisObject dataSourceObject;
 
     /**
@@ -120,8 +120,8 @@ public class OPCUAServer {
         // Get all data channel directories
         try {
             // Get channel directory class
-            JEVisClass dirJClass = dataSourceObject.getDataSource().getJEVisClass(UPCUAChannel.DIR_JEVIS_CLASS);
-            JEVisClass channelJClass = dataSourceObject.getDataSource().getJEVisClass(UPCUAChannel.JEVIS_CLASS);
+            JEVisClass dirJClass = dataSourceObject.getDataSource().getJEVisClass(OPCUAChannel.DIR_JEVIS_CLASS);
+            JEVisClass channelJClass = dataSourceObject.getDataSource().getJEVisClass(OPCUAChannel.JEVIS_CLASS);
 
             getChannelRecursive(dataSourceObject, channelJClass, dirJClass, channelDirectories);
             logger.info("Found {} channel directories.", channelDirectories.size());
@@ -170,18 +170,18 @@ public class OPCUAServer {
             importer.initialize(dataSourceObject);
 
 
-            for (UPCUAChannel UPCUAChannel : channelDirectories) {
+            for (OPCUAChannel OPCUAChannel : channelDirectories) {
                 try {
-                    logger.info("Start readout for channel: {}", UPCUAChannel);
+                    logger.info("Start readout for channel: {}", OPCUAChannel);
 
                     boolean reachedEnd = false;
-                    DateTime starttime = UPCUAChannel.getLastReadout();
+                    DateTime starttime = OPCUAChannel.getLastReadout();
 
                     while (!reachedEnd) {
                         DateTime endTime = calculateEndDate(starttime);
                         List<JEVisSample> statusResults = new ArrayList<>();
 
-                        List<Result> results = readChannel(opcClient, UPCUAChannel, starttime, endTime, statusResults);
+                        List<Result> results = readChannel(opcClient, OPCUAChannel, starttime, endTime, statusResults);
 
                         logger.debug("read end: {} {}", results.isEmpty(), endTime.isAfter(new DateTime()));
                         if (results.isEmpty() && endTime.isAfter(new DateTime())) {
@@ -191,17 +191,17 @@ public class OPCUAServer {
                         }
 
                         if (!results.isEmpty() || !statusResults.isEmpty()) {
-                            logger.info("Import samples into: {} sample: {} status: {}", UPCUAChannel.getJeVisObject(), results.size(), statusResults.size());
+                            logger.info("Import samples into: {} sample: {} status: {}", OPCUAChannel.getJeVisObject(), results.size(), statusResults.size());
 
-                            JEVisImporterAdapter.importResults(results, statusResults, importer, UPCUAChannel.getJeVisObject());
+                            JEVisImporterAdapter.importResults(results, statusResults, importer, OPCUAChannel.getJeVisObject());
                         } else {
-                            logger.info("No Data to import for {}", UPCUAChannel.getJeVisObject());
+                            logger.info("No Data to import for {}", OPCUAChannel.getJeVisObject());
                         }
 
 
                     }
                 } catch (Exception ex) {
-                    logger.error("Error while reading channel {}", UPCUAChannel, ex);
+                    logger.error("Error while reading channel {}", OPCUAChannel, ex);
                 }
 
             }
@@ -238,18 +238,18 @@ public class OPCUAServer {
      * Read the data from the given channel.
      *
      * @param opcClient
-     * @param UPCUAChannel
+     * @param OPCUAChannel
      * @param startDate
      * @param endTime
      * @param statusResults
      * @return List of Result samples
      * @throws Exception
      */
-    private List<Result> readChannel(OPCClient opcClient, UPCUAChannel UPCUAChannel, DateTime startDate, DateTime endTime, List<JEVisSample> statusResults) throws Exception {
-        logger.error("Start readout for channel: {} from: {} until: {}", UPCUAChannel.getJeVisObject(), startDate, endTime);
+    private List<Result> readChannel(OPCClient opcClient, OPCUAChannel OPCUAChannel, DateTime startDate, DateTime endTime, List<JEVisSample> statusResults) throws Exception {
+        logger.error("Start readout for channel: {} from: {} until: {}", OPCUAChannel.getJeVisObject(), startDate, endTime);
 
 
-        HistoryReadResult historyReadResult = opcClient.getHistory(UPCUAChannel.getOPCNodeId(), startDate, endTime);
+        HistoryReadResult historyReadResult = opcClient.getHistory(OPCUAChannel, startDate, endTime);
         List<DataValue> valueList = opcClient.getDateValues(historyReadResult);
         List<Result> results = new ArrayList<>();
 
@@ -283,10 +283,10 @@ public class OPCUAServer {
                         }
 
                     }
-                    logger.debug(" Target: {} TS: {} -> v: {}  class: {} raw: {} ", UPCUAChannel.getTargetId(), ts, value, javaType, dataValue.getValue());
+                    logger.debug(" Target: {} TS: {} -> v: {}  class: {} raw: {} ", OPCUAChannel.getTargetId(), ts, value, javaType, dataValue.getValue());
 
                     if (dataValue.getStatusCode().isGood()) {
-                        results.add(new Result(UPCUAChannel.getTargetString(), value, ts));
+                        results.add(new Result(OPCUAChannel.getTargetString(), value, ts));
                     } else {
                         statusResults.add(new VirtualSample(ts, -1l));
                         logger.error("Error status for value: {}", dataValue);
@@ -313,13 +313,13 @@ public class OPCUAServer {
      * @param children
      * @throws JEVisException
      */
-    private void getChannelRecursive(JEVisObject parent, JEVisClass channelClass, JEVisClass dirClass, List<UPCUAChannel> children) throws JEVisException {
+    private void getChannelRecursive(JEVisObject parent, JEVisClass channelClass, JEVisClass dirClass, List<OPCUAChannel> children) throws JEVisException {
         parent.getChildren().forEach(jeVisObject -> {
             try {
 
                 if (jeVisObject.getJEVisClassName().equals(channelClass.getName())) {
                     try {
-                        children.add(new UPCUAChannel(jeVisObject));
+                        children.add(new OPCUAChannel(jeVisObject));
                     } catch (Exception ex) {
                         logger.error("Error in channel: {}", jeVisObject);
                     }

@@ -21,6 +21,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UByte;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseDirection;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseResultMask;
@@ -280,32 +281,52 @@ public class OPCClient {
 
     }
 
-    /**
-     * Read the historic data from the server.
-     *
-     * @param nodeId
-     * @param from
-     * @param until
-     * @return
-     * @throws ExecutionException
-     * @throws InterruptedException
-     */
-    public HistoryReadResult getHistory(NodeId nodeId, org.joda.time.DateTime from, org.joda.time.DateTime until) throws ExecutionException, InterruptedException {
+    public HistoryReadResult getHistory(OPCUAChannel channel, org.joda.time.DateTime from, org.joda.time.DateTime until) throws ExecutionException, InterruptedException {
+        System.out.println("getHistory2");
         List<HistoryReadValueId> ids = new ArrayList<>();
+        //double interval = 900000;
+
+
 
         DateTime fromTS = new DateTime(from.toDate());
         DateTime untilTS = new DateTime(until.toDate());
+        System.out.println("From : "+from+"  until: "+until);
 
-        /**
-         * IndexRange: is the List of index ranges. Can be used to identify the whole array, a single element of a structure or an array, or a single range of indexes for arrays.
-         * Does not seem to work with loytec device
-         */
-        HistoryReadValueId id = new HistoryReadValueId(nodeId, null, null, null);
+        HistoryReadDetails historyReadDetails;
+
+        /** Use Aggregated request if function node is not empty **/
+        if(channel.getFunctionNode()!=null && !channel.getFunctionNode().isEmpty()){
+            AggregateConfiguration aggregateConfiguration = new AggregateConfiguration(
+                    true,
+                    false,
+                    UByte.valueOf(0),
+                    UByte.valueOf(0),
+                    false);
+
+            NodeId[] nodes = new NodeId[1];
+            NodeId readDetailNodeID = NodeId.parse(channel.getFunctionNode());//
+            nodes[0]=readDetailNodeID;
+            System.out.println("Aggregation Node: "+readDetailNodeID);
+
+            historyReadDetails  = new ReadProcessedDetails(
+                    fromTS,
+                    untilTS,
+                    channel.getFunctionInterval(),
+                    nodes,
+                    aggregateConfiguration);
+
+        }else{
+            /** use raw data request **/
+            historyReadDetails = new ReadRawModifiedDetails(false, fromTS, untilTS, uint(0), true);
+        }
+
+        HistoryReadValueId id = new HistoryReadValueId(channel.getOPCNodeId(), null, null, null);
         ids.add(id);
+        System.out.println("TargetNode: "+id);
 
         CompletableFuture<HistoryReadResponse> historyRead = client.historyRead(
-                new ReadRawModifiedDetails(false, fromTS, untilTS, uint(0), true),
-                TimestampsToReturn.Both, false, ids);
+                historyReadDetails,
+                TimestampsToReturn.Source, false, ids);
 
         HistoryReadResponse response = historyRead.get();
 

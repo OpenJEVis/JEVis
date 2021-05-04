@@ -34,6 +34,24 @@
       "jevisClass": "OPC UA Channel"
     },
     {
+      "name": "Function Node ID",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC UA Channel"
+    },
+    {
+      "name": "Function Interval",
+      "primitiveType": 0,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC UA Channel"
+    },
+    {
       "name": "Status Log",
       "primitiveType": 2,
       "guiType": "Number",
