@@ -59,6 +59,9 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
     private final ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
+    private final ToggleButton moveButton = new ToggleButton("", JEConfig.getImage("move.png", this.iconSize, this.iconSize));
+
+
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
     private final ArrayList<Object> buttonList = new ArrayList();
@@ -169,6 +172,8 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reloadButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(moveButton);
+
         //GlobalToolBar.changeBackgroundOnHoverUsingBinding(helpButton);
 
 
@@ -232,6 +237,13 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.openWidgetNavigator();
         });
 
+        moveButton.setOnAction(event -> {
+            //MoveDialog moveDialog = new MoveDialog((Window) JEConfig.getStage(), this.dashboardControl);
+            //moveDialog.show();
+            // this.dashboardControl.getDashboardPane().showConfig();
+            //this.dashboardControl.showConfig();
+        });
+
 
         zoomIn.setOnAction(event -> {
             this.dashboardControl.zoomIn();
@@ -290,7 +302,7 @@ public class DashBoardToolbar extends ToolBar {
                 listAnalysesComboBox, newB
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
-                , sep4, save, delete, navigator, exportPNG
+                , sep4, save, delete, navigator, exportPNG, moveButton
                 , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
         );
 

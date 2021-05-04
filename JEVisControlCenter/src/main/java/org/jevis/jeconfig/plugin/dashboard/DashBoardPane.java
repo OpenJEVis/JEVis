@@ -74,6 +74,9 @@ public class DashBoardPane extends Pane {
         });
         addPopUpFunctions();
 
+        setOnMouseClicked(event -> {
+            control.setSelectedWidget(new ArrayList<>());
+        });
 
 //        addMouseSelectionGesture();
     }
@@ -141,11 +144,6 @@ public class DashBoardPane extends Pane {
         this.analysis = analysis;
 
         setSize(analysis.getSize());
-//        createGrid(analysis.xGridInterval, analysis.yGridInterval);
-
-
-//        this.scale.setX(analysis.getZoomFactor());
-//        this.scale.setY(analysis.getZoomFactor());
     }
 
 

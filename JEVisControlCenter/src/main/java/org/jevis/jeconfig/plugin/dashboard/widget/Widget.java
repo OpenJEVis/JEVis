@@ -31,6 +31,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -128,11 +129,29 @@ public abstract class Widget extends Region {
         });
 
         setOnMouseClicked(event -> {
-            if (event.isShiftDown()) {
-                debug();
-            } else if (event.isControlDown()) {
-                
+            System.out.println("Widget Click: " + event);
+            if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
+                System.out.println("Is primary");
+                if (event.isShiftDown()) {
+                    System.out.println("is shift down");
+                    debug();
+                } else if (event.isControlDown()) {
+                    System.out.println("isControlDown down");
+                    ArrayList arrayList = new ArrayList<>();
+                    arrayList.add(this);
+                    control.addToWidgetSelection(arrayList);
+                } else {
+                    System.out.println("is simple leftclick");
+                    ArrayList arrayList = new ArrayList<>();
+                    arrayList.add(this);
+                    control.setSelectedWidget(arrayList);
+
+                }
+            } else {
+                System.out.println("is not primary mouse");
             }
+
+            event.consume();
         });
 
 
@@ -279,8 +298,6 @@ public abstract class Widget extends Region {
             @Override
             public void handle(ActionEvent e) {
                 try {
-                    Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() - 1);
-                    System.out.println("Widget: " + Widget.this.getConfig().getLayer());
                     control.redrawDashboardPane();
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -295,7 +312,8 @@ public abstract class Widget extends Region {
             public void handle(ActionEvent e) {
                 try {
                     Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() + 1);
-                    System.out.println("Widget: " + Widget.this.getConfig().getLayer());
+                    System.out.println("Widget: " + Widget.this.getConfig().getTitle());
+                    debugLayers();
                     control.redrawDashboardPane();
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -306,6 +324,20 @@ public abstract class Widget extends Region {
 
 
         MenuItem layerDownItem = new MenuItem("Layer Down", JEConfig.getImage("arrow_down.png", 18, 18));
+        configItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                try {
+                    Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() - 1);
+                    System.out.println("Widget: " + Widget.this.getConfig().getTitle());
+                    debugLayers();
+                    control.redrawDashboardPane();
+                } catch (Exception ex) {
+                    logger.error(ex);
+                    ex.printStackTrace();
+                }
+            }
+        });
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(8);
@@ -337,12 +369,19 @@ public abstract class Widget extends Region {
                 }
             }
 
-
             if (event.getButton().equals(MouseButton.SECONDARY)) {
                 contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
             }
         });
 
+    }
+
+    private void debugLayers() {
+        System.out.println("Layers:");
+        control.getWidgets().stream().sorted((o1, o2) -> o1.getConfig().getLayer().compareTo(o2.getConfig().getLayer())).forEach(widget -> {
+            System.out.println("L: " + widget.getConfig().getLayer() + "  " + widget.getConfig().getTitle());
+        });
+        System.out.println();
     }
 
     public void setNodeSize(double width, double height) {

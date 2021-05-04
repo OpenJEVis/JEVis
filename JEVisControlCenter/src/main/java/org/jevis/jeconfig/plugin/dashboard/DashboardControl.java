@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
+import com.google.common.collect.Iterables;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -17,6 +18,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
@@ -63,12 +65,14 @@ public class DashboardControl {
     private boolean isUpdateRunning = false;
     private java.io.File newBackgroundFile;
     private final Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
+    private SideConfigPanel sideConfigPanel;
 
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
     private final ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
     private TimeFrameFactory activeTimeFrame;
     private TimeFrames timeFrames;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
+    private List<Widget> selectedWidgets = new ArrayList<>();
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
@@ -459,6 +463,8 @@ public class DashboardControl {
                 setZoomFactor(activeDashboard.getZoomFactor());
                 toolBar.updateView(activeDashboard);
             });
+
+            sideConfigPanel = new SideConfigPanel(this);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -490,6 +496,7 @@ public class DashboardControl {
 
     public void redrawDashboardPane() {
         dashboardPane.redrawWidgets(this.widgetList);
+        dashboardPane.showGrid(showGridProperty.getValue());
     }
 
     public void openWidgetNavigator() {
@@ -514,6 +521,12 @@ public class DashboardControl {
             });
 
         });
+        if (!editable) {
+            selectedWidgets.clear();
+            showConfig();
+            updateHighlightSelected();
+        }
+
     }
 
     public void reload() {
@@ -967,7 +980,97 @@ public class DashboardControl {
 
     }
 
+    public void addToWidgetSelection(List<Widget> widgets) {
+        if (this.editableProperty.get()) {
+            selectedWidgets.addAll(widgets);
+            updateHighlightSelected();
 
-    public void add
+            showConfig();
+        }
+
+    }
+
+    public void setSelectedWidget(List<Widget> widgets) {
+        if (this.editableProperty.get()) {
+            selectedWidgets.clear();
+            selectedWidgets.addAll(widgets);
+            updateHighlightSelected();
+
+            showConfig();
+        }
+    }
+
+    private void showConfig() {
+        System.out.println("showConfig.hide: " + selectedWidgets.isEmpty());
+        if (selectedWidgets.isEmpty()) {
+            dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
+        } else {
+            dashBordPlugIn.showConfig(sideConfigPanel);
+            sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+        }
+
+    }
+
+    private void updateHighlightSelected() {
+        for (Widget widget : widgetList) {
+            boolean highlight = false;
+            for (Widget toHightlight : selectedWidgets) {
+                if (widget.equals(toHightlight)) {
+                    highlight = true;
+                }
+            }
+            widget.setGlow(highlight, false);
+        }
+    }
+
+    private void debugSelectedList() {
+        System.out.println("Ausgewahlt:");
+        selectedWidgets.forEach(widget -> {
+            System.out.println(widget.getConfig().getTitle());
+        });
+    }
+
+    public void moveSelected(double up, double down, double left, double right) {
+        System.out.println("moveSelected:");
+        selectedWidgets.forEach(widget -> {
+            System.out.println("move: " + widget.getConfig().getTitle() + "pos: " + widget.getConfig().getxPosition() + "   right:" + right);
+
+            if (up > 0) {
+                widget.getConfig().setyPosition(widget.getConfig().getyPosition() - up);
+            } else if (down > 0) {
+                widget.getConfig().setyPosition(widget.getConfig().getyPosition() + down);
+            } else if (left > 0) {
+                widget.getConfig().setxPosition(widget.getConfig().getxPosition() - left);
+            } else if (right > 0) {
+                widget.getConfig().setxPosition(widget.getConfig().getxPosition() + right);
+            }
+
+            requestViewUpdate(widget);
+            System.out.println("new pos: " + widget.getConfig().getxPosition());
+        });
+    }
+
+    public void layerSelected(int layer) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setLayer(layer);
+        });
+        redrawDashboardPane();
+    }
+
+    public void fgColorSelected(Color color) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontColor(color);
+            widget.updateConfig();
+        });
+        redrawDashboardPane();
+    }
+
+    public void bgColorSelected(Color color) {
+        selectedWidgets.forEach(widget -> {
+            System.out.println("Color for: " + widget.getConfig().getTitle() + "   color: " + color);
+            widget.getConfig().setBackgroundColor(color);
+            widget.updateConfig();
+        });
+    }
 
 }

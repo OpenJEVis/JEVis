@@ -8,14 +8,17 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.HiddenSidesPane;
 import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
@@ -48,6 +51,7 @@ public class DashBordPlugIn implements Plugin {
     private final DashBoardToolbar toolBar;
     private final AnchorPane rootPane = new AnchorPane();
     private final StackPane dialogPane = new StackPane(rootPane);
+    private final HiddenSidesPane hiddenSidesPane = new HiddenSidesPane(dialogPane, new Region(), new Region(), new Region(), new Region());
     private final ScrollPane scrollPane = new ScrollPane();
     /**
      * pane which gets the zoomed size of the dashboard so the layout of the ScrollPane is ok
@@ -251,7 +255,8 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return notificationPane;
+        return hiddenSidesPane;
+        //return notificationPane;
 //        return this.rootPane;
     }
 
@@ -302,5 +307,16 @@ public class DashBordPlugIn implements Plugin {
 
     public StackPane getDialogPane() {
         return dialogPane;
+    }
+
+
+    public HiddenSidesPane getHiddenSidesPane() {
+        return hiddenSidesPane;
+    }
+
+    public void showConfig(Node node) {
+
+        hiddenSidesPane.setRight(node);
+        hiddenSidesPane.setPinnedSide(Side.RIGHT);
     }
 }
