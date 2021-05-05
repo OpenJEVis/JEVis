@@ -750,7 +750,6 @@ public class WidgetColumnFactory {
         Double xPos = Double.parseDouble(textField.getText());
 
         srcWidget.getConfig().setxPosition(xPos);
-        WidgetColumnFactory.this.control.requestViewUpdate(srcWidget);
 
         if (this.table.getSelectionModel().getSelectedItems().contains(srcWidget)) {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {

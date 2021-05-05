@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -30,6 +31,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -76,6 +78,8 @@ public abstract class Widget extends Region {
         this.config = config;
 
         initLayout();
+        setCacheHint(CacheHint.DEFAULT);
+        setCache(true);
     }
 
     /**
@@ -124,9 +128,15 @@ public abstract class Widget extends Region {
             this.config.setxPosition(newValue.doubleValue());
         });
 
+
         setOnMouseClicked(event -> {
-            if (event.isShiftDown()) {
-                debug();
+            System.out.println("Widget Click: " + event);
+            System.out.println("Drag detectedt: " + event.isDragDetect());
+            if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
+                if (event.isShiftDown()) {
+                    debug();
+                    event.consume();
+                }
             }
         });
 
@@ -274,7 +284,42 @@ public abstract class Widget extends Region {
             @Override
             public void handle(ActionEvent e) {
                 try {
+                    System.out.println("Open Config");
                     Widget.this.openConfig();
+                    System.out.println("Open Config done");
+                } catch (Exception ex) {
+                    logger.error(ex);
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        MenuItem layerUPItem = new MenuItem("Layer UP", JEConfig.getImage("arrow_up.png", 18, 18));
+        layerUPItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                try {
+                    Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() + 1);
+                    System.out.println("Widget: " + Widget.this.getConfig().getTitle());
+                    //debugLayers();
+                    control.redrawDashboardPane();
+                } catch (Exception ex) {
+                    logger.error(ex);
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+
+        MenuItem layerDownItem = new MenuItem("Layer Down", JEConfig.getImage("arrow_down.png", 18, 18));
+        layerDownItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                try {
+                    Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() - 1);
+                    System.out.println("Widget: " + Widget.this.getConfig().getTitle());
+                    //debugLayers();
+                    control.redrawDashboardPane();
                 } catch (Exception ex) {
                     logger.error(ex);
                     ex.printStackTrace();
@@ -286,11 +331,11 @@ public abstract class Widget extends Region {
         gridPane.setHgap(8);
         gridPane.setVgap(8);
         gridPane.setPadding(new Insets(0, 5, 0, 5));
-        Label typeLabel = new Label("Type:");
+        //Label typeLabel = new Label("Type:");
         Label idLabel = new Label("ID:");
-        gridPane.add(typeLabel, 0, 0);
+        //gridPane.add(typeLabel, 0, 0);
         gridPane.add(idLabel, 0, 1);
-        gridPane.add(new Label(typeID()), 1, 0);
+        //gridPane.add(new Label(typeID()), 1, 0);
         gridPane.add(new Label(getConfig().getUuid() + ""), 1, 1);
 
         CustomMenuItem infoMenuItem = new CustomMenuItem(gridPane);
@@ -300,9 +345,10 @@ public abstract class Widget extends Region {
         SeparatorMenuItem separatorMenuItem = new SeparatorMenuItem();
 
 
-        contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, delete);
+        contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, layerUPItem, layerDownItem, new SeparatorMenuItem(), delete);
 
         this.editPane.setOnMouseClicked(event -> {
+            logger.debug("EditPane. Event: {}", event);
             if (event.getClickCount() == 2) {
                 try {
                     Widget.this.openConfig();
@@ -312,12 +358,39 @@ public abstract class Widget extends Region {
                 }
             }
 
+            if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
+                System.out.println("Is primary");
+
+                if (event.isControlDown()) {
+                    System.out.println("isControlDown down");
+                    ArrayList arrayList = new ArrayList<>();
+                    arrayList.add(this);
+                    control.addToWidgetSelection(arrayList);
+                    event.consume();
+                } else {
+                    System.out.println("is simple leftclick");
+                    ArrayList arrayList = new ArrayList<>();
+                    arrayList.add(this);
+                    control.setSelectedWidgets(arrayList);
+                    event.consume();
+                }
+            }
+
 
             if (event.getButton().equals(MouseButton.SECONDARY)) {
                 contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
+                event.consume();
             }
         });
 
+    }
+
+    private void debugLayers() {
+        System.out.println("Layers:");
+        control.getWidgets().stream().sorted((o1, o2) -> o1.getConfig().getLayer().compareTo(o2.getConfig().getLayer())).forEach(widget -> {
+            System.out.println("L: " + widget.getConfig().getLayer() + "  " + widget.getConfig().getTitle());
+        });
+        System.out.println();
     }
 
     public void setNodeSize(double width, double height) {

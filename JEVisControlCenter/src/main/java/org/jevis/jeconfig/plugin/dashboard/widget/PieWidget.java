@@ -149,7 +149,7 @@ public class PieWidget extends Widget implements DataModelWidget {
 
 
                 legendItemList.add(this.legend.buildVerticalLegendItem(
-                        dataName, ColorHelper.toColor(chartDataRow.getColor()), this.config.getFontColor(), this.config.getFontSize(),
+                        chartDataRow.getTitle(), ColorHelper.toColor(chartDataRow.getColor()), this.config.getFontColor(), this.config.getFontSize(),
                         chartDataRow.getObject(), hasNoData, I18n.getInstance().getString("plugin.dashboard.alert.nodata"), true));
 
                 if (!hasNoData) {
