@@ -44,7 +44,7 @@
     },
     {
       "name": "Function Interval",
-      "primitiveType": 0,
+      "primitiveType": 2,
       "guiType": "Number",
       "guiposition": 0,
       "validity": 0,
