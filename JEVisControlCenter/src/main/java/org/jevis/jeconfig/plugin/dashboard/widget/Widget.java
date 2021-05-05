@@ -128,30 +128,16 @@ public abstract class Widget extends Region {
             this.config.setxPosition(newValue.doubleValue());
         });
 
+
         setOnMouseClicked(event -> {
             System.out.println("Widget Click: " + event);
+            System.out.println("Drag detectedt: " + event.isDragDetect());
             if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
-                System.out.println("Is primary");
                 if (event.isShiftDown()) {
-                    System.out.println("is shift down");
                     debug();
-                } else if (event.isControlDown()) {
-                    System.out.println("isControlDown down");
-                    ArrayList arrayList = new ArrayList<>();
-                    arrayList.add(this);
-                    control.addToWidgetSelection(arrayList);
-                } else {
-                    System.out.println("is simple leftclick");
-                    ArrayList arrayList = new ArrayList<>();
-                    arrayList.add(this);
-                    control.setSelectedWidget(arrayList);
-
+                    event.consume();
                 }
-            } else {
-                System.out.println("is not primary mouse");
             }
-
-            event.consume();
         });
 
 
@@ -298,7 +284,9 @@ public abstract class Widget extends Region {
             @Override
             public void handle(ActionEvent e) {
                 try {
-                    control.redrawDashboardPane();
+                    System.out.println("Open Config");
+                    Widget.this.openConfig();
+                    System.out.println("Open Config done");
                 } catch (Exception ex) {
                     logger.error(ex);
                     ex.printStackTrace();
@@ -313,7 +301,7 @@ public abstract class Widget extends Region {
                 try {
                     Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() + 1);
                     System.out.println("Widget: " + Widget.this.getConfig().getTitle());
-                    debugLayers();
+                    //debugLayers();
                     control.redrawDashboardPane();
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -324,13 +312,13 @@ public abstract class Widget extends Region {
 
 
         MenuItem layerDownItem = new MenuItem("Layer Down", JEConfig.getImage("arrow_down.png", 18, 18));
-        configItem.setOnAction(new EventHandler<ActionEvent>() {
+        layerDownItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 try {
                     Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() - 1);
                     System.out.println("Widget: " + Widget.this.getConfig().getTitle());
-                    debugLayers();
+                    //debugLayers();
                     control.redrawDashboardPane();
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -343,11 +331,11 @@ public abstract class Widget extends Region {
         gridPane.setHgap(8);
         gridPane.setVgap(8);
         gridPane.setPadding(new Insets(0, 5, 0, 5));
-        Label typeLabel = new Label("Type:");
+        //Label typeLabel = new Label("Type:");
         Label idLabel = new Label("ID:");
-        gridPane.add(typeLabel, 0, 0);
+        //gridPane.add(typeLabel, 0, 0);
         gridPane.add(idLabel, 0, 1);
-        gridPane.add(new Label(typeID()), 1, 0);
+        //gridPane.add(new Label(typeID()), 1, 0);
         gridPane.add(new Label(getConfig().getUuid() + ""), 1, 1);
 
         CustomMenuItem infoMenuItem = new CustomMenuItem(gridPane);
@@ -360,6 +348,7 @@ public abstract class Widget extends Region {
         contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, layerUPItem, layerDownItem, new SeparatorMenuItem(), delete);
 
         this.editPane.setOnMouseClicked(event -> {
+            logger.debug("EditPane. Event: {}", event);
             if (event.getClickCount() == 2) {
                 try {
                     Widget.this.openConfig();
@@ -369,8 +358,28 @@ public abstract class Widget extends Region {
                 }
             }
 
+            if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
+                System.out.println("Is primary");
+
+                if (event.isControlDown()) {
+                    System.out.println("isControlDown down");
+                    ArrayList arrayList = new ArrayList<>();
+                    arrayList.add(this);
+                    control.addToWidgetSelection(arrayList);
+                    event.consume();
+                } else {
+                    System.out.println("is simple leftclick");
+                    ArrayList arrayList = new ArrayList<>();
+                    arrayList.add(this);
+                    control.setSelectedWidgets(arrayList);
+                    event.consume();
+                }
+            }
+
+
             if (event.getButton().equals(MouseButton.SECONDARY)) {
                 contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
+                event.consume();
             }
         });
 

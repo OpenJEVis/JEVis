@@ -80,25 +80,8 @@ public class ConfigManager {
 
 
     public void saveDashboard(DashboardPojo dashboardPojo, List<Widget> widgets, String filename, java.io.File wallpaper) throws IOException, JEVisException {
-
-        //JEVisClass dashboardClass = jeVisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
         ObjectNode dashboardNode = toJson(dashboardPojo, widgets);
-
-
         JEVisObject dashboardObject = dashboardPojo.getDashboardObject();
-        /**
-         if (dashboardPojo.getDashboardObject() != null) {
-         dashboardObject = this.dashboardObject;
-         dashboardObject.setName(filename);
-         dashboardObject.commit();
-         } else {
-         dashboardObject = parent.buildObject(filename, dashboardClass);
-         dashboardObject.commit();
-         parent.getDataSource().reloadAttribute(dashboardObject);
-         dashboardPojo.setJevisObject(dashboardObject);
-         }
-         **/
-
 
         logger.debug("---------\n {} \n-----------------", this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode));
         if (this.dashboardObject != null) {
@@ -142,7 +125,6 @@ public class ConfigManager {
                 try {
                     ObjectNode widgetObjectNode = widget.toNode();
                     if (widgetObjectNode != null) {
-//                        widgetNodes.add(widgetObjectNode);
                         widgetArray.add(widgetObjectNode);
                     }
                 } catch (Exception ex) {

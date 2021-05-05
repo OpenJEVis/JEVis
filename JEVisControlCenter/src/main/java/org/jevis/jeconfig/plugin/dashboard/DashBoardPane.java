@@ -75,7 +75,7 @@ public class DashBoardPane extends Pane {
         addPopUpFunctions();
 
         setOnMouseClicked(event -> {
-            control.setSelectedWidget(new ArrayList<>());
+            control.setSelectedWidgets(new ArrayList<>());
         });
 
 //        addMouseSelectionGesture();
