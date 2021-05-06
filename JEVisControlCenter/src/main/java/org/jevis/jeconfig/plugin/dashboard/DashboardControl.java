@@ -33,6 +33,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.HiddenConfig;
+import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
 import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
@@ -364,9 +365,9 @@ public class DashboardControl {
         newBackgroundFile = null;
         setSnapToGrid(true);
         showGrid(true);
-        setEditable(true);
 
         selectDashboard(null);
+        setEditable(true);
         openWidgetNavigator();
     }
 
@@ -530,6 +531,7 @@ public class DashboardControl {
             updateHighlightSelected();
         }
 
+        this.toolBar.updateView(activeDashboard);
     }
 
     public void reload() {
@@ -981,6 +983,22 @@ public class DashboardControl {
         }
         showWidgetHelpProperty.set(show);
 
+    }
+
+    public void showLoadDialog() {
+        LoadDashboardDialog loadDashboardDialog = new LoadDashboardDialog(dashBordPlugIn.getDialogPane(), jevisDataSource, this);
+        loadDashboardDialog.show();
+        loadDashboardDialog.setOnDialogClosed(event -> {
+            if (loadDashboardDialog.getResponse() == Response.NEW) {
+                createNewDashboard();
+            } else if (loadDashboardDialog.getResponse() == Response.LOAD) {
+
+                selectDashboard(loadDashboardDialog.getSelectedDashboard());
+                setActiveTimeFrame(loadDashboardDialog.getTimeFrameFactory());
+                setInterval(loadDashboardDialog.getSelectedInterval());
+
+            }
+        });
     }
 
     /**

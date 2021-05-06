@@ -29,6 +29,7 @@ public class ToolBarIntervalSelector extends HBox {
     protected ObservableList<TimeFrameFactory> timeFrames;
     protected boolean disableEventListener = false;
     private DashboardControl controller;
+    private JFXButton dateButton = new JFXButton("");
 
     public ToolBarIntervalSelector() {
         super();
@@ -37,7 +38,7 @@ public class ToolBarIntervalSelector extends HBox {
     public ToolBarIntervalSelector(DashboardControl controller) {
         this();
         this.setAlignment(Pos.CENTER_LEFT);
-        JFXButton dateButton = new JFXButton("");
+
         dateButton.setMinWidth(100);
         this.controller = controller;
 
@@ -118,4 +119,9 @@ public class ToolBarIntervalSelector extends HBox {
     public TimeFactoryBox getTimeFactoryBox() {
         return timeFactoryBox;
     }
+
+    public JFXButton getDateButton() {
+        return dateButton;
+    }
+
 }
