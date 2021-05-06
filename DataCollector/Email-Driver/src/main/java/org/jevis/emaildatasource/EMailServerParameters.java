@@ -22,6 +22,7 @@ package org.jevis.emaildatasource;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.joda.time.DateTimeZone;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class EMailServerParameters {
     private Integer _connectionTimeout;
     private Integer _readTimeout;
     private Boolean _enabled;
-    private String _timezone;
+    private DateTimeZone _timezone;
     private String _ssl;
     private String _authentication;
     private boolean _sslEnabled;
@@ -85,7 +86,7 @@ public class EMailServerParameters {
         _ssl = DBHelper.getAttValue(DBHelper.RetType.STRING, _mailObj, EMailConstants.EMail.SSL, EMailConstants.Errors.SSL_ERR, EMailConstants.DefParameters.SSL);
         _sslEnabled = setIsSsl();
         _port = setPort();
-        _timezone = DBHelper.getAttValue(DBHelper.RetType.STRING, _mailObj, EMailConstants.EMail.TIMEZONE, EMailConstants.Errors.TIMEZ_ERR, EMailConstants.DefParameters.TIMEZONE);
+        _timezone = DBHelper.getAttValue(DBHelper.RetType.TIMEZONE, _mailObj, EMailConstants.EMail.TIMEZONE, EMailConstants.Errors.TIMEZ_ERR, EMailConstants.DefParameters.TIMEZONE);
 
         _readTimeout = DBHelper.getAttValue(DBHelper.RetType.INTEGER, _mailObj, EMailConstants.EMail.READ_TIMEOUT, EMailConstants.Errors.READ_ERR, EMailConstants.DefParameters.READ_TIMEOUT);
         _connectionTimeout = DBHelper.getAttValue(DBHelper.RetType.INTEGER, _mailObj, EMailConstants.EMail.CONNECTION_TIMEOUT, EMailConstants.Errors.CONN_ERR, EMailConstants.DefParameters.CONNECTION_TIMEOUT);
@@ -196,7 +197,7 @@ public class EMailServerParameters {
     /**
      * @return time zone
      */
-    public String getTimezone() {
+    public DateTimeZone getTimezone() {
         return _timezone;
     }
 

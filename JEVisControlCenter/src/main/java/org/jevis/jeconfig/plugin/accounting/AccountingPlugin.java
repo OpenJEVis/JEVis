@@ -9,6 +9,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import javafx.css.PseudoClass;
@@ -21,6 +22,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser;
@@ -28,9 +31,8 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
@@ -57,8 +59,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.prefs.Preferences;
+import java.util.stream.IntStream;
 
 import static org.jevis.jeconfig.plugin.dtrc.TRCPlugin.TEMPLATE_CLASS;
 
@@ -70,6 +74,16 @@ public class AccountingPlugin extends TablePlugin {
     private static final String ACCOUNTING_CONFIGURATION = "Accounting Configuration";
     private static final String ACCOUNTING_CONFIGURATION_DIRECTORY = "Accounting Configuration Directory";
     private static final String DATA_MODEL_ATTRIBUTE = "Template File";
+    public static final String CONTRACT_DETAILS = I18n.getInstance().getString("plugin.accounting.label.contractdetails");
+    public static final String CONTRACT_TIMEFRAME = I18n.getInstance().getString("plugin.accounting.label.contacttimeframe");
+    public static final String MARKET_LOCATION_NUMBER = I18n.getInstance().getString("plugin.accounting.label.marketlocationnumber");
+    public static final String CONTRACT_NUMBER = I18n.getInstance().getString("plugin.accounting.label.contractnumber");
+    public static final String ENERGY_TYPE = I18n.getInstance().getString("plugin.accounting.label.energytype");
+    public static final String CONTRACT_DATE = I18n.getInstance().getString("plugin.accounting.label.contractdate");
+    public static final String FIRST_RATE = I18n.getInstance().getString("plugin.accounting.label.firstrate");
+    public static final String PERIOD_OF_NOTICE = I18n.getInstance().getString("plugin.accounting.label.periodofnotice");
+    public static final String CONTRACT_START = I18n.getInstance().getString("plugin.accounting.label.contractstart");
+    public static final String CONTRACT_END = I18n.getInstance().getString("plugin.accounting.label.contractend");
     public static String PLUGIN_NAME = "Accounting Plugin";
 
     private static final Logger logger = LogManager.getLogger(AccountingPlugin.class);
@@ -90,12 +104,11 @@ public class AccountingPlugin extends TablePlugin {
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
     private final BorderPane borderPane = new BorderPane();
+    private final StackPane dialogPane = new StackPane(borderPane);
     private final TabPane motherTabPane = new TabPane();
     private final TabPane enterDataTabPane = new TabPane();
-    private final TabPane configTabPane = new TabPane();
     private final JFXComboBox<JEVisObject> configComboBox = new JFXComboBox<>();
     private final StackPane enterDataStackPane = new StackPane(enterDataTabPane);
-    private final StackPane configStackPane = new StackPane(configTabPane);
     private final Tab enterDataTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
     private final Tab energySupplierTab = new Tab();
     private final Tab energyMeteringOperatorsTab = new Tab();
@@ -173,7 +186,21 @@ public class AccountingPlugin extends TablePlugin {
     private boolean guiUpdate = false;
     private final TemplateHandler templateHandler = new TemplateHandler();
     private final OutputView viewTab;
-    private final Tab configTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"));
+    private final Tab contractsTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"));
+    private final JFXTextField contractNumberField = new JFXTextField();
+    private final JFXComboBox<ContractType> contractTypeBox = new JFXComboBox<>();
+    private final JFXTextField marketLocationNumberField = new JFXTextField();
+    private final JFXDatePicker contractDatePicker = new JFXDatePicker();
+    private final JFXDatePicker firstRatePicker = new JFXDatePicker();
+    private final JFXDatePicker periodOfNoticePicker = new JFXDatePicker();
+    private final JFXDatePicker contractStartPicker = new JFXDatePicker();
+    private final JFXDatePicker contractEndPicker = new JFXDatePicker();
+    private final GridPane contractsGP = new GridPane();
+    private final Label timeframeField = new Label();
+    private int contractsRow = 0;
+    private Label contractNumberLabel;
+    private Label contractTypeLabel;
+    private Label marketLocationNumberLabel;
 
     public AccountingPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
@@ -184,6 +211,8 @@ public class AccountingPlugin extends TablePlugin {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         viewTab = new OutputView(I18n.getInstance().getString("plugin.accounting.tab.view"), ds, templateHandler);
+        viewTab.showDatePicker(false);
+        viewTab.showInputs(false);
 
         enterDataTab.setContent(enterDataStackPane);
 
@@ -193,22 +222,9 @@ public class AccountingPlugin extends TablePlugin {
         energyGridOperatorsTab.setClosable(false);
         energyContractorTab.setClosable(false);
         governmentalDuesTab.setClosable(false);
+        contractsTab.setClosable(false);
 
-        configTab.setContent(configStackPane);
-        configTab.setClosable(false);
-
-        Tab inputs = new Tab(I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
-        inputs.setClosable(false);
-
-        Label trcsLabel = new Label(I18nWS.getInstance().getClassName(TEMPLATE_CLASS));
-        HBox trcsBox = new HBox(6, trcsLabel, trcs);
-
-        VBox configVBox = new VBox(6, trcsBox, viewTab.getViewInputs());
-        configVBox.setPadding(INSETS);
-
-        inputs.setContent(configVBox);
-        configTabPane.getTabs().add(inputs);
-
+        configComboBox.setMaxWidth(Double.MAX_VALUE);
         configComboBox.setCellFactory(objectNameCellFactory);
         configComboBox.setButtonCell(objectNameCellFactory.call(null));
 
@@ -222,18 +238,23 @@ public class AccountingPlugin extends TablePlugin {
             logger.error("Could not get class name for tabs", e);
         }
 
+        energySupplierBox.setMaxWidth(Double.MAX_VALUE);
         energySupplierBox.setCellFactory(objectNameCellFactory);
         energySupplierBox.setButtonCell(objectNameCellFactory.call(null));
 
+        energyMeteringOperatorBox.setMaxWidth(Double.MAX_VALUE);
         energyMeteringOperatorBox.setCellFactory(objectNameCellFactory);
         energyMeteringOperatorBox.setButtonCell(objectNameCellFactory.call(null));
 
+        energyGridOperatorBox.setMaxWidth(Double.MAX_VALUE);
         energyGridOperatorBox.setCellFactory(objectNameCellFactory);
         energyGridOperatorBox.setButtonCell(objectNameCellFactory.call(null));
 
+        energyContractorBox.setMaxWidth(Double.MAX_VALUE);
         energyContractorBox.setCellFactory(comboBoxItemCellFactory);
         energyContractorBox.setButtonCell(comboBoxItemCellFactory.call(null));
 
+        governmentalDuesBox.setMaxWidth(Double.MAX_VALUE);
         governmentalDuesBox.setCellFactory(objectNameCellFactory);
         governmentalDuesBox.setButtonCell(objectNameCellFactory.call(null));
 
@@ -242,7 +263,7 @@ public class AccountingPlugin extends TablePlugin {
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.new.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.tooltip.print")));
 
-        motherTabPane.getTabs().addAll(viewTab, enterDataTab, configTab);
+        motherTabPane.getTabs().addAll(viewTab, contractsTab, enterDataTab);
 
         motherTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.equals(enterDataTab)) {
@@ -263,7 +284,212 @@ public class AccountingPlugin extends TablePlugin {
         initToolBar();
     }
 
+    private void createContractsTab() {
+        contractsGP.setPadding(INSETS);
+        contractsGP.setHgap(6);
+        contractsGP.setVgap(6);
+
+        Label contractNumberLabel1 = new Label(CONTRACT_NUMBER);
+        Label contractNumberLabel2 = new Label(CONTRACT_NUMBER);
+        Font font = Font.font(contractNumberLabel2.getFont().getFamily(), FontWeight.BOLD, contractNumberLabel2.getFont().getSize());
+        contractNumberLabel2.setFont(font);
+        contractNumberLabel = new Label();
+        contractNumberLabel.setFont(font);
+
+        contractNumberField.textProperty().addListener((observable, oldValue, newValue) -> ath.getSelectionTemplate().setContractNumber(newValue));
+        contractNumberField.setMinWidth(120);
+        contractNumberField.setMaxWidth(Double.MAX_VALUE);
+
+        Label contractTypeLabel1 = new Label(ENERGY_TYPE);
+        Label contractTypeLabel2 = new Label(ENERGY_TYPE);
+        contractTypeLabel2.setFont(font);
+        contractTypeLabel = new Label();
+        contractTypeLabel.setFont(font);
+
+        Callback<ListView<ContractType>, ListCell<ContractType>> contractTypeCellFactory = new Callback<ListView<ContractType>, ListCell<ContractType>>() {
+            @Override
+            public ListCell<ContractType> call(ListView<ContractType> param) {
+                return new JFXListCell<ContractType>() {
+                    @Override
+                    protected void updateItem(ContractType type, boolean empty) {
+                        super.updateItem(type, empty);
+                        if (type == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(translateContractType(type));
+                        }
+                    }
+                };
+            }
+        };
+
+        contractTypeBox.setCellFactory(contractTypeCellFactory);
+        contractTypeBox.setButtonCell(contractTypeCellFactory.call(null));
+        contractTypeBox.setMinWidth(120);
+        contractTypeBox.setMaxWidth(Double.MAX_VALUE);
+        contractTypeBox.getItems().addAll(ContractType.values());
+        contractTypeBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> ath.getSelectionTemplate().setContractType(newValue.toString()));
+
+        Label marketLocationNumberLabel1 = new Label(MARKET_LOCATION_NUMBER);
+        Label marketLocationNumberLabel2 = new Label(MARKET_LOCATION_NUMBER);
+        marketLocationNumberLabel2.setFont(font);
+        marketLocationNumberLabel = new Label();
+        marketLocationNumberLabel.setFont(font);
+        marketLocationNumberField.setMinWidth(120);
+        marketLocationNumberField.setMaxWidth(Double.MAX_VALUE);
+        marketLocationNumberField.textProperty().addListener((observable, oldValue, newValue) -> ath.getSelectionTemplate().setMarketLocationNumber(newValue));
+
+        Label contractDateLabel1 = new Label(CONTRACT_DATE);
+        contractDateLabel1.setBackground(Background.EMPTY);
+        Label contractDateLabel2 = new Label(CONTRACT_DATE);
+        contractDatePicker.setPrefWidth(120d);
+        contractDatePicker.setMaxWidth(Double.MAX_VALUE);
+        contractDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> ath.getSelectionTemplate().setContractDate(localDateToDateTimeString(newValue)));
+
+        Label firstRateLabel1 = new Label(FIRST_RATE);
+        Label firstRateLabel2 = new Label(FIRST_RATE);
+        firstRatePicker.setPrefWidth(120d);
+        firstRatePicker.setMaxWidth(Double.MAX_VALUE);
+        firstRatePicker.valueProperty().addListener((observable, oldValue, newValue) -> ath.getSelectionTemplate().setFirstRate(localDateToDateTimeString(newValue)));
+
+        Label periodOfNoticeLabel1 = new Label(PERIOD_OF_NOTICE);
+        Label periodOfNoticeLabel2 = new Label(PERIOD_OF_NOTICE);
+        periodOfNoticePicker.setPrefWidth(120d);
+        periodOfNoticePicker.setMaxWidth(Double.MAX_VALUE);
+        periodOfNoticePicker.valueProperty().addListener((observable, oldValue, newValue) -> ath.getSelectionTemplate().setPeriodOfNotice(localDateToDateTimeString(newValue)));
+
+        Label contractStartLabel1 = new Label(CONTRACT_START);
+        Label contractStartLabel2 = new Label(CONTRACT_START);
+        contractStartPicker.setPrefWidth(120d);
+        contractStartPicker.setMaxWidth(Double.MAX_VALUE);
+        contractStartPicker.valueProperty().addListener((observable, oldValue, newValue) -> ath.getSelectionTemplate().setContractStart(localDateToDateTimeString(newValue)));
+
+        Label contractEndLabel1 = new Label(CONTRACT_END);
+        Label contractEndLabel2 = new Label(CONTRACT_END);
+        contractEndPicker.setPrefWidth(120d);
+        contractEndPicker.setMaxWidth(Double.MAX_VALUE);
+        contractEndPicker.valueProperty().addListener((observable, oldValue, newValue) -> ath.getSelectionTemplate().setContractEnd(localDateToDateTimeString(newValue)));
+
+        /**
+         * Rechnungsintervall
+         * Jahressumme
+         * Monatlicher Abschlag brutto/netto
+         */
+
+        Region region1 = new Region();
+        region1.setMinWidth(25);
+        Region region2 = new Region();
+        region2.setMinWidth(25);
+        Region region3 = new Region();
+        region3.setMinWidth(25);
+        Region region4 = new Region();
+        region4.setMinWidth(25);
+
+        contractsGP.add(contractNumberLabel1, 0, contractsRow);
+        contractsGP.add(contractNumberField, 1, contractsRow);
+        contractsGP.add(region1, 2, contractsRow);
+        contractsGP.add(firstRateLabel1, 3, contractsRow);
+        contractsGP.add(firstRatePicker, 4, contractsRow);
+        contractsRow++;
+
+        contractsGP.add(contractTypeLabel1, 0, contractsRow);
+        contractsGP.add(contractTypeBox, 1, contractsRow);
+        contractsGP.add(region2, 2, contractsRow);
+        contractsGP.add(periodOfNoticeLabel1, 3, contractsRow);
+        contractsGP.add(periodOfNoticePicker, 4, contractsRow);
+        contractsRow++;
+
+        contractsGP.add(marketLocationNumberLabel1, 0, contractsRow);
+        contractsGP.add(marketLocationNumberField, 1, contractsRow);
+        contractsGP.add(region3, 2, contractsRow);
+        contractsGP.add(contractStartLabel1, 3, contractsRow);
+        contractsGP.add(contractStartPicker, 4, contractsRow);
+        contractsRow++;
+
+        contractsGP.add(contractDateLabel1, 0, contractsRow);
+        contractsGP.add(contractDatePicker, 1, contractsRow);
+        contractsGP.add(region4, 2, contractsRow);
+        contractsGP.add(contractEndLabel1, 3, contractsRow);
+        contractsGP.add(contractEndPicker, 4, contractsRow);
+        contractsRow++;
+
+        Separator separator = new Separator(Orientation.HORIZONTAL);
+        separator.setPadding(INSETS);
+        contractsGP.add(separator, 0, contractsRow, 5, 1);
+        contractsRow++;
+
+        Label calculationTemplateLabel = new Label(I18n.getInstance().getString("plugin.accounting.calculationtemplate"));
+
+        contractsGP.add(calculationTemplateLabel, 0, contractsRow);
+        contractsGP.add(trcs, 1, contractsRow);
+        contractsRow++;
+
+        contractsTab.setContent(new VBox(4, contractsGP));
+        viewTab.setContractsGP(contractsGP);
+        viewTab.setTimeframeField(timeframeField);
+
+        GridPane headerGP = viewTab.getHeaderGP();
+
+        Label caption = new Label(CONTRACT_DETAILS);
+        caption.setPadding(new Insets(8, 0, 8, 0));
+        caption.setFont(new Font(18));
+
+        int row = 0;
+        headerGP.add(caption, 0, row, 2, 1);
+        row++;
+        row++;
+
+        headerGP.add(marketLocationNumberLabel2, 0, row);
+        headerGP.add(marketLocationNumberLabel, 1, row);
+        row++;
+
+        headerGP.add(contractNumberLabel2, 0, row);
+        headerGP.add(contractNumberLabel, 1, row);
+        row++;
+
+        headerGP.add(contractTypeLabel2, 0, row);
+        headerGP.add(contractTypeLabel, 1, row);
+        row++;
+
+
+        Label timeframeLabel = new Label(CONTRACT_TIMEFRAME);
+
+        headerGP.add(timeframeLabel, 0, row);
+        headerGP.add(timeframeField, 1, row);
+        row++;
+
+    }
+
+    private String localDateToDateTimeString(LocalDate localDate) {
+        return new DateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0).toString();
+    }
+
+    private LocalDate dateTimeStringToLocalDate(String dateTimeString) {
+        try {
+            DateTime dateTime = new DateTime(dateTimeString);
+            return LocalDate.of(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
+        } catch (Exception e) {
+            logger.error("Could not parse datetime from string {}", dateTimeString, e);
+        }
+
+        return null;
+    }
+
+    private String translateContractType(ContractType type) {
+        switch (type) {
+            case ELECTRICITY:
+                return I18n.getInstance().getString("plugin.accounting.contracttype.electricity");
+            case GAS:
+                return I18n.getInstance().getString("plugin.accounting.contracttype.gas");
+            case COMMUNITY_HEATING:
+                return I18n.getInstance().getString("plugin.accounting.contracttype.communityheating");
+        }
+        return type.toString();
+    }
+
     private void initToolBar() {
+        Separator sep0 = new Separator(Orientation.VERTICAL);
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
         reload.setOnAction(event -> handleRequest(Constants.Plugin.Command.RELOAD));
@@ -359,7 +585,7 @@ public class AccountingPlugin extends TablePlugin {
             }
         });
 
-        toolBar.getItems().setAll(configComboBox, sep1, reload, sep2, save, newButton, delete, sep3, xlsxButton, printButton);
+        toolBar.getItems().setAll(configComboBox, sep0, viewTab.getDateBox(), sep1, reload, sep2, save, newButton, delete, sep3, xlsxButton, printButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(AccountingPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
@@ -373,9 +599,6 @@ public class AccountingPlugin extends TablePlugin {
         CellStyle cellStyleDateTime = workbook.createCellStyle();
         cellStyleDateTime.setDataFormat((short) 165);
 
-        CellStyle cellStyleValues = workbook.createCellStyle();
-        cellStyleValues.setDataFormat((short) 4);
-
         Sheet sheet = workbook.createSheet(I18n.getInstance().getString("plugin.dtrc.view.output"));
 
         List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
@@ -385,16 +608,39 @@ public class AccountingPlugin extends TablePlugin {
         DateTime start = viewTab.getStart();
         DateTime end = viewTab.getEnd();
 
+        Cell headerCell = getOrCreateCell(sheet, 1, 0);
+        headerCell.setCellValue(CONTRACT_DETAILS);
+
+        Cell marketLocationNumberLabelCell = getOrCreateCell(sheet, 3, 0);
+        marketLocationNumberLabelCell.setCellValue(MARKET_LOCATION_NUMBER);
+        Cell marketLocationNumberCell = getOrCreateCell(sheet, 3, 1);
+        marketLocationNumberCell.setCellValue(marketLocationNumberLabel.getText());
+
+        Cell contractNumberLabelCell = getOrCreateCell(sheet, 4, 0);
+        contractNumberLabelCell.setCellValue(CONTRACT_NUMBER);
+        Cell contractNumberCell = getOrCreateCell(sheet, 4, 1);
+        contractNumberCell.setCellValue(contractNumberLabel.getText());
+
+        Cell contractTimeFrameLabelCell = getOrCreateCell(sheet, 5, 0);
+        contractTimeFrameLabelCell.setCellValue(CONTRACT_TIMEFRAME);
+        Cell contractTimeFrameCell = getOrCreateCell(sheet, 5, 1, 1, 2);
+        contractTimeFrameCell.setCellValue(timeframeField.getText());
+
+        Cell invoiceHeaderCell = getOrCreateCell(sheet, 7, 0);
+        invoiceHeaderCell.setCellValue(I18n.getInstance().getString("plugin.accounting.invoice"));
+
+        int maxColumn = 0;
         for (TemplateOutput templateOutput : templateOutputs) {
+            maxColumn = Math.max(maxColumn, templateOutput.getColumn());
             if (!templateOutput.getSeparator()) {
-                Cell cell = getOrCreateCell(sheet, templateOutput.getRow(), templateOutput.getColumn());
+                Cell cell = getOrCreateCell(sheet, templateOutput.getRow() + 9, templateOutput.getColumn(), templateOutput.getRowSpan(), templateOutput.getColSpan());
                 boolean hasLabel = false;
                 if (templateOutput.getName() != null && !templateOutput.getName().equals("")) {
                     cell.setCellValue(templateOutput.getName());
                     hasLabel = true;
                 }
                 TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
-                String result = "";
+
                 if (formula != null) {
                     String formulaString = formula.getFormula();
                     boolean isText = false;
@@ -427,23 +673,27 @@ public class AccountingPlugin extends TablePlugin {
                             if (!calculate.isNaN()) {
                                 resultMap.put(formula.getName(), calculate);
                             }
-                            result = nf.format(calculate) + " " + templateOutput.getUnit();
+
+                            if (hasLabel) {
+                                cell.setCellValue(cell.getStringCellValue() + ": " + nf.format(calculate) + " " + templateOutput.getUnit());
+                            } else {
+                                cell.setCellValue(calculate);
+                                DataFormat format = workbook.createDataFormat();
+                                CellStyle cellStyle = workbook.createCellStyle();
+                                cellStyle.setDataFormat(format.getFormat("#,##0.00 [$" + templateOutput.getUnit() + "]"));
+                                cell.setCellStyle(cellStyle);
+                            }
                         } catch (Exception e) {
                             logger.error("Error in formula {}", formula.getName(), e);
                         }
                     } else {
-                        result = formulaString;
+                        cell.setCellValue(formulaString);
                     }
-                } else result = "";
-
-
-                if (hasLabel) {
-                    cell.setCellValue(cell.getStringCellValue() + ": " + result);
-                } else {
-                    cell.setCellValue(result);
                 }
             }
         }
+
+        IntStream.rangeClosed(0, maxColumn).forEach(sheet::autoSizeColumn);
 
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(destinationFile);
@@ -569,15 +819,21 @@ public class AccountingPlugin extends TablePlugin {
                     }
                     try {
                         attributeEditors.clear();
-                        updateGUI();
+                        Platform.runLater(() -> {
+                            try {
+                                updateGUI();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
                     } catch (Exception e) {
                         logger.error("Error while updating GUI", e);
                     }
-                } else if (motherTabPane.getSelectionModel().getSelectedItem().equals(configTab)) {
+                } else if (motherTabPane.getSelectionModel().getSelectedItem().equals(contractsTab)) {
                     try {
                         JEVisClass templateClass = ds.getJEVisClass(ACCOUNTING_CONFIGURATION);
 
-                        SaveUnderDialog saveUnderDialog = new SaveUnderDialog(configStackPane, ds, ACCOUNTING_CONFIGURATION_DIRECTORY, ath.getTemplateObject(), templateClass, ath.getTitle(), (target, sameObject) -> {
+                        SaveUnderDialog saveUnderDialog = new SaveUnderDialog(dialogPane, ds, ACCOUNTING_CONFIGURATION_DIRECTORY, ath.getTemplateObject(), templateClass, ath.getTitle(), (target, sameObject) -> {
 
                             try {
                                 ath.setTitle(target.getName());
@@ -592,6 +848,9 @@ public class AccountingPlugin extends TablePlugin {
                             } catch (Exception e) {
                                 logger.error("Could not save template", e);
                             }
+
+                            handleRequest(Constants.Plugin.Command.RELOAD);
+
                             return true;
                         });
                         saveUnderDialog.show();
@@ -720,7 +979,7 @@ public class AccountingPlugin extends TablePlugin {
                     });
 
                     dialog.show();
-                } else if (motherTabPane.getSelectionModel().getSelectedItem().equals(configTab)) {
+                } else if (motherTabPane.getSelectionModel().getSelectedItem().equals(contractsTab)) {
 
                 }
                 break;
@@ -736,9 +995,15 @@ public class AccountingPlugin extends TablePlugin {
                                 ds.preload();
                             } else {
                                 initialized = true;
-
-                                updateGUI();
                             }
+
+                            Platform.runLater(() -> {
+                                try {
+                                    updateGUI();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
 
                             succeeded();
                         } catch (Exception ex) {
@@ -772,7 +1037,7 @@ public class AccountingPlugin extends TablePlugin {
 
     @Override
     public Node getContentNode() {
-        return borderPane;
+        return dialogPane;
     }
 
 
@@ -790,15 +1055,13 @@ public class AccountingPlugin extends TablePlugin {
     public void setHasFocus() {
 
         try {
-            initialized = true;
             boolean isMultiSite = isMultiSite(AccountingPlugin.ACCOUNTING_CLASS);
 
-            initGUI();
+            if (!initialized) {
+                initialized = true;
 
-            viewTab.showDatePicker(false);
-            viewTab.showInputs(false);
-            viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(0, 2);
-            viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(2, viewTab.getIntervalSelector().getTimeFactoryBox().getItems().size());
+                initGUI();
+            }
 
             List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
             if (allAccountingConfigurations.isEmpty()) {
@@ -811,13 +1074,27 @@ public class AccountingPlugin extends TablePlugin {
                 configComboBox.getSelectionModel().selectFirst();
             }
 
+
         } catch (JEVisException e) {
             e.printStackTrace();
         }
 
     }
 
+    public void removeNodes(final int row, GridPane gridPane) {
+        ObservableList<Node> children = gridPane.getChildren();
+        for (Node node : children) {
+            if (GridPane.getRowIndex(node) >= row) {
+                gridPane.getChildren().remove(node);
+                break;
+            }
+        }
+    }
+
     public void initGUI() throws JEVisException {
+
+        viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(0, 2);
+        viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(2, viewTab.getIntervalSelector().getTimeFactoryBox().getItems().size());
 
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
@@ -837,6 +1114,7 @@ public class AccountingPlugin extends TablePlugin {
             }
         };
 
+        trcs.setMaxWidth(Double.MAX_VALUE);
         trcs.setCellFactory(attributeCellFactory);
         trcs.setButtonCell(attributeCellFactory.call(null));
 
@@ -853,6 +1131,7 @@ public class AccountingPlugin extends TablePlugin {
         configComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 ath.setTemplateObject(newValue);
+                updateContractGPs();
 
                 try {
                     JEVisObject selectedObject = ds.getObject(ath.getSelectionTemplate().getTemplateSelection());
@@ -870,8 +1149,17 @@ public class AccountingPlugin extends TablePlugin {
         esGP.setHgap(6);
         esGP.setVgap(6);
 
+        Label esCGPLabel = new Label(I18n.getInstance().getString("plugin.accounting.configuration.contractinpreview"));
+        GridPane esCGP = new GridPane();
+        esCGP.setPadding(INSETS);
+        esCGP.setHgap(6);
+        esCGP.setVgap(6);
+        esCGP.setDisable(true);
+
         Separator separator1 = new Separator(Orientation.HORIZONTAL);
         separator1.setPadding(new Insets(8, 0, 8, 0));
+        Separator separator1b = new Separator(Orientation.HORIZONTAL);
+        separator1b.setPadding(new Insets(8, 0, 8, 0));
 
         JFXButton esRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         esRename.setOnAction(event -> {
@@ -884,11 +1172,11 @@ public class AccountingPlugin extends TablePlugin {
         es0VBox.setAlignment(Pos.CENTER);
         HBox esHBox = new HBox(6, energySupplierBox, es0VBox);
 
-        VBox esVBox = new VBox(6, esHBox, separator1, esGP);
+        VBox esVBox = new VBox(6, esHBox, separator1, esGP, separator1b, esCGP);
         energySupplierTab.setContent(esVBox);
 
         energySupplierBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(esGP, newValue);
+            updateWithChangeCheck(esGP, newValue, esCGP);
         });
 
         GridPane emoGP = new GridPane();
@@ -896,8 +1184,16 @@ public class AccountingPlugin extends TablePlugin {
         emoGP.setHgap(6);
         emoGP.setVgap(6);
 
+        GridPane emoCGP = new GridPane();
+        emoCGP.setPadding(INSETS);
+        emoCGP.setHgap(6);
+        emoCGP.setVgap(6);
+        emoCGP.setDisable(true);
+
         Separator separator2 = new Separator(Orientation.HORIZONTAL);
         separator2.setPadding(new Insets(8, 0, 8, 0));
+        Separator separator2b = new Separator(Orientation.HORIZONTAL);
+        separator2b.setPadding(new Insets(8, 0, 8, 0));
 
         JFXButton emoRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         emoRename.setOnAction(event -> {
@@ -910,11 +1206,11 @@ public class AccountingPlugin extends TablePlugin {
         emo0VBox.setAlignment(Pos.CENTER);
         HBox emoHBox = new HBox(6, energyMeteringOperatorBox, emo0VBox);
 
-        VBox emoVBox = new VBox(6, emoHBox, separator2, emoGP);
+        VBox emoVBox = new VBox(6, emoHBox, separator2, emoGP, separator2b, emoCGP);
         energyMeteringOperatorsTab.setContent(emoVBox);
 
         energyMeteringOperatorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(emoGP, newValue);
+            updateWithChangeCheck(emoGP, newValue, emoCGP);
         });
 
         GridPane egoGP = new GridPane();
@@ -922,8 +1218,16 @@ public class AccountingPlugin extends TablePlugin {
         egoGP.setHgap(6);
         egoGP.setVgap(6);
 
+        GridPane egoCGP = new GridPane();
+        egoCGP.setPadding(INSETS);
+        egoCGP.setHgap(6);
+        egoCGP.setVgap(6);
+        egoCGP.setDisable(true);
+
         Separator separator3 = new Separator(Orientation.HORIZONTAL);
         separator3.setPadding(new Insets(8, 0, 8, 0));
+        Separator separator3b = new Separator(Orientation.HORIZONTAL);
+        separator3b.setPadding(new Insets(8, 0, 8, 0));
 
         JFXButton egoRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         egoRename.setOnAction(event -> {
@@ -936,11 +1240,11 @@ public class AccountingPlugin extends TablePlugin {
         ego0VBox.setAlignment(Pos.CENTER);
         HBox egoHBox = new HBox(6, energyGridOperatorBox, ego0VBox);
 
-        VBox egoVBox = new VBox(6, egoHBox, separator3, egoGP);
+        VBox egoVBox = new VBox(6, egoHBox, separator3, egoGP, separator3b, egoCGP);
         energyGridOperatorsTab.setContent(egoVBox);
 
         energyGridOperatorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(egoGP, newValue);
+            updateWithChangeCheck(egoGP, newValue, egoCGP);
         });
 
         GridPane cGP = new GridPane();
@@ -966,7 +1270,7 @@ public class AccountingPlugin extends TablePlugin {
         energyContractorTab.setContent(cVBox);
 
         energyContractorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(cGP, newValue.getObject());
+            updateWithChangeCheck(cGP, newValue.getObject(), null);
         });
 
         GridPane gdGP = new GridPane();
@@ -993,15 +1297,17 @@ public class AccountingPlugin extends TablePlugin {
         governmentalDuesTab.setContent(gdVBox);
 
         governmentalDuesBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(gdGP, newValue);
+            updateWithChangeCheck(gdGP, newValue, null);
         });
 
         Platform.runLater(() -> enterDataTabPane.getTabs().addAll(energySupplierTab, energyMeteringOperatorsTab, energyGridOperatorsTab, energyContractorTab, governmentalDuesTab));
 
+        createContractsTab();
+
         updateGUI();
     }
 
-    private void updateWithChangeCheck(GridPane gridPane, JEVisObject newValue) {
+    private void updateWithChangeCheck(GridPane gridPane, JEVisObject newValue, GridPane contractorPreview) {
         boolean changed = attributeEditors.stream().anyMatch(AttributeEditor::hasChanged);
 
         if (changed && !guiUpdate) {
@@ -1024,7 +1330,7 @@ public class AccountingPlugin extends TablePlugin {
             dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
             cancel.setOnAction(event -> {
                 dialog.close();
-                updateGrid(gridPane, newValue);
+                updateGrid(gridPane, newValue, contractorPreview);
             });
 
             ok.setOnAction(event -> {
@@ -1037,12 +1343,12 @@ public class AccountingPlugin extends TablePlugin {
                 }
                 attributeEditors.clear();
                 dialog.close();
-                updateGrid(gridPane, newValue);
+                updateGrid(gridPane, newValue, contractorPreview);
             });
 
             dialog.show();
         } else {
-            updateGrid(gridPane, newValue);
+            updateGrid(gridPane, newValue, contractorPreview);
         }
     }
 
@@ -1148,7 +1454,59 @@ public class AccountingPlugin extends TablePlugin {
             governmentalDuesBox.getSelectionModel().selectFirst();
         }
 
+        updateContractGPs();
+
         guiUpdate = false;
+    }
+
+    private void updateContractGPs() {
+        if (ath.getSelectionTemplate().getContractNumber() != null) {
+            String contractNumber = ath.getSelectionTemplate().getContractNumber();
+            contractNumberField.setText(contractNumber);
+            contractNumberLabel.setText(contractNumber);
+        } else {
+            contractNumberField.setText("");
+            contractNumberLabel.setText("");
+        }
+
+        if (ath.getSelectionTemplate().getContractType() != null) {
+            ContractType contractType = ContractType.valueOf(ath.getSelectionTemplate().getContractType());
+            contractTypeBox.getSelectionModel().select(contractType);
+            contractTypeLabel.setText(translateContractType(contractType));
+        } else {
+            contractTypeBox.getSelectionModel().selectFirst();
+            contractTypeLabel.setText(translateContractType(contractTypeBox.getSelectionModel().getSelectedItem()));
+        }
+
+        if (ath.getSelectionTemplate().getMarketLocationNumber() != null) {
+            String marketLocationNumber = ath.getSelectionTemplate().getMarketLocationNumber();
+            marketLocationNumberField.setText(marketLocationNumber);
+            marketLocationNumberLabel.setText(marketLocationNumber);
+        } else {
+            marketLocationNumberField.setText("");
+            marketLocationNumberLabel.setText("");
+        }
+
+        if (ath.getSelectionTemplate().getContractDate() != null) {
+            contractDatePicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getContractDate()));
+        }
+
+        if (ath.getSelectionTemplate().getFirstRate() != null) {
+            firstRatePicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getFirstRate()));
+        }
+
+        if (ath.getSelectionTemplate().getPeriodOfNotice() != null) {
+            periodOfNoticePicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getPeriodOfNotice()));
+        }
+
+
+        if (ath.getSelectionTemplate().getContractStart() != null) {
+            contractStartPicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getContractStart()));
+        }
+
+        if (ath.getSelectionTemplate().getContractEnd() != null) {
+            contractEndPicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getContractEnd()));
+        }
     }
 
     private List<JEVisObject> getAllAccountingConfigurations() {
@@ -1165,9 +1523,9 @@ public class AccountingPlugin extends TablePlugin {
     }
 
 
-    private void updateGrid(GridPane gp, JEVisObject selectedObject) {
+    private void updateGrid(GridPane gp, JEVisObject selectedObject, GridPane contractorPreview) {
         if (selectedObject != null) {
-            gp.getChildren().clear();
+            Platform.runLater(() -> gp.getChildren().clear());
 
             try {
                 List<JEVisAttribute> attributes = selectedObject.getAttributes();
@@ -1242,12 +1600,14 @@ public class AccountingPlugin extends TablePlugin {
 
                         if (contractor != null) {
                             contractorBox.getSelectionModel().select(contractor);
+                            updateGrid(contractorPreview, contractor, null);
                         }
 
                         contractorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                             try {
                                 JEVisSample newSample = attribute.buildSample(new DateTime(), newValue.getID());
                                 newSample.commit();
+                                updateGrid(contractorPreview, newValue, null);
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
@@ -1307,6 +1667,10 @@ public class AccountingPlugin extends TablePlugin {
     }
 
     private org.apache.poi.ss.usermodel.Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {
+        return getOrCreateCell(sheet, rowIdx, colIdx, 1, 1);
+    }
+
+    private org.apache.poi.ss.usermodel.Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx, int rowSpan, int colSpan) {
         Row row = sheet.getRow(rowIdx);
         if (row == null) {
             row = sheet.createRow(rowIdx);
@@ -1315,6 +1679,10 @@ public class AccountingPlugin extends TablePlugin {
         Cell cell = row.getCell(colIdx);
         if (cell == null) {
             cell = row.createCell(colIdx);
+        }
+
+        if (rowSpan > 1 || colSpan > 1) {
+            sheet.addMergedRegion(new CellRangeAddress(rowIdx, rowIdx + rowSpan - 1, colIdx, colIdx + colSpan - 1));
         }
 
         return cell;

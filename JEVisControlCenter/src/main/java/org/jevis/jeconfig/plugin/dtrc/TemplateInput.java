@@ -107,6 +107,7 @@ public class TemplateInput extends TemplateSelected {
 
         if (!getAttributeName().equals("name")) {
             JEVisAttribute attribute = ds.getObject(getObjectID()).getAttribute(getAttributeName());
+            String returnValue = "-";
 
             if (getVariableType() == null
                     || (getVariableType() != null
@@ -132,32 +133,36 @@ public class TemplateInput extends TemplateSelected {
                     sum = sum / samples.size();
 
                 if (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())) {
-                    return String.valueOf(sum);
+                    returnValue = String.valueOf(sum);
                 } else if (getVariableType().equals(InputVariableType.MIN.toString())) {
-                    return String.valueOf(min);
+                    returnValue = String.valueOf(min);
                 } else if (getVariableType().equals(InputVariableType.MAX.toString())) {
-                    return String.valueOf(max);
-                } else return "";
+                    returnValue = String.valueOf(max);
+                }
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
                 List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0), start);
-                return String.valueOf(samples.get(samples.size() - 1).getValueAsDouble());
+                returnValue = String.valueOf(samples.get(samples.size() - 1).getValueAsDouble());
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.LAST.toString())) {
                 JEVisSample sample = attribute.getLatestSample();
-                return String.valueOf(sample.getValueAsDouble());
+                returnValue = String.valueOf(sample.getValueAsDouble());
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.YEARLY_VALUE.toString())) {
                 JEVisSample sample = attribute.getLatestSample();
                 LocalDate ld = new LocalDate(start.getYear(), 1, 1);
                 int daysOfYear = Days.daysBetween(ld, ld.plusYears(1)).getDays();
                 int daysOfInterval = Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays();
-                return String.valueOf(sample.getValueAsDouble() / daysOfYear * daysOfInterval);
+                returnValue = String.valueOf(sample.getValueAsDouble() / daysOfYear * daysOfInterval);
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.STRING.toString())) {
                 JEVisSample latestSample = attribute.getLatestSample();
-                return latestSample.getValueAsString();
-            } else return String.valueOf(0d);
+                returnValue = latestSample.getValueAsString();
+            }
+
+            if (returnValue.equals("NaN")) returnValue = "-";
+
+            return returnValue;
         } else {
             return ds.getObject(getObjectID()).getName();
         }

@@ -58,15 +58,6 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Grid Operator"
-    },
-    {
-      "name": "Market Location Identification Number",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 16,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Grid Operator"
     }
   ]
 }

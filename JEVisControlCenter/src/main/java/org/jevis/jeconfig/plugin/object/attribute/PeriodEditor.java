@@ -130,7 +130,9 @@ public class PeriodEditor implements AttributeEditor {
         samplingRateUI = new SamplingRateUI(p);
 
         pickerDate.setPrefWidth(120d);
+        pickerDate.setMaxWidth(Double.MAX_VALUE);
         pickerTime.setPrefWidth(110d);
+        pickerTime.setMaxWidth(Double.MAX_VALUE);
         pickerTime.set24HourView(true);
         pickerTime.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 

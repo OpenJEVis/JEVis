@@ -19,6 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -32,10 +33,13 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.accounting.SelectionTemplate;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.mariuszgromada.math.mxparser.Expression;
 
 import java.time.LocalDate;
@@ -63,6 +67,13 @@ public class OutputView extends Tab {
     private SelectionTemplate selectionTemplate;
     private final IntervalSelector intervalSelector;
     private final ConcurrentHashMap<String, Double> resultMap = new ConcurrentHashMap<>();
+    private static final Insets INSETS = new Insets(12);
+    private final AlphanumComparator alphanumComparator = new AlphanumComparator();
+    private final GridPane headerGP = new GridPane();
+    private final HBox dateBox;
+    private final DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
+    private GridPane contractsGP;
+    private Label timeframeField;
 
     public OutputView(String title, JEVisDataSource ds, TemplateHandler templateHandler) {
         super(title);
@@ -70,11 +81,15 @@ public class OutputView extends Tab {
         this.templateHandler = templateHandler;
         setClosable(false);
 
-        gridPane.setPadding(new Insets(4));
+        gridPane.setPadding(INSETS);
         gridPane.setVgap(6);
         gridPane.setHgap(6);
 
-        viewInputs.setPadding(new Insets(4));
+        headerGP.setPadding(INSETS);
+        headerGP.setVgap(6);
+        headerGP.setHgap(6);
+
+        viewInputs.setPadding(INSETS);
         viewInputs.setVgap(6);
         viewInputs.setHgap(6);
 
@@ -130,7 +145,7 @@ public class OutputView extends Tab {
         datePane.add(endDate, 1, 1);
         datePane.add(endTime, 2, 1);
 
-        HBox dateBox = new HBox(4, intervalSelector, datePane);
+        dateBox = new HBox(4, intervalSelector, datePane);
 
         Separator separator1 = new Separator(Orientation.HORIZONTAL);
         separator1.setPadding(new Insets(8, 0, 8, 0));
@@ -144,6 +159,10 @@ public class OutputView extends Tab {
         final Label outputsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.view.output"));
         outputsLabel.setPadding(new Insets(8, 0, 8, 0));
         outputsLabel.setFont(new Font(18));
+
+        final Label billLabel = new Label(I18n.getInstance().getString("plugin.accounting.invoice"));
+        billLabel.setPadding(new Insets(8, 12, 8, 12));
+        billLabel.setFont(new Font(18));
 
         viewVBox = new VBox(4,
                 dateBox, separator1,
@@ -169,9 +188,7 @@ public class OutputView extends Tab {
                         outputsLabel, gridPane);
                 setContent(viewVBox);
             } else {
-                viewVBox.getChildren().setAll(
-                        dateBox, separator1,
-                        outputsLabel, gridPane);
+                viewVBox.getChildren().setAll(headerGP, billLabel, gridPane);
             }
         });
     }
@@ -188,6 +205,8 @@ public class OutputView extends Tab {
 
     public void requestUpdate() {
 
+        if (templateHandler.getRcTemplate() == null) return;
+
         Platform.runLater(() -> gridPane.getChildren().clear());
 
         DateTime start = getStart();
@@ -196,6 +215,15 @@ public class OutputView extends Tab {
         //Sort outputs by formula
         List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
         templateOutputs.sort(this::compareTemplateOutputs);
+
+        if (timeframeField != null) {
+            String overall = String.format("%s %s %s",
+                    dtfOutLegend.print(start),
+                    I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
+                    dtfOutLegend.print(end));
+
+            Platform.runLater(() -> timeframeField.setText(overall));
+        }
 
         for (TemplateOutput templateOutput : templateOutputs) {
             if (!templateOutput.getSeparator()) {
@@ -305,10 +333,12 @@ public class OutputView extends Tab {
     }
 
     public void updateViewInputFlowPane() {
-        viewInputs.getChildren().clear();
-        if (selectionTemplate != null) {
-            templateHandler.getRcTemplate().getTemplateInputs().stream().filter(templateInput -> !selectionTemplate.getSelectedInputs().contains(templateInput)).forEach(templateInput -> selectionTemplate.getSelectedInputs().add(templateInput));
+
+        Map<TemplateInput, TemplateInput> translationMap = new HashMap<>();
+        if (selectionTemplate == null) {
+            selectionTemplate = new SelectionTemplate();
         }
+        createTranslationMap(translationMap);
 
         Map<JEVisClass, List<TemplateInput>> groupedInputsMap = new HashMap<>();
         List<TemplateInput> ungroupedInputs = new ArrayList<>();
@@ -328,21 +358,27 @@ public class OutputView extends Tab {
                 } else {
                     groupedInputsMap.get(jeVisClass).add(templateInput);
                 }
+
+                logger.debug("Added {} to grouped inputs", templateInput.getVariableName());
             } else if (templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
                 ungroupedInputs.add(templateInput);
+                logger.debug("Added {} to ungrouped inputs", templateInput.getVariableName());
             }
         }
 
+        ungroupedInputs.sort((o1, o2) -> alphanumComparator.compare(o1.getVariableName(), o2.getVariableName()));
+
         int row = 0;
+        if (contractsGP != null) row = 6;
+
         int column = 0;
         for (TemplateInput ungroupedInput : ungroupedInputs) {
-            int index = ungroupedInputs.indexOf(ungroupedInput);
             Label label = new Label(I18nWS.getInstance().getClassName(ungroupedInput.getObjectClass()));
             label.setAlignment(Pos.CENTER_LEFT);
             VBox labelBox = new VBox(label);
             labelBox.setAlignment(Pos.CENTER);
 
-            if (index == 4 || (index > 4 && index % 4 == 0)) {
+            if (column == 6) {
                 column = 0;
                 row++;
             }
@@ -350,64 +386,88 @@ public class OutputView extends Tab {
             try {
                 JFXComboBox<JEVisObject> objectSelector = createObjectSelector(Collections.singletonList(ds.getObject(ungroupedInput.getObjectID())));
 
-                if (selectionTemplate != null && selectionTemplate.getSelectedInputs().contains(ungroupedInput)) {
-                    TemplateInput found = null;
-                    for (TemplateInput templateInput : selectionTemplate.getSelectedInputs()) {
-                        if (templateInput.equals(ungroupedInput))
-                            found = templateInput;
-                        break;
-                    }
-                    if (found != null) {
-                        try {
-                            JEVisObject selectedObject = ds.getObject(found.getObjectID());
-                            objectSelector.getSelectionModel().select(selectedObject);
-                        } catch (JEVisException e) {
-                            logger.error("Could not get object {}", found.getVariableName());
-                            objectSelector.getSelectionModel().selectFirst();
-                        }
+                try {
+                    Long objectID = ungroupedInput.getObjectID();
+                    if (objectID != -1L) {
+                        JEVisObject selectedObject = ds.getObject(objectID);
+                        objectSelector.getSelectionModel().select(selectedObject);
                     } else {
                         objectSelector.getSelectionModel().selectFirst();
+                        ungroupedInput.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID());
+                        TemplateInput templateInput = translationMap.get(ungroupedInput);
+                        if (templateInput != null) {
+                            templateInput.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID());
+                        }
                     }
-                } else {
-                    objectSelector.getSelectionModel().selectFirst();
-                }
-
-                if (objectSelector.getSelectionModel().getSelectedItem() != null) {
-                    ungroupedInput.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID());
+                } catch (Exception e) {
+                    logger.error("Could not get object {} for ungrouped input {}", ungroupedInput.getObjectID(), ungroupedInput.getVariableName());
                 }
 
                 objectSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {
+                        ungroupedInput.setObjectID(newValue.getID());
+                        TemplateInput templateInput = translationMap.get(ungroupedInput);
+                        if (templateInput != null) {
+                            templateInput.setObjectID(newValue.getID());
+                        }
                         requestUpdate();
                     }
                 });
 
                 int finalColumn = column;
                 int finalRow = row;
-                Platform.runLater(() -> {
-                    removeNode(finalRow, finalColumn, viewInputs);
-                    removeNode(finalRow, finalColumn + 1, viewInputs);
-                    viewInputs.add(labelBox, finalColumn, finalRow);
-                    viewInputs.add(objectSelector, finalColumn + 1, finalRow);
-                });
-                column += 2;
+                if (contractsGP == null) {
+                    Region region = new Region();
+                    region.setMinWidth(25);
+                    Platform.runLater(() -> {
+                        removeNode(finalRow, finalColumn, viewInputs);
+                        removeNode(finalRow, finalColumn + 1, viewInputs);
+                        removeNode(finalRow, finalColumn + 2, viewInputs);
+                        viewInputs.add(labelBox, finalColumn, finalRow);
+                        viewInputs.add(objectSelector, finalColumn + 1, finalRow);
+                        viewInputs.add(region, finalColumn + 2, finalRow);
+                    });
+                } else {
+                    String objectClassString = ungroupedInput.getObjectClass();
+                    JEVisClass jeVisClass = ds.getJEVisClass(objectClassString).getInheritance();
+                    label.setText(I18nWS.getInstance().getClassName(jeVisClass.getName()));
+                    Region region = new Region();
+                    region.setMinWidth(25);
+                    Platform.runLater(() -> {
+                        removeNode(finalRow, finalColumn, contractsGP);
+                        removeNode(finalRow, finalColumn + 1, contractsGP);
+                        removeNode(finalRow, finalColumn + 2, contractsGP);
+                        contractsGP.add(labelBox, finalColumn, finalRow);
+                        contractsGP.add(objectSelector, finalColumn + 1, finalRow);
+                        contractsGP.add(region, finalColumn + 2, finalRow);
+                    });
+                }
             } catch (JEVisException e) {
                 logger.error("Could not get object selector for template input {}", ungroupedInput, e);
             }
+
+            column += 3;
         }
 
-        int idx = 0;
-        for (Map.Entry<JEVisClass, List<TemplateInput>> templateInput : groupedInputsMap.entrySet()) {
-            if (idx == 4 || (idx > 4 && idx % 4 == 0)) {
+        List<JEVisClass> groupedInputClasses = new ArrayList<>(groupedInputsMap.keySet());
+        groupedInputClasses.sort((o1, o2) -> {
+            try {
+                return alphanumComparator.compare(I18nWS.getInstance().getClassName(o1), I18nWS.getInstance().getClassName(o2));
+            } catch (Exception e) {
+                logger.error("Could not compare translated classename of {} with {}", o1, o2, e);
+            }
+            return -1;
+        });
+
+        for (JEVisClass jeVisClass : groupedInputClasses) {
+            if (column == 6) {
                 column = 0;
                 row++;
             }
-            idx++;
-            JEVisClass inputClass = templateInput.getKey();
-            List<TemplateInput> groupedInputs = templateInput.getValue();
+            List<TemplateInput> groupedInputs = groupedInputsMap.get(jeVisClass);
             String className = null;
             try {
-                className = I18nWS.getInstance().getClassName(inputClass);
+                className = I18nWS.getInstance().getClassName(jeVisClass);
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
@@ -415,7 +475,7 @@ public class OutputView extends Tab {
             label.setAlignment(Pos.CENTER_LEFT);
             List<JEVisObject> objects = null;
             try {
-                objects = ds.getObjects(ds.getJEVisClass(inputClass.getName()), false);
+                objects = ds.getObjects(ds.getJEVisClass(jeVisClass.getName()), false);
                 List<JEVisObject> filteredObjects = new ArrayList<>();
                 String filter = groupedInputs.get(0).getFilter();
                 for (JEVisObject jeVisObject : objects) {
@@ -456,43 +516,87 @@ public class OutputView extends Tab {
             }
             JFXComboBox<JEVisObject> objectSelector = createObjectSelector(objects);
 
-            if (selectionTemplate != null && selectionTemplate.getSelectedInputs().contains(groupedInputs.get(0))) {
-                TemplateInput found = selectionTemplate.getSelectedInputs().stream().filter(ti -> ti.equals(groupedInputs.get(0))).findFirst().orElse(null);
-                if (found != null) {
-                    try {
-                        JEVisObject selectedObject = ds.getObject(found.getObjectID());
-                        objectSelector.getSelectionModel().select(selectedObject);
-                    } catch (JEVisException e) {
-                        logger.error("Could not get object {}", found.getVariableName());
-                        objectSelector.getSelectionModel().selectFirst();
-                    }
+            try {
+                Long objectID = groupedInputsMap.get(jeVisClass).get(0).getObjectID();
+                if (objectID != -1L) {
+                    JEVisObject selectedObject = ds.getObject(objectID);
+                    logger.debug("Found object {}:{}, selecting for {}", selectedObject.getName(), selectedObject.getID(), groupedInputs.get(0).getVariableName());
+                    objectSelector.getSelectionModel().select(selectedObject);
                 } else {
                     objectSelector.getSelectionModel().selectFirst();
+                    groupedInputs.forEach(templateInput1 -> {
+                        templateInput1.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID());
+                        TemplateInput templateInput = translationMap.get(templateInput1);
+                        if (templateInput != null) {
+                            templateInput.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID());
+                        }
+                    });
                 }
-            } else {
-                objectSelector.getSelectionModel().selectFirst();
-            }
-
-            if (objectSelector.getSelectionModel().getSelectedItem() != null) {
-                groupedInputs.forEach(templateInput1 -> templateInput1.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID()));
+            } catch (Exception e) {
+                logger.error("Could not get object {}", groupedInputsMap.get(jeVisClass).get(0).getVariableName());
             }
 
             objectSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue.equals(oldValue)) {
-                    groupedInputs.forEach(templateInput1 -> templateInput1.setObjectID(newValue.getID()));
+                    groupedInputs.forEach(templateInput1 -> {
+                        templateInput1.setObjectID(newValue.getID());
+                        TemplateInput templateInput = translationMap.get(templateInput1);
+                        if (templateInput != null) {
+                            templateInput.setObjectID(newValue.getID());
+                        }
+                    });
                     requestUpdate();
                 }
             });
 
             int finalColumn1 = column;
             int finalRow1 = row;
-            Platform.runLater(() -> {
-                removeNode(finalRow1, finalColumn1, viewInputs);
-                removeNode(finalRow1, finalColumn1 + 1, viewInputs);
-                viewInputs.add(label, finalColumn1, finalRow1);
-                viewInputs.add(objectSelector, finalColumn1 + 1, finalRow1);
-            });
-            column += 2;
+            if (contractsGP == null) {
+                Region region = new Region();
+                region.setMinWidth(25);
+                Platform.runLater(() -> {
+                    removeNode(finalRow1, finalColumn1, viewInputs);
+                    removeNode(finalRow1, finalColumn1 + 1, viewInputs);
+                    removeNode(finalRow1, finalColumn1 + 2, viewInputs);
+                    viewInputs.add(label, finalColumn1, finalRow1);
+                    viewInputs.add(objectSelector, finalColumn1 + 1, finalRow1);
+                    viewInputs.add(region, finalColumn1 + 2, finalRow1);
+                });
+            } else {
+                Region region = new Region();
+                region.setMinWidth(25);
+                try {
+                    if (jeVisClass.getInheritance() != null) {
+                        label.setText(I18nWS.getInstance().getClassName(jeVisClass.getInheritance().getName()));
+                    } else {
+                        label.setText(I18nWS.getInstance().getClassName(jeVisClass.getName()));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Platform.runLater(() -> {
+                    removeNode(finalRow1, finalColumn1, contractsGP);
+                    removeNode(finalRow1, finalColumn1 + 1, contractsGP);
+                    removeNode(finalRow1, finalColumn1 + 2, contractsGP);
+                    contractsGP.add(label, finalColumn1, finalRow1);
+                    contractsGP.add(objectSelector, finalColumn1 + 1, finalRow1);
+                    contractsGP.add(region, finalColumn1 + 2, finalRow1);
+                });
+            }
+            column += 3;
+        }
+    }
+
+    private void createTranslationMap(Map<TemplateInput, TemplateInput> translationMap) {
+        templateHandler.getRcTemplate().getTemplateInputs().stream().filter(templateInput -> !selectionTemplate.getSelectedInputs().contains(templateInput)).forEach(templateInput -> selectionTemplate.getSelectedInputs().add(templateInput));
+        for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+            for (TemplateInput input : selectionTemplate.getSelectedInputs()) {
+                if (templateInput.equals(input)) {
+                    translationMap.put(templateInput, input);
+                    templateInput.setObjectID(input.getObjectID());
+                    break;
+                }
+            }
         }
     }
 
@@ -506,8 +610,20 @@ public class OutputView extends Tab {
         }
     }
 
+    public void removeNodesFromRow(final int row, GridPane gridPane) {
+        if (gridPane != null) {
+            ObservableList<Node> children = gridPane.getChildren();
+            for (Node node : children) {
+                if (GridPane.getRowIndex(node) >= row) {
+                    gridPane.getChildren().remove(node);
+                }
+            }
+        }
+    }
+
     private JFXComboBox<JEVisObject> createObjectSelector(List<JEVisObject> objects) {
         JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
+        objectSelector.setMaxWidth(Double.MAX_VALUE);
 
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
@@ -597,5 +713,21 @@ public class OutputView extends Tab {
             return Integer.compare(formulaInputsO1.size(), formulaInputsO2.size());
         }
         return -1;
+    }
+
+    public void setContractsGP(GridPane contractsGP) {
+        this.contractsGP = contractsGP;
+    }
+
+    public void setTimeframeField(Label timeframeField) {
+        this.timeframeField = timeframeField;
+    }
+
+    public HBox getDateBox() {
+        return dateBox;
+    }
+
+    public GridPane getHeaderGP() {
+        return headerGP;
     }
 }

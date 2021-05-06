@@ -85,32 +85,16 @@ public class EMailManager {
         } catch (MessagingException ex) {
             logger.error("EMail folder is not available to read.", ex);
         }
-        Message[] msgs = null;
 
         logger.info("Folder is open: {}", folder.isOpen());
-        if (chanParam.getProtocol()
-                .equalsIgnoreCase(EMailConstants.Protocol.IMAP)) {
-            try {
-                msgs = folder.search(term);
-            } catch (MessagingException ex) {
-                logger.error("Unable to search messages", ex);
-            }
-        } else if (chanParam.getProtocol()
-                .equalsIgnoreCase(EMailConstants.Protocol.POP3)) {
-            try {
-//                int[] msgnums = new int[1000];
-//                Message[] messages = folder.getMessages(msgnums);
-                Message[] messages = folder.getMessages();
-                messages = filterPOP3ByDate(messages, chanParam.getLastReadout());
-                msgs = folder.search(term, messages);
-            } catch (MessagingException ex) {
-                logger.error("POP3: failed to receive messages from a folder.", ex);
-            }
-        } else {
-            logger.error("Unable to search messages");
-        }
 
-        messageList = Arrays.asList(msgs);
+        try {
+            Message[] messages = folder.search(term);
+            messages = filterMessagesByDate(messages, chanParam.getLastReadout());
+            messageList = Arrays.asList(messages);
+        } catch (MessagingException ex) {
+            logger.error("Unable to search messages", ex);
+        }
 
         logger.info("Messages found: {}", messageList.size());
 
@@ -233,7 +217,7 @@ public class EMailManager {
         return input;
     }
 
-    private static Message[] filterPOP3ByDate(Message[] messages, DateTime datetime) {
+    private static Message[] filterMessagesByDate(Message[] messages, DateTime datetime) {
         Date date = datetime.toDate();
         List<Message> msg = new ArrayList<>();
         for (Message message : messages) {
