@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
+import com.google.common.collect.Iterables;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -22,7 +23,11 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
+import org.jevis.jeconfig.plugin.dashboard.config2.NewWidgetSelector;
+import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
+import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
+import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -60,6 +65,9 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
     private final ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
     //private final ToggleButton moveButton = new ToggleButton("", JEConfig.getImage("move.png", this.iconSize, this.iconSize));
+    private Menu newWidgetMenuItem = new Menu("New");
+    private NewWidgetSelector widgetSelector;
+    private Button copyButton = new Button("", JEConfig.getImage("16_Copy_48x48.png", this.iconSize, this.iconSize));
 
 
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
@@ -75,6 +83,28 @@ public class DashBoardToolbar extends ToolBar {
         this.dashboardControl = dashboardControl;
         initLayout();
         this.dashboardControl.registerToolBar(this);
+
+    }
+
+    private void createNewWidgetList() {
+        /**
+         List<Widget> widgetList = Widgets.getAvailableWidgets(dashboardControl, new WidgetPojo());
+
+         widgetList.forEach(widget -> {
+         MenuItem newWidgetMenu = new MenuItem(widget.typeID());
+         newWidgetMenuItem.getItems().add(newWidgetMenu);
+
+         newWidgetMenu.setOnAction(event -> {
+         Widget newWidget = widget;
+         dashboardControl.addWidget(newWidget);
+         newWidget.setEditable(true);
+         this.dashboardControl.requestViewUpdate(newWidget);
+         });
+
+         });
+         **/
+
+
     }
 
     public static JFXComboBox<Double> buildZoomLevelListView() {
@@ -176,6 +206,41 @@ public class DashBoardToolbar extends ToolBar {
 
         //GlobalToolBar.changeBackgroundOnHoverUsingBinding(helpButton);
 
+        widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(dashboardControl, new WidgetPojo()));
+        widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
+            Widget newWidget = widgetSelector.getSelectedWidget();
+            dashboardControl.addWidget(newWidget);
+            newWidget.setEditable(true);
+            dashboardControl.setSelectedWidget(newWidget);
+        });
+
+
+        copyButton.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.copy")));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(copyButton);
+        copyButton.setOnAction(event -> {
+            try {
+                System.out.println("Copy widget:");
+                if (!dashboardControl.getSelectedWidgets().isEmpty()) {
+                    Widget oldWidget = Iterables.getLast(dashboardControl.getSelectedWidgets());
+                    Widget newWidget = oldWidget.clone();
+                    newWidget.getConfig().setUuid(dashboardControl.getNextFreeUUID());
+                    newWidget.getConfig().setTitle(newWidget.getConfig().getTitle());
+                    double newXPos = newWidget.getConfig().getxPosition() + newWidget.getConfig().getSize().getWidth() + 50;
+                    if (newXPos > dashboardControl.getDashboardPane().getWidth()) {
+                        newWidget.getConfig().setxPosition(newWidget.getConfig().getxPosition() + 50);
+                    } else {
+                        newWidget.getConfig().setxPosition(newXPos);
+                    }
+
+                    dashboardControl.addWidget(newWidget);
+                    newWidget.setEditable(true);
+                    dashboardControl.setSelectedWidget(newWidget);
+                }
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
 
         listZoomLevel = buildZoomLevelListView();
 
@@ -265,6 +330,10 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.toggleWidgetTooltips();
         });
 
+        delete.setOnAction(event -> {
+            dashboardControl.removeAllWidgets(dashboardControl.getSelectedWidgets());
+        });
+
         /**
          helpButton.setOnAction(event -> {
          this.dashboardControl.toggleTooltip();
@@ -277,8 +346,6 @@ public class DashBoardToolbar extends ToolBar {
         Separator sep3 = new Separator();
         Separator sep4 = new Separator();
 
-        //newButton.setDisable(true);
-        delete.setDisable(true);
 
         showGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.showgrid")));
         snapGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.usegrid")));
@@ -304,7 +371,7 @@ public class DashBoardToolbar extends ToolBar {
                 listAnalysesComboBox, newB
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
-                , sep4, save, delete, navigator, exportPNG
+                , sep4, save, navigator, exportPNG, widgetSelector, copyButton, delete
                 , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
         );
 
@@ -453,19 +520,9 @@ public class DashBoardToolbar extends ToolBar {
                             Platform.runLater(() -> {
                                 try {
                                     tooltip.setGraphic(new Region());
-
-                                    System.out.println("Show tooltip1: " + tooltip);
-                                    //tooltip.getGraphic().resize(tooltip.getWidth(), tooltip.getHeight());
-                                    System.out.println("Show tooltip1: " + tooltip);
                                     tooltip.show(control, x + 27, y + 60);
-                                    //tooltip.setStyle("-fx-rotate: 90;");
-
                                     Label parent = (Label) tooltip.getGraphic().getParent();
                                     parent.getTransforms().add(new Rotate(90));
-
-                                    //tooltip.getStyleableParent().getTransforms().add(new Rotate(90));
-                                    //tooltip.getGraphic().getTransforms().add(new Rotate(90));
-                                    System.out.println("Show tooltip1: " + tooltip);
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }

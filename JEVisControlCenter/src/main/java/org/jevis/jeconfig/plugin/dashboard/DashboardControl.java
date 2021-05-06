@@ -983,6 +983,16 @@ public class DashboardControl {
 
     }
 
+    /**
+     * ----------------------------------------------------------------
+     * Selection function below.
+     * TODO: move this function to an better place
+     */
+
+    public List<Widget> getSelectedWidgets() {
+        return selectedWidgets;
+    }
+
     public void addToWidgetSelection(List<Widget> widgets) {
         if (this.editableProperty.get()) {
             selectedWidgets.addAll(widgets);
@@ -991,6 +1001,12 @@ public class DashboardControl {
             showConfig();
         }
 
+    }
+
+    public void setSelectedWidget(Widget widget) {
+        List<Widget> selected = new ArrayList<>();
+        selected.add(widget);
+        setSelectedWidgets(selected);
     }
 
     public void setSelectedWidgets(List<Widget> widgets) {
@@ -1018,10 +1034,7 @@ public class DashboardControl {
 
 
     public void moveSelected(double up, double down, double left, double right) {
-        System.out.println("moveSelected:");
         selectedWidgets.forEach(widget -> {
-            System.out.println("move: " + widget.getConfig().getTitle() + "pos: " + widget.getConfig().getxPosition() + "   right:" + right);
-
             if (up > 0) {
                 widget.getConfig().setyPosition(widget.getConfig().getyPosition() - up);
             } else if (down > 0) {
@@ -1033,7 +1046,6 @@ public class DashboardControl {
             }
 
             requestViewUpdate(widget);
-            System.out.println("new pos: " + widget.getConfig().getxPosition());
         });
     }
 
@@ -1054,7 +1066,6 @@ public class DashboardControl {
 
     public void bgColorSelected(Color color) {
         selectedWidgets.forEach(widget -> {
-            System.out.println("Color for: " + widget.getConfig().getTitle() + "   color: " + color);
             widget.getConfig().setBackgroundColor(color);
             widget.updateConfig();
         });
@@ -1062,7 +1073,6 @@ public class DashboardControl {
 
     public void sizeSelected(double width, double height) {
         selectedWidgets.forEach(widget -> {
-            System.out.println("Size for: " + widget.getConfig().getTitle() + "   size: " + width + "/" + height);
             Size size = widget.getConfig().getSize();
             if (width > 0) {
                 size.setWidth(width);
@@ -1079,7 +1089,6 @@ public class DashboardControl {
 
     public void positionSelected(double xpos, double ypos) {
         selectedWidgets.forEach(widget -> {
-            System.out.println("Pos for: " + widget.getConfig().getTitle() + "   pos: " + xpos + "/" + ypos);
             if (xpos > -1) {
                 widget.getConfig().setxPosition(xpos);
             }
@@ -1094,8 +1103,6 @@ public class DashboardControl {
 
     public void shadowSelected(boolean shadows) {
         selectedWidgets.forEach(widget -> {
-            System.out.println("shadows for: " + widget.getConfig().getTitle() + "   shadows: " + shadows);
-
             widget.getConfig().setShowShadow(shadows);
             widget.updateConfig();
             requestViewUpdate(widget);
@@ -1104,8 +1111,6 @@ public class DashboardControl {
 
     public void fontSizeSelected(double size) {
         selectedWidgets.forEach(widget -> {
-            System.out.println("fontSelected for: " + widget.getConfig().getTitle() + "   size: " + size);
-
             widget.getConfig().setFontSize(size);
             widget.updateConfig();
             requestViewUpdate(widget);
@@ -1113,33 +1118,15 @@ public class DashboardControl {
     }
 
     private void showConfig() {
-        System.out.println("showConfig.hide: " + selectedWidgets.isEmpty());
-
         if (selectedWidgets.isEmpty()) {
-            System.out.printf("No Widget Selected hide config");
             dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
         } else {
             configPanePos(configSideProperty.get(), sideConfigPanel);
             sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
         }
-
-
-        /**
-         if (selectedWidgets.isEmpty()) {
-         dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
-         } else {
-         dashBordPlugIn.showConfig(sideConfigPanel);
-         sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
-         }
-         **/
-
     }
 
     public void configPanePos(Side pos, Node node) {
-        //dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
-        System.out.println("HCP.P: " + dashBordPlugIn.getHiddenSidesPane().getPinnedSide());
-        System.out.println("HCP.L: " + dashBordPlugIn.getHiddenSidesPane().getLeft());
-        System.out.println("HCP.R: " + dashBordPlugIn.getHiddenSidesPane().getRight());
         configSideProperty.setValue(pos);
 
         if (pos.equals(Side.LEFT)) {
@@ -1150,10 +1137,6 @@ public class DashboardControl {
             dashBordPlugIn.getHiddenSidesPane().setRight(node);
         }
         dashBordPlugIn.getHiddenSidesPane().setPinnedSide(pos);
-        System.out.println("After change");
-        System.out.println("HCP.P: " + dashBordPlugIn.getHiddenSidesPane().getPinnedSide());
-        System.out.println("HCP.L: " + dashBordPlugIn.getHiddenSidesPane().getLeft());
-        System.out.println("HCP.R: " + dashBordPlugIn.getHiddenSidesPane().getRight());
     }
 
     public ObjectProperty<Side> getConfigSideProperty() {

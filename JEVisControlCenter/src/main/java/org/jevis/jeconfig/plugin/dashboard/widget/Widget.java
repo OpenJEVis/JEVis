@@ -130,8 +130,6 @@ public abstract class Widget extends Region {
 
 
         setOnMouseClicked(event -> {
-            System.out.println("Widget Click: " + event);
-            System.out.println("Drag detectedt: " + event.isDragDetect());
             if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
                 if (event.isShiftDown()) {
                     debug();
@@ -284,9 +282,7 @@ public abstract class Widget extends Region {
             @Override
             public void handle(ActionEvent e) {
                 try {
-                    System.out.println("Open Config");
                     Widget.this.openConfig();
-                    System.out.println("Open Config done");
                 } catch (Exception ex) {
                     logger.error(ex);
                     ex.printStackTrace();
@@ -300,7 +296,6 @@ public abstract class Widget extends Region {
             public void handle(ActionEvent e) {
                 try {
                     Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() + 1);
-                    System.out.println("Widget: " + Widget.this.getConfig().getTitle());
                     //debugLayers();
                     control.redrawDashboardPane();
                 } catch (Exception ex) {
@@ -317,8 +312,6 @@ public abstract class Widget extends Region {
             public void handle(ActionEvent e) {
                 try {
                     Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() - 1);
-                    System.out.println("Widget: " + Widget.this.getConfig().getTitle());
-                    //debugLayers();
                     control.redrawDashboardPane();
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -553,8 +546,6 @@ public abstract class Widget extends Region {
 
     @Override
     public Widget clone() {
-//        Class cls = Class.forName(this.getcl);
-
         try {
             Widget newWidget = this.getClass().getDeclaredConstructor(DashboardControl.class).newInstance(control);
 
