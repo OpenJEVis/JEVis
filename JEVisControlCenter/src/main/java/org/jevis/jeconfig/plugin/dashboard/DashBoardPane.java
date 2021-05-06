@@ -341,6 +341,8 @@ public class DashBoardPane extends Pane {
             line.setEndY(totalHeight);
             line.getStrokeDashArray().addAll(strokeDashArray);
             line.setOpacity(opacity);
+            if (i % 4 == 0) line.setStroke(Color.MEDIUMSLATEBLUE);
+            line.setMouseTransparent(true);
             this.visibleGrid.add(line);
 
         }
@@ -358,6 +360,8 @@ public class DashBoardPane extends Pane {
             line.setEndY(yPos);
             line.getStrokeDashArray().addAll(strokeDashArray);
             line.setOpacity(opacity);
+            if (i % 4 == 0) line.setStroke(Color.MEDIUMSLATEBLUE);
+            line.setMouseTransparent(true);
             this.visibleGrid.add(line);
 
         }
