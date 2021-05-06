@@ -17,6 +17,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -33,7 +34,6 @@ import org.jevis.jeconfig.plugin.object.extension.role.Membership;
 import org.jevis.jeconfig.plugin.object.extension.role.Role;
 import org.jevis.jeconfig.plugin.object.extension.role.RoleManager;
 import org.jevis.jeconfig.plugin.object.extension.role.User;
-import org.jevis.jeconfig.plugin.object.permission.MemberTable;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -136,6 +136,7 @@ public class RoleExtention implements ObjectEditorExtension {
 
     @Override
     public boolean needSave() {
+        System.out.println("Role has changed: " + role.hasChanged());
         return role.hasChanged();
     }
 
@@ -168,12 +169,9 @@ public class RoleExtention implements ObjectEditorExtension {
 
     private void saveDashboard() {
         DateTime now = new DateTime();
-
-
         JEVisObject dashboard = dashboadList.getSelectionModel().getSelectedItem();
-        if (dashboard == null) {
-            return;
-        }
+        if (dashboard == null) return;
+
 
         try {
             JEVisSample sample = _obj.getAttribute("Start Dashboard").buildSample(now, dashboard.getID());
@@ -372,15 +370,15 @@ public class RoleExtention implements ObjectEditorExtension {
         nameCol.setCellValueFactory(new PropertyValueFactory<TableUser, String>("groupName"));
         idCol.setCellValueFactory(new PropertyValueFactory<TableUser, String>("groupid"));
         readCol.setCellValueFactory(param -> param.getValue().readProperty());
-        readCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
+        readCol.setCellFactory(param -> new CheckBoxTableCell<>());
         writeCol.setCellValueFactory(param -> param.getValue().writeProperty());
-        writeCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
+        writeCol.setCellFactory(param -> new CheckBoxTableCell<>());
         deleteCol.setCellValueFactory(param -> param.getValue().deleteProperty());
-        deleteCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
+        deleteCol.setCellFactory(param -> new CheckBoxTableCell<>());
         createCol.setCellValueFactory(param -> param.getValue().createProperty());
-        createCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
+        createCol.setCellFactory(param -> new CheckBoxTableCell<>());
         executeCol.setCellValueFactory(param -> param.getValue().executeProperty());
-        executeCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
+        executeCol.setCellFactory(param -> new CheckBoxTableCell<>());
 
         filterdMemberships.addAll(role.getMemberships());
 
@@ -437,7 +435,7 @@ public class RoleExtention implements ObjectEditorExtension {
         userTableView.getColumns().addAll(memberCol, userNameCol, idCol);
 
         memberCol.setCellValueFactory(param -> param.getValue().memberProperty());
-        memberCol.setCellFactory(param -> new MemberTable.JFXCheckBoxTableCell<>());
+        memberCol.setCellFactory(param -> new CheckBoxTableCell<>());
         memberCol.setEditable(true);
         userNameCol.setCellValueFactory(param -> param.getValue().usernameProperty());
         userNameCol.setEditable(false);
