@@ -37,7 +37,11 @@ public class TitleWidget extends Widget {
 
     public TitleWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
-        this.setId(WIDGET_ID+ UUID.randomUUID());
+        this.setId(WIDGET_ID + UUID.randomUUID());
+    }
+
+    public TitleWidget(DashboardControl control) {
+        super(control);
     }
 
     @Override
@@ -51,7 +55,7 @@ public class TitleWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.titlewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*4));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 4));
 
         return widgetPojo;
     }
