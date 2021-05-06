@@ -48,6 +48,8 @@ public class DashBoardToolbar extends ToolBar {
     private final ImageView unlockIcon = JEConfig.getImage("if_lock-unlock_blue_68758.png", this.iconSize, this.iconSize);
     private final ImageView pauseIcon = JEConfig.getImage("pause_32.png", this.iconSize, this.iconSize);
     private final ImageView playIcon = JEConfig.getImage("play_32.png", this.iconSize, this.iconSize);
+    private final ImageView loadIcon = JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize);
+    private final ToggleButton loadDialogButton = new ToggleButton("", this.loadIcon);
     private final ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
     private final ToggleButton unlockButton = new ToggleButton("", this.lockIcon);
     private final ToggleButton snapGridButton = new ToggleButton("", snapToGridIcon);
@@ -86,26 +88,6 @@ public class DashBoardToolbar extends ToolBar {
 
     }
 
-    private void createNewWidgetList() {
-        /**
-         List<Widget> widgetList = Widgets.getAvailableWidgets(dashboardControl, new WidgetPojo());
-
-         widgetList.forEach(widget -> {
-         MenuItem newWidgetMenu = new MenuItem(widget.typeID());
-         newWidgetMenuItem.getItems().add(newWidgetMenu);
-
-         newWidgetMenu.setOnAction(event -> {
-         Widget newWidget = widget;
-         dashboardControl.addWidget(newWidget);
-         newWidget.setEditable(true);
-         this.dashboardControl.requestViewUpdate(newWidget);
-         });
-
-         });
-         **/
-
-
-    }
 
     public static JFXComboBox<Double> buildZoomLevelListView() {
         ObservableList<Double> zoomLevel = FXCollections.observableArrayList();
@@ -126,7 +108,6 @@ public class DashBoardToolbar extends ToolBar {
 
         JFXComboBox<Double> doubleComboBox = new JFXComboBox<>(zoomLevel);
         DecimalFormat df = new DecimalFormat("##0");
-        //DecimalFormat df = new DecimalFormat("#.##");
         df.setMaximumFractionDigits(2);
         Callback<ListView<Double>, ListCell<Double>> cellFactory = new Callback<ListView<Double>, ListCell<Double>>() {
             @Override
@@ -193,7 +174,6 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(settingsButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPNG);
-        //GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomIn);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
@@ -202,9 +182,7 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reloadButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
-        //GlobalToolBar.changeBackgroundOnHoverUsingBinding(moveButton);
-
-        //GlobalToolBar.changeBackgroundOnHoverUsingBinding(helpButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadDialogButton);
 
         widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(dashboardControl, new WidgetPojo()));
         widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
@@ -322,6 +300,7 @@ public class DashBoardToolbar extends ToolBar {
 
         toolBarIntervalSelector = new ToolBarIntervalSelector(this.dashboardControl);
 
+        //not in use
         newB.setOnAction(event -> {
             this.dashboardControl.createNewDashboard();
         });
@@ -332,6 +311,10 @@ public class DashBoardToolbar extends ToolBar {
 
         delete.setOnAction(event -> {
             dashboardControl.removeAllWidgets(dashboardControl.getSelectedWidgets());
+        });
+
+        loadDialogButton.setOnAction(event -> {
+            dashboardControl.showLoadDialog();
         });
 
         /**
@@ -345,7 +328,7 @@ public class DashBoardToolbar extends ToolBar {
         Separator sep2 = new Separator();
         Separator sep3 = new Separator();
         Separator sep4 = new Separator();
-
+        Separator sep5 = new Separator();
 
         showGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.showgrid")));
         snapGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.usegrid")));
@@ -368,16 +351,16 @@ public class DashBoardToolbar extends ToolBar {
         HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);
         getItems().clear();
         getItems().setAll(
-                listAnalysesComboBox, newB
+                listAnalysesComboBox
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
-                , sep4, save, navigator, exportPNG, widgetSelector, copyButton, delete
+                , sep4, loadDialogButton, save
+                , sep5, navigator, exportPNG, widgetSelector, copyButton, delete
                 , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
         );
 
         getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems());
-
 
         updateView(dashboardControl.getActiveDashboard());
     }
@@ -431,6 +414,14 @@ public class DashBoardToolbar extends ToolBar {
         toolBarIntervalSelector.updateView();
         infoButton.setSelected(this.dashboardControl.showWidgetHelpProperty.getValue());
         //toolTipDocu.showHelpTooltips(this.dashboardControl.showHelpProperty.getValue());
+
+        widgetSelector.setDisable(!dashboardControl.editableProperty.get());
+        copyButton.setDisable(!dashboardControl.editableProperty.get());
+        delete.setDisable(!dashboardControl.editableProperty.get());
+        navigator.setDisable(!dashboardControl.editableProperty.get());
+        snapGridButton.setDisable(!dashboardControl.editableProperty.get());
+        showGridButton.setDisable(!dashboardControl.editableProperty.get());
+        navigator.setDisable(!dashboardControl.editableProperty.get());
 
         updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
     }
