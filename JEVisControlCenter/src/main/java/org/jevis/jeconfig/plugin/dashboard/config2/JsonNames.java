@@ -40,6 +40,7 @@ public interface JsonNames {
         String SHOW_SHADOW = "shadow";
         String BORDER_SIZE = "borderSize";
         String DATA_HANDLER_NODE = "dataHandler";
+        String LAYER = "layer";
 
     }
 

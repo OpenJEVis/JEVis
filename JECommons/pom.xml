@@ -202,12 +202,14 @@
             <version>2.0</version>
             <scope>compile</scope>
         </dependency>
+        <!-- duplicate?!
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
             <version>2.1</version>
             <scope>compile</scope>
         </dependency>
+        -->
         <!--<dependency>-->
         <!--<groupId>com.fasterxml.jackson.datatype</groupId>-->
         <!--<artifactId>jackson-datatype-joda</artifactId>-->

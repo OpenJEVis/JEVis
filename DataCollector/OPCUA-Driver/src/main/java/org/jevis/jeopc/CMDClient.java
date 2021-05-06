@@ -102,7 +102,14 @@ public class CMDClient {
     private static void printData(OPCClient opcClient, String id) throws ExecutionException, InterruptedException {
         System.out.println("Fetch Datapoint: '" + id + "'");
         NodeId nodeIdName = NodeId.parse(id);//"ns=1;i=20036");
-        HistoryReadResult historyReadResult = opcClient.getHistory(nodeIdName, new DateTime().minusDays(7), new DateTime());
+
+        DateTime from= new DateTime(2021,04,22,15,00,00);
+        DateTime until= new DateTime(2021,04,22,16,00,00);
+
+        //HistoryReadResult historyReadResult = opcClient.getHistory(nodeIdName, new DateTime().minusDays(1), new DateTime());
+        OPCUAChannel OPCUAChannel = new OPCUAChannel(id,"i=11506",900000);
+
+        HistoryReadResult historyReadResult = opcClient.getHistory(OPCUAChannel, from, until);
         List<DataValue> valueList = opcClient.getDateValues(historyReadResult);
         valueList.forEach(dataValue -> {
             try {

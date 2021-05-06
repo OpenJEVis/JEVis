@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
+import com.google.common.collect.Iterables;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -13,10 +14,13 @@ import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
@@ -63,18 +67,21 @@ public class DashboardControl {
     private boolean isUpdateRunning = false;
     private java.io.File newBackgroundFile;
     private final Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
+    private SideConfigPanel sideConfigPanel;
 
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
     private final ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
     private TimeFrameFactory activeTimeFrame;
     private TimeFrames timeFrames;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
+    private List<Widget> selectedWidgets = new ArrayList<>();
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
     public BooleanProperty snapToGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showWidgetHelpProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showHelpProperty = new SimpleBooleanProperty(false);
+    public ObjectProperty<Side> configSideProperty = new SimpleObjectProperty<>(Side.RIGHT);
     private DashBoardPane dashboardPane = new DashBoardPane();
     private DashBoardToolbar toolBar;
     private String firstLoadedConfigHash = null;
@@ -459,6 +466,8 @@ public class DashboardControl {
                 setZoomFactor(activeDashboard.getZoomFactor());
                 toolBar.updateView(activeDashboard);
             });
+
+            sideConfigPanel = new SideConfigPanel(this);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -488,8 +497,12 @@ public class DashboardControl {
         return date;
     }
 
-    public void openWidgetNavigator() {
+    public void redrawDashboardPane() {
+        dashboardPane.redrawWidgets(this.widgetList);
+        dashboardPane.showGrid(showGridProperty.getValue());
+    }
 
+    public void openWidgetNavigator() {
         widgetNavigator.show();
     }
 
@@ -511,6 +524,12 @@ public class DashboardControl {
             });
 
         });
+        if (!editable) {
+            selectedWidgets.clear();
+            showConfig();
+            updateHighlightSelected();
+        }
+
     }
 
     public void reload() {
@@ -964,5 +983,181 @@ public class DashboardControl {
 
     }
 
+    public void addToWidgetSelection(List<Widget> widgets) {
+        if (this.editableProperty.get()) {
+            selectedWidgets.addAll(widgets);
+            updateHighlightSelected();
+
+            showConfig();
+        }
+
+    }
+
+    public void setSelectedWidgets(List<Widget> widgets) {
+        if (this.editableProperty.get()) {
+            selectedWidgets.clear();
+            selectedWidgets.addAll(widgets);
+            updateHighlightSelected();
+
+            showConfig();
+        }
+    }
+
+
+    private void updateHighlightSelected() {
+        for (Widget widget : widgetList) {
+            boolean highlight = false;
+            for (Widget toHightlight : selectedWidgets) {
+                if (widget.equals(toHightlight)) {
+                    highlight = true;
+                }
+            }
+            widget.setGlow(highlight, false);
+        }
+    }
+
+
+    public void moveSelected(double up, double down, double left, double right) {
+        System.out.println("moveSelected:");
+        selectedWidgets.forEach(widget -> {
+            System.out.println("move: " + widget.getConfig().getTitle() + "pos: " + widget.getConfig().getxPosition() + "   right:" + right);
+
+            if (up > 0) {
+                widget.getConfig().setyPosition(widget.getConfig().getyPosition() - up);
+            } else if (down > 0) {
+                widget.getConfig().setyPosition(widget.getConfig().getyPosition() + down);
+            } else if (left > 0) {
+                widget.getConfig().setxPosition(widget.getConfig().getxPosition() - left);
+            } else if (right > 0) {
+                widget.getConfig().setxPosition(widget.getConfig().getxPosition() + right);
+            }
+
+            requestViewUpdate(widget);
+            System.out.println("new pos: " + widget.getConfig().getxPosition());
+        });
+    }
+
+    public void layerSelected(int layer) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setLayer(layer);
+        });
+        redrawDashboardPane();
+    }
+
+    public void fgColorSelected(Color color) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontColor(color);
+            widget.updateConfig();
+        });
+        redrawDashboardPane();
+    }
+
+    public void bgColorSelected(Color color) {
+        selectedWidgets.forEach(widget -> {
+            System.out.println("Color for: " + widget.getConfig().getTitle() + "   color: " + color);
+            widget.getConfig().setBackgroundColor(color);
+            widget.updateConfig();
+        });
+    }
+
+    public void sizeSelected(double width, double height) {
+        selectedWidgets.forEach(widget -> {
+            System.out.println("Size for: " + widget.getConfig().getTitle() + "   size: " + width + "/" + height);
+            Size size = widget.getConfig().getSize();
+            if (width > 0) {
+                size.setWidth(width);
+            }
+            if (height > 0) {
+                size.setHeight(height);
+            }
+
+            widget.getConfig().setSize(size);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void positionSelected(double xpos, double ypos) {
+        selectedWidgets.forEach(widget -> {
+            System.out.println("Pos for: " + widget.getConfig().getTitle() + "   pos: " + xpos + "/" + ypos);
+            if (xpos > -1) {
+                widget.getConfig().setxPosition(xpos);
+            }
+            if (ypos > -1) {
+                widget.getConfig().setyPosition(ypos);
+            }
+
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void shadowSelected(boolean shadows) {
+        selectedWidgets.forEach(widget -> {
+            System.out.println("shadows for: " + widget.getConfig().getTitle() + "   shadows: " + shadows);
+
+            widget.getConfig().setShowShadow(shadows);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void fontSizeSelected(double size) {
+        selectedWidgets.forEach(widget -> {
+            System.out.println("fontSelected for: " + widget.getConfig().getTitle() + "   size: " + size);
+
+            widget.getConfig().setFontSize(size);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    private void showConfig() {
+        System.out.println("showConfig.hide: " + selectedWidgets.isEmpty());
+
+        if (selectedWidgets.isEmpty()) {
+            System.out.printf("No Widget Selected hide config");
+            dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
+        } else {
+            configPanePos(configSideProperty.get(), sideConfigPanel);
+            sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+        }
+
+
+        /**
+         if (selectedWidgets.isEmpty()) {
+         dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
+         } else {
+         dashBordPlugIn.showConfig(sideConfigPanel);
+         sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+         }
+         **/
+
+    }
+
+    public void configPanePos(Side pos, Node node) {
+        //dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
+        System.out.println("HCP.P: " + dashBordPlugIn.getHiddenSidesPane().getPinnedSide());
+        System.out.println("HCP.L: " + dashBordPlugIn.getHiddenSidesPane().getLeft());
+        System.out.println("HCP.R: " + dashBordPlugIn.getHiddenSidesPane().getRight());
+        configSideProperty.setValue(pos);
+
+        if (pos.equals(Side.LEFT)) {
+            dashBordPlugIn.getHiddenSidesPane().setRight(null);
+            dashBordPlugIn.getHiddenSidesPane().setLeft(node);
+        } else if (pos.equals(Side.RIGHT)) {
+            dashBordPlugIn.getHiddenSidesPane().setLeft(null);
+            dashBordPlugIn.getHiddenSidesPane().setRight(node);
+        }
+        dashBordPlugIn.getHiddenSidesPane().setPinnedSide(pos);
+        System.out.println("After change");
+        System.out.println("HCP.P: " + dashBordPlugIn.getHiddenSidesPane().getPinnedSide());
+        System.out.println("HCP.L: " + dashBordPlugIn.getHiddenSidesPane().getLeft());
+        System.out.println("HCP.R: " + dashBordPlugIn.getHiddenSidesPane().getRight());
+    }
+
+    public ObjectProperty<Side> getConfigSideProperty() {
+        return configSideProperty;
+    }
 
 }
