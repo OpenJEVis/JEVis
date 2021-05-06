@@ -136,7 +136,6 @@ public class RoleExtention implements ObjectEditorExtension {
 
     @Override
     public boolean needSave() {
-        System.out.println("Role has changed: " + role.hasChanged());
         return role.hasChanged();
     }
 
