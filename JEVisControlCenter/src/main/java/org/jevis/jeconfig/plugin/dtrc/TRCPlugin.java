@@ -76,7 +76,7 @@ public class TRCPlugin implements Plugin {
     private final ObjectMapper mapper = new ObjectMapper();
     private final TemplateHandler templateHandler = new TemplateHandler();
 
-    private final boolean initialized = false;
+    private boolean initialized = false;
     private JFXComboBox<JEVisObject> trcs;
     private StackPane dialogStackPane;
 
@@ -543,21 +543,28 @@ public class TRCPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-        List<JEVisObject> allTemplateCalculations = getAllTemplateCalculations();
-        if (allTemplateCalculations.isEmpty()) {
-            templateHandler.setRcTemplate(new RCTemplate());
-        } else {
-            trcs.getItems().clear();
-            trcs.getItems().addAll(allTemplateCalculations);
-            trcs.getSelectionModel().selectFirst();
-        }
 
-        initGui();
+        if (!initialized) {
+            initialized = true;
+
+            List<JEVisObject> allTemplateCalculations = getAllTemplateCalculations();
+            if (allTemplateCalculations.isEmpty()) {
+                templateHandler.setRcTemplate(new RCTemplate());
+            } else {
+                trcs.getItems().clear();
+                trcs.getItems().addAll(allTemplateCalculations);
+                trcs.getSelectionModel().selectFirst();
+            }
+
+            initGui();
+        }
 
     }
 
     private void initGui() {
         viewTab.setClosable(false);
+        viewTab.showInputs(true);
+
         configurationTab.setClosable(false);
 
         if (templateHandler.getRcTemplate() != null) {
@@ -777,7 +784,7 @@ public class TRCPlugin implements Plugin {
     private JFXButton createInputButton(TemplateInput templateInput) {
         JFXButton inputButton = new JFXButton(templateInput.getVariableName());
         inputButton.setMnemonicParsing(false);
-        if (templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+        if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
             inputButton.setStyle("-fx-background-color: derive(-fx-base, 120%);");
         }
 

@@ -26,6 +26,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.driver.Result;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.List;
@@ -77,6 +78,19 @@ public class DBHelper {
                             return getDefValue(defValue, error);
                         } else {
                             return (T) lastS.getValueAsString();
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Attribute {}: failed to get the value", error.getMessage());
+                        throw new NullPointerException();
+                    }
+                case TIMEZONE:
+                    try {
+                        String str = lastS.getValueAsString();
+                        if (null == str || str.isEmpty()) {
+                            logger.error("{} is empty. Trying to set the default value", error.getMessage());
+                            return getDefValue(defValue, error);
+                        } else {
+                            return (T) DateTimeZone.forID(lastS.getValueAsString());
                         }
                     } catch (Exception ex) {
                         logger.error("Attribute {}: failed to get the value", error.getMessage());
@@ -165,6 +179,6 @@ public class DBHelper {
      * return types
      */
     public enum RetType {
-        STRING, BOOLEAN, INTEGER, DATETIME
+        STRING, BOOLEAN, INTEGER, DATETIME, TIMEZONE
     }
 }
