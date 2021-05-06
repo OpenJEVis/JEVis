@@ -100,7 +100,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
                 try {
                     String dataName = chartDataModel.getObject().getName();
                     Platform.runLater(() -> this.legend.getItems().add(
-                            this.legend.buildHorizontalLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
+                            this.legend.buildHorizontalLegendItem(chartDataModel.getTitle(), ColorHelper.toColor(chartDataModel.getColor()),
                                     this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
                                     chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"), false)));
                 } catch (Exception ex) {

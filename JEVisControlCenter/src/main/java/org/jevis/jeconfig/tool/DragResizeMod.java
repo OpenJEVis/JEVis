@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import org.jevis.jeconfig.plugin.dashboard.DashBoardPane;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
@@ -144,7 +145,9 @@ public class DragResizeMod {
         node.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                resizer.mousePressed(event);
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    resizer.mousePressed(event);
+                }
             }
         });
         node.setOnMouseDragged(new EventHandler<MouseEvent>() {

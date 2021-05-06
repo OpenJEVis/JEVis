@@ -158,30 +158,12 @@ public class WidgetNavigator {
         gridPane.setHgap(8);
         gridPane.setVgap(8);
 
-        /**
-         ColumnConstraints column1 = new ColumnConstraints();
-         ColumnConstraints column2 = new ColumnConstraints();
-         ColumnConstraints column3 = new ColumnConstraints();
-         ColumnConstraints column4 = new ColumnConstraints();
-         gridPane.getColumnConstraints().addAll(column1,column2,column3,column4);
-         **/
-
         gridPane.addColumn(0, nameLabel, backgroundColorLabel, backgroundIconLabel);
         gridPane.addColumn(1, nameField, pickerAdv, imageBox);
         gridPane.add(new Separator(Orientation.VERTICAL), 2, 0, 1, 3);
         gridPane.addColumn(4, sizeLabel, defaultZoomLabel, timeLabel);
         gridPane.addColumn(5, sizeBox, listZoomLevel, timeFactoryBox);
         gridPane.addColumn(6, new Region());
-
-        //GridPane.setHgrow(listZoomLevel,Priority.SOMETIMES);
-        //GridPane.setHgrow(timeFactoryBox,Priority.SOMETIMES);
-
-        /**
-         gridPane.addRow(0,nameLabel,nameField);
-         gridPane.addRow(1,sizeLabel,sizeBox);
-         gridPane.addRow(2,backgroundColorLabel,pickerAdv,backgroundIconLabel,imageBox);
-         gridPane.addRow(3,timeLabel,timeFactoryBox,defaultZoomLabel,listZoomLevel);
-         **/
 
         try {
             nameField.setText(this.control.getActiveDashboard().getTitle());

@@ -322,7 +322,7 @@ public class DataModelDataHandler {
 
                 /** we may need this for meter changes usecase**/
                 //CleanDataObject.getPeriodForDate(, )
-
+                
                 Period objectPeriod = new Period(chartDataRow.getAttribute().getObject().getAttribute("Period").getLatestSample().getValueAsString());
                 Period userPeriod = new Period();
                 switch (getAggregationPeriod(interval)) {
@@ -376,6 +376,8 @@ public class DataModelDataHandler {
 
 
                 chartDataRow.setAbsolute(autoAggregation);
+            } catch (NullPointerException ex) {
+                logger.error("Nullpointer in {}", chartDataRow);
             } catch (Exception ex) {
                 logger.error(ex, ex);
             }
