@@ -102,6 +102,7 @@ public class AccountingTemplateHandler {
 
     public void setTemplateObject(JEVisObject templateObject) {
         this.templateObject = templateObject;
+        this.setTitle(templateObject.getName());
         try {
             JEVisAttribute templateFileAttribute = templateObject.getAttribute("Template File");
             if (templateFileAttribute.hasSample()) {

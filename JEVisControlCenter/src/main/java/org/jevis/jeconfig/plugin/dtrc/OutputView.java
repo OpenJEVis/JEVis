@@ -33,6 +33,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
@@ -45,7 +46,10 @@ import org.mariuszgromada.math.mxparser.Expression;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -69,6 +73,7 @@ public class OutputView extends Tab {
     private final ConcurrentHashMap<String, Double> resultMap = new ConcurrentHashMap<>();
     private static final Insets INSETS = new Insets(12);
     private final AlphanumComparator alphanumComparator = new AlphanumComparator();
+    private final ObjectRelations objectRelations;
     private final GridPane headerGP = new GridPane();
     private final HBox dateBox;
     private final DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
@@ -78,6 +83,7 @@ public class OutputView extends Tab {
     public OutputView(String title, JEVisDataSource ds, TemplateHandler templateHandler) {
         super(title);
         this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
         this.templateHandler = templateHandler;
         setClosable(false);
 
@@ -373,10 +379,9 @@ public class OutputView extends Tab {
 
         int column = 0;
         for (TemplateInput ungroupedInput : ungroupedInputs) {
-            Label label = new Label(I18nWS.getInstance().getClassName(ungroupedInput.getObjectClass()));
+
+            Label label = new Label(ungroupedInput.getVariableName());
             label.setAlignment(Pos.CENTER_LEFT);
-            VBox labelBox = new VBox(label);
-            labelBox.setAlignment(Pos.CENTER);
 
             if (column == 6) {
                 column = 0;
@@ -384,7 +389,8 @@ public class OutputView extends Tab {
             }
 
             try {
-                JFXComboBox<JEVisObject> objectSelector = createObjectSelector(Collections.singletonList(ds.getObject(ungroupedInput.getObjectID())));
+
+                JFXComboBox<JEVisObject> objectSelector = createObjectSelector(ungroupedInput.getObjectClass(), ungroupedInput.getFilter());
 
                 try {
                     Long objectID = ungroupedInput.getObjectID();
@@ -423,7 +429,7 @@ public class OutputView extends Tab {
                         removeNode(finalRow, finalColumn, viewInputs);
                         removeNode(finalRow, finalColumn + 1, viewInputs);
                         removeNode(finalRow, finalColumn + 2, viewInputs);
-                        viewInputs.add(labelBox, finalColumn, finalRow);
+                        viewInputs.add(label, finalColumn, finalRow);
                         viewInputs.add(objectSelector, finalColumn + 1, finalRow);
                         viewInputs.add(region, finalColumn + 2, finalRow);
                     });
@@ -437,7 +443,7 @@ public class OutputView extends Tab {
                         removeNode(finalRow, finalColumn, contractsGP);
                         removeNode(finalRow, finalColumn + 1, contractsGP);
                         removeNode(finalRow, finalColumn + 2, contractsGP);
-                        contractsGP.add(labelBox, finalColumn, finalRow);
+                        contractsGP.add(label, finalColumn, finalRow);
                         contractsGP.add(objectSelector, finalColumn + 1, finalRow);
                         contractsGP.add(region, finalColumn + 2, finalRow);
                     });
@@ -473,48 +479,8 @@ public class OutputView extends Tab {
             }
             Label label = new Label(className);
             label.setAlignment(Pos.CENTER_LEFT);
-            List<JEVisObject> objects = null;
-            try {
-                objects = ds.getObjects(ds.getJEVisClass(jeVisClass.getName()), false);
-                List<JEVisObject> filteredObjects = new ArrayList<>();
-                String filter = groupedInputs.get(0).getFilter();
-                for (JEVisObject jeVisObject : objects) {
-                    String objectName = TRCPlugin.getRealName(jeVisObject);
 
-                    if (filter != null && filter.contains(" ")) {
-                        String[] result = filter.split(" ");
-                        String string = objectName.toLowerCase();
-                        boolean[] results = new boolean[result.length];
-                        for (int i = 0, resultLength = result.length; i < resultLength; i++) {
-                            String value = result[i];
-                            String subString = value.toLowerCase();
-                            results[i] = string.contains(subString);
-                        }
-
-                        boolean allFound = true;
-                        for (boolean b : results) {
-                            if (!b) {
-                                allFound = false;
-                                break;
-                            }
-                        }
-                        if (allFound) {
-                            filteredObjects.add(jeVisObject);
-                        }
-
-                    } else if (filter != null) {
-                        String string = objectName.toLowerCase();
-                        if (string.contains(filter.toLowerCase())) {
-                            filteredObjects.add(jeVisObject);
-                        }
-                    } else filteredObjects.add(jeVisObject);
-                }
-
-                objects = filteredObjects;
-            } catch (JEVisException e) {
-                logger.error("Could not get JEVisClass {}", className, e);
-            }
-            JFXComboBox<JEVisObject> objectSelector = createObjectSelector(objects);
+            JFXComboBox<JEVisObject> objectSelector = createObjectSelector(groupedInputs.get(0).getObjectClass(), groupedInputs.get(0).getFilter());
 
             try {
                 Long objectID = groupedInputsMap.get(jeVisClass).get(0).getObjectID();
@@ -621,7 +587,51 @@ public class OutputView extends Tab {
         }
     }
 
-    private JFXComboBox<JEVisObject> createObjectSelector(List<JEVisObject> objects) {
+    private JFXComboBox<JEVisObject> createObjectSelector(String jeVisClassName, String filter) {
+
+        List<JEVisObject> objects = new ArrayList<>();
+        try {
+            List<JEVisObject> allObjects = ds.getObjects(ds.getJEVisClass(jeVisClassName), false);
+            List<JEVisObject> filteredObjects = new ArrayList<>();
+            for (JEVisObject jeVisObject : allObjects) {
+                String objectName = TRCPlugin.getRealName(jeVisObject);
+
+                if (filter != null && filter.contains(" ")) {
+                    String[] result = filter.split(" ");
+                    String string = objectName.toLowerCase();
+                    boolean[] results = new boolean[result.length];
+                    for (int i = 0, resultLength = result.length; i < resultLength; i++) {
+                        String value = result[i];
+                        String subString = value.toLowerCase();
+                        results[i] = string.contains(subString);
+                    }
+
+                    boolean allFound = true;
+                    for (boolean b : results) {
+                        if (!b) {
+                            allFound = false;
+                            break;
+                        }
+                    }
+                    if (allFound) {
+                        filteredObjects.add(jeVisObject);
+                    }
+
+                } else if (filter != null) {
+                    String string = objectName.toLowerCase();
+                    if (string.contains(filter.toLowerCase())) {
+                        filteredObjects.add(jeVisObject);
+                    }
+                } else filteredObjects.add(jeVisObject);
+            }
+
+            objects.addAll(filteredObjects);
+        } catch (JEVisException e) {
+            logger.error("Could not get JEVisClass {}", jeVisClassName, e);
+        }
+
+        objects.sort((o1, o2) -> alphanumComparator.compare(objectRelations.getObjectPath(o1) + o1.getName(), objectRelations.getObjectPath(o2) + o2.getName()));
+
         JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
         objectSelector.setMaxWidth(Double.MAX_VALUE);
 
@@ -638,9 +648,9 @@ public class OutputView extends Tab {
                         } else {
                             try {
                                 if (!obj.getJEVisClassName().equals("Clean Data")) {
-                                    setText(obj.getName());
+                                    setText(objectRelations.getObjectPath(obj) + obj.getName());
                                 } else {
-                                    setText(TRCPlugin.getRealName(obj));
+                                    setText(objectRelations.getObjectPath(obj) + TRCPlugin.getRealName(obj));
                                 }
                             } catch (JEVisException e) {
                                 logger.error("Could not get JEVisClass of object {}:{}", obj.getName(), obj.getID(), e);
