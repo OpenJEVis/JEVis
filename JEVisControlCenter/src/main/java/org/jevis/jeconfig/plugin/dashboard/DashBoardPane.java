@@ -78,8 +78,8 @@ public class DashBoardPane extends Pane {
             if (!event.isControlDown()) {
                 control.setSelectedWidgets(new ArrayList<>());
             }
-
         });
+
 
 //        addMouseSelectionGesture();
     }

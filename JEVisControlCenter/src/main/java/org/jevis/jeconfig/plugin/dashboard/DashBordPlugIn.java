@@ -12,6 +12,7 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -109,6 +110,25 @@ public class DashBordPlugIn implements Plugin {
         scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.ALWAYS);
         scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.ALWAYS);
 
+
+        scrollPane.setOnKeyPressed(event -> {
+            System.out.println("Key types on scroll pane: " + event);
+            if (dashboardControl.editableProperty.getValue() && !dashboardControl.getSelectedWidgets().isEmpty()) {
+                if (event.getCode().equals(KeyCode.LEFT)) {
+                    dashboardControl.moveSelected(-1, -1, dashboardControl.getActiveDashboard().getxGridInterval(), -1);
+                    event.consume();
+                } else if (event.getCode().equals(KeyCode.RIGHT)) {
+                    dashboardControl.moveSelected(-1, -1, -1, dashboardControl.getActiveDashboard().getxGridInterval());
+                    event.consume();
+                } else if (event.getCode().equals(KeyCode.UP)) {
+                    dashboardControl.moveSelected(dashboardControl.getActiveDashboard().getyGridInterval(), -1, -1, -1);
+                    event.consume();
+                } else if (event.getCode().equals(KeyCode.DOWN)) {
+                    dashboardControl.moveSelected(-1, dashboardControl.getActiveDashboard().getyGridInterval(), -1, -1);
+                    event.consume();
+                }
+            }
+        });
 
         dashBoardPane.boundsInParentProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
@@ -246,6 +266,9 @@ public class DashBordPlugIn implements Plugin {
                 break;
             case Constants.Plugin.Command.HELP:
                 dashboardControl.toggleTooltip();
+                break;
+            case Constants.Plugin.Command.DELETE:
+                dashboardControl.removeAllWidgets(dashboardControl.getSelectedWidgets());
                 break;
             default:
                 logger.error("unknown PluginCommand: {}", cmdType);

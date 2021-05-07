@@ -372,8 +372,10 @@ public abstract class Widget extends Region {
                 contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
                 event.consume();
             }
+
         });
 
+        
     }
 
     private void debugLayers() {
