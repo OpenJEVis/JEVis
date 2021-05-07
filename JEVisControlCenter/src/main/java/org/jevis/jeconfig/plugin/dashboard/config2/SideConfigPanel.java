@@ -109,7 +109,7 @@ public class SideConfigPanel extends GridPane {
         Label label = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.layer") + ":");
 
         JFXComboBox<Integer> jfxComboBox = new JFXComboBox();
-        jfxComboBox.getItems().addAll(1, 2, 3, 4, 5, 6);
+        jfxComboBox.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
         jfxComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {

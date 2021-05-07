@@ -149,8 +149,6 @@ public class WidgetConfig {
     }
 
 
-
-
     public ObjectNode toJsonNode() {
         ObjectNode jsonNode = this.mapper.createObjectNode();
         jsonNode.put(this.title.getName(), this.title.getValue());
@@ -194,10 +192,7 @@ public class WidgetConfig {
         });
 
 
-
     }
-
-    
 
 
 }
