@@ -1069,6 +1069,7 @@ public class DashboardControl {
 
     public void layerSelected(int layer) {
         selectedWidgets.forEach(widget -> {
+            System.out.println("Widget set layer to: " + widget.getConfig().getUuid() + " " + layer);
             widget.getConfig().setLayer(layer);
         });
         redrawDashboardPane();

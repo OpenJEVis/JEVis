@@ -646,6 +646,8 @@ public class FXLogin extends AnchorPane {
                                 } else {
                                     new ProcessBuilder("x-www-browser", getHost()).start();
                                 }
+                                Platform.exit();
+                                System.exit(0);
                             } catch (Exception ex) {
                                 logger.error(ex);
                             }

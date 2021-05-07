@@ -352,19 +352,14 @@ public abstract class Widget extends Region {
             }
 
             if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
-                System.out.println("Is primary");
 
                 if (event.isControlDown()) {
-                    System.out.println("isControlDown down");
                     ArrayList arrayList = new ArrayList<>();
                     arrayList.add(this);
                     control.addToWidgetSelection(arrayList);
                     event.consume();
                 } else {
-                    System.out.println("is simple leftclick");
-                    ArrayList arrayList = new ArrayList<>();
-                    arrayList.add(this);
-                    control.setSelectedWidgets(arrayList);
+                    control.setSelectedWidget(this);
                     event.consume();
                 }
             }
@@ -374,7 +369,9 @@ public abstract class Widget extends Region {
                 contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
                 event.consume();
             }
+
         });
+
 
     }
 
@@ -536,6 +533,7 @@ public abstract class Widget extends Region {
                 .put(JsonNames.Widget.TITLE_POSITION, this.config.getTitlePosition().toString())
                 .put(JsonNames.Widget.BORDER_SIZE, this.config.getBorderSize().getTop())
                 .put(JsonNames.Widget.SHOW_SHADOW, this.config.getShowShadow())
+                .put(JsonNames.Widget.LAYER, this.config.getLayer())
                 .put(JsonNames.Widget.WIDTH, this.config.getSize().getWidth())
                 .put(JsonNames.Widget.HEIGHT, this.config.getSize().getHeight())
                 .put(JsonNames.Widget.X_POS, this.config.getxPosition())

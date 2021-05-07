@@ -75,8 +75,11 @@ public class DashBoardPane extends Pane {
         addPopUpFunctions();
 
         setOnMouseClicked(event -> {
-            control.setSelectedWidgets(new ArrayList<>());
+            if (!event.isControlDown()) {
+                control.setSelectedWidgets(new ArrayList<>());
+            }
         });
+
 
 //        addMouseSelectionGesture();
     }
@@ -148,16 +151,14 @@ public class DashBoardPane extends Pane {
 
 
     public void redrawWidgets(List<Widget> widgetList) {
-
+        sortWidgets(widgetList);
         Platform.runLater(() -> {
             getChildren().clear();
         });
 
-        sortWidgets(widgetList);
         widgetList.forEach(widget -> {
             addWidget(widget);
         });
-
 
     }
 
