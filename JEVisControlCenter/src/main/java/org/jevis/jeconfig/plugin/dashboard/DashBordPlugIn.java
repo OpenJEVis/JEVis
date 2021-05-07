@@ -112,7 +112,6 @@ public class DashBordPlugIn implements Plugin {
 
 
         scrollPane.setOnKeyPressed(event -> {
-            System.out.println("Key types on scroll pane: " + event);
             if (dashboardControl.editableProperty.getValue() && !dashboardControl.getSelectedWidgets().isEmpty()) {
                 if (event.getCode().equals(KeyCode.LEFT)) {
                     dashboardControl.moveSelected(-1, -1, dashboardControl.getActiveDashboard().getxGridInterval(), -1);

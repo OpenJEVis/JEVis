@@ -4,19 +4,19 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import javafx.application.Platform;
-import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.geometry.VPos;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -25,25 +25,38 @@ import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SideConfigPanel extends GridPane {
 
 
     private static final Logger logger = LogManager.getLogger(SideConfigPanel.class);
-    private Accordion accordion = new Accordion();
     private DashboardControl control;
-    private IntegerProperty integerProperty = new SimpleIntegerProperty(0);
-    private ObjectProperty<Color> fgColorProperty = new SimpleObjectProperty(null);
-    private ObjectProperty<Color> bgColorProperty = new SimpleObjectProperty(null);
-    private DoubleProperty widthProperty = new SimpleDoubleProperty();
-    private DoubleProperty heightProperty = new SimpleDoubleProperty();
-    private DoubleProperty xPosProperty = new SimpleDoubleProperty();
-    private DoubleProperty yPosProperty = new SimpleDoubleProperty();
-    private DoubleProperty fontSizeProperty = new SimpleDoubleProperty();
-    private BooleanProperty isUpdating = new SimpleBooleanProperty(false);
-    private BooleanProperty shadowsProperty = new SimpleBooleanProperty(false);
+    private boolean isUpdating = false;
+    private double iconSize = 16;
+
+    private JFXComboBox<Integer> layerComboBox = new JFXComboBox();
+    private ColorPickerAdv bgColorPicker = new ColorPickerAdv();
+    private ColorPickerAdv fColorPicker = new ColorPickerAdv();
+    private JFXCheckBox showShadowField = new JFXCheckBox();
+    private Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
+    private Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
+    private Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
+    private Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
+    private Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
+    private Label widthLabel = new Label("Width:");
+    private Label heightLabel = new Label("Height:");
+    private Label moveLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.move"));
+    private Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
+    private Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
+    private JFXTextField widthText = new JFXTextField();
+    private JFXTextField heightText = new JFXTextField();
+    private JFXTextField xPosText = new JFXTextField();
+    private JFXTextField yPosText = new JFXTextField();
+    private JFXButton leftButton = new JFXButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
+    private JFXButton rightButton = new JFXButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
+    private JFXButton downButton = new JFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
+    private JFXButton upButton = new JFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
+    private JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
+    private TextField pixels = new TextField("25.0");
 
     public SideConfigPanel(DashboardControl control) {
         super();
@@ -51,15 +64,16 @@ public class SideConfigPanel extends GridPane {
         setStyle("-fx-background-color: fcfcfc;");
 
         this.setPadding(new Insets(12, 12, 12, 12));
-        List<TitledPane> tabs = new ArrayList<>();
         VBox accordionBox = new VBox();
         accordionBox.getChildren().addAll(buildMoveTab(), buildLayer(), buildColors());
 
+        this.add(switchSide, 0, 0);
+        this.add(accordionBox, 0, 1);
+
+        GridPane.setHalignment(switchSide, HPos.CENTER);
         GridPane.setVgrow(accordionBox, Priority.ALWAYS);
 
-        JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
         switchSide.setStyle("-fx-background-color: transparent;");
-        //switchSide.setBackground(Background.EMPTY);
         switchSide.setOnAction(event -> {
             if (control.getConfigSideProperty().get().equals(Side.RIGHT)) {
                 control.configPanePos(Side.LEFT, this);
@@ -69,29 +83,26 @@ public class SideConfigPanel extends GridPane {
 
         });
 
-        this.add(switchSide, 0, 0);
-        this.add(accordionBox, 0, 1);
-
-        GridPane.setHalignment(switchSide, HPos.CENTER);
     }
 
 
     public void setLastSelectedWidget(Widget widget) {
-        System.out.println("setLastSelectedWidget: " + widget);
-        isUpdating.set(true);
+        System.out.println("-------------------setLastSelectedWidget: " + widget.getConfig().getUuid());
         System.out.println("Layer in config: " + widget.getConfig().getLayer());
-        integerProperty.setValue(widget.getConfig().getLayer());
-        fgColorProperty.setValue(widget.getConfig().getFontColor());
-        bgColorProperty.setValue(widget.getConfig().getBackgroundColor());
+        isUpdating = true;
+        
+        layerComboBox.setValue(widget.getConfig().getLayer());
+        fColorPicker.setValue(widget.getConfig().getFontColor());
+        bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
+        showShadowField.setSelected(widget.getConfig().getShowShadow());
+        fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
+        widthText.setText(widget.getConfig().getSize().getWidth() + "");
+        xPosText.setText(widget.getConfig().getxPosition() + "");
+        yPosText.setText(widget.getConfig().getyPosition() + "");
+        heightText.setText(widget.getConfig().getSize().getHeight() + "");
+        pixels.setText(control.getActiveDashboard().getxGridInterval() + "");
 
-        System.out.println("update size: " + widget.getConfig().getSize());
-        widthProperty.setValue(widget.getConfig().getSize().getWidth());
-        heightProperty.setValue(widget.getConfig().getSize().getHeight());
-        xPosProperty.setValue(widget.getConfig().getxPosition());
-        yPosProperty.setValue(widget.getConfig().getyPosition());
-        shadowsProperty.setValue(widget.getConfig().getShowShadow());
-        fontSizeProperty.setValue(widget.getConfig().getFontSize());
-        isUpdating.set(false);
+        isUpdating = false;
     }
 
 
@@ -108,34 +119,18 @@ public class SideConfigPanel extends GridPane {
 
         Label label = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.layer") + ":");
 
-        JFXComboBox<Integer> jfxComboBox = new JFXComboBox();
-        jfxComboBox.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
-        jfxComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                if (!isUpdating.getValue()) {
-                    control.layerSelected(Integer.parseInt(newValue.toString()));
-                }
+        layerComboBox.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
-            } catch (Exception ex) {
-                logger.error(ex, ex);
+        layerComboBox.setOnAction(event -> {
+            if (!isUpdating) {
+                control.layerSelected(Integer.parseInt(layerComboBox.getValue().toString()));
             }
-        });
-
-        integerProperty.addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                try {
-                    jfxComboBox.setValue(newValue.intValue());
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-            });
-
         });
 
 
         gp.add(label, 0, 0);
-        gp.add(jfxComboBox, 1, 0);
+        gp.add(layerComboBox, 1, 0);
         titledPane.setContent(gp);
 
         return titledPane;
@@ -151,17 +146,6 @@ public class SideConfigPanel extends GridPane {
         gp.setHgap(8);
         gp.setVgap(8);
 
-
-        Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
-        Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
-        Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
-        Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
-
-
-        ColorPickerAdv bgColorPicker = new ColorPickerAdv();
-        ColorPickerAdv fColorPicker = new ColorPickerAdv();
-        JFXCheckBox showShadowField = new JFXCheckBox();
-        Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
         fontSizeSpinner.setMaxWidth(80);
         gp.add(fColorLabel, 0, 0);
         gp.add(fColorPicker, 1, 0);
@@ -175,45 +159,29 @@ public class SideConfigPanel extends GridPane {
         titledPane.setContent(gp);
 
         bgColorPicker.selectColorProperty().addListener((observable, oldValue, newValue) -> {
-            if (!isUpdating.get()) {
+            if (!isUpdating) {
                 control.bgColorSelected(newValue);
             }
         });
 
         fColorPicker.selectColorProperty().addListener((observable, oldValue, newValue) -> {
-            if (!isUpdating.get()) {
+            if (!isUpdating) {
                 control.fgColorSelected(newValue);
             }
         });
 
-        fgColorProperty.addListener((observable, oldValue, newValue) -> {
-            fColorPicker.setValue(newValue);
-        });
-
-        bgColorProperty.addListener((observable, oldValue, newValue) -> {
-            bgColorPicker.setValue(newValue);
-        });
-
-        showShadowField.setOnAction(event -> {
-            if (!isUpdating.get()) {
-                control.shadowSelected(showShadowField.isSelected());
-            }
-        });
-
-
-        shadowsProperty.addListener((observable, oldValue, newValue) -> {
-            showShadowField.setSelected(newValue);
-        });
-
         fontSizeSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!isUpdating.get()) {
+            if (!isUpdating) {
                 control.fontSizeSelected(newValue);
             }
         });
 
-        fontSizeProperty.addListener((observable, oldValue, newValue) -> {
-            fontSizeSpinner.getValueFactory().setValue(newValue.intValue());
+        showShadowField.setOnAction(event -> {
+            if (!isUpdating) {
+                control.shadowSelected(showShadowField.isSelected());
+            }
         });
+
 
         return titledPane;
     }
@@ -224,33 +192,14 @@ public class SideConfigPanel extends GridPane {
         titledPane.setExpanded(true);
 
         GridPane gp = new GridPane();
-        //gp.setStyle("-fx-background-color: orange;");
         gp.setPadding(new Insets(8, 8, 8, 8));
         gp.setHgap(8);
         gp.setVgap(8);
 
-
-        Label widthLabel = new Label("Width:");
-        Label heightLabel = new Label("Height:");
-        Label moveLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.move"));
-        Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
-        Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
-        JFXTextField widthText = new JFXTextField();
-        JFXTextField heightText = new JFXTextField();
-        JFXTextField xPosText = new JFXTextField();
-        JFXTextField yPosText = new JFXTextField();
         widthText.setMaxWidth(80);
         heightText.setMaxWidth(80);
         xPosText.setMaxWidth(80);
         yPosText.setMaxWidth(80);
-
-        double iconSize = 16;
-        JFXButton leftButton = new JFXButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
-        JFXButton rightButton = new JFXButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
-        JFXButton downButton = new JFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
-        JFXButton upButton = new JFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
-
-        TextField pixels = new TextField(control.getActiveDashboard().getxGridInterval() + "");
         pixels.setMaxWidth(40);
 
         GridPane gpMove = new GridPane();
@@ -294,13 +243,13 @@ public class SideConfigPanel extends GridPane {
             control.moveSelected(0, 0, 0, Double.parseDouble(pixels.getText()));
         });
         xPosText.setOnAction(event -> {
-            if (!isUpdating.get()) {
+            if (!isUpdating) {
                 control.positionSelected(Double.parseDouble(xPosText.getText()), -1);
             }
         });
 
         yPosText.setOnAction(event -> {
-            if (!isUpdating.get()) {
+            if (!isUpdating) {
                 control.positionSelected(-1, Double.parseDouble(yPosText.getText()));
             }
         });
@@ -308,7 +257,7 @@ public class SideConfigPanel extends GridPane {
         widthText.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (!isUpdating.get()) {
+                if (!isUpdating) {
                     control.sizeSelected(Double.parseDouble(widthText.getText()), -1);
                 }
             }
@@ -316,25 +265,10 @@ public class SideConfigPanel extends GridPane {
         heightText.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (!isUpdating.get()) {
+                if (!isUpdating) {
                     control.sizeSelected(-1, Double.parseDouble(heightText.getText()));
                 }
             }
-        });
-
-        heightProperty.addListener((observable, oldValue, newValue) -> {
-            heightText.setText(newValue.toString());
-        });
-        widthProperty.addListener((observable, oldValue, newValue) -> {
-            widthText.setText(newValue.toString());
-        });
-
-        xPosProperty.addListener((observable, oldValue, newValue) -> {
-            xPosText.setText(newValue.toString());
-        });
-
-        yPosProperty.addListener((observable, oldValue, newValue) -> {
-            yPosText.setText(newValue.toString());
         });
 
         titledPane.setContent(gp);

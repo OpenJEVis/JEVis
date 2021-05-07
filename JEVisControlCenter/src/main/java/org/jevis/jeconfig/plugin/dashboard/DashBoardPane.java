@@ -151,16 +151,14 @@ public class DashBoardPane extends Pane {
 
 
     public void redrawWidgets(List<Widget> widgetList) {
-
+        sortWidgets(widgetList);
         Platform.runLater(() -> {
             getChildren().clear();
         });
 
-        sortWidgets(widgetList);
         widgetList.forEach(widget -> {
             addWidget(widget);
         });
-
 
     }
 

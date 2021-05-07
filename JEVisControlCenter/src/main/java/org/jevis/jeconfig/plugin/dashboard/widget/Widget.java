@@ -352,16 +352,13 @@ public abstract class Widget extends Region {
             }
 
             if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
-                System.out.println("Is primary");
 
                 if (event.isControlDown()) {
-                    System.out.println("isControlDown down");
                     ArrayList arrayList = new ArrayList<>();
                     arrayList.add(this);
                     control.addToWidgetSelection(arrayList);
                     event.consume();
                 } else {
-                    System.out.println("is simple leftclick");
                     control.setSelectedWidget(this);
                     event.consume();
                 }
@@ -375,7 +372,7 @@ public abstract class Widget extends Region {
 
         });
 
-        
+
     }
 
     private void debugLayers() {
