@@ -163,21 +163,23 @@ public class DashBoardPane extends Pane {
     }
 
     private void sortWidgets(List<Widget> widgetList) {
-        widgetList.sort(new Comparator<Widget>() {
-            @Override
-            public int compare(Widget o1, Widget o2) {
-                try {
-                    int layerC = o1.getConfig().getLayer().compareTo(o2.config.getLayer());
-                    if (layerC == 0) {
-                        return Integer.compare(o1.getConfig().getUuid(), o2.getConfig().getUuid());
-                    } else {
-                        return layerC;
-                    }
-                } catch (Exception ex) {
-                    return 1;
-                }
+        widgetList.sort((o1, o2) -> {
+            try {
+                return o1.getConfig().getLayer().compareTo(o2.config.getLayer());
+            } catch (Exception ex) {
+                return 0;
             }
         });
+
+
+        /** only sort by layer for now, old dashboard releay on the saved order
+         int layerC = o1.getConfig().getLayer().compareTo(o2.config.getLayer());
+         if (layerC == 0) {
+         return Integer.compare(o1.getConfig().getUuid(), o2.getConfig().getUuid());
+         } else {
+         return layerC;
+         }
+         **/
     }
 
 
