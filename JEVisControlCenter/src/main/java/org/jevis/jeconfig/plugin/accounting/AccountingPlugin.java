@@ -1170,13 +1170,19 @@ public class AccountingPlugin extends TablePlugin {
         });
         VBox es0VBox = new VBox(esRename);
         es0VBox.setAlignment(Pos.CENTER);
-        HBox esHBox = new HBox(6, energySupplierBox, es0VBox);
+
+        Label esClassLabel = new Label();
+        VBox esClassVBox = new VBox(esClassLabel);
+        esClassVBox.setAlignment(Pos.CENTER);
+
+        HBox esHBox = new HBox(6, esClassVBox, energySupplierBox, es0VBox);
 
         VBox esVBox = new VBox(6, esHBox, separator1, esGP, separator1b, esCGP);
+        esVBox.setPadding(INSETS);
         energySupplierTab.setContent(esVBox);
 
         energySupplierBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(esGP, newValue, esCGP);
+            updateWithChangeCheck(esGP, newValue, esClassLabel, esCGP);
         });
 
         GridPane emoGP = new GridPane();
@@ -1204,13 +1210,19 @@ public class AccountingPlugin extends TablePlugin {
         });
         VBox emo0VBox = new VBox(emoRename);
         emo0VBox.setAlignment(Pos.CENTER);
-        HBox emoHBox = new HBox(6, energyMeteringOperatorBox, emo0VBox);
+
+        Label emoClassLabel = new Label();
+        VBox emoClassVBox = new VBox(emoClassLabel);
+        emoClassVBox.setAlignment(Pos.CENTER);
+
+        HBox emoHBox = new HBox(6, emoClassVBox, energyMeteringOperatorBox, emo0VBox);
 
         VBox emoVBox = new VBox(6, emoHBox, separator2, emoGP, separator2b, emoCGP);
+        emoVBox.setPadding(INSETS);
         energyMeteringOperatorsTab.setContent(emoVBox);
 
         energyMeteringOperatorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(emoGP, newValue, emoCGP);
+            updateWithChangeCheck(emoGP, newValue, emoClassLabel, emoCGP);
         });
 
         GridPane egoGP = new GridPane();
@@ -1238,13 +1250,19 @@ public class AccountingPlugin extends TablePlugin {
         });
         VBox ego0VBox = new VBox(egoRename);
         ego0VBox.setAlignment(Pos.CENTER);
-        HBox egoHBox = new HBox(6, energyGridOperatorBox, ego0VBox);
+
+        Label egoClassLabel = new Label();
+        VBox egoClassVbox = new VBox(egoClassLabel);
+        egoClassVbox.setAlignment(Pos.CENTER);
+
+        HBox egoHBox = new HBox(6, egoClassVbox, energyGridOperatorBox, ego0VBox);
 
         VBox egoVBox = new VBox(6, egoHBox, separator3, egoGP, separator3b, egoCGP);
+        egoVBox.setPadding(INSETS);
         energyGridOperatorsTab.setContent(egoVBox);
 
         energyGridOperatorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(egoGP, newValue, egoCGP);
+            updateWithChangeCheck(egoGP, newValue, egoClassLabel, egoCGP);
         });
 
         GridPane cGP = new GridPane();
@@ -1264,13 +1282,19 @@ public class AccountingPlugin extends TablePlugin {
         });
         VBox cv0VBox = new VBox(cvRename);
         cv0VBox.setAlignment(Pos.CENTER);
-        HBox cvHBox = new HBox(6, energyContractorBox, cv0VBox);
+
+        Label cvClassLabel = new Label();
+        VBox cvClassVbox = new VBox(cvClassLabel);
+        cvClassVbox.setAlignment(Pos.CENTER);
+
+        HBox cvHBox = new HBox(6, cvClassVbox, energyContractorBox, cv0VBox);
 
         VBox cVBox = new VBox(6, cvHBox, separator4, cGP);
+        cVBox.setPadding(INSETS);
         energyContractorTab.setContent(cVBox);
 
         energyContractorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(cGP, newValue.getObject(), null);
+            updateWithChangeCheck(cGP, newValue.getObject(), cvClassLabel, null);
         });
 
         GridPane gdGP = new GridPane();
@@ -1294,10 +1318,11 @@ public class AccountingPlugin extends TablePlugin {
         HBox gdHBox = new HBox(6, governmentalDuesBox, gd0VBox);
 
         VBox gdVBox = new VBox(6, gdHBox, separator5, gdGP);
+        gdVBox.setPadding(INSETS);
         governmentalDuesTab.setContent(gdVBox);
 
         governmentalDuesBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(gdGP, newValue, null);
+            updateWithChangeCheck(gdGP, newValue, null, null);
         });
 
         Platform.runLater(() -> enterDataTabPane.getTabs().addAll(energySupplierTab, energyMeteringOperatorsTab, energyGridOperatorsTab, energyContractorTab, governmentalDuesTab));
@@ -1307,7 +1332,7 @@ public class AccountingPlugin extends TablePlugin {
         updateGUI();
     }
 
-    private void updateWithChangeCheck(GridPane gridPane, JEVisObject newValue, GridPane contractorPreview) {
+    private void updateWithChangeCheck(GridPane gridPane, JEVisObject newValue, Label classLabel, GridPane contractorPreview) {
         boolean changed = attributeEditors.stream().anyMatch(AttributeEditor::hasChanged);
 
         if (changed && !guiUpdate) {
@@ -1343,12 +1368,26 @@ public class AccountingPlugin extends TablePlugin {
                 }
                 attributeEditors.clear();
                 dialog.close();
+                updateClassLabel(newValue, classLabel);
                 updateGrid(gridPane, newValue, contractorPreview);
             });
 
             dialog.show();
         } else {
+            updateClassLabel(newValue, classLabel);
             updateGrid(gridPane, newValue, contractorPreview);
+        }
+    }
+
+    private void updateClassLabel(JEVisObject newValue, Label classLabel) {
+        if (classLabel != null) {
+            Platform.runLater(() -> {
+                try {
+                    classLabel.setText(I18nWS.getInstance().getClassName(newValue.getJEVisClassName()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
     }
 
@@ -1532,7 +1571,7 @@ public class AccountingPlugin extends TablePlugin {
                 attributes.sort(Comparator.comparingInt(o -> {
                     try {
                         return o.getType().getGUIPosition();
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     return -1;
@@ -1644,7 +1683,7 @@ public class AccountingPlugin extends TablePlugin {
             JEVisClass templateClass = getDataSource().getJEVisClass(TEMPLATE_CLASS);
             list = getDataSource().getObjects(templateClass, true);
             list.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
