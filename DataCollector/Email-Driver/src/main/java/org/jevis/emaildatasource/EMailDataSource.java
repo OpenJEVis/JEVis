@@ -23,7 +23,6 @@ import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.driver.*;
-import org.joda.time.DateTimeZone;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -73,7 +72,7 @@ public class EMailDataSource implements DataSource {
                 logger.info("Answer list size: {}", input.size());
 
                 if (!input.isEmpty()) {
-                    _parser.parse(input, DateTimeZone.forID(_eMailServerParameters.getTimezone()));
+                    _parser.parse(input, _eMailServerParameters.getTimezone());
                     _result = _parser.getResult();
                 }
 
@@ -115,7 +114,7 @@ public class EMailDataSource implements DataSource {
         final long connectDone = System.currentTimeMillis();
         logger.info("Send sample request. Connection parameters and connection: {}  msec.", (connectDone - start));
         //
-        _channelParameters = new EMailChannelParameters(channel, _eMailServerParameters.getProtocol());
+        _channelParameters = new EMailChannelParameters(channel, _eMailServerParameters.getProtocol(), _eMailServerParameters.getTimezone());
         //measurment
         final long channelDone = System.currentTimeMillis();
         logger.info("Send sample request. Channel parameters: {} msec.", (channelDone - start));

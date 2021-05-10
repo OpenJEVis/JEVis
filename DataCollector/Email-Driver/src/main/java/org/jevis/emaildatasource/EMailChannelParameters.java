@@ -27,6 +27,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 
 /**
@@ -38,6 +39,7 @@ import org.joda.time.DateTime;
 public class EMailChannelParameters {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(EMailChannelParameters.class);
     private final String _protocol;
+    private final DateTimeZone dateTimeZone;
     private String _sender;
     private String _subject;
     private DateTime _lastReadout;
@@ -45,8 +47,9 @@ public class EMailChannelParameters {
     private String _filename;
     private boolean _inbody;
 
-    public EMailChannelParameters(JEVisObject channel, String protocol) {
+    public EMailChannelParameters(JEVisObject channel, String protocol, DateTimeZone dateTimeZone) {
         _protocol = protocol;
+        this.dateTimeZone = dateTimeZone;
         setChannelAttribute(channel);
         setSearchTerms();
     }
@@ -251,7 +254,7 @@ public class EMailChannelParameters {
         SearchTerm newerThan = null;
         SearchTerm term;
         try {
-            newerThan = new ReceivedDateTerm(ComparisonTerm.GT, _lastReadout.toDate());
+            newerThan = new ReceivedDateTerm(ComparisonTerm.GT, _lastReadout.minusDays(1).toDate());
         } catch (NullPointerException ex) {
             logger.error("Date term is wrong", ex);
         }

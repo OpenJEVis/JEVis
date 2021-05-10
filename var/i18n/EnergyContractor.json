@@ -16,23 +16,6 @@
   },
   "types": [
     {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "",
-        "ru": "",
-        "uk": "",
-        "th": "",
-        "en": ""
-      },
-      "names": {
-        "de": "Energieträger",
-        "ru": "Энергетический ресурс",
-        "uk": "Джерело енергії",
-        "th": "แหล่งพลังงาน",
-        "en": "Energy Source"
-      }
-    },
-    {
       "type": "Vendor Number",
       "descriptions": {
         "de": "",
@@ -217,108 +200,6 @@
         "uk": "електронна адреса",
         "th": "ที่อยู่อีเมล",
         "en": "Contact mail"
-      }
-    },
-    {
-      "type": "Contract Conclusion",
-      "descriptions": {
-        "de": "",
-        "ru": "",
-        "uk": "",
-        "th": "",
-        "en": ""
-      },
-      "names": {
-        "de": "Vertragsschluss",
-        "ru": "Заключение договора",
-        "uk": "Укладення договору",
-        "th": "ข้อสรุปของสัญญา",
-        "en": "Contract Conclusion"
-      }
-    },
-    {
-      "type": "Contract Start",
-      "descriptions": {
-        "de": "",
-        "ru": "",
-        "uk": "",
-        "th": "",
-        "en": ""
-      },
-      "names": {
-        "de": "Vertragsbeginn",
-        "ru": "Начало контракта",
-        "uk": "Початок договору",
-        "th": "เริ่มต้นสัญญา",
-        "en": "Contract Start"
-      }
-    },
-    {
-      "type": "Contract End",
-      "descriptions": {
-        "de": "",
-        "ru": "",
-        "uk": "",
-        "th": "",
-        "en": ""
-      },
-      "names": {
-        "de": "Vertragsende",
-        "ru": "Завершение контракта",
-        "uk": "Кінець контракту",
-        "th": "สิ้นสุดสัญญา",
-        "en": "Contract End"
-      }
-    },
-    {
-      "type": "Period of Notice",
-      "descriptions": {
-        "de": "",
-        "ru": "",
-        "uk": "",
-        "th": "",
-        "en": ""
-      },
-      "names": {
-        "de": "Kündigungsfrist",
-        "ru": "период уведомления",
-        "uk": "термін попередження",
-        "th": "ระยะเวลาแจ้งให้ทราบล่วงหน้า",
-        "en": "Period of Notice"
-      }
-    },
-    {
-      "type": "Product",
-      "descriptions": {
-        "de": "",
-        "ru": "",
-        "uk": "",
-        "th": "",
-        "en": ""
-      },
-      "names": {
-        "de": "Produkt / Tarif",
-        "ru": "Товар / тариф",
-        "uk": "Товар / тариф",
-        "th": "สินค้า / ภาษี",
-        "en": "Product"
-      }
-    },
-    {
-      "type": "Net Cost",
-      "descriptions": {
-        "de": "",
-        "ru": "",
-        "uk": "",
-        "th": "",
-        "en": ""
-      },
-      "names": {
-        "de": "Grundpreis",
-        "ru": "Базисная цена",
-        "uk": "Базова ціна",
-        "th": "ราคาพื้นฐาน",
-        "en": "Net Cost"
       }
     }
   ]

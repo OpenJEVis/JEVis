@@ -23,6 +23,11 @@ import javafx.util.Callback;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFDataFormat;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
@@ -32,6 +37,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
@@ -48,6 +54,8 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
@@ -57,6 +65,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
+import java.util.stream.IntStream;
 
 public class TablePlugin implements Plugin {
     protected static final Logger logger = LogManager.getLogger(TablePlugin.class);
@@ -965,5 +974,95 @@ public class TablePlugin implements Plugin {
 
     protected boolean isMultiSite() {
         return multiSite;
+    }
+
+    private void createExcelFile(File destinationFile) {
+
+        XSSFWorkbook workbook = new XSSFWorkbook(); //create workbook
+
+        XSSFDataFormat dataFormatDates = workbook.createDataFormat();
+        dataFormatDates.putFormat((short) 165, "YYYY-MM-dd HH:MM:ss");
+        CellStyle cellStyleDateTime = workbook.createCellStyle();
+        cellStyleDateTime.setDataFormat((short) 165);
+
+        for (Tab tab : tabPane.getTabs()) {
+            try {
+                JEVisClassTab currentTab = (JEVisClassTab) tab;
+                Sheet sheet = workbook.createSheet(I18nWS.getInstance().getClassName(currentTab.getJeVisClass()));
+                int maxColumn = 0;
+
+                int row = 1;
+                for (RegisterTableRow registerTableRow : currentTab.getFilteredList()) {
+                    String name = registerTableRow.getName();
+
+                    Cell rowFirstColumn = getOrCreateCell(sheet, row, 0);
+                    rowFirstColumn.setCellValue(name);
+
+                    int index = currentTab.getFilteredList().indexOf(registerTableRow);
+                    int col = 1;
+                    for (Map.Entry<JEVisType, JEVisAttribute> entry : registerTableRow.getAttributeMap().entrySet()) {
+                        JEVisType jeVisType = entry.getKey();
+                        JEVisAttribute jeVisAttribute = entry.getValue();
+
+                        if (index == 0) {
+                            Cell columnHeader = getOrCreateCell(sheet, 0, 0);
+                            columnHeader.setCellValue(I18nWS.getInstance().getTypeName(jeVisType));
+                        }
+
+                        Cell valueCell = getOrCreateCell(sheet, row, col);
+
+                        if (jeVisType.getPrimitiveType() != 2) {
+                            valueCell.setCellValue(jeVisAttribute.getLatestSample().getValueAsString());
+                        } else {
+                            valueCell.setCellValue(jeVisAttribute.getLatestSample().getValueAsDouble());
+
+                            DataFormat format = workbook.createDataFormat();
+                            CellStyle cellStyle = workbook.createCellStyle();
+                            cellStyle.setDataFormat(format.getFormat("#,##0.00 [$" + jeVisAttribute.getInputUnit() + "]"));
+                            valueCell.setCellStyle(cellStyle);
+                        }
+
+                        col++;
+                    }
+                    maxColumn = Math.max(maxColumn, col);
+                }
+
+                IntStream.rangeClosed(0, maxColumn).forEach(sheet::autoSizeColumn);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(destinationFile);
+            workbook.write(fileOutputStream);
+            workbook.close();
+            fileOutputStream.close();
+        } catch (IOException e) {
+            logger.error("Could not save file {}", destinationFile, e);
+        }
+    }
+
+    private org.apache.poi.ss.usermodel.Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {
+        return getOrCreateCell(sheet, rowIdx, colIdx, 1, 1);
+    }
+
+    private org.apache.poi.ss.usermodel.Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx, int rowSpan, int colSpan) {
+        Row row = sheet.getRow(rowIdx);
+        if (row == null) {
+            row = sheet.createRow(rowIdx);
+        }
+
+        Cell cell = row.getCell(colIdx);
+        if (cell == null) {
+            cell = row.createCell(colIdx);
+        }
+
+        if (rowSpan > 1 || colSpan > 1) {
+            sheet.addMergedRegion(new CellRangeAddress(rowIdx, rowIdx + rowSpan - 1, colIdx, colIdx + colSpan - 1));
+        }
+
+        return cell;
     }
 }

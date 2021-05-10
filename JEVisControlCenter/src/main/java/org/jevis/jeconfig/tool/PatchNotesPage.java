@@ -50,7 +50,29 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.51------\n" +
+            "------Version 3.9.52------\n" +
+                    "JEDataProcessor - fixed user data logic\n" +
+                    "JEDataProcessor - fixed some probable problem with time outs\n" +
+                    "JECC - Rolemanager is not working\n" +
+                    "JECC - JEDataCollector - OPC UA - Functions Support\n" +
+                    "JECC - DashboardPlugin - Support Legend Editing (Pie,Chart) \n" +
+                    "JECC - DashboardPlugin - Add new and copy Widget function to Menubar\n" +
+                    "JECC - DashboardPlugin - Add new and copy Widget function\n" +
+                    "JECC - DashboardPlugin - Ukrainian Translation\n" +
+                    "JECC - DashboardPlugin - Improved Widget Configuration\n" +
+                    "JECC - DashboardPlugin - Ever 4 row/column is has now a color. The are also mouse transparent\n" +
+                    "JECC - ChartPlugin - fixed pathing\n" +
+                    "JECC - AccountingPlugin - updated\n" +
+                    "JECommons - Fixed duplicate dependency\n" +
+                    "JECC - DashboardPlugin - Enable node caching\n" +
+                    "DataCollector - EmailDataSource - fixed imap date search term\n" +
+                    "DataCollector - EmailDataSource - DBHelper fixed datetime parsing\n" +
+                    "DataCollector - EmailDataSource - DBHelper fixed datetime parsing\n" +
+                    "DataCollector - DWDHDDParser - added list of station names to DWDHDDDataPoint\n" +
+                    "DataCollector - Add DWD Driver to Project\n" +
+                    "Classes - translations - improved attribute names\n" +
+                    "Classes - Adjust OPC UA Browser to lib update\n\n" +
+                    "------Version 3.9.51------\n" +
                     "JECC - ChartPlugin - BubbleChart - using new period attribute\n" +
                     "JECC - ChartPlugin - HeatMapChart - using new period attribute\n" +
                     "JECC - ChartPlugin - RowNote - using new period attribute\n" +

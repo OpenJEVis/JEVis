@@ -15,60 +15,6 @@
       "jevisClass": "Energy Supplier"
     },
     {
-      "name": "Contract Number",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 11,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "Billing Cycle",
-      "primitiveType": 0,
-      "guiType": "Period",
-      "guiposition": 18,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "Yearly Sum",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 19,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "First Time of Payment",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "guiposition": 20,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "Monthly Gross Rebate",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 21,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
-      "name": "Monthly Net Rebate",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 22,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Energy Supplier"
-    },
-    {
       "name": "Additional Relative Cost",
       "primitiveType": 1,
       "guiType": "Number with Unit",

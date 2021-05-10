@@ -116,23 +116,6 @@
         "th": "ราคาประสิทธิภาพ",
         "en": "Demand Charge"
       }
-    },
-    {
-      "type": "Market Location Identification Number",
-      "descriptions": {
-        "de": "",
-        "ru": "",
-        "uk": "",
-        "th": "",
-        "en": ""
-      },
-      "names": {
-        "de": "Marktlokations-ID",
-        "ru": "Идентификационный номер местонахождения рынка",
-        "uk": "Ідентифікаційний номер місця розташування ринку",
-        "th": "หมายเลขประจำตลาดที่ตั้ง",
-        "en": "Market Location Identification Number"
-      }
     }
   ]
 }

@@ -21,6 +21,7 @@ package org.jevis.emaildatasource;
 
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.util.logging.Level;
 
@@ -109,7 +110,7 @@ public interface EMailConstants {
         String PASSWORD = "";
         String AUTHENTICATION = "";
         String SSL = "";
-        String TIMEZONE = "UTC";
+        DateTimeZone TIMEZONE = DateTimeZone.UTC;
         int READ_TIMEOUT = 300;
         int CONNECTION_TIMEOUT = 300;
         Boolean ENABLE = false;

@@ -182,7 +182,7 @@ public class UserRightManager {
 
     public void reload() {
         try {
-            logger.info("----------------------------- Reload");
+            logger.debug("----------------------------- Reload");
             permissions = ds.getRelationships();
             readGIDS = null;
         } catch (Exception ex) {
@@ -193,20 +193,20 @@ public class UserRightManager {
 
     private void getGroupPermissions() {
         if (readGIDS == null) {
-            logger.debug("reload userrights");
+            logger.debug("reload user rights");
             readGIDS = new ArrayList<Long>();
             createGIDS = new ArrayList<Long>();
             writeGIDS = new ArrayList<Long>();
             deleteGIDS = new ArrayList<Long>();
             exeGIDS = new ArrayList<Long>();
 
-            logger.info("UserID: {}", user.getUserID());
+            logger.debug("UserID: {}", user.getUserID());
             for (JEVisRelationship or : permissions) {
 
                 try {
-                    logger.info("Type: {}", or.getType());
+                    logger.debug("Type: {}", or.getType());
                     if (or.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ || or.getStartID() == user.getUserID()) {
-                        logger.info("Membership: {}", or);
+                        logger.debug("Membership: {}", or);
                     }
 
 

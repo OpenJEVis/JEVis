@@ -32,6 +32,7 @@ public class AccountingTemplateHandler {
     public SelectionTemplate getSelectionTemplate() {
         if (selectionTemplate == null && templateObject != null) {
             logger.warn("Could not read json file, selection template is null");
+            selectionTemplate = new SelectionTemplate();
         }
 
         return selectionTemplate;
@@ -62,9 +63,10 @@ public class AccountingTemplateHandler {
 
         ArrayNode templateInputsArrayNode = JsonNodeFactory.instance.arrayNode();
         this.selectionTemplate.getSelectedInputs().forEach(templateInput -> {
-            if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+            if (templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
                 ObjectNode inputNode = JsonNodeFactory.instance.objectNode();
                 inputNode.put("objectClass", templateInput.getObjectClass());
+                inputNode.put("id", templateInput.getId());
                 inputNode.put("attributeName", templateInput.getAttributeName());
                 inputNode.put("variableName", templateInput.getVariableName());
                 inputNode.put("variableType", templateInput.getVariableType());
@@ -81,6 +83,15 @@ public class AccountingTemplateHandler {
 
         dataHandlerNode.set("type", JsonNodeFactory.instance.textNode(TYPE));
 
+        dataHandlerNode.set("contractNumber", JsonNodeFactory.instance.textNode(selectionTemplate.getContractNumber()));
+        dataHandlerNode.set("contractType", JsonNodeFactory.instance.textNode(selectionTemplate.getContractType()));
+        dataHandlerNode.set("marketLocationNumber", JsonNodeFactory.instance.textNode(selectionTemplate.getMarketLocationNumber()));
+        dataHandlerNode.set("contractDate", JsonNodeFactory.instance.textNode(selectionTemplate.getContractDate()));
+        dataHandlerNode.set("firstRate", JsonNodeFactory.instance.textNode(selectionTemplate.getFirstRate()));
+        dataHandlerNode.set("periodOfNotice", JsonNodeFactory.instance.textNode(selectionTemplate.getPeriodOfNotice()));
+        dataHandlerNode.set("contractStart", JsonNodeFactory.instance.textNode(selectionTemplate.getContractStart()));
+        dataHandlerNode.set("contractEnd", JsonNodeFactory.instance.textNode(selectionTemplate.getContractEnd()));
+
         return dataHandlerNode;
 
     }
@@ -91,6 +102,7 @@ public class AccountingTemplateHandler {
 
     public void setTemplateObject(JEVisObject templateObject) {
         this.templateObject = templateObject;
+        this.setTitle(templateObject.getName());
         try {
             JEVisAttribute templateFileAttribute = templateObject.getAttribute("Template File");
             if (templateFileAttribute.hasSample()) {
