@@ -8,6 +8,28 @@
   "descriptions": {},
   "types": [
     {
+      "type": "Charset",
+      "descriptions": {
+        "de": "Die Zeichenkodierung der zu parsenden Datei.",
+        "en": "The encoding of the file which will be parsed."
+      },
+      "names": {
+        "de": "Kodierung",
+        "en": "Charset"
+      }
+    },
+    {
+      "type": "Datapoint Alignment",
+      "descriptions": {
+        "de": "Die Richtung in der die Daten in der Datei zeitbasiert aufgetragen sind",
+        "en": "The time-based direction in which data is written in the file."
+      },
+      "names": {
+        "de": "Datenausrichtung",
+        "en": "Datapoint Alignment"
+      }
+    },
+    {
       "type": "Datapoint Index",
       "descriptions": {
         "de": "Der Datenpunkt Index definiert die Spalte bzw. Zeile der CSV-Datei in der der Datenpunkt angegeben wird.",
@@ -16,7 +38,6 @@
       },
       "names": {
         "de": "Datenpunkt Index",
-        "ru": "Datapoint Index",
         "en": "Datapoint Index"
       }
     },
@@ -24,7 +45,6 @@
       "type": "Date Format",
       "descriptions": {
         "de": "Gibt die Formatierung des Zeitstempels an.",
-        "ru": "Date Format description",
         "en": "Defines the format of the timestemp."
       },
       "names": {
@@ -37,7 +57,6 @@
       "type": "Date Index",
       "descriptions": {
         "de": "Gibt die Spalte bzw. Zeile an, in der das Datum angegeben wird.",
-        "ru": "Date Index description",
         "en": "Defines the column or row, where the date is stored."
       },
       "names": {
@@ -50,7 +69,6 @@
       "type": "Decimal Separator",
       "descriptions": {
         "de": "Definiert das Dezimaltrennzeichen",
-        "ru": "Decimal Separator description",
         "en": "Defines the character for separating decimals."
       },
       "names": {
@@ -63,7 +81,6 @@
       "type": "Delimiter",
       "descriptions": {
         "de": "Definiert das Trennzeichen zwischen zwei CSV Daten",
-        "ru": "Delimiter description",
         "en": "Defines the delimiter between two CSV values"
       },
       "names": {
@@ -76,7 +93,6 @@
       "type": "Number Of Headlines",
       "descriptions": {
         "de": "Definiert die Anzahl der Kopfzeilen der CSV-Datei, welche ignoriert werden.",
-        "ru": "Number Of Headlines description",
         "en": "Defines the number of headlines of the CSV file to be ignored."
       },
       "names": {
@@ -89,7 +105,6 @@
       "type": "Quote",
       "descriptions": {
         "de": "Definiert ob bzw. mit welchen Anführungszeichen CSV Daten umfasst werden",
-        "ru": "Quote description",
         "en": "Defines if or respectively which quote characeters are used to surround CSV data."
       },
       "names": {
@@ -102,7 +117,6 @@
       "type": "Thousand Separator",
       "descriptions": {
         "de": "Definiert welches Tausender-Trennzeichen verwendet wird",
-        "ru": "Thousand Separator description",
         "en": "Defines which character is used to separate thousands."
       },
       "names": {
@@ -115,12 +129,10 @@
       "type": "Time Format",
       "descriptions": {
         "de": "Definiert das verwendete Zeitformat",
-        "ru": "Time Format description",
         "en": "Defines the used time format."
       },
       "names": {
         "de": "Zeitformat",
-        "ru": "Time Format",
         "en": "Time Format"
       }
     },

@@ -128,6 +128,7 @@ public class SaveAnalysisDialog extends JFXDialog {
         }));
 
         final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
+        ok.setDefaultButton(true);
         final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
         cancel.setOnAction(event -> close());
 
@@ -143,7 +144,7 @@ public class SaveAnalysisDialog extends JFXDialog {
         gridLayout.add(newText, 0, 2);
         gridLayout.add(name, 0, 3, 2, 1);
         GridPane.setFillWidth(name, true);
-        name.setMinWidth(200);
+        name.setMinWidth(350);
 
         HBox buttonBar = new HBox(6, cancel, ok);
         buttonBar.setAlignment(Pos.CENTER_RIGHT);
@@ -194,6 +195,7 @@ public class SaveAnalysisDialog extends JFXDialog {
                 dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
                 Label message = new Label(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
                 final JFXButton overwrite_ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"));
+                overwrite_ok.setDefaultButton(true);
                 final JFXButton overwrite_cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"));
                 overwrite_cancel.setOnAction(event1 -> dialogOverwrite.close());
 

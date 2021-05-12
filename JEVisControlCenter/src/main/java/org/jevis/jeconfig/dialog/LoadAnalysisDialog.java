@@ -32,6 +32,7 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
@@ -59,7 +60,7 @@ public class LoadAnalysisDialog extends JFXDialog {
     private JFXDatePicker pickerDateEnd;
     private JFXTimePicker pickerTimeEnd;
     private final FilteredList<JEVisObject> filteredData;
-    private JFXComboBox<AnalysisTimeFrame> presetDateBox;
+    private PresetDateBox presetDateBox;
     private final JFXListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
     private final DateHelper dateHelper = new DateHelper();

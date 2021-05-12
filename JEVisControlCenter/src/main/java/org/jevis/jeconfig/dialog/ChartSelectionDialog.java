@@ -36,12 +36,12 @@ import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ColorMappingBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.OrientationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -317,7 +317,7 @@ public class ChartSelectionDialog extends JFXDialog {
         });
 
         PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels, false);
-        final JFXComboBox<AnalysisTimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
+        final PresetDateBox presetDateBox = pickerCombo.getPresetDateBox();
         final JFXDatePicker pickerDateStart = pickerCombo.getStartDatePicker();
         final JFXTimePicker pickerTimeStart = pickerCombo.getStartTimePicker();
         final JFXDatePicker pickerDateEnd = pickerCombo.getEndDatePicker();

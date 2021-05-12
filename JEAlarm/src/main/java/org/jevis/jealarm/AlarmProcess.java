@@ -286,7 +286,7 @@ public class AlarmProcess {
                 if (index == 0) {
                     shouldBeValue1Min = Double.parseDouble(jsonLimitsConfig.getMin());
                     shouldBeValue1Max = Double.parseDouble(jsonLimitsConfig.getMax());
-                } else if (index == 2) {
+                } else if (index == 1) {
                     shouldBeValue2Min = Double.parseDouble(jsonLimitsConfig.getMin());
                     shouldBeValue2Max = Double.parseDouble(jsonLimitsConfig.getMax());
                 }

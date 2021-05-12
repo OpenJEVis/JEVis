@@ -1,20 +1,17 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.jfoenix.skins.JFXComboBoxListViewSkin;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.scene.control.*;
-import javafx.scene.paint.Color;
+import javafx.scene.control.DateCell;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Tooltip;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
-import org.jevis.commons.database.ObjectHandler;
-import org.jevis.commons.datetime.CustomPeriodObject;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
@@ -27,17 +24,14 @@ import org.joda.time.DateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END;
 
 public class PickerCombo {
     private static final Logger logger = LogManager.getLogger(PickerCombo.class);
     private JEVisDataSource ds;
-    private final JFXComboBox<AnalysisTimeFrame> presetDateBox = new JFXComboBox<>();
+    private final PresetDateBox presetDateBox = new PresetDateBox();
     private final JFXDatePicker startDatePicker = new JFXDatePicker();
     private final JFXDatePicker endDatePicker = new JFXDatePicker();
     private final JFXTimePicker startTimePicker = new JFXTimePicker();
@@ -54,15 +48,18 @@ public class PickerCombo {
     public PickerCombo(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, boolean withCustom) {
 
         this.analysisDataModel = analysisDataModel;
+        JEVisObject obj = null;
         try {
             for (ChartDataRow chartDataRow : analysisDataModel.getSelectedData()) {
                 this.ds = chartDataRow.getObject().getDataSource();
+                obj = chartDataRow.getObject();
                 break;
             }
         } catch (Exception e) {
             try {
                 for (ChartDataRow chartDataRow : chartDataRows) {
                     this.ds = chartDataRow.getObject().getDataSource();
+                    obj = chartDataRow.getObject();
                     break;
                 }
             } catch (Exception e1) {
@@ -70,154 +67,12 @@ public class PickerCombo {
             }
         }
         this.chartDataRows = chartDataRows;
+        this.presetDateBox.isWithCustom(obj, withCustom);
 
         this.dateHelper = new DateHelper();
 
-        this.presetDateBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) this.presetDateBox.getSkin();
-                if (skin != null) {
-                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-                    if (popupContent != null) {
-                        popupContent.scrollTo(this.presetDateBox.getSelectionModel().getSelectedIndex());
-                    }
-                }
-            });
-        });
-
-        final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
-        final String current = I18n.getInstance().getString("plugin.graph.changedate.buttoncurrent");
-        final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
-        final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
-        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
-        final String thisWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonthisweek");
-        final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
-        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
-        final String thisMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonthismonth");
-        final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
-        final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
-        final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
-        final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
-        final String preview = I18n.getInstance().getString("plugin.graph.changedate.preview");
-
-        presetDateBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.presetdate")));
         startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
         endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
-
-
-        List<AnalysisTimeFrame> analysisTimeFrameList = new ArrayList<>();
-        for (TimeFrame timeFrame : TimeFrame.values()) {
-            AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(timeFrame);
-
-            if (!withCustom || timeFrame != CUSTOM_START_END) {
-                analysisTimeFrameList.add(analysisTimeFrame);
-            }
-        }
-
-        if (withCustom) {
-            analysisTimeFrameList.addAll(getCustomPeriods());
-        }
-
-        presetDateBox.setItems(FXCollections.observableArrayList(analysisTimeFrameList));
-
-        Callback<ListView<AnalysisTimeFrame>, ListCell<AnalysisTimeFrame>> cellFactory = new Callback<javafx.scene.control.ListView<AnalysisTimeFrame>, ListCell<AnalysisTimeFrame>>() {
-            @Override
-            public ListCell<AnalysisTimeFrame> call(javafx.scene.control.ListView<AnalysisTimeFrame> param) {
-                return new ListCell<AnalysisTimeFrame>() {
-                    @Override
-                    protected void updateItem(AnalysisTimeFrame analysisTimeFrame, boolean empty) {
-                        super.updateItem(analysisTimeFrame, empty);
-                        setText(null);
-                        setGraphic(null);
-
-                        if (analysisTimeFrame != null && !empty) {
-                            String text = "";
-                            switch (analysisTimeFrame.getTimeFrame()) {
-                                case CUSTOM:
-                                    text = custom;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case CURRENT:
-                                    text = current;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case TODAY:
-                                    text = today;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case YESTERDAY:
-                                    text = yesterday;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case LAST_7_DAYS:
-                                    text = last7Days;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case THIS_WEEK:
-                                    text = thisWeek;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case LAST_WEEK:
-                                    text = lastWeek;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case LAST_30_DAYS:
-                                    text = last30Days;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case THIS_MONTH:
-                                    text = thisMonth;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case LAST_MONTH:
-                                    text = lastMonth;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case THIS_YEAR:
-                                    text = thisYear;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case LAST_YEAR:
-                                    text = lastYear;
-                                    setTextFill(Color.BLACK);
-                                    setDisable(false);
-                                    break;
-                                case CUSTOM_START_END:
-                                    if (!withCustom) {
-                                        text = customStartEnd;
-                                        setTextFill(Color.LIGHTGRAY);
-                                        setDisable(true);
-                                    } else {
-                                        text = analysisTimeFrame.getName();
-                                        setTextFill(Color.BLACK);
-                                        setDisable(false);
-                                    }
-                                    break;
-                                case PREVIEW:
-                                    text = preview;
-                                    setTextFill(Color.LIGHTGRAY);
-                                    setDisable(true);
-                                    break;
-                            }
-                            setText(text);
-                        }
-                    }
-                };
-            }
-        };
-        presetDateBox.setCellFactory(cellFactory);
-        presetDateBox.setButtonCell(cellFactory.call(null));
 
         startDatePicker.setPrefWidth(120d);
         endDatePicker.setPrefWidth(120d);
@@ -237,7 +92,7 @@ public class PickerCombo {
                 analysisDataModel.getCharts().getListSettings().forEach(chartSettings -> {
                     for (ChartDataRow model : chartDataRows) {
                         if (model.getSelectedcharts().contains(chartSettings.getId())) {
-                            analysisTimeFrameList.stream().filter(timeFrame -> timeFrame.getTimeFrame() == chartSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == chartSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
+                            presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == chartSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == chartSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
 
                             DateTime start = model.getSelectedStart();
                             DateTime end = model.getSelectedEnd();
@@ -250,7 +105,7 @@ public class PickerCombo {
             }
         } else {
             if (analysisDataModel.isglobalAnalysisTimeFrame()) {
-                analysisTimeFrameList.stream().filter(timeFrame -> timeFrame.getTimeFrame() == analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == analysisDataModel.getGlobalAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
+                presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == analysisDataModel.getGlobalAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
 
                 DateTime start = analysisDataModel.getGlobalAnalysisTimeFrame().getStart();
                 DateTime end = analysisDataModel.getGlobalAnalysisTimeFrame().getEnd();
@@ -260,7 +115,7 @@ public class PickerCombo {
                 analysisDataModel.getCharts().getListSettings().forEach(chartSettings -> {
                     for (ChartDataRow model : analysisDataModel.getSelectedData()) {
                         if (model.getSelectedcharts().contains(chartSettings.getId())) {
-                            analysisTimeFrameList.stream().filter(timeFrame -> timeFrame.getTimeFrame() == chartSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == chartSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
+                            presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == chartSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == chartSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
 
                             DateTime start = model.getSelectedStart();
                             DateTime end = model.getSelectedEnd();
@@ -274,81 +129,7 @@ public class PickerCombo {
 
     }
 
-    private Collection<? extends AnalysisTimeFrame> getCustomPeriods() {
 
-        List<JEVisObject> listCalendarDirectories = new ArrayList<>();
-        List<JEVisObject> listCustomPeriods = new ArrayList<>();
-        List<CustomPeriodObject> listCustomPeriodObjects = new ArrayList<>();
-        List<AnalysisTimeFrame> customPeriods = new ArrayList<>();
-        DateHelper dateHelper = new DateHelper();
-
-        if (analysisDataModel != null) {
-            dateHelper.setStartTime(analysisDataModel.getWorkdayStart());
-            dateHelper.setEndTime(analysisDataModel.getWorkdayEnd());
-        }
-
-        try {
-            try {
-                JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                listCalendarDirectories = ds.getObjects(calendarDirectoryClass, false);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get calendar directories", e);
-            }
-            if (Objects.requireNonNull(listCalendarDirectories).isEmpty()) {
-                List<JEVisObject> listBuildings = new ArrayList<>();
-                try {
-                    JEVisClass building = ds.getJEVisClass("Building");
-                    listBuildings = ds.getObjects(building, false);
-
-                    if (!listBuildings.isEmpty()) {
-                        JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                        if (ds.getCurrentUser().canCreate(listBuildings.get(0).getID())) {
-
-                            JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
-                            calendarDirectory.commit();
-                        }
-                    }
-                } catch (JEVisException e) {
-                    logger.error("Error: could not create new calendar directory", e);
-                }
-
-            }
-            try {
-                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get custom period", e);
-            }
-        } catch (Exception e) {
-        }
-
-        for (JEVisObject obj : listCustomPeriods) {
-            if (obj != null) {
-                CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
-                if (cpo.isVisible()) {
-                    listCustomPeriodObjects.add(cpo);
-                }
-            }
-        }
-
-        if (listCustomPeriodObjects.size() > 1) {
-
-            for (CustomPeriodObject cpo : listCustomPeriodObjects) {
-
-                dateHelper.setCustomPeriodObject(cpo);
-                dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
-                dateHelper.setStartTime(analysisDataModel.getWorkdayStart());
-                dateHelper.setEndTime(analysisDataModel.getWorkdayEnd());
-
-                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM_START_END, cpo.getObject().getID(), cpo.getObject().getName());
-                newTimeFrame.setStart(dateHelper.getStartDate());
-                newTimeFrame.setEnd(dateHelper.getEndDate());
-
-                customPeriods.add(newTimeFrame);
-            }
-        }
-
-        return customPeriods;
-    }
 
     public void addListener() {
         presetDateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -535,7 +316,7 @@ public class PickerCombo {
         return endTimePicker;
     }
 
-    public JFXComboBox<AnalysisTimeFrame> getPresetDateBox() {
+    public PresetDateBox getPresetDateBox() {
         return presetDateBox;
     }
 
