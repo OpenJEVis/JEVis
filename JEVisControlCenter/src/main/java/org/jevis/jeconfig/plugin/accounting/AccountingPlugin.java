@@ -462,7 +462,9 @@ public class AccountingPlugin extends TablePlugin {
     }
 
     private String localDateToDateTimeString(LocalDate localDate) {
-        return new DateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0).toString();
+        if (localDate != null)
+            return new DateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0).toString();
+        else return null;
     }
 
     private LocalDate dateTimeStringToLocalDate(String dateTimeString) {
@@ -1528,24 +1530,24 @@ public class AccountingPlugin extends TablePlugin {
 
         if (ath.getSelectionTemplate().getContractDate() != null) {
             contractDatePicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getContractDate()));
-        }
+        } else contractDatePicker.setValue(null);
 
         if (ath.getSelectionTemplate().getFirstRate() != null) {
             firstRatePicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getFirstRate()));
-        }
+        } else firstRatePicker.setValue(null);
 
         if (ath.getSelectionTemplate().getPeriodOfNotice() != null) {
             periodOfNoticePicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getPeriodOfNotice()));
-        }
+        } else periodOfNoticePicker.setValue(null);
 
 
         if (ath.getSelectionTemplate().getContractStart() != null) {
             contractStartPicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getContractStart()));
-        }
+        } else contractStartPicker.setValue(null);
 
         if (ath.getSelectionTemplate().getContractEnd() != null) {
             contractEndPicker.setValue(dateTimeStringToLocalDate(ath.getSelectionTemplate().getContractEnd()));
-        }
+        } else contractEndPicker.setValue(null);
     }
 
     private List<JEVisObject> getAllAccountingConfigurations() {

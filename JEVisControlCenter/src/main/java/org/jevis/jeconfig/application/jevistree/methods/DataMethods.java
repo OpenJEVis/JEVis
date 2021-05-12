@@ -6,7 +6,10 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.dialog.ProgressForm;
@@ -15,6 +18,7 @@ import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,6 +74,78 @@ public class DataMethods extends CommonMethods {
             }
             for (JEVisObject child : jeVisObject.getChildren()) {
                 setLimits(pForm, child, list);
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not set limits for {}:{}", jeVisObject.getName(), jeVisObject.getID());
+        }
+    }
+
+    public static void setAutoLimits(ProgressForm pForm, JEVisObject jeVisObject, AutoLimitSetting autoLimitSetting) {
+        try {
+            if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
+                JEVisAttribute valueAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+                JEVisAttribute limitsAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.LIMITS_CONFIGURATION.getAttributeName());
+                JEVisAttribute limitsEnabledAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.LIMITS_ENABLED.getAttributeName());
+                if (valueAttribute != null && limitsAttribute != null && limitsEnabledAttribute != null) {
+                    pForm.addMessage("Determining limits config for object " + jeVisObject.getName() + ":" + jeVisObject.getID());
+
+                    List<JEVisSample> samplesMin = valueAttribute.getSamples(autoLimitSetting.getStartDate(), autoLimitSetting.getEndDate(), true, AggregationPeriod.NONE.toString(), ManipulationMode.MIN.toString());
+                    BigDecimal l1Min = BigDecimal.valueOf(samplesMin.get(0).getValueAsDouble());
+
+                    List<JEVisSample> samplesMax = valueAttribute.getSamples(autoLimitSetting.getStartDate(), autoLimitSetting.getEndDate(), true, AggregationPeriod.NONE.toString(), ManipulationMode.MAX.toString());
+                    BigDecimal l1Max = BigDecimal.valueOf(samplesMax.get(0).getValueAsDouble());
+
+                    logger.info("In timeframe {} to {} found Min: {} and Max: {}", autoLimitSetting.getStartDate(), autoLimitSetting.getEndDate(), l1Min, l1Max);
+
+                    List<JsonLimitsConfig> list = new ArrayList<>();
+
+                    JsonLimitsConfig newConfig1 = new JsonLimitsConfig();
+                    newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
+                    if (autoLimitSetting.isMinIsZero()) {
+                        newConfig1.setMin(String.valueOf(0));
+                        logger.info("Setting L1 Min: 0");
+                    } else {
+                        BigDecimal l1MinFinal = l1Min.subtract(l1Min.multiply(autoLimitSetting.getLimit1MinSub().divide(BigDecimal.valueOf(100))));
+
+                        newConfig1.setMin(l1MinFinal.toString());
+                        logger.info("Setting L1 Min: {}", l1MinFinal);
+                    }
+
+                    BigDecimal l1MaxFinal = l1Max.add(l1Max.multiply(autoLimitSetting.getLimit1MaxAdd().divide(BigDecimal.valueOf(100))));
+
+                    newConfig1.setMax(l1MaxFinal.toString());
+                    logger.info("Setting L1 Max: {}", l1MaxFinal);
+
+                    list.add(newConfig1);
+
+                    JsonLimitsConfig newConfig2 = new JsonLimitsConfig();
+                    newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
+
+                    if (autoLimitSetting.isMinIsZero()) {
+                        newConfig2.setMin(String.valueOf(0));
+                        logger.info("Setting L2 Min: 0");
+                    } else {
+                        BigDecimal l2Min = l1Min.subtract(l1Min.multiply(autoLimitSetting.getLimit1MinTimesXLimit2Min()));
+                        l2Min = l2Min.subtract(l2Min.multiply(autoLimitSetting.getLimit2MinSub().divide(BigDecimal.valueOf(100))));
+
+                        newConfig2.setMin(l2Min.toString());
+                        logger.info("Setting L2 Min: {}", l2Min);
+                    }
+
+                    BigDecimal l2Max = l1Max.multiply(autoLimitSetting.getLimit1MaxTimesXLimit2Max());
+                    l2Max = l2Max.add(l2Max.multiply(autoLimitSetting.getLimit2MaxAdd().divide(BigDecimal.valueOf(100))));
+                    newConfig2.setMax(l2Max.toString());
+                    logger.info("Setting L2 Max: {}", l2Max);
+
+                    list.add(newConfig2);
+
+                    pForm.addMessage("Setting limits config for object " + jeVisObject.getName() + ":" + jeVisObject.getID());
+                    limitsEnabledAttribute.addSamples(Collections.singletonList(limitsEnabledAttribute.buildSample(new DateTime(), true)));
+                    limitsAttribute.addSamples(Collections.singletonList(limitsAttribute.buildSample(new DateTime(), list.toString())));
+                }
+            }
+            for (JEVisObject child : jeVisObject.getChildren()) {
+                setAutoLimits(pForm, child, autoLimitSetting);
             }
         } catch (JEVisException e) {
             logger.error("Could not set limits for {}:{}", jeVisObject.getName(), jeVisObject.getID());

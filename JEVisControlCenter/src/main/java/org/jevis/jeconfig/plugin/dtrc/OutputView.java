@@ -375,7 +375,11 @@ public class OutputView extends Tab {
         ungroupedInputs.sort((o1, o2) -> alphanumComparator.compare(o1.getVariableName(), o2.getVariableName()));
 
         int row = 0;
-        if (contractsGP != null) row = 6;
+        Platform.runLater(() -> viewInputs.getChildren().clear());
+        if (contractsGP != null) {
+            row = 6;
+            removeNodesFromRow(6, contractsGP);
+        }
 
         int column = 0;
         for (TemplateInput ungroupedInput : ungroupedInputs) {
@@ -581,7 +585,7 @@ public class OutputView extends Tab {
             ObservableList<Node> children = gridPane.getChildren();
             for (Node node : children) {
                 if (GridPane.getRowIndex(node) >= row) {
-                    gridPane.getChildren().remove(node);
+                    Platform.runLater(() -> gridPane.getChildren().remove(node));
                 }
             }
         }
