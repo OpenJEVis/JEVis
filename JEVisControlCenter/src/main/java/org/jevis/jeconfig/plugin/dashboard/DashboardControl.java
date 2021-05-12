@@ -400,7 +400,10 @@ public class DashboardControl {
             this.snapToGridProperty.setValue(true);
             this.backgroundImage = null;
             this.newBackgroundFile = null;
+            this.selectedWidgets = new ArrayList<>();
 
+
+            showConfig();//if list is empty=reset
             resetDashboard();
             restartExecutor();
             restView();
@@ -1027,6 +1030,17 @@ public class DashboardControl {
         setSelectedWidgets(selected);
     }
 
+    public void setSelectAllFromType(Widget widget) {
+        List<Widget> selected = new ArrayList<>();
+        widgetList.forEach(widget1 -> {
+            if (widget.getConfig().getType().equals(widget1.getConfig().getType())) {
+                selected.add(widget1);
+            }
+        });
+        setSelectedWidgets(selected);
+    }
+
+
     public void setSelectedWidgets(List<Widget> widgets) {
         if (this.editableProperty.get()) {
             selectedWidgets.clear();
@@ -1040,13 +1054,7 @@ public class DashboardControl {
 
     private void updateHighlightSelected() {
         for (Widget widget : widgetList) {
-            boolean highlight = false;
-            for (Widget toHightlight : selectedWidgets) {
-                if (widget.equals(toHightlight)) {
-                    highlight = true;
-                }
-            }
-            widget.setGlow(highlight, false);
+            widget.setGlow(selectedWidgets.contains(widget), false);
         }
     }
 
