@@ -191,6 +191,11 @@ public class ValueWidget extends Widget implements DataModelWidget {
         return this.sampleHandler;
     }
 
+    @Override
+    public void setDataHandler(DataModelDataHandler dataHandler) {
+        this.sampleHandler = dataHandler;
+    }
+
     private void checkLimit() {
         Platform.runLater(() -> {
             try {

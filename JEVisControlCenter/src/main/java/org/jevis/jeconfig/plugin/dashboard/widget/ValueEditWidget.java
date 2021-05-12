@@ -70,7 +70,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*6));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 6));
 
 
         return widgetPojo;
@@ -86,7 +86,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
             showAlertOverview(false, "");
         });
 
-        if (sampleHandler == null|| sampleHandler.getDataModel().isEmpty()) {
+        if (sampleHandler == null || sampleHandler.getDataModel().isEmpty()) {
             return;
         } else {
             showProgressIndicator(true);
@@ -105,25 +105,25 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         try {
             widgetUUID = getConfig().getUuid() + "";
 
-            if(forceLastValue){
+            if (forceLastValue) {
                 try {
                     lastSample = sampleHandler.getDataModel().get(0).getAttribute().getLatestSample();
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-            }else{
+            } else {
                 this.sampleHandler.setInterval(interval);
                 this.sampleHandler.setAutoAggregation(true);
                 this.sampleHandler.update();
                 if (!this.sampleHandler.getDataModel().isEmpty()) {
                     ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                     List<JEVisSample> results = dataModel.getSamples();
-                    lastSample = results.get(results.size()-1);
+                    lastSample = results.get(results.size() - 1);
                 }
 
             }
 
-            if(lastSample!=null){
+            if (lastSample != null) {
                 String unit = lastSample.getUnit().toString();
                 displayedSample.setValue(lastSample.getValueAsDouble());
                 enterDataDialog.setSample(lastSample);
@@ -132,11 +132,11 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
                     try {
                         this.labelValue.setText((this.nf.format(displayedSample.get())) + " " + unit);
                         labelTimeStamp.setText(fmt.print(lastSample.getTimestamp()));
-                    }catch (Exception ex){
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 });
-            }else{
+            } else {
                 Platform.runLater(() -> {
                     this.labelValue.setText("-");
                     labelTimeStamp.setText("-");
@@ -161,12 +161,11 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         });
 
 /**
-        Platform.runLater(() -> {
-            //testing
-            labelTimeStamp.setText("2020-02-28 16:30");
-            labelValue.setText("6531,98 kWh");
-        });
-
+ Platform.runLater(() -> {
+ //testing
+ labelTimeStamp.setText("2020-02-28 16:30");
+ labelValue.setText("6531,98 kWh");
+ });
  **/
     }
 
@@ -176,7 +175,10 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         return this.sampleHandler;
     }
 
-
+    @Override
+    public void setDataHandler(DataModelDataHandler dataHandler) {
+        this.sampleHandler = dataHandler;
+    }
 
     @Override
     public void debug() {
@@ -225,7 +227,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
                 //Background bgColor = new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY));
                 //this.labelValue.setBackground(bgColor);
                 //this.labelValue.setTextFill(this.config.getFontColor());
-               // this.labelValue.setContentDisplay(ContentDisplay.LEFT);
+                // this.labelValue.setContentDisplay(ContentDisplay.LEFT);
 
                 //this.labelValue.setStyle("-fx-text-inner-color: "+this.config.getFontColor()+";");
 
@@ -237,10 +239,9 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
                 //Font oldFont = labelTimeStamp.getFont();
 
 
-
                 labelTimeStamp.setFont(new Font(labelValue.getFont().getSize() * 0.7));
 
-                if(sampleHandler!=null && sampleHandler.getDataModel()!=null && !sampleHandler.getDataModel().isEmpty()){
+                if (sampleHandler != null && sampleHandler.getDataModel() != null && !sampleHandler.getDataModel().isEmpty()) {
                     enterDataDialog.setTarget(false, sampleHandler.getDataModel().get(0).getAttribute());
                     enterDataDialog.setShowValuePrompt(true);
                 }

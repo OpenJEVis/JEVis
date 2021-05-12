@@ -37,6 +37,7 @@ import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
 import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
@@ -1136,6 +1137,21 @@ public class DashboardControl {
             widget.updateConfig();
             requestViewUpdate(widget);
         });
+    }
+
+    public void equalizeDataModel() {
+        Widget lastWidget = Iterables.getLast(getSelectedWidgets());
+        if (lastWidget instanceof DataModelWidget) {
+            getSelectedWidgets().forEach(widget -> {
+                if (widget instanceof DataModelWidget && !widget.equals(lastWidget)) {
+                    System.out.println("Is DataModelWidget: " + widget.getConfig().getUuid());
+                    ((DataModelWidget) widget).setDataHandler(((DataModelWidget) lastWidget).getDataHandler());
+                    widget.updateConfig();
+                    requestViewUpdate(widget);
+                    widget.updateData(activeInterval);
+                }
+            });
+        }
     }
 
     public void shadowSelected(boolean shadows) {
