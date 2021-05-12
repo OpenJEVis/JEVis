@@ -1015,12 +1015,22 @@ public class DashboardControl {
     }
 
     public void addToWidgetSelection(List<Widget> widgets) {
-        if (this.editableProperty.get()) {
-            selectedWidgets.addAll(widgets);
-            updateHighlightSelected();
-
-            showConfig();
-        }
+        widgets.forEach(widget -> {
+            if (selectedWidgets.contains(widget)) {
+                selectedWidgets.remove(widget);
+            } else {
+                selectedWidgets.addAll(widgets);
+            }
+        });
+        updateHighlightSelected();
+        showConfig();
+        /**
+         if (this.editableProperty.get()) {
+         selectedWidgets.addAll(widgets);
+         updateHighlightSelected();
+         showConfig();
+         }
+         **/
 
     }
 
