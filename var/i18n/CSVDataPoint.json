@@ -19,9 +19,9 @@
         "en": "The Mapping ID allows the mapping of a CSV Data Point to the correct column or row of a CSV file. Alternatively, the mapping can be made via the Value Index."
       },
       "names": {
-        "de": "Mapping ID",
+        "en": "Mapping ID",
         "ru": "Mapping Identifier",
-        "en": "Erkennungs-ID"
+        "de": "Erkennungs-ID"
       }
     },
     {
