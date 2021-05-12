@@ -225,6 +225,11 @@ public class TableWidget extends Widget implements DataModelWidget {
     }
 
     @Override
+    public void setDataHandler(DataModelDataHandler dataHandler) {
+        this.sampleHandler = dataHandler;
+    }
+
+    @Override
     public String typeID() {
         return WIDGET_ID;
     }
