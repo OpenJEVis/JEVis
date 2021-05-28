@@ -19,24 +19,29 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXListCell;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -46,7 +51,11 @@ import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.jevis.commons.classes.ClassHelper.isDirectory;
 
 //import static org.jevis.jeconfig.JEConfig.PROGRAM_INFO;
 
@@ -388,6 +397,78 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
         gridPane.setStyle("-fx-background-color: transparent;");
 
+        try {
+            if (JEConfig.getExpert() && isDirectory(obj.getJEVisClass())) {
+                Map<JEVisClass, List<JEVisObject>> map = new HashMap<>();
+                List<JEVisObject> allChildren = getAllChildren(obj);
+
+                AlphanumComparator ac = new AlphanumComparator();
+                allChildren.sort((o1, o2) -> {
+                    try {
+                        return ac.compare(I18nWS.getInstance().getClassName(o1.getJEVisClassName()), I18nWS.getInstance().getClassName(o2.getJEVisClassName()));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return -1;
+                });
+
+                for (JEVisObject child : allChildren) {
+                    JEVisClass childClass = child.getJEVisClass();
+                    if (map.containsKey(childClass)) {
+                        map.get(childClass).add(child);
+                    } else {
+                        List<JEVisObject> objects = new ArrayList<>();
+                        objects.add(child);
+                        map.put(childClass, objects);
+                    }
+                }
+
+                int row = 0;
+                for (Map.Entry<JEVisClass, List<JEVisObject>> entry : map.entrySet()) {
+
+                    Image icon = SwingFXUtils.toFXImage(entry.getKey().getIcon(), null);
+                    ImageView imageView = new ImageView(icon);
+                    imageView.setPreserveRatio(true);
+                    imageView.setFitHeight(24);
+
+                    gridPane.add(imageView, 0, row);
+                    gridPane.add(new Label(I18nWS.getInstance().getClassName(entry.getKey().getName()) + " x " + entry.getValue().size()), 1, row);
+
+                    JFXComboBox<JEVisObject> box = new JFXComboBox<>();
+                    Callback<ListView<JEVisObject>, ListCell<JEVisObject>> objectNameCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+                        @Override
+                        public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                            return new JFXListCell<JEVisObject>() {
+                                @Override
+                                protected void updateItem(JEVisObject obj, boolean empty) {
+                                    super.updateItem(obj, empty);
+                                    if (obj == null || empty) {
+                                        setGraphic(null);
+                                        setText(null);
+                                    } else {
+                                        setText(obj.getName());
+                                    }
+                                }
+                            };
+                        }
+                    };
+
+                    box.setCellFactory(objectNameCellFactory);
+                    box.setButtonCell(objectNameCellFactory.call(null));
+
+                    box.getItems().addAll(entry.getValue());
+                    if (!entry.getValue().isEmpty()) {
+                        box.getSelectionModel().selectFirst();
+                    }
+
+                    gridPane.add(box, 2, row);
+                    row++;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         _view.setStyle("-fx-background-color: transparent;");
 
         _view.setContent(gridPane);
@@ -401,5 +482,24 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             });
         }
 
+    }
+
+    private List<JEVisObject> getAllChildren(JEVisObject obj) {
+        List<JEVisObject> children = new ArrayList<>();
+
+        try {
+            getAllChildrenRec(children, obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return children;
+    }
+
+    private void getAllChildrenRec(List<JEVisObject> children, JEVisObject obj) throws JEVisException {
+        for (JEVisObject child : obj.getChildren()) {
+            children.add(child);
+            getAllChildrenRec(children, child);
+        }
     }
 }

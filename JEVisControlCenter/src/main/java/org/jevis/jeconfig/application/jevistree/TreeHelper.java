@@ -845,26 +845,22 @@ public class TreeHelper {
                     gp.setHgap(4);
                     gp.setVgap(6);
 
-                    JFXCheckBox auto = new JFXCheckBox("Auto");
+                    JFXCheckBox auto = new JFXCheckBox("Automatische Festlegung");
 
                     PresetDateBox presetDateBox = new PresetDateBox();
-                    JFXCheckBox minIsZero = new JFXCheckBox("Min is 0");
+                    JFXCheckBox minIsZero = new JFXCheckBox("Untere Grenze ist immer 0");
                     minIsZero.setSelected(true);
 
-                    Label limit1MinSubLabel = new Label("Limit 1 Min Sub [%]");
+                    Label limit1MinSubLabel = new Label("Toleranz der unteren Grenze [%]");
                     JFXTextField limit1MinSub = new JFXTextField("0");
-                    Label limit1MaxAddLabel = new Label("Limit 1 Max Add [%]");
+                    Label limit1MaxAddLabel = new Label("Toleranz der oberen Grenze [%]");
                     JFXTextField limit1MaxAdd = new JFXTextField("15");
 
-                    Label limit1MinTimesXLimit2MinLabel = new Label("Limit 1 Min Times X = Limit 2 Min");
+                    Label limit1MinTimesXLimit2MinLabel = new Label("Vielfaches des niedrigesten Wertes des Zeitbereichs");
                     JFXTextField limit1MinTimesXLimit2Min = new JFXTextField("2");
-                    Label limit2MinSubLabel = new Label("Limit 2 Min Sub [%]");
-                    JFXTextField limit2MinSub = new JFXTextField("0");
 
-                    Label limit1MaxTimesXLimit2MaxLabel = new Label("Limit 1 Max Times X = Limit 2 Max");
+                    Label limit1MaxTimesXLimit2MaxLabel = new Label("Vielfaches des höchsten Wertes des Zeitbereichs");
                     JFXTextField limit1MaxTimesXLimit2Max = new JFXTextField("2");
-                    Label limit2MaxAddLabel = new Label("Limit 2 Max Add [%]");
-                    JFXTextField limit2MaxAdd = new JFXTextField("15");
 
                     Label limit1MinLabel = new Label("Limit 1 Min");
                     JFXTextField limit1Min = new JFXTextField();
@@ -888,12 +884,8 @@ public class TreeHelper {
 
                             limit1MinTimesXLimit2MinLabel.setDisable(false);
                             limit1MinTimesXLimit2Min.setDisable(false);
-                            limit2MinSubLabel.setDisable(false);
-                            limit2MinSub.setDisable(false);
                             limit1MaxTimesXLimit2MaxLabel.setDisable(false);
                             limit1MaxTimesXLimit2Max.setDisable(false);
-                            limit2MaxAddLabel.setDisable(false);
-                            limit2MaxAdd.setDisable(false);
 
                             limit1MinLabel.setDisable(true);
                             limit1Min.setDisable(true);
@@ -915,12 +907,8 @@ public class TreeHelper {
 
                             limit1MinTimesXLimit2MinLabel.setDisable(true);
                             limit1MinTimesXLimit2Min.setDisable(true);
-                            limit2MinSubLabel.setDisable(true);
-                            limit2MinSub.setDisable(true);
                             limit1MaxTimesXLimit2MaxLabel.setDisable(true);
                             limit1MaxTimesXLimit2Max.setDisable(true);
-                            limit2MaxAddLabel.setDisable(true);
-                            limit2MaxAdd.setDisable(true);
 
                             limit1MinLabel.setDisable(false);
                             limit1Min.setDisable(false);
@@ -962,16 +950,8 @@ public class TreeHelper {
                     gp.add(limit1MinTimesXLimit2Min, 1, row);
                     row++;
 
-                    gp.add(limit2MinSubLabel, 0, row);
-                    gp.add(limit2MinSub, 1, row);
-                    row++;
-
                     gp.add(limit1MaxTimesXLimit2MaxLabel, 0, row);
                     gp.add(limit1MaxTimesXLimit2Max, 1, row);
-                    row++;
-
-                    gp.add(limit2MaxAddLabel, 0, row);
-                    gp.add(limit2MaxAdd, 1, row);
                     row++;
 
                     gp.add(new Separator(Orientation.HORIZONTAL), 0, row, 2, 1);
@@ -1053,8 +1033,8 @@ public class TreeHelper {
                                 } else {
                                     AutoLimitSetting autoLimitSetting = new AutoLimitSetting(presetDateBox.getStartDate(), presetDateBox.getEndDate(), minIsZero.isSelected(),
                                             new BigDecimal(limit1MinSub.getText()), new BigDecimal(limit1MaxAdd.getText()),
-                                            new BigDecimal(limit1MinTimesXLimit2Min.getText()), new BigDecimal(limit2MinSub.getText()),
-                                            new BigDecimal(limit1MaxTimesXLimit2Max.getText()), new BigDecimal(limit2MaxAdd.getText()));
+                                            new BigDecimal(limit1MinTimesXLimit2Min.getText()),
+                                            new BigDecimal(limit1MaxTimesXLimit2Max.getText()));
 
                                     final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title") + "...");
 

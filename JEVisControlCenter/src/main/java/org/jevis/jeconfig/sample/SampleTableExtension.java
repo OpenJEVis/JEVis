@@ -20,16 +20,19 @@
 package org.jevis.jeconfig.sample;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.*;
 import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +40,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
@@ -46,9 +50,11 @@ import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +65,8 @@ public class SampleTableExtension implements SampleEditorExtension {
     private static final Logger logger = LogManager.getLogger(SampleTableExtension.class);
 
     private final static String TITLE = "Editor";
-    private final BorderPane _view = new BorderPane();
+    private final BorderPane borderPane = new BorderPane();
+    private final StackPane dialogContainer = new StackPane(borderPane);
     private final Window owner;
     private DateTimeZone dateTimeZone;
     private JEVisAttribute _att;
@@ -255,9 +262,123 @@ public class SampleTableExtension implements SampleEditorExtension {
             }
         });
 
-        userBox.getChildren().setAll(addNewUserValue, addUserValuesInBetween);
+        JFXButton addValuesInBetween = new JFXButton(I18n.getInstance().getString("sampleeditor.confirmationdialog.addvalueinbetwen.titlelong"));
+        addValuesInBetween.setDisable(table.deleteInBetweenProperty().getValue());
+        addValuesInBetween.disableProperty().bind(table.deleteInBetweenProperty().not());
 
-        _view.setPadding(new Insets(10, 0, 10, 0));
+        addValuesInBetween.setOnAction(event -> {
+            DateTime[] minMax = table.findSelectedMinMaxDate();
+            DateTime firstDate = minMax[0];
+            DateTime endDate = minMax[1];
+            try {
+                JFXDialog dialog = new JFXDialog();
+                dialog.setDialogContainer(dialogContainer);
+                dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
+                dialog.setOverlayClose(false);
+
+                Label valueLabel = new Label("Wert:");
+                JFXTextField valueField = new JFXTextField();
+
+                Label noteLabel = new Label("Notiz:");
+                JFXTextField noteField = new JFXTextField();
+
+                GridPane gridPane = new GridPane();
+                gridPane.setPadding(new Insets(10));
+                gridPane.setHgap(10);
+                gridPane.setVgap(5);
+
+                int row = 0;
+                gridPane.add(valueLabel, 0, row);
+                gridPane.add(valueField, 1, row);
+                row++;
+
+                gridPane.add(noteLabel, 0, row);
+                gridPane.add(noteField, 1, row);
+
+                final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
+                ok.setDefaultButton(true);
+                final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
+                cancel.setCancelButton(true);
+
+                HBox buttonBar = new HBox(6, cancel, ok);
+                buttonBar.setAlignment(Pos.CENTER_RIGHT);
+                buttonBar.setPadding(new Insets(12));
+
+                Separator separator = new Separator(Orientation.HORIZONTAL);
+                separator.setPadding(new Insets(8, 0, 8, 0));
+
+                VBox vBox = new VBox(6, gridPane, separator, buttonBar);
+                dialog.setContent(vBox);
+
+                ok.setOnAction(evt -> {
+                    try {
+                        BigDecimal d = new BigDecimal(valueField.getText());
+
+
+                        final ProgressForm pForm = new ProgressForm("Setting values...");
+
+                        Task<List<JEVisSample>> set = new Task<List<JEVisSample>>() {
+                            @Override
+                            protected List<JEVisSample> call() throws JEVisException {
+                                List<JEVisSample> sampleList = new ArrayList<>();
+                                Period periodForDate = CleanDataObject.getPeriodForDate(att.getObject(), minMax[0]);
+                                DateTime date = minMax[0].plus(periodForDate);
+
+                                while (date.isBefore(minMax[1])) {
+                                    sampleList.add(att.buildSample(date, d, noteField.getText()));
+                                    pForm.addMessage("Created sample " + date + " - " + d + " - " + noteField.getText());
+
+                                    CleanDataObject.getPeriodForDate(att.getObject(), date);
+                                    date = date.plus(periodForDate);
+                                }
+
+                                return sampleList;
+                            }
+                        };
+                        set.setOnSucceeded(task -> {
+                            try {
+                                pForm.addMessage("Adding " + set.getValue().size() + " samples.");
+                                att.addSamples(set.getValue());
+                                pForm.addMessage("Finished importing samples.");
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+                            pForm.getDialogStage().close();
+                        });
+
+                        set.setOnCancelled(task -> {
+                            logger.debug("Creating samples cancelled");
+                            pForm.getDialogStage().hide();
+                        });
+
+                        set.setOnFailed(task -> {
+                            logger.debug("Creating samples failed");
+                            pForm.getDialogStage().hide();
+                        });
+
+                        pForm.activateProgressBar(set);
+                        pForm.getDialogStage().show();
+
+                        new Thread(set).start();
+
+                    } catch (Exception e) {
+                        logger.error("Could not write value config to JEVis System: " + e);
+                    }
+                    dialog.close();
+                });
+
+                cancel.setOnAction(e -> dialog.close());
+
+                dialog.show();
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
+
+        userBox.getChildren().setAll(addNewUserValue, addUserValuesInBetween, addValuesInBetween);
+
+        borderPane.setPadding(new Insets(10, 0, 10, 0));
         deleteBox.setPadding(new Insets(10, 0, 10, 0));
         userBox.setPadding(new Insets(10, 0, 10, 0));
 
@@ -271,8 +392,8 @@ public class SampleTableExtension implements SampleEditorExtension {
             e.printStackTrace();
         }
 
-        _view.setCenter(table);
-        _view.setBottom(motherBox);
+        borderPane.setCenter(table);
+        borderPane.setBottom(motherBox);
     }
 
     public void taskWithAnimation(Task<Void> task) {
@@ -305,7 +426,7 @@ public class SampleTableExtension implements SampleEditorExtension {
 
     @Override
     public Node getView() {
-        return _view;
+        return dialogContainer;
     }
 
     @Override
