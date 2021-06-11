@@ -14,7 +14,6 @@ import org.jevis.commons.dataprocessing.processor.workflow.*;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.task.LogTaskManager;
-import org.jevis.commons.task.Task;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -240,12 +239,6 @@ public class PrepareStep implements ProcessStep {
                     startDate, endDate);
 
             processManager.setFinished(isFinished);
-        }
-
-        if (cleanIntervals.isEmpty()) {
-            LogTaskManager.getInstance().getTask(cleanDataObject.getCleanObject().getID()).setStatus(Task.Status.IDLE);
-        } else {
-            removeLastIntervalsWithoutSamples(cleanDataObject, cleanIntervals);
         }
 
         return cleanIntervals;

@@ -12,26 +12,22 @@ public class AutoLimitSetting {
     private BigDecimal limit1MinSub = BigDecimal.valueOf(0);
     private BigDecimal limit1MaxAdd = BigDecimal.valueOf(15);
     private BigDecimal limit1MinTimesXLimit2Min = BigDecimal.valueOf(2);
-    private BigDecimal limit2MinSub = BigDecimal.valueOf(0);
     private BigDecimal limit1MaxTimesXLimit2Max = BigDecimal.valueOf(2);
-    private BigDecimal limit2MaxAdd = BigDecimal.valueOf(15);
 
     public AutoLimitSetting() {
     }
 
     public AutoLimitSetting(DateTime startDate, DateTime endDate, boolean minIsZero,
                             BigDecimal limit1MinSub, BigDecimal limit1MaxAdd,
-                            BigDecimal limit1MinTimesXLimit2Min, BigDecimal limit2MinSub,
-                            BigDecimal limit1MaxTimesXLimit2Max, BigDecimal limit2MaxAdd) {
+                            BigDecimal limit1MinTimesXLimit2Min,
+                            BigDecimal limit1MaxTimesXLimit2Max) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.minIsZero = minIsZero;
         this.limit1MinSub = limit1MinSub;
         this.limit1MaxAdd = limit1MaxAdd;
         this.limit1MinTimesXLimit2Min = limit1MinTimesXLimit2Min;
-        this.limit2MinSub = limit2MinSub;
         this.limit1MaxTimesXLimit2Max = limit1MaxTimesXLimit2Max;
-        this.limit2MaxAdd = limit2MaxAdd;
     }
 
     public DateTime getStartDate() {
@@ -82,27 +78,11 @@ public class AutoLimitSetting {
         this.limit1MinTimesXLimit2Min = limit1MinTimesXLimit2Min;
     }
 
-    public BigDecimal getLimit2MinSub() {
-        return limit2MinSub;
-    }
-
-    public void setLimit2MinSub(BigDecimal limit2MinSub) {
-        this.limit2MinSub = limit2MinSub;
-    }
-
     public BigDecimal getLimit1MaxTimesXLimit2Max() {
         return limit1MaxTimesXLimit2Max;
     }
 
     public void setLimit1MaxTimesXLimit2Max(BigDecimal limit1MaxTimesXLimit2Max) {
         this.limit1MaxTimesXLimit2Max = limit1MaxTimesXLimit2Max;
-    }
-
-    public BigDecimal getLimit2MaxAdd() {
-        return limit2MaxAdd;
-    }
-
-    public void setLimit2MaxAdd(BigDecimal limit2MaxAdd) {
-        this.limit2MaxAdd = limit2MaxAdd;
     }
 }

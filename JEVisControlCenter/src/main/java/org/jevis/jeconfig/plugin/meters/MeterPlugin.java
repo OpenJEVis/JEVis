@@ -641,10 +641,12 @@ public class MeterPlugin extends TablePlugin {
                         } finally {
                             Platform.runLater(() -> {
                                 tabPane.getTabs().add(tab);
-                                tabPane.getTabs().sort((o1, o2) -> alphanumComparator.compare(o1.getText(), o2.getText()));
+                                if (tabPane.getTabs().size() > 1) {
+                                    tabPane.getTabs().sort((o1, o2) -> alphanumComparator.compare(o1.getText(), o2.getText()));
 
-                                if (tabPane.getTabs().size() > selectedIndex) {
-                                    tabPane.getSelectionModel().select(selectedIndex);
+                                    if (tabPane.getTabs().size() > selectedIndex) {
+                                        tabPane.getSelectionModel().select(selectedIndex);
+                                    }
                                 }
                             });
                             Platform.runLater(() -> autoFitTable(tableView));
