@@ -88,6 +88,7 @@ public class GapsAndLimits {
                                         boundListSamples.add(jeVisSample);
                                     } else if (rawSamples.indexOf(jeVisSample) > 0) {
                                         Double currentValue = jeVisSample.getValueAsDouble() - rawSamples.get(rawSamples.indexOf(jeVisSample) - 1).getValueAsDouble();
+                                        currentValue *= CleanDataObject.getMultiplierForDate(cleanDataObject.getCleanObject(), jeVisSample.getTimestamp());
 
                                         VirtualSample virtualSample = new VirtualSample(jeVisSample.getTimestamp(), currentValue);
                                         virtualSample.setNote(jeVisSample.getNote());
@@ -120,6 +121,7 @@ public class GapsAndLimits {
                                         boundListSamples.add(jeVisSample);
                                     } else if (rawSamples.indexOf(jeVisSample) > 0) {
                                         Double currentValue = jeVisSample.getValueAsDouble() - rawSamples.get(rawSamples.indexOf(jeVisSample) - 1).getValueAsDouble();
+                                        currentValue *= CleanDataObject.getMultiplierForDate(cleanDataObject.getCleanObject(), jeVisSample.getTimestamp());
 
                                         VirtualSample virtualSample = new VirtualSample(jeVisSample.getTimestamp(), currentValue);
                                         virtualSample.setNote(jeVisSample.getNote());
@@ -152,6 +154,7 @@ public class GapsAndLimits {
                                         boundListSamples.add(jeVisSample);
                                     } else if (rawSamples.indexOf(jeVisSample) > 0) {
                                         Double currentValue = jeVisSample.getValueAsDouble() - rawSamples.get(rawSamples.indexOf(jeVisSample) - 1).getValueAsDouble();
+                                        currentValue *= CleanDataObject.getMultiplierForDate(cleanDataObject.getCleanObject(), jeVisSample.getTimestamp());
 
                                         VirtualSample virtualSample = new VirtualSample(jeVisSample.getTimestamp(), currentValue);
                                         virtualSample.setNote(jeVisSample.getNote());
@@ -181,6 +184,7 @@ public class GapsAndLimits {
                                     boundListSamples.add(jeVisSample);
                                 } else if (rawSamples.indexOf(jeVisSample) > 0) {
                                     Double currentValue = jeVisSample.getValueAsDouble() - rawSamples.get(rawSamples.indexOf(jeVisSample) - 1).getValueAsDouble();
+                                    currentValue *= CleanDataObject.getMultiplierForDate(cleanDataObject.getCleanObject(), jeVisSample.getTimestamp());
 
                                     VirtualSample virtualSample = new VirtualSample(jeVisSample.getTimestamp(), currentValue);
                                     virtualSample.setNote(jeVisSample.getNote());

@@ -89,7 +89,7 @@ public class TablePlugin implements Plugin {
     protected final ObjectRelations objectRelations;
     protected final String title;
     protected final AlphanumComparator alphanumComparator = new AlphanumComparator();
-    protected final JFXTextField filterInput = new JFXTextField();
+    protected final JFXTextField filterInput = new JFXTextField("");
     protected final BorderPane borderPane = new BorderPane();
     protected final StackPane dialogContainer = new StackPane(borderPane);
 
@@ -104,7 +104,9 @@ public class TablePlugin implements Plugin {
             if (newValue != oldValue) {
                 JEVisClassTab selectedItem = (JEVisClassTab) this.tabPane.getSelectionModel().getSelectedItem();
                 String filter = filterInput.getText();
-                setFilterForTab(filter, selectedItem);
+                if (selectedItem != null) {
+                    setFilterForTab(filter, selectedItem);
+                }
             }
         });
     }

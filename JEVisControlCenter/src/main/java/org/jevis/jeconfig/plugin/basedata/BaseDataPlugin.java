@@ -13,7 +13,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +51,6 @@ public class BaseDataPlugin extends TablePlugin {
     private static final double EDITOR_MAX_HEIGHT = 50;
     public static String PLUGIN_NAME = "Base Data Plugin";
     private final Image taskImage = JEConfig.getImage("building_equipment.png");
-    private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
     private boolean initialized = false;
     private JEVisClass baseDataClass;
@@ -158,8 +156,7 @@ public class BaseDataPlugin extends TablePlugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(20, 20);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(20, 20);
 
-        toolBar.getItems().setAll(filterInput, reload);
-        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        toolBar.getItems().setAll(filterInput, reload, JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(BaseDataPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
 
@@ -317,11 +314,6 @@ public class BaseDataPlugin extends TablePlugin {
         }
     }
 
-    @Override
-    public Node getContentNode() {
-        return borderPane;
-    }
-
     private void loadTabs(Map<String, List<JEVisObject>> allBaseData, List<String> typesOfBaseData) throws InterruptedException {
         AtomicBoolean hasActiveLoadTask = new AtomicBoolean(false);
         for (Map.Entry<Task, String> entry : JEConfig.getStatusBar().getTaskList().entrySet()) {
@@ -391,10 +383,12 @@ public class BaseDataPlugin extends TablePlugin {
                         } finally {
                             Platform.runLater(() -> {
                                 tabPane.getTabs().add(tab);
-                                tabPane.getTabs().sort((o1, o2) -> alphanumComparator.compare(o1.getText(), o2.getText()));
+                                if (tabPane.getTabs().size() > 1) {
+                                    tabPane.getTabs().sort((o1, o2) -> alphanumComparator.compare(o1.getText(), o2.getText()));
 
-                                if (tabPane.getTabs().size() > selectedIndex) {
-                                    tabPane.getSelectionModel().select(selectedIndex);
+                                    if (tabPane.getTabs().size() > selectedIndex) {
+                                        tabPane.getSelectionModel().select(selectedIndex);
+                                    }
                                 }
                             });
                             Platform.runLater(() -> autoFitTable(tableView));

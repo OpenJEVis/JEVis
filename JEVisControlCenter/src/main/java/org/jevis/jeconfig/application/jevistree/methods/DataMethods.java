@@ -126,14 +126,14 @@ public class DataMethods extends CommonMethods {
                         logger.info("Setting L2 Min: 0");
                     } else {
                         BigDecimal l2Min = l1Min.subtract(l1Min.multiply(autoLimitSetting.getLimit1MinTimesXLimit2Min()));
-                        l2Min = l2Min.subtract(l2Min.multiply(autoLimitSetting.getLimit2MinSub().divide(BigDecimal.valueOf(100))));
+                        l2Min = l2Min.subtract(l2Min.multiply(autoLimitSetting.getLimit1MinSub().divide(BigDecimal.valueOf(100))));
 
                         newConfig2.setMin(l2Min.toString());
                         logger.info("Setting L2 Min: {}", l2Min);
                     }
 
                     BigDecimal l2Max = l1Max.multiply(autoLimitSetting.getLimit1MaxTimesXLimit2Max());
-                    l2Max = l2Max.add(l2Max.multiply(autoLimitSetting.getLimit2MaxAdd().divide(BigDecimal.valueOf(100))));
+                    l2Max = l2Max.add(l2Max.multiply(autoLimitSetting.getLimit1MaxAdd().divide(BigDecimal.valueOf(100))));
                     newConfig2.setMax(l2Max.toString());
                     logger.info("Setting L2 Max: {}", l2Max);
 
