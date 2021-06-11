@@ -116,13 +116,17 @@ public class CalcInputObject {
                 List<JEVisSample> userValues = userDataValueAttribute.getSamples(startTime, endTime);
 
                 for (JEVisSample userValue : userValues) {
-                    String note = map.get(userValue.getTimestamp()).getNote();
-                    VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble());
-                    virtualSample.setNote(note + "," + USER_VALUE);
-                    virtualSample.setAttribute(map.get(userValue.getTimestamp()).getAttribute());
+                    try {
+                        String note = map.get(userValue.getTimestamp()).getNote();
+                        VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble());
+                        virtualSample.setNote(note + "," + USER_VALUE);
+                        virtualSample.setAttribute(map.get(userValue.getTimestamp()).getAttribute());
 
-                    map.remove(userValue.getTimestamp());
-                    map.put(virtualSample.getTimestamp(), virtualSample);
+                        map.remove(userValue.getTimestamp());
+                        map.put(virtualSample.getTimestamp(), virtualSample);
+                    } catch (Exception e) {
+                        logger.error("Error applying user value for {}", userValue.getTimestamp(), e);
+                    }
                 }
 
                 returnSamples = new ArrayList<>(map.values());

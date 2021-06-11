@@ -28,6 +28,7 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.*;
@@ -96,6 +97,39 @@ public class CleanDataObject {
         cleanObject = calcObject;
         rawDataObject = objectHandler.getFirstParent(calcObject);
         sampleHandler = new SampleHandler();
+    }
+
+    public static Double getMultiplierForDate(JEVisObject cleanObject, DateTime timestamp) {
+        double multiplier = 1d;
+
+        try {
+            JEVisAttribute multiplierAttribute = cleanObject.getAttribute("Multiplier");
+            if (multiplierAttribute != null) {
+                List<JEVisSample> sampleList = multiplierAttribute.getAllSamples();
+                for (JEVisSample sample : sampleList) {
+                    int index = sampleList.indexOf(sample);
+                    DateTime timeStampOfMultiplier = null;
+                    DateTime nextTimeStampOfMultiplier = null;
+                    Double multiplierDouble = null;
+
+                    timeStampOfMultiplier = sample.getTimestamp();
+                    multiplierDouble = sample.getValueAsDouble();
+
+                    if (index + 1 < sampleList.size()) {
+                        nextTimeStampOfMultiplier = sampleList.get(index + 1).getTimestamp();
+                    }
+
+                    if (timestamp.equals(timeStampOfMultiplier) || timestamp.isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || timestamp.isBefore(nextTimeStampOfMultiplier))) {
+                        BigDecimal multi = new BigDecimal(multiplierDouble.toString());
+                        multiplier = multi.doubleValue();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not get multiplier for object {}:{} and date {}", cleanObject.getName(), cleanObject.getID(), timestamp, e);
+        }
+
+        return multiplier;
     }
 
     /**

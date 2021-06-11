@@ -847,9 +847,9 @@ public class TreeHelper {
 
                     JFXCheckBox auto = new JFXCheckBox("Automatische Festlegung");
 
+                    Label presetDateLabel = new Label("Zeitbereich zur Bestimmung");
                     PresetDateBox presetDateBox = new PresetDateBox();
                     JFXCheckBox minIsZero = new JFXCheckBox("Untere Grenze ist immer 0");
-                    minIsZero.setSelected(true);
 
                     Label limit1MinSubLabel = new Label("Toleranz der unteren Grenze [%]");
                     JFXTextField limit1MinSub = new JFXTextField("0");
@@ -922,7 +922,22 @@ public class TreeHelper {
                         }
                     });
 
+                    minIsZero.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue) {
+                            limit1MinSubLabel.setDisable(true);
+                            limit1MinSub.setDisable(true);
+                            limit1MinTimesXLimit2MinLabel.setDisable(true);
+                            limit1MinTimesXLimit2Min.setDisable(true);
+                        } else {
+                            limit1MinSubLabel.setDisable(false);
+                            limit1MinSub.setDisable(false);
+                            limit1MinTimesXLimit2MinLabel.setDisable(false);
+                            limit1MinTimesXLimit2Min.setDisable(false);
+                        }
+                    });
+
                     auto.setSelected(true);
+                    minIsZero.setSelected(true);
 
                     int row = 0;
 
@@ -932,7 +947,8 @@ public class TreeHelper {
                     gp.add(new Separator(Orientation.HORIZONTAL), 0, row, 2, 1);
                     row++;
 
-                    gp.add(presetDateBox, 0, row, 2, 1);
+                    gp.add(presetDateLabel, 0, row);
+                    gp.add(presetDateBox, 1, row);
                     row++;
 
                     gp.add(minIsZero, 0, row, 2, 1);
