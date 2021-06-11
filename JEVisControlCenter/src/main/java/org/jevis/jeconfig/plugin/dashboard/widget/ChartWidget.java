@@ -294,5 +294,9 @@ public class ChartWidget extends Widget implements DataModelWidget {
         return this.sampleHandler;
     }
 
+    @Override
+    public void setDataHandler(DataModelDataHandler dataHandler) {
+        this.sampleHandler = dataHandler;
+    }
 
 }

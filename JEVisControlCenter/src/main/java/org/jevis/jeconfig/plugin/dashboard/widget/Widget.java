@@ -78,7 +78,7 @@ public abstract class Widget extends Region {
         this.config = config;
 
         initLayout();
-        setCacheHint(CacheHint.DEFAULT);
+        setCacheHint(CacheHint.QUALITY);
         setCache(true);
     }
 
@@ -163,13 +163,9 @@ public abstract class Widget extends Region {
             dropShadow.setOffsetX(3.0);
             dropShadow.setOffsetY(3.0);
             dropShadow.setColor(Color.BLACK);
-//        dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
             this.contentRoot.setEffect(dropShadow);
-
-//            this.setEffect(dropShadow);
         } else {
             this.contentRoot.setEffect(null);
-//            this.setEffect(null);
         }
 
         if (!config.getTooltip().equals("")) {
@@ -197,7 +193,6 @@ public abstract class Widget extends Region {
             this.setEffect(null);
 
             if (glow) {
-
                 DropShadow borderGlow = new DropShadow();
                 borderGlow.setOffsetY(-0f);
                 borderGlow.setOffsetX(-0f);
@@ -253,6 +248,9 @@ public abstract class Widget extends Region {
         AnchorPane.setTopAnchor(alert, 8d);
     }
 
+    /**
+     * @deprecated
+     */
     private void makeLoadingOverlay() {
         this.loadingPane.setVisible(false);
         progressIndicator.setMaxSize(100, 100);
@@ -357,6 +355,10 @@ public abstract class Widget extends Region {
                     ArrayList arrayList = new ArrayList<>();
                     arrayList.add(this);
                     control.addToWidgetSelection(arrayList);
+                    event.consume();
+                } else if (event.isAltDown()) {
+                    System.out.println("Is alt selected: " + this);
+                    control.setSelectAllFromType(this);
                     event.consume();
                 } else {
                     control.setSelectedWidget(this);

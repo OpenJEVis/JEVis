@@ -332,6 +332,10 @@ public class PieWidget extends Widget implements DataModelWidget {
         return this.sampleHandler;
     }
 
+    @Override
+    public void setDataHandler(DataModelDataHandler dataHandler) {
+        this.sampleHandler = dataHandler;
+    }
 
 //    public class PieChart2 extends PieChart {
 //

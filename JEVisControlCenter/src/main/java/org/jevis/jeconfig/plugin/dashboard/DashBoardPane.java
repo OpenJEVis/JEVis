@@ -81,32 +81,35 @@ public class DashBoardPane extends Pane {
         });
 
 
-//        addMouseSelectionGesture();
+        //addMouseSelectionGesture();
     }
 
+    /**
+     * does not work with the current java/jfxtras version 8.x
+     * Need Maven dependencie jfxtras-labs
+     * <p>
+     * There is the problem that the other mous events are not working and a
+     * Bug in this version: https://github.com/JFXtras/jfxtras-labs/issues/127
+     */
     private void addMouseSelectionGesture() {
-        final Rectangle selectionRect = new Rectangle(20, 20, Color.TRANSPARENT);
+        final Rectangle selectionRect = new Rectangle(0, 0, Color.TRANSPARENT);
         selectionRect.setStroke(Color.BLACK);
 
         EventHandler<MouseEvent> mouseReleaseHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                List<Widget> selected = new ArrayList<>();
                 for (Node shape : DashBoardPane.this.getChildren()) {
                     if (selectionRect.getBoundsInParent().intersects(shape.getBoundsInParent())) {
-//                        shape.setFill(Color.RED);
-//                        if(!this.selected.contains(shape))
-//                        System.out.println("Selected: " + shape);
-//                            this.selected.add(shape);
-                    } else {
-//                        shape.setFill(Color.BLACK);
-//                        this.selected.remove(shape);
+                        if (shape instanceof Widget) {
+                            System.out.println("Selected: " + shape);
+                            selected.add((Widget) shape);
+                        }
                     }
-
                 }
+                control.setSelectedWidgets(selected);
             }
         };
-
-        /** does not work with the current java/jfxtras version **/
         //MouseControlUtil.addSelectionRectangleGesture(this, selectionRect, null, null, mouseReleaseHandler);
 
     }
@@ -163,21 +166,23 @@ public class DashBoardPane extends Pane {
     }
 
     private void sortWidgets(List<Widget> widgetList) {
-        widgetList.sort(new Comparator<Widget>() {
-            @Override
-            public int compare(Widget o1, Widget o2) {
-                try {
-                    int layerC = o1.getConfig().getLayer().compareTo(o2.config.getLayer());
-                    if (layerC == 0) {
-                        return Integer.compare(o1.getConfig().getUuid(), o2.getConfig().getUuid());
-                    } else {
-                        return layerC;
-                    }
-                } catch (Exception ex) {
-                    return 1;
-                }
+        widgetList.sort((o1, o2) -> {
+            try {
+                return o1.getConfig().getLayer().compareTo(o2.config.getLayer());
+            } catch (Exception ex) {
+                return 0;
             }
         });
+
+
+        /** only sort by layer for now, old dashboard releay on the saved order
+         int layerC = o1.getConfig().getLayer().compareTo(o2.config.getLayer());
+         if (layerC == 0) {
+         return Integer.compare(o1.getConfig().getUuid(), o2.getConfig().getUuid());
+         } else {
+         return layerC;
+         }
+         **/
     }
 
 

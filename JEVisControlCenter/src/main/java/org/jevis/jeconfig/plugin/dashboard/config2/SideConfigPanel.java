@@ -56,6 +56,7 @@ public class SideConfigPanel extends GridPane {
     private JFXButton downButton = new JFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
     private JFXButton upButton = new JFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
     private JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
+    private JFXButton equalizeDataModelButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
     private TextField pixels = new TextField("25.0");
 
     public SideConfigPanel(DashboardControl control) {
@@ -90,7 +91,7 @@ public class SideConfigPanel extends GridPane {
         System.out.println("-------------------setLastSelectedWidget: " + widget.getConfig().getUuid());
         System.out.println("Layer in config: " + widget.getConfig().getLayer());
         isUpdating = true;
-        
+
         layerComboBox.setValue(widget.getConfig().getLayer());
         fColorPicker.setValue(widget.getConfig().getFontColor());
         bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
@@ -155,6 +156,7 @@ public class SideConfigPanel extends GridPane {
         gp.add(showShadowField, 1, 2);
         gp.add(fontSizeLabel, 0, 3);
         gp.add(fontSizeSpinner, 1, 3);
+        gp.add(equalizeDataModelButton, 0, 4, 2, 1);
 
         titledPane.setContent(gp);
 
@@ -180,6 +182,9 @@ public class SideConfigPanel extends GridPane {
             if (!isUpdating) {
                 control.shadowSelected(showShadowField.isSelected());
             }
+        });
+        equalizeDataModelButton.setOnAction(event -> {
+            control.equalizeDataModel();
         });
 
 
