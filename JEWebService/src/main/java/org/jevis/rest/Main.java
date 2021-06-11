@@ -86,6 +86,9 @@ public class Main {
             sslCon.setKeyStoreFile(Config.getKeyStoreFile());
             sslCon.setKeyStorePass(Config.getKeyStorePW());
 
+            if(!Config.getKeyType().isEmpty()){
+                sslCon.setKeyStoreType(Config.getKeyType());//PKCS12
+            }
 
             server = GrizzlyHttpServerFactory.createHttpServer(
                     URI.create(Config.getURI()),

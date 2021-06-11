@@ -55,6 +55,7 @@ public class Config {
     public static String _uri = "http://localhost:8080/JEWebservice/";
     public static String _keyFile = "";
     public static String _keyFilePW = "";
+    public static String _keyType = "";
 
 
     public static long _demoRoot = -1;
@@ -120,6 +121,10 @@ public class Config {
 
     public static String getKeyStorePW() {
         return _keyFilePW;
+    }
+
+    public static String getKeyType(){
+        return _keyType;
     }
 
     public static File getFreemarkerDir() {
@@ -218,7 +223,7 @@ public class Config {
 
                     _keyFile = getParameter(config, "webservice.keystore", homeDir + "/etc/keystore.jks");
                     _keyFilePW = getParameter(config, "webservice.keystorepw", "jevispw");
-
+                    _keyType= getParameter(config,"webservice.keystoretype","");
                     _jeccVersion = getParameter(config, "webservice.jeccversion", "0");
 
 

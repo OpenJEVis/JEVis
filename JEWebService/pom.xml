@@ -6,7 +6,7 @@
     <groupId>org.jevis.rest</groupId>
     <artifactId>JEWebservice</artifactId>
     <packaging>jar</packaging>
-    <version>1.9.0</version>
+    <version>1.9.1</version>
     <name>JEWebservice</name>
 
     <parent>
