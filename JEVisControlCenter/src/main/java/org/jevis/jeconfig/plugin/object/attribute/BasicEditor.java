@@ -12,22 +12,28 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.control.AnalysisLinkButton;
-import org.jevis.jeconfig.dialog.UnitDialog;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
+import org.jevis.jeconfig.tool.FavUnitList;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import javax.measure.quantity.Dimensionless;
 import java.text.ParseException;
 
 /**
@@ -93,33 +99,17 @@ public abstract class BasicEditor implements AttributeEditor {
         }
 
         hbox.getChildren().addAll(valueField);
-
         try {
-
-            JFXTextField ubutton = new JFXTextField();
-            ubutton.setPrefWidth(45);
-            ubutton.setEditable(false);
-
+            JEVisUnit selectedUnit = new JEVisUnitImp(Dimensionless.UNIT, "", "");
             if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
-                ubutton.setText(UnitManager.getInstance().format(this.attribute.getDisplayUnit().getLabel()));
+                selectedUnit = this.attribute.getDisplayUnit();
             } else {
-                ubutton.setText(UnitManager.getInstance().format(this.attribute.getInputUnit().getLabel()));
+                selectedUnit = this.attribute.getInputUnit();
             }
-
-            ubutton.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2) {
-                    try {
-                        UnitDialog unitDialog = new UnitDialog(dialogContainer, this.attribute, ubutton);
-                        unitDialog.show();
-                    } catch (JEVisException e) {
-                        logger.error("Could not create unit dialog", e);
-                    }
-                }
-            });
-
-            hbox.getChildren().add(ubutton);
+            FavUnitList favUnitList = new FavUnitList(dialogContainer, this.attribute, selectedUnit, true);
+            hbox.getChildren().add(favUnitList);
         } catch (Exception ex) {
-            logger.error("Could not build unit field: " + ex);
+            logger.error(ex, ex);
         }
 
 
@@ -151,6 +141,43 @@ public abstract class BasicEditor implements AttributeEditor {
         });
 
         return hbox;
+    }
+
+
+    public boolean isOtherUnit(JEVisUnit unit) {
+        return unit.getLabel().equals("other");
+    }
+
+    private Callback<ListView<JEVisUnit>, ListCell<JEVisUnit>> getUnitLIstFactory() {
+        Callback<ListView<JEVisUnit>, ListCell<JEVisUnit>> unitRenderer = new Callback<ListView<JEVisUnit>, ListCell<JEVisUnit>>() {
+            @Override
+            public ListCell<JEVisUnit> call(ListView<JEVisUnit> param) {
+                return new ListCell<JEVisUnit>() {
+                    {
+                        //super.setMinWidth(260);
+                    }
+
+                    @Override
+                    protected void updateItem(JEVisUnit unitItem, boolean empty) {
+                        super.updateItem(unitItem, empty);
+                        setGraphic(null);
+                        if (!empty) {
+                            System.out.println("Unit Text: " + unitItem);
+                            setAlignment(Pos.CENTER);
+                            setText("");
+
+                            if (isOtherUnit(unitItem)) {
+                                setText("Other...");
+                            } else {
+                                setText(UnitManager.getInstance().format(unitItem));
+                            }
+                        }
+                    }
+                };
+            }
+        };
+
+        return unitRenderer;
     }
 
     @Override
