@@ -19,29 +19,27 @@ import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.commons.validator.routines.LongValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
-import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.dialog.ProgressForm;
-import org.jevis.jeconfig.dialog.UnitDialog;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
+import org.jevis.jeconfig.tool.FavUnitList;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import javax.measure.quantity.Dimensionless;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -411,27 +409,19 @@ public class CleanDataExtension implements ObjectEditorExtension {
         TimeStampEditor valueTimeStamp = new TimeStampEditor(valueAttribute);
         JFXTextField value = new JFXTextField();
         value.setEditable(false);
-        JFXTextField unitValue = new JFXTextField();
+
+        JEVisUnit selectedUnit = new JEVisUnitImp(Dimensionless.UNIT, "", "");
+        if (valueAttribute.getDisplayUnit() != null && !valueAttribute.getInputUnit().getLabel().isEmpty()) {
+            selectedUnit = valueAttribute.getDisplayUnit();
+        } else {
+            selectedUnit = valueAttribute.getInputUnit();
+        }
+        FavUnitList unitValue = new FavUnitList(dialogContainer, valueAttribute, selectedUnit, true);
 
         if (valueLastSample != null) {
             value.setText(nf.format(valueLastSample.getValueAsDouble()));
         }
-        if (valueAttribute.getDisplayUnit() != null && !valueAttribute.getInputUnit().getLabel().isEmpty()) {
-            unitValue.setText(UnitManager.getInstance().format(valueAttribute.getDisplayUnit().getLabel()));
-        } else {
-            unitValue.setText(UnitManager.getInstance().format(valueAttribute.getInputUnit().getLabel()));
-        }
-        unitValue.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                try {
-                    UnitDialog unitDialog = new UnitDialog(dialogContainer, valueAttribute, unitValue);
-                    unitDialog.show();
-                } catch (JEVisException e) {
-                    logger.error("Could not create unit dialog", e);
-                }
-            }
-        });
-        unitValue.setEditable(false);
+
 
         /**
          *  Value Offset
@@ -493,9 +483,9 @@ public class CleanDataExtension implements ObjectEditorExtension {
 
         enabled.setAlignment(Pos.CENTER_LEFT);
         value.setAlignment(Pos.CENTER_RIGHT);
-        unitValue.setAlignment(Pos.CENTER_LEFT);
-        unitValue.setPrefWidth(40);
-        unitValue.setEditable(false);
+        //unitValue.setAlignment(Pos.CENTER_LEFT);
+        //unitValue.setPrefWidth(40);
+        //unitValue.setEditable(false);
         valueMultiplier.setAlignment(Pos.CENTER_RIGHT);
         valueOffset.setAlignment(Pos.CENTER_RIGHT);
         valueIsAQuantity.setAlignment(Pos.CENTER_LEFT);

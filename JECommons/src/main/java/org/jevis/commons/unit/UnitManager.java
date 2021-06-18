@@ -59,6 +59,7 @@ public class UnitManager {
     private HashMap<JEVisUnit, String> _namesJUnit;
     private HashMap<Unit, String> dimNames;
     private HashMap<JEVisUnit, String> _dimNamesJUnit;
+    private List<JEVisUnit> favUnits;
 
     /* A private Constructor prevents any other
      * class from instantiating.
@@ -1154,11 +1155,76 @@ public class UnitManager {
         list.add(Dimensionless.UNIT);
         list.add(Energy.UNIT);
         list.add(Power.UNIT);
+        list.add(SI.WATT.times(NonSI.HOUR));
         list.add(Temperature.UNIT);
         list.add(Volume.UNIT);
         list.add(Area.UNIT);
 
         return list;
+    }
+
+    public List<JEVisUnit> getFavoriteJUnits() {
+        if (favUnits != null) {
+            return favUnits;
+        }
+
+        favUnits = new ArrayList<>();
+
+        Unit _l = NonSI.LITER;
+        Unit _W = SI.WATT;
+        Unit _kW = SI.KILO(SI.WATT);
+        Unit _MW = SI.MEGA(SI.WATT);
+        Unit _GW = SI.GIGA(SI.WATT);
+        Unit _Wh = SI.WATT.times(NonSI.HOUR);
+        Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
+        Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
+        Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
+        Unit _m3 = SI.CUBIC_METRE;
+        Unit _m2 = SI.SQUARE_METRE;
+        Unit _t = NonSI.METRIC_TON;
+        Unit _C = SI.CELSIUS;
+        Unit _cubicMeterPerHour = SI.CUBIC_METRE.divide(NonSI.HOUR);
+        Unit _kgh = SI.KILOGRAM.divide(NonSI.HOUR);
+        Unit _per100 = NonSI.PERCENT;
+
+
+        final JEVisUnit t = new JEVisUnitImp(_t);
+        final JEVisUnit W = new JEVisUnitImp(_W);
+        final JEVisUnit kW = new JEVisUnitImp(_kW);
+        final JEVisUnit MW = new JEVisUnitImp(_MW);
+        final JEVisUnit GW = new JEVisUnitImp(_GW);
+        final JEVisUnit Wh = new JEVisUnitImp(_Wh);
+        final JEVisUnit kWh = new JEVisUnitImp(_kWh);
+        final JEVisUnit MWh = new JEVisUnitImp(_MWh);
+        final JEVisUnit GWh = new JEVisUnitImp(_GWh);
+        final JEVisUnit l = new JEVisUnitImp(_l);
+        final JEVisUnit m2 = new JEVisUnitImp(_m2);
+        final JEVisUnit m3 = new JEVisUnitImp(_m3);
+        final JEVisUnit C = new JEVisUnitImp(_C);
+        final JEVisUnit cubicMeterPerHour = new JEVisUnitImp(_cubicMeterPerHour);
+        final JEVisUnit kgh = new JEVisUnitImp(_kgh);
+        final JEVisUnit per100 = new JEVisUnitImp(_per100);
+
+        favUnits.add(kW);
+        favUnits.add(kWh);
+
+        favUnits.add(C);
+        favUnits.add(l);
+        favUnits.add(t);
+        favUnits.add(m2);
+        favUnits.add(m3);
+        favUnits.add(kgh);
+        favUnits.add(cubicMeterPerHour);
+        favUnits.add(per100);
+
+
+        //favUnits.add(MWh);
+        //favUnits.add(MW);
+        //favUnits.add(GW);
+        //favUnits.add(Wh);
+        //favUnits.add(GWh);
+
+        return favUnits;
     }
 
 
