@@ -32,6 +32,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
+import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -50,7 +51,10 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 
 /**
@@ -64,7 +68,6 @@ import java.util.function.UnaryOperator;
  */
 public class SampleTable extends TableView<SampleTable.TableSample> {
     private final DateTimeFormatter dateViewFormat;
-    private final static NumberFormat numberFormat = NumberFormat.getInstance(Locale.getDefault());
     private final static Logger logger = LogManager.getLogger(SampleTable.class);
     private final static Color COLOR_ERROR = Color.INDIANRED;
     private final JEVisAttribute attribute;
@@ -74,6 +77,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     private final BooleanProperty needSave = new SimpleBooleanProperty(false);
     private final ObservableList<SampleTable.TableSample> data = FXCollections.observableArrayList();
     private final DateTimeZone dateTimeZone;
+    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
+    private final DoubleValidator validator = DoubleValidator.getInstance();
     private DateTime minDate = null;
     private DateTime maxDate = null;
     boolean canDelete = false;
@@ -158,6 +163,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 //            System.out.println("Table.editable: " + newValue);
         });
 
+
+        nf.setMaximumFractionDigits(200);
+        nf.setGroupingUsed(true);
     }
 
     /**
@@ -599,6 +607,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         }
     }
 
+
     /**
      * Create an callback for an Double based sample
      *
@@ -618,54 +627,74 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
-
-                            JFXTextField textField = new JFXTextField(tableSample.getValue().toString());
-//                            textField.setDisable(!SampleTable.this.isEditable());
-//                            this.disableProperty().bind(textField.disableProperty());
+                            JFXTextField textField = new JFXTextField();
                             setDefaultFieldStyle(this, textField);
 
-
-                            UnaryOperator<TextFormatter.Change> filter = t -> {
-
-                                if (t.getText().length() > 1) {/** Copy&paste case **/
-                                    try {
-                                        /**
-                                         * TODO: maybe try different locales
-                                         */
-                                        Number newNumber = numberFormat.parse(t.getText());
-                                        t.setText(String.valueOf(newNumber.doubleValue()));
-                                    } catch (Exception ex) {
-                                        t.setText("");
-                                    }
-                                } else if (t.getText().matches(",")) {/** to be use the Double.parse **/
-                                    t.setText(".");
-                                }
-
-
-                                try {
-                                    /** We don't use the NumberFormat to validate, because he is not strict enough **/
-                                    Double parse = Double.parseDouble(t.getControlNewText());
-                                } catch (Exception ex) {
-                                    t.setText("");
-                                }
-                                return t;
-                            };
-
-                            textField.setTextFormatter(new TextFormatter<>(filter));
+                            try {
+                                textField.setText(nf.format(tableSample.jevisSample.getValueAsDouble()));
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                    setDefaultCellStyle(this);
+                                    if (!oldValue.equals(newValue)) {
+                                        tableSample.setValue(nf.parse(newValue).doubleValue());
+                                        setDefaultCellStyle(this);
+                                    }
 
-                                    tableSample.setValue(Double.parseDouble(newValue));
+                                    if (validator.isValid(newValue, I18n.getInstance().getLocale())) {
+                                        setDefaultCellStyle(this);
+                                    } else {
+                                        setErrorCellStyle(this, new NumberFormatException());
+                                    }
+
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);
-                                    logger.error("Error in double text", ex);
+                                    logger.error("Error in double text", ex, ex);
+                                }
+                            });
+                            textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (!newValue) {
+                                    try {
+                                        System.out.println("focus lost");
+                                        textField.setText(nf.format(tableSample.getValue()));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             });
 
-
                             setGraphic(textField);
+                            /**
+
+                             //DecimalFormatSymbols decimal = new DecimalFormatSymbols(Locale.getDefault());
+                             //String sep = String.valueOf(decimal.getDecimalSeparator());
+
+
+                             UnaryOperator<TextFormatter.Change> filter2 = new UnaryOperator<TextFormatter.Change>() {
+
+                            @Override public TextFormatter.Change apply(TextFormatter.Change t) {
+
+                            if (t.isReplaced())
+                            if (t.getText().matches("[^0-9]"))
+                            t.setText(t.getControlText().substring(t.getRangeStart(), t.getRangeEnd()));
+
+
+                            if (t.isAdded()) {
+                            if (t.getControlText().contains(".")) {
+                            if (t.getText().matches("[^0-9]")) {
+                            t.setText("");
+                            }
+                            } else if (t.getText().matches("[^0-9" + sep + "]")) {
+                            t.setText("");
+                            }
+                            }
+                            return t;
+                            }
+                            };textField.setTextFormatter(new TextFormatter<>(filter2));
+                             **/
+
 
                         }
 
