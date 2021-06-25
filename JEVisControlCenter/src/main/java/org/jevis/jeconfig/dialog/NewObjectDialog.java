@@ -52,6 +52,9 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.resource.ImageConverter;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
+import org.jevis.jeconfig.tool.template.NullTemplate;
+import org.jevis.jeconfig.tool.template.Template;
+import org.jevis.jeconfig.tool.template.Templates;
 
 import java.math.BigDecimal;
 
@@ -69,6 +72,7 @@ public class NewObjectDialog {
     private Response response = Response.CANCEL;
     private final ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
     private boolean withCleanData = true;
+    private Template template = new NullTemplate();
 
     /**
      * @param jclass
@@ -170,6 +174,15 @@ public class NewObjectDialog {
             }
         };
 
+        Label templateLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.template"));
+        JFXComboBox<Template> templateBox = new JFXComboBox<>();
+        templateBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Template>() {
+            @Override
+            public void changed(ObservableValue<? extends Template> observable, Template oldValue, Template newValue) {
+                template = newValue;
+            }
+        });
+
         final JFXComboBox<JEVisClass> jeVisClassComboBox = new JFXComboBox<>(options);
         JFXCheckBox createCleanData = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
         createCleanData.setVisible(true);
@@ -188,6 +201,24 @@ public class NewObjectDialog {
                 } else {
                     Platform.runLater(() -> createCleanData.setVisible(false));
                 }
+                Platform.runLater(() -> {
+                    ObservableList observableList = FXCollections.observableArrayList();
+                    observableList.add(new NullTemplate());
+                    Templates.getAllTemplates().forEach(template -> {
+                        try {
+                            if (template.supportsClass(newValue)) {
+                                observableList.add(template);
+                            }
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+
+                    });
+                    templateBox.setItems(observableList);
+                    templateBox.getSelectionModel().selectFirst();
+                });
+
+
             } catch (Exception ex) {
                 logger.fatal(ex);
             }
@@ -209,6 +240,7 @@ public class NewObjectDialog {
             count.setDisable(true);
         }
 
+
         createCleanData.setSelected(true);
         createCleanData.setOnAction(event -> withCleanData = !withCleanData);
 
@@ -218,6 +250,8 @@ public class NewObjectDialog {
 
         gp.add(lClass, 0, ++x, 1, 1);
         gp.add(jeVisClassComboBox, 1, x, 1, 1);
+        gp.add(templateLabel, 0, ++x);
+        gp.add(templateBox, 1, x);
         gp.add(lCount, 0, ++x);
         gp.add(count, 1, x);
 
@@ -273,6 +307,7 @@ public class NewObjectDialog {
             count.setDisable(true);
             jeVisClassComboBox.getSelectionModel().select(jclass);
             jeVisClassComboBox.setDisable(true);
+            templateBox.setDisable(true);
         }
 
 
@@ -298,6 +333,10 @@ public class NewObjectDialog {
 
 
         return response;
+    }
+
+    public Template getTemplate() {
+        return this.template;
     }
 
     public int getCreateCount() {
