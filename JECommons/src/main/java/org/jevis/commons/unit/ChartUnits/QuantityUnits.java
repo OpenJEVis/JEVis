@@ -136,7 +136,7 @@ public class QuantityUnits {
     }
 
     public QuantityUnits() {
-        energyUnits = new ArrayList<>(Arrays.asList(W, kW, MW, GW));
+        energyUnits = new ArrayList<>(Arrays.asList(W, kW, MW, GW, va, kva, var, kvar));
 
         stringArrayList = new ArrayList<>(Arrays.asList(
                 mg.getLabel(), g.getLabel(),

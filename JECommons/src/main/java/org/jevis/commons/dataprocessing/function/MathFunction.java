@@ -166,7 +166,7 @@ public class MathFunction implements ProcessFunction {
                     DateTime intervalStart = interval.getStart();
                     DateTime intervalEnd = interval.getEnd();
 
-                    lastPos = AggregatorFunction.aggregateSamplesToPeriod(lastPos, samplesInPeriod, intervalStart, intervalEnd, allSamples);
+                    lastPos = AggregatorFunction.aggregateSamplesToPeriod(lastPos, samplesInPeriod, intervalStart, intervalEnd, allSamples, mainTask);
 
                     value = 0d;
                     listMedian = new ArrayList<>();
@@ -227,8 +227,8 @@ public class MathFunction implements ProcessFunction {
 
                         String note = allSamples.get(i).getNote();
                         if (note == null || note.equals(""))
-                            note = "math(" + ManipulationMode.RUNNING_MEAN.toString() + ")";
-                        else note += ",math(" + ManipulationMode.RUNNING_MEAN.toString() + ")";
+                            note = "math(" + ManipulationMode.RUNNING_MEAN + ")";
+                        else note += ",math(" + ManipulationMode.RUNNING_MEAN + ")";
                         smp.setNote(note);
 
                         listManipulation.add(smp);
@@ -260,8 +260,8 @@ public class MathFunction implements ProcessFunction {
 
                         String note = aggregatedSamples.get(i).getNote();
                         if (note == null || note.equals(""))
-                            note = "math(" + ManipulationMode.RUNNING_MEAN.toString() + ")";
-                        else note += ",math(" + ManipulationMode.RUNNING_MEAN.toString() + ")";
+                            note = "math(" + ManipulationMode.RUNNING_MEAN + ")";
+                        else note += ",math(" + ManipulationMode.RUNNING_MEAN + ")";
                         smp.setNote(note);
 
                         listManipulation.add(smp);
@@ -292,8 +292,8 @@ public class MathFunction implements ProcessFunction {
 
                         String note = allSamples.get(i).getNote();
                         if (note == null || note.equals(""))
-                            note = "math(" + ManipulationMode.CENTRIC_RUNNING_MEAN.toString() + ")";
-                        else note += ",math(" + ManipulationMode.CENTRIC_RUNNING_MEAN.toString() + ")";
+                            note = "math(" + ManipulationMode.CENTRIC_RUNNING_MEAN + ")";
+                        else note += ",math(" + ManipulationMode.CENTRIC_RUNNING_MEAN + ")";
                         smp.setNote(note);
 
                         listManipulation.add(smp);
@@ -326,8 +326,8 @@ public class MathFunction implements ProcessFunction {
 
                         String note = aggregatedSamples.get(i).getNote();
                         if (note == null || note.equals(""))
-                            note = "math(" + ManipulationMode.CENTRIC_RUNNING_MEAN.toString() + ")";
-                        else note += ",math(" + ManipulationMode.CENTRIC_RUNNING_MEAN.toString() + ")";
+                            note = "math(" + ManipulationMode.CENTRIC_RUNNING_MEAN + ")";
+                        else note += ",math(" + ManipulationMode.CENTRIC_RUNNING_MEAN + ")";
                         smp.setNote(note);
 
                         listManipulation.add(smp);
