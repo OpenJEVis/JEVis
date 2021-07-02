@@ -23,7 +23,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.*;
-import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
@@ -140,43 +139,6 @@ public class InputFunction implements ProcessFunction {
 
                     DateTime[] startEnd = ProcessOptions.getStartAndEnd(task);
                     logger.info("start: {} end: {}", startEnd[0], startEnd[1]);
-                    WorkDays wd = jsonSampleGenerator.getWorkDays();
-                    if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) startEnd[0] = startEnd[0].minusDays(1);
-
-                    AggregationPeriod aggregationPeriod = task.getJsonSampleGenerator().getAggregationPeriod();
-                    switch (aggregationPeriod) {
-                        default:
-                            break;
-                        case QUARTER_HOURLY:
-                            startEnd[0] = startEnd[0].withSecondOfMinute(0).withMillisOfSecond(0);
-                            break;
-                        case HOURLY:
-                            startEnd[0] = startEnd[0].withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                            break;
-                        case DAILY:
-                            startEnd[0] = startEnd[0].withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                            break;
-                        case WEEKLY:
-                            startEnd[0] = startEnd[0].withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                            break;
-                        case MONTHLY:
-                            startEnd[0] = startEnd[0].withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                            break;
-                        case QUARTERLY:
-                            if (startEnd[0].getMonthOfYear() < 4) {
-                                startEnd[0] = startEnd[0].withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                            } else if (startEnd[0].getMonthOfYear() < 7) {
-                                startEnd[0] = startEnd[0].withMonthOfYear(4).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                            } else if (startEnd[0].getMonthOfYear() < 10) {
-                                startEnd[0] = startEnd[0].withMonthOfYear(7).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                            } else {
-                                startEnd[0] = startEnd[0].withMonthOfYear(10).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                            }
-                            break;
-                        case YEARLY:
-                            startEnd[0] = startEnd[0].withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                            break;
-                    }
 
                     if (foundUserDataObject && att != null) {
 

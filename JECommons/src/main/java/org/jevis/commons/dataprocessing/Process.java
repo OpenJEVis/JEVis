@@ -11,6 +11,7 @@ import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.SQLDataSource;
+import org.joda.time.DateTime;
 
 import java.util.List;
 
@@ -124,6 +125,8 @@ public interface Process {
      * @param parent
      */
     void setParent(Process parent);
+
+    boolean isDifferential(DateTime ts);
 
 //    public Task setParent(Task parent);
 }

@@ -138,7 +138,7 @@ public class ProcessOptions {
      * @param task
      * @return
      */
-    public static DateTime[] getStartAndEnd(Process task) {
+    public static DateTime[] getStartAndEnd(BasicProcess task) {
 
         DateTime[] result = new DateTime[2];
         result[0] = null;
@@ -164,6 +164,62 @@ public class ProcessOptions {
             }
         } else {
             logger.info("No {} option is missing", TS_END);
+        }
+
+        WorkDays wd = task.getJsonSampleGenerator().getWorkDays();
+        if (result[0] != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) result[0] = result[0].minusDays(1);
+
+        Period period = Period.ZERO;
+        for (ProcessOption option : task.getOptions()) {
+            String key = option.getKey();
+            String value = option.getValue();
+            if (PERIOD.equals(key)) {
+                period = Period.parse(value);
+            }
+        }
+
+        AggregationPeriod aggregationPeriod = task.getJsonSampleGenerator().getAggregationPeriod();
+        if (result[0] != null && result[1] != null) {
+            switch (aggregationPeriod) {
+                default:
+                    break;
+                case QUARTER_HOURLY:
+                    result[0] = result[0].withSecondOfMinute(0).withMillisOfSecond(0);
+                    result[1] = result[1].plus(period);
+                    break;
+                case HOURLY:
+                    result[0] = result[0].withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    result[1] = result[1].plus(period);
+                    break;
+                case DAILY:
+                    result[0] = result[0].withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    result[1] = result[1].plus(period);
+                    break;
+                case WEEKLY:
+                    result[0] = result[0].withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    result[1] = result[1].plus(period);
+                    break;
+                case MONTHLY:
+                    result[0] = result[0].withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    result[1] = result[1].plus(period);
+                    break;
+                case QUARTERLY:
+                    if (result[0].getMonthOfYear() < 4) {
+                        result[0] = result[0].withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    } else if (result[0].getMonthOfYear() < 7) {
+                        result[0] = result[0].withMonthOfYear(4).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    } else if (result[0].getMonthOfYear() < 10) {
+                        result[0] = result[0].withMonthOfYear(7).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    } else {
+                        result[0] = result[0].withMonthOfYear(10).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    }
+                    result[1] = result[1].plus(period);
+                    break;
+                case YEARLY:
+                    result[0] = result[0].withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    result[1] = result[1].plus(period);
+                    break;
+            }
         }
 
         return result;
