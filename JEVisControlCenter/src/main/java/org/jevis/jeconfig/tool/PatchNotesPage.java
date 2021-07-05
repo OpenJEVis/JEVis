@@ -50,7 +50,53 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.52------\n" +
+            "------Version 3.9.53------\n" +
+                    "JECC - AccountingPlugin - added classname to enter data tab\n" +
+                    "JECC - AccountingPlugin - empty values are not resetting when changing config\n" +
+                    "JECC - AccountingPlugin - saving doesn't respect selected name\n" +
+                    "JECC - ChartPlugin - ColorColumn - moved vivid yellow to last position in auto color selection\n" +
+                    "JECC - ConfigurationPlugin - Multi Select Recalculate Clean Data\n" +
+                    "JECC - ConfigurationPlugin - Unit Selector with Favorites\n" +
+                    "JECC - ConfigurationPlugin - added auto determining limit function\n" +
+                    "JECC - ConfigurationPlugin - added function for autolimit generation \n" +
+                    "JECC - DashboardPlugin - Add function to equate the data source of selected widgets\n" +
+                    "JECC - DashboardPlugin - Add more Layer to selection\n" +
+                    "JECC - DashboardPlugin - Add move and delete hotkey\n" +
+                    "JECC - DashboardPlugin - Allow to deselected selected widget by clicking again\n" +
+                    "JECC - DashboardPlugin - Alt click to select all Widgets from same type\n" +
+                    "JECC - DashboardPlugin - Configuration buttons should be disabled unless the lock was opened\n" +
+                    "JECC - DashboardPlugin - Disable deselect while holding strg\n" +
+                    "JECC - DashboardPlugin - Implemented LoadDialog\n" +
+                    "JECC - DashboardPlugin - Widget sorting doesn't work properly when no layer are selected\n" +
+                    "JECC - DashboardPlugin - fixed layer is not saved\n" +
+                    "JECC - DashboardPlugin - quality loss because of caching\n" +
+                    "JECC - DashboardPlugin - sometimes multi select will not update previous widgets\n" +
+                    "JECC - DashboardPlugin - the config side panel will not update in some cases\n" +
+                    "JECC - DashboardPlugin - while holding strg the collection will no cancel\n" +
+                    "JECC - DashboardPlugin/ChartPlugin - Overwrite save dialog default button\n" +
+                    "JECC - DashboardPlugin/ChartPlugin - Save dialog need more width fixes\n" +
+                    "JECC - ObjectPlugin - added directory & expert dependent property description\n" +
+                    "JECC - Sample Editor - Formate numbers with locale setting\n" +
+                    "JECC - SampleTableExtension - added adding values button\n" +
+                    "JECC - TRCPlugin - changed variable name for ungrouped objects combo box label\n" +
+                    "JECC - TRCPlugin - duplicate grid entries\n" +
+                    "JECC - TRCPlugin - improved combo box content structure\n" +
+                    "JECC - TRCPlugin - problem with multiple ungrouped objects of same class\n" +
+                    "JECC - TRCPlugin - saving doesn't respect selected name\n" +
+                    "\n" +
+                    "Classes - CSV Data Point - improved wording of attributes\n" +
+                    "Classes - CSV Parser - improved wording of attributes\n" +
+                    "Classes - Text Data objects still have the old icon\n" +
+                    "\n" +
+                    "DataCollector - LoytecXmlDlDataSource - fixed more than 1000 values readout concurrent modification exception\n" +
+                    "\n" +
+                    "JEAlarm - limit 2 configuration is not working properly\n" +
+                    "\n" +
+                    "JECommons - QuantityUnits - fixed sum problem\n" +
+                    "JECommons - fixed months and greater aggregation missing last value\n" +
+                    "\n" +
+                    "JEWebService - allow the webservice to use different types of key management\n\n" +
+                    "------Version 3.9.52------\n" +
                     "JEDataProcessor - fixed user data logic\n" +
                     "JEDataProcessor - fixed some probable problem with time outs\n" +
                     "JECC - Rolemanager is not working\n" +
