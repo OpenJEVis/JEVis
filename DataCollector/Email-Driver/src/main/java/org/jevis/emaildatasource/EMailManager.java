@@ -90,6 +90,7 @@ public class EMailManager {
 
         try {
             Message[] messages = folder.search(term);
+            logger.debug("Found {} messages in folder corresponding to search term", messages.length);
             messages = filterMessagesByDate(messages, chanParam.getLastReadout());
             messageList = Arrays.asList(messages);
         } catch (MessagingException ex) {
@@ -224,14 +225,13 @@ public class EMailManager {
             try {
                 if (message.getSentDate().after(date)) {
                     msg.add(message);
-
                 }
             } catch (MessagingException ex) {
-                logger.error("POP3: failed to filter messages by date.", ex);
+                logger.error("Failed to filter messages by date.", ex);
             }
         }
         int size = msg.size();
-        logger.info("POP3: messages after filtering by date: {}", size);
+        logger.info("Messages after filtering by date: {}", size);
         Message[] msgArray = new Message[size];
         return msg.toArray(msgArray);
     }
@@ -263,7 +263,7 @@ public class EMailManager {
                         //Message msg = (MimeMessage)message;
                         Object obj = message.getContent();
                         if (obj instanceof Multipart) {
-                            input = prepareAnswer(message, filename);
+                            input.addAll(prepareAnswer(message, filename));
 
                         } //instanceof
 
