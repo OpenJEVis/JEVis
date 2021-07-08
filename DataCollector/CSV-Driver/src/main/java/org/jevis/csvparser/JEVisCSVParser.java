@@ -30,6 +30,7 @@ import org.jevis.api.JEVisType;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTimeZone;
 
 import java.io.InputStream;
@@ -130,7 +131,8 @@ public class JEVisCSVParser implements Parser {
             JEVisClass dirClass = parserObject.getDataSource().getJEVisClass(CSVDataPointDirectoryTypes.NAME);
             JEVisObject dir = parserObject.getChildren(dirClass, true).get(0);
             JEVisClass dpClass = parserObject.getDataSource().getJEVisClass(CSVDataPointTypes.NAME);
-            List<JEVisObject> dataPoints = dir.getChildren(dpClass, true);
+
+            List<JEVisObject> dataPoints = CommonMethods.getChildrenRecursive(dir, dpClass);
             List<DataPoint> csvdatapoints = new ArrayList<DataPoint>();
             for (JEVisObject dp : dataPoints) {
                 JEVisType mappingIdentifierType = dpClass.getType(CSVDataPointTypes.MAPPING_IDENTIFIER);
@@ -151,13 +153,19 @@ public class JEVisCSVParser implements Parser {
                 }
 
                 String valueString = null;
-                Integer valueIndex = null;
                 try {
                     valueString = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
+                } catch (Exception ex) {
+                    logger.warn("DataPoint value string error: {}:{}", dp.getName(), dp.getID(), ex);
+//                    ex.printStackTrace();
+                }
+
+                Integer valueIndex = null;
+                try {
                     valueIndex = Integer.parseInt(Objects.requireNonNull(valueString));
                     valueIndex--;
                 } catch (Exception ex) {
-                    logger.warn("DataPoint target error: {}:{}", dp.getName(), dp.getID());
+                    logger.warn("DataPoint value index error: {}:{}", dp.getName(), dp.getID(), ex);
 //                    ex.printStackTrace();
                 }
                 DataPoint csvdp = new DataPoint();
