@@ -37,11 +37,15 @@ public class SideConfigPanel extends GridPane {
     private ColorPickerAdv bgColorPicker = new ColorPickerAdv();
     private ColorPickerAdv fColorPicker = new ColorPickerAdv();
     private JFXCheckBox showShadowField = new JFXCheckBox();
+    private JFXCheckBox showValueField = new JFXCheckBox();
     private Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
+    private Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
     private Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
     private Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
     private Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
     private Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
+    private Label precisionLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.precision"));
+    private Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
     private Label widthLabel = new Label("Width:");
     private Label heightLabel = new Label("Height:");
     private Label moveLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.move"));
@@ -96,6 +100,7 @@ public class SideConfigPanel extends GridPane {
         fColorPicker.setValue(widget.getConfig().getFontColor());
         bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
         showShadowField.setSelected(widget.getConfig().getShowShadow());
+        showValueField.setSelected(widget.getConfig().getShowValue());
         fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
         widthText.setText(widget.getConfig().getSize().getWidth() + "");
         xPosText.setText(widget.getConfig().getxPosition() + "");
@@ -148,6 +153,8 @@ public class SideConfigPanel extends GridPane {
         gp.setVgap(8);
 
         fontSizeSpinner.setMaxWidth(80);
+        precisionSpinner.setMaxWidth(80);
+
         gp.add(fColorLabel, 0, 0);
         gp.add(fColorPicker, 1, 0);
         gp.add(bgColorLabel, 0, 1);
@@ -156,7 +163,11 @@ public class SideConfigPanel extends GridPane {
         gp.add(showShadowField, 1, 2);
         gp.add(fontSizeLabel, 0, 3);
         gp.add(fontSizeSpinner, 1, 3);
-        gp.add(equalizeDataModelButton, 0, 4, 2, 1);
+        gp.add(precisionLabel, 0, 4);
+        gp.add(precisionSpinner, 1, 4);
+        gp.add(showValueLabel, 0, 5);
+        gp.add(showValueField, 1, 5);
+        gp.add(equalizeDataModelButton, 0, 6, 2, 1);
 
         titledPane.setContent(gp);
 
@@ -178,11 +189,24 @@ public class SideConfigPanel extends GridPane {
             }
         });
 
+        precisionSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (!isUpdating) {
+                control.decimalsSelected(newValue.intValue());
+            }
+        });
+
         showShadowField.setOnAction(event -> {
             if (!isUpdating) {
                 control.shadowSelected(showShadowField.isSelected());
             }
         });
+
+        showValueField.setOnAction(event -> {
+            if (!isUpdating) {
+                control.showValueSelected(showValueField.isSelected());
+            }
+        });
+
         equalizeDataModelButton.setOnAction(event -> {
             control.equalizeDataModel();
         });

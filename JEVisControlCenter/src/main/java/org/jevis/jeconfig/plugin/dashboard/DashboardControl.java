@@ -414,7 +414,9 @@ public class DashboardControl {
                 this.activeDashboard = new DashboardPojo();
                 this.activeDashboard.setTitle("New Dashboard");
                 this.activeDashboard.setTimeFrame(timeFrames.day());
-                Size pluginSize = dashBordPlugIn.getPluginSize();
+                /** Now we use 1920 x 1080 (minus the boarders) as default for all **/
+                Size pluginSize = new Size(886.0, 1863.0);
+                //Size pluginSize = dashBordPlugIn.getPluginSize();
                 pluginSize.setHeight(pluginSize.getHeight() - 10);
                 pluginSize.setWidth(pluginSize.getWidth() - 10);
                 this.activeDashboard.setSize(pluginSize);
@@ -1162,9 +1164,25 @@ public class DashboardControl {
         });
     }
 
+    public void showValueSelected(boolean showValue) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setShowValue(showValue);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
     public void fontSizeSelected(double size) {
         selectedWidgets.forEach(widget -> {
             widget.getConfig().setFontSize(size);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void decimalsSelected(int size) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setDecimals(size);
             widget.updateConfig();
             requestViewUpdate(widget);
         });

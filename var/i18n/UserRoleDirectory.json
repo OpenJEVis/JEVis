@@ -1,0 +1,14 @@
+{
+  "jevisclass": "User Role Directory",
+  "names": {
+    "de": "Benutzerverzeichniss",
+    "ru": "Каталог пользователей",
+    "en": "User directory"
+  },
+  "descriptions": {
+    "de": "Die Klasse Benutzerverzeichniss stellt ein Benutzerverzeichniss für die Strukturierung des Systems dar.",
+    "ru": "The class Directory represents a user directory directory for the structuring of the system.",
+    "en": "The class Directory represents a user directory directory for the structuring of the system."
+  },
+  "types": []
+}

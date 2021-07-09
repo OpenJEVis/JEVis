@@ -1338,7 +1338,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         } catch (IOException ex) {
             logger.error("IO exception. Error while fetching Object: {}", id, ex);
         } catch (Exception ex) {
-            logger.error("Unexpected exception while fetching Object: {}", id, ex);
+            logger.error("Unexpected exception while fetching Object: {}, reason: {}", id, ex.getMessage());
         }
         return null;
     }
