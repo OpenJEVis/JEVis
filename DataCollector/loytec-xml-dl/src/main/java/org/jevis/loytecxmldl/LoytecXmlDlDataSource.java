@@ -128,14 +128,14 @@ public class LoytecXmlDlDataSource implements DataSource {
                     // Import
                     JEVisImporterAdapter.importResults(results, statusResults, importer, channel.getJeVisObject());
 
-                    removeJob(channel);
-
                     if (results.size() == 1000) {
                         channel.update();
                         Runnable runnable = getJob(channelDirectory, channel);
 
                         FutureTask<?> ft = new FutureTask<Void>(runnable, null);
                         executorService.submit(ft);
+                    } else {
+                        removeJob(channel);
                     }
                 }
             } catch (

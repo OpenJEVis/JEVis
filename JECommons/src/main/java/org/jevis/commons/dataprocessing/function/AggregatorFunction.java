@@ -65,7 +65,7 @@ public class AggregatorFunction implements ProcessFunction {
             oldPeriod = new Period(new DateTime(samples.get(0).getTs()), new DateTime(samples.get(1).getTs()));
         }
 
-        lastPos = aggregateSamplesToPeriod(lastPos, samplesInPeriod, intervalStart, intervalEnd, samples);
+        lastPos = aggregateSamplesToPeriod(lastPos, samplesInPeriod, intervalStart, intervalEnd, samples, mainTask);
 
         boolean hasSamples = false;
         Double sum = 0d;
@@ -92,21 +92,28 @@ public class AggregatorFunction implements ProcessFunction {
             resultSum.setTs(intervalStart.toString());
             resultSum.setValue(sum.toString());
             if (oldPeriod != null && newPeriod != null) {
-                resultSum.setNote("Aggregation(" + oldPeriod.toString() + "/" + newPeriod.toString() + "," + samplesInPeriod.size() + ")");
+                resultSum.setNote("Aggregation(" + oldPeriod + "/" + newPeriod + "," + samplesInPeriod.size() + ")");
             }
             result.add(resultSum);
+            logger.debug("created aggregation sample: {}", resultSum.toString());
         } else {
             emptyIntervals.add(interval);
         }
         return lastPos;
     }
 
-    public static int aggregateSamplesToPeriod(int lastPos, List<JsonSample> samplesInPeriod, DateTime intervalStart, DateTime intervalEnd, List<JsonSample> samples) {
+    public static int aggregateSamplesToPeriod(int lastPos, List<JsonSample> samplesInPeriod, DateTime intervalStart, DateTime intervalEnd, List<JsonSample> samples, Process mainTask) {
         for (int i = lastPos; i < samples.size(); i++) {
             DateTime sampleTS = new DateTime(samples.get(i).getTs());
-            if (sampleTS.equals(intervalEnd) || (sampleTS.isAfter(intervalStart) && sampleTS.isBefore(intervalEnd))) {
+            boolean isDiff = mainTask.isDifferential(sampleTS);
+            if (isDiff && (sampleTS.equals(intervalEnd) || (sampleTS.isAfter(intervalStart) && sampleTS.isBefore(intervalEnd)))) {
                 //logger.info("add sample: " + samples.get(i));
                 samplesInPeriod.add(samples.get(i));
+                logger.debug("aggregate {} to interval {}-{} ", samples.get(i), intervalStart, intervalEnd);
+            } else if (!isDiff && (sampleTS.equals(intervalStart) || (sampleTS.isAfter(intervalStart) && sampleTS.isBefore(intervalEnd)))) {
+                //logger.info("add sample: " + samples.get(i));
+                samplesInPeriod.add(samples.get(i));
+                logger.debug("aggregate {} to interval {}-{} ", samples.get(i), intervalStart, intervalEnd);
             } else if (sampleTS.isAfter(intervalEnd)) {
                 lastPos = i;
                 break;
@@ -151,7 +158,6 @@ public class AggregatorFunction implements ProcessFunction {
         List<Interval> intervals = ProcessOptions.getIntervals(mainTask, startAndEndDates.getStart(), startAndEndDates.getEnd());
 
         JsonAttribute jsonAttribute = mainTask.getJsonAttribute();
-
 
         boolean isCustomWorkDay = jsonSampleGenerator.getCustomWorkday();
         WorkDays wd = jsonSampleGenerator.getWorkDays();
@@ -335,7 +341,7 @@ public class AggregatorFunction implements ProcessFunction {
                     JEVisSample resultSum = new VirtualSample(interval.getStart(), sum, unit, mainTask.getJEVisDataSource(), attribute);
                     if (oldPeriod != null && newPeriod != null) {
                         try {
-                            resultSum.setNote("Aggregation(" + oldPeriod.toString() + "/" + newPeriod.toString() + ")");
+                            resultSum.setNote("Aggregation(" + oldPeriod + "/" + newPeriod + ")");
                         } catch (JEVisException e) {
                             logger.error("Could not set new Note to sample: ", e);
                         }

@@ -9,6 +9,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -302,5 +303,19 @@ public class CommonMethods {
             logger.error("Couldn't get processing size from the JEVis System. Using standard Size of {}", "50.000", e);
         }
         return size;
+    }
+
+    public static List<JEVisObject> getChildrenRecursive(JEVisObject firstObject, JEVisClass jeVisClass) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+        if (firstObject.getJEVisClass().equals(jeVisClass)) list.add(firstObject);
+        for (JEVisObject child : firstObject.getChildren()) {
+            if (child.getJEVisClass().equals(jeVisClass)) list.add(child);
+
+            for (JEVisObject secondChild : child.getChildren()) {
+                list.addAll(getChildrenRecursive(secondChild, jeVisClass));
+            }
+        }
+
+        return list;
     }
 }

@@ -22,14 +22,18 @@ package org.jevis.commons.dataprocessing;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.function.NullFunction;
+import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -258,5 +262,87 @@ public class BasicProcess implements Process {
 
     public JsonSampleGenerator getJsonSampleGenerator() {
         return jsonSampleGenerator;
+    }
+
+    @Override
+    public boolean isDifferential(DateTime ts) {
+        boolean isDifferential = false;
+        if (_originalSQLAttribute != null) {
+            JsonObject object = null;
+            try {
+                object = _sqlDS.getObject(_originalSQLAttribute.getObjectID());
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+            if (object != null) {
+                if (object.getJevisClass().equals(CleanDataObject.CLASS_NAME)) {
+                    isDifferential = isDifferential(object, isDifferential, ts);
+                } else if (object.getJevisClass().equals(ForecastDataObject.CLASS_NAME) || object.getJevisClass().equals(MathDataObject.CLASS_NAME)) {
+                    for (JsonRelationship jsonRelationship : _sqlDS.getRelationships(object.getId())) {
+                        if (jsonRelationship.getType() == 1 && jsonRelationship.getFrom() == object.getId()) {
+                            try {
+                                JsonObject parent = _sqlDS.getObject(jsonRelationship.getTo());
+                                isDifferential = isDifferential(parent, isDifferential, ts);
+                                break;
+                            } catch (JEVisException e) {
+                                logger.error("Could not get parent {} of object {}", jsonRelationship.getTo(), object.getId());
+                            }
+                        }
+                    }
+                } else if (object.getJevisClass().equals(CleanDataObject.DATA_CLASS_NAME)) {
+                    for (JsonRelationship jsonRelationship : _sqlDS.getRelationships(object.getId())) {
+                        if (jsonRelationship.getType() == 1 && jsonRelationship.getTo() == object.getId()) {
+                            try {
+                                JsonObject child = _sqlDS.getObject(jsonRelationship.getTo());
+                                isDifferential = isDifferential(child, isDifferential, ts);
+                                break;
+                            } catch (JEVisException e) {
+                                logger.error("Could not get parent {} of object {}", jsonRelationship.getTo(), object.getId());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return isDifferential;
+    }
+
+    private boolean isDifferential(JsonObject object, boolean isDifferential, DateTime dateTime) {
+        if (object.getJevisClass().equals(CleanDataObject.CLASS_NAME)) {
+            try {
+                List<JsonSample> samples = _sqlDS.getSamples(object.getId(), CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName(),
+                        new DateTime(2001, 1, 1, 0, 0, 0, 0),
+                        new DateTime(), 10000);
+
+                List<DifferentialRule> differentialRules = new ArrayList<>();
+                for (JsonSample sample : samples) {
+                    DifferentialRule rule = null;
+                    if (sample.getValue().equals("1")) {
+                        rule = new DifferentialRule(new DateTime(sample.getTs()), true);
+                    } else if (sample.getValue().equals("0")) {
+                        rule = new DifferentialRule(new DateTime(sample.getTs()), false);
+                    }
+
+                    if (rule != null) {
+                        differentialRules.add(rule);
+                    }
+                }
+
+                for (DifferentialRule differentialRule : differentialRules) {
+                    DifferentialRule nextRule = null;
+                    if (differentialRules.size() > differentialRules.indexOf(differentialRule) + 1) {
+                        nextRule = differentialRules.get(differentialRules.indexOf(differentialRule) + 1);
+                    }
+                    DateTime ts = differentialRule.getStartOfPeriod();
+                    if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
+                        return differentialRule.isDifferential();
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Could not get differential rule for object {} and ts {}", object, dateTime, e);
+            }
+        }
+
+        return isDifferential;
     }
 }

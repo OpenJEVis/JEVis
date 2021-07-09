@@ -1,0 +1,53 @@
+{
+  "jevisclass": "User Data",
+  "names": {
+    "de": "Benutzer Daten",
+    "ru": "Данные пользователя",
+    "uk": "Дані користувача",
+    "th": "ข้อมูลผู้ใช้",
+    "en": "User Data"
+  },
+  "descriptions": {
+    "de": "In Benutzer Daten werden numerische Datenreihen, die die Daten in den parallelen Datenreihen übersteuern sollen, gespeichert.",
+    "ru": "Ряды числовых данных, которые должны иметь приоритет над данными в параллельных рядах данных, хранятся в пользовательских данных.",
+    "uk": "Числові ряди даних, які повинні замінити дані паралельних рядів даних, зберігаються в даних користувача.",
+    "th": "ชุดข้อมูลตัวเลขซึ่งควรแทนที่ข้อมูลในชุดข้อมูลแบบคู่ขนาน จะถูกเก็บไว้ในข้อมูลผู้ใช้",
+    "en": "Storage of numerical which overwrite data in the parallel data objects."
+  },
+  "types": [
+    {
+      "type": "Value",
+      "descriptions": {
+        "de": "Wert der Datenreihe",
+        "ru": "Значение ряда данных",
+        "uk": "Значення ряду даних",
+        "th": "ค่าของชุดข้อมูล",
+        "en": "Value of the data series"
+      },
+      "names": {
+        "de": "Wert",
+        "ru": "ценность",
+        "uk": "Значення",
+        "th": "ความคุ้มค่า",
+        "en": "Value"
+      }
+    },
+    {
+      "type": "Period",
+      "descriptions": {
+        "de": "Periode der Datenreihe",
+        "ru": "Период ряда данных",
+        "uk": "Період серії даних",
+        "th": "ช่วงเวลาของชุดข้อมูล",
+        "en": "Period of the data series"
+      },
+      "names": {
+        "de": "Periode",
+        "ru": "период",
+        "uk": "період",
+        "th": "งวด",
+        "en": "Period"
+      }
+    }
+  ]
+}

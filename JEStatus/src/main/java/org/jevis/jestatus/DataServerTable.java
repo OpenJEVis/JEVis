@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.jevis.commons.utils.CommonMethods.getChildrenRecursive;
+
 public class DataServerTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(DataServerTable.class);
     private final JEVisDataSource ds;
@@ -441,18 +443,7 @@ public class DataServerTable extends AlarmTable {
         }
     }
 
-    private List<JEVisObject> getChildrenRecursive(JEVisObject channel, JEVisClass jeVisClass) throws JEVisException {
-        List<JEVisObject> list = new ArrayList<>();
-        for (JEVisObject child : channel.getChildren()) {
-            if (child.getJEVisClass().equals(jeVisClass)) list.add(child);
 
-            for (JEVisObject child2 : child.getChildren()) {
-                list.addAll(getChildrenRecursive(child2, jeVisClass));
-            }
-        }
-
-        return list;
-    }
 
 
     private List<JEVisObject> getChannelObjects() throws JEVisException {
