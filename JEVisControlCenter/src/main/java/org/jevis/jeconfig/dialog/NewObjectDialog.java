@@ -174,6 +174,26 @@ public class NewObjectDialog {
             }
         };
 
+        Callback<ListView<Template>, ListCell<Template>> templateCellFactory = new Callback<ListView<Template>, ListCell<Template>>() {
+            @Override
+            public ListCell<Template> call(ListView<Template> param) {
+                final ListCell<Template> cell = new ListCell<Template>() {
+                    {
+                        super.setPrefWidth(260);
+                    }
+
+                    @Override
+                    public void updateItem(Template item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            setText(item.getName());
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+
         Label templateLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.template"));
         JFXComboBox<Template> templateBox = new JFXComboBox<>();
         templateBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Template>() {
@@ -182,6 +202,8 @@ public class NewObjectDialog {
                 template = newValue;
             }
         });
+        templateBox.setCellFactory(templateCellFactory);
+        templateBox.setButtonCell(templateCellFactory.call(null));
 
         final JFXComboBox<JEVisClass> jeVisClassComboBox = new JFXComboBox<>(options);
         JFXCheckBox createCleanData = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));

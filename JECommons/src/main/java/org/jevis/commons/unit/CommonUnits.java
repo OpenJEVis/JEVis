@@ -18,4 +18,13 @@ public interface CommonUnits {
         JEVisUnit jevisUnit = new JEVisUnitImp(unit);
     }
 
+    interface m3 {
+        Unit unit = SI.CUBIC_METRE;
+        JEVisUnit jevisUnit = new JEVisUnitImp(unit);
+    }
+
+    interface celsius {
+        Unit unit = SI.CELSIUS;
+        JEVisUnit jevisUnit = new JEVisUnitImp(unit);
+    }
 }

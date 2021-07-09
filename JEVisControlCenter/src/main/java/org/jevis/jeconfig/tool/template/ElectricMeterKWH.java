@@ -2,13 +2,18 @@ package org.jevis.jeconfig.tool.template;
 
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.CommonUnits;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-public class ElectricMeterImpuls extends Template {
+public class ElectricMeterKWH extends Template {
 
-    public ElectricMeterImpuls() {
+
+    @Override
+    public String getName() {
+        return I18n.getInstance().getString("datarow.template.electickwh");
     }
 
     @Override
@@ -35,16 +40,23 @@ public class ElectricMeterImpuls extends Template {
         JEVisAttribute valueAttributeClean = newCleanData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
         valueAttributeClean.setInputSampleRate(p15m);
         valueAttributeClean.setDisplaySampleRate(p15m);
+        valueAttributeClean.setInputUnit(CommonUnits.kWH.jevisUnit);
+        valueAttributeClean.setDisplayUnit(CommonUnits.kWH.jevisUnit);
+        valueAttributeClean.commit();
+
         JEVisAttribute valueAttributeRaw = newRowData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
         valueAttributeRaw.setInputSampleRate(p15m);
         valueAttributeRaw.setDisplaySampleRate(p15m);
+        valueAttributeRaw.setInputUnit(CommonUnits.kWH.jevisUnit);
+        valueAttributeRaw.setDisplayUnit(CommonUnits.kWH.jevisUnit);
+        valueAttributeRaw.commit();
 
         DateTime startDate = new DateTime(2001, 01, 01, 0, 0, 0);
 
 
         setAttribute(newRowData, "Period", startDate, p15m.toString());
         setAttribute(newCleanData, "Period", startDate, p15m.toString());
-        setAttribute(newCleanData, "Conversion to Differential", startDate, true);
+        setAttribute(newCleanData, "Conversion to Differential", startDate, false);
         setAttribute(newCleanData, "Enabled", startDate, true);
         setAttribute(newCleanData, "GapFilling Enabled", startDate, true);
         setAttribute(newCleanData, "Period Alignment", startDate, true);
