@@ -41,6 +41,8 @@ public interface JsonNames {
         String BORDER_SIZE = "borderSize";
         String DATA_HANDLER_NODE = "dataHandler";
         String LAYER = "layer";
+        String DECIMALS = "decimals";
+        String SHOW_VALUE = "showValue";
 
     }
 

@@ -1162,9 +1162,25 @@ public class DashboardControl {
         });
     }
 
+    public void showValueSelected(boolean showValue) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setShowValue(showValue);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
     public void fontSizeSelected(double size) {
         selectedWidgets.forEach(widget -> {
             widget.getConfig().setFontSize(size);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void decimalsSelected(int size) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setDecimals(size);
             widget.updateConfig();
             requestViewUpdate(widget);
         });
