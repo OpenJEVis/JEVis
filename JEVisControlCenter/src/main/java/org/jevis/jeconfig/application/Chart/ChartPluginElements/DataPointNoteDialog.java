@@ -401,7 +401,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                         String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
                         String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor(), serie.getSingleRow().getAlarms().get(nearestSample.getTimestamp()));
+                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor(), serie.getSingleRow().getAlarms(false).get(nearestSample.getTimestamp()));
 
                         map.put(title, rowNote);
                     } catch (Exception ex) {

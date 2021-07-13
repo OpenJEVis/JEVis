@@ -10,6 +10,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.AlarmConstants;
+import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datatype.scheduler.SchedulerHandler;
 import org.jevis.commons.datatype.scheduler.cron.CronScheduler;
 import org.jevis.commons.json.JsonAlarmConfig;
@@ -33,12 +35,16 @@ public class CleanDataAlarm {
     private Double tolerance = 0d;
     private List<JsonAlarmConfig> jsonList = new ArrayList<>();
     private AlarmType alarmType;
-    private List<UsageSchedule> usageSchedules = new ArrayList<>();
+    private final List<UsageSchedule> usageSchedules = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final boolean validAlarmConfiguration;
+    private final boolean isEnabled;
 
     public CleanDataAlarm(JEVisObject cleanDataObject) throws JEVisException {
         this.cleanDataObject = cleanDataObject;
+
+        CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(cleanDataObject.getDataSource()));
+        isEnabled = cdo.isAlarmEnabled();
 
         createJsonList(cleanDataObject);
 
@@ -160,5 +166,9 @@ public class CleanDataAlarm {
 
     public boolean isValidAlarmConfiguration() {
         return validAlarmConfiguration;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
     }
 }

@@ -372,7 +372,7 @@ public class ProcessOptions {
      */
     public static List<Interval> getIntervals(Process task, DateTime from, DateTime until) {
         Period period = Period.days(1);
-        DateTime offset = new DateTime(2001, 1, 1, 0, 0, 0);
+        DateTime offset = new DateTime(1990, 1, 1, 0, 0, 0);
 
         if (!ContainsOption(task, PERIOD)) {
             logger.warn("Error missing period option");
@@ -380,7 +380,7 @@ public class ProcessOptions {
         if (!ContainsOption(task, OFFSET)) {
             logger.warn("Error missing offset option");
 
-            task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 00:00:00"));
+            task.getOptions().add(new BasicProcessOption(OFFSET, "1990-01-01 00:00:00"));
         }
 
         for (ProcessOption option : task.getOptions()) {

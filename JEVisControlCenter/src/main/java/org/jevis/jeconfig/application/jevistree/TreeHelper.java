@@ -722,7 +722,7 @@ public class TreeHelper {
                     pickerTime.setPrefWidth(110d);
                     pickerTime.set24HourView(true);
                     pickerTime.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
-                    pickerDate.valueProperty().setValue(LocalDate.of(2001, 1, 1));
+                    pickerDate.valueProperty().setValue(LocalDate.of(1990, 1, 1));
                     pickerTime.valueProperty().setValue(LocalTime.of(0, 0, 0));
                     HBox dateBox = new HBox(4, pickerDate, pickerTime);
 

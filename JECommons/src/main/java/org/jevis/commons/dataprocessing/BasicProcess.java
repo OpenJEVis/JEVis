@@ -311,7 +311,7 @@ public class BasicProcess implements Process {
         if (object.getJevisClass().equals(CleanDataObject.CLASS_NAME)) {
             try {
                 List<JsonSample> samples = _sqlDS.getSamples(object.getId(), CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName(),
-                        new DateTime(2001, 1, 1, 0, 0, 0, 0),
+                        new DateTime(1990, 1, 1, 0, 0, 0, 0),
                         new DateTime(), 10000);
 
                 List<DifferentialRule> differentialRules = new ArrayList<>();

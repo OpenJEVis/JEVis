@@ -22,11 +22,11 @@ import java.util.List;
 public class BarChartSerie {
     private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
     private final String FINISHED_SERIE;
-    private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
+    private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
 
-    private TableEntry tableEntry;
+    private final TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
-    private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
+    private DateTime timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
     private final XYChart.Data<Number, String> data;
 
     public BarChartSerie(ChartDataRow singleRow, Boolean lastValue) throws JEVisException {

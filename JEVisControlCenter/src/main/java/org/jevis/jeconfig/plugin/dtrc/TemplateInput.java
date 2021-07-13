@@ -141,7 +141,7 @@ public class TemplateInput extends TemplateSelected {
                 }
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
-                List<JEVisSample> samples = attribute.getSamples(new DateTime(2001, 1, 1, 0, 0, 0), start);
+                List<JEVisSample> samples = attribute.getSamples(new DateTime(1990, 1, 1, 0, 0, 0), start);
                 returnValue = String.valueOf(samples.get(samples.size() - 1).getValueAsDouble());
             } else if (getVariableType() != null
                     && getVariableType().equals(InputVariableType.LAST.toString())) {

@@ -18,7 +18,7 @@ public class YearBox extends JFXComboBox<Integer> {
 
         List<Integer> list = new ArrayList<>();
 
-        for (int i = 2001; i < 2050; i++) {
+        for (int i = 1990; i < 2050; i++) {
             list.add(i);
         }
 

@@ -161,7 +161,7 @@ public class AlarmTable {
     }
 
     private DateTime getDateTime(JEVisObject object) {
-        DateTime objectTS = new DateTime(2001, 1, 1, 0, 0, 0);
+        DateTime objectTS = new DateTime(1990, 1, 1, 0, 0, 0);
         try {
             if (object.getJEVisClass().equals(loytecXMLDLChannelClass) || object.getJEVisClass().equals(vida350ChannelClass)) {
                 JEVisAttribute objectAttribute = object.getAttribute(LAST_READOUT_ATTRIBUTE_NAME);

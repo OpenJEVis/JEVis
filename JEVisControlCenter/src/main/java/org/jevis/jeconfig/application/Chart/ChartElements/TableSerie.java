@@ -24,7 +24,7 @@ public class TableSerie extends XYChartSerie {
 
     public void generateSeriesFromSamples() throws JEVisException {
         timeStampFromFirstSample = DateTime.now();
-        timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
+        timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
         tableEntry = new TableEntry(getTableEntryName());
         this.valueDataSet.setName(getTableEntryName());
 

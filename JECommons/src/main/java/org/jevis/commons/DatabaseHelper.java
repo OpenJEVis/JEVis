@@ -145,7 +145,7 @@ public class DatabaseHelper {
     }
 
     public static DateTime getObjectAsDate(JEVisObject jevisObject, JEVisType jevisType) {
-        DateTime datetime = new DateTime(2001, 1, 1, 0, 0).withZone(DateTimeZone.UTC);
+        DateTime datetime = new DateTime(1990, 1, 1, 0, 0).withZone(DateTimeZone.UTC);
 
         try {
             if (DatabaseHelper.checkValidStringObject(jevisObject, jevisType)) {

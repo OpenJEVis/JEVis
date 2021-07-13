@@ -77,7 +77,7 @@ public class XYChart implements Chart {
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     DateTime now = DateTime.now();
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(now);
-    AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
+    AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(1990, 1, 1, 0, 0, 0));
     CustomNumericAxis y2Axis = new CustomNumericAxis();
     Boolean showL1L2 = false;
     de.gsi.chart.Chart chart;
@@ -1069,7 +1069,7 @@ public class XYChart implements Chart {
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
 
-                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()), serie.getSingleRow().getAlarms().get(sample.getTimestamp()));
+                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()), serie.getSingleRow().getAlarms(false).get(sample.getTimestamp()));
 
                     if (workDays != null && period != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())
                             && (period.getDays() > 0
