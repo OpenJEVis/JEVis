@@ -56,6 +56,7 @@ public class CleanDataObject {
     private Double offset;
     private GapStrategy gapStrategy;
     private Boolean enabled;
+    private Boolean alarmEnabled;
     //additional attributes
     private DateTime firstDate;
     private DateTime lastDate;
@@ -310,6 +311,30 @@ public class CleanDataObject {
         return enabled;
     }
 
+    public static List<PeriodRule> getPeriodAlignmentForObject(JEVisObject object) {
+        List<PeriodRule> periodList = new ArrayList<>();
+        List<JEVisSample> allSamples = new SampleHandler().getAllSamples(object, PERIOD.getAttributeName());
+
+        for (JEVisSample jeVisSample : allSamples) {
+
+            try {
+                DateTime startOfPeriod = jeVisSample.getTimestamp();
+                String periodString = jeVisSample.getValueAsString();
+                Period p = new Period(periodString);
+                periodList.add(new PeriodRule(startOfPeriod, p));
+            } catch (Exception e) {
+                logger.error("Could not create Period rule for sample {}", jeVisSample, e);
+            }
+        }
+
+        if (allSamples.isEmpty()) {
+            periodList.add(new PeriodRule(
+                    new DateTime(1990, 1, 1, 0, 0, 0, 0),
+                    Period.ZERO));
+        }
+        return periodList;
+    }
+
     public Boolean getIsPeriodAligned() {
         if (isPeriodAligned == null)
             isPeriodAligned = sampleHandler.getLastSample(getCleanObject(), PERIOD_ALIGNMENT.getAttributeName(), false);
@@ -435,6 +460,12 @@ public class CleanDataObject {
         lastCleanValue = null;
     }
 
+    public Boolean isAlarmEnabled() {
+        if (alarmEnabled == null)
+            alarmEnabled = sampleHandler.getLastSample(getCleanObject(), ALARM_ENABLED.getAttributeName(), false);
+        return alarmEnabled;
+    }
+
     public List<PeriodRule> getRawDataPeriodAlignment() {
         if (periodRawData == null) {
             periodRawData = new ArrayList<>();
@@ -454,7 +485,7 @@ public class CleanDataObject {
 
             if (allSamples.isEmpty()) {
                 periodRawData.add(new PeriodRule(
-                        new DateTime(2001, 1, 1, 0, 0, 0, 0),
+                        new DateTime(1990, 1, 1, 0, 0, 0, 0),
                         Period.ZERO));
             }
         }
@@ -480,35 +511,11 @@ public class CleanDataObject {
 
             if (allSamples.isEmpty()) {
                 periodCleanData.add(new PeriodRule(
-                        new DateTime(2001, 1, 1, 0, 0, 0, 0),
+                        new DateTime(1990, 1, 1, 0, 0, 0, 0),
                         Period.ZERO));
             }
         }
         return periodCleanData;
-    }
-
-    public static List<PeriodRule> getPeriodAlignmentForObject(JEVisObject object) {
-        List<PeriodRule> periodList = new ArrayList<>();
-        List<JEVisSample> allSamples = new SampleHandler().getAllSamples(object, PERIOD.getAttributeName());
-
-        for (JEVisSample jeVisSample : allSamples) {
-
-            try {
-                DateTime startOfPeriod = jeVisSample.getTimestamp();
-                String periodString = jeVisSample.getValueAsString();
-                Period p = new Period(periodString);
-                periodList.add(new PeriodRule(startOfPeriod, p));
-            } catch (Exception e) {
-                logger.error("Could not create Period rule for sample {}", jeVisSample, e);
-            }
-        }
-
-        if (allSamples.isEmpty()) {
-            periodList.add(new PeriodRule(
-                    new DateTime(2001, 1, 1, 0, 0, 0, 0),
-                    Period.ZERO));
-        }
-        return periodList;
     }
 
     public Integer getPeriodOffset() {
@@ -674,7 +681,7 @@ public class CleanDataObject {
 
             if (allSamples.isEmpty()) {
                 differentialRules.add(new DifferentialRule(
-                        new DateTime(2001, 1, 1, 0, 0, 0, 0), false));
+                        new DateTime(1990, 1, 1, 0, 0, 0, 0), false));
             }
         }
         return differentialRules;
@@ -746,7 +753,7 @@ public class CleanDataObject {
         if (multiplier == null) {
             multiplier = sampleHandler.getAllSamples(getCleanObject(), MULTIPLIER.getAttributeName());
             if (multiplier.isEmpty())
-                multiplier.add(new VirtualSample(new DateTime(2001, 1, 1, 0, 0, 0, 0), 1.0));
+                multiplier.add(new VirtualSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), 1.0));
         }
         return multiplier;
     }

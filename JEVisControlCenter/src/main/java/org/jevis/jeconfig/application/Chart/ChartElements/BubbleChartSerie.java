@@ -41,7 +41,7 @@ public class BubbleChartSerie extends XYChartSerie {
     Boolean showIcons;
     TreeMap<DateTime, JEVisSample> sampleMap;
     DateTime timeStampFromFirstSample = DateTime.now();
-    DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
+    DateTime timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
     private double sortCriteria;
@@ -52,7 +52,7 @@ public class BubbleChartSerie extends XYChartSerie {
 
     public void generateSeriesFromSamples() throws JEVisException {
         timeStampFromFirstSample = DateTime.now();
-        timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
+        timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
         Color color = ColorHelper.toColor(singleRow.getColor()).deriveColor(0, 1, 1, 0.9);
         Color brighter = ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor()));
 
@@ -306,7 +306,7 @@ public class BubbleChartSerie extends XYChartSerie {
     }
 
     public String generateNote(JEVisSample sample) throws JEVisException {
-        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()), singleRow.getAlarms().get(sample.getTimestamp()));
+        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()), singleRow.getAlarms(false).get(sample.getTimestamp()));
 
         return note.getNoteAsString();
 //        if (note.getNote() != null && hideShowIcons) {

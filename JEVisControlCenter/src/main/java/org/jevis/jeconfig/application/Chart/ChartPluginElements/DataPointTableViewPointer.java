@@ -241,7 +241,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 TableEntry tableEntry = xyChartSerie.getTableEntry();
                 TreeMap<DateTime, JEVisSample> sampleTreeMap = xyChartSerie.getSampleMap();
                 Map<DateTime, JEVisSample> noteMap = xyChartSerie.getSingleRow().getNoteSamples();
-                Map<DateTime, Alarm> alarmMap = xyChartSerie.getSingleRow().getAlarms();
+                Map<DateTime, Alarm> alarmMap = xyChartSerie.getSingleRow().getAlarms(false);
 
                 DateTime dateTime = nearest;
                 if (currentChart instanceof LogicalChart) {

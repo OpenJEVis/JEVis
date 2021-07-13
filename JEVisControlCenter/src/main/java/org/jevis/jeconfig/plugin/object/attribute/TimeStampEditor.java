@@ -132,7 +132,7 @@ public class TimeStampEditor implements AttributeEditor {
             }
 
         } else {
-            originalDateTime = new DateTime(2001, 1, 1, 0, 0, 0);
+            originalDateTime = new DateTime(1990, 1, 1, 0, 0, 0);
             LocalDateTime lDate = LocalDateTime.of(
                     originalDateTime.get(DateTimeFieldType.year()), originalDateTime.get(DateTimeFieldType.monthOfYear()), originalDateTime.get(DateTimeFieldType.dayOfMonth()),
                     originalDateTime.get(DateTimeFieldType.hourOfDay()), originalDateTime.get(DateTimeFieldType.minuteOfHour()), originalDateTime.get(DateTimeFieldType.secondOfMinute()));

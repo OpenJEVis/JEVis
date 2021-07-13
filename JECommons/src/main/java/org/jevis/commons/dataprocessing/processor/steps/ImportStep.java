@@ -130,7 +130,7 @@ public class ImportStep implements ProcessStep {
                 for (JEVisObject object : children) {
                     JEVisAttribute attribute = object.getAttribute(ForecastDataObject.VALUE_ATTRIBUTE_NAME);
                     if (attribute != null) {
-                        attribute.deleteSamplesBetween(new DateTime(2001, 1, 1, 0, 0, 0), lastDateTimeOfResults);
+                        attribute.deleteSamplesBetween(new DateTime(1990, 1, 1, 0, 0, 0), lastDateTimeOfResults);
                     }
                 }
             }

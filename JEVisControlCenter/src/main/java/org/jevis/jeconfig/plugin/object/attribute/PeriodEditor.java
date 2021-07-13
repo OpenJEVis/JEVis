@@ -149,7 +149,7 @@ public class PeriodEditor implements AttributeEditor {
                 logger.catching(ex);
             }
         } else {
-            pickerDate.valueProperty().setValue(LocalDate.of(2001, 1, 1));
+            pickerDate.valueProperty().setValue(LocalDate.of(1990, 1, 1));
             pickerTime.valueProperty().setValue(LocalTime.of(0, 0, 0));
             try {
                 logger.info("Setting initial value {} {} : {}", pickerDate.getValue().toString(), pickerTime.getValue().toString(), p);

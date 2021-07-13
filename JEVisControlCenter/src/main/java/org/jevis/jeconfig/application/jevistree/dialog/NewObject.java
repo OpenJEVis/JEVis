@@ -131,7 +131,7 @@ public class NewObject {
             JEVisAttribute staticValueAtt = newObject.getAttribute("Static Value");
             JEVisAttribute allZeroAtt = newObject.getAttribute("All Zero Value");
 
-            DateTime ts = new DateTime(2001, 1, 1, 0, 0, 0);
+            DateTime ts = new DateTime(1990, 1, 1, 0, 0, 0);
 
             staticValueAtt.buildSample(ts, 0).commit();
             allZeroAtt.buildSample(ts, 0).commit();

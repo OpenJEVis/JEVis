@@ -112,8 +112,8 @@ public class CommonMethods {
                 } else {
                     try {
                         logger.info("Deleting samples of object " + object.getName() + ":" + object.getID()
-                                + " from " + new DateTime(2001, 1, 1, 0, 0, 0).toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
-                        DateTime f = new DateTime(2001, 1, 1, 0, 0, 0);
+                                + " from " + new DateTime(1990, 1, 1, 0, 0, 0).toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
+                        DateTime f = new DateTime(1990, 1, 1, 0, 0, 0);
                         valueAtt.deleteSamplesBetween(f, to);
 
                         fromToMathData(object, true, f, to);
@@ -175,7 +175,7 @@ public class CommonMethods {
                         || (object.getJEVisClassName().equals("Data") && rawData)) {
                     DateTime f = null;
                     if (from == null) {
-                        f = new DateTime(2001, 1, 1, 0, 0, 0);
+                        f = new DateTime(1990, 1, 1, 0, 0, 0);
                     } else {
                         f = from;
                     }

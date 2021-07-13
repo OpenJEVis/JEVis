@@ -154,15 +154,15 @@ public class ChartDataRow {
         return userDataMap;
     }
 
-    public Map<DateTime, Alarm> getAlarms() {
-        if (!somethingChanged) {
+    public Map<DateTime, Alarm> getAlarms(boolean force) {
+        if (!somethingChanged && !force) {
             return alarmMap;
         }
 
         alarmMap.clear();
         try {
             CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(getDataProcessor());
-            if (cleanDataAlarm.isValidAlarmConfiguration()) {
+            if (cleanDataAlarm.isEnabled() && cleanDataAlarm.isValidAlarmConfiguration()) {
                 Double tolerance = cleanDataAlarm.getTolerance();
                 AlarmType alarmType = cleanDataAlarm.getAlarmType();
                 Double limit = null;
@@ -182,7 +182,7 @@ public class ChartDataRow {
                 } else limit = cleanDataAlarm.getLimit();
 
 
-                if (!getSamples().isEmpty()) {
+                if (!samples.isEmpty()) {
                     for (JEVisSample valueSample : getSamples()) {
                         try {
                             DateTime ts = valueSample.getTimestamp();
@@ -303,7 +303,6 @@ public class ChartDataRow {
 
                 getNoteSamples();
                 getUserDataMap();
-                getAlarms();
 
                 somethingChanged = false;
 
@@ -406,6 +405,8 @@ public class ChartDataRow {
                 }
 
                 this.samples = samples;
+
+                getAlarms(true);
                 updateFormatString(samples);
 
             } catch (Exception ex) {

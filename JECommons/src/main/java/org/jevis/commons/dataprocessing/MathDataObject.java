@@ -278,7 +278,7 @@ public class MathDataObject {
 
             if (allSamples.isEmpty()) {
                 periodInputData.add(new PeriodRule(
-                        new DateTime(2001, 1, 1, 0, 0, 0, 0),
+                        new DateTime(1990, 1, 1, 0, 0, 0, 0),
                         Period.ZERO));
             }
         }
@@ -517,7 +517,7 @@ public class MathDataObject {
     }
 
     private DateTime getLastRun(JEVisObject object) {
-        DateTime dateTime = new DateTime(2001, 1, 1, 0, 0, 0).withZone(getTimeZone(object));
+        DateTime dateTime = new DateTime(1990, 1, 1, 0, 0, 0).withZone(getTimeZone(object));
 
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");

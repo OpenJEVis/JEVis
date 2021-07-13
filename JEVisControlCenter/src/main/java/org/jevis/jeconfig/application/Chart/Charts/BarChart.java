@@ -36,7 +36,7 @@ public class BarChart implements Chart {
     private static final Logger logger = LogManager.getLogger(BarChart.class);
     private final Integer chartId;
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
-    AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
+    AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(1990, 1, 1, 0, 0, 0));
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
     private final String chartName;
