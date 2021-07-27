@@ -440,7 +440,11 @@ public class OutputView extends Tab {
                 } else {
                     String objectClassString = ungroupedInput.getObjectClass();
                     JEVisClass jeVisClass = ds.getJEVisClass(objectClassString).getInheritance();
-                    label.setText(I18nWS.getInstance().getClassName(jeVisClass.getName()));
+                    if (jeVisClass != null) {
+                        label.setText(I18nWS.getInstance().getClassName(jeVisClass.getName()));
+                    } else {
+                        label.setText(I18nWS.getInstance().getClassName(objectClassString));
+                    }
                     Region region = new Region();
                     region.setMinWidth(25);
                     Platform.runLater(() -> {

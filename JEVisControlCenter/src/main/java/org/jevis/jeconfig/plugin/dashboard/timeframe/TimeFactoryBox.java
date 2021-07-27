@@ -9,10 +9,10 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 
-public class TimeFactoryBox extends JFXComboBox<TimeFrameFactory> {
+public class TimeFactoryBox extends JFXComboBox<TimeFrame> {
 
 
-    private final TimeFrameFactory offTimeFrame = emptyTimeFrame();
+    private final TimeFrame offTimeFrame = emptyTimeFrame();
 
     public TimeFactoryBox(boolean addOffValue) {
         super();
@@ -24,13 +24,13 @@ public class TimeFactoryBox extends JFXComboBox<TimeFrameFactory> {
             getItems().add(0, offTimeFrame);
         }
 
-        Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>> cellFactory = new Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>>() {
+        Callback<ListView<TimeFrame>, ListCell<TimeFrame>> cellFactory = new Callback<ListView<TimeFrame>, ListCell<TimeFrame>>() {
             @Override
-            public ListCell<TimeFrameFactory> call(ListView<TimeFrameFactory> param) {
-                final ListCell<TimeFrameFactory> cell = new ListCell<TimeFrameFactory>() {
+            public ListCell<TimeFrame> call(ListView<TimeFrame> param) {
+                final ListCell<TimeFrame> cell = new ListCell<TimeFrame>() {
 
                     @Override
-                    protected void updateItem(TimeFrameFactory item, boolean empty) {
+                    protected void updateItem(TimeFrame item, boolean empty) {
                         super.updateItem(item, empty);
                         if (item != null && !empty) {
                             setText(item.getListName());
@@ -51,12 +51,12 @@ public class TimeFactoryBox extends JFXComboBox<TimeFrameFactory> {
     }
 
 
-    public void selectValue(TimeFrameFactory factory) {
+    public void selectValue(TimeFrame factory) {
         if (factory == null) return;
 
-        for (TimeFrameFactory timeFrameFactory : getItems()) {
-            if (timeFrameFactory.getID().equals(factory.getID())) {
-                getSelectionModel().select(timeFrameFactory);
+        for (TimeFrame timeFrame : getItems()) {
+            if (timeFrame.getID().equals(factory.getID())) {
+                getSelectionModel().select(timeFrame);
                 return;
             }
         }
@@ -71,8 +71,8 @@ public class TimeFactoryBox extends JFXComboBox<TimeFrameFactory> {
         return getValue().equals(offTimeFrame);
     }
 
-    private TimeFrameFactory emptyTimeFrame() {
-        return new TimeFrameFactory() {
+    private TimeFrame emptyTimeFrame() {
+        return new TimeFrame() {
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.dashboard.timefactory.off");

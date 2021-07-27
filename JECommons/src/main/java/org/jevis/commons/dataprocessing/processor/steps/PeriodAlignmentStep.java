@@ -106,8 +106,31 @@ public class PeriodAlignmentStep implements ProcessStep {
                 } else if (rawSampleTS.getMinuteOfHour() < 55) {
                     lowerTS = rawSampleTS.withMinuteOfHour(50).withSecondOfMinute(0).withMillisOfSecond(0);
                     higherTS = rawSampleTS.withMinuteOfHour(55).withSecondOfMinute(0).withMillisOfSecond(0);
-                } else if (rawSampleTS.getMinuteOfHour() < 60) {
+                } else {
                     lowerTS = rawSampleTS.withMinuteOfHour(55).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                }
+            } else if (periodForRawSample.getMinutes() == 10) {
+                if (rawSampleTS.getMinuteOfHour() == 0) {
+                    lowerTS = rawSampleTS.minusMinutes(10).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 10) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(10).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 20) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(10).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(20).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 30) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(20).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 40) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(40).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (rawSampleTS.getMinuteOfHour() < 50) {
+                    lowerTS = rawSampleTS.withMinuteOfHour(40).withSecondOfMinute(0).withMillisOfSecond(0);
+                    higherTS = rawSampleTS.withMinuteOfHour(50).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else {
+                    lowerTS = rawSampleTS.withMinuteOfHour(50).withSecondOfMinute(0).withMillisOfSecond(0);
                     higherTS = rawSampleTS.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 }
             } else if (periodForRawSample.getMinutes() == 15) {

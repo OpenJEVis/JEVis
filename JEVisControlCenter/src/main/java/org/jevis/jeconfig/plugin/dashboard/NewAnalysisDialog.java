@@ -54,8 +54,8 @@ import java.util.List;
 /**
  * @author fs
  */
-public class NewAnalyseDialog {
-    private static final Logger logger = LogManager.getLogger(NewAnalyseDialog.class);
+public class NewAnalysisDialog {
+    private static final Logger logger = LogManager.getLogger(NewAnalysisDialog.class);
 
     public static String ICON = "1403104602_brick_add.png";
 
@@ -194,9 +194,9 @@ public class NewAnalyseDialog {
 
                         this.createName = fName.getText();
 
-                        NewAnalyseDialog.this.response = Response.YES;
+                        NewAnalysisDialog.this.response = Response.YES;
                     } else {
-                        NewAnalyseDialog.this.response = Response.CANCEL;
+                        NewAnalysisDialog.this.response = Response.CANCEL;
                     }
                 });
 

@@ -8,7 +8,7 @@ import org.joda.time.format.DateTimeFormat;
 /**
  * Calculates an dynamic period
  */
-public class LastPeriod implements TimeFrameFactory {
+public class LastPeriod implements TimeFrame {
 
     private final Period period;
     private final String listName;

@@ -18,6 +18,7 @@ import org.jevis.commons.task.Task;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
@@ -245,6 +246,9 @@ public class Launcher extends AbstractCliApp {
         } catch (JEVisException ex) {
             logger.error(ex);
         }
+
+        Collections.shuffle(enabledDataSources);
+
         return enabledDataSources;
     }
 

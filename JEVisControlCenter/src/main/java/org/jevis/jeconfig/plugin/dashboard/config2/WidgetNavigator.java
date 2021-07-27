@@ -28,7 +28,7 @@ import org.jevis.jeconfig.plugin.dashboard.DashBoardToolbar;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 import org.jevis.jeconfig.tool.Layouts;
@@ -127,7 +127,7 @@ public class WidgetNavigator {
 
 
         TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
-        ObservableList<TimeFrameFactory> timeFrames = FXCollections.observableArrayList(control.getAllTimeFrames().getAll());
+        ObservableList<TimeFrame> timeFrames = FXCollections.observableArrayList(control.getAllTimeFrames().getAll());
         timeFactoryBox.getItems().addAll(timeFrames);
         timeFactoryBox.selectValue(control.getActiveDashboard().getTimeFrame());
         //timeFactoryBox.selectValue(control.getActiveTimeFrame());

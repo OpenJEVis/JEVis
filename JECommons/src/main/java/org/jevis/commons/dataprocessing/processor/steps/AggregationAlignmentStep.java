@@ -12,10 +12,10 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
-import org.jevis.commons.datetime.PeriodComparator;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +39,8 @@ public class AggregationAlignmentStep implements ProcessStep {
         boolean downSampling = true;
         Boolean valueIsQuantity = cleanDataObject.getValueIsQuantity();
 
-        PeriodComparator periodComparator = new PeriodComparator();
+        BigDecimal offset = new BigDecimal(resourceManager.getCleanDataObject().getOffset().toString());
+        List<JEVisSample> listMultipliers = resourceManager.getCleanDataObject().getMultiplier();
 
         /**
          * calc the sample per interval if possible depending on aggregation mode (avg or sum value)
@@ -54,7 +55,7 @@ public class AggregationAlignmentStep implements ProcessStep {
             Period outputPeriod = currentInterval.getOutputPeriod();
             Period inputPeriod = currentInterval.getInputPeriod();
 
-            int compare = periodComparator.compare(outputPeriod, inputPeriod);
+            int compare = currentInterval.getCompare();
             int indexOfCurrentInterval = intervals.indexOf(currentInterval);
             // if clean data period is longer (e.g. 1 day) or equal than raw data period (e.g. 15 minutes)
             // the down sampling method will be used, else the other
@@ -91,17 +92,35 @@ public class AggregationAlignmentStep implements ProcessStep {
                     lastInterval = intervals.get(indexOfCurrentInterval - 1);
                 }
 
-                Double valueAsDouble = calcAvgSample(currentInterval.getRawSamples(), currentInterval.isDifferential(), lastInterval);
-
-                currentInterval.getResult().setValue(valueAsDouble);
                 String note = "";
-                try {
-                    note = currentInterval.getResult().getNote();
-                } catch (Exception e) {
-                    note = "";
+                if ((lastInterval == null || lastInterval.getRawSamples().isEmpty()) && currentInterval.isDifferential() && !currentInterval.getRawSamples().isEmpty()) {
+                    if (lastInterval != null && lastInterval.getRawSamples().isEmpty()) {
+                        //Should only be possible with broken timestamps, e.g. time shift for summer->winter time
+                        int i = intervals.indexOf(currentInterval);
+                        for (int i2 = i; i2 >= 0; i2--) {
+                            CleanInterval prevInterval = intervals.get(i2);
+                            if (!prevInterval.getRawSamples().isEmpty()) {
+                                lastInterval = prevInterval;
+                                break;
+                            }
+                        }
+                    } else {
+                        lastInterval = new CleanInterval(currentInterval.getInterval(), currentInterval.getDate());
+                        lastInterval.getRawSamples().add(currentInterval.getRawSamples().get(0));
+                        note += "ex-li-m";
+                    }
                 }
-                if (note == null || note.equals("")) {
-                    note = "agg(yes," + currentInterval.getRawSamples().size() + ",avg)";
+
+                Double valueAsDouble = calcAvgSample(currentInterval.getRawSamples(), currentInterval.isDifferential(), lastInterval);
+                currentInterval.getResult().setValue(getScaledValue(listMultipliers, currentInterval.getDate(), valueAsDouble, offset).doubleValue());
+
+                try {
+                    note += currentInterval.getResult().getNote();
+                } catch (Exception e) {
+                    note += "";
+                }
+                if (note.equals("")) {
+                    note += "agg(yes," + currentInterval.getRawSamples().size() + ",avg)";
                 } else {
                     note += ",agg(yes," + currentInterval.getRawSamples().size() + ",avg)";
                 }
@@ -120,17 +139,35 @@ public class AggregationAlignmentStep implements ProcessStep {
                     lastInterval = intervals.get(indexOfCurrentInterval - 1);
                 }
 
-                Double currentValue = calcSumSampleDownscale(currentInterval.getRawSamples(), currentInterval.isDifferential(), lastInterval);
-
-                currentInterval.getResult().setValue(currentValue);
                 String note = "";
+                if ((lastInterval == null || lastInterval.getRawSamples().isEmpty()) && currentInterval.isDifferential() && !currentInterval.getRawSamples().isEmpty()) {
+                    if (lastInterval != null && lastInterval.getRawSamples().isEmpty()) {
+                        //Should only be possible with broken timestamps, e.g. time shift for summer->winter time
+                        int i = intervals.indexOf(currentInterval);
+                        for (int i2 = i; i2 >= 0; i2--) {
+                            CleanInterval prevInterval = intervals.get(i2);
+                            if (!prevInterval.getRawSamples().isEmpty()) {
+                                lastInterval = prevInterval;
+                                break;
+                            }
+                        }
+                    } else {
+                        lastInterval = new CleanInterval(currentInterval.getInterval(), currentInterval.getDate());
+                        lastInterval.getRawSamples().add(currentInterval.getRawSamples().get(0));
+                        note += "ex-li-m";
+                    }
+                }
+
+                Double currentValue = calcSumSampleDownscale(currentInterval.getRawSamples(), currentInterval.isDifferential(), lastInterval);
+                currentInterval.getResult().setValue(getScaledValue(listMultipliers, currentInterval.getDate(), currentValue, offset).doubleValue());
+
                 try {
-                    note = currentInterval.getRawSamples().get(currentInterval.getRawSamples().size() - 1).getNote();
+                    note += currentInterval.getRawSamples().get(currentInterval.getRawSamples().size() - 1).getNote();
                 } catch (Exception e) {
                     note = "";
                 }
-                if (note == null || note.equals("")) {
-                    note = "agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
+                if (note.equals("")) {
+                    note += "agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
                 } else {
                     note += ",agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
                 }
@@ -242,6 +279,20 @@ public class AggregationAlignmentStep implements ProcessStep {
         }
 
         intervals.removeAll(needToBeRemoved);
+    }
+
+    private BigDecimal getScaledValue(List<JEVisSample> listMultipliers, DateTime date, Double currentValue, BigDecimal offset) {
+        BigDecimal productDec = new BigDecimal(0);
+
+        try {
+            BigDecimal rawValueDec = new BigDecimal(currentValue.toString());
+            productDec = productDec.add(rawValueDec);
+            productDec = productDec.multiply(ScalingStep.getCurrentMultiplier(listMultipliers, date));
+            productDec = productDec.add(offset);
+        } catch (Exception e) {
+        }
+
+        return productDec;
     }
 
 

@@ -12,13 +12,11 @@ import javafx.scene.control.TabPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.PeriodComparator;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.ws.json.JsonSample;
@@ -27,11 +25,12 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.application.tools.ColorHelper;
+import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.DataModelNode;
 import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.LastPeriod;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -45,6 +44,7 @@ public class DataModelDataHandler {
     public final static String TYPE = "SimpleDataHandler";
     private static final Logger logger = LogManager.getLogger(DataModelDataHandler.class);
     private final JEVisDataSource jeVisDataSource;
+    private final DashboardControl dashboardControl;
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
     private final Map<String, JEVisAttribute> attributeMap = new HashMap<>();
     private final BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
@@ -55,12 +55,138 @@ public class DataModelDataHandler {
     private DataModelNode dataModelNode = new DataModelNode();
     private boolean autoAggregation = false;
     private boolean forcedInterval = false;
-    private final TimeFrames timeFrames;
-    private final List<TimeFrameFactory> timeFrameFactories = new ArrayList<>();
+    private final TimeFrameFactory timeFrameFactory;
+    private final List<TimeFrame> timeFrameFactories = new ArrayList<>();
     private String forcedPeriod;
     private final ObjectMapper mapper = new ObjectMapper();
-    private TimeFrameFactory timeFrameFactory;
+    private TimeFrame timeFrame;
     private final PeriodComparator periodComparator = new PeriodComparator();
+    private WorkDays wd;
+
+    public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, JsonNode configNode) {
+        this.jeVisDataSource = jeVisDataSource;
+        this.dashboardControl = dashboardControl;
+
+        try {
+            if (configNode != null) {
+                this.dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
+            } else {
+                this.dataModelNode = new DataModelNode();
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+
+        if (!this.dataModelNode.getForcedInterval().isEmpty()) {
+            this.forcedInterval = true;
+            try {
+                this.forcedPeriod = this.dataModelNode.getForcedInterval();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        setData(this.dataModelNode.getData());
+        this.timeFrameFactory = new TimeFrameFactory(jeVisDataSource);
+        this.timeFrameFactories.addAll(this.timeFrameFactory.getAll(dashboardControl.getActiveDashboard().getDashboardObject()));
+    }
+
+    public static Double getManipulatedData(DataModelNode dataModelNode, List<JEVisSample> samples, ChartDataRow dataModel) {
+        Double value = 0d;
+        if (samples.size() == 1) {
+            try {
+                value = samples.get(0).getValueAsDouble();
+            } catch (JEVisException e) {
+                logger.error("Could not get value for datarow {}:{}", dataModel.getObject().getName(), dataModel.getObject().getID(), e);
+            }
+        } else {
+            try {
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(dataModel.getUnit());
+                isQuantity = qu.isQuantityIfCleanData(dataModel.getAttribute(), isQuantity);
+
+
+                Double min = Double.MAX_VALUE;
+                Double max = Double.MIN_VALUE;
+                List<Double> listMedian = new ArrayList<>();
+
+                DateTime dateTime = null;
+
+                List<JsonSample> listManipulation = new ArrayList<>();
+                for (JEVisSample sample : samples) {
+                    Double currentValue = sample.getValueAsDouble();
+                    value += currentValue;
+                    min = Math.min(min, currentValue);
+                    max = Math.max(max, currentValue);
+                    listMedian.add(currentValue);
+
+                    if (dateTime == null) dateTime = new DateTime(sample.getTimestamp());
+                }
+                if (!isQuantity) {
+                    value = value / samples.size();
+                }
+
+                DataPointNode dataPointNode = getDataPointNodeForChartDataRow(dataModelNode, dataModel);
+
+                switch (dataPointNode.getManipulationMode()) {
+                    case AVERAGE:
+                        value = value / (double) samples.size();
+                        break;
+                    case MIN:
+                        value = min;
+                        break;
+                    case MAX:
+                        value = max;
+                        break;
+                    case MEDIAN:
+                        if (listMedian.size() > 1)
+                            listMedian.sort(Comparator.naturalOrder());
+                        value = listMedian.get((listMedian.size() - 1) / 2);
+                        break;
+                }
+
+            } catch (Exception ex) {
+                logger.error("Error in quantity check: {}", ex, ex);
+            }
+        }
+
+        return value;
+
+    }
+
+    /**
+     * Set if the date in the interval will use the auto aggregation
+     * [if -> then]
+     * Day -> Display Interval
+     * Week -> Hourly
+     * Month -> Daily
+     * Year -> Weekly
+     *
+     * @param interval
+     */
+    public static AggregationPeriod getAggregationPeriod(Interval interval) {
+        AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
+
+        /** less then an week take original **/
+        if (interval.toDuration().getStandardDays() < 6) {
+            aggregationPeriod = AggregationPeriod.NONE;
+        }
+        /** less then an month take hour **/
+        else if (interval.toDuration().getStandardDays() < 27) {
+            aggregationPeriod = AggregationPeriod.HOURLY;
+        }
+        /** less than year take day **/
+        else if (interval.toDuration().getStandardDays() < 364) {
+            aggregationPeriod = AggregationPeriod.DAILY;
+        }
+        /** more than an year take week **/
+        else {
+            aggregationPeriod = AggregationPeriod.WEEKLY;
+        }
+        return aggregationPeriod;
+    }
+
+    private final List<AggregationPeriod> initialAggregation = new ArrayList<>();
 
     public void debug() {
         System.out.println("----------------------------------------");
@@ -74,7 +200,7 @@ public class DataModelDataHandler {
         System.out.println("Interval end  : " + this.durationProperty.getValue().getEnd());
         System.out.println("Models: " + getDataModel().size());
         System.out.println("forcedInterval: " + forcedInterval);
-        System.out.println("Interval Factoy: " + timeFrameFactory);
+        System.out.println("Interval Factoy: " + timeFrame);
         System.out.println("isAutoAggregation: " + autoAggregation);
 //        getDataModel().forEach(chartDataModel -> {
 //            System.out.println("model: " + chartDataModel.getObject().getID() + " " + chartDataModel.getObject().getName());
@@ -103,129 +229,16 @@ public class DataModelDataHandler {
 
     }
 
-    public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
-        this.jeVisDataSource = jeVisDataSource;
-
-        try {
-            if (configNode != null) {
-                this.dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
-            } else {
-                this.dataModelNode = new DataModelNode();
-            }
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-
-        if (!this.dataModelNode.getForcedInterval().isEmpty()) {
-            this.forcedInterval = true;
-            try {
-                this.forcedPeriod = this.dataModelNode.getForcedInterval();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        setData(this.dataModelNode.getData());
-        this.timeFrames = new TimeFrames(jeVisDataSource);
-        this.timeFrameFactories.addAll(this.timeFrames.getAll());
-
-
-    }
-
     public List<DateTime> getMaxTimeStamps() {
         List<DateTime> dateTimes = new ArrayList<>();
         for (ChartDataRow chartDataRow : this.chartDataRows) {
             try {
-                dateTimes.add(chartDataRow.getAttribute().getTimestampFromLastSample());
+                dateTimes.add(chartDataRow.getSamples().get(chartDataRow.getSamples().size() - 1).getTimestamp());
             } catch (Exception ex) {
 
             }
         }
         return dateTimes;
-    }
-
-    private final List<AggregationPeriod> initialAggregation = new ArrayList<>();
-
-    public static Double getManipulatedData(DataModelNode dataModelNode, List<JEVisSample> samples, ChartDataRow dataModel) {
-        Double value = 0d;
-        try {
-            QuantityUnits qu = new QuantityUnits();
-            boolean isQuantity = qu.isQuantityUnit(dataModel.getUnit());
-            isQuantity = qu.isQuantityIfCleanData(dataModel.getAttribute(), isQuantity);
-
-
-            Double min = Double.MAX_VALUE;
-            Double max = Double.MIN_VALUE;
-            List<Double> listMedian = new ArrayList<>();
-
-            DateTime dateTime = null;
-
-            List<JsonSample> listManipulation = new ArrayList<>();
-            for (JEVisSample sample : samples) {
-                Double currentValue = sample.getValueAsDouble();
-                value += currentValue;
-                min = Math.min(min, currentValue);
-                max = Math.max(max, currentValue);
-                listMedian.add(currentValue);
-
-                if (dateTime == null) dateTime = new DateTime(sample.getTimestamp());
-            }
-            if (!isQuantity) {
-                value = value / samples.size();
-            }
-
-            DataPointNode dataPointNode = getDataPointNodeForChartDataRow(dataModelNode, dataModel);
-
-            switch (dataPointNode.getManipulationMode()) {
-                case AVERAGE:
-                    value = value / (double) samples.size();
-                    break;
-                case MIN:
-                    value = min;
-                    break;
-                case MAX:
-                    value = max;
-                    break;
-                case MEDIAN:
-                    if (listMedian.size() > 1)
-                        listMedian.sort(Comparator.naturalOrder());
-                    value = listMedian.get((listMedian.size() - 1) / 2);
-                    break;
-            }
-
-        } catch (Exception ex) {
-            logger.error("Error in quantity check: {}", ex, ex);
-        }
-
-        return value;
-
-    }
-
-    /**
-     * Set if the date in the interval will use the auto aggregation
-     * [if -> then]
-     * Day -> Display Interval
-     * Week -> Hourly
-     * Month -> Daily
-     * Year -> Weekly
-     *
-     * @param enable
-     */
-    public void setAutoAggregation(boolean enable) {
-
-        this.autoAggregation = enable;
-        this.dataModelNode.getData().forEach(dataPointNode -> {
-            if (enable) {
-                dataPointNode.setAbsolute(true);
-//                System.out.println("dataPointNode abolut: " + dataPointNode.getObjectID());
-            }
-        });
-
-        this.chartDataRows.forEach(chartDataRow -> {
-            chartDataRow.setAbsolute(true);
-            chartDataRow.setSomethingChanged(true);
-        });
-
     }
 
 
@@ -238,26 +251,16 @@ public class DataModelDataHandler {
         return this.jeVisDataSource;
     }
 
-    public static AggregationPeriod getAggregationPeriod(Interval interval) {
-        AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
+    public void setAutoAggregation(boolean enable) {
 
-        /** less then an week take original **/
-        if (interval.toDuration().getStandardDays() < 6) {
-            aggregationPeriod = AggregationPeriod.NONE;
-        }
-        /** less then an month take hour **/
-        else if (interval.toDuration().getStandardDays() < 27) {
-            aggregationPeriod = AggregationPeriod.HOURLY;
-        }
-        /** less than year take day **/
-        else if (interval.toDuration().getStandardDays() < 364) {
-            aggregationPeriod = AggregationPeriod.DAILY;
-        }
-        /** more than an year take week **/
-        else {
-            aggregationPeriod = AggregationPeriod.WEEKLY;
-        }
-        return aggregationPeriod;
+        this.autoAggregation = enable;
+        this.dataModelNode.getData().forEach(dataPointNode -> dataPointNode.setAbsolute(enable));
+
+        this.chartDataRows.forEach(chartDataRow -> {
+            chartDataRow.setAbsolute(enable);
+            chartDataRow.setSomethingChanged(true);
+        });
+
     }
 
     public static ManipulationMode getManipulationMode(Interval interval) {
@@ -277,15 +280,14 @@ public class DataModelDataHandler {
         return manipulationMode;
     }
 
-
-    public TimeFrameFactory getTimeFrameFactory() {
+    public TimeFrame getTimeFrameFactory() {
         if (this.forcedPeriod == null) {
             return null;
         }
 
-        for (TimeFrameFactory timeFrameFactory : this.timeFrameFactories) {
-            if (timeFrameFactory.getID().equals(this.forcedPeriod)) {
-                return timeFrameFactory;
+        for (TimeFrame timeFrame : this.timeFrameFactories) {
+            if (timeFrame.getID().equals(this.forcedPeriod)) {
+                return timeFrame;
             }
         }
 
@@ -303,9 +305,9 @@ public class DataModelDataHandler {
     public void setInterval(Interval interval) {
         if (this.forcedInterval) {
 
-            TimeFrameFactory timeFrameFactory = getTimeFrameFactory();
-            if (timeFrameFactory != null) {
-                interval = timeFrameFactory.getInterval(interval.getEnd());
+            TimeFrame timeFrame = getTimeFrameFactory();
+            if (timeFrame != null) {
+                interval = timeFrame.getInterval(interval.getEnd());
             } else {
                 logger.error("Widget DataModel is not configured using selected.");
             }
@@ -314,7 +316,6 @@ public class DataModelDataHandler {
 
         this.durationProperty.setValue(interval);
 
-
         for (ChartDataRow chartDataRow : getDataModel()) {
             try {
                 int i = getDataModel().indexOf(chartDataRow);
@@ -322,7 +323,7 @@ public class DataModelDataHandler {
 
                 /** we may need this for meter changes usecase**/
                 //CleanDataObject.getPeriodForDate(, )
-                
+
                 Period objectPeriod = new Period(chartDataRow.getAttribute().getObject().getAttribute("Period").getLatestSample().getValueAsString());
                 Period userPeriod = new Period();
                 switch (getAggregationPeriod(interval)) {
@@ -373,9 +374,6 @@ public class DataModelDataHandler {
                         chartDataRow.setAggregationPeriod(aggregationPeriod);
                     }
                 }
-
-
-                chartDataRow.setAbsolute(autoAggregation);
             } catch (NullPointerException ex) {
                 logger.error("Nullpointer in {}", chartDataRow);
             } catch (Exception ex) {
@@ -464,8 +462,27 @@ public class DataModelDataHandler {
         this.chartDataRows.forEach(chartDataModel -> {
 //            System.out.println("Set autoAggrigate: " + chartDataModel.getObject().getName() + " b: " + autoAggregation);
 //            chartDataModel.setAbsolute(autoAggregation);
-            chartDataModel.setSelectedStart(this.durationProperty.getValue().getStart());
-            chartDataModel.setSelectedEnd(this.durationProperty.getValue().getEnd());
+            DateTime start = this.durationProperty.getValue().getStart();
+            DateTime end = this.durationProperty.getValue().getEnd();
+
+            if (chartDataModel.getAggregationPeriod() != AggregationPeriod.NONE
+                    && chartDataModel.getAggregationPeriod() != AggregationPeriod.MINUTELY
+                    && chartDataModel.getAggregationPeriod() != AggregationPeriod.QUARTER_HOURLY
+                    && chartDataModel.getAggregationPeriod() != AggregationPeriod.HOURLY) {
+                if (wd == null) {
+                    wd = new WorkDays(chartDataModel.getObject());
+                }
+
+                start = start.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0);
+                end = end.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
+
+                if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
+                    start = start.plusDays(1);
+                }
+            }
+
+            chartDataModel.setSelectedStart(start);
+            chartDataModel.setSelectedEnd(end);
             chartDataModel.getSamples();
             logger.error("New samples for: {} = {}", chartDataModel.getObject().getID(), chartDataModel.getSamples().size());
         });
@@ -498,7 +515,7 @@ public class DataModelDataHandler {
         this.forcedPeriod = forcedPeriod;
     }
 
-    public void setForcedPeriod(TimeFrameFactory forcedPeriod) {
+    public void setForcedPeriod(TimeFrame forcedPeriod) {
         this.forcedPeriod = forcedPeriod.getID();
         setForcedInterval(true);
     }

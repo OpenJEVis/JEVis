@@ -26,10 +26,10 @@ public class ToolBarIntervalSelector extends HBox {
     protected final ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
     protected final TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
     protected TimeFrameEditor timeFrameEditor;
-    protected ObservableList<TimeFrameFactory> timeFrames;
+    private final JFXButton dateButton = new JFXButton("");
     protected boolean disableEventListener = false;
     private DashboardControl controller;
-    private JFXButton dateButton = new JFXButton("");
+    protected ObservableList<TimeFrame> timeFrames;
 
     public ToolBarIntervalSelector() {
         super();

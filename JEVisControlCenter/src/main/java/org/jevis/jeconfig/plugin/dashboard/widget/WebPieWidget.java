@@ -184,7 +184,7 @@ public class WebPieWidget extends Widget {
     public void init() {
 
         try {
-            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
             ex.printStackTrace();

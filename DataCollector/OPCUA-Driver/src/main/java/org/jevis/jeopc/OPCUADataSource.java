@@ -18,38 +18,38 @@ public class OPCUADataSource implements DataSource {
 
     @Override
     public void run() {
-        logger.error("run:");
+        log.debug("run:");
 
         opcuaServer.run();
-        logger.error("done");
+        log.debug("done");
 
     }
 
     @Override
     public void initialize(JEVisObject dataSourceJEVis) {
-        logger.error("initialize: Driver version {} for object: {}", version, dataSourceJEVis);
+        log.debug("initialize: Driver version {} for object: {}", version, dataSourceJEVis);
 
         dataSourceObj = dataSourceJEVis;
         opcuaServer = new OPCUAServer(dataSourceJEVis);
 
 
-        logger.error("Done init");
+        log.debug("Done init");
     }
 
     @Override
     public List<InputStream> sendSampleRequest(JEVisObject channel) throws Exception {
-        System.out.println("sendSampleRequest: " + channel);
+        log.debug("sendSampleRequest: " + channel);
 
         return null;
     }
 
     @Override
     public void parse(List<InputStream> input) {
-        logger.error("parse: {}", input);
+        log.debug("parse: {}", input);
     }
 
     @Override
     public void importResult() {
-        logger.error("importResult");
+        log.debug("importResult");
     }
 }

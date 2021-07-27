@@ -27,6 +27,7 @@ public class CleanInterval {
     private Boolean differential;
     private Period inputPeriod;
     private Period outputPeriod;
+    private Integer compare = 0;
 
     public CleanInterval(Interval interval, DateTime exactDateTime) {
         this.interval = interval;
@@ -83,5 +84,13 @@ public class CleanInterval {
 
     public void setOutputPeriod(Period outputPeriod) {
         this.outputPeriod = outputPeriod;
+    }
+
+    public Integer getCompare() {
+        return compare;
+    }
+
+    public void setCompare(Integer compare) {
+        this.compare = compare;
     }
 }

@@ -61,7 +61,7 @@ public class SearchFilterBar extends GridPane {
     public SearchFilterBar(JEVisTree tree, List<JEVisTreeFilter> filter, Finder finder, boolean showReplaceBar) {
         //super(4);
         setPadding(new Insets(8));
-        this.setBackground(new Background(new BackgroundFill(Color.web("#f4f4f4"), CornerRadii.EMPTY, new Insets(0))));
+//        this.setBackground(new Background(new BackgroundFill(Color.web("#f4f4f4"), CornerRadii.EMPTY, new Insets(0))));
         this.finder = finder;
 
         ObservableList<JEVisTreeFilter> filterList = FXCollections.observableArrayList(filter);

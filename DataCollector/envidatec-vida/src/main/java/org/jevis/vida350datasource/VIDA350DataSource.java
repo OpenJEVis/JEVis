@@ -181,19 +181,19 @@ public class VIDA350DataSource implements DataSource {
                         JEVisImporterAdapter.importResults(_result, _importer, channel);
                     }
                 } catch (MalformedURLException ex) {
-                    logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                    log.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    log.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
                 } catch (ClientProtocolException ex) {
-                    logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                    log.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    log.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
                 } catch (IOException ex) {
-                    logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
+                    log.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    log.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
                 } catch (ParseException ex) {
-                    logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                    log.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    log.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
                 } catch (Exception ex) {
-                    logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                    log.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
                 }
             } catch (Exception ex) {
                 log.fatal(ex);

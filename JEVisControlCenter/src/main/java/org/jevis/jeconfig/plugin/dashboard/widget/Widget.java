@@ -189,7 +189,7 @@ public abstract class Widget extends Region {
     public void setGlow(boolean glow, boolean ishighlightModus) {
 
         Platform.runLater(() -> {
-            logger.debug("[{}] setGlow: {},{}", getConfig().getUuid(), glow, ishighlightModus);
+//            logger.debug("[{}] setGlow: {},{}", getConfig().getUuid(), glow, ishighlightModus);
             this.setEffect(null);
 
             if (glow) {
@@ -223,7 +223,7 @@ public abstract class Widget extends Region {
 
 
     public void setEditable(boolean editable) {
-        logger.debug("Widget setEditable {}", editable);
+//        logger.debug("Widget setEditable {}", editable);
         onDragResizeEventListener.resizeableProperty().setValue(editable);
         this.editPane.setVisible(editable);
         this.editable.setValue(editable);
@@ -452,7 +452,6 @@ public abstract class Widget extends Region {
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, newValue)));
     }
 
-
     public void showProgressIndicator(boolean show) {
         Platform.runLater(() -> {
             try {
@@ -568,5 +567,16 @@ public abstract class Widget extends Region {
 
     public Tooltip getTt() {
         return tt;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Widget) {
+            Widget otherObject = (Widget) object;
+            if (otherObject.getConfig() != null && this.getConfig() != null) {
+                return (otherObject.getConfig().getUuid() == this.getConfig().getUuid());
+            }
+        }
+        return false;
     }
 }

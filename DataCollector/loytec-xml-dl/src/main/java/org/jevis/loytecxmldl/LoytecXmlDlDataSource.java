@@ -12,6 +12,8 @@ import org.jevis.commons.driver.*;
 import org.jevis.soapdatasource.Channel;
 import org.jevis.soapdatasource.SOAPDataSource;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,10 +34,10 @@ public class LoytecXmlDlDataSource implements DataSource {
 
     private LoytecXmlDlServerClass dataServer;
     private SOAPDataSource soapDataSource;
-    private Channel soapChannel;
     private Importer importer;
     private ExecutorService executorService;
     private final ConcurrentHashMap<LoytecXmlDlChannel, DateTime> activeChannels = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<LoytecXmlDlChannel, DateTime> channels = new ConcurrentHashMap<>();
 
     @Override
     public void initialize(JEVisObject dataSourceObject) {
@@ -72,6 +74,7 @@ public class LoytecXmlDlDataSource implements DataSource {
     @Override
     public void run() {
         log.info("Running");
+        DateTime start = new DateTime();
         // For every channel directory
         executorService = Executors.newFixedThreadPool(15);
 
@@ -81,11 +84,29 @@ public class LoytecXmlDlDataSource implements DataSource {
                 Runnable runnable = getJob(channelDirectory, channel);
 
                 FutureTask<?> ft = new FutureTask<Void>(runnable, null);
+                channels.put(channel, new DateTime());
                 executorService.submit(ft);
             });
         }
 
-        log.info("Run completed");
+        waitForExecutorService(1800);
+
+        DateTime end = new DateTime();
+
+        log.info("Run completed in {}", new Period(start, end).toString(PeriodFormat.wordBased()));
+    }
+
+    private void waitForExecutorService(int timeout) {
+        while (timeout > 0 && !activeChannels.isEmpty()) {
+            try {
+                log.info("Waiting for timeout: {}s and {} active channels from {} total.", timeout, activeChannels.size(), channels.size());
+                timeout = timeout - 1;
+                Thread.sleep(1000);
+                waitForExecutorService(timeout);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private Runnable getJob(LoytecXmlDlChannelDirectory channelDirectory, LoytecXmlDlChannel channel) {
@@ -140,25 +161,25 @@ public class LoytecXmlDlDataSource implements DataSource {
                 }
             } catch (
                     MalformedURLException ex) {
-                logger.error("MalformedURLException. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
-                logger.debug("MalformedURLException. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+                log.error("MalformedURLException. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
+                log.debug("MalformedURLException. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
                 removeJob(channel);
             } catch (
                     ClientProtocolException ex) {
-                logger.error("Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
-                logger.debug("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+                log.error("Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
+                log.debug("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
                 removeJob(channel);
             } catch (
                     IOException ex) {
-                logger.error("IO Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
-                logger.debug("IO Exception. For channel {}:{}.", channel.getJeVisObject().getID(), channel.getName(), ex);
+                log.error("IO Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
+                log.debug("IO Exception. For channel {}:{}.", channel.getJeVisObject().getID(), channel.getName(), ex);
                 removeJob(channel);
             } catch (ParseException ex) {
-                logger.error("Parse Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
-                logger.debug("Parse Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+                log.error("Parse Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
+                log.debug("Parse Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
                 removeJob(channel);
             } catch (Exception ex) {
-                logger.error("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
+                log.error("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
                 removeJob(channel);
             }
         };
@@ -166,9 +187,10 @@ public class LoytecXmlDlDataSource implements DataSource {
 
     private void removeJob(LoytecXmlDlChannel channel) {
         activeChannels.remove(channel);
+        channels.remove(channel);
 
         if (activeChannels.isEmpty()) {
-            logger.debug("No more active threads, shutting down executor.");
+            log.debug("No more active threads, shutting down executor.");
             executorService.shutdown();
         }
     }

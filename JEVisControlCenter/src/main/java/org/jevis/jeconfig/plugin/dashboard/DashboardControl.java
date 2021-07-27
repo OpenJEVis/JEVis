@@ -29,17 +29,17 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
 import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -49,8 +49,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class DashboardControl {
 
@@ -60,12 +58,9 @@ public class DashboardControl {
     private final DashBordPlugIn dashBordPlugIn;
     private final ConfigManager configManager;
     private final JEVisDataSource jevisDataSource;
-    private TimerTask updateTask;
-    private final ObservableList<Task> runningUpdateTaskList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
     private final ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
-    private Timer updateTimer = new Timer(true);
+    private final Timer updateTimer = new Timer(true);
     private DashboardPojo activeDashboard;
-    private ExecutorService executor;
     private boolean isUpdateRunning = false;
     private java.io.File newBackgroundFile;
     private final Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
@@ -73,8 +68,8 @@ public class DashboardControl {
 
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
     private final ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
-    private TimeFrameFactory activeTimeFrame;
-    private TimeFrames timeFrames;
+    private final TimeFrame previusActiveTimeFrame = null;
+    private TimeFrame activeTimeFrame;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
     private List<Widget> selectedWidgets = new ArrayList<>();
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
@@ -98,14 +93,15 @@ public class DashboardControl {
     public static double YGridSize = 25;
     public static double XGridSize = 25;
     private Image backgroundImage;
-    private Timer timer;
 
     /**
      * we want to keep some changes when switching dashboard, this are the workaround variables
      **/
     private boolean firstDashboard = true;
-    private final TimeFrameFactory previusActiveTimeFrame = null;
+    private TimeFrameFactory timeFrameFactory;
     private final Interval previusActiveInterval = null;
+    private TimerTask updateTask;
+    private WorkDays wd;
 
 
     public DashboardControl(DashBordPlugIn plugin) {
@@ -116,18 +112,8 @@ public class DashboardControl {
         //TaskWindow taskWindow = new TaskWindow(runningUpdateTaskList);
 
         widgetNavigator = new WidgetNavigator(this);
-        initTimeFrameFactory();
+        initTimeFrames();
         this.activeDashboard = this.configManager.createEmptyDashboard();
-    }
-
-    /**
-     * public ExecutorService getExecutor() {
-     * return executor;
-     * }
-     **/
-
-    public void executeTask(Task task) {
-        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), task, widgetTaskIcon, true);
     }
 
     public void updateWidget(Widget widget) {
@@ -143,12 +129,12 @@ public class DashboardControl {
         JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), task, widgetTaskIcon, true);
     }
 
-    private void initTimeFrameFactory() {
-        this.timeFrames = new TimeFrames(this.jevisDataSource);
+    private void initTimeFrames() {
+        this.timeFrameFactory = new TimeFrameFactory(this.jevisDataSource);
     }
 
-    public TimeFrames getAllTimeFrames() {
-        return this.timeFrames;
+    public TimeFrameFactory getAllTimeFrames() {
+        return this.timeFrameFactory;
     }
 
     public void enableHighlightGlow(boolean disable) {
@@ -174,6 +160,7 @@ public class DashboardControl {
 
 
         /** init default states **/
+        this.activeInterval = new Interval(new DateTime(), new DateTime());
         this.activeDashboard = this.configManager.createEmptyDashboard();
         setZoomFactor(1);
     }
@@ -189,10 +176,9 @@ public class DashboardControl {
                 //setRootSizeChanged(dashBordPlugIn.getScrollPane().getWidth(), dashBordPlugIn.getScrollPane().getHeight());
             }
         };
+
         dashboardPane.widthProperty().addListener(sizeListener);
         dashboardPane.heightProperty().addListener(sizeListener);
-
-
     }
 
     public DashBoardPane getDashboardPane() {
@@ -223,7 +209,7 @@ public class DashboardControl {
 
 
     public int getNextFreeUUID() {
-        final Comparator<Widget> comp = (p1, p2) -> Integer.compare(p1.getConfig().getUuid(), p2.getConfig().getUuid());
+        final Comparator<Widget> comp = Comparator.comparingInt(p -> p.getConfig().getUuid());
 
         try {
             Widget maxIDWidget = getWidgetList().stream().max(comp).get();
@@ -355,7 +341,7 @@ public class DashboardControl {
         return observableList;
     }
 
-    public void restView() {
+    public void resetView() {
         this.dashBordPlugIn.getDashBoardPane().clearView();
         this.widgetList.clear();
     }
@@ -378,7 +364,7 @@ public class DashboardControl {
      * @param object
      */
     public void selectDashboard(JEVisObject object) {
-        logger.error("selectDashboard: {}", object);
+        logger.debug("selectDashboard: {}", object);
         try {
             /** check if the last dashboard was saved and if not ask user **/
             if (firstLoadedConfigHash != null) {
@@ -406,14 +392,12 @@ public class DashboardControl {
 
             showConfig();//if list is empty=reset
             resetDashboard();
-            restartExecutor();
-            restView();
-
+            resetView();
 
             if (object == null) {  /** Create new Dashboard**/
                 this.activeDashboard = new DashboardPojo();
                 this.activeDashboard.setTitle("New Dashboard");
-                this.activeDashboard.setTimeFrame(timeFrames.day());
+                this.activeDashboard.setTimeFrame(timeFrameFactory.day());
                 Size pluginSize = dashBordPlugIn.getPluginSize();
                 pluginSize.setHeight(pluginSize.getHeight() - 10);
                 pluginSize.setWidth(pluginSize.getWidth() - 10);
@@ -421,6 +405,7 @@ public class DashboardControl {
             } else { /** load existing Dashboard**/
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
+                    this.wd = new WorkDays(object);
                 } catch (Exception ex) {
                     dashBordPlugIn.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
                 }
@@ -446,13 +431,13 @@ public class DashboardControl {
                 });
             }
 
-            /** add widgets to dashboard**/
+            /** add widgets to dashboard **/
             this.widgetList.forEach(widget -> {
                 this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
             });
 
 
-            /** inti configuration of widgets **/
+            /** init configuration of widgets **/
             this.widgetList.forEach(widget -> {
                 try {
                     widget.updateConfig();
@@ -541,23 +526,27 @@ public class DashboardControl {
     public void reload() {
         loadDashboardObjects();
         this.jevisDataSource.reloadAttribute(this.activeDashboard.getDashboardObject());
-        initTimeFrameFactory();
         selectDashboard(this.activeDashboard.getDashboardObject());
     }
 
-    public void setActiveTimeFrame(TimeFrameFactory activeTimeFrame) {
-        logger.error("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
-        this.activeTimeFrame = activeTimeFrame;
-        this.setInterval(activeTimeFrame.getInterval(activeInterval.getStart()));
-        this.toolBar.updateView(activeDashboard);
+    public TimeFrame getActiveTimeFrame() {
+        return this.activeTimeFrame;
     }
 
     public void registerToolBar(DashBoardToolbar toolbar) {
         this.toolBar = toolbar;
     }
 
-    public TimeFrameFactory getActiveTimeFrame() {
-        return this.activeTimeFrame;
+    public void setActiveTimeFrame(TimeFrame activeTimeFrame) {
+        logger.error("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
+        this.activeTimeFrame = activeTimeFrame;
+        DateTime start = activeInterval.getStart();
+        if (wd != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart()) && activeInterval.toDuration().getStandardDays() > 1) {
+            start = start.plusDays(1);
+        }
+
+        this.setInterval(activeTimeFrame.getInterval(start));
+        this.toolBar.updateView(activeDashboard);
     }
 
     public void setPrevInterval() {
@@ -582,23 +571,9 @@ public class DashboardControl {
         }
     }
 
-    private void restartExecutor() {
-        try {
-            runningUpdateTaskList.clear();
-            if (this.executor != null) {
-                this.executor.shutdownNow();
-            }
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-        this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
-        logger.error("Reset Executor");
-
-    }
-
     public void setInterval(Interval interval) {
         try {
-            logger.error("------------------ SetInterval to: {} ------------------", interval);
+            logger.debug("------------------ SetInterval to: {} ------------------", interval);
 
             this.activeInterval = interval;
             activeIntervalProperty.setValue(activeInterval);//workaround
@@ -649,44 +624,33 @@ public class DashboardControl {
             this.isUpdateRunning = false;
 
             JEConfig.getStatusBar().stopTasks(DashBordPlugIn.class.getName());
+            this.updateTask.cancel();
         } catch (Exception ex) {
             logger.error(ex);
         }
     }
 
     public void runDataUpdateTasks(boolean reStartUpdateDaemon) {
-        logger.error("Restart Update Tasks: daemon: {}", reStartUpdateDaemon);
+        logger.debug("Restart Update Tasks: daemon: {}", reStartUpdateDaemon);
         this.isUpdateRunning = reStartUpdateDaemon;
 
         stopAllUpdates();
-
-        this.updateTimer = new Timer(true);
-        //this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
-//        this.totalUpdateJobs.setValue(0);
-//        this.finishUpdateJobs.setValue(0);
-
-        this.runningUpdateTaskList.clear();
-
-        DashboardControl.this.widgetList.sorted().forEach(widget -> {
-            logger.error("-- Create Update job for: {}-{}-{}-{} '{}'", widget.getConfig().getUuid(), widget.getConfig().getType(), widget, widget.getConfig().getTitle());
-        });
 
         for (Widget widget : this.widgetList) {
             if (!widget.isStatic()) {
                 Platform.runLater(() -> {
                     try {
-                        logger.debug("Show ProgressIndicator for: {}", widget.getConfig().getTitle());
                         widget.showProgressIndicator(true);
                     } catch (Exception ex) {
-                        logger.error(ex);
+                        logger.error("Show ProgressIndicator for: {}", widget.getConfig().getTitle(), ex);
                     }
                 });
             }
         }
 
+        logger.debug("Update Interval: {}", activeInterval);
 
-        logger.error("Update Interval: {}", activeInterval);
-        this.updateTask = new TimerTask() {
+        updateTask = new TimerTask() {
             @Override
             public void run() {
                 logger.error("Starting Updates");
@@ -694,42 +658,32 @@ public class DashboardControl {
                         , DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count()
                         , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
                 try {
-//                    totalUpdateJobs.setValue(DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count());
-
-
-                    Set<Object> linkedHashSet = new LinkedHashSet<>();
+                    List<Widget> objects = new ArrayList<>();
 
                     for (Widget widget : DashboardControl.this.widgetList) {
                         if (!widget.isStatic()) {
-                            if (linkedHashSet.contains(widget)) {
-                                logger.error("    --- waring duplicate widget update: {}", widget.getConfig().getTitle(), widget.getConfig().getType());
+                            if (objects.contains(widget)) {
+                                logger.warn("    --- warning duplicate widget update: {}-{}", widget.getConfig().getTitle(), widget.getConfig().getType());
                             } else {
-                                logger.error("add new to list check: {}", widget.getConfig().getTitle(), widget.getConfig().getType());
-                                linkedHashSet.add(widget);
+                                objects.add(widget);
                                 Task<Object> updateTask = addWidgetUpdateTask(widget, activeInterval);
                                 JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
                             }
-                            //addWidgetUpdateTask(widget, activeInterval);
-
-                            //runningUpdateTaskList.add(updateTask);
-                            //JEConfig.getStatusBar().addTask(updateTask,widgetTaskIcon);
-                            //executor.submit(updateTask);
-
                         }
                     }
-
                 } catch (Exception ex) {
-                    logger.error(ex);
+                    logger.error("Error while adding widgets", ex);
                 }
             }
         };
 
         if (reStartUpdateDaemon) {
-            this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(reStartUpdateDaemon);
+            this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(true);
             logger.info("Start updateData scheduler: {} sec", this.activeDashboard.getUpdateRate());
-            this.updateTimer.scheduleAtFixedRate(this.updateTask, 1000, this.activeDashboard.getUpdateRate() * 1000);
+            this.updateTimer.scheduleAtFixedRate(updateTask, 1000, this.activeDashboard.getUpdateRate() * 1000);
         } else {
-            this.updateTimer.schedule(this.updateTask, 1000);
+            this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(false);
+            this.updateTimer.schedule(updateTask, 0);
         }
 
     }
@@ -743,21 +697,20 @@ public class DashboardControl {
          }
          **/
 
-
-        Task<Object> updateTask = new Task<Object>() {
+        return new Task<Object>() {
             @Override
             protected Object call() throws Exception {
                 try {
-                    logger.error("addWidgetUpdateTask: '{}'  - Interval: {}", widget.getConfig().getTitle(), interval);
-                    Platform.runLater(() -> this.updateTitle("Updating Widget [" + widget.typeID() + "" + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
+                    logger.debug("addWidgetUpdateTask: '{}'  - Interval: {}", widget.getConfig().getTitle(), interval);
+                    Platform.runLater(() -> this.updateTitle(I18n.getInstance().getString("plugin.dashboard.message.updatingwidget")
+                            + " [" + widget.typeID() + "" + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
-                        logger.error("updateData done: '{}'", widget.getConfig().getTitle());
-//                        finishUpdateJobs.setValue(finishUpdateJobs.getValue() + 1);
+                        logger.debug("updateData done: '{}:{}'", widget.getConfig().getTitle(), widget.getConfig().getUuid());
                     }
 
                     this.succeeded();
-                    logger.debug("task done: " + widget);
+                    logger.debug("task done: {}:{}", widget.getConfig().getTitle(), widget.getConfig().getUuid());
                 } catch (Exception ex) {
                     this.failed();
                     logger.error("Widget update error: [{}]", widget.getConfig().getUuid(), ex);
@@ -770,7 +723,6 @@ public class DashboardControl {
                 return null;
             }
         };
-        return updateTask;
     }
 
     private synchronized boolean allJobsDone(List<Task> futures) {

@@ -25,44 +25,54 @@ public class ScalingStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(ScalingStep.class);
 
+    public static BigDecimal getCurrentMultiplier(List<JEVisSample> listMultipliers, DateTime date) {
+        BigDecimal multi = new BigDecimal(1);
+        try {
+            for (JEVisSample multiplier : listMultipliers) {
+                int index = listMultipliers.indexOf(multiplier);
+                DateTime timeStampOfMultiplier = null;
+                DateTime nextTimeStampOfMultiplier = null;
+                Double multiplierDouble = null;
+
+                timeStampOfMultiplier = multiplier.getTimestamp();
+                multiplierDouble = multiplier.getValueAsDouble();
+
+                if (index + 1 < listMultipliers.size()) {
+                    nextTimeStampOfMultiplier = listMultipliers.get(index + 1).getTimestamp();
+                }
+                if (date.equals(timeStampOfMultiplier) || date.isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || date.isBefore(nextTimeStampOfMultiplier))) {
+                    multi = new BigDecimal(multiplierDouble.toString());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not get multiplier for {}", date, e);
+        }
+        return multi;
+    }
+
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
         CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> listMultipliers = calcAttribute.getMultiplier();
+        BigDecimal offset = new BigDecimal(calcAttribute.getOffset().toString());
 
-        for (JEVisSample multiplier : listMultipliers) {
-            int index = listMultipliers.indexOf(multiplier);
-            DateTime timeStampOfMultiplier = null;
-            DateTime nextTimeStampOfMultiplier = null;
-            Double multiplierDouble = null;
-            BigDecimal offset = new BigDecimal(calcAttribute.getOffset().toString());
+        for (CleanInterval currentInt : intervals) {
+            BigDecimal currentMulti = getCurrentMultiplier(listMultipliers, currentInt.getDate());
 
-            timeStampOfMultiplier = multiplier.getTimestamp();
-            multiplierDouble = multiplier.getValueAsDouble();
-
-            if (index + 1 < listMultipliers.size()) {
-                nextTimeStampOfMultiplier = listMultipliers.get(index + 1).getTimestamp();
-            }
-
-            logger.info("[{}] scale with multiplier {} and offset {} starting at: {}", calcAttribute.getCleanObject().getID(), multiplierDouble, offset, timeStampOfMultiplier);
-            for (CleanInterval currentInt : intervals) {
-                if (currentInt.getDate().equals(timeStampOfMultiplier) || currentInt.getDate().isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || currentInt.getDate().isBefore(nextTimeStampOfMultiplier))) {
-                    BigDecimal multi = new BigDecimal(multiplierDouble.toString());
-                    VirtualSample sample = currentInt.getResult();
-                    Double rawValue = sample.getValueAsDouble();
-                    if (rawValue != null) {
-                        BigDecimal rawValueDec = new BigDecimal(rawValue.toString());
-                        BigDecimal productDec = new BigDecimal(0);
-                        productDec = productDec.add(rawValueDec);
-                        productDec = productDec.multiply(multi);
-                        productDec = productDec.add(offset);
-                        sample.setValue(productDec.doubleValue());
-                        String note = sample.getNote();
-                        note += ",scale(" + multi + ")";
-                        sample.setNote(note);
-                    }
-                }
+            VirtualSample sample = currentInt.getResult();
+            Double rawValue = sample.getValueAsDouble();
+            if (rawValue != null) {
+                BigDecimal rawValueDec = new BigDecimal(rawValue.toString());
+                BigDecimal productDec = new BigDecimal(0);
+                productDec = productDec.add(rawValueDec);
+                productDec = productDec.multiply(currentMulti);
+                productDec = productDec.add(offset);
+                sample.setValue(productDec.doubleValue());
+                String note = sample.getNote();
+                note += ",scale(" + currentMulti + ")";
+                sample.setNote(note);
             }
         }
     }
