@@ -1,0 +1,14 @@
+{
+  "jevisclass": "OPC UA Channel Directory",
+  "names": {
+    "de": "OPC UA Kanäle",
+    "ru": "OPC UA Channels",
+    "en": "OPC UA Channels"
+  },
+  "descriptions": {
+    "de": "Die Klasse OPC UA Kanäle stellt ein  Verzeichnis für die Strukturierung des Systems dar.",
+    "ru": "The class OPC UA Channels represents a directory for the structuring of the system.",
+    "en": "The class OPC UA Channels represents a directory for the structuring of the system."
+  },
+  "types": []
+}

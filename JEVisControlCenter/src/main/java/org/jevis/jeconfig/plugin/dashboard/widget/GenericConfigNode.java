@@ -37,6 +37,8 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
     private final Label borderSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.bordersize"));
     private final Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
+    private final Label precisionLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.precision"));
+    private final Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
 
 
     private final JFXTextField nameField = new JFXTextField();
@@ -44,8 +46,10 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final JFXTextField yPosField = new JFXTextField();
     private final JFXTextField xPosField = new JFXTextField();
     private final JFXCheckBox showShadowField = new JFXCheckBox();
+    private final JFXCheckBox showValueField = new JFXCheckBox();
     private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
     private final Spinner<Integer> borderSizeSpinner = new Spinner<Integer>(0, 20, 0);
+    private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
     private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
     private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
     private final TimeFactoryBox timeFrameBox;
@@ -163,10 +167,20 @@ public class GenericConfigNode extends Tab implements ConfigTab {
             }
         });
 
+        precisionSpinner.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.UP) {
+                precisionSpinner.getValueFactory().setValue(precisionSpinner.valueProperty().getValue() + 1);
+                event.consume();
+            } else if (event.getCode() == KeyCode.DOWN) {
+                precisionSpinner.getValueFactory().setValue(precisionSpinner.valueProperty().getValue() - 1);
+                event.consume();
+            }
+        });
+
         gridPane.addColumn(0, idLabel, nameLabel, tooltipLabel, bgColorLabel, fColorLabel, yPosLabel, xPosLabel,
-                shadowLabel, borderSizeLabel, fontSizeLabel, alignmentLabel, timeFrameLabel);
+                shadowLabel, showValueLabel, borderSizeLabel, precisionLabel, fontSizeLabel, alignmentLabel, timeFrameLabel);
         gridPane.addColumn(1, idField, nameField, tooltipField, bgColorPicker, fColorPicker, yPosField, xPosField,
-                showShadowField, borderSizeSpinner, fontSizeSpinner, alignmentBox, timeFrameBox);
+                showShadowField, showValueField, borderSizeSpinner, precisionSpinner, fontSizeSpinner, alignmentBox, timeFrameBox);
 
         setContent(gridPane);
 
@@ -185,6 +199,8 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         xPosField.setText(widget.getConfig().getxPosition() + "");
 
         showShadowField.setSelected(widget.getConfig().getShowShadow());
+        showValueField.setSelected(widget.getConfig().getShowValue());
+        //showShadowField.setSelected(widget.getConfig().getShowShadow());
 
 
         if (dataModelDataHandler == null) {
@@ -200,12 +216,19 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
         borderSizeSpinner.getValueFactory().setValue((int) widget.getConfig().getBorderSize().getTop());
         alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
+        precisionSpinner.getValueFactory().setValue(widget.getConfig().getDecimals().intValue());
     }
 
     @Override
     public void commitChanges() {
         try {
             widget.getConfig().setShowShadow(showShadowField.isSelected());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            widget.getConfig().setShowValue(showValueField.isSelected());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -241,6 +264,13 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        try {
+            widget.getConfig().setDecimals(precisionSpinner.getValue());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
 
         try {
             widget.getConfig().setFontSize(fontSizeSpinner.getValueFactory().getValue().doubleValue());

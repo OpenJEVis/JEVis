@@ -32,6 +32,7 @@ public class WidgetPojo {
     private Integer decimals = 2;
     private String type = "";
     private Integer layer = 1;
+    private boolean showValue = true;
 
     private JsonNode dataHandlerJson;
     private static final Logger logger = LogManager.getLogger(WidgetPojo.class);
@@ -130,15 +131,21 @@ public class WidgetPojo {
             }
 
             try {
+                this.showValue = jsonNode.get(SHOW_VALUE).asBoolean(true);
+            } catch (Exception ex) {
+                logger.debug("Could not parse {}: {}", SHOW_VALUE, ex.getMessage());
+            }
+
+            try {
                 this.borderSize = new BorderWidths(jsonNode.get(BORDER_SIZE).asDouble(0.2));
             } catch (Exception ex) {
                 logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
             }
 
             try {
-                this.decimals = 2;
+                this.decimals = jsonNode.get(DECIMALS).asInt(2);
             } catch (Exception ex) {
-                logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
+                logger.debug("Could not parse decimals: {}", DECIMALS, ex.getMessage());
             }
 
             try {
@@ -146,6 +153,7 @@ public class WidgetPojo {
             } catch (Exception ex) {
                 logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
             }
+
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
                 this.dataHandlerJson = jsonNode.get(DATA_HANDLER_NODE);
@@ -156,6 +164,14 @@ public class WidgetPojo {
             ex.printStackTrace();
         }
 
+    }
+
+    public boolean getShowValue() {
+        return showValue;
+    }
+
+    public void setShowValue(boolean showValue) {
+        this.showValue = showValue;
     }
 
     public int getUuid() {

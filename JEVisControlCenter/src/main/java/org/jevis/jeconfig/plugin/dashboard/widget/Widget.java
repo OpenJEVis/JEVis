@@ -52,7 +52,6 @@ public abstract class Widget extends Region {
     private final Label label = new Label();
     private final Tooltip tt = new Tooltip("");
 
-//    private BooleanProperty snapToGrid = new SimpleBooleanProperty(false);
 
     private final DragResizeMod.OnDragResizeEventListener onDragResizeEventListener = DragResizeMod.defaultListener;
 
@@ -156,6 +155,7 @@ public abstract class Widget extends Region {
         setBorder(this.config.getBorderSize());
         layoutXProperty().set(this.config.getxPosition());
         layoutYProperty().set(this.config.getyPosition());
+
 
         if (this.config.getShowShadow()) {
             DropShadow dropShadow = new DropShadow();
@@ -458,7 +458,7 @@ public abstract class Widget extends Region {
                 if (show) {
                     loadingPane.setVisible(true);
                 } else {
-                    logger.debug("Hide loading: widget: {}", getConfig().getUuid());
+                    logger.error("Hide loading: widget: {}", getConfig().getUuid());
                     loadingPane.setVisible(false);
                 }
             } catch (Exception ex) {
@@ -537,8 +537,11 @@ public abstract class Widget extends Region {
                 .put(JsonNames.Widget.LAYER, this.config.getLayer())
                 .put(JsonNames.Widget.WIDTH, this.config.getSize().getWidth())
                 .put(JsonNames.Widget.HEIGHT, this.config.getSize().getHeight())
+                .put(JsonNames.Widget.DECIMALS, this.config.getDecimals())
+                .put(JsonNames.Widget.SHOW_VALUE, this.config.getShowValue())
                 .put(JsonNames.Widget.X_POS, this.config.getxPosition())
                 .put(JsonNames.Widget.Y_POS, this.config.getyPosition());
+
 
         return dashBoardNode;
     }

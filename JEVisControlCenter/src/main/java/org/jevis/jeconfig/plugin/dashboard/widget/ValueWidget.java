@@ -6,6 +6,10 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -45,6 +49,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +61,19 @@ public class ValueWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(ValueWidget.class);
     public static String WIDGET_ID = "Value";
     private final Label label = new Label();
-    private final NumberFormat nf = NumberFormat.getInstance();
+    private final NumberFormat nf = new DecimalFormat("#,##0.##");//NumberFormat.getInstance();
+    private final NumberFormat nfPercent = new DecimalFormat("0");
     private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
+    private final StringProperty displayedUnit = new SimpleStringProperty("");
     private Limit limit;
     public static String PERCENT_NODE_NAME = "percent";
     private Interval lastInterval = null;
+    private ChangeListener<Number> limitListener = null;
+    private ChangeListener<Number> percentListener = null;
+    private ValueWidget limitWidget = null;
+    private ValueWidget percentWidget = null;
+    private String percentText = "";
 
 
     public static String LIMIT_NODE_NAME = "limit";
@@ -89,7 +102,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateData(Interval interval) {
-        logger.debug("Value.Update: {}", interval);
+        logger.error("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
         Platform.runLater(() -> {
             showAlertOverview(false, "");
@@ -108,8 +121,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
         String widgetUUID = "-1";
 
-        this.nf.setMinimumFractionDigits(this.config.getDecimals());
-        this.nf.setMaximumFractionDigits(this.config.getDecimals());
 
         AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
         try {
@@ -120,9 +131,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                 List<JEVisSample> results;
-                boolean isQuantity = true;
 
                 String unit = dataModel.getUnitLabel();
+                displayedUnit.setValue(unit);
 
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
@@ -130,47 +141,16 @@ public class ValueWidget extends Widget implements DataModelWidget {
                     total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
 
                     displayedSample.setValue(total.get());
-                    String valueText = null;
-                    if (percent != null && percent.getPercentWidgetID() > 0) {
-                        for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
-                            if (sourceWidget.getConfig().getUuid() == (percent.getPercentWidgetID())) {
-                                Double reference = ((ValueWidget) sourceWidget).displayedSample.get();
-                                Double value = this.displayedSample.get();
-                                Double result = value / reference * 100;
-                                if (!result.isNaN()) {
-                                    if (value >= 0.01) {
-                                        valueText = this.nf.format(value) + " " + unit + " (" + this.nf.format(result) + "%)";
-                                    } else {
-                                        valueText = this.nf.format(value) + " " + unit + " (<" + this.nf.format(0.01) + "%)";
-                                    }
-                                } else {
-                                    valueText = this.nf.format(total.get()) + " " + unit;
-                                }
-                                break;
-                            }
-                        }
-                    } else {
-                        valueText = this.nf.format(total.get()) + " " + unit;
-                    }
-
-                    String finalValueText = valueText;
-                    Platform.runLater(() -> this.label.setText(finalValueText));
                     checkLimit();
+                    checkPercent();
                 } else {
-                    Platform.runLater(() -> {
-                        this.label.setText("-");
-                    });
-
-                    displayedSample.set(Double.NaN);//or NaN?
+                    displayedSample.setValue(Double.NaN);
                 }
-
             } else {
-                Platform.runLater(() -> {
-                    this.label.setText("");
-                });
-                displayedSample.set(Double.NaN);
+                displayedSample.setValue(Double.NaN);
                 logger.warn("ValueWidget is missing SampleHandler.datamodel: [ID:{}]", widgetUUID);
             }
+
 
         } catch (Exception ex) {
             logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
@@ -180,12 +160,42 @@ public class ValueWidget extends Widget implements DataModelWidget {
             });
         }
 
-//        showProgressIndicator(false);
-
         Platform.runLater(() -> {
             showProgressIndicator(false);
         });
 
+        updateLayout();
+        logger.error("Value.updateData.done: {}", this.getConfig().getTitle());
+    }
+
+    private void updateText() {
+        logger.debug("updateText: {}", this.getConfig().getTitle());
+        this.nf.setMinimumFractionDigits(this.config.getDecimals());
+        this.nf.setMaximumFractionDigits(this.config.getDecimals());
+
+        StringProperty valueText = new SimpleStringProperty();
+        if (displayedSample.getValue().isNaN()) {
+
+        } else {
+            if (getConfig().getShowValue()) {
+                valueText.setValue(this.nf.format(displayedSample.getValue()) + " " + displayedUnit.getValue());
+            } else {
+                valueText.setValue("");
+            }
+        }
+
+        if (!percentText.isEmpty()) {
+            if (getConfig().getShowValue()) {
+                valueText.setValue(valueText.getValue() + " (" + percentText + ")");
+            } else {
+                valueText.setValue(percentText);
+            }
+
+        }
+
+        Platform.runLater(() -> {
+            this.label.setText(valueText.getValue());
+        });
 
     }
 
@@ -200,29 +210,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
         this.sampleHandler = dataHandler;
     }
 
-    private void checkLimit() {
-        Platform.runLater(() -> {
-            try {
-                logger.debug("checkLimit: {}", config.getUuid());
-//                this.label.setText(this.labelText.getValue());
-                Color fontColor = this.config.getFontColor();
-                this.label.setFont(new Font(this.config.getFontSize()));
-
-                if (limit != null) {
-//                    this.label.setTextFill(limit.getExceedsLimitColor(fontColor, displayedSample.get()));
-                    this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(limit.getExceedsLimitColor(fontColor, displayedSample.get())) + " !important;");
-                } else {
-//                    this.label.setTextFill(fontColor);
-                    this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(fontColor) + " !important;");
-                }
-
-
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        });
-    }
-
     @Override
     public void debug() {
         this.sampleHandler.debug();
@@ -230,7 +217,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateLayout() {
-
+        updateText();
     }
 
     @Override
@@ -240,7 +227,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
         sampleHandler.setAutoAggregation(true);
 
-        logger.error("Value.openConfig() [{}] limit ={}", config.getUuid(), limit);
+        logger.debug("Value.openConfig() [{}] limit ={}", config.getUuid(), limit);
         if (limit != null) {
             widgetConfigDialog.addTab(limit.getConfigTab());
         }
@@ -263,8 +250,120 @@ public class ValueWidget extends Widget implements DataModelWidget {
     }
 
 
+    private void updateValueListener() {
+        try {
+            if (limitListener != null) {
+                limitWidget.getDisplayedSampleProperty().removeListener(limitListener);
+            }
+
+            if (limit != null && limit.getLimitWidgetID() > 0) {
+                for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
+                    if (sourceWidget.getConfig().getUuid() == (limit.getLimitWidgetID())) {
+
+                        limitWidget = ((ValueWidget) sourceWidget);
+                        limitListener = new ChangeListener<Number>() {
+                            @Override
+                            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                                limit.setLowerLimitDynamic(newValue.doubleValue());
+                                limit.setUpperLimitDynamic(newValue.doubleValue());
+                                checkLimit();
+                                updateText();
+                            }
+                        };
+                        limitWidget.getDisplayedSampleProperty().addListener(limitListener);
+
+                        //first time of the Value sourceValue does nop update
+                        limit.setLowerLimitDynamic(limitWidget.getDisplayedSampleProperty().getValue().doubleValue());
+                        limit.setUpperLimitDynamic(limitWidget.getDisplayedSampleProperty().getValue().doubleValue());
+                        checkLimit();
+
+                        break;
+                    }
+
+                }
+            }
+
+        } catch (Exception exception) {
+            logger.error("Error while updating limit: {}", exception, exception);
+        }
+
+        try {
+
+            if (percentListener != null) {
+                percentWidget.getDisplayedSampleProperty().removeListener(percentListener);
+            }
+
+            if (percent != null && percent.getPercentWidgetID() > 0) {
+                for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
+                    if (sourceWidget.getConfig().getUuid() == (percent.getPercentWidgetID())) {
+                        percentWidget = ((ValueWidget) sourceWidget);
+                        percentListener = new ChangeListener<Number>() {
+                            @Override
+                            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                                checkPercent(newValue.doubleValue());
+                                updateText();
+                            }
+                        };
+                        percentWidget.getDisplayedSampleProperty().addListener(percentListener);
+
+                        //first time of the Value sourceValue does nop update
+                        checkPercent(percentWidget.getDisplayedSampleProperty().getValue());
+
+                        break;
+                    }
+                }
+            }
+        } catch (Exception exception) {
+            logger.error("Error while updating percent: {}", exception, exception);
+        }
+    }
+
+    private void checkPercent() {
+        if (percentWidget != null) {
+            checkPercent(percentWidget.getDisplayedSampleProperty().getValue());
+        }
+    }
+
+    private void checkPercent(double reference) {
+        Double value = ValueWidget.this.displayedSample.get();
+        Double result = value / reference * 100;
+        if (!result.isNaN()) {
+            if (result >= 0.01) {
+                percentText = ValueWidget.this.nfPercent.format(result) + "%";
+            } else {
+                percentText = " <" + ValueWidget.this.nfPercent.format(0.01) + "%";
+            }
+        } else {
+            percentText = "";
+        }
+        //updateText();
+    }
+
+    private void checkLimit() {
+        Platform.runLater(() -> {
+            try {
+                logger.debug("checkLimit: {}", config.getUuid());
+                Color fontColor = this.config.getFontColor();
+                this.label.setFont(new Font(this.config.getFontSize()));
+
+                if (limit != null) {
+                    this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(limit.getExceedsLimitColor(fontColor, displayedSample.get())) + " !important;");
+                } else {
+                    this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(fontColor) + " !important;");
+                }
+
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
+    }
+
+
     @Override
     public void updateConfig() {
+        updateValueListener();
+        updateText();
         Platform.runLater(() -> {
             Platform.runLater(() -> {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
@@ -272,49 +371,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 this.label.setTextFill(this.config.getFontColor());
                 this.label.setContentDisplay(ContentDisplay.CENTER);
                 this.label.setAlignment(this.config.getTitlePosition());
+
             });
         });
-
-
-        try {
-            if (limit != null && limit.getLimitWidgetID() > 0) {
-                for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
-                    if (sourceWidget.getConfig().getUuid() == (limit.getLimitWidgetID())) {
-                        ((ValueWidget) sourceWidget).getDisplayedSampleProperty().addListener((observable, oldValue, newValue) -> {
-                            limit.setLowerLimitDynamic(newValue.doubleValue());
-                            limit.setUpperLimitDynamic(newValue.doubleValue());
-                            checkLimit();
-                        });
-                        break;
-                    }
-
-                }
-                if (percent != null && percent.getPercentWidgetID() > 0) {
-                    String unit = sampleHandler.getDataModel().get(0).getUnitLabel();
-                    for (Widget sourceWidget : ValueWidget.this.control.getWidgets()) {
-                        if (sourceWidget.getConfig().getUuid() == (percent.getPercentWidgetID())) {
-                            ((ValueWidget) sourceWidget).getDisplayedSampleProperty().addListener((observable, oldValue, newValue) -> {
-                                Double reference = ((ValueWidget) sourceWidget).displayedSample.get();
-                                Double value = this.displayedSample.get();
-                                Double result = value / reference * 100;
-                                if (!result.isNaN()) {
-                                    if (result >= 0.01) {
-                                        this.label.setText(this.nf.format(result) + " " + unit + " (" + this.nf.format(result) + "%)");
-                                    } else {
-                                        this.label.setText(this.nf.format(value) + " " + unit + " (<" + this.nf.format(0.01) + "%)");
-                                    }
-                                } else {
-                                    this.label.setText(this.nf.format(value) + " " + unit);
-                                }
-                            });
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            logger.error("Error while update config: {}|{}", ex.getStackTrace()[0].getLineNumber(), ex);
-        }
     }
 
     @Override
@@ -334,10 +393,13 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        logger.debug("init Value Widget: " + getConfig().getUuid());
+        logger.error("init Value Widget: " + getConfig().getUuid());
 
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
+
+        nfPercent.setMaximumFractionDigits(0);
+        nfPercent.setRoundingMode(RoundingMode.CEILING);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));
         try {
@@ -433,6 +495,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 debug();
             }
         });
+
+
     }
 
     public String getTranslatedFormula(List<CalcInputObject> calcInputObjects, String expression) {

@@ -10,11 +10,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.stage.Screen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -191,9 +189,14 @@ public class ConfigManager {
 
 
             try {
-                Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-                Size newSize = new Size(jsonNode.get("height").asDouble(primaryScreenBounds.getHeight() - 80)
-                        , jsonNode.get("width").asDouble(primaryScreenBounds.getWidth() - 35));
+                /** Now we use 1920 x 1080 (minus the boarders) as default for all **/
+                Size newSize = new Size(jsonNode.get("height").asDouble(886.0)
+                        , jsonNode.get("width").asDouble(1863.0));
+
+
+                //Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+                //Size newSize = new Size(jsonNode.get("height").asDouble(primaryScreenBounds.getHeight() - 80)
+                //       , jsonNode.get("width").asDouble(primaryScreenBounds.getWidth() - 35));
                 logger.debug("------ josn.size: {}/{}  {}", jsonNode.get("width"), jsonNode.get("height"), newSize);
 
 

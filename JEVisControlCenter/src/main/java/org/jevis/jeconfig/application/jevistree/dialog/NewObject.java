@@ -41,16 +41,25 @@ public class NewObject {
                                     }
 
                                     JEVisClass createClass = dia.getCreateClass();
-                                    JEVisObject newObject = parent.buildObject(name, createClass);
-                                    newObject.commit();
 
-                                    try {
-                                        createDefaultValues(newObject, dia.isWithCleanData());
-                                    } catch (Exception ex) {
-                                        logger.error("Error while setting default values; {}", ex, ex);
+                                    if (!dia.getTemplate().isNotAnTemplate()) {
+
+                                        if (dia.getTemplate().create(createClass, parent, name)) {
+                                            succeeded();
+                                        }
+
+                                    } else {
+                                        JEVisObject newObject = parent.buildObject(name, createClass);
+                                        newObject.commit();
+
+                                        try {
+                                            createDefaultValues(newObject, dia.isWithCleanData());
+                                        } catch (Exception ex) {
+                                            logger.error("Error while setting default values; {}", ex, ex);
+                                        }
+
+                                        succeeded();
                                     }
-
-                                    succeeded();
 
 
                                 } catch (JEVisException ex) {
