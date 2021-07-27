@@ -20,7 +20,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.ConfigTab;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 
 public class GenericConfigNode extends Tab implements ConfigTab {
 
@@ -62,7 +62,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         this.widget = widget;
         this.dataModelDataHandler = dataModelDataHandler;
 
-        ObservableList<TimeFrameFactory> timeFrames = FXCollections.observableArrayList(widget.getControl().getAllTimeFrames().getAll());
+        ObservableList<TimeFrame> timeFrames = FXCollections.observableArrayList(widget.getControl().getAllTimeFrames().getAll());
         timeFrameBox = new TimeFactoryBox(true);
         timeFrameBox.setPrefWidth(200);
         timeFrameBox.setMinWidth(200);
@@ -280,14 +280,14 @@ public class GenericConfigNode extends Tab implements ConfigTab {
 
 
         try {
-            TimeFrameFactory timeFrameFactory = timeFrameBox.getValue();
+            TimeFrame timeFrame = timeFrameBox.getValue();
             if (widget instanceof DataModelWidget) {
                 DataModelDataHandler dataModelDataHandler = ((DataModelWidget) widget).getDataHandler();
 
                 if (timeFrameBox.isOffValue()) {
                     dataModelDataHandler.setForcedInterval(false);
                 } else {
-                    dataModelDataHandler.setForcedPeriod(timeFrameFactory);
+                    dataModelDataHandler.setForcedPeriod(timeFrame);
                 }
             }
         } catch (Exception ex) {

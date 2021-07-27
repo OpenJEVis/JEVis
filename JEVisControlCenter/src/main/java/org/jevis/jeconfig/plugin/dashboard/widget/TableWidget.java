@@ -186,7 +186,7 @@ public class TableWidget extends Widget implements DataModelWidget {
     @Override
     public void init() {
         nf = NumberFormat.getInstance();
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
 
         this.table = new TableView<>();

@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class TimeFrameEditor extends Popup {
 
     public ObjectProperty<Interval> intervalProperty;
-    public TimeFrameFactory timeFrame;
+    public TimeFrame timeFrame;
     private static Method getPopupContent;
 
     static {
@@ -32,7 +32,7 @@ public class TimeFrameEditor extends Popup {
 
     JFXDatePicker datePicker;
 
-    public TimeFrameEditor(TimeFrameFactory timeFrame, Interval interval) {
+    public TimeFrameEditor(TimeFrame timeFrame, Interval interval) {
         super();
         this.intervalProperty = new SimpleObjectProperty<>(interval);
         this.timeFrame = timeFrame;
@@ -65,7 +65,7 @@ public class TimeFrameEditor extends Popup {
         this.datePicker.setValue(toLocalDate(date));
     }
 
-    public void setTimeFrame(TimeFrameFactory timeFrame) {
+    public void setTimeFrame(TimeFrame timeFrame) {
         this.timeFrame = timeFrame;
     }
 

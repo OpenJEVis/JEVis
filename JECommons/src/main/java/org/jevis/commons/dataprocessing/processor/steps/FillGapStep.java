@@ -147,11 +147,16 @@ public class FillGapStep implements ProcessStep {
         String lastNote = null;
 
         for (JEVisSample rawSample : rawSamples) {
+            int i = rawSamples.indexOf(rawSample);
             DateTime rawSampleTS = rawSample.getTimestamp();
-            Period periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSampleTS);
 
-            if (rawSamples.indexOf(rawSample) == 0) {
-                expectedDateTime = rawSampleTS;
+            Period periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSampleTS);
+            if (i < rawSamples.size() - 1) {
+                periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSamples.get(i + 1).getTimestamp());
+            }
+
+            if (i == 0) {
+                expectedDateTime = rawSampleTS.plus(periodForDate);
                 lastValue = rawSample.getValueAsDouble();
                 lastNote = rawSample.getNote();
                 continue;
@@ -167,6 +172,9 @@ public class FillGapStep implements ProcessStep {
                 while (expectedDateTime != null && expectedDateTime.isBefore(rawSampleTS)) {
                     currentGap.addDateTime(expectedDateTime);
                     periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), expectedDateTime);
+                    if (i < rawSamples.size() - 1) {
+                        periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSamples.get(i + 1).getTimestamp());
+                    }
                     expectedDateTime = expectedDateTime.plus(periodForDate);
                 }
 

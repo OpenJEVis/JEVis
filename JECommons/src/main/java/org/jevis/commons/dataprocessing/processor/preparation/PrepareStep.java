@@ -11,6 +11,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.*;
+import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.task.LogTaskManager;
@@ -55,8 +56,7 @@ public class PrepareStep implements ProcessStep {
 
 //        if (rawSamplesDown.isEmpty() || rawSamplesUp.isEmpty()) {
         if (rawSamplesDown.isEmpty()) {
-            logger.info("[{}] No new raw date. Stopping this job", resourceManager.getID());
-            return;
+            throw new RuntimeException(String.format("[%s] No new raw data. Stopping this job", resourceManager.getID()));
         }
 
         resourceManager.setRawSamplesDown(rawSamplesDown);
@@ -79,6 +79,9 @@ public class PrepareStep implements ProcessStep {
             resourceManager.setIntervals(cleanIntervals);
         }
 
+        if (resourceManager.getIntervals().isEmpty()) {
+            throw new RuntimeException(String.format("[%s] No new intervals. Stopping this job", resourceManager.getID()));
+        }
     }
 
     private List<CleanInterval> getIntervals(CleanDataObject cleanDataObject, List<PeriodRule> periodCleanData) throws JEVisException {
@@ -114,7 +117,7 @@ public class PrepareStep implements ProcessStep {
         } else {
             logger.info("[{}] Calc interval between start date {} and end date {}", cleanDataObject.getCleanObject().getID(), datePattern.print(currentDate), datePattern.print(maxEndDate));
 
-
+            PeriodComparator periodComparator = new PeriodComparator();
             DateTime lastDate = null;
 
             Boolean firstIsDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
@@ -149,77 +152,84 @@ public class PrepareStep implements ProcessStep {
             }
 
             while (currentDate.isBefore(maxEndDate) && !periodCleanData.isEmpty() && !currentDate.equals(lastDate)) {
-                DateTime startInterval = null;
-                DateTime endInterval = null;
+                DateTime startDateTime = null;
+                DateTime endDateTime = null;
                 Period rawPeriod = CleanDataObject.getPeriodForDate(periodRawData, currentDate);
                 Period cleanPeriod = CleanDataObject.getPeriodForDate(periodCleanData, currentDate);
                 Boolean isDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
                 boolean greaterThenDays = false;
 
-                startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
+                startDateTime = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
                         currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());
-                endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
+                endDateTime = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
                         currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());
 
                 if (cleanPeriod.getYears() > 0) {
-                    startInterval = startInterval.minusYears(cleanPeriod.getYears()).withMonthOfYear(1).withDayOfMonth(1);
-                    endInterval = startInterval.plusYears(cleanPeriod.getYears()).withMonthOfYear(1).withDayOfMonth(1).minusDays(1);
+                    startDateTime = startDateTime.minusYears(cleanPeriod.getYears()).withMonthOfYear(1).withDayOfMonth(1);
+                    endDateTime = startDateTime.plusYears(cleanPeriod.getYears()).withMonthOfYear(1).withDayOfMonth(1).minusDays(1);
                     greaterThenDays = true;
                 }
                 if (cleanPeriod.getMonths() > 0) {
-                    startInterval = startInterval.minusMonths(cleanPeriod.getMonths()).withDayOfMonth(1);
-                    endInterval = startInterval.plusMonths(cleanPeriod.getMonths()).withDayOfMonth(1).minusDays(1);
+                    startDateTime = startDateTime.minusMonths(cleanPeriod.getMonths()).withDayOfMonth(1);
+                    endDateTime = startDateTime.plusMonths(cleanPeriod.getMonths()).withDayOfMonth(1).minusDays(1);
                     greaterThenDays = true;
                 }
                 if (cleanPeriod.getWeeks() > 0) {
-                    startInterval = startInterval.minusWeeks(cleanPeriod.getWeeks()).withDayOfWeek(1);
-                    endInterval = startInterval.plusWeeks(cleanPeriod.getWeeks()).withDayOfWeek(1).minusDays(1);
+                    startDateTime = startDateTime.minusWeeks(cleanPeriod.getWeeks()).withDayOfWeek(1);
+                    endDateTime = startDateTime.plusWeeks(cleanPeriod.getWeeks()).withDayOfWeek(1).minusDays(1);
                     greaterThenDays = true;
                 }
                 if (cleanPeriod.getDays() > 0) {
-                    startInterval = startInterval.minusDays(cleanPeriod.getDays()).withTime(0, 0, 0, 0);
-                    endInterval = startInterval.plusDays(cleanPeriod.getDays()).minusSeconds(1);
+                    startDateTime = startDateTime.minusDays(cleanPeriod.getDays()).withTime(0, 0, 0, 0);
+                    endDateTime = startDateTime.plusDays(cleanPeriod.getDays()).minusSeconds(1);
                     greaterThenDays = true;
                 }
                 if (cleanPeriod.getHours() > 0) {
-                    startInterval = startInterval.minusHours(cleanPeriod.getHours());
+                    startDateTime = startDateTime.minusHours(cleanPeriod.getHours());
                 }
                 if (cleanPeriod.getMinutes() > 0) {
-                    startInterval = startInterval.minusMinutes(cleanPeriod.getMinutes());
+                    startDateTime = startDateTime.minusMinutes(cleanPeriod.getMinutes());
                 }
                 if (cleanPeriod.getSeconds() > 0) {
-                    startInterval = startInterval.minusSeconds(cleanPeriod.getSeconds());
+                    startDateTime = startDateTime.minusSeconds(cleanPeriod.getSeconds());
                 }
 
                 if (greaterThenDays) {
-                    startInterval = new DateTime(startInterval.getYear(), startInterval.getMonthOfYear(), startInterval.getDayOfMonth(),
+                    startDateTime = new DateTime(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth(),
                             dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond());
-                    endInterval = new DateTime(endInterval.getYear(), endInterval.getMonthOfYear(), endInterval.getDayOfMonth(),
+                    endDateTime = new DateTime(endDateTime.getYear(), endDateTime.getMonthOfYear(), endDateTime.getDayOfMonth(),
                             dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond());
 
                     if (dtEnd.isBefore(dtStart)) {
-                        startInterval = startInterval.minusDays(1);
+                        startDateTime = startDateTime.minusDays(1);
                     }
                 }
 
                 CleanInterval currentInterval;
                 if (!greaterThenDays) {
-                    Interval interval = new Interval(startInterval.plusSeconds(1), endInterval);
-                    currentInterval = new CleanInterval(interval, endInterval);
-                    currentInterval.getResult().setTimeStamp(endInterval);
+                    Interval interval = null;
+                    if (rawPeriod.equals(Period.minutes(15)) && cleanPeriod.equals(Period.minutes(5))) {
+                        interval = new Interval(startDateTime.minusMinutes(5).plusSeconds(1), endDateTime.plusMinutes(5));
+                    } else {
+                        interval = new Interval(startDateTime.plusSeconds(1), endDateTime);
+                    }
+
+                    currentInterval = new CleanInterval(interval, endDateTime);
+                    currentInterval.getResult().setTimeStamp(endDateTime);
                 } else if (!isDifferential) {
-                    Interval interval = new Interval(startInterval.plusSeconds(1), endInterval.plusSeconds(1));
-                    currentInterval = new CleanInterval(interval, startInterval);
-                    currentInterval.getResult().setTimeStamp(startInterval);
+                    Interval interval = new Interval(startDateTime.plusSeconds(1), endDateTime.plusSeconds(1));
+                    currentInterval = new CleanInterval(interval, startDateTime);
+                    currentInterval.getResult().setTimeStamp(startDateTime);
                 } else {
-                    Interval interval = new Interval(startInterval.plusSeconds(1), endInterval.plusSeconds(1));
-                    currentInterval = new CleanInterval(interval, endInterval.plusSeconds(1));
-                    currentInterval.getResult().setTimeStamp(endInterval.plusSeconds(1));
+                    Interval interval = new Interval(startDateTime.plusSeconds(1), endDateTime.plusSeconds(1));
+                    currentInterval = new CleanInterval(interval, endDateTime.plusSeconds(1));
+                    currentInterval.getResult().setTimeStamp(endDateTime.plusSeconds(1));
                 }
 
                 currentInterval.setInputPeriod(rawPeriod);
                 currentInterval.setOutputPeriod(cleanPeriod);
                 currentInterval.setDifferential(isDifferential);
+                currentInterval.setCompare(periodComparator.compare(cleanPeriod, rawPeriod));
                 cleanIntervals.add(currentInterval);
 
                 lastDate = currentDate;

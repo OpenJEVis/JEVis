@@ -25,8 +25,8 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameEditor;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -40,20 +40,19 @@ public class LoadDashboardDialog extends JFXDialog {
     private Response response = Response.CANCEL;
     private JEVisObject selectedDashboard = null;
     private final JFXTextField filterInput = new JFXTextField();
-    private JFXDatePicker pickerDateEnd = new JFXDatePicker();
+    private final JFXDatePicker pickerDateEnd = new JFXDatePicker();
     private final FilteredList<JEVisObject> filteredData;
     private final JFXListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
     private JFXButton loadButton;
     private JFXButton newButton;
     private JFXButton cancelButton;
-    private ToolBarIntervalSelector toolBarIntervalSelector;
+    private final ToolBarIntervalSelector toolBarIntervalSelector;
     private Interval selectedInterval = null;
-    private TimeFrameFactory selectedTimeFactory = null;
-    private DateTime selectedDateTime = null;
+    private final DateTime selectedDateTime = null;
+    private final DashboardControl control;
     JFXButton dateButton = new JFXButton("");
-
-    private DashboardControl control;
+    private TimeFrame selectedTimeFactory = null;
 
     public LoadDashboardDialog(StackPane dialogContainer, JEVisDataSource ds, DashboardControl control) {
         this.control = control;
@@ -167,7 +166,7 @@ public class LoadDashboardDialog extends JFXDialog {
         return selectedDashboard;
     }
 
-    public TimeFrameFactory getTimeFrameFactory() {
+    public TimeFrame getTimeFrameFactory() {
         return this.selectedTimeFactory;
     }
 

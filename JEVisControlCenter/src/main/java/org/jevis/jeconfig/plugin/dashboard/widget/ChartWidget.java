@@ -93,9 +93,12 @@ public class ChartWidget extends Widget implements DataModelWidget {
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
 
-
         try {
-            Platform.runLater(() -> this.legend.getItems().clear());
+            Platform.runLater(() -> {
+                this.borderPane.setCenter(null);
+                this.legend.getItems().clear();
+            });
+
             this.sampleHandler.getDataModel().forEach(chartDataModel -> {
                 try {
                     String dataName = chartDataModel.getObject().getName();
@@ -115,8 +118,6 @@ public class ChartWidget extends Widget implements DataModelWidget {
             ChartSetting chartSetting = new ChartSetting(0, "");
             chartSetting.setChartType(null);
             model.getCharts().setListSettings(Collections.singletonList(chartSetting));
-
-            this.borderPane.setCenter(null);
 
             boolean isOnlyTable = true;
             for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
@@ -252,7 +253,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(true);
 
         this.legend.setAlignment(Pos.CENTER);

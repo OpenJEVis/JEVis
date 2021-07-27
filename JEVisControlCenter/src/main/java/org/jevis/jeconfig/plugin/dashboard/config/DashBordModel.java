@@ -24,8 +24,8 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -125,15 +125,15 @@ public class DashBordModel {
     public final ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
     private final List<ChangeListener> changeListeners = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
-    private ObjectMapper mapper = new ObjectMapper();
-    private final TimeFrames timeFrames;
-    public final ObjectProperty<TimeFrameFactory> timeFrameProperty;
+    public final ObjectProperty<TimeFrame> timeFrameProperty;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final TimeFrameFactory timeFrameFactory;
     private JEVisObject analysisObject;
-    private List<WidgetConfig> widgetList = new ArrayList<>();
+    private final List<WidgetConfig> widgetList = new ArrayList<>();
     /**
      * Lower and upper Zoom limit
      */
-    private double[] zoomLimit = new double[]{0.2, 3};
+    private final double[] zoomLimit = new double[]{0.2, 3};
     /**
      * Zoom factor for the dashbord view.
      * 1 is no zoom
@@ -173,15 +173,15 @@ public class DashBordModel {
 
     public DashBordModel(JEVisDataSource jeVisDataSource) {
         this.jeVisDataSource = jeVisDataSource;
-        this.timeFrames = new TimeFrames(jeVisDataSource);
-        this.timeFrameProperty = new SimpleObjectProperty<>(this.timeFrames.day());
+        this.timeFrameFactory = new TimeFrameFactory(jeVisDataSource);
+        this.timeFrameProperty = new SimpleObjectProperty<>(this.timeFrameFactory.day());
     }
 
     public DashBordModel(JEVisObject analysisObject) throws JEVisException {
         this.analysisObject = analysisObject;
         this.jeVisDataSource = analysisObject.getDataSource();
-        this.timeFrames = new TimeFrames(this.jeVisDataSource);
-        this.timeFrameProperty = new SimpleObjectProperty<>(this.timeFrames.day());
+        this.timeFrameFactory = new TimeFrameFactory(this.jeVisDataSource);
+        this.timeFrameProperty = new SimpleObjectProperty<>(this.timeFrameFactory.day());
 
 
         load();
@@ -219,9 +219,9 @@ public class DashBordModel {
                 String defaultPeriodStrg = jsonNode.get("defaultPeriod").asText(Period.days(1).toString());
 //                System.out.println("Default period: " + defaultPeriodStrg);
 
-                for (TimeFrameFactory timeFrameFactory : this.timeFrames.getAll()) {
-                    if (timeFrameFactory.getID().equals(defaultPeriodStrg)) {
-                        this.timeFrameProperty.setValue(timeFrameFactory);
+                for (TimeFrame timeFrame : this.timeFrameFactory.getAll()) {
+                    if (timeFrame.getID().equals(defaultPeriodStrg)) {
+                        this.timeFrameProperty.setValue(timeFrame);
                     }
                 }
 

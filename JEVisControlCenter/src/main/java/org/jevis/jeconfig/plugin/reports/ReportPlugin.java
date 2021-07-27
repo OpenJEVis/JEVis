@@ -95,7 +95,7 @@ public class ReportPlugin implements Plugin {
 
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
-        sortedList.setComparator(alphanumComparator);
+        sortedList.setComparator(alphanumComparator.reversed());
         fileComboBox.setItems(sortedList);
 
         VBox view = new VBox(pagination);

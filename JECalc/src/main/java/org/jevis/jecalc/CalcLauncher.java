@@ -19,6 +19,7 @@ import org.jevis.commons.task.Task;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 
@@ -152,6 +153,9 @@ public class CalcLauncher extends AbstractCliApp {
                 }
             }
         }
+
+        Collections.shuffle(enabledObjects);
+
         return enabledObjects;
     }
 

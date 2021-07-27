@@ -479,7 +479,7 @@ public class CleanDataObject {
                     Period p = new Period(periodString);
                     periodRawData.add(new PeriodRule(startOfPeriod, p));
                 } catch (Exception e) {
-                    logger.error("Could not create Period rule for sample {}", jeVisSample, e);
+                    logger.error("Could not create Period rule for sample {} of object {}:{}", jeVisSample, getRawDataObject().getName(), getRawDataObject().getID(), e);
                 }
             }
 
@@ -922,24 +922,37 @@ public class CleanDataObject {
 
             firstDate = PeriodHelper.alignDateToPeriod(firstDate, maxPeriod, getCleanObject());
 
-            DateTime lastDate = getLastRawDate();
+            DateTime lastRawDate = getLastRawDate();
+            DateTime lastDate1 = firstDate;
+            DateTime lastDate2 = firstDate;
+            DateTime lastDate;
 
             Period rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), firstDate);
-            long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
+            if (!rawDataPeriod.equals(Period.ZERO)) {
+                long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate1), rawDataPeriod);
 
-            while (l > processingSize * 2d) {
-                rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), lastDate);
-                lastDate = lastDate.minus(rawDataPeriod);
-                l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
+                while (l <= processingSize * 2d && (lastDate1.isBefore(lastRawDate) || lastDate1.equals(lastRawDate))) {
+                    rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), lastDate1);
+                    lastDate1 = lastDate1.plus(rawDataPeriod);
+                    l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate1), rawDataPeriod);
+                }
             }
 
             Period cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), firstDate);
-            l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), cleanDataPeriod);
+            if (!cleanDataPeriod.equals(Period.ZERO)) {
+                long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate2), cleanDataPeriod);
 
-            while (l > processingSize * 2d) {
-                cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), lastDate);
-                lastDate = lastDate.minus(cleanDataPeriod);
-                l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), cleanDataPeriod);
+                while (l <= processingSize * 2d && (lastDate2.isBefore(lastRawDate) || lastDate2.equals(lastRawDate))) {
+                    cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), lastDate2);
+                    lastDate2 = lastDate2.plus(cleanDataPeriod);
+                    l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate2), cleanDataPeriod);
+                }
+            }
+
+            if (lastDate1.isBefore(lastDate2)) {
+                lastDate = lastDate1;
+            } else {
+                lastDate = lastDate2;
             }
 
             rawSamplesDown = sampleHandler.getSamplesInPeriod(

@@ -516,7 +516,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(true);
 
         this.legend.setAlignment(Pos.CENTER);

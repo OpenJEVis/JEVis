@@ -27,6 +27,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -47,6 +48,7 @@ import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -97,7 +99,7 @@ public class XYChart implements Chart {
     AtomicBoolean addManipulationToTitle;
     AtomicReference<ManipulationMode> manipulationMode;
     Boolean[] changedBoth;
-    private final DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
+    private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
     WorkDays workDays = new WorkDays(null);
     boolean hasSecondAxis = false;
     private final StringBuilder regressionFormula = new StringBuilder();
@@ -890,11 +892,40 @@ public class XYChart implements Chart {
     }
 
     public void updateXAxisLabel(DateTime firstTS, DateTime lastTS) {
+        DateTime start = firstTS;
+        DateTime end = lastTS;
+        try {
+            AggregationPeriod aggregationPeriod = chartDataRows.stream().findFirst().map(ChartDataRow::getAggregationPeriod).orElse(AggregationPeriod.NONE);
+            if (analysisDataModel.isCustomWorkDay() && workDays != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart()) && new Interval(start, end).toDuration().getStandardDays() > 5) {
+                switch (aggregationPeriod) {
+                    case NONE:
+                    case MINUTELY:
+                    case QUARTER_HOURLY:
+                        dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
+                        break;
+                    case HOURLY:
+                    case DAILY:
+                    case WEEKLY:
+                    case MONTHLY:
+                    case QUARTERLY:
+                    case YEARLY:
+                    case THREEYEARS:
+                    case FIVEYEARS:
+                    case TENYEARS:
+                        start = start.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0);
+                        end = end.plusDays(1).withHourOfDay(23).withMinuteOfHour(23).withSecondOfMinute(59);
+                        dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy");
+                        break;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not determine period", e);
+        }
 
         String overall = String.format("%s %s %s",
-                dtfOutLegend.print(firstTS),
+                dtfOutLegend.print(start),
                 I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
-                dtfOutLegend.print(lastTS));
+                dtfOutLegend.print(end));
 
         Platform.runLater(() -> dateAxis.setUnit(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall));
     }

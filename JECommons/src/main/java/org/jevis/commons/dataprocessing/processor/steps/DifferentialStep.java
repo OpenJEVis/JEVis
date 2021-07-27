@@ -11,11 +11,11 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
-import org.jevis.commons.datetime.PeriodComparator;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -39,11 +39,10 @@ public class DifferentialStep implements ProcessStep {
         List<DifferentialRule> listConversionToDifferential = cleanDataObject.getDifferentialRules();
         List<JEVisSample> listCounterOverflow = cleanDataObject.getCounterOverflow();
         Map<DateTime, JEVisSample> userDataMap = resourceManager.getUserDataMap();
-        PeriodComparator periodComparator = new PeriodComparator();
 
         int rawPointer = 0;
         for (CleanInterval interval : intervals) {
-            int compare = periodComparator.compare(interval.getOutputPeriod(), interval.getInputPeriod());
+            int compare = interval.getCompare();
 
             DateTime start = interval.getInterval().getStart();
             DateTime end = interval.getInterval().getEnd();
@@ -57,15 +56,51 @@ public class DifferentialStep implements ProcessStep {
                     jeVisSample = userDataMap.get(timeStamp);
                 }
 
-                if (compare > 0 && timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
+                if (compare > 0 && (timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end)))) {
                     //raw data  period is smaller then clean data period, e.g. 15-minute values -> day values
                     interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
-                } else if (compare < 0 && timeStamp.equals(end)) {
+                } else if (compare < 0 && ((timeStamp.equals(end) && !interval.getOutputPeriod().equals(Period.minutes(5)))
+                        || (interval.getOutputPeriod().equals(Period.minutes(5)) && (timeStamp.equals(interval.getInterval().getEnd()) || (timeStamp.isAfter(interval.getInterval().getStart()) && timeStamp.isBefore(interval.getInterval().getEnd())))))) {
                     //raw data  period is bigger then clean data period, e.g. day values -> 15-minute values
-                    interval.getRawSamples().add(jeVisSample);
+
+                    if (interval.getOutputPeriod().equals(Period.minutes(5))) {
+                        if (interval.isDifferential()) {
+                            if (rawPointer == 1) {
+                                Double newValue = jeVisSample.getValueAsDouble() - ((jeVisSample.getValueAsDouble() - rawSamples.get(0).getValueAsDouble()) / 2);
+                                VirtualSample virtualSample = new VirtualSample(timeStamp, newValue);
+                                virtualSample.setNote(jeVisSample.getNote());
+                                interval.getRawSamples().add(virtualSample);
+                                rawPointer--;
+                                break;
+                            } else if (rawPointer > 1 && (interval.getDate().getMinuteOfHour() % 5 == 0 || interval.getDate().getMinuteOfHour() % 10 == 0)) {
+                                Double newValue = jeVisSample.getValueAsDouble() - ((jeVisSample.getValueAsDouble() - rawSamples.get(rawPointer - 1).getValueAsDouble()) / 2);
+                                VirtualSample virtualSample = new VirtualSample(timeStamp, newValue);
+                                virtualSample.setNote(jeVisSample.getNote());
+                                interval.getRawSamples().add(virtualSample);
+                                rawPointer--;
+                                break;
+                            } else if (rawPointer > 1 && rawSamples.size() > rawPointer + 1 && (interval.getDate().getMinuteOfHour() == 0 || interval.getDate().getMinuteOfHour() % 15 == 0)) {
+                                Double newValue = jeVisSample.getValueAsDouble() - ((rawSamples.get(rawPointer + 1).getValueAsDouble() - rawSamples.get(rawPointer - 1).getValueAsDouble()) / 3);
+                                VirtualSample virtualSample = new VirtualSample(timeStamp, newValue);
+                                virtualSample.setNote(jeVisSample.getNote());
+                                interval.getRawSamples().add(virtualSample);
+                                rawPointer--;
+                                break;
+                            } else interval.getRawSamples().add(jeVisSample);
+                        } else {
+                            interval.getRawSamples().add(jeVisSample);
+                            if (rawPointer > 0) {
+                                rawPointer--;
+                            }
+                            break;
+                        }
+                    } else {
+                        interval.getRawSamples().add(jeVisSample);
+                    }
+
                     rawPointer++;
-                } else if (compare == 0 && timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
+                } else if (compare == 0 && (timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end)))) {
                     //raw data period equal clean data period
                     interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
@@ -219,7 +254,17 @@ public class DifferentialStep implements ProcessStep {
                             note += "avg";
                         }
                     } else if (currentRawSamples != null) {
-                        currentValue = calcSumSample(currentRawSamples);
+                        if (interval.getCompare() < 0 && interval.getOutputPeriod().equals(Period.minutes(5))) {
+                            double df = 3d;
+                            try {
+                                df = (double) interval.getInputPeriod().toStandardDuration().getMillis() / (double) interval.getOutputPeriod().toStandardDuration().getMillis();
+                            } catch (Exception e) {
+                                logger.error("Could not determine periods for div factor", e);
+                            }
+                            currentValue = calcDiffSample(currentRawSamples, df);
+                        } else {
+                            currentValue = calcSumSample(currentRawSamples);
+                        }
                         interval.getResult().setValue(currentValue);
 
                         int size = currentRawSamples.size();
@@ -263,6 +308,19 @@ public class DifferentialStep implements ProcessStep {
             try {
                 Double valueAsDouble = sample.getValueAsDouble();
                 value += valueAsDouble;
+            } catch (JEVisException ex) {
+                logger.error(ex);
+            }
+        }
+        return value;
+    }
+
+    private Double calcDiffSample(List<JEVisSample> currentRawSamples, double df) {
+        Double value = 0.0;
+        for (JEVisSample sample : currentRawSamples) {
+            try {
+                Double valueAsDouble = sample.getValueAsDouble();
+                value = valueAsDouble / df;
             } catch (JEVisException ex) {
                 logger.error(ex);
             }

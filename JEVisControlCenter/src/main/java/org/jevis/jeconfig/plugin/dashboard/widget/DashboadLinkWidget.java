@@ -28,7 +28,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -50,7 +50,7 @@ public class DashboadLinkWidget extends Widget {
     public static ObjectMapper objectMapper = new ObjectMapper();
 
     JFXButton linkButton = new JFXButton("", JEConfig.getImage("if_dashboard_46791.png", 20, 20));
-    private TimeFrameFactory selectedTimeFrameFactory;
+    private TimeFrame selectedTimeFrame;
     private Interval lastInterval = null;
     private JEVisObject linkedDashboardObj;
 
@@ -88,7 +88,7 @@ public class DashboadLinkWidget extends Widget {
                 showProgressIndicator(false);
             });
 
-            selectedTimeFrameFactory = control.getActiveDashboard().getTimeFrame();
+            selectedTimeFrame = control.getActiveDashboard().getTimeFrame();
 //            linkedDashboardObj = getDataSource().getObject(3799l);
 
             linkButton.setStyle("-fx-background-color: transparent;");
@@ -96,7 +96,7 @@ public class DashboadLinkWidget extends Widget {
             linkButton.setOnAction(event -> {
                 if (linkedDashboardObj != null) {
                     control.selectDashboard(linkedDashboardObj);
-                    control.setActiveTimeFrame(selectedTimeFrameFactory);
+                    control.setActiveTimeFrame(selectedTimeFrame);
                     control.setInterval(interval);
                 }
             });

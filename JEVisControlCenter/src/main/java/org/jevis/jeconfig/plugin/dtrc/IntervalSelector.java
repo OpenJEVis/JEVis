@@ -13,9 +13,9 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameEditor;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -24,7 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class IntervalSelector extends ToolBarIntervalSelector {
-    private final SimpleObjectProperty<TimeFrameFactory> activeTimeFrame = new SimpleObjectProperty<>(new TimeFrameFactory() {
+    private final SimpleObjectProperty<TimeFrame> activeTimeFrame = new SimpleObjectProperty<>(new TimeFrame() {
         @Override
         public String getListName() {
             return "";
@@ -66,7 +66,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         }
     });
 
-    private final TimeFrames timeFrames;
+    private final TimeFrameFactory timeFrameFactory;
     private final JFXDatePicker startDatePicker;
     private final JFXTimePicker startTimePicker;
     private final JFXDatePicker endDatePicker;
@@ -87,7 +87,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
 
         interval = new Interval(start, end);
 
-        this.timeFrames = new TimeFrames(ds);
+        this.timeFrameFactory = new TimeFrameFactory(ds);
 
         this.setAlignment(Pos.CENTER_LEFT);
         JFXButton dateButton = new JFXButton("");
@@ -99,7 +99,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         timeFactoryBox.setPrefWidth(200);
         timeFactoryBox.setMinWidth(200);
 
-        timeFactoryBox.getItems().setAll(timeFrames.getAll());
+        timeFactoryBox.getItems().setAll(timeFrameFactory.getAll());
 
 //        dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
 //        dateButton.setTooltip(new Tooltipcontroller.getInterval().toString()));

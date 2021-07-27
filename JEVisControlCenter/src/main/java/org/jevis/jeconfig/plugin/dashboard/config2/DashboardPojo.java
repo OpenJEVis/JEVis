@@ -3,7 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.paint.Color;
 import org.jevis.api.JEVisObject;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -29,7 +29,7 @@ public class DashboardPojo {
 
     public Size size = Size.DEFAULT;
 
-    private TimeFrameFactory timeFrame = new TimeFrameFactory() {
+    private TimeFrame timeFrame = new TimeFrame() {
         @Override
         public String getListName() {
             return "";
@@ -237,11 +237,11 @@ public class DashboardPojo {
         this.size = size;
     }
 
-    public TimeFrameFactory getTimeFrame() {
+    public TimeFrame getTimeFrame() {
         return this.timeFrame;
     }
 
-    public void setTimeFrame(TimeFrameFactory timeFrame) {
+    public void setTimeFrame(TimeFrame timeFrame) {
         this.timeFrame = timeFrame;
     }
 }

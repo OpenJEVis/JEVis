@@ -24,8 +24,8 @@ import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetIDs;
 import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 import org.joda.time.DateTime;
@@ -49,7 +49,7 @@ public class ConfigManager {
     private final JEVisDataSource jeVisDataSource;
     private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(ConfigManager.class);
-    private final TimeFrames timeFrames;
+    private final TimeFrameFactory timeFrameFactory;
     private JEVisObject dashboardObject = null;
     private final ObjectRelations objectRelations;
 
@@ -57,7 +57,7 @@ public class ConfigManager {
         this.dialogPane = dialogPane;
         this.jeVisDataSource = dataSource;
         this.objectRelations = new ObjectRelations(jeVisDataSource);
-        this.timeFrames = new TimeFrames(this.jeVisDataSource);
+        this.timeFrameFactory = new TimeFrameFactory(this.jeVisDataSource);
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -154,7 +154,6 @@ public class ConfigManager {
             dashboardPojo.setTitle(this.dashboardObject.getName());
         }
 
-
         try {
 
             try {
@@ -167,21 +166,25 @@ public class ConfigManager {
 
             try {
                 String defaultPeriodStrg = jsonNode.get(DEFAULT_PERIOD).asText(Period.days(2).toString());
-                for (TimeFrameFactory timeFrameFactory : this.timeFrames.getAll()) {
+                if (dashboardObject != null) {
+                    this.timeFrameFactory.setActiveDashboard(dashboardObject);
+                }
+
+                for (TimeFrame timeFrame : this.timeFrameFactory.getAll()) {
 //                    System.out.println("tf: " + timeFrameFactory.getID());
-                    if (timeFrameFactory.getID().equals(defaultPeriodStrg)) {
-                        dashboardPojo.setTimeFrame(timeFrameFactory);
+                    if (timeFrame.getID().equals(defaultPeriodStrg)) {
+                        dashboardPojo.setTimeFrame(timeFrame);
                     }
                 }
+
                 if (dashboardPojo.getTimeFrame() == null) {
                     logger.error("Missing Timeframe: {}  ", defaultPeriodStrg);
-
                 }
 
 
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", DEFAULT_PERIOD, ex);
-                dashboardPojo.setTimeFrame(this.timeFrames.week());
+                dashboardPojo.setTimeFrame(this.timeFrameFactory.week());
             }
 
 
@@ -364,7 +367,7 @@ public class ConfigManager {
 
     public DashboardPojo createEmptyDashboard() {
         DashboardPojo empty = new DashboardPojo();
-        TimeFrameFactory factory = this.timeFrames.day();
+        TimeFrame factory = this.timeFrameFactory.day();
         empty.setTimeFrame(factory);
         empty.setInterval(new Interval(new DateTime(), new DateTime()));
         empty.setJevisObject(null);

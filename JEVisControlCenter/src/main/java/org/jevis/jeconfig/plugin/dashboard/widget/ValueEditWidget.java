@@ -271,7 +271,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
 
         GridPane gridPane = new GridPane();

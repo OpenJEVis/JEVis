@@ -31,6 +31,8 @@ import org.jevis.commons.calculation.CalcInputObject;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
@@ -45,6 +47,7 @@ import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -134,6 +137,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
+
                     total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
 
                     displayedSample.setValue(total.get());
@@ -391,7 +395,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.error("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
 
         nfPercent.setMaximumFractionDigits(0);
@@ -454,10 +458,24 @@ public class ValueWidget extends Widget implements DataModelWidget {
                                     objectName.setText(calcInputObject.getValueAttribute().getObject().getName());
                                 }
 
-                                JFXTextField value = new JFXTextField(calcInputObject.getSamples().get(0).getValueAsString() + " " +
-                                        UnitManager.getInstance().format(calcInputObject.getValueAttribute().getDisplayUnit()));
+                                JFXTextField field = new JFXTextField();
+                                field.setMinWidth(240);
+                                Double value = Double.NaN;
+                                DateTime date = new DateTime();
+                                String formatString = PeriodHelper.STANDARD_PATTERN;
+                                try {
+                                    value = calcInputObject.getSamples().get(0).getValueAsDouble();
+                                    date = calcInputObject.getSamples().get(0).getTimestamp();
+                                    Period periodForDate = CleanDataObject.getPeriodForDate(calcInputObject.getValueAttribute().getObject(), date);
+                                    formatString = PeriodHelper.getFormatString(periodForDate, false);
+                                } catch (Exception e) {
+                                    logger.error(e);
+                                }
 
-                                gp.addRow(row, objectName, value);
+                                field.setText(value + " " + UnitManager.getInstance().format(calcInputObject.getValueAttribute().getDisplayUnit())
+                                        + " @ " + date.toString(formatString));
+
+                                gp.addRow(row, objectName, field);
                                 row++;
                             }
                         } catch (Exception e) {

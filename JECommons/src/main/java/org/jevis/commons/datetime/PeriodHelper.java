@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 public class PeriodHelper {
     private static final Logger logger = LogManager.getLogger(PeriodHelper.class);
     private static final String CUSTOM_SCHEDULE_OBJECT_ATTRIBUTE = "Custom Schedule Object";
+    public static String STANDARD_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     public static double transformTimestampsToExcelTime(DateTime cal) {
         if (cal != null) {
