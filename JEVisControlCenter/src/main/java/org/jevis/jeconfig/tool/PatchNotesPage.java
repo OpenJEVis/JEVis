@@ -50,7 +50,36 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.53------\n" +
+            "------Version 3.9.54------\n" +
+                    "JECC - Add new data point creation template function\n" +
+                    "JECC - ChartPlugin - ChartDataRow - added enabled check\n" +
+                    "JECC - ChartPlugin - date axis formats timeframe string dependent on period\n" +
+                    "JECC - ConfigurationPlugin - SearchFilterBar - removed fixed background\n" +
+                    "JECC - DashboardPlugin - Feature, the value can not be disabled to allow percentage only mode\n" +
+                    "JECC - DashboardPlugin - fixed custom time frames\n" +
+                    "JECC - DashboardPlugin - fixed null pointer on reload\n" +
+                    "JECC - DashboardPlugin - fixed previous/next interval step on custom offset days\n" +
+                    "JECC - DashboardPlugin - its now possible to configure the decimal place in the ValueWidget\n" +
+                    "JECC - DashboardPlugin - new default dashboard size\n" +
+                    "JECC - DashboardPlugin - ValueWidget - added timestamp to calculation dialog\n" +
+                    "JECC - DashboardPlugin - Widget data link may not work properly\n" +
+                    "JECC - PluginManager - plugins are no longer dependent on existing type of object for better user role management\n" +
+                    "\n" +
+                    "Classes - Add basic translation for OPC UA Server, OPC UA Channel, User Role Directory and LoyteXML Output Channel\n" +
+                    "Classes - Added translation files for DWDWD Parser and User Data\n" +
+                    "\n" +
+                    "DataCollector - EmailDataSource - allowing more then one email for parsing readout\n" +
+                    "DataCollector - fixed wrong logger references\n" +
+                    "DataCollector - JEVisCSVParser - allowing substructure for datapoints\n" +
+                    "\n" +
+                    "JEAPI-WS - Shorter Error message for an common warning.\n" +
+                    "\n" +
+                    "JECommons - changed first timestamp from 2001 to 1990\n" +
+                    "\n" +
+                    "JEDataProcessor - allowing concurrent period aggregation and scaling/offset on values\n" +
+                    "JEDataProcessor - fixed max processing size error\n" +
+                    "JEDataProcessor - implemented 5-minute aggregation\n\n" +
+                    "------Version 3.9.53------\n" +
                     "JECC - AccountingPlugin - added classname to enter data tab\n" +
                     "JECC - AccountingPlugin - empty values are not resetting when changing config\n" +
                     "JECC - AccountingPlugin - saving doesn't respect selected name\n" +
