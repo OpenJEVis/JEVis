@@ -928,7 +928,8 @@ public class CleanDataObject {
             DateTime lastDate;
 
             Period rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), firstDate);
-            if (!rawDataPeriod.equals(Period.ZERO)) {
+            Period cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), firstDate);
+            if (!rawDataPeriod.equals(Period.ZERO) && !cleanDataPeriod.equals(Period.ZERO)) {
                 long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate1), rawDataPeriod);
 
                 while (l <= processingSize * 2d && (lastDate1.isBefore(lastRawDate) || lastDate1.equals(lastRawDate))) {
@@ -936,11 +937,8 @@ public class CleanDataObject {
                     lastDate1 = lastDate1.plus(rawDataPeriod);
                     l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate1), rawDataPeriod);
                 }
-            }
 
-            Period cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), firstDate);
-            if (!cleanDataPeriod.equals(Period.ZERO)) {
-                long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate2), cleanDataPeriod);
+                l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate2), cleanDataPeriod);
 
                 while (l <= processingSize * 2d && (lastDate2.isBefore(lastRawDate) || lastDate2.equals(lastRawDate))) {
                     cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), lastDate2);
@@ -951,8 +949,10 @@ public class CleanDataObject {
 
             if (lastDate1.isBefore(lastDate2)) {
                 lastDate = lastDate1;
-            } else {
+            } else if (lastDate2.isBefore(lastDate1)) {
                 lastDate = lastDate2;
+            } else {
+                lastDate = lastRawDate;
             }
 
             rawSamplesDown = sampleHandler.getSamplesInPeriod(
