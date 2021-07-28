@@ -25,6 +25,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * Creates empty interval classes from start date to end date
@@ -101,10 +102,9 @@ public class PrepareStep implements ProcessStep {
         LocalTime dtEnd = wd.getWorkdayEnd();
         DateTime maxEndDate = cleanDataObject.getMaxEndDate();
 
-        if (dtEnd.isBefore(dtStart)) {
-            int indexLastRawSample = cleanDataObject.getRawSamplesDown().size() - 1;
-            Period lastPeriod = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), cleanDataObject.getRawSamplesDown().get(indexLastRawSample).getTimestamp());
-
+        int indexLastRawSample = cleanDataObject.getRawSamplesDown().size() - 1;
+        Period lastPeriod = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), cleanDataObject.getRawSamplesDown().get(indexLastRawSample).getTimestamp());
+        if (dtEnd.isBefore(dtStart) && IntStream.of(lastPeriod.getYears(), lastPeriod.getMonths(), lastPeriod.getWeeks()).anyMatch(i -> i > 0)) {
             currentDate = currentDate.minus(lastPeriod);
             maxEndDate = maxEndDate.minus(lastPeriod);
         }
@@ -128,18 +128,18 @@ public class PrepareStep implements ProcessStep {
 
             //add half a period to maxEndDate
             if (firstCleanPeriod.getYears() > 0) {
-                currentDate = currentDate.minusYears(1);
+                currentDate = currentDate.minusYears(1).withMonthOfYear(1).withDayOfMonth(1);
                 maxEndDate = maxEndDate.plusMonths(6);
             }
             if (firstCleanPeriod.getMonths() > 0) {
-                currentDate = currentDate.minusMonths(1);
+                currentDate = currentDate.minusMonths(1).withDayOfMonth(1);
 
                 if (dtEnd.isBefore(dtStart)) {
                     maxEndDate = maxEndDate.plusMonths(1);
                 }
             }
             if (firstCleanPeriod.getWeeks() > 0) {
-                currentDate = currentDate.minusWeeks(1);
+                currentDate = currentDate.minusWeeks(1).withDayOfWeek(1);
                 maxEndDate = maxEndDate.plusDays(3).plusHours(12);
             }
             if (firstCleanPeriod.getDays() > 0) {
