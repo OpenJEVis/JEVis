@@ -69,6 +69,14 @@ public abstract class Widget extends Region {
 
     }
 
+    public Widget() {
+        super();
+        this.config = new WidgetPojo();
+        this.config.setUuid(-1);
+        this.control = null;
+        this.jeVisDataSource = null;
+    }
+
     public Widget(DashboardControl control, WidgetPojo config) {
         super();
         logger.debug("new Widget with config");

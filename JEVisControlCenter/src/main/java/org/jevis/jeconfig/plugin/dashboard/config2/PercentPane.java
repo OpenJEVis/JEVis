@@ -39,9 +39,13 @@ public class PercentPane extends GridPane {
     }
 
     private void initControls() {
+        ValueWidget emptyWidget = new ValueWidget();
+        emptyWidget.getConfig().setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.nolink"));
+        if (!widgetList.contains(emptyWidget)) {
+            widgetList.add(0, emptyWidget);
+        }
+        widgetBox = new JFXComboBox<>(widgetList.filtered(widget -> widget.typeID().equals(ValueWidget.WIDGET_ID)));
 
-        widgetBox = new JFXComboBox<>(
-                widgetList.filtered(widget -> widget.typeID().equals(ValueWidget.WIDGET_ID)));
         Callback<ListView<Widget>, ListCell<Widget>> cellFactory = new Callback<ListView<Widget>, ListCell<Widget>>() {
             @Override
             public ListCell<Widget> call(ListView<Widget> param) {
@@ -60,6 +64,7 @@ public class PercentPane extends GridPane {
                                         item.getConfig().getUuid(),
                                         title,
                                         widget.getDisplayedSampleProperty().getValue()));
+
                             } catch (Exception ex) {
                                 logger.error(ex);
                                 setText(item.toString());
@@ -88,5 +93,4 @@ public class PercentPane extends GridPane {
 
 
     }
-
 }

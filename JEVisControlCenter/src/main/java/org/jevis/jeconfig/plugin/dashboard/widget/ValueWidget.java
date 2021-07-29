@@ -88,6 +88,11 @@ public class ValueWidget extends Widget implements DataModelWidget {
         super(control);
     }
 
+    public ValueWidget() {
+        super();
+        setId(WIDGET_ID);
+    }
+
     @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
