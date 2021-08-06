@@ -22,7 +22,6 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.*;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
@@ -150,10 +149,10 @@ public class WidgetTreePlugin implements TreePlugin {
     public void setTree(JEVisTree tree) {
         this.jeVisTree = tree;
         try {
-            Benchmark benchmark = new Benchmark();
+            //Benchmark benchmark = new Benchmark();
             this.targetCalcMap = getENPICalcMap();
             this.cleanDataClass = tree.getJEVisDataSource().getJEVisClass("Clean Data");
-            benchmark.printBechmark("Loading ENPI IDs");
+            //benchmark.printBechmark("Loading ENPI IDs");
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -394,15 +394,15 @@ public class DashboardControl {
             resetDashboard();
             resetView();
 
-            if (object == null) {  /** Create new Dashboard**/
+            if (object == null) {  /* Create new Dashboard*/
                 this.activeDashboard = new DashboardPojo();
                 this.activeDashboard.setTitle("New Dashboard");
                 this.activeDashboard.setTimeFrame(timeFrameFactory.day());
-              
+
                 /** Now we use 1920 x 1080 (minus the boarders) as default for all **/
                 Size pluginSize = new Size(886.0, 1863.0);
                 //Size pluginSize = dashBordPlugIn.getPluginSize();
-              
+
                 pluginSize.setHeight(pluginSize.getHeight() - 10);
                 pluginSize.setWidth(pluginSize.getWidth() - 10);
                 this.activeDashboard.setSize(pluginSize);
