@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
@@ -66,6 +67,9 @@ public class ConfigManager {
 
     public JsonNode readDashboardFile(JEVisObject dashboardObject) throws Exception {
         this.dashboardObject = dashboardObject;
+        if (dashboardObject.getDataSource() instanceof JEVisDataSourceWS) {
+            dashboardObject.getDataSource().reloadAttribute(dashboardObject);
+        }
         JEVisSample lastConfigSample = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
         JEVisFile file = lastConfigSample.getValueAsFile();
         JsonNode jsonNode = this.mapper.readTree(file.getBytes());
