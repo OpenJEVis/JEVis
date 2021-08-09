@@ -78,6 +78,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     public static String LIMIT_NODE_NAME = "limit";
     private Percent percent;
+    private Boolean customWorkday = true;
 
     public ValueWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -135,6 +136,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
+                dataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
 
                 String unit = dataModel.getUnitLabel();
@@ -213,6 +215,11 @@ public class ValueWidget extends Widget implements DataModelWidget {
     @Override
     public void setDataHandler(DataModelDataHandler dataHandler) {
         this.sampleHandler = dataHandler;
+    }
+
+    @Override
+    public void setCustomWorkday(Boolean customWorkday) {
+        this.customWorkday = customWorkday;
     }
 
     @Override

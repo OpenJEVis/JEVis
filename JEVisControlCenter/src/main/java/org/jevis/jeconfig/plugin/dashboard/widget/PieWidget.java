@@ -50,6 +50,7 @@ public class PieWidget extends Widget implements DataModelWidget {
     private final BorderPane borderPane = new BorderPane();
     private final VBox legendPane = new VBox();
     private Interval lastInterval;
+    private Boolean customWorkday = true;
 
     public PieWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -104,6 +105,7 @@ public class PieWidget extends Widget implements DataModelWidget {
         for (ChartDataRow dataModel : this.sampleHandler.getDataModel()) {
             try {
 //                chartDataModel.setAbsolute(true);
+                dataModel.setCustomWorkDay(customWorkday);
                 Double dataModelTotal = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), dataModel.getSamples(), dataModel);
                 total.set(total.get() + dataModelTotal);
                 logger.debug("dataModelTotal: [{}] {}", dataModel.getObject().getName(), dataModelTotal);
@@ -335,6 +337,11 @@ public class PieWidget extends Widget implements DataModelWidget {
     @Override
     public void setDataHandler(DataModelDataHandler dataHandler) {
         this.sampleHandler = dataHandler;
+    }
+
+    @Override
+    public void setCustomWorkday(Boolean customWorkday) {
+        this.customWorkday = customWorkday;
     }
 
 //    public class PieChart2 extends PieChart {

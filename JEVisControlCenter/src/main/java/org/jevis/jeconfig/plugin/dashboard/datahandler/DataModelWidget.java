@@ -5,4 +5,6 @@ public interface DataModelWidget {
     DataModelDataHandler getDataHandler();
 
     void setDataHandler(DataModelDataHandler dataHandler);
+
+    void setCustomWorkday(Boolean customWorkday);
 }

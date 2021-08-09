@@ -47,6 +47,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     private Interval lastInterval = null;
     private final BorderPane bottomBorderPane = new BorderPane();
     private List<JEVisPlotItem> plotItems = new ArrayList<>();
+    private Boolean customWorkday = true;
 
     public SankeyWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -96,6 +97,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
             this.sampleHandler.getDataModel().forEach(dataModel -> {
                 try {
+                    dataModel.setCustomWorkDay(customWorkday);
                     System.out.println("sampleHandler.getDataModel().forEach: " + dataModel.getObject().getID());
                     System.out.println("Plot Items: " + plotItems);
                     String dataName = dataModel.getObject().getName();
@@ -561,6 +563,11 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     @Override
     public void setDataHandler(DataModelDataHandler dataHandler) {
         this.sampleHandler = dataHandler;
+    }
+
+    @Override
+    public void setCustomWorkday(Boolean customWorkday) {
+        this.customWorkday = customWorkday;
     }
 
     public class JEVisPlotItem extends PlotItem {

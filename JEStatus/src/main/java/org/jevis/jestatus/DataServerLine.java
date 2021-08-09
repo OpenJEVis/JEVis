@@ -4,14 +4,14 @@ import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
 
 public class DataServerLine {
-    private StringBuilder lineString = new StringBuilder();
+    private final StringBuilder lineString = new StringBuilder();
     private String name;
     private Long id;
     private String nameTarget;
     private String organizationName;
     private String buildingName;
     private JEVisObject targetObject;
-    private DateTime lastTimeStamp;
+    private DateTime lastTimeStamp = new DateTime();
 
     public DataServerLine() {
     }
