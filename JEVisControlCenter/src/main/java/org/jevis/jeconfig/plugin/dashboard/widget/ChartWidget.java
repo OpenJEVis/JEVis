@@ -50,6 +50,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
     private final BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
     private final BorderPane bottomBorderPane = new BorderPane();
+    private Boolean customWorkDay = true;
 
     public ChartWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -115,6 +116,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
              */
             AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
             model.setHideShowIconsNO_EVENT(false);
+            model.setCustomWorkDayNO_EVENT(customWorkDay);
             ChartSetting chartSetting = new ChartSetting(0, "");
             chartSetting.setChartType(null);
             model.getCharts().setListSettings(Collections.singletonList(chartSetting));
@@ -298,6 +300,11 @@ public class ChartWidget extends Widget implements DataModelWidget {
     @Override
     public void setDataHandler(DataModelDataHandler dataHandler) {
         this.sampleHandler = dataHandler;
+    }
+
+    @Override
+    public void setCustomWorkday(Boolean customWorkday) {
+        this.customWorkDay = customWorkday;
     }
 
 }

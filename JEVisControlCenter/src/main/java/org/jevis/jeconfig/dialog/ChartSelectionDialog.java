@@ -54,6 +54,7 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.tool.NumberSpinner;
+import org.jevis.jeconfig.tool.ScreenSize;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 
 import java.math.BigDecimal;
@@ -143,7 +144,7 @@ public class ChartSelectionDialog extends JFXDialog {
 
         VBox vBox = new VBox(4);
         vBox.setMinWidth(1000);
-        vBox.setMinHeight(800);
+        vBox.setMinHeight(ScreenSize.fitScreenHeight(800) - 50);
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         VBox.setVgrow(sep, Priority.NEVER);

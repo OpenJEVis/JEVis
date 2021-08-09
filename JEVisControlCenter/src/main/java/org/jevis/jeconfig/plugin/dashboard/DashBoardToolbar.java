@@ -66,10 +66,11 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
     private final ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
+    private final ToggleButton customWorkDay = new ToggleButton("", JEConfig.getImage("iconfinder_calendar-clock_299096.png", iconSize, iconSize));
     //private final ToggleButton moveButton = new ToggleButton("", JEConfig.getImage("move.png", this.iconSize, this.iconSize));
-    private Menu newWidgetMenuItem = new Menu("New");
+    private final Menu newWidgetMenuItem = new Menu("New");
     private NewWidgetSelector widgetSelector;
-    private Button copyButton = new Button("", JEConfig.getImage("16_Copy_48x48.png", this.iconSize, this.iconSize));
+    private final Button copyButton = new Button("", JEConfig.getImage("16_Copy_48x48.png", this.iconSize, this.iconSize));
 
 
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
@@ -183,6 +184,9 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadDialogButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(customWorkDay);
+
+        this.customWorkDay.setSelected(dashboardControl.customWorkdayProperty.getValue());
 
         widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(dashboardControl, new WidgetPojo()));
         widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
@@ -280,6 +284,10 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.openWidgetNavigator();
         });
 
+        customWorkDay.setOnAction(event -> {
+            this.dashboardControl.setCustomWorkday(!dashboardControl.customWorkdayProperty.getValue());
+        });
+
         /**
          moveButton.setOnAction(event -> {
          //MoveDialog moveDialog = new MoveDialog((Window) JEConfig.getStage(), this.dashboardControl);
@@ -345,14 +353,14 @@ public class DashBoardToolbar extends ToolBar {
         navigator.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.settings")));
         exportPNG.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.export")));
         reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload")));
-
+        customWorkDay.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday")));
 
         Region spacerForRightSide = new Region();
         HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);
         getItems().clear();
         getItems().setAll(
                 listAnalysesComboBox
-                , sep3, toolBarIntervalSelector
+                , sep3, toolBarIntervalSelector, customWorkDay
                 , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
                 , sep4, loadDialogButton, save
                 , sep5, navigator, exportPNG, widgetSelector, copyButton, delete

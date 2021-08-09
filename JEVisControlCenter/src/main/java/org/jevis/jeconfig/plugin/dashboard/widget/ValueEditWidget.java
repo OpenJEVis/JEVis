@@ -55,6 +55,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     private final JFXButton addButton = new JFXButton("", JEConfig.getImage("AddValue.png", 34, 34));
     private final boolean forceLastValue = true;
     private JEVisSample lastSample = null;
+    private Boolean customWorkday = true;
 
 
     public ValueEditWidget(DashboardControl control, WidgetPojo config) {
@@ -117,6 +118,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
                 this.sampleHandler.update();
                 if (!this.sampleHandler.getDataModel().isEmpty()) {
                     ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
+                    dataModel.setCustomWorkDay(customWorkday);
                     List<JEVisSample> results = dataModel.getSamples();
                     lastSample = results.get(results.size() - 1);
                 }
@@ -178,6 +180,11 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     @Override
     public void setDataHandler(DataModelDataHandler dataHandler) {
         this.sampleHandler = dataHandler;
+    }
+
+    @Override
+    public void setCustomWorkday(Boolean customWorkday) {
+        this.customWorkday = customWorkday;
     }
 
     @Override

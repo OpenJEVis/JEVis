@@ -114,7 +114,7 @@ public class WorkDays {
                         logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getId(), e);
                     }
                 } else {
-                    logger.warn("Could not get site object for object {}:{}.", currentObject.getName(), currentObject.getID());
+                    logger.warn("Could not get site object for object {}:{}.", currentJsonObject.getName(), currentJsonObject.getId());
                 }
 
                 if (start != null && end != null) {
@@ -122,7 +122,7 @@ public class WorkDays {
                     workdayEnd = end;
                 }
             } catch (Exception e) {
-                logger.error("Could not get site for current object {}:{}", currentObject.getName(), currentObject.getID(), e);
+                logger.error("Could not get site for current object {}:{}", currentJsonObject.getName(), currentJsonObject.getId(), e);
             }
         }
     }

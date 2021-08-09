@@ -46,6 +46,7 @@ public class TableWidget extends Widget implements DataModelWidget {
     private DataModelDataHandler sampleHandler;
     private TableView<TableData> table;
     private Interval lastInterval = null;
+    private Boolean customWorkday = true;
 
 
     public TableWidget(DashboardControl control, WidgetPojo config) {
@@ -94,6 +95,7 @@ public class TableWidget extends Widget implements DataModelWidget {
         this.sampleHandler.getDataModel().forEach(chartDataModel -> {
 
             try {
+                chartDataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
                 if (chartDataModel.getEnPI()) {
                     CalcJobFactory calcJobCreator = new CalcJobFactory();
@@ -227,6 +229,11 @@ public class TableWidget extends Widget implements DataModelWidget {
     @Override
     public void setDataHandler(DataModelDataHandler dataHandler) {
         this.sampleHandler = dataHandler;
+    }
+
+    @Override
+    public void setCustomWorkday(Boolean customWorkday) {
+        this.customWorkday = customWorkday;
     }
 
     @Override

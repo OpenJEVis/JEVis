@@ -68,7 +68,7 @@ public class DashboardControl {
 
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
     private final ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
-    private final TimeFrame previusActiveTimeFrame = null;
+    private final TimeFrame previousActiveTimeFrame = null;
     private TimeFrame activeTimeFrame;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
     private List<Widget> selectedWidgets = new ArrayList<>();
@@ -76,6 +76,7 @@ public class DashboardControl {
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
     public BooleanProperty snapToGridProperty = new SimpleBooleanProperty(false);
+    private final Interval previousActiveInterval = null;
     public BooleanProperty showWidgetHelpProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showHelpProperty = new SimpleBooleanProperty(false);
     public ObjectProperty<Side> configSideProperty = new SimpleObjectProperty<>(Side.RIGHT);
@@ -93,13 +94,12 @@ public class DashboardControl {
     public static double YGridSize = 25;
     public static double XGridSize = 25;
     private Image backgroundImage;
-
+    public BooleanProperty customWorkdayProperty = new SimpleBooleanProperty(true);
+    private TimeFrameFactory timeFrameFactory;
     /**
-     * we want to keep some changes when switching dashboard, this are the workaround variables
+     * we want to keep some changes when switching dashboard, these are the workaround variables
      **/
     private boolean firstDashboard = true;
-    private TimeFrameFactory timeFrameFactory;
-    private final Interval previusActiveInterval = null;
     private TimerTask updateTask;
     private WorkDays wd;
 
@@ -207,6 +207,11 @@ public class DashboardControl {
          **/
     }
 
+    public void setCustomWorkday(boolean customWorkday) {
+        logger.error("setCustomWorkday: " + customWorkday);
+        customWorkdayProperty.setValue(customWorkday);
+        toolBar.updateView(activeDashboard);
+    }
 
     public int getNextFreeUUID() {
         final Comparator<Widget> comp = Comparator.comparingInt(p -> p.getConfig().getUuid());
@@ -284,7 +289,7 @@ public class DashboardControl {
             zoom = Precision.round(zoom, 2);
             if (this.zoomFactor < MIN_ZOOM) {
                 zoom = MIN_ZOOM;
-            } else if (zoom > 90) { /** fix zoomFactor(to-screen etc) beginn at 90 **/
+            } else if (zoom > 90) { /** fix zoomFactor(to-screen etc) begin at 90 **/
                 zoom = MAX_ZOOM;
             } else if (zoom > MAX_ZOOM) {
                 zoom = MAX_ZOOM;
@@ -296,7 +301,7 @@ public class DashboardControl {
         double relWidthDiff = parentSize.getWidth() / dashboardPane.getWidth();
         double relHeightDiff = parentSize.getHeight() / dashboardPane.getHeight();
 
-        logger.debug("SetZoom: Factor:{}\nparent: {}/{}\ndashboard: {}/{}\nrel: {}/{}", zoomFactor, parentSize.getWidth(), zoomFactor, parentSize.getHeight(), dashboardPane.getWidth(), dashboardPane.getHeight(), relWidthDiff, relHeightDiff);
+        logger.debug("SetZoom: Factor:{}\nparent: {}/{}\ndashboard: {}/{}\nrel: {}/{}", zoomFactor, parentSize.getWidth(), parentSize.getHeight(), dashboardPane.getWidth(), dashboardPane.getHeight(), relWidthDiff, relHeightDiff);
         logger.debug("Dashboard in bounds: {}/{}", dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
 
         //        if(dashboardPane.getHeight()<dashboardPane.getBoundsInParent().getHeight() || dashboardPane.getWidth()<dashboardPane.getBoundsInParent().getWidth()){
@@ -751,6 +756,10 @@ public class DashboardControl {
         try {
             widget.init();
             widget.updateConfig(widget.getConfig());
+            if (widget instanceof DataModelWidget) {
+                DataModelWidget dataModelWidget = (DataModelWidget) widget;
+                dataModelWidget.setCustomWorkday(customWorkdayProperty.get());
+            }
             this.widgetList.add(widget);
             this.dashboardPane.addWidget(widget);
             widget.updateData(this.activeInterval);
@@ -1044,7 +1053,7 @@ public class DashboardControl {
 
     public void layerSelected(int layer) {
         selectedWidgets.forEach(widget -> {
-            System.out.println("Widget set layer to: " + widget.getConfig().getUuid() + " " + layer);
+            //System.out.println("Widget set layer to: " + widget.getConfig().getUuid() + " " + layer);
             widget.getConfig().setLayer(layer);
         });
         redrawDashboardPane();
@@ -1100,7 +1109,7 @@ public class DashboardControl {
         if (lastWidget instanceof DataModelWidget) {
             getSelectedWidgets().forEach(widget -> {
                 if (widget instanceof DataModelWidget && !widget.equals(lastWidget)) {
-                    System.out.println("Is DataModelWidget: " + widget.getConfig().getUuid());
+                    //System.out.println("Is DataModelWidget: " + widget.getConfig().getUuid());
                     ((DataModelWidget) widget).setDataHandler(((DataModelWidget) lastWidget).getDataHandler());
                     widget.updateConfig();
                     requestViewUpdate(widget);
