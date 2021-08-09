@@ -399,7 +399,7 @@ public class DashboardControl {
             resetDashboard();
             resetView();
 
-            if (object == null) {  /** Create new Dashboard**/
+            if (object == null) {  /* Create new Dashboard*/
                 this.activeDashboard = new DashboardPojo();
                 this.activeDashboard.setTitle("New Dashboard");
                 this.activeDashboard.setTimeFrame(timeFrameFactory.day());

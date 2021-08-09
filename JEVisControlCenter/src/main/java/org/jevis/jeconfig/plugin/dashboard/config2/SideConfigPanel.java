@@ -46,8 +46,8 @@ public class SideConfigPanel extends GridPane {
     private Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
     private Label precisionLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.precision"));
     private Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
-    private Label widthLabel = new Label("Width:");
-    private Label heightLabel = new Label("Height:");
+    private Label widthLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.width"));
+    private Label heightLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.height"));
     private Label moveLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.move"));
     private Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
     private Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));

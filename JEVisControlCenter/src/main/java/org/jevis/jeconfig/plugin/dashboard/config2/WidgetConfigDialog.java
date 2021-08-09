@@ -34,11 +34,10 @@ public class WidgetConfigDialog extends Alert {
         setHeaderText(I18n.getInstance().getString("dashboard.widget.editor.header"));
         setResizable(true);
 
-//        getDialogPane().setPrefWidth(ScreenSize.fitScreenWidth(1400));
 
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(this.tabPane);
-        borderPane.setPrefWidth(ScreenSize.fitScreenWidth(1280));
+        borderPane.setPrefWidth(ScreenSize.fitScreenWidth(1500));
         borderPane.setPrefHeight(650d);
 
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -47,8 +46,6 @@ public class WidgetConfigDialog extends Alert {
         Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
         TopMenu.applyActiveTheme(stage.getScene());
         stage.setAlwaysOnTop(true);
-//        stage.toFront();
-
     }
 
 
