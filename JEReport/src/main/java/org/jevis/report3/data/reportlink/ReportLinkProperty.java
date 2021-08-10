@@ -256,7 +256,7 @@ public class ReportLinkProperty implements ReportData {
                                 }
 
                                 if (!isCalculation) {
-                                    List<JEVisSample> samples = attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString());
+                                    List<JEVisSample> samples = attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString(), property.getTimeZone().getID());
                                     linkMap.putAll(ProcessHelper.getAttributeSamples(samples, attribute, property.getTimeZone()));
                                 } else {
                                     try {

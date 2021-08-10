@@ -14,6 +14,7 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
@@ -29,9 +30,10 @@ public class JsonSampleGenerator {
     private final AggregationPeriod aggregationPeriod;
     private final WorkDays workDays;
     private final Boolean customWorkday;
+    private final DateTimeZone timeZone;
 
 
-    public JsonSampleGenerator(SQLDataSource ds, JsonObject object, JsonAttribute attribute, DateTime from, DateTime until, Boolean customWorkday, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod) {
+    public JsonSampleGenerator(SQLDataSource ds, JsonObject object, JsonAttribute attribute, DateTime from, DateTime until, Boolean customWorkday, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod, DateTimeZone dateTimeZone) {
         this.ds = ds;
         this.object = object;
         this.attribute = attribute;
@@ -39,6 +41,7 @@ public class JsonSampleGenerator {
         this.aggregationPeriod = aggregationPeriod;
         this.interval = new Interval(from, until);
         this.customWorkday = customWorkday;
+        this.timeZone = dateTimeZone;
 
         this.workDays = new WorkDays(ds, object);
         this.workDays.setEnabled(customWorkday);
@@ -70,12 +73,14 @@ public class JsonSampleGenerator {
         input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attribute.getType()));
         input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, String.valueOf(object.getId())));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.OFFSET, ""));
+        input.getOptions().add(new BasicProcessOption(ProcessOptions.TIMEZONE, timeZone.getID()));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.TS_START, interval.getStart().toString()));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.TS_END, interval.getEnd().toString()));
         input.setFunction(inputFunction);
         basicProcess.getSubProcesses().add(input);
         basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
+        basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.TIMEZONE, timeZone.getID()));
 
         switch (manipulationMode) {
             case MIN:
@@ -123,6 +128,7 @@ public class JsonSampleGenerator {
 
         BasicProcess aggregationProcess = new BasicProcess(this);
         aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
+        aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.TIMEZONE, timeZone.getID()));
         if (aggregationPeriod == AggregationPeriod.NONE) {
             return basicProcess.getJsonResult();
         } else {

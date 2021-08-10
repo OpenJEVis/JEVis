@@ -895,8 +895,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return this.con;
     }
 
-    public List<JEVisSample> getSamples(JEVisAttribute att, DateTime from, DateTime until, boolean customWorkDay, String aggregationPeriod, String manipulationMode) {
-        logger.debug("Get  getSamples: {} {}-{} with agreggation {} and manipulation {}", att.getName(), from, until, aggregationPeriod, manipulationMode);
+    public List<JEVisSample> getSamples(JEVisAttribute att, DateTime from, DateTime until, boolean customWorkDay, String aggregationPeriod, String manipulationMode, String timeZone) {
+        logger.debug("Get  getSamples: {} {}-{} with aggregation {}, manipulation {} and in Timezone {}", att.getName(), from, until, aggregationPeriod, manipulationMode, timeZone);
 
         List<JEVisSample> samples = new ArrayList<>();
         String resource = REQUEST.API_PATH_V1
@@ -921,13 +921,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
         }
 
-        if (from != null && aggregationPeriod != null && manipulationMode != null) {
+        if (from != null && aggregationPeriod != null && manipulationMode != null && timeZone != null) {
             resource += "&";
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.customWorkDay + customWorkDay;
             resource += "&";
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.aggregationPeriod + aggregationPeriod;
             resource += "&";
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.manipulationMode + manipulationMode;
+            resource += "&";
+            resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.timeZone + timeZone;
         }
 
         List<JsonSample> jsons = new ArrayList<>();

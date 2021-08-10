@@ -13,6 +13,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -150,7 +151,7 @@ public class CalcInputObject {
         switch (inputType) {
             case ASYNC:
             case PERIODIC:
-                returnSamples = valueAttribute.getSamples(startTime, endTime, true, aggregationPeriod.toString(), ManipulationMode.NONE.toString());
+                returnSamples = valueAttribute.getSamples(startTime, endTime, true, aggregationPeriod.toString(), ManipulationMode.NONE.toString(), DateTimeZone.getDefault().getID());
                 break;
             case STATIC:
                 JEVisSample constant = valueAttribute.getLatestSample();
@@ -181,7 +182,7 @@ public class CalcInputObject {
             case PERIODIC:
                 try {
                     QuantityUnits qu = new QuantityUnits();
-                    List<JEVisSample> tempList = valueAttribute.getSamples(startTime, endTime, true, AggregationPeriod.NONE.toString(), ManipulationMode.NONE.toString());
+                    List<JEVisSample> tempList = valueAttribute.getSamples(startTime, endTime, true, AggregationPeriod.NONE.toString(), ManipulationMode.NONE.toString(), DateTimeZone.getDefault().getID());
 
                     if (!tempList.isEmpty()) {
                         boolean isQuantity = qu.isQuantityUnit(valueAttribute.getDisplayUnit());

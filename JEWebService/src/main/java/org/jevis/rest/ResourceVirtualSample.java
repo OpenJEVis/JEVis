@@ -35,6 +35,7 @@ import org.jevis.commons.ws.sql.Config;
 import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -146,7 +147,7 @@ public class ResourceVirtualSample {
                     benchmark.printBenchmarkDetail("Total JEvisSample: " + jeVisSampleList.size());
 
                     JsonSampleGenerator sampleGenerator = new JsonSampleGenerator(ds, obj, att,
-                            startDate, endDate, true, manipulationMode, aggregationPeriod);
+                            startDate, endDate, true, manipulationMode, aggregationPeriod, DateTimeZone.getDefault());
                     benchmark.printBenchmarkDetail("Done building generator");
                     List<JsonSample> jsonSamples = sampleGenerator.getAggregatedSamples();
                     benchmark.printBenchmarkDetail("Total result: " + jsonSamples.size());
@@ -242,7 +243,7 @@ public class ResourceVirtualSample {
             }
 
             @Override
-            public List<JEVisSample> getSamples(DateTime from, DateTime to, boolean customWorkDay, String aggregationPeriod, String manipulationMode) {
+            public List<JEVisSample> getSamples(DateTime from, DateTime to, boolean customWorkDay, String aggregationPeriod, String manipulationMode, String timeZone) {
                 //TODO: check??
                 return samples;
             }

@@ -263,6 +263,7 @@ public class ResourceSample {
             @DefaultValue("false") @QueryParam("cwd") boolean customWorkDay,
             @DefaultValue("") @QueryParam("ap") String aggregationPeriod,
             @DefaultValue("") @QueryParam("mm") String manipulationMode,
+            @DefaultValue("UTC") @QueryParam("tz") String timeZone,
             @DefaultValue("1000000") @QueryParam("limit") long limit,
             @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest
     ) {
@@ -322,7 +323,8 @@ public class ResourceSample {
                     } else {
                         AggregationPeriod ap = AggregationPeriod.parseAggregation(aggregationPeriod);
                         ManipulationMode mm = ManipulationMode.parseManipulation(manipulationMode);
-                        JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap);
+                        DateTimeZone dateTimeZone = DateTimeZone.forID(timeZone);
+                        JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap, dateTimeZone);
 
                         list = sg.getAggregatedSamples();
                         sg = null;

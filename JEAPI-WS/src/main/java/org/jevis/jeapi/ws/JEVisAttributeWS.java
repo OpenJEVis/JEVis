@@ -105,8 +105,8 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public List<JEVisSample> getSamples(DateTime from, DateTime to, boolean customWorkDay, String aggregationPeriod, String manipulationPeriod) {
-        return ds.getSamples(this, from, to, customWorkDay, aggregationPeriod, manipulationPeriod);
+    public List<JEVisSample> getSamples(DateTime from, DateTime to, boolean customWorkDay, String aggregationPeriod, String manipulationPeriod, String timeZone) {
+        return ds.getSamples(this, from, to, customWorkDay, aggregationPeriod, manipulationPeriod, timeZone);
     }
 
     @Override

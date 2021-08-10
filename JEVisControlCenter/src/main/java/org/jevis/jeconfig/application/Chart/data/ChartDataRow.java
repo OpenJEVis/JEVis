@@ -24,6 +24,7 @@ import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import java.util.*;
@@ -309,7 +310,7 @@ public class ChartDataRow {
                 if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                     try {
                         if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-                            List<JEVisSample> unmodifiedSamples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString());
+                            List<JEVisSample> unmodifiedSamples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString(), DateTimeZone.getDefault().getID());
                             if (!isStringData) {
                                 applyUserData(unmodifiedSamples);
                                 samples = factorizeSamples(unmodifiedSamples);
@@ -476,7 +477,7 @@ public class ChartDataRow {
             }
             if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                 try {
-                    samples = forecastDataAttribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString());
+                    samples = forecastDataAttribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString(), DateTimeZone.getDefault().getID());
 
                     if (!isStringData) {
                         samples = factorizeSamples(samples);
