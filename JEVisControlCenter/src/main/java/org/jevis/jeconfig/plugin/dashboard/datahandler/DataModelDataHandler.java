@@ -273,7 +273,7 @@ public class DataModelDataHandler {
         else if (interval.toDuration().getStandardDays() < 364) {
             manipulationMode = ManipulationMode.NONE;
         }
-        /** more than an year take week **/
+        /** more than a year take week **/
         else {
             manipulationMode = ManipulationMode.NONE;
         }

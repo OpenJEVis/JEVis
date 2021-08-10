@@ -290,7 +290,7 @@ public class EmailNotificationDriver implements NotificationDriver {
 
             properties.setProperty(PROPERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
             properties.setProperty(PROPERTY_SMTP_AUTH, "true");// must set with true
-            //properties.setProperty(PROPERTY_SMTP_SSL, "true"); //set the transport security as SSL
+            properties.setProperty(PROPERTY_SMTP_SSL, "true"); //set the transport security as SSL
             session = Session.getDefaultInstance(properties, this.getAuthenticator()); //get the Instance of Session
         }
 
@@ -629,10 +629,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      */
     @Override
     public boolean isDriverConfigured() {
-        boolean isConfigured = false;
-        if (_SMTPServer != null && _userName != null && _password != null) {
-            isConfigured = true;
-        }
+        boolean isConfigured = _SMTPServer != null && _userName != null && _password != null;
         return isConfigured;
     }
 
