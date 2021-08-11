@@ -212,6 +212,17 @@ public class DashboardControl {
         logger.error("setCustomWorkday: " + customWorkday);
         customWorkdayProperty.setValue(customWorkday);
         toolBar.updateView(activeDashboard);
+
+        getWidgets().forEach(widget -> {
+            if (widget instanceof DataModelWidget) {
+                DataModelWidget dataModelWidget = (DataModelWidget) widget;
+                dataModelWidget.setCustomWorkday(customWorkdayProperty.get());
+            }
+            //widget.updateData(activeInterval);
+        });
+        setInterval(activeInterval);
+
+
     }
 
     public int getNextFreeUUID() {
