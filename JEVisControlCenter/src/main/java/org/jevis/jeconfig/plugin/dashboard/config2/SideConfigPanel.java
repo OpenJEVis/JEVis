@@ -4,19 +4,15 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Side;
-import javafx.geometry.VPos;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
+import javafx.geometry.*;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -51,6 +47,7 @@ public class SideConfigPanel extends GridPane {
     private Label moveLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.move"));
     private Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
     private Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
+    private Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
     private JFXTextField widthText = new JFXTextField();
     private JFXTextField heightText = new JFXTextField();
     private JFXTextField xPosText = new JFXTextField();
@@ -62,11 +59,14 @@ public class SideConfigPanel extends GridPane {
     private JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
     private JFXButton equalizeDataModelButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
     private TextField pixels = new TextField("25.0");
+    private JFXComboBox<Pos> alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+
 
     public SideConfigPanel(DashboardControl control) {
         super();
         this.control = control;
         setStyle("-fx-background-color: fcfcfc;");
+
 
         this.setPadding(new Insets(12, 12, 12, 12));
         VBox accordionBox = new VBox();
@@ -88,6 +88,9 @@ public class SideConfigPanel extends GridPane {
 
         });
 
+
+        System.out.println("Done side panel");
+
     }
 
 
@@ -107,6 +110,7 @@ public class SideConfigPanel extends GridPane {
         yPosText.setText(widget.getConfig().getyPosition() + "");
         heightText.setText(widget.getConfig().getSize().getHeight() + "");
         pixels.setText(control.getActiveDashboard().getxGridInterval() + "");
+        alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
 
         isUpdating = false;
     }
@@ -167,7 +171,9 @@ public class SideConfigPanel extends GridPane {
         gp.add(precisionSpinner, 1, 4);
         gp.add(showValueLabel, 0, 5);
         gp.add(showValueField, 1, 5);
-        gp.add(equalizeDataModelButton, 0, 6, 2, 1);
+        gp.add(alignmentLabel, 0, 6);
+        gp.add(alignmentBox, 1, 6);
+        gp.add(equalizeDataModelButton, 0, 7, 2, 1);
 
         titledPane.setContent(gp);
 
@@ -209,6 +215,82 @@ public class SideConfigPanel extends GridPane {
 
         equalizeDataModelButton.setOnAction(event -> {
             control.equalizeDataModel();
+        });
+
+        System.out.println("start aliment box");
+        alignmentBox.setPrefWidth(100);
+        alignmentBox.setMinWidth(100);
+        Callback<ListView<Pos>, ListCell<Pos>> cellFactory = new Callback<ListView<Pos>, ListCell<Pos>>() {
+            @Override
+            public ListCell<Pos> call(ListView<Pos> param) {
+                final ListCell<Pos> cell = new ListCell<Pos>() {
+
+                    @Override
+                    protected void updateItem(Pos item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            switch (item) {
+                                case CENTER:
+                                    setText(I18n.getInstance().getString("javafx.pos.center"));
+                                    break;
+                                case CENTER_LEFT:
+                                    setText(I18n.getInstance().getString("javafx.pos.centerleft"));
+                                    break;
+                                case CENTER_RIGHT:
+                                    setText(I18n.getInstance().getString("javafx.pos.centerright"));
+                                    break;
+                                case BOTTOM_RIGHT:
+                                    setText(I18n.getInstance().getString("javafx.pos.bottomright"));
+                                    break;
+                                case BOTTOM_LEFT:
+                                    setText(I18n.getInstance().getString("javafx.pos.bottomleft"));
+                                    break;
+                                case BOTTOM_CENTER:
+                                    setText(I18n.getInstance().getString("javafx.pos.bottomcenter"));
+                                    break;
+                                /**
+                                 case BASELINE_LEFT:
+                                 setText(I18n.getInstance().getString("javafx.pos.center"));
+                                 break;
+                                 case BASELINE_RIGHT:
+                                 setText(I18n.getInstance().getString("javafx.pos.center"));
+                                 break;
+                                 case BASELINE_CENTER:
+                                 setText(I18n.getInstance().getString("javafx.pos.center"));
+                                 break;
+                                 **/
+                                case TOP_LEFT:
+                                    setText(I18n.getInstance().getString("javafx.pos.topleft"));
+                                    break;
+                                case TOP_RIGHT:
+                                    setText(I18n.getInstance().getString("javafx.pos.topright"));
+                                    break;
+                                case TOP_CENTER:
+                                    setText(I18n.getInstance().getString("javafx.pos.topcenter"));
+                                    break;
+                                default:
+                                    setText(item.toString());
+
+
+                            }
+
+
+                        } else {
+                            setText(null);
+                        }
+                    }
+                };
+
+                return cell;
+            }
+        };
+
+        alignmentBox.setCellFactory(cellFactory);
+        alignmentBox.setButtonCell(cellFactory.call(null));
+        alignmentBox.setOnAction(event -> {
+            if (!isUpdating) {
+                control.alignSelected(alignmentBox.getSelectionModel().getSelectedItem());
+            }
         });
 
 

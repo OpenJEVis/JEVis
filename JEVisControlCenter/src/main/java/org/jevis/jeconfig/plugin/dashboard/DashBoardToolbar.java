@@ -184,7 +184,7 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadDialogButton);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(customWorkDay);
+        //GlobalToolBar.changeBackgroundOnHoverUsingBinding(customWorkDay);
 
         this.customWorkDay.setSelected(dashboardControl.customWorkdayProperty.getValue());
 
@@ -418,6 +418,7 @@ public class DashBoardToolbar extends ToolBar {
         unlockButton.setSelected(this.dashboardControl.editableProperty.getValue());
         showGridButton.setSelected(this.dashboardControl.showGridProperty.getValue());
         snapGridButton.setSelected(this.dashboardControl.snapToGridProperty.getValue());
+        customWorkDay.setSelected(this.dashboardControl.customWorkdayProperty.getValue());
         listZoomLevel.setValue(dashboardControl.getZoomFactory());
         toolBarIntervalSelector.updateView();
         infoButton.setSelected(this.dashboardControl.showWidgetHelpProperty.getValue());
