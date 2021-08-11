@@ -278,7 +278,7 @@ public class ControlPane extends GridPane {
 
                         if (fromDate.isBefore(untilDate)) {
                             if (period != AggregationPeriod.NONE) {
-                                return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString());
+                                return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString(), dateTimeZone.getID());
                             } else {
                                 return ControlPane.this.attribute.getSamples(fromDate, untilDate);
                             }

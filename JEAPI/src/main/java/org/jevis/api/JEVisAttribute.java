@@ -96,7 +96,7 @@ public interface JEVisAttribute extends JEVisComponent, JEVisCommittable, Compar
      * @param manipulationMode  manipulation mode
      * @return
      */
-    List<JEVisSample> getSamples(DateTime from, DateTime to, boolean customWorkDay, String aggregationPeriod, String manipulationMode);
+    List<JEVisSample> getSamples(DateTime from, DateTime to, boolean customWorkDay, String aggregationPeriod, String manipulationMode, String timeZone);
 
     /**
      * Add and commit all samples

@@ -16,6 +16,7 @@ import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -89,10 +90,10 @@ public class DataMethods extends CommonMethods {
                 if (valueAttribute != null && limitsAttribute != null && limitsEnabledAttribute != null) {
                     pForm.addMessage("Determining limits config for object " + jeVisObject.getName() + ":" + jeVisObject.getID());
 
-                    List<JEVisSample> samplesMin = valueAttribute.getSamples(autoLimitSetting.getStartDate(), autoLimitSetting.getEndDate(), true, AggregationPeriod.NONE.toString(), ManipulationMode.MIN.toString());
+                    List<JEVisSample> samplesMin = valueAttribute.getSamples(autoLimitSetting.getStartDate(), autoLimitSetting.getEndDate(), true, AggregationPeriod.NONE.toString(), ManipulationMode.MIN.toString(), DateTimeZone.getDefault().getID());
                     BigDecimal l1Min = BigDecimal.valueOf(samplesMin.get(0).getValueAsDouble());
 
-                    List<JEVisSample> samplesMax = valueAttribute.getSamples(autoLimitSetting.getStartDate(), autoLimitSetting.getEndDate(), true, AggregationPeriod.NONE.toString(), ManipulationMode.MAX.toString());
+                    List<JEVisSample> samplesMax = valueAttribute.getSamples(autoLimitSetting.getStartDate(), autoLimitSetting.getEndDate(), true, AggregationPeriod.NONE.toString(), ManipulationMode.MAX.toString(), DateTimeZone.getDefault().getID());
                     BigDecimal l1Max = BigDecimal.valueOf(samplesMax.get(0).getValueAsDouble());
 
                     logger.info("In timeframe {} to {} found Min: {} and Max: {}", autoLimitSetting.getStartDate(), autoLimitSetting.getEndDate(), l1Min, l1Max);

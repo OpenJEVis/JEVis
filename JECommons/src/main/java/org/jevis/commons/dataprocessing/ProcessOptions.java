@@ -47,13 +47,14 @@ import java.util.*;
 public class ProcessOptions {
     public static final String PERIOD = "period";
     public static final String OFFSET = "offset";
+    public static final String TIMEZONE = "timezone";
     public static final String CUSTOM = "custom";
     public static final String TS_START = "date-start";
     public static final String TS_END = "date-end";
     private static final Logger logger = LogManager.getLogger(ProcessOptions.class);
     public static String ROOT_OPTION_NAME = "Data Processing";
     public static String DEFAULT_OPTION_NAME = "Default";
-    public static String PROSESS_CHAIN_OPTION_NAME = "Process Chains";//Rename into ProcessChain
+    public static String PROCESS_CHAIN_OPTION_NAME = "Process Chains";//Rename into ProcessChain
 
     public static List<ProcessOption> ToProcessOption(Process process, JEVisOption option) {
         List<ProcessOption> pOptions = new ArrayList<>();
@@ -133,7 +134,7 @@ public class ProcessOptions {
     }
 
     /**
-     * Returns the first and last timestamp of an task options
+     * Returns the first and last timestamp of task options
      *
      * @param task
      * @return
@@ -227,17 +228,17 @@ public class ProcessOptions {
     }
 
     /**
-     * Return sthe first period matching the period, offset and target date
+     * Return the first period matching the period, offset and target date
      *
      * @param date   target date to find the matching period
      * @param period period
      * @param offset start offset
      * @return
      */
-    public static DateTime findFirstDuration(DateTime date, Period period, DateTime offset) {
+    public static DateTime findFirstDuration(DateTime date, Period period, DateTime offset, DateTimeZone timeZone) {
 //        logger.info("findFirstDuration: " + date + "   p: " + period);
         DateTime startD = new DateTime();
-        DateTime firstPeriod = offset;
+        DateTime firstPeriod = offset.withZone(timeZone);
 //        logger.info("week: " + date.getWeekOfWeekyear());
 //
         while (firstPeriod.isBefore(date) || firstPeriod.isEqual(date)) {
@@ -254,10 +255,7 @@ public class ProcessOptions {
      * @return
      */
     public static DateTime getOffset(Process task) {
-        DateTimeZone zone = DateTimeZone.forID("Europe/Berlin");
-//        Chronology coptic = CopticChronology.getInstance(zone);
-        DateTime _offset = new DateTime(2007, 1, 1, 0, 0, 0, zone);
-        return _offset;
+        return new DateTime(1990, 1, 1, 0, 0, 0, DateTimeZone.UTC);
     }
 
     /**
@@ -267,11 +265,11 @@ public class ProcessOptions {
      * @param lastSample
      * @return
      */
-    public static List<Interval> buildIntervals(Period period, DateTime offset, DateTime firstSample, DateTime lastSample) {
+    public static List<Interval> buildIntervals(Period period, DateTime offset, DateTime firstSample, DateTime lastSample, DateTimeZone timeZone) {
         DateTime benchMarkStart = new DateTime();
         List<Interval> result = new ArrayList<>();
 
-        DateTime startDate = findFirstDuration(firstSample, period, offset);
+        DateTime startDate = findFirstDuration(firstSample, period, offset, timeZone);
         result.add(new Interval(startDate, period));
 
         boolean run = true;
@@ -293,8 +291,8 @@ public class ProcessOptions {
     }
 
     /**
-     * Returns an list with every timestamp from an list of jevissample lists.
-     * ervry timestamp is uniqe and sorted by datetime
+     * Returns a list with every timestamp from a list of jevissample lists.
+     * every timestamp is unique and sorted by datetime
      *
      * @param allSamples list of all timestamps.
      * @return
@@ -373,6 +371,7 @@ public class ProcessOptions {
     public static List<Interval> getIntervals(Process task, DateTime from, DateTime until) {
         Period period = Period.days(1);
         DateTime offset = new DateTime(1990, 1, 1, 0, 0, 0);
+        DateTimeZone timeZone = DateTimeZone.UTC;
 
         if (!ContainsOption(task, PERIOD)) {
             logger.warn("Error missing period option");
@@ -380,7 +379,7 @@ public class ProcessOptions {
         if (!ContainsOption(task, OFFSET)) {
             logger.warn("Error missing offset option");
 
-            task.getOptions().add(new BasicProcessOption(OFFSET, "1990-01-01 00:00:00"));
+            task.getOptions().add(new BasicProcessOption(OFFSET, offset.toString()));
         }
 
         for (ProcessOption option : task.getOptions()) {
@@ -395,13 +394,22 @@ public class ProcessOptions {
                     break;
                 case OFFSET:
                     //TODO check value formats
-                    DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-                    offset = dtf.parseDateTime(value);
+                    try {
+                        offset = new DateTime(value);
+                    } catch (Exception e) {
+                        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+                        offset = dtf.parseDateTime(value);
+                    }
                     break;
+                case TIMEZONE:
+                    try {
+                        timeZone = DateTimeZone.forID(value);
+                    } catch (Exception e) {
+                    }
             }
         }
 
-        return buildIntervals(period, offset, from, until);
+        return buildIntervals(period, offset, from, until, timeZone);
 
     }
 
@@ -485,7 +493,7 @@ public class ProcessOptions {
             JEVisOption root = GetProcessOptionRoot(att);
             logger.info("root option: " + root.getKey());
 
-            JEVisOption dpChainRoot = Options.getFirstOption(PROSESS_CHAIN_OPTION_NAME, root);
+            JEVisOption dpChainRoot = Options.getFirstOption(PROCESS_CHAIN_OPTION_NAME, root);
 
             for (JEVisOption process : dpChainRoot.getOptions()) {
                 confDPs.add(process);
