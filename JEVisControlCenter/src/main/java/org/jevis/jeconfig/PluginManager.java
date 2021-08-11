@@ -27,7 +27,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
@@ -50,6 +49,7 @@ import org.jevis.jeconfig.plugin.equipment.EquipmentPlugin;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.reports.ReportPlugin;
+import org.jevis.jeconfig.tool.DraggableTab;
 
 import java.util.*;
 
@@ -71,6 +71,7 @@ public class PluginManager {
 
     public PluginManager(JEVisDataSource _ds) {
         this._ds = _ds;
+        //TabPaneDetacher.create().makeTabsDetachable(tabPane);
     }
 
     public void addPlugin(Plugin plugin) {
@@ -257,10 +258,12 @@ public class PluginManager {
 
         for (Plugin plugin : this._plugins) {
             try {
-                Tab pluginTab = new Tab(plugin.getName());
+                DraggableTab pluginTab = new DraggableTab(plugin.getName(), plugin.getIcon(), plugin);
+                //Tab pluginTab = new Tab(plugin.getName());
+                //pluginTab.setGraphic(plugin.getIcon());
                 pluginTab.setClosable(false);
                 pluginTab.setTooltip(new Tooltip(plugin.getToolTip()));
-//            pluginTab.setContent(plugin.getView().getNode());
+
                 pluginTab.setContent(plugin.getContentNode());
 
                 /**
@@ -308,8 +311,6 @@ public class PluginManager {
                     this._plugins.remove(plugin1);
                 });
 
-                pluginTab.setGraphic(plugin.getIcon());
-
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -343,12 +344,10 @@ public class PluginManager {
 
         }));
 
-        this.tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                this.getSelectedPlugin().lostFocus();
-                this.selectedPluginProperty.setValue(this._plugins.get(newValue.intValue()));
-            } catch (Exception ex) {
-                logger.error("Error in selection model switch: {}", ex, ex);
+        this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            this.getSelectedPlugin().lostFocus();
+            if (newValue instanceof DraggableTab) {
+                this.selectedPluginProperty.setValue(((DraggableTab) newValue).getPlugin());
             }
         });
 
