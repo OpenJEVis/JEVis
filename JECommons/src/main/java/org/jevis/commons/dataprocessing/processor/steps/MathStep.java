@@ -2,13 +2,17 @@ package org.jevis.commons.dataprocessing.processor.steps;
 
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
+import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.mariuszgromada.math.mxparser.Expression;
 
 import java.text.NumberFormat;
@@ -19,11 +23,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MathStep implements ProcessStep {
+
+    private WorkDays workDays;
+
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
 
         MathDataObject mathDataObject = resourceManager.getMathDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
+        workDays = new WorkDays(mathDataObject.getMathDataObject());
 
         if (mathDataObject.getTypeAttribute().hasSample()) {
             DateTime start = null, end = null;
@@ -109,11 +117,30 @@ public class MathStep implements ProcessStep {
                             .withSecondOfMinute(ending.getSecondOfMinute())
                             .withMillisOfSecond(ending.getMillisOfSecond());
                     break;
+                case CUSTOM:
+                    start = mathDataObject.getStartDate().minusYears(ending.getYear() - beginning.getYear()).withMonthOfYear(beginning.getMonthOfYear())
+                            .withDayOfMonth(beginning.getDayOfMonth())
+                            .withHourOfDay(beginning.getHourOfDay())
+                            .withMinuteOfHour(beginning.getMinuteOfHour())
+                            .withSecondOfMinute(beginning.getSecondOfMinute())
+                            .withMillisOfSecond(beginning.getMillisOfSecond());
+                    end = mathDataObject.getStartDate().withMonthOfYear(ending.getMonthOfYear())
+                            .withDayOfMonth(ending.getDayOfMonth())
+                            .withHourOfDay(ending.getHourOfDay())
+                            .withMinuteOfHour(ending.getMinuteOfHour())
+                            .withSecondOfMinute(ending.getSecondOfMinute())
+                            .withMillisOfSecond(ending.getMillisOfSecond());
+                    break;
             }
 
             if (start != null && end != null) {
                 ManipulationMode manipulationMode = mathDataObject.getManipulationMode();
                 List<JEVisSample> samples = mathDataObject.getInputAttribute().getSamples(start, end);
+
+                if (mathDataObject.getReferencePeriod() == AggregationPeriod.CUSTOM) {
+                    filterSamples(samples, intervals, mathDataObject.getPeriodAlignment());
+                }
+
                 switch (manipulationMode) {
                     case AVERAGE:
                         for (CleanInterval cleanInterval : intervals) {
@@ -167,6 +194,22 @@ public class MathStep implements ProcessStep {
         }
     }
 
+    private void filterSamples(List<JEVisSample> samples, List<CleanInterval> intervals, List<PeriodRule> periodAlignment) throws JEVisException {
+        List<JEVisSample> toRemove = new ArrayList<>();
+        PeriodRule periodRule = periodAlignment.get(0);
+        DateTime date = intervals.get(0).getDate();
+
+        for (JEVisSample sample : samples) {
+            if (Period.months(1).equals(periodRule.getPeriod())) {
+                if (sample.getTimestamp().getMonthOfYear() != date.getMonthOfYear()) {
+                    toRemove.add(sample);
+                }
+            }
+        }
+
+        samples.removeAll(toRemove);
+    }
+
     private void calcGeoAvg(CleanInterval cleanInterval, List<JEVisSample> samples) throws JEVisException {
 
         double result = 0d;
@@ -196,7 +239,10 @@ public class MathStep implements ProcessStep {
 
         cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
         cleanInterval.getResult().setValue(result);
-        cleanInterval.getResult().setNote("math(avg)");
+        cleanInterval.getResult().setNote("math(avg,"
+                + samples.size() + ","
+                + samples.get(0).getTimestamp().toString("YYYYMMdd") + "-" + samples.get(samples.size() - 1).getTimestamp().toString("YYYYMMdd")
+                + ")");
     }
 
     private void calcMin(CleanInterval cleanInterval, List<JEVisSample> samples) throws JEVisException {

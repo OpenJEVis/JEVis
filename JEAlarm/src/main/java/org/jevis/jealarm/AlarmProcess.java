@@ -176,7 +176,7 @@ public class AlarmProcess {
 
     private void finish() throws JEVisException {
 
-        DateTime newStartRecordTime = PeriodHelper.getNextPeriod(start, alarmConfiguration.getAlarmPeriod(), 1);
+        DateTime newStartRecordTime = PeriodHelper.getNextPeriod(start, alarmConfiguration.getAlarmPeriod(), 1, null);
         alarmConfiguration.getTimeStampAttribute().buildSample(new DateTime(), newStartRecordTime.toString()).commit();
     }
 

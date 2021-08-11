@@ -56,8 +56,9 @@ public class PeriodHelper {
         return resultingDate;
     }
 
-    public static DateTime getNextPeriod(DateTime start, Period schedule, int i) {
+    public static DateTime getNextPeriod(DateTime start, Period schedule, int i, org.joda.time.Period customPeriod) {
         DateTime resultDate = start;
+        boolean wasLastDay = start.getDayOfMonth() == start.dayOfMonth().getMaximumValue();
         switch (schedule) {
             case MINUTELY:
                 resultDate = resultDate.plusMinutes(i);
@@ -73,15 +74,33 @@ public class PeriodHelper {
                 break;
             case WEEKLY:
                 resultDate = resultDate.plusWeeks(i);
+                if (wasLastDay) {
+                    resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+                }
                 break;
             case MONTHLY:
                 resultDate = resultDate.plusMonths(i);
+                if (wasLastDay) {
+                    resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+                }
                 break;
             case QUARTERLY:
                 resultDate = resultDate.plusMonths(3 * i);
+                if (wasLastDay) {
+                    resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+                }
                 break;
             case YEARLY:
                 resultDate = resultDate.plusYears(i);
+                if (wasLastDay) {
+                    resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+                }
+                break;
+            case CUSTOM:
+                resultDate = resultDate.plus(customPeriod);
+                if (wasLastDay) {
+                    resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+                }
                 break;
         }
         return resultDate;

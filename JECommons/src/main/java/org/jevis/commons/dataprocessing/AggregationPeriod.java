@@ -2,7 +2,7 @@ package org.jevis.commons.dataprocessing;
 
 public enum AggregationPeriod {
 
-    NONE, MINUTELY, QUARTER_HOURLY, HOURLY, DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY, THREEYEARS, FIVEYEARS, TENYEARS;
+    NONE, MINUTELY, QUARTER_HOURLY, HOURLY, DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY, THREEYEARS, FIVEYEARS, TENYEARS, CUSTOM;
 
     public static AggregationPeriod get(String modeName) {
         String[] modeArray = modeName.split("_");
@@ -79,10 +79,14 @@ public enum AggregationPeriod {
             case ("Tenyears"):
             case ("Ten years"):
                 return TENYEARS;
+            case ("CUSTOM"):
+            case ("Custom"):
+                return CUSTOM;
             case ("NONE"):
             case ("None"):
             default:
                 return NONE;
+
         }
     }
 }
