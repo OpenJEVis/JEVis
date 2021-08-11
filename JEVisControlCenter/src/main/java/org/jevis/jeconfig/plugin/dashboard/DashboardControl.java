@@ -382,6 +382,7 @@ public class DashboardControl {
      */
     public void selectDashboard(JEVisObject object) {
         logger.debug("selectDashboard: {}", object);
+        stopAllUpdates();
         try {
             /** check if the last dashboard was saved and if not ask user **/
             if (firstLoadedConfigHash != null) {
