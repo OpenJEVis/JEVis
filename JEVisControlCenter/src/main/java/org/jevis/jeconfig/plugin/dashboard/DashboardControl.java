@@ -14,6 +14,7 @@ import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -1130,6 +1131,14 @@ public class DashboardControl {
     public void showValueSelected(boolean showValue) {
         selectedWidgets.forEach(widget -> {
             widget.getConfig().setShowValue(showValue);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void alignSelected(Pos pos) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setTitlePosition(pos);
             widget.updateConfig();
             requestViewUpdate(widget);
         });
