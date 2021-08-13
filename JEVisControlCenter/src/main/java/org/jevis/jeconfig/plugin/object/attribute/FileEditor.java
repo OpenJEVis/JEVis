@@ -40,6 +40,7 @@ import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ImageViewerDialog;
 import org.jevis.jeconfig.dialog.PDFViewerDialog;
@@ -126,7 +127,7 @@ public class FileEditor implements AttributeEditor {
             if (lsample != null) {
                 String fileName = lsample.getValueAsString();
                 if (_autoDownload) {
-                    _downloadButton.setText(fileName);
+                    _downloadButton.setText(FileNames.fixName(fileName));
                 } else {
                     _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button_emty"));
                 }
@@ -252,7 +253,7 @@ public class FileEditor implements AttributeEditor {
                 JEVisFile file = attribute.getLatestSample().getValueAsFile();
 
                 FileChooser fileChooser = new FileChooser();
-                fileChooser.setInitialFileName(file.getFilename());
+                fileChooser.setInitialFileName(FileNames.fixName(file.getFilename()));
                 fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
                 fileChooser.getExtensionFilters().addAll(new ExtensionFilter("All Files", "*.*"));
                 File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());

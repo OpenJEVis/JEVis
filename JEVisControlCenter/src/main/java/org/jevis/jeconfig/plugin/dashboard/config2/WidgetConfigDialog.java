@@ -8,9 +8,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.TopMenu;
-import org.jevis.jeconfig.application.jevistree.JEVisTree;
-import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.TreeManager;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
 import org.jevis.jeconfig.plugin.dashboard.widget.GenericConfigNode;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
@@ -20,7 +19,7 @@ public class WidgetConfigDialog extends Alert {
 
     private final TabPane tabPane = new TabPane();
     private DataModelDataHandler dataModelDataHandler;
-    private WidgetTreePlugin widgetTreePlugin;
+    //private WidgetTreePlugin widgetTreePlugin;
     private final Widget widget;
 
     /**
@@ -73,28 +72,33 @@ public class WidgetConfigDialog extends Alert {
 
         if (dataModelDataHandler != null) {
             this.dataModelDataHandler = dataModelDataHandler;
-            this.widgetTreePlugin = new WidgetTreePlugin();
+            //this.widgetTreePlugin = new WidgetTreePlugin();
 
-//            Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
+            WidgetTreePlugin widgetTreePlugin = TreeManager.getInstance().getSelectionTree(dataModelDataHandler.getJeVisDataSource());
+
             Tab tab = new DataModelTab(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel")
                     , dataModelDataHandler, widgetTreePlugin);
 
 
-            JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(dataModelDataHandler.getJeVisDataSource(), this.widgetTreePlugin);
-            tab.setContent(tree);
-            this.widgetTreePlugin.setUserSelection(dataModelDataHandler.getDateNode().getData());
+            //JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(dataModelDataHandler.getJeVisDataSource(), widgetTreePlugin);
+            //tab.setContent(tree);
+
+            tab.setContent(TreeManager.getInstance().getTree());
+            widgetTreePlugin.setUserSelection(dataModelDataHandler.getDateNode().getData());
+           
 
             addTab(tab);
         }
 
     }
 
+    /*
+        public void updateDataModel() {
+            this.dataModelDataHandler.setData(this.widgetTreePlugin.getUserSelection());
 
-    public void updateDataModel() {
-        this.dataModelDataHandler.setData(this.widgetTreePlugin.getUserSelection());
 
-
-    }
+        }
+    */
 
     public void commitSettings() {
         this.tabPane.getTabs().forEach(tab -> {
