@@ -24,7 +24,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.NewWidgetSelector;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
@@ -188,9 +187,10 @@ public class DashBoardToolbar extends ToolBar {
 
         this.customWorkDay.setSelected(dashboardControl.customWorkdayProperty.getValue());
 
-        widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(dashboardControl, new WidgetPojo()));
+        widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(dashboardControl));
         widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
             Widget newWidget = widgetSelector.getSelectedWidget();
+            //newWidget.getConfig().setUuid(dashboardControl.getNextFreeUUID());
             dashboardControl.addWidget(newWidget);
             newWidget.setEditable(true);
             dashboardControl.setSelectedWidget(newWidget);

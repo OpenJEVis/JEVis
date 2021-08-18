@@ -325,9 +325,10 @@ public class WidgetNavigator {
         });
 
 
-        NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(control, new WidgetPojo()));
+        NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(control));
         widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
             Widget newWidget = widgetSelector.getSelectedWidget();
+            //newWidget.getConfig().setUuid(control.getNextFreeUUID());
             control.addWidget(newWidget);
             newWidget.setEditable(true);
             table.getSelectionModel().clearAndSelect(table.getItems().size() - 1);

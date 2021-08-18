@@ -24,24 +24,27 @@ public class Widgets {
             put(DashboadLinkWidget.WIDGET_ID, DashboadLinkWidget.class.getName());
             put(ArrowWidget.WIDGET_ID, ArrowWidget.class.getName());
             put(SankeyWidget.WIDGET_ID, SankeyWidget.class.getName());
+            put(ImageWidget.WIDGET_ID, ImageWidget.class.getName());
 
         }
     };
 
-    public static List<Widget> getAvailableWidgets(DashboardControl control, WidgetPojo config) {
+    public static List<Widget> getAvailableWidgets(DashboardControl control) {
         List<Widget> widgetList = new ArrayList<>();
 
-        widgetList.add(new PieWidget(control, config));
-        widgetList.add(new TitleWidget(control, config));
-        widgetList.add(new ChartWidget(control, config));
-        widgetList.add(new ValueWidget(control, config));
-        widgetList.add(new ValueEditWidget(control, config));
-        widgetList.add(new TableWidget(control, config));
-        widgetList.add(new WebPieWidget(control, config));
-        widgetList.add(new LinkerWidget(control, config));
-        widgetList.add(new DashboadLinkWidget(control, config));
-        widgetList.add(new ArrowWidget(control, config));
+        int i = -1;
+        widgetList.add(new PieWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new TitleWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new ChartWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new ValueWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new ValueEditWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new TableWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new WebPieWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new LinkerWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new DashboadLinkWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new ArrowWidget(control, new WidgetPojo(i--)));
         //widgetList.add(new SankeyWidget(control, config));
+        widgetList.add(new ImageWidget(control, new WidgetPojo(i--)));
 
         return widgetList;
     }
