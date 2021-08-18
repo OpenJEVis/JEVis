@@ -41,8 +41,16 @@ public class WidgetPojo {
 
     public WidgetPojo() {
         this.jsonNode = JsonNodeFactory.instance.objectNode();
+    }
 
-
+    /**
+     * Create new Config with uuid.
+     *
+     * @param uuid
+     */
+    public WidgetPojo(int uuid) {
+        this.jsonNode = JsonNodeFactory.instance.objectNode();
+        this.uuid = uuid;
     }
 
     public WidgetPojo(JsonNode jsonNode) {

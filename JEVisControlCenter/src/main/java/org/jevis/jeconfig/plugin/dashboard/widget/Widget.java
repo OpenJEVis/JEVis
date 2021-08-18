@@ -588,6 +588,7 @@ public abstract class Widget extends Region {
                 return (otherObject.getConfig().getUuid() == this.getConfig().getUuid());
             }
         }
+
         return false;
     }
 }
