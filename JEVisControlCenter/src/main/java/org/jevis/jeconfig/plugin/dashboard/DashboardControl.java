@@ -910,13 +910,13 @@ public class DashboardControl {
 
     public void toPNG() {
         DashboardExport exporter = new DashboardExport();
-        exporter.toPDF(dashboardPane, activeDashboard.getTitle() + "_" + intervalToString());
+        exporter.toPNG(dashboardPane, activeDashboard.getTitle() + "_" + intervalToString());
     }
 
 
     public void toPDF() {
         DashboardExport exporter = new DashboardExport();
-        exporter.toPDF(dashboardPane, activeDashboard.getTitle() + "_" + intervalToString());
+        exporter.toPDF(this, activeDashboard.getTitle() + "_" + intervalToString());
     }
 
     public void toggleTooltip() {

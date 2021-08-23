@@ -1,5 +1,12 @@
 package org.jevis.jeconfig.plugin.dashboard.common;
 
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
@@ -8,9 +15,19 @@ import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.UUID;
 
 /**
  * Export an Dashboard to an PDF file.
@@ -24,60 +41,78 @@ public class DashboardExport {
     }
 
 
-    public void toPNG(Node node, String name) {
-        /** disabled in dependency, takes 5 mb and does not work for now because of ChartFX**/
+    public void toPDF(DashboardControl control, String fileName) {
         try {
-            logger.info("start- converting to pdf");
-
+            String title = control.getActiveDashboard().getTitle();
             FileChooser fileChooser = new FileChooser();
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf");
             fileChooser.getExtensionFilters().add(extFilter);
-//            Interval interval = dashboardisplayedIntervalProperty.getValue();
-//            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
-//            String intervalString = fmt.print(interval.getStart()) + "_" + fmt.print(interval.getEnd());
-            fileChooser.setInitialFileName(name + ".png");
-
+            fileChooser.setInitialFileName(fileName + ".pdf");
+            Document document = new Document();
             File file = fileChooser.showSaveDialog(JEConfig.getStage());
-
             if (file != null) {
-                logger.info("target file: {}", file);
-                WritableImage image = node.snapshot(new SnapshotParameters(), null);
+                OutputStream fileStream = new FileOutputStream(file);
+                PdfWriter.getInstance(document, fileStream);
 
-                logger.info("Start writing screenshot");
+
+                document.open();
+                document.setPageSize(PageSize.A4.rotate());
+                document.addAuthor("JEVis");
+                document.addTitle(control.getActiveDashboard().getTitle());
+                document.addCreationDate();
+
+
+                WritableImage image = control.getDashboardPane().snapshot(new SnapshotParameters(), null);
+                String tmpFileName = UUID.randomUUID().toString();
+                Path temp = Files.createTempFile(tmpFileName, ".png");
+                ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", temp.toFile());
+                Image img = Image.getInstance(temp.toFile().toURI().toURL());
+
+                PdfPTable table = new PdfPTable(1);
+                table.setWidthPercentage(100);
+
+                /* Does not work ?! */
+                Font CUSTOM_FONT_HEADER = new Font(Font.FontFamily.TIMES_ROMAN, 16, Font.BOLD | Font.UNDERLINE);
+                Font CUSTOM_FONT_TEXT = new Font(Font.FontFamily.TIMES_ROMAN, 11);
+
+                Paragraph headerParagraph = new Paragraph(title);
+                headerParagraph.setFont(CUSTOM_FONT_HEADER);
+
+                PdfPCell cellTitle = new PdfPCell(headerParagraph);
+                cellTitle.setBorder(Rectangle.NO_BORDER);
+
+                PdfPCell cellImage = new PdfPCell(img, true);
+                cellImage.setBorder(Rectangle.NO_BORDER);
+                cellImage.setPadding(5);
+
+
+                Paragraph datePara = new Paragraph(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(new DateTime()));
+                datePara.setFont(CUSTOM_FONT_TEXT);
+                PdfPCell cellFooter = new PdfPCell(datePara);
+                cellFooter.setBorder(Rectangle.NO_BORDER);
+
+                table.addCell(cellTitle);
+                table.addCell(cellImage);
+                table.addCell(cellFooter);
+
+                document.add(table);
+                document.close();
                 try {
-                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-//                    Desktop.getDesktop().open(file);
-
-                } catch (Exception e) {
-                    // TODO: handle exception here
+                    Desktop desktop = Desktop.getDesktop();
+                    desktop.open(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-//                //                WritableImage wImage = dashBoardPane.snapshot(spa, image);
-//                WritableImage wImage = node.snapshot(new SnapshotParameters(), null);
-//                logger.info("Done screenshot");
-//                ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-//                ImageIO.write(SwingFXUtils.fromFXImage(wImage, null), "png", byteOutput);
-//                logger.info("Convert 1 Done");
-////                com.itextpdf.text.Image graph = com.itextpdf.text.Image.getInstance(byteOutput.toByteArray());
-//                logger.info("Convert 2 Done");
-////                Document document = new Document();
-////                logger.info("Document start");
-////                PdfWriter.getInstance(document, new FileOutputStream(file));
-////                document.open();
-////                logger.info("doc open");
-////                document.add(graph);
-////                logger.info("doc screenshot add done");
-////                document.close();
-////                logger.info("doc done done");
             }
+
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        /****/
+
     }
 
-    public void toPDF(Node node, String name) {
+    public void toPNG(Node node, String name) {
         /** disabled in dependency, takes 5 mb and does not work for now because of ChartFX**/
         try {
             logger.info("start- converting to pdf");

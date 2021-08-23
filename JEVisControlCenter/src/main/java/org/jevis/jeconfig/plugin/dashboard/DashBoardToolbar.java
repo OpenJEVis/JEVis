@@ -57,6 +57,7 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", this.iconSize, this.iconSize));
     private final ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
     private final ToggleButton exportPNG = new ToggleButton("", JEConfig.getImage("export-image.png", this.iconSize, this.iconSize));
+    private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", this.iconSize, this.iconSize));
     //private ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
     private final ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
     private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
@@ -174,6 +175,7 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(settingsButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPNG);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPDF);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomIn);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
@@ -254,6 +256,10 @@ public class DashBoardToolbar extends ToolBar {
 
         exportPNG.setOnAction(event -> {
             this.dashboardControl.toPNG();
+        });
+
+        exportPDF.setOnAction(event -> {
+            this.dashboardControl.toPDF();
         });
 
         save.setOnAction(event -> {
@@ -352,6 +358,7 @@ public class DashBoardToolbar extends ToolBar {
         delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.delete")));
         navigator.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.settings")));
         exportPNG.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.export")));
+        exportPDF.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.exportPDF")));
         reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload")));
         customWorkDay.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday")));
 
@@ -363,7 +370,7 @@ public class DashBoardToolbar extends ToolBar {
                 , sep3, toolBarIntervalSelector, customWorkDay
                 , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
                 , sep4, loadDialogButton, save
-                , sep5, navigator, exportPNG, widgetSelector, copyButton, delete
+                , sep5, navigator, exportPNG, exportPDF, widgetSelector, copyButton, delete
                 , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
         );
 
