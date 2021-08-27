@@ -50,6 +50,12 @@ public class EMailChannelParameters {
     public EMailChannelParameters(JEVisObject channel, String protocol, DateTimeZone dateTimeZone) {
         _protocol = protocol;
         this.dateTimeZone = dateTimeZone;
+        try {
+            channel.getDataSource().reloadAttribute(channel);
+        } catch (Exception e) {
+            logger.error("Could not reload attributes for object {}:{}", channel.getName(), channel.getID(), e);
+        }
+
         setChannelAttribute(channel);
         setSearchTerms();
     }

@@ -32,7 +32,7 @@ public class CalcLauncher extends AbstractCliApp {
     private final Command commands = new Command();
     private static final String APP_INFO = "JECalc";
 
-    private boolean firstRun = true;
+    private final boolean firstRun = true;
 
     public CalcLauncher(String[] args, String appname) {
         super(args, appname);
@@ -55,14 +55,14 @@ public class CalcLauncher extends AbstractCliApp {
             checkForTimeout();
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                if (!firstRun) {
-                    try {
-                        ds.clearCache();
-                        ds.preload();
-                    } catch (JEVisException e) {
-                        logger.error(e);
-                    }
-                } else firstRun = false;
+//                if (!firstRun) {
+//                    try {
+//                        ds.clearCache();
+//                        ds.preload();
+//                    } catch (JEVisException e) {
+//                        logger.error(e);
+//                    }
+//                } else firstRun = false;
 
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
@@ -145,6 +145,7 @@ public class CalcLauncher extends AbstractCliApp {
         List<JEVisObject> enabledObjects = new ArrayList<>();
         SampleHandler sampleHandler = new SampleHandler();
         for (JEVisObject curObj : jevisCalcObjects) {
+            ds.reloadAttribute(curObj);
             Boolean valueAsBoolean = sampleHandler.getLastSample(curObj, CalcJobFactory.Calculation.ENABLED.getName(), false);
             if (valueAsBoolean) {
                 enabledObjects.add(curObj);

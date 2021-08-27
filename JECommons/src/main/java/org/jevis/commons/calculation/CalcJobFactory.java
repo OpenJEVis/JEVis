@@ -263,6 +263,12 @@ public class CalcJobFactory {
         for (JEVisObject obj : inputDataObjects) {
             JEVisAttribute targetAttr = null;
             try {
+                ds.reloadAttribute(obj);
+            } catch (Exception e) {
+                logger.error("Could not reload attributes for object {}:{}", obj.getName(), obj.getID(), e);
+            }
+
+            try {
                 JEVisAttribute attribute = obj.getAttribute(Calculation.INPUT_TYPE.getName());
                 if (attribute != null) {
                     JEVisSample latestSample = attribute.getLatestSample();
@@ -274,7 +280,7 @@ public class CalcJobFactory {
                 targetAttr = obj.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
-                ds.reloadAttribute(valueAttribute);
+                ds.reloadAttribute(valueAttribute.getObject());
                 if (startTimeFromInputs.isBefore(valueAttribute.getTimestampFromFirstSample())) {
                     DateTime timestampFromFirstSample = valueAttribute.getTimestampFromFirstSample();
                     if (timestampFromFirstSample != null) {

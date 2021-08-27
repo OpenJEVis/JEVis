@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -41,6 +42,9 @@ public class DashBoardToolbar extends ToolBar {
     private ToolBarIntervalSelector toolBarIntervalSelector;
     private final ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
     private JFXComboBox<Double> listZoomLevel;
+    private final ObjectRelations objectRelations;
+    private Boolean multiSite = null;
+    private Boolean multiDir = null;
 
     private final ImageView lockIcon = JEConfig.getImage("if_lock_blue_68757.png", this.iconSize, this.iconSize);
     private final ImageView snapToGridIcon = JEConfig.getImage("Snap_to_Grid.png", this.iconSize, this.iconSize);
@@ -84,9 +88,9 @@ public class DashBoardToolbar extends ToolBar {
 
     public DashBoardToolbar(DashboardControl dashboardControl) {
         this.dashboardControl = dashboardControl;
+        this.objectRelations = new ObjectRelations(dashboardControl.getDataSource());
         initLayout();
         this.dashboardControl.registerToolBar(this);
-
     }
 
 
@@ -447,7 +451,6 @@ public class DashBoardToolbar extends ToolBar {
         try {
             JEVisClass organisationClass = DashBoardToolbar.this.dashboardControl.getDataSource().getJEVisClass("Organization");
 
-
             Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
                 @Override
                 public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -455,40 +458,23 @@ public class DashBoardToolbar extends ToolBar {
                         @Override
                         protected void updateItem(JEVisObject obj, boolean empty) {
                             super.updateItem(obj, empty);
-                            if (empty || obj == null || obj.getName() == null) {
-                                setText(I18n.getInstance().getString("plugin.dashboard.toolbar.list.new"));
+                            if (obj == null || empty) {
+                                setGraphic(null);
+                                setText(null);
                             } else {
-                                String prefix = "";
-                                try {
-                                    JEVisObject parentObj = null;
-                                    JEVisObject secoundParentObj = null;
-                                    JEVisObject thirdParentObj = null;
-
-                                    try {
-                                        parentObj = obj.getParents().get(0);
-                                    } catch (NullPointerException np) {
+                                if (!isMultiSite() && !isMultiDir())
+                                    setText(obj.getName());
+                                else {
+                                    String prefix = "";
+                                    if (isMultiSite()) {
+                                        prefix += objectRelations.getObjectPath(obj);
                                     }
-                                    try {
-                                        secoundParentObj = parentObj.getParents().get(0);
-                                    } catch (Exception np) {
-                                    }
-                                    try {
-                                        thirdParentObj = secoundParentObj.getParents().get(0);
-                                    } catch (Exception np) {
+                                    if (isMultiDir()) {
+                                        prefix += objectRelations.getRelativePath(obj);
                                     }
 
-                                    if (secoundParentObj != null && secoundParentObj.getJEVisClass().equals(organisationClass)) {
-                                        prefix += secoundParentObj.getName() + " / ";
-                                    }
-                                    if (thirdParentObj != null && thirdParentObj.getJEVisClass().equals(organisationClass)) {
-                                        prefix += thirdParentObj.getName() + " / ";
-                                    }
-
-
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                    setText(prefix + obj.getName());
                                 }
-                                setText(prefix + obj.getName());
                             }
 
                         }
@@ -501,6 +487,50 @@ public class DashBoardToolbar extends ToolBar {
         } catch (Exception ex) {
             logger.error(ex);
         }
+    }
+
+    public boolean isMultiSite() {
+        if (multiSite == null) {
+            boolean is = false;
+            try {
+                JEVisClass directoryClass = dashboardControl.getDataSource().getJEVisClass("Analyses Directory");
+                List<JEVisObject> objects = dashboardControl.getDataSource().getObjects(directoryClass, true);
+
+                List<JEVisObject> buildingParents = new ArrayList<>();
+                for (JEVisObject jeVisObject : objects) {
+                    JEVisObject buildingParent = objectRelations.getBuildingParent(jeVisObject);
+                    if (!buildingParents.contains(buildingParent)) {
+                        buildingParents.add(buildingParent);
+
+                        if (buildingParents.size() > 1) {
+                            is = true;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            multiSite = is;
+        }
+
+        return multiSite;
+    }
+
+    public boolean isMultiDir() {
+        if (multiDir == null) {
+            boolean is = false;
+            try {
+                JEVisClass directoryClass = dashboardControl.getDataSource().getJEVisClass("Analyses Directory");
+                List<JEVisObject> objects = dashboardControl.getDataSource().getObjects(directoryClass, true);
+                if (objects.size() > 1) {
+                    is = true;
+                }
+            } catch (Exception ignored) {
+            }
+            multiDir = is;
+        }
+
+        return multiDir;
     }
 
     public JFXComboBox<JEVisObject> getListAnalysesComboBox() {

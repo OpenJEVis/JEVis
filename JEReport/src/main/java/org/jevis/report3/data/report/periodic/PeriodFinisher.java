@@ -42,7 +42,7 @@ public class PeriodFinisher implements Finisher {
             JEVisObject reportObject = property.getReportObject();
             parseDates(reportObject);
 
-            DateTime newStartRecordTime = PeriodHelper.getNextPeriod(startRecord, schedule, 1);
+            DateTime newStartRecordTime = PeriodHelper.getNextPeriod(startRecord, schedule, 1, null);
             String newStartTimeString = newStartRecordTime.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
             reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
         } catch (JEVisException ex) {
@@ -65,7 +65,7 @@ public class PeriodFinisher implements Finisher {
     public void continueWithNextReport(JEVisObject reportObject) {
         try {
             parseDates(reportObject);
-            DateTime newStartRecordTime = PeriodHelper.getNextPeriod(startRecord, schedule, 1);
+            DateTime newStartRecordTime = PeriodHelper.getNextPeriod(startRecord, schedule, 1, null);
             String newStartTimeString = newStartRecordTime.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
             reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
         } catch (JEVisException e) {

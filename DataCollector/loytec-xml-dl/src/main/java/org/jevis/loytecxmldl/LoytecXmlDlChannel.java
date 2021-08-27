@@ -30,6 +30,12 @@ public class LoytecXmlDlChannel implements LoytecXmlDlChannelClass {
 
         this.channelObject = channelObject;
 
+        try {
+            channelObject.getDataSource().reloadAttribute(channelObject);
+        } catch (Exception e) {
+            log.error("Could not reload attributes for object {}:{}", channelObject.getName(), channelObject.getID(), e);
+        }
+
         this.update();
 
         log.debug("Init LoytecXmlDlChannel: " + name + " TID: " + trendId + " Tar: " + targetObj.getName() + ":" + targetObj.getID() + "  LastR: " + lastReadout);

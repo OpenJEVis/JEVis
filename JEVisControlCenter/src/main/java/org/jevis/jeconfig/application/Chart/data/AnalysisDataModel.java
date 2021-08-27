@@ -829,7 +829,7 @@ public class AnalysisDataModel {
         if (multiSite == null) {
             boolean is = false;
             try {
-                JEVisClass directoryClass = ds.getJEVisClass("Analyses Directory");
+                JEVisClass directoryClass = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
                 List<JEVisObject> objects = ds.getObjects(directoryClass, true);
 
                 List<JEVisObject> buildingParents = new ArrayList<>();

@@ -425,10 +425,10 @@ public class ToolBarView {
 
             if (!JEConfig.getExpert()) {
                 toolBar.getItems().addAll(listAnalysesComboBox,
-                        sep1, presetDateBox, pickerDateStart, pickerDateEnd,
+                        sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, customWorkDay);
+                        sep4);
 
                 if (isRegressionPossible) {
                     toolBar.getItems().add(calcRegression);
@@ -437,10 +437,10 @@ public class ToolBarView {
                 toolBar.getItems().addAll(showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
             } else {
                 toolBar.getItems().addAll(listAnalysesComboBox,
-                        sep1, presetDateBox, pickerDateStart, pickerDateEnd,
+                        sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, customWorkDay);
+                        sep4);
 
                 if (isRegressionPossible) {
                     toolBar.getItems().add(calcRegression);

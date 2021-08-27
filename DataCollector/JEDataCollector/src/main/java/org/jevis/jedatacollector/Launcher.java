@@ -189,14 +189,14 @@ public class Launcher extends AbstractCliApp {
             checkForTimeout();
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                if (!firstRun) {
-                    try {
-                        ds.clearCache();
-                        ds.preload();
-                    } catch (JEVisException e) {
-                        logger.error(e);
-                    }
-                } else firstRun = false;
+//                if (!firstRun) {
+//                    try {
+//                        ds.clearCache();
+//                        ds.preload();
+//                    } catch (JEVisException e) {
+//                        logger.error(e);
+//                    }
+//                } else firstRun = false;
 
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
@@ -231,6 +231,7 @@ public class Launcher extends AbstractCliApp {
             List<JEVisObject> allDataSources = client.getObjects(dataSourceClass, true);
             for (JEVisObject dataSource : allDataSources) {
                 try {
+                    ds.reloadAttribute(dataSource);
                     Boolean enabled = sampleHandler.getLastSample(dataSource, DataCollectorTypes.DataSource.ENABLE, false);
                     Boolean manualTrigger = sampleHandler.getLastSample(dataSource, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
                     if (enabled && DataSourceFactory.containDataSource(dataSource) || (manualTrigger && DataSourceFactory.containDataSource(dataSource))) {

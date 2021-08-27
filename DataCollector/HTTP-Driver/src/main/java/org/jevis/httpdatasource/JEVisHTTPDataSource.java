@@ -196,6 +196,11 @@ public class JEVisHTTPDataSource implements DataSource {
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
                     _channels.add(channelObject);
+                    try {
+                        httpObject.getDataSource().reloadAttribute(channelObject);
+                    } catch (Exception e) {
+                        logger.error("Could not reload attributes for object {}:{}", channelObject.getName(), channelObject.getID(), e);
+                    }
                     counterCheckForErrorInAPI.add(channelObject.getID());
                 }
             });

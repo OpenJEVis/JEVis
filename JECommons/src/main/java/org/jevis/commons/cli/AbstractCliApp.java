@@ -292,7 +292,7 @@ public abstract class AbstractCliApp {
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             logger.info("Last job. Clearing cache.");
             setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-            ds.clearCache();
+//            ds.clearCache();
         }
     }
 
@@ -317,7 +317,9 @@ public abstract class AbstractCliApp {
         try {
             JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
             List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
-            threadCount = listServices.get(0).getAttribute(SERVICE_THREAD_COUNT).getLatestSample().getValueAsLong().intValue();
+            JEVisAttribute threadCountAttribute = listServices.get(0).getAttribute(SERVICE_THREAD_COUNT);
+            ds.reloadAttribute(threadCountAttribute);
+            threadCount = threadCountAttribute.getLatestSample().getValueAsLong().intValue();
             logger.info("Set Thread count to: " + threadCount);
         } catch (Exception e) {
             logger.error("Couldn't get Service thread count from the JEVis System");
@@ -336,7 +338,9 @@ public abstract class AbstractCliApp {
         try {
             JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
             List<JEVisObject> listServiceObjects = ds.getObjects(serviceClass, false);
-            enabled = listServiceObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
+            JEVisAttribute enabledAttribute = listServiceObjects.get(0).getAttribute("Enable");
+            ds.reloadAttribute(enabledAttribute);
+            enabled = enabledAttribute.getLatestSample().getValueAsBoolean();
         } catch (Exception e) {
             logger.error("Couldn't get Service status from the JEVis System");
         }
@@ -353,7 +357,9 @@ public abstract class AbstractCliApp {
         try {
             JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
             List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
-            cycleTime = listServices.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
+            JEVisAttribute cycleTimeAttribute = listServices.get(0).getAttribute("Cycle Time");
+            ds.reloadAttribute(cycleTimeAttribute);
+            cycleTime = cycleTimeAttribute.getLatestSample().getValueAsLong().intValue();
             logger.info("Service cycle time from service: " + cycleTime);
         } catch (Exception e) {
             logger.error("Couldn't get Service cycle time from the JEVis System");
@@ -406,6 +412,7 @@ public abstract class AbstractCliApp {
                     Interval interval = new Interval(entry.getValue(), new DateTime());
                     JEVisObject object = ds.getObject(entry.getKey());
 
+                    ds.reloadAttribute(object);
                     Long maxTime = sampleHandler.getLastSample(object, "Max thread time", maxThreadTime);
                     if (interval.toDurationMillis() > maxTime) {
                         logger.warn("Task for {} is out of time, trying to cancel", entry.getKey());
@@ -432,6 +439,7 @@ public abstract class AbstractCliApp {
         JEVisAttribute enabledAtt = null;
         try {
             enabledAtt = jeVisObject.getAttribute("Enabled");
+            ds.reloadAttribute(enabledAtt);
             if (enabledAtt != null && enabledAtt.hasSample()) {
                 return enabledAtt.getLatestSample().getValueAsBoolean();
             }

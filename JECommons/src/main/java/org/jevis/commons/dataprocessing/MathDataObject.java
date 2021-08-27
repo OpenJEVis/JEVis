@@ -14,6 +14,7 @@ import org.jevis.commons.constants.GapFillingReferencePeriod;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
@@ -59,6 +60,7 @@ public class MathDataObject {
     private int processingSize = 10000;
     private List<JEVisSample> sampleCache;
     private Boolean fillPeriod;
+    private List<PeriodRule> periodData;
 
     private Period inputDataPeriod;
     private AggregationPeriod referencePeriod;
@@ -285,6 +287,32 @@ public class MathDataObject {
         return periodInputData;
     }
 
+    public List<PeriodRule> getPeriodAlignment() {
+        if (periodData == null) {
+            periodData = new ArrayList<>();
+            List<JEVisSample> allSamples = sampleHandler.getAllSamples(getMathDataObject(), PERIOD.getAttributeName());
+
+            for (JEVisSample jeVisSample : allSamples) {
+
+                try {
+                    DateTime startOfPeriod = jeVisSample.getTimestamp();
+                    String periodString = jeVisSample.getValueAsString();
+                    Period p = new Period(periodString);
+                    periodData.add(new PeriodRule(startOfPeriod, p));
+                } catch (Exception e) {
+                    logger.error("Could not create Period rule for sample {}", jeVisSample, e);
+                }
+            }
+
+            if (allSamples.isEmpty()) {
+                periodData.add(new PeriodRule(
+                        new DateTime(1990, 1, 1, 0, 0, 0, 0),
+                        Period.ZERO));
+            }
+        }
+        return periodData;
+    }
+
     public JEVisAttribute getEnabledAttribute() {
         return enabledAttribute;
     }
@@ -465,37 +493,8 @@ public class MathDataObject {
         AggregationPeriod aggregationPeriod = getReferencePeriod();
         Long referencePeriodCount = getReferencePeriodCount();
         DateTime lastRun = getLastRun(getMathDataObject());
-        for (int i = 0; i < referencePeriodCount; i++) {
-            switch (aggregationPeriod) {
-                case NONE:
-                    break;
-                case MINUTELY:
-                    lastRun = lastRun.plusMinutes(1);
-                    break;
-                case QUARTER_HOURLY:
-                    lastRun = lastRun.plusMinutes(15);
-                    break;
-                case HOURLY:
-                    lastRun = lastRun.plusHours(1);
-                    break;
-                case DAILY:
-                    lastRun = lastRun.plusDays(1);
-                    break;
-                case WEEKLY:
-                    lastRun = lastRun.plusWeeks(1);
-                    break;
-                case MONTHLY:
-                    lastRun = lastRun.plusMonths(1);
-                    break;
-                case QUARTERLY:
-                    lastRun = lastRun.plusMonths(3);
-                    break;
-                case YEARLY:
-                    lastRun = lastRun.plusYears(1);
-                    break;
-            }
-        }
-        return lastRun;
+
+        return PeriodHelper.getNextPeriod(lastRun, org.jevis.commons.datetime.Period.valueOf(aggregationPeriod.toString()), referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
     }
 
     private DateTimeZone getTimeZone(JEVisObject object) {

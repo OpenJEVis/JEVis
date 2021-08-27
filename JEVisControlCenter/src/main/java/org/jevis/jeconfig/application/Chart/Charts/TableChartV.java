@@ -129,7 +129,19 @@ public class TableChartV extends XYChart {
                 int index = xyChartSerieList.indexOf(xyChartSerie);
                 List<JEVisSample> samples = xyChartSerie.getSingleRow().getSamples();
 
-                if (p == null && samples.size() > 1) {
+                if (xyChartSerie.getSingleRow().getDataProcessor() != null && samples.size() > 0) {
+                    p = CleanDataObject.getPeriodForDate(xyChartSerie.getSingleRow().getDataProcessor(), samples.get(0).getTimestamp());
+                    setPeriod(p);
+                    latestSample = samples.get(0);
+                    object = latestSample.getAttribute().getObject();
+                    break;
+                } else if (xyChartSerie.getSingleRow().getObject() != null && samples.size() > 0) {
+                    p = CleanDataObject.getPeriodForDate(xyChartSerie.getSingleRow().getObject(), samples.get(0).getTimestamp());
+                    setPeriod(p);
+                    latestSample = samples.get(0);
+                    object = latestSample.getAttribute().getObject();
+                    break;
+                } else if (p == null && samples.size() > 1) {
                     try {
                         p = new Period(samples.get(0).getTimestamp(),
                                 samples.get(1).getTimestamp());
