@@ -50,7 +50,36 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.54------\n" +
+            "------Version 3.9.55------\n" +
+                    "JECC - ChartPlugin - ChartSelectionDialog - reduced max height and added max screen size workaround\n" +
+                    "JECC - ChartPlugin - added direct print\n" +
+                    "JECC - ChartPlugin - added pdf export\n" +
+                    "JECC - DashboardPlugin - Add new widget type to display images\n" +
+                    "JECC - DashboardPlugin - Add postion option the side pane\n" +
+                    "JECC - DashboardPlugin - Config pane appears in view mode\n" +
+                    "JECC - DashboardPlugin - DataModelDataHandler - fixed typo\n" +
+                    "JECC - DashboardPlugin - Export as PDF\n" +
+                    "JECC - DashboardPlugin - Fixed a bug where tasks became zombie tasks\n" +
+                    "JECC - DashboardPlugin - Fixed a bug where the new widget selection did not update\n" +
+                    "JECC - DashboardPlugin - Fixed start/end of day button\n" +
+                    "JECC - DashboardPlugin - Performance and memory improvement for the data selection\n" +
+                    "JECC - DashboardPlugin - Reload last sample before dashboard load\n" +
+                    "JECC - DashboardPlugin - ValueWidget - allow deselecting percentage\n" +
+                    "JECC - DashboardPlugin - added feature to disable custom workday\n" +
+                    "JECC - DashboardPlugin - fixed <0.01% display format\n" +
+                    "JECC - Increased Widget config dialog size to show more options by default\n" +
+                    "JECC - Moving a single plugin to a separate display\n" +
+                    "JECC - Replace special chars in file names\n" +
+                    "\n" +
+                    "JECommons - WorkDays - fixed wrong error reference for json fail\n" +
+                    "\n" +
+                    "JEDataProcessor - MathDataObject - added custom period\n" +
+                    "JEDataProcessor - fixed aggregation problem for periods greater then days\n" +
+                    "\n" +
+                    "JEWebService - added support for timezone sensitive sample aggregation\n" +
+                    "\n" +
+                    "Notifier - Notifier-EP - EmailNotificationDriver - fixed ssl auth property\n\n" +
+                    "------Version 3.9.54------\n" +
                     "JECC - Add new data point creation template function\n" +
                     "JECC - ChartPlugin - ChartDataRow - added enabled check\n" +
                     "JECC - ChartPlugin - date axis formats timeframe string dependent on period\n" +
