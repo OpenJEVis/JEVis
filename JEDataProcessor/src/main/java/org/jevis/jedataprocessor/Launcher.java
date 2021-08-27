@@ -19,6 +19,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.utils.CommonMethods;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class Launcher extends AbstractCliApp {
     public static String KEY = "process-id";
     private final Command commands = new Command();
     private int processingSize = 50000;
-    private boolean firstRun = true;
+    private final boolean firstRun = true;
 
     private Launcher(String[] args, String appname) {
         super(args, appname);
@@ -138,14 +139,14 @@ public class Launcher extends AbstractCliApp {
             checkForTimeout();
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                if (!firstRun) {
-                    try {
-                        ds.clearCache();
-                        ds.preload();
-                    } catch (JEVisException e) {
-                        logger.error("Could not preload.");
-                    }
-                } else firstRun = false;
+//                if (!firstRun) {
+//                    try {
+//                        ds.clearCache();
+//                        ds.preload();
+//                    } catch (JEVisException e) {
+//                        logger.error("Could not preload.");
+//                    }
+//                } else firstRun = false;
 
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
                 this.processingSize = CommonMethods.getProcessingSizeFromService(ds, APP_SERVICE_CLASS_NAME);
@@ -201,36 +202,40 @@ public class Launcher extends AbstractCliApp {
         List<JEVisObject> filteredObjects = new ArrayList<>();
 
         try {
+            JEVisDataSourceWS dsWS = (JEVisDataSourceWS) ds;
             cleanDataClass = ds.getJEVisClass(CleanDataObject.CLASS_NAME);
-            cleanDataObjects = ds.getObjects(cleanDataClass, false);
+            cleanDataObjects = dsWS.getObjectsWS(cleanDataClass, false);
             logger.info("Total amount of Clean Data Objects: {}", cleanDataObjects.size());
             forecastDataClass = ds.getJEVisClass(ForecastDataObject.CLASS_NAME);
-            forecastDataObjects = ds.getObjects(forecastDataClass, false);
+            forecastDataObjects = dsWS.getObjectsWS(forecastDataClass, false);
             logger.info("Total amount of Forecast Data Objects: {}", forecastDataObjects.size());
             mathDataClass = ds.getJEVisClass(MathDataObject.CLASS_NAME);
-            mathDataObjects = ds.getObjects(mathDataClass, false);
+            mathDataObjects = dsWS.getObjectsWS(mathDataClass, false);
             logger.info("Total amount of Math Data Objects: {}", forecastDataObjects.size());
 
             cleanDataObjects.forEach(jeVisObject -> {
                 if (isEnabled(jeVisObject)) {
-                    filteredObjects.add(jeVisObject);
                     if (!plannedJobs.containsKey(jeVisObject.getID())) {
+                        filteredObjects.add(jeVisObject);
+                        ds.reloadAttribute(jeVisObject);
                         plannedJobs.put(jeVisObject.getID(), new DateTime());
                     }
                 }
             });
             forecastDataObjects.forEach(object -> {
                 if (isEnabled(object)) {
-                    filteredObjects.add(object);
                     if (!plannedJobs.containsKey(object.getID())) {
+                        filteredObjects.add(object);
+                        ds.reloadAttribute(object);
                         plannedJobs.put(object.getID(), new DateTime());
                     }
                 }
             });
             mathDataObjects.forEach(object -> {
                 if (isEnabled(object)) {
-                    filteredObjects.add(object);
                     if (!plannedJobs.containsKey(object.getID())) {
+                        filteredObjects.add(object);
+                        ds.reloadAttribute(object);
                         plannedJobs.put(object.getID(), new DateTime());
                     }
                 }

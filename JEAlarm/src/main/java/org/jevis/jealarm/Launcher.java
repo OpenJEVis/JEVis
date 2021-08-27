@@ -14,6 +14,7 @@ import org.jevis.commons.alarm.AlarmConfiguration;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class Launcher extends AbstractCliApp {
     private static final String APP_INFO = "JEAlarm";
     public static String KEY = "process-id";
     private final Command commands = new Command();
-    private boolean firstRun = true;
+    private final boolean firstRun = true;
 
     private Launcher(String[] args, String appname) {
         super(args, appname);
@@ -122,14 +123,14 @@ public class Launcher extends AbstractCliApp {
             List<AlarmConfiguration> enabledAlarmConfigurations = new ArrayList<>();
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                if (!firstRun) {
-                    try {
-                        ds.clearCache();
-                        ds.preload();
-                    } catch (JEVisException e) {
-                        logger.error(e);
-                    }
-                } else firstRun = false;
+//                if (!firstRun) {
+//                    try {
+//                        ds.clearCache();
+//                        ds.preload();
+//                    } catch (JEVisException e) {
+//                        logger.error(e);
+//                    }
+//                } else firstRun = false;
 
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
@@ -177,9 +178,11 @@ public class Launcher extends AbstractCliApp {
 
         try {
             alarmConfig = ds.getJEVisClass(AlarmConfiguration.CLASS_NAME);
-            alarmConfigs = ds.getObjects(alarmConfig, false);
+            JEVisDataSourceWS dsWS = (JEVisDataSourceWS) ds;
+            alarmConfigs = dsWS.getObjectsWS(alarmConfig, false);
             logger.info("Total amount of Alarm Configuration Objects: {}", alarmConfigs.size());
             alarmConfigs.forEach(jeVisObject -> {
+                ds.reloadObject(jeVisObject);
                 AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, jeVisObject);
                 if (alarmConfiguration.isEnabled()) {
                     filteredObjects.add(alarmConfiguration);

@@ -16,6 +16,7 @@ import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -135,7 +136,8 @@ public class CalcLauncher extends AbstractCliApp {
         List<JEVisObject> jevisObjects = new ArrayList<>();
         try {
             JEVisClass calcClass = ds.getJEVisClass(CalcJobFactory.Calculation.CLASS.getName());
-            jevisObjects = ds.getObjects(calcClass, false);
+            JEVisDataSourceWS dsWS = (JEVisDataSourceWS) ds;
+            jevisObjects = dsWS.getObjectsWS(calcClass, false);
         } catch (JEVisException ex) {
             logger.error(ex.getMessage());
         }

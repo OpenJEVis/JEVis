@@ -343,7 +343,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
             if (result >= 0.01) {
                 percentText = ValueWidget.this.nfPercent.format(result) + "%";
             } else {
-                percentText = " <" + ValueWidget.this.nfPercent.format(0.01) + "%";
+                percentText = " < 0.01 %";
             }
         } else {
             percentText = "";
