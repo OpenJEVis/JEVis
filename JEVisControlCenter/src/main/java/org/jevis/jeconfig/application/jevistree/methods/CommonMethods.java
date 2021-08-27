@@ -107,7 +107,7 @@ public class CommonMethods {
                     }
                 }
             }
-            pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID());
+            pForm.addMessage("Deleted samples of object " + object.getName() + ":" + object.getID());
         }
     }
 

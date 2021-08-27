@@ -257,7 +257,14 @@ public class VIDA350DataSource implements DataSource {
             log.info("Found " + listChannels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
+
             listChannels.forEach(channelObject -> {
+                try {
+                    httpObject.getDataSource().reloadAttribute(channelObject);
+                } catch (Exception e) {
+                    logger.error("Could not reload attributes for object {}:{}", channelObject.getName(), channelObject.getID(), e);
+                }
+
                 try {
                     JEVisAttribute attTarget = channelObject.getAttribute(TARGET);
                     JEVisAttribute attIndex = channelObject.getAttribute(INDEX);

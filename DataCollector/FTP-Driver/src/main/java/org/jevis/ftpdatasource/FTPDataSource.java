@@ -294,6 +294,11 @@ public class FTPDataSource implements DataSource {
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
                     this.channels.add(channelObject);
+                    try {
+                        ftpObject.getDataSource().reloadObject(channelObject);
+                    } catch (Exception e) {
+                        logger.error("Could not reload attributes for object {}:{}", channelObject.getName(), channelObject.getID(), e);
+                    }
                     counterCheckForErrorInAPI.add(channelObject.getID());
                 }
             });

@@ -110,7 +110,7 @@ public class TaskPrinter {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (PrintStream ps = new PrintStream(baos, true, "utf8")) {
             table.printTable(ps, 0);
-            logger.error("Status Table\n" + new String(baos.toByteArray(), StandardCharsets.UTF_8));
+            logger.info("Status Table\n" + new String(baos.toByteArray(), StandardCharsets.UTF_8));
         } catch (Exception ex) {
 
         }

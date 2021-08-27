@@ -38,16 +38,24 @@ public class OPCUAChannel {
 
     //private DateTime lastSampleTimeStamp = DateTime.now();
 
-    /** manual constructor for debug use **/
-    public OPCUAChannel(String nodeID, String functionNodeID, double  functionInterval){
+    /**
+     * manual constructor for debug use
+     **/
+    public OPCUAChannel(String nodeID, String functionNodeID, double functionInterval) {
         channelObject = null;
         this.nodeId = nodeID;
-        this.functionNodeID=functionNodeID;
+        this.functionNodeID = functionNodeID;
         this.functionInterval = functionInterval;
     }
 
     public OPCUAChannel(JEVisObject channelObject) throws JEVisException {
         log.error("UPCUAChannel init: {}", channelObject);
+
+        try {
+            channelObject.getDataSource().reloadAttribute(channelObject);
+        } catch (Exception e) {
+            log.error("Could not reload attributes for object {}:{}", channelObject.getName(), channelObject.getID(), e);
+        }
 
         this.channelObject = channelObject;
         this.update();
@@ -88,11 +96,11 @@ public class OPCUAChannel {
         functionNodeID = helper.getValue(channelObject, FUNCTION_NODE);
         try {
             String intervalStr = helper.getValue(channelObject, FUNCTION_INTERVAL);
-            if(intervalStr!=null && !intervalStr.isEmpty()){
+            if (intervalStr != null && !intervalStr.isEmpty()) {
                 functionInterval = Double.parseDouble(intervalStr);
             }
-        }catch (Exception e){
-            log.warn("Error parsing Interval: "+e);
+        } catch (Exception e) {
+            log.warn("Error parsing Interval: " + e);
         }
     }
 
@@ -139,11 +147,11 @@ public class OPCUAChannel {
         return statusLog;
     }
 
-    public String getFunctionNode(){
+    public String getFunctionNode() {
         return functionNodeID;
     }
 
-    public double getFunctionInterval(){
+    public double getFunctionInterval() {
         return functionInterval;
     }
 
