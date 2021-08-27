@@ -45,7 +45,7 @@ public class DashboardExport {
         try {
             String title = control.getActiveDashboard().getTitle();
             FileChooser fileChooser = new FileChooser();
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf");
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", ".pdf");
             fileChooser.getExtensionFilters().add(extFilter);
             fileChooser.setInitialFileName(fileName + ".pdf");
             Document document = new Document();
@@ -54,13 +54,11 @@ public class DashboardExport {
                 OutputStream fileStream = new FileOutputStream(file);
                 PdfWriter.getInstance(document, fileStream);
 
-
                 document.open();
                 document.setPageSize(PageSize.A4.rotate());
                 document.addAuthor("JEVis");
                 document.addTitle(control.getActiveDashboard().getTitle());
                 document.addCreationDate();
-
 
                 WritableImage image = control.getDashboardPane().snapshot(new SnapshotParameters(), null);
                 String tmpFileName = UUID.randomUUID().toString();

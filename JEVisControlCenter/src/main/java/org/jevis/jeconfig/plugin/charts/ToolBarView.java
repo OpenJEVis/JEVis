@@ -67,6 +67,8 @@ public class ToolBarView {
     private ToggleButton loadNew;
     private ToggleButton exportCSV;
     private ToggleButton exportImage;
+    private ToggleButton exportPDF;
+    private ToggleButton printButton;
     private ToggleButton reload;
     private ToggleButton delete;
     private ToggleButton autoResize;
@@ -360,6 +362,8 @@ public class ToolBarView {
         loadNew.setDisable(bool);
         exportCSV.setDisable(bool);
         exportImage.setDisable(bool);
+        exportPDF.setDisable(bool);
+        printButton.setDisable(bool);
         reload.setDisable(bool);
         runUpdateButton.setDisable(bool);
         delete.setDisable(bool);
@@ -427,7 +431,7 @@ public class ToolBarView {
                 toolBar.getItems().addAll(listAnalysesComboBox,
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                         sep2, reload, zoomOut,
-                        sep3, loadNew, save, delete, select, exportCSV, exportImage,
+                        sep3, loadNew, save, delete, select, exportCSV, exportImage, exportPDF, printButton,
                         sep4);
 
                 if (isRegressionPossible) {
@@ -439,7 +443,7 @@ public class ToolBarView {
                 toolBar.getItems().addAll(listAnalysesComboBox,
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                         sep2, reload, zoomOut,
-                        sep3, loadNew, save, delete, select, exportCSV, exportImage,
+                        sep3, loadNew, save, delete, select, exportCSV, exportImage, exportPDF, printButton,
                         sep4);
 
                 if (isRegressionPossible) {
@@ -501,11 +505,31 @@ public class ToolBarView {
         });
 
         exportImage.setOnAction(action -> {
-            ChartExportImage ge = new ChartExportImage(model);
+            ChartExportImage exportImage = new ChartExportImage(model);
 
-            if (ge.getDestinationFile() != null) {
+            if (exportImage.getDestinationFile() != null) {
 
-                ge.export(chartPlugin.getvBox());
+                exportImage.export(chartPlugin.getvBox());
+            }
+
+        });
+
+        exportPDF.setOnAction(event -> {
+            ChartExportPDF exportPDF = new ChartExportPDF(model, false);
+
+            if (exportPDF.getDestinationFile() != null) {
+
+                exportPDF.export(chartPlugin.getvBox());
+            }
+        });
+
+        printButton.setOnAction(event -> {
+
+            ChartExportPDF exportPDF = new ChartExportPDF(model, true);
+
+            if (exportPDF.getDestinationFile() != null) {
+
+                exportPDF.export(chartPlugin.getvBox());
             }
 
         });
@@ -568,6 +592,16 @@ public class ToolBarView {
         Tooltip exportImageTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportImage"));
         exportImage.setTooltip(exportImageTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportImage);
+
+        exportPDF = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
+        Tooltip exportPDFTooltip = new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.exportPDF"));
+        exportPDF.setTooltip(exportPDFTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPDF);
+
+        printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
+        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
+        printButton.setTooltip(printTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
         reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));

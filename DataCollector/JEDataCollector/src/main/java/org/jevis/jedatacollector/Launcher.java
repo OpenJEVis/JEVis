@@ -15,6 +15,7 @@ import org.jevis.commons.driver.DataSourceFactory;
 import org.jevis.commons.driver.DriverHelper;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -228,7 +229,8 @@ public class Launcher extends AbstractCliApp {
         try {
             SampleHandler sampleHandler = new SampleHandler();
             JEVisClass dataSourceClass = client.getJEVisClass(DataCollectorTypes.DataSource.NAME);
-            List<JEVisObject> allDataSources = client.getObjects(dataSourceClass, true);
+            JEVisDataSourceWS dsWS = (JEVisDataSourceWS) ds;
+            List<JEVisObject> allDataSources = dsWS.getObjectsWS(dataSourceClass, true);
             for (JEVisObject dataSource : allDataSources) {
                 try {
                     ds.reloadAttribute(dataSource);

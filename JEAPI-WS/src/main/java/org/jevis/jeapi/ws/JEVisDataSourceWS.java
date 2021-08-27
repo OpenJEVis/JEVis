@@ -337,7 +337,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     public void getObjectsWS() {
         logger.trace("Get ALL ObjectsWS");
-        //TODO: throw excption?! so the other function can handel it?
+        //TODO: throw exception?! so the other function can handle it?
         Benchmark benchmark = new Benchmark();
         String resource = HTTPConnection.API_PATH_V1
                 + REQUEST.OBJECTS.PATH
@@ -367,7 +367,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 logger.error("Error while parsing object: {}", ex.getMessage());
             }
         });
-        benchmark.printBechmark("updateing object cache done for " + jsonObjects.size() + " objects");
+        benchmark.printBechmark("updating object cache done for " + jsonObjects.size() + " objects");
     }
 
     @Override

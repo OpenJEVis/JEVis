@@ -98,6 +98,12 @@ public class CleanDataObject {
         cleanObject = calcObject;
         rawDataObject = objectHandler.getFirstParent(calcObject);
         sampleHandler = new SampleHandler();
+
+        try {
+            calcObject.getDataSource().reloadObject(rawDataObject);
+        } catch (JEVisException e) {
+            logger.error("Could not reload input data object", e);
+        }
     }
 
     public static Double getMultiplierForDate(JEVisObject cleanObject, DateTime timestamp) {
