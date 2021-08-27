@@ -55,7 +55,7 @@ public class PatchNotesPage {
                     "JECC - ChartPlugin - added direct print\n" +
                     "JECC - ChartPlugin - added pdf export\n" +
                     "JECC - DashboardPlugin - Add new widget type to display images\n" +
-                    "JECC - DashboardPlugin - Add postion option the side pane\n" +
+                    "JECC - DashboardPlugin - Add position option the side pane\n" +
                     "JECC - DashboardPlugin - Config pane appears in view mode\n" +
                     "JECC - DashboardPlugin - DataModelDataHandler - fixed typo\n" +
                     "JECC - DashboardPlugin - Export as PDF\n" +
