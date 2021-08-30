@@ -100,7 +100,7 @@ public class CleanDataObject {
         sampleHandler = new SampleHandler();
 
         try {
-            calcObject.getDataSource().reloadObject(rawDataObject);
+            calcObject.getDataSource().reloadAttribute(rawDataObject);
         } catch (JEVisException e) {
             logger.error("Could not reload input data object", e);
         }
@@ -953,7 +953,7 @@ public class CleanDataObject {
                 }
             }
 
-            if (lastDate1.isBefore(lastDate2)) {
+            if (lastDate1.isBefore(lastDate2) || lastDate1.equals(lastDate2)) {
                 lastDate = lastDate1;
             } else if (lastDate2.isBefore(lastDate1)) {
                 lastDate = lastDate2;

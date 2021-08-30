@@ -439,7 +439,6 @@ public abstract class AbstractCliApp {
         JEVisAttribute enabledAtt = null;
         try {
             enabledAtt = jeVisObject.getAttribute("Enabled");
-            ds.reloadAttribute(enabledAtt);
             if (enabledAtt != null && enabledAtt.hasSample()) {
                 return enabledAtt.getLatestSample().getValueAsBoolean();
             }
