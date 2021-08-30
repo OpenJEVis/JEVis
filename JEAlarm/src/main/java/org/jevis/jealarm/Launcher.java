@@ -58,6 +58,7 @@ public class Launcher extends AbstractCliApp {
                         LogTaskManager.getInstance().buildNewTask(alarmConfiguration.getId(), alarmConfiguration.getName());
                         LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).setStatus(Task.Status.STARTED);
 
+                        ds.reloadAttribute(alarmConfiguration.getObject());
                         AlarmProcess currentProcess = new AlarmProcess(alarmConfiguration);
                         currentProcess.start();
 
@@ -182,11 +183,10 @@ public class Launcher extends AbstractCliApp {
             alarmConfigs = dsWS.getObjectsWS(alarmConfig, false);
             logger.info("Total amount of Alarm Configuration Objects: {}", alarmConfigs.size());
             alarmConfigs.forEach(jeVisObject -> {
-                ds.reloadObject(jeVisObject);
-                AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, jeVisObject);
-                if (alarmConfiguration.isEnabled()) {
-                    filteredObjects.add(alarmConfiguration);
+                if (isEnabled(jeVisObject)) {
+                    AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, jeVisObject);
                     if (!plannedJobs.containsKey(jeVisObject.getID())) {
+                        filteredObjects.add(alarmConfiguration);
                         plannedJobs.put(jeVisObject.getID(), new DateTime());
                     }
                 }
