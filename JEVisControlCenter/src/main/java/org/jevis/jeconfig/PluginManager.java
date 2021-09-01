@@ -47,6 +47,7 @@ import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dtrc.TRCPlugin;
 import org.jevis.jeconfig.plugin.equipment.EquipmentPlugin;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
+import org.jevis.jeconfig.plugin.notes.NotesPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.reports.ReportPlugin;
 import org.jevis.jeconfig.tool.DraggableTab;
@@ -169,6 +170,7 @@ public class PluginManager {
                         new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")),
                         new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")),
                         new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")),
+                        new NotesPlugin(this._ds, I18n.getInstance().getString("plugin.notes.title")),
                         new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")),
                         new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")),
                         new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")),
@@ -197,6 +199,8 @@ public class PluginManager {
                                         _plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
                                     } else if (plugObj.getJEVisClassName().equals(AlarmPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
+                                    } else if (plugObj.getJEVisClassName().equals(NotesPlugin.PLUGIN_NAME)) {
+                                        _plugins.add(new NotesPlugin(this._ds, I18n.getInstance().getString("plugin.notes.title")));
                                     } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
                                     } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
