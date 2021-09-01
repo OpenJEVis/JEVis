@@ -1,7 +1,7 @@
 {
   "name": "Group Directory",
   "description": "The class Group Directory represents a specific directory for the management of user groups.",
-  "unique": true,
+  "unique": false,
   "relationships": [
     {
       "start": "Group",
