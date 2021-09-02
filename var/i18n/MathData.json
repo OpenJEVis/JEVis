@@ -332,6 +332,26 @@
             "uk": "10 роки",
             "th": "10 ปี"
           }
+        },
+        "CUSTOM": {
+          "descriptions": null,
+          "names": {
+            "de": "Benutzer, gebunden auf Periode",
+            "en": "Custom, bound to period",
+            "ru": "Пользователь, привязанный к периоду",
+            "uk": "Користувач, прив’язаний до періоду",
+            "th": "ผู้ใช้ผูกติดอยู่กับช่วงเวลา"
+          }
+        },
+        "CUSTOM2": {
+          "descriptions": null,
+          "names": {
+            "de": "Benutzer, ungebunden",
+            "en": "Custom, unbound",
+            "ru": "Пользователь, несвязанный",
+            "uk": "Користувач, не зв’язаний",
+            "th": "ผู้ใช้ ไม่ผูกมัด"
+          }
         }
       }
     },

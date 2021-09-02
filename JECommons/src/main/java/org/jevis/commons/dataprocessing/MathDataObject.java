@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.constants.GapFillingReferencePeriod;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
@@ -24,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.jevis.commons.constants.GapFillingReferencePeriod.MONTH;
 import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.PERIOD;
 import static org.jevis.commons.dataprocessing.MathDataObject.AttributeName.*;
 
@@ -327,15 +325,15 @@ public class MathDataObject {
 
     public List<JEVisSample> getSampleCache() {
         if (this.sampleCache == null || this.sampleCache.isEmpty()) {
-            GapFillingReferencePeriod referencePeriod = null;
+            AggregationPeriod referencePeriod = null;
             int referencePeriodCount = 6;
             try {
                 if (getReferencePeriodAttribute().hasSample()) {
-                    referencePeriod = GapFillingReferencePeriod.parse(getReferencePeriodAttribute().getLatestSample().getValueAsString());
+                    referencePeriod = AggregationPeriod.parseAggregation(getReferencePeriodAttribute().getLatestSample().getValueAsString());
                 }
             } catch (JEVisException e) {
                 logger.error("Could not get reference period from {}:{}, assuming default value of month", getMathDataObject().getName(), getMathDataObject().getID(), e);
-                referencePeriod = MONTH;
+                referencePeriod = AggregationPeriod.MONTHLY;
             }
 
             try {
@@ -352,19 +350,19 @@ public class MathDataObject {
                 DateTime startDate = null;
 
                 switch (referencePeriod) {
-                    case DAY:
+                    case DAILY:
                         startDate = endDate.minusDays(referencePeriodCount);
                         break;
-                    case MONTH:
+                    case MONTHLY:
                         startDate = endDate.minusMonths(referencePeriodCount);
                         break;
-                    case WEEK:
+                    case WEEKLY:
                         startDate = endDate.minusWeeks(referencePeriodCount);
                         break;
-                    case YEAR:
+                    case YEARLY:
                         startDate = endDate.minusYears(referencePeriodCount);
                         break;
-                    case ALL:
+                    default:
                         try {
                             sampleCache = getInputAttribute().getAllSamples();
                             return sampleCache;
@@ -407,7 +405,7 @@ public class MathDataObject {
             if (latestSample != null) {
                 try {
                     DateTime latestSampleTS = latestSample.getTimestamp().withZone(getTimeZone(getMathDataObject()));
-                    return latestSampleTS.equals(nextRun) || latestSampleTS.isAfter(nextRun);
+                    return latestSampleTS.equals(getLastRun(this.getMathDataObject())) || latestSampleTS.isAfter(nextRun) || latestSampleTS.equals(nextRun);
                 } catch (JEVisException e) {
                     logger.error("Could not check ready state", e);
                 }
