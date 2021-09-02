@@ -100,9 +100,9 @@ public class CleanDataObject {
         sampleHandler = new SampleHandler();
 
         try {
-            calcObject.getDataSource().reloadObject(rawDataObject);
+            calcObject.getDataSource().reloadAttribute(rawDataObject);
         } catch (JEVisException e) {
-            logger.error("Could not reload input data object", e);
+            logger.error("Could not reload input data object for object {}:{}", calcObject.getName(), calcObject.getID(), e);
         }
     }
 
@@ -931,33 +931,40 @@ public class CleanDataObject {
             DateTime lastRawDate = getLastRawDate();
             DateTime lastDate1 = firstDate;
             DateTime lastDate2 = firstDate;
-            DateTime lastDate;
+            DateTime lastDate = null;
 
             Period rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), firstDate);
             Period cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), firstDate);
-            if (!rawDataPeriod.equals(Period.ZERO) && !cleanDataPeriod.equals(Period.ZERO)) {
-                long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate1), rawDataPeriod);
+            if (!rawDataPeriod.equals(Period.ZERO) || !cleanDataPeriod.equals(Period.ZERO)) {
 
-                while (l <= processingSize * 2d && (lastDate1.isBefore(lastRawDate) || lastDate1.equals(lastRawDate))) {
-                    rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), lastDate1);
-                    lastDate1 = lastDate1.plus(rawDataPeriod);
-                    l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate1), rawDataPeriod);
+                if (!rawDataPeriod.equals(Period.ZERO)) {
+                    long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate1), rawDataPeriod);
+
+                    while (l <= processingSize * 2d && (lastDate1.isBefore(lastRawDate) || lastDate1.equals(lastRawDate))) {
+                        rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), lastDate1);
+                        lastDate1 = lastDate1.plus(rawDataPeriod);
+                        l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate1), rawDataPeriod);
+                    }
                 }
 
-                l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate2), cleanDataPeriod);
+                if (!cleanDataPeriod.equals(Period.ZERO)) {
+                    long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate2), cleanDataPeriod);
 
-                while (l <= processingSize * 2d && (lastDate2.isBefore(lastRawDate) || lastDate2.equals(lastRawDate))) {
-                    cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), lastDate2);
-                    lastDate2 = lastDate2.plus(cleanDataPeriod);
-                    l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate2), cleanDataPeriod);
+                    while (l <= processingSize * 2d && (lastDate2.isBefore(lastRawDate) || lastDate2.equals(lastRawDate))) {
+                        cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), lastDate2);
+                        lastDate2 = lastDate2.plus(cleanDataPeriod);
+                        l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate2), cleanDataPeriod);
+                    }
+                }
+
+                if (!lastDate1.equals(firstDate) && lastDate1.isBefore(lastDate2) || lastDate1.equals(lastDate2)) {
+                    lastDate = lastDate1;
+                } else if (!lastDate2.equals(firstDate) || lastDate2.isBefore(lastDate1)) {
+                    lastDate = lastDate2;
                 }
             }
 
-            if (lastDate1.isBefore(lastDate2)) {
-                lastDate = lastDate1;
-            } else if (lastDate2.isBefore(lastDate1)) {
-                lastDate = lastDate2;
-            } else {
+            if (lastDate == null) {
                 lastDate = lastRawDate;
             }
 

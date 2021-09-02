@@ -47,6 +47,7 @@ public class ReportName {
                             prefix = startDate.toString(DateTimeFormat.forPattern("yyyy"));
                             break;
                         case CUSTOM:
+                        case CUSTOM2:
                             break;
                     }
 

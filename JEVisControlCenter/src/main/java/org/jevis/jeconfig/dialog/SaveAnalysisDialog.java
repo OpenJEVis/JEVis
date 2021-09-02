@@ -79,7 +79,7 @@ public class SaveAnalysisDialog extends JFXDialog {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (!model.isMultiDir() && !model.isMultiSite())
+                            if (!model.isMultiSite() && !model.isMultiDir())
                                 setText(obj.getName());
                             else {
                                 String prefix = "";

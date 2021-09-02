@@ -67,6 +67,7 @@ public class Launcher extends AbstractCliApp {
                             LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
                             LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
 
+                            ds.reloadAttribute(currentCleanDataObject);
                             currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds), processingSize);
                             currentProcess.start();
                         } catch (Exception ex) {
@@ -217,7 +218,6 @@ public class Launcher extends AbstractCliApp {
                 if (isEnabled(jeVisObject)) {
                     if (!plannedJobs.containsKey(jeVisObject.getID())) {
                         filteredObjects.add(jeVisObject);
-                        ds.reloadAttribute(jeVisObject);
                         plannedJobs.put(jeVisObject.getID(), new DateTime());
                     }
                 }
@@ -226,7 +226,6 @@ public class Launcher extends AbstractCliApp {
                 if (isEnabled(object)) {
                     if (!plannedJobs.containsKey(object.getID())) {
                         filteredObjects.add(object);
-                        ds.reloadAttribute(object);
                         plannedJobs.put(object.getID(), new DateTime());
                     }
                 }
@@ -235,7 +234,6 @@ public class Launcher extends AbstractCliApp {
                 if (isEnabled(object)) {
                     if (!plannedJobs.containsKey(object.getID())) {
                         filteredObjects.add(object);
-                        ds.reloadAttribute(object);
                         plannedJobs.put(object.getID(), new DateTime());
                     }
                 }

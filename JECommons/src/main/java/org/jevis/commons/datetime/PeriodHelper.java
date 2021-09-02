@@ -97,6 +97,7 @@ public class PeriodHelper {
                 }
                 break;
             case CUSTOM:
+            case CUSTOM2:
                 resultDate = resultDate.plus(customPeriod);
                 if (wasLastDay) {
                     resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
@@ -134,6 +135,7 @@ public class PeriodHelper {
                 resultDate = resultDate.plusYears(1).minusMillis(1);
                 break;
             case CUSTOM:
+            case CUSTOM2:
                 Interval temp = new Interval(dateHelper.getStartDate(), dateHelper.getEndDate());
                 resultDate = resultDate.plus(temp.toDurationMillis()).minusMillis(1);
                 break;
@@ -169,6 +171,7 @@ public class PeriodHelper {
                 resultDate = resultDate.minusYears(1);
                 break;
             case CUSTOM:
+            case CUSTOM2:
                 Interval temp = new Interval(dateHelper.getStartDate(), dateHelper.getEndDate());
                 resultDate = resultDate.minus(temp.toDurationMillis());
                 break;
@@ -177,7 +180,7 @@ public class PeriodHelper {
     }
 
     public static DateHelper getDateHelper(JEVisObject objectWithCustomScheduleAttribute, Period schedule, DateHelper dateHelper, DateTime start) {
-        if (schedule.equals(Period.CUSTOM)) {
+        if (schedule.equals(Period.CUSTOM) || schedule.equals(Period.CUSTOM2)) {
             dateHelper = new DateHelper();
             dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
             dateHelper.setStartDate(start);
