@@ -107,6 +107,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                 return start.plusYears(1);
             case NONE:
             case CUSTOM:
+            case CUSTOM2:
             default:
                 return start;
         }
