@@ -59,9 +59,9 @@ public class ChartDataRow {
     private boolean hasForecastData = false;
     private Double scaleFactor = 1d;
     private Double timeFactor = 1d;
-    private double min = 0d;
-    private double max = 0d;
-    private double avg = 0d;
+    private Double min = 0d;
+    private Double max = 0d;
+    private Double avg = 0d;
     private Double sum = 0d;
     private final Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
     private final Map<DateTime, JEVisSample> userDataMap = new TreeMap<>();
@@ -884,27 +884,27 @@ public class ChartDataRow {
         this.timeFactor = timeFactor;
     }
 
-    public double getMin() {
+    public Double getMin() {
         return min;
     }
 
-    public void setMin(double min) {
+    public void setMin(Double min) {
         this.min = min;
     }
 
-    public double getMax() {
+    public Double getMax() {
         return max;
     }
 
-    public void setMax(double max) {
+    public void setMax(Double max) {
         this.max = max;
     }
 
-    public double getAvg() {
+    public Double getAvg() {
         return avg;
     }
 
-    public void setAvg(double avg) {
+    public void setAvg(Double avg) {
         this.avg = avg;
     }
 

@@ -5,18 +5,19 @@
  */
 package org.jevis.jeconfig.plugin.charts;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTimePicker;
+import com.jfoenix.controls.*;
 import com.jfoenix.skins.JFXComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.concurrent.Task;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -26,6 +27,8 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -37,6 +40,7 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.Chart;
 import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
@@ -47,6 +51,9 @@ import org.joda.time.DateTime;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.prefs.Preferences;
@@ -102,6 +109,10 @@ public class ToolBarView {
     private ToggleButton showSum;
     private ToggleButton showL1L2;
     private ToggleButton calcRegression;
+    private ToggleButton calcFullLoadHours;
+    private ToggleButton calcHoursAboveBelow;
+    private ToggleButton calcSumAboveBelow;
+
     private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
@@ -273,7 +284,6 @@ public class ToolBarView {
     }
 
     private void calcRegression() {
-
         if (!model.calcRegression()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 
@@ -322,6 +332,372 @@ public class ToolBarView {
             model.setRegressionType(RegressionType.NONE);
             model.setCalcRegression(!model.calcRegression());
         }
+    }
+
+    private void calcFullLoadHours() {
+        Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
+        infoBox.setResizable(true);
+        infoBox.setTitle(I18n.getInstance().getString("dialog.fullloadhours.title"));
+        infoBox.setHeaderText(I18n.getInstance().getString("dialog.fullloadhours.headertext"));
+        TableView<ChartDataRow> fullLoadHours = new TableView<>();
+
+        NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
+        nf.setMinimumFractionDigits(0);
+        nf.setMaximumFractionDigits(0);
+
+        TableColumn<ChartDataRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
+        nameColumn.setSortable(true);
+        nameColumn.setPrefWidth(400);
+        nameColumn.setMinWidth(100);
+        nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getTitle()));
+
+        nameColumn.setCellFactory(new Callback<TableColumn<ChartDataRow, String>, TableCell<ChartDataRow, String>>() {
+            @Override
+            public TableCell<ChartDataRow, String> call(TableColumn<ChartDataRow, String> param) {
+                return new TableCell<ChartDataRow, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        setText("");
+                        setGraphic(null);
+
+                        if (item != null && !empty) {
+                            setText(item);
+                        }
+                    }
+                };
+            }
+        });
+
+
+        TableColumn<ChartDataRow, String> valueColumn = new TableColumn<>(I18n.getInstance().getString("dialog.fullloadhours.title"));
+        valueColumn.setStyle("-fx-alignment: CENTER");
+        valueColumn.setSortable(true);
+        valueColumn.setPrefWidth(125);
+        valueColumn.setMinWidth(75);
+        valueColumn.setCellValueFactory(param -> {
+            Double result = 0d;
+
+            if (param.getValue().getSum() != null && param.getValue().getMax() != null && !param.getValue().getMax().equals(0d)) {
+                result = param.getValue().getSum() / param.getValue().getMax();
+            }
+
+            return new SimpleObjectProperty<>(nf.format(result));
+        });
+
+        valueColumn.setCellFactory(new Callback<TableColumn<ChartDataRow, String>, TableCell<ChartDataRow, String>>() {
+            @Override
+            public TableCell<ChartDataRow, String> call(TableColumn<ChartDataRow, String> param) {
+                return new TableCell<ChartDataRow, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        setText("");
+                        setGraphic(null);
+
+                        if (item != null && !empty) {
+                            setText(item);
+                        }
+                    }
+                };
+            }
+        });
+
+        fullLoadHours.getColumns().addAll(nameColumn, valueColumn);
+        fullLoadHours.getItems().addAll(model.getSelectedData());
+
+        AlphanumComparator ac = new AlphanumComparator();
+        fullLoadHours.getItems().sort((o1, o2) -> ac.compare(o1.getTitle(), o2.getTitle()));
+
+        infoBox.getDialogPane().setContent(fullLoadHours);
+        infoBox.show();
+    }
+
+    private void calcHoursAboveBelow() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.entervalue"));
+
+        Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
+        JFXTextField limitField = new JFXTextField();
+
+        DoubleValidator validator = DoubleValidator.getInstance();
+        limitField.textProperty().addListener((observable, oldValue, newValue) -> {
+
+            try {
+                double parsedValue = validator.validate(newValue, I18n.getInstance().getLocale());
+            } catch (Exception e) {
+                limitField.setText(oldValue);
+            }
+        });
+
+        GridPane gridPane = new GridPane();
+        gridPane.setVgap(4);
+        gridPane.setHgap(12);
+
+        gridPane.add(limitLabel, 0, 0);
+        gridPane.add(limitField, 1, 0);
+
+        alert.getDialogPane().setContent(gridPane);
+
+        alert.showAndWait().ifPresent(buttonType -> {
+            if (buttonType.getButtonData().isDefaultButton() && !limitField.getText().isEmpty()) {
+                Task task = new Task() {
+                    @Override
+                    protected Object call() throws Exception {
+                        try {
+                            Double limit = validator.validate(limitField.getText());
+                            TableView<HoursAbove> fullLoadHours = new TableView<>();
+
+                            TableColumn<HoursAbove, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
+                            nameColumn.setSortable(true);
+                            nameColumn.setPrefWidth(400);
+                            nameColumn.setMinWidth(100);
+                            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getChartDataRow().getTitle()));
+
+                            nameColumn.setCellFactory(new Callback<TableColumn<HoursAbove, String>, TableCell<HoursAbove, String>>() {
+                                @Override
+                                public TableCell<HoursAbove, String> call(TableColumn<HoursAbove, String> param) {
+                                    return new TableCell<HoursAbove, String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                            super.updateItem(item, empty);
+                                            setText("");
+                                            setGraphic(null);
+
+                                            if (item != null && !empty) {
+                                                setText(item);
+                                            }
+                                        }
+                                    };
+                                }
+                            });
+
+                            TableColumn<HoursAbove, String> belowColumn = new TableColumn<>(I18n.getInstance().getString("dialog.calchoursabovebelow.below"));
+                            belowColumn.setStyle("-fx-alignment: CENTER");
+                            belowColumn.setSortable(true);
+                            belowColumn.setPrefWidth(200);
+                            belowColumn.setMinWidth(150);
+                            belowColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getBelow()));
+
+                            belowColumn.setCellFactory(new Callback<TableColumn<HoursAbove, String>, TableCell<HoursAbove, String>>() {
+                                @Override
+                                public TableCell<HoursAbove, String> call(TableColumn<HoursAbove, String> param) {
+                                    return new TableCell<HoursAbove, String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                            super.updateItem(item, empty);
+                                            setText("");
+                                            setGraphic(null);
+
+                                            if (item != null && !empty) {
+                                                JFXTextArea jfxTextArea = new JFXTextArea(item);
+                                                jfxTextArea.setWrapText(true);
+                                                setGraphic(jfxTextArea);
+                                            }
+                                        }
+                                    };
+                                }
+                            });
+
+                            TableColumn<HoursAbove, String> aboveColumn = new TableColumn<>(I18n.getInstance().getString("dialog.calchoursabovebelow.above"));
+                            aboveColumn.setStyle("-fx-alignment: CENTER");
+                            aboveColumn.setSortable(true);
+                            aboveColumn.setPrefWidth(200);
+                            aboveColumn.setMinWidth(150);
+                            aboveColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getAbove()));
+
+                            aboveColumn.setCellFactory(new Callback<TableColumn<HoursAbove, String>, TableCell<HoursAbove, String>>() {
+                                @Override
+                                public TableCell<HoursAbove, String> call(TableColumn<HoursAbove, String> param) {
+                                    return new TableCell<HoursAbove, String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                            super.updateItem(item, empty);
+                                            setText("");
+                                            setGraphic(null);
+
+                                            if (item != null && !empty) {
+                                                JFXTextArea jfxTextArea = new JFXTextArea(item);
+                                                jfxTextArea.setWrapText(true);
+                                                setGraphic(jfxTextArea);
+                                            }
+                                        }
+                                    };
+                                }
+                            });
+
+                            fullLoadHours.getColumns().addAll(nameColumn, belowColumn, aboveColumn);
+
+                            List<HoursAbove> hoursAbove = new ArrayList<>();
+                            model.getSelectedData().forEach(chartDataRow -> hoursAbove.add(new HoursAbove(chartDataRow, limit)));
+
+                            AlphanumComparator ac = new AlphanumComparator();
+                            hoursAbove.sort((o1, o2) -> ac.compare(o1.getChartDataRow().getTitle(), o2.getChartDataRow().getTitle()));
+                            fullLoadHours.getItems().addAll(hoursAbove);
+
+                            Platform.runLater(() -> {
+                                Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
+                                infoBox.setResizable(true);
+                                infoBox.setTitle(I18n.getInstance().getString("dialog.calchoursabovebelow.title"));
+                                infoBox.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.headertext") + " " + limit);
+                                infoBox.getDialogPane().setContent(fullLoadHours);
+                                infoBox.show();
+                            });
+
+                        } catch (Exception e) {
+                            this.failed();
+                            logger.error("Could not calculate times", e);
+                        } finally {
+                            succeeded();
+                        }
+                        return null;
+                    }
+                };
+
+                JEConfig.getStatusBar().addTask(ToolBarView.class.getName(), task, JEConfig.getImage("hoursabove.png"), true);
+            }
+        });
+    }
+
+    private void calcSumAboveBelow() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.entervalue"));
+
+        Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
+        JFXTextField limitField = new JFXTextField();
+        DoubleValidator validator = DoubleValidator.getInstance();
+        limitField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                double parsedValue = validator.validate(newValue, I18n.getInstance().getLocale());
+            } catch (Exception e) {
+                limitField.setText(oldValue);
+            }
+        });
+
+        GridPane gridPane = new GridPane();
+        gridPane.setVgap(4);
+        gridPane.setHgap(12);
+
+        gridPane.add(limitLabel, 0, 0);
+        gridPane.add(limitField, 1, 0);
+
+        alert.getDialogPane().setContent(gridPane);
+
+        alert.showAndWait().ifPresent(buttonType -> {
+            if (buttonType.getButtonData().isDefaultButton() && !limitField.getText().isEmpty()) {
+                Task task = new Task() {
+                    @Override
+                    protected Object call() throws Exception {
+                        try {
+                            Double limit = validator.validate(limitField.getText());
+
+                            TableView<SumsAbove> fullLoadHours = new TableView<>();
+
+                            TableColumn<SumsAbove, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
+                            nameColumn.setSortable(true);
+                            nameColumn.setPrefWidth(400);
+                            nameColumn.setMinWidth(100);
+                            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getChartDataRow().getTitle()));
+
+                            nameColumn.setCellFactory(new Callback<TableColumn<SumsAbove, String>, TableCell<SumsAbove, String>>() {
+                                @Override
+                                public TableCell<SumsAbove, String> call(TableColumn<SumsAbove, String> param) {
+                                    return new TableCell<SumsAbove, String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                            super.updateItem(item, empty);
+                                            setText("");
+                                            setGraphic(null);
+
+                                            if (item != null && !empty) {
+                                                setText(item);
+                                            }
+                                        }
+                                    };
+                                }
+                            });
+
+                            TableColumn<SumsAbove, String> belowColumn = new TableColumn<>(I18n.getInstance().getString("dialog.calchoursabovebelow.below"));
+                            belowColumn.setStyle("-fx-alignment: CENTER-RIGHT");
+                            belowColumn.setSortable(true);
+                            belowColumn.setPrefWidth(200);
+                            belowColumn.setMinWidth(150);
+                            belowColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getBelow()));
+
+                            belowColumn.setCellFactory(new Callback<TableColumn<SumsAbove, String>, TableCell<SumsAbove, String>>() {
+                                @Override
+                                public TableCell<SumsAbove, String> call(TableColumn<SumsAbove, String> param) {
+                                    return new TableCell<SumsAbove, String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                            super.updateItem(item, empty);
+                                            setText("");
+                                            setGraphic(null);
+
+                                            if (item != null && !empty) {
+                                                setText(item);
+                                            }
+                                        }
+                                    };
+                                }
+                            });
+
+                            TableColumn<SumsAbove, String> aboveColumn = new TableColumn<>(I18n.getInstance().getString("dialog.calchoursabovebelow.above"));
+                            aboveColumn.setStyle("-fx-alignment: CENTER-RIGHT");
+                            aboveColumn.setSortable(true);
+                            aboveColumn.setPrefWidth(200);
+                            aboveColumn.setMinWidth(150);
+                            aboveColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getAbove()));
+
+                            aboveColumn.setCellFactory(new Callback<TableColumn<SumsAbove, String>, TableCell<SumsAbove, String>>() {
+                                @Override
+                                public TableCell<SumsAbove, String> call(TableColumn<SumsAbove, String> param) {
+                                    return new TableCell<SumsAbove, String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                            super.updateItem(item, empty);
+                                            setText("");
+                                            setGraphic(null);
+
+                                            if (item != null && !empty) {
+                                                setText(item);
+                                            }
+                                        }
+                                    };
+                                }
+                            });
+
+                            fullLoadHours.getColumns().addAll(nameColumn, belowColumn, aboveColumn);
+
+                            List<SumsAbove> hoursAbove = new ArrayList<>();
+                            model.getSelectedData().forEach(chartDataRow -> hoursAbove.add(new SumsAbove(chartDataRow, limit)));
+
+                            AlphanumComparator ac = new AlphanumComparator();
+                            hoursAbove.sort((o1, o2) -> ac.compare(o1.getChartDataRow().getTitle(), o2.getChartDataRow().getTitle()));
+                            fullLoadHours.getItems().addAll(hoursAbove);
+
+                            Platform.runLater(() -> {
+                                Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
+                                infoBox.setResizable(true);
+                                infoBox.setTitle(I18n.getInstance().getString("dialog.calcsumabovebelow.title"));
+                                infoBox.setHeaderText(I18n.getInstance().getString("dialog.calcsumabovebelow.headertext") + " " + limit);
+                                infoBox.getDialogPane().setContent(fullLoadHours);
+                                infoBox.show();
+                            });
+
+                        } catch (Exception e) {
+                            this.failed();
+                            logger.error("Could not calculate times", e);
+                        } finally {
+                            succeeded();
+                        }
+                        return null;
+                    }
+                };
+
+                JEConfig.getStatusBar().addTask(ToolBarView.class.getName(), task, JEConfig.getImage("sumabove.png"), true);
+            }
+        });
     }
 
     public JFXComboBox<JEVisObject> getListAnalysesComboBox() {
@@ -373,6 +749,9 @@ public class ToolBarView {
         showSum.setDisable(bool);
         showL1L2.setDisable(bool);
         calcRegression.setDisable(bool);
+        calcFullLoadHours.setDisable(bool);
+        calcHoursAboveBelow.setDisable(bool);
+        calcSumAboveBelow.setDisable(bool);
         customWorkDay.setDisable(bool);
         disableIcons.setDisable(bool);
         zoomOut.setDisable(bool);
@@ -421,10 +800,20 @@ public class ToolBarView {
             Separator sep4 = new Separator();
 
             boolean isRegressionPossible = false;
+            boolean isAdditionalCalcPossible = false;
+
             for (ChartSetting chartSetting : model.getCharts().getListSettings()) {
                 if (chartSetting.getChartType() != ChartType.TABLE && chartSetting.getChartType() != ChartType.HEAT_MAP
                         && chartSetting.getChartType() != ChartType.BAR && chartSetting.getChartType() != ChartType.PIE)
                     isRegressionPossible = true;
+            }
+
+            QuantityUnits qu = new QuantityUnits();
+            for (ChartDataRow chartDataRow : model.getSelectedData()) {
+                if (qu.isSumCalculable(chartDataRow.getUnit())) {
+                    isAdditionalCalcPossible = true;
+                    break;
+                }
             }
 
             if (!JEConfig.getExpert()) {
@@ -438,6 +827,10 @@ public class ToolBarView {
                     toolBar.getItems().add(calcRegression);
                 }
 
+                if (isAdditionalCalcPossible) {
+                    toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow);
+                }
+
                 toolBar.getItems().addAll(showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
             } else {
                 toolBar.getItems().addAll(listAnalysesComboBox,
@@ -448,6 +841,10 @@ public class ToolBarView {
 
                 if (isRegressionPossible) {
                     toolBar.getItems().add(calcRegression);
+                }
+
+                if (isAdditionalCalcPossible) {
+                    toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow);
                 }
 
                 toolBar.getItems().addAll(showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
@@ -555,6 +952,12 @@ public class ToolBarView {
         showL1L2.setOnAction(event -> showL1L2InGraph());
 
         calcRegression.setOnAction(event -> calcRegression());
+
+        calcFullLoadHours.setOnAction(event -> calcFullLoadHours());
+
+        calcHoursAboveBelow.setOnAction(event -> calcHoursAboveBelow());
+
+        calcSumAboveBelow.setOnAction(event -> calcSumAboveBelow());
 
         customWorkDay.setOnAction(event -> customWorkDay());
 
@@ -702,16 +1105,22 @@ public class ToolBarView {
         Tooltip calcRegressionTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
         calcRegression.setTooltip(calcRegressionTooltip);
         calcRegression.setSelected(model.calcRegression());
-        calcRegression.styleProperty().bind(
-                Bindings
-                        .when(calcRegression.hoverProperty())
-                        .then(
-                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
-                        .otherwise(Bindings
-                                .when(calcRegression.selectedProperty())
-                                .then("-fx-background-insets: 1 1 1;")
-                                .otherwise(
-                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcRegression);
+
+        calcFullLoadHours = new ToggleButton("", JEConfig.getImage("fullload.png", iconSize, iconSize));
+        Tooltip calcFullLoadHoursTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcfullloadhours"));
+        calcFullLoadHours.setTooltip(calcFullLoadHoursTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcFullLoadHours);
+
+        calcHoursAboveBelow = new ToggleButton("", JEConfig.getImage("hoursabove.png", iconSize, iconSize));
+        Tooltip calcHoursAboveBelowTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calchoursabovebelow"));
+        calcHoursAboveBelow.setTooltip(calcHoursAboveBelowTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcHoursAboveBelow);
+
+        calcSumAboveBelow = new ToggleButton("", JEConfig.getImage("sumabove.png", iconSize, iconSize));
+        Tooltip calcSumAboveBelowTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcsumabovebelow"));
+        calcSumAboveBelow.setTooltip(calcSumAboveBelowTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcSumAboveBelow);
 
         customWorkDay = new ToggleButton("", JEConfig.getImage("iconfinder_calendar-clock_299096.png", iconSize, iconSize));
         Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
