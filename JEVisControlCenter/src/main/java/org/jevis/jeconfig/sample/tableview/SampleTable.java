@@ -428,7 +428,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         } catch (Exception ex) {
         }
 
-
         TableColumn<TableSample, DateTime> column = new TableColumn<>(columnName);
         column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getTimeStamp()));
 
@@ -467,15 +466,14 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                 }
                             });
 
-
-                            setGraphic(textField);
-
+                            HBox box = new HBox(textField);
+                            box.setFillHeight(true);
+                            box.setAlignment(Pos.CENTER_LEFT);
+                            setGraphic(box);
                         }
-
                     }
                 };
             }
-
         });
 
         return column;
@@ -489,8 +487,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      * @return
      */
     private TableColumn<TableSample, Boolean> createSelectionColumn(String columnName) {
-
-
         TableColumn<TableSample, Boolean> column = new TableColumn<>(columnName);
         column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().isSelected()));
 
@@ -515,8 +511,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                     tableSample.setIsSelected(newValue);
                                 });
                                 setDefaultCellStyle(this);
+
                                 HBox box = new HBox(checkBox);
-                                box.setAlignment(Pos.BASELINE_CENTER);
+                                box.setAlignment(Pos.CENTER_LEFT);
                                 setGraphic(box);
                             } catch (Exception ex) {
                                 logger.error(ex);
@@ -1141,7 +1138,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      */
     private TableColumn<TableSample, String> createNoteColumn(String columnName) {
 
-
         TableColumn<TableSample, String> column = new TableColumn<>(columnName);
         column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getNote()));
 
@@ -1176,13 +1172,14 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                 }
                             });
 
-                            setGraphic(textField);
+                            HBox box = new HBox(textField);
+                            box.setFillHeight(true);
+                            box.setAlignment(Pos.CENTER_LEFT);
+                            setGraphic(box);
                         }
-
                     }
                 };
             }
-
         });
 
         return column;

@@ -499,6 +499,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
         int colSpan = 1;
 
         HBox hBox = new HBox(enabled);
+        hBox.setFillHeight(true);
+        hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.setSpacing(10);
         if (JEConfig.getExpert()) {
             hBox.getChildren().add(calcCow);
@@ -538,7 +540,10 @@ public class CleanDataExtension implements ObjectEditorExtension {
         gridPane.add(nameConversionToDifferential, 0, row);
         gridPane.add(advSettingDialogButtonConversionToDifferential, 1, row);
         gridPane.add(conversionToDifferential, 2, row);
-        gridPane.add(conversionToDifferentialTimeStampEditor.getEditor(), 5, row);
+        HBox ctdTS = (HBox) conversionToDifferentialTimeStampEditor.getEditor();
+        ctdTS.setFillHeight(true);
+        ctdTS.setAlignment(Pos.CENTER_LEFT);
+        gridPane.add(ctdTS, 5, row);
 
         row++;
         gridPane.add(namePeriodAlignment, 0, row);
@@ -558,22 +563,34 @@ public class CleanDataExtension implements ObjectEditorExtension {
         row++;
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
-        separator.setPadding(new Insets(10, 0, 10, 0));
-        gridPane.add(separator, 0, row, 5, 1);
+        separator.setPadding(new Insets(20, 0, 10, 0));
+        gridPane.add(separator, 0, row, 6, 1);
         row++;
 
         gridPane.add(nameGapsConfiguration, 0, row);
         gridPane.add(gapsEnabled, 2, row, colSpan, 1);
-        gridPane.add(gapsConfiguration.getEditor(), 3, row, 3, 1);
+        HBox gcBox = (HBox) gapsConfiguration.getEditor();
+        gcBox.setFillHeight(true);
+        gcBox.setAlignment(Pos.CENTER_LEFT);
+        gridPane.add(gcBox, 3, row, 3, 1);
         row++;
+
         gridPane.add(nameLimitsConfiguration, 0, row);
         gridPane.add(limitsEnabled, 2, row, colSpan, 1);
-        gridPane.add(limitsConfiguration.getEditor(), 3, row, 3, 1);
+        HBox lcBox = (HBox) limitsConfiguration.getEditor();
+        lcBox.setFillHeight(true);
+        lcBox.setAlignment(Pos.CENTER_LEFT);
+        gridPane.add(lcBox, 3, row, 3, 1);
         row++;
+
         gridPane.add(nameAlarmConfiguration, 0, row);
         gridPane.add(alarmEnabled, 2, row, colSpan, 1);
-        gridPane.add(alarmConfiguration.getEditor(), 3, row, 3, 1);
+        HBox acBox = (HBox) alarmConfiguration.getEditor();
+        acBox.setFillHeight(true);
+        acBox.setAlignment(Pos.CENTER_LEFT);
+        gridPane.add(acBox, 3, row, 3, 1);
         row++;
+
         gridPane.add(nameAlarmLog, 0, row);
         gridPane.add(advSettingDialogButtonAlarmLog, 1, row);
         gridPane.add(alarmLog, 2, row, colSpan, 1);
