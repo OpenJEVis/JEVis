@@ -325,7 +325,7 @@ public class UserRightManagerForWS {
     }
 
     public boolean canCreate(JsonObject object, String jevisClass) throws JEVisException {
-        logger.error("canCreate: {} ,'{}'", object, jevisClass);
+        logger.debug("canCreate: {} ,'{}'", object, jevisClass);
         //Sys Admin can read it all
         if (isSysAdmin()) {
             return true;

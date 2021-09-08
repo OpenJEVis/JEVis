@@ -37,6 +37,7 @@ import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.dialog.NoteDialog;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
+import org.jevis.jeconfig.plugin.notes.NoteTag;
 import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.joda.time.DateTime;
 
@@ -583,8 +584,47 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                                     JEVisSample newSample = userNoteAttribute.buildSample(timeStamp.toDateTimeISO(), newUserNote);
                                     newSample.commit();
                                 }
+                            }
+
+                            /* Login info for note**/
+                            try {
+                                JEVisAttribute userAttribute = correspondingNoteObject.getAttribute("User");
+                                List<JEVisSample> sampleList = userAttribute.getSamples(timeStamp, timeStamp);
+
+                                String userName = userAttribute.getDataSource().getCurrentUser().getAccountName();
+
+                                if (sampleList.isEmpty()) {
+                                    JEVisSample uSample = userAttribute.buildSample(timeStamp, userName);
+                                    uSample.commit();
+                                } else {
+                                    sampleList.get(0).setValue(userName);
+                                    sampleList.get(0).commit();
+                                }
+
+                            } catch (Exception ex) {
 
                             }
+
+                            /* Tag for note */
+                            try {
+                                JEVisAttribute userAttribute = correspondingNoteObject.getAttribute("Tag");
+                                List<JEVisSample> sampleList = userAttribute.getSamples(timeStamp, timeStamp);
+
+                                /* Todo: let the user configure it using the TagTableCellField*/
+                                String tags = NoteTag.TAG_EVENT.getId();
+
+                                if (sampleList.isEmpty()) {
+                                    JEVisSample uSample = userAttribute.buildSample(timeStamp, tags);
+                                    uSample.commit();
+                                } else {
+                                    sampleList.get(0).setValue(tags);
+                                    sampleList.get(0).commit();
+                                }
+
+                            } catch (Exception ex) {
+
+                            }
+
 
                             if (!newUserNote.equals("") && !sample.getNote().contains("userNotes")) {
                                 List<JEVisSample> unmodifiedSamples = obj

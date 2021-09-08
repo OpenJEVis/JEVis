@@ -23,6 +23,24 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Data Notes"
+    },
+    {
+      "name": "Tag",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Notes"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Notes"
     }
   ]
 }

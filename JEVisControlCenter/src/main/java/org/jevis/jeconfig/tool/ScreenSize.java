@@ -5,6 +5,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Control;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 
 
 public class ScreenSize {
@@ -58,6 +59,27 @@ public class ScreenSize {
         } catch (Exception ex) {
             return new double[]{0, 0};
         }
+    }
+
+    /**
+     * After taken an screenshot the layout can be bugged. This function fixes this.
+     *
+     * @param stage
+     */
+    public static void fixScreenshotLayout(Stage stage) {
+        double width = stage.getWidth();
+        double height = stage.getHeight();
+        boolean wasMax = stage.isMaximized();
+        stage.setMaximized(true);
+        stage.setMaximized(false);
+
+        if (wasMax) {
+            stage.setMaximized(true);
+        } else {
+            stage.setHeight(width);
+            stage.setHeight(height);
+        }
+
     }
 
 }
