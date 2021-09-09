@@ -42,6 +42,7 @@ import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
+import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -917,6 +918,9 @@ public class DashboardControl {
     public void toPDF() {
         DashboardExport exporter = new DashboardExport();
         exporter.toPDF(this, activeDashboard.getTitle() + "_" + intervalToString());
+
+        ScreenSize.fixScreenshotLayout(JEConfig.getStage());
+
     }
 
     public void toggleTooltip() {

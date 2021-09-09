@@ -94,16 +94,16 @@ public class ObjectTable {
      * @throws JEVisException
      */
     public JsonObject insertObject(String name, String jclass, long parent, boolean isPublic, String i18n) throws JEVisException {
-        String sql = String.format("insert into %s(%s, %s, %s, %s) values(?,?,?,?)", TABLE, COLUMN_NAME, COLUMN_CLASS, COLUMN_PUBLIC,COLUMN_I18N);
+        String sql = String.format("insert into %s(%s, %s, %s, %s) values(?,?,?,?)", TABLE, COLUMN_NAME, COLUMN_CLASS, COLUMN_PUBLIC, COLUMN_I18N);
 
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, name);
             ps.setString(2, jclass);
             ps.setBoolean(3, isPublic);
-            ps.setString(4,i18n);
+            ps.setString(4, i18n);
 
-            logger.error("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             int count = ps.executeUpdate();
             if (count == 1) {
                 ResultSet rs = ps.getGeneratedKeys();
@@ -136,12 +136,12 @@ public class ObjectTable {
     }
 
     public JsonObject updateObject(long id, String newname, boolean ispublic, String i18n) throws JEVisException {
-        String sql = String.format("update %s set %s=?,%s=?,%s=? where %s=?", TABLE, COLUMN_NAME, COLUMN_PUBLIC, COLUMN_I18N,COLUMN_ID );
-        System.out.println("updateObject: "+sql);
+        String sql = String.format("update %s set %s=?,%s=?,%s=? where %s=?", TABLE, COLUMN_NAME, COLUMN_PUBLIC, COLUMN_I18N, COLUMN_ID);
+        System.out.println("updateObject: " + sql);
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, newname);
             ps.setBoolean(2, ispublic);
-            ps.setString(3,i18n);
+            ps.setString(3, i18n);
             ps.setLong(4, id);
 
             logger.error("SQL: {}", ps);
@@ -158,7 +158,7 @@ public class ObjectTable {
 
 
     }
-    
+
     public JsonObject getObject(Long id) throws JEVisException {
         logger.trace("getObject: {} ", id);
 
@@ -239,22 +239,22 @@ public class ObjectTable {
         return objects;
     }
 
-    public Map<Long,JsonObject> getGroupObjects() throws JEVisException {
+    public Map<Long, JsonObject> getGroupObjects() throws JEVisException {
 
-        String sql = String.format("select * from %s where %s is null and %s=?", TABLE, COLUMN_DELETE,COLUMN_CLASS);
+        String sql = String.format("select * from %s where %s is null and %s=?", TABLE, COLUMN_DELETE, COLUMN_CLASS);
 
-        Map<Long,JsonObject> objects = new ConcurrentHashMap<>();
+        Map<Long, JsonObject> objects = new ConcurrentHashMap<>();
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            ps.setString(1,"Group");
+            ps.setString(1, "Group");
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 try {
                     JsonObject object = SQLtoJsonFactory.buildObject(rs);
-                    objects.put(object.getId(),object);
+                    objects.put(object.getId(), object);
                 } catch (Exception ex) {
-                    logger.error("Could not load UserGroup: {}" ,ex.getMessage());
+                    logger.error("Could not load UserGroup: {}", ex.getMessage());
                 }
             }
         } catch (SQLException ex) {

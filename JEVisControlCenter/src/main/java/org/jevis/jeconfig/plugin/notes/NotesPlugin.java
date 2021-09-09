@@ -1,30 +1,24 @@
 package org.jevis.jeconfig.plugin.notes;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.*;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
+import javafx.geometry.*;
+import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +37,6 @@ import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
-import org.jevis.jeconfig.plugin.alarms.AlarmRow;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
 
@@ -51,11 +44,10 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 
 public class NotesPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(NotesPlugin.class);
@@ -74,20 +66,14 @@ public class NotesPlugin implements Plugin {
 
     private final JEVisDataSource ds;
     private final String title;
+    private final StackPane stackPane = new StackPane();
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
     private final int iconSize = 20;
     private final DateHelper dateHelper = new DateHelper(DateHelper.TransformType.PREVIEW);
     private final List<Task<List<NotesRow>>> runningUpdateTaskList = new ArrayList<>();
-    private final List<Future<?>> futures = new ArrayList<>();
     private final Image taskImage = JEConfig.getImage("rodentia-icons_text-x-playlist.png");
 
-    private final Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
-        @Override
-        public int compare(AlarmRow o1, AlarmRow o2) {
-            return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1, o2);
-        }
-    };
     private final TableView<NotesRow> tableView = new TableView<>();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
     private final JFXDatePicker startDatePicker = new JFXDatePicker();
@@ -95,11 +81,23 @@ public class NotesPlugin implements Plugin {
     private boolean init = false;
     private DateTime start;
     private DateTime end;
-    private TimeFrame timeFrame = TimeFrame.TODAY;
+    private TimeFrame timeFrame = TimeFrame.LAST_WEEK;
+
+
+    ObservableList<NotesRow> data = FXCollections.observableArrayList();
+    FilteredList<NotesRow> filteredData = new FilteredList<>(data);
+    BooleanProperty searchInNote = new SimpleBooleanProperty(false);
+    BooleanProperty searchInUser = new SimpleBooleanProperty(false);
+    BooleanProperty searchInDataRow = new SimpleBooleanProperty(false);
+    StringProperty searchTextProperty = new SimpleStringProperty("");
+    ObservableList<String> selectedTags = FXCollections.observableArrayList();
+    ObservableList<String> allTags = FXCollections.observableArrayList();
+    HashMap<String, BooleanProperty> activeTags = new HashMap();
 
     public NotesPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
+        this.borderPane.setTop(searchPanel());
 
         this.borderPane.setCenter(this.tableView);
         Label label = new Label(I18n.getInstance().getString("plugin.notes.nonotes"));
@@ -107,17 +105,292 @@ public class NotesPlugin implements Plugin {
         this.tableView.setPlaceholder(label);
 
         this.tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-//        this.tableView.setStyle("-fx-background-color: white;");
-
-//        this.tableView.setItems(alarmRows);
-
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
 
         this.startDatePicker.setPrefWidth(120d);
         this.endDatePicker.setPrefWidth(120d);
 
+        tableView.setItems(filteredData);
+
         createColumns();
+
+        stackPane.getChildren().add(borderPane);
+    }
+
+    private GridPane searchPanel() {
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(12));
+        gridPane.setHgap(12);
+
+        JFXTextField searchbar = new JFXTextField();
+        searchbar.setPromptText("Suche nach...");
+        searchbar.setMinWidth(250);
+
+        searchbar.textProperty().addListener((observable, oldValue, newValue) -> {
+            searchTextProperty.set(newValue);
+        });
+
+
+        Label filterLabel = new Label("Search in:");
+        JFXToggleButton toggleUser = new JFXToggleButton();
+        toggleUser.setText("User");
+        toggleUser.setSelected(true);
+        JFXToggleButton toggleNote = new JFXToggleButton();
+        toggleNote.setText("Notiz");
+        toggleNote.setSelected(true);
+        JFXToggleButton toggleDR = new JFXToggleButton();
+        toggleDR.setText("Datenpunkt");
+        toggleDR.setSelected(true);
+
+        JFXToggleButton toggleTag = new JFXToggleButton();
+        toggleTag.setText("Tags");
+        toggleTag.setSelected(true);
+
+
+        searchInUser = toggleUser.selectedProperty();
+        searchInNote = toggleNote.selectedProperty();
+        searchInDataRow = toggleDR.selectedProperty();
+
+        searchTextProperty.addListener((observable, oldValue, newValue) -> {
+            filter();
+        });
+        searchInUser.addListener((observable, oldValue, newValue) -> {
+            filter();
+        });
+        searchInNote.addListener((observable, oldValue, newValue) -> {
+            filter();
+        });
+        searchInDataRow.addListener((observable, oldValue, newValue) -> {
+            filter();
+        });
+
+/*
+        ObservableList<NoteTag> noteTags = FXCollections.observableArrayList();
+        noteTags.add(NoteTag.TAG_ERROR);
+        noteTags.add(NoteTag.TAG_REMINDER);
+        noteTags.add(NoteTag.TAG_AUDIT);
+        noteTags.add(NoteTag.TAG_TASK);
+        noteTags.add(NoteTag.TAG_EVENT);
+        noteTags.add(NoteTag.TAG_REPORT);
+*/
+        NoteTag.getAllTags().forEach(noteTag -> {
+            allTags.add(noteTag.getName());
+            activeTags.put(noteTag.getName(), new SimpleBooleanProperty(true));
+        });
+
+        Node tagMenu = createContextMenu();
+
+        HBox hBox = new HBox();
+        hBox.setFillHeight(true);
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        hBox.getChildren().addAll(filterLabel, toggleUser, toggleNote, toggleDR, toggleTag);
+
+        Region spacer = new Region();
+        spacer.setMinHeight(12);
+
+        gridPane.add(searchbar, 0, 1, 1, 1);
+        gridPane.add(tagMenu, 1, 1, 1, 1);
+        //gridPane.add(spacer, 0, 1, 2, 1);
+        gridPane.add(hBox, 0, 2, 2, 1);
+
+        return gridPane;
+    }
+
+
+    private Node createContextMenu() {
+
+        ContextMenu cm = new ContextMenu();
+        cm.setOnHidden(ev -> {
+            //System.out.println("Hide");
+        });
+
+
+        MenuItem selectAllMenuItem = new MenuItem("Alle Auswählen");
+        selectAllMenuItem.setOnAction(event -> {
+            selectedTags.clear();
+            selectedTags.addAll(allTags);
+            activeTags.forEach((s, booleanProperty) -> {
+                booleanProperty.setValue(true);
+                filter();
+            });
+        });
+
+        MenuItem deselectAllMenuItem = new MenuItem("Alle Abwählen");
+        deselectAllMenuItem.setOnAction(event -> {
+            selectedTags.clear();
+            activeTags.forEach((s, booleanProperty) -> {
+                booleanProperty.setValue(false);
+                filter();
+            });
+        });
+        cm.getItems().addAll(selectAllMenuItem, deselectAllMenuItem);
+
+        activeTags.forEach((tagKey, tagAktiv) -> {
+            System.out.println("Add to tag  menu:" + tagKey);
+            JFXCheckBox cb = new JFXCheckBox(tagKey);
+            cb.selectedProperty().bindBidirectional(tagAktiv);
+            //cb.setSelected(tagAktiv.get());
+            cb.setOnAction(event -> {
+                //tagAktiv.setValue(!tagAktiv.getValue());
+                filter();
+            });
+            CustomMenuItem cmi = new CustomMenuItem(cb);
+            cm.getItems().add(cmi);
+        });
+
+        JFXButton tagButton = new JFXButton("Tags");
+        tagButton.setContextMenu(cm);
+        tagButton.setOnAction(event -> {
+            cm.show(tagButton, Side.BOTTOM, 0, 0);
+        });
+
+        return tagButton;
+
+    }
+
+
+    private void filter() {
+        //System.out.println("---------------------------------------------------------------------------------------------");
+        //System.out.println("Searchabr: " + searchTextProperty.get());
+        //System.out.println("Finter: " + searchTextProperty.get() + " U: " + searchInUser.get() + " O: " + searchInDataRow.get() + " N: " + searchInNote.get());
+        //System.out.println("List: " + data.size());
+        filteredData.setPredicate(
+                new Predicate<NotesRow>() {
+                    @Override
+                    public boolean test(NotesRow notesRow) {
+                        // System.out.println("Filter.predict: " + notesRow.getTags());
+                        // System.out.println("Filter.Node: " + notesRow);
+                        try {
+                            AtomicBoolean tagMatch = new AtomicBoolean(false);
+                            activeTags.forEach((s, booleanProperty) -> {
+                                try {
+                                    if (booleanProperty.get()) {
+                                        notesRow.getTags().forEach(noteTag -> {
+                                            if (noteTag.getName().equals(s)) {
+                                                tagMatch.set(true);
+                                            }
+                                        });
+                                    }
+                                } catch (Exception ex) {
+                                    System.out.println("Falscher Tag: " + s);
+                                }
+                            });
+
+
+                            if (!tagMatch.get()) {
+                                // System.out.println(".... no tag machts found");
+                                return false;
+                            }
+
+                            //if (tagMatch.get() && searchTextProperty.get().isEmpty()) {
+                            //   return true;
+                            //}
+
+                            if (searchTextProperty.get().isEmpty()) {
+                                return true;
+                            }
+
+                            if (searchInUser.get() && notesRow.getUser().contains(searchTextProperty.get())) {
+                                return true;
+                            }
+
+                            if (searchInDataRow.get() && getFullName(notesRow.getObject()).contains(searchTextProperty.get())) {
+                                return true;
+                            }
+
+                            if (searchInNote.get() && notesRow.getNote().contains(searchTextProperty.get())) {
+                                return true;
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                        return false;
+                    }
+                });
+        Platform.runLater(() -> autoFitTable(tableView));
+        Platform.runLater(() -> tableView.sort());
+
+    }
+
+    private void updateList() {
+
+        Platform.runLater(this::initToolBar);
+
+        /**
+         if (init) {
+         //restartExecutor();
+         } else {
+         init = true;
+         }
+         **/
+
+        JEConfig.getStatusBar().stopTasks(NotesPlugin.class.getName());
+        this.runningUpdateTaskList.clear();
+        data.clear();
+        filteredData.clear();
+
+        System.out.println("DataSize; " + data.size() + " " + filteredData.size());
+
+        List<JEVisObject> noteObjects = getAllNoteObjects();
+        JEConfig.getStatusBar().startProgressJob(NotesPlugin.class.getName(), noteObjects.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
+        System.out.println("All notes: " + noteObjects.size());
+        noteObjects.forEach(noteObject -> {
+            Task<List<NotesRow>> task = new Task<List<NotesRow>>() {
+                @Override
+                protected List<NotesRow> call() {
+                    //List<NotesRow> list = new ArrayList<>();
+                    try {
+                        Platform.runLater(() -> this.updateTitle("Loading Notes '" + noteObject.getName() + "'"));
+                        JEVisAttribute userNotes = noteObject.getAttribute("User Notes");
+                        //list.addAll(getNotesRow(userNotes));
+                        System.out.println("--  add to list: " + userNotes.getObjectID());
+                        data.addAll(getNotesRow(userNotes));
+
+                        filter();
+                        //Platform.runLater(() -> autoFitTable(tableView));
+                        //if (noteObjects.indexOf(noteObject) % 5 == 0
+                        //       || noteObjects.indexOf(noteObject) == noteObjects.size() - 1) {
+                        //  Platform.runLater(() -> tableView.sort());
+                        //}
+                        this.succeeded();
+                    } catch (Exception e) {
+                        logger.error(e);
+                        this.failed();
+                    } finally {
+                        this.done();
+                        JEConfig.getStatusBar().progressProgressJob(
+                                NotesPlugin.class.getName(),
+                                1,
+                                I18n.getInstance().getString("plugin.alarms.message.finishedalarmconfig") + " " + noteObject.getName());
+                    }
+
+                    return null;
+                }
+            };
+            JEConfig.getStatusBar().addTask(NotesPlugin.class.getName(), task, taskImage, true);//,
+
+
+            /** check if all Jobs are done/failed to set statusbar **/
+            /**
+             EventHandler<WorkerStateEvent> doneEvent = event -> {
+             if (allJobsDone(futures)) {
+             JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
+             Platform.runLater(() -> tableView.sort());
+             Platform.runLater(() -> autoFitTable(tableView));
+             }
+             };
+             Platform.runLater(() -> {
+             task.setOnSucceeded(doneEvent);
+             task.setOnFailed(doneEvent);
+             });
+             **/
+
+            this.runningUpdateTaskList.add(task);
+        });
+
+
     }
 
     private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
@@ -207,19 +480,59 @@ public class NotesPlugin implements Plugin {
         noteColumn.setCellValueFactory(new PropertyValueFactory<NotesRow, String>("configname"));
         noteColumn.setStyle("-fx-alignment: CENTER;");
         noteColumn.setSortable(true);
-//        noteColumn.setPrefWidth(500);
+        noteColumn.setPrefWidth(500);
         noteColumn.setMinWidth(100);
 
         noteColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getNote() != null)
-                return new SimpleObjectProperty<>(param.getValue().getNote());
-            else return new SimpleObjectProperty<>();
+            if (param != null && param.getValue() != null) {
+                return param.getValue().notePropertyProperty();
+            } else return new SimpleObjectProperty<>();
+
+            /**
+
+             if (param != null && param.getValue() != null && param.getValue().getNote() != null) {
+
+
+             SimpleObjectProperty newB = new SimpleObjectProperty<>(param.getValue().getNote());
+             newB.addListener(new ChangeListener() {
+            @Override public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+            param.getValue().setNode(newValue.toString());
+            System.out.println("NEw value to save: " + newValue.toString());
+            }
+            });
+
+             return newB;
+             } else return new SimpleObjectProperty<>();
+             **/
         });
+
+        noteColumn.setEditable(true);
 
         noteColumn.setCellFactory(new Callback<TableColumn<NotesRow, String>, TableCell<NotesRow, String>>() {
             @Override
             public TableCell<NotesRow, String> call(TableColumn<NotesRow, String> param) {
                 return new TableCell<NotesRow, String>() {
+                    @Override
+                    public void startEdit() {
+                        super.startEdit();
+
+                        NotesRow tableSample = (NotesRow) getTableRow().getItem();
+                        JFXTextArea jfxTextArea = new JFXTextArea(tableSample.getNoteProperty().get());
+                        jfxTextArea.setWrapText(true);
+                        jfxTextArea.setPrefRowCount(8);
+                        jfxTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                            System.out.println("Focus Lost: " + newValue);
+                            if (!newValue) {
+                                //commitEdit(jfxTextArea.getText());
+                                tableSample.getNoteProperty().setValue(jfxTextArea.getText());
+                                commitEdit(jfxTextArea.getText());
+                            }
+                        });
+
+                        setGraphic(jfxTextArea);
+                    }
+
+
                     @Override
                     protected void updateItem(String item, boolean empty) {
                         super.updateItem(item, empty);
@@ -227,7 +540,45 @@ public class NotesPlugin implements Plugin {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            setText(item);
+                            //setText(item);
+                            Button button = new Button("...");
+                            Label label = new Label(item);
+                            label.setWrapText(false);
+                            label.setMaxHeight(12);
+
+
+                            setOnMouseClicked(event -> {
+                                if (event.getClickCount() == 2) {
+                                    startEdit();
+                                }
+                            });
+                            GridPane gridPane = new GridPane();
+                            gridPane.addRow(0, label, button);
+                            GridPane.setHgrow(label, Priority.ALWAYS);
+                            GridPane.setValignment(button, VPos.TOP);
+
+                            if (item.contains("\n")) {
+                                button.setVisible(true);
+                            } else {
+                                button.setVisible(true);
+                            }
+
+                            button.setOnAction(event -> {
+                                System.out.println("--------------lable hight: " + label.getHeight());
+                                if (label.isWrapText()) {
+                                    label.setMaxHeight(12);
+                                    label.setWrapText(false);
+                                } else {
+                                    label.setMaxHeight(60);
+                                    label.setWrapText(true);
+                                }
+
+
+                            });
+
+                            gridPane.setCache(true);
+                            gridPane.setCacheHint(CacheHint.QUALITY);
+                            setGraphic(gridPane);
                         }
                     }
                 };
@@ -290,7 +641,76 @@ public class NotesPlugin implements Plugin {
             }
         });
 
-        tableView.getColumns().setAll(dateColumn, noteColumn, objectNameColumn);
+        TableColumn<NotesRow, List<NoteTag>> tagColumn = new TableColumn<>(I18n.getInstance().getString("plugin.notes.table.tag"));
+        tagColumn.setStyle("-fx-alignment: CENTER;");
+        tagColumn.setSortable(true);
+        tagColumn.setMinWidth(100);
+
+        tagColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getObject() != null) {
+                return new SimpleObjectProperty<>(param.getValue().getTags());
+            } else return new SimpleObjectProperty<>();
+        });
+
+        tagColumn.setCellFactory(new Callback<TableColumn<NotesRow, List<NoteTag>>, TableCell<NotesRow, List<NoteTag>>>() {
+            @Override
+            public TableCell<NotesRow, List<NoteTag>> call(TableColumn<NotesRow, List<NoteTag>> param) {
+                return new TableCell<NotesRow, List<NoteTag>>() {
+                    @Override
+                    protected void updateItem(List<NoteTag> item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            String text = "";
+                            try {
+                                for (NoteTag noteTag : item) {
+                                    text += noteTag.getName() + ", ";
+                                }
+                                text = text.substring(0, text.length() - 2);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        });
+
+        TableColumn<NotesRow, String> userNameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.notes.table.username"));
+        userNameColumn.setStyle("-fx-alignment: CENTER;");
+        userNameColumn.setSortable(true);
+        userNameColumn.setMinWidth(100);
+
+        userNameColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getObject() != null)
+                return new SimpleStringProperty(param.getValue().getUser());
+            else return new SimpleStringProperty("");
+        });
+
+        userNameColumn.setCellFactory(new Callback<TableColumn<NotesRow, String>, TableCell<NotesRow, String>>() {
+            @Override
+            public TableCell<NotesRow, String> call(TableColumn<NotesRow, String> param) {
+                return new TableCell<NotesRow, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(item);
+                        }
+                    }
+                };
+            }
+        });
+
+
+        tableView.getColumns().setAll(dateColumn, noteColumn, objectNameColumn, tagColumn, userNameColumn);
         Platform.runLater(() -> {
             tableView.getSortOrder().clear();
             tableView.getSortOrder().setAll(dateColumn);
@@ -347,7 +767,15 @@ public class NotesPlugin implements Plugin {
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
+
+        ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
+        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
+        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
 
         reload.setOnAction(event -> {
 
@@ -381,6 +809,77 @@ public class NotesPlugin implements Plugin {
 
         });
 
+        newB.setOnAction(event -> {
+            NotePane notePane = new NotePane(allTags, ds, stackPane);
+
+            JFXButton okButton = new JFXButton(I18n.getInstance().getString("plugin.note.pane.ok"));
+            JFXButton cancelButton = new JFXButton(I18n.getInstance().getString("plugin.note.pane.cancel"));
+            HBox buttonBox = new HBox(cancelButton, okButton);
+            buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
+            buttonBox.setSpacing(12);
+            Separator separator = new Separator();
+            separator.setOrientation(Orientation.HORIZONTAL);
+            okButton.setDefaultButton(true);
+
+
+            VBox vBox = new VBox(notePane, buttonBox);
+            vBox.setSpacing(12);
+            vBox.setAlignment(Pos.BOTTOM_RIGHT);
+            vBox.setPadding(new Insets(12));
+
+
+            JFXDialog jfxDialog = new JFXDialog(stackPane, vBox, JFXDialog.DialogTransition.CENTER);
+            jfxDialog.setOverlayClose(false);
+
+            okButton.setOnAction(event1 -> {
+                JEVisObject jeVisObject = notePane.commit();
+                if (jeVisObject != null) {
+                    //data
+                    NotesRow notesRow = new NotesRow(notePane.getDate(), jeVisObject);
+                    data.add(notesRow);
+                }
+                jfxDialog.close();
+            });
+            cancelButton.setOnAction(event1 -> {
+                jfxDialog.close();
+            });
+
+            jfxDialog.show();
+        });
+
+        delete.setOnAction(event -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(I18n.getInstance().getString("plugin.note.delete.title"));
+            alert.setHeaderText(I18n.getInstance().getString("plugin.note.delete.message"));
+            //alert.setContentText("Before : ");
+
+            ButtonType buttonYes = new ButtonType(I18n.getInstance().getString("plugin.note.delete.delete"));
+            alert.getButtonTypes().clear();
+            alert.getButtonTypes().addAll(buttonYes, ButtonType.CANCEL);
+
+            Button noButton = (Button) alert.getDialogPane().lookupButton(ButtonType.CANCEL);
+            noButton.setDefaultButton(true);
+
+            final Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonYes) {
+                tableView.getSelectionModel().getSelectedItems().forEach(notesRow -> {
+                    notesRow.delete();
+                    data.remove(notesRow);
+                });
+                filter();
+            }
+
+        });
+
+        save.setOnAction(event -> {
+            this.data.forEach(notesRow -> {
+                if (notesRow.hasChanged()) {
+                    System.out.println("Note Has changed commit:");
+                    notesRow.commit();
+                }
+            });
+        });
+
         Separator sep1 = new Separator(Orientation.VERTICAL);
         Separator sep2 = new Separator(Orientation.VERTICAL);
 
@@ -406,7 +905,7 @@ public class NotesPlugin implements Plugin {
         startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
         endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
 
-        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload);
+        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, newB, save, delete);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
         JEVisHelp.getInstance().addHelpItems(NotesPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
@@ -620,92 +1119,30 @@ public class NotesPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return borderPane;
+        return stackPane;
     }
 
-    private void updateList() {
-
-        Platform.runLater(this::initToolBar);
-
-        if (init) {
-            restartExecutor();
-        } else {
-            init = true;
-        }
-
-        tableView.getItems().clear();
-
-        List<JEVisObject> noteObjects = getAllNoteObjects();
-        JEConfig.getStatusBar().startProgressJob("AlarmConfigs", noteObjects.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
-
-        noteObjects.forEach(noteObject -> {
-            Task<List<NotesRow>> task = new Task<List<NotesRow>>() {
-                @Override
-                protected List<NotesRow> call() {
-                    List<NotesRow> list = new ArrayList<>();
-                    try {
-                        Platform.runLater(() -> this.updateTitle("Loading Notes '" + noteObject.getName() + "'"));
-                        JEVisAttribute userNotes = noteObject.getAttribute("User Notes");
-                        list.addAll(getNotesRow(userNotes));
-                        this.succeeded();
-                    } catch (Exception e) {
-                        logger.error(e);
-                        this.failed();
-                    } finally {
-                        this.done();
-                        Platform.runLater(() -> tableView.getItems().addAll(list));
-                        //Platform.runLater(() -> tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed()));
-                        Platform.runLater(() -> autoFitTable(tableView));
-
-                        if (noteObjects.indexOf(noteObject) % 5 == 0
-                                || noteObjects.indexOf(noteObject) == noteObjects.size() - 1) {
-                            Platform.runLater(() -> tableView.sort());
-                        }
-
-                        JEConfig.getStatusBar().progressProgressJob(
-                                "AlarmConfigs",
-                                1,
-                                I18n.getInstance().getString("plugin.alarms.message.finishedalarmconfig") + " " + noteObject.getName());
-                    }
-
-                    return list;
-                }
-            };
-            //JEConfig.getStatusBar().addTask(task,JEConfig.getImage("alarm_icon.png"));//,
-            JEConfig.getStatusBar().addTask(NotesPlugin.class.getName(), task, taskImage, true);//,
-
-
-            /** check if all Jobs are done/failed to set statusbar **/
-            EventHandler<WorkerStateEvent> doneEvent = event -> {
-                if (allJobsDone(futures)) {
-                    JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
-                    Platform.runLater(() -> tableView.sort());
-                    Platform.runLater(() -> autoFitTable(tableView));
-                }
-            };
-            Platform.runLater(() -> {
-                task.setOnSucceeded(doneEvent);
-                task.setOnFailed(doneEvent);
-            });
-
-
-            this.runningUpdateTaskList.add(task);
-            //this.executor.execute(task);
-        });
-
-        /**
-         futures = runningUpdateTaskList.stream()
-         .map(r -> executor.submit(r))
-         .collect(Collectors.toList());
-         **/
-    }
 
     private List<NotesRow> getNotesRow(JEVisAttribute notesAttribute) throws JEVisException, IOException {
         List<NotesRow> list = new ArrayList<>();
         if (notesAttribute.hasSample()) {
             for (JEVisSample jeVisSample : notesAttribute.getSamples(start, end)) {
+                String tags = "";
+                String user = "";
+                try {
+                    tags = notesAttribute.getObject().getAttribute("Tag").getSamples(jeVisSample.getTimestamp(), jeVisSample.getTimestamp()).get(0).getValueAsString();
+                    System.out.println("Tags: " + tags);
+                    System.out.println("Tags.list: " + NoteTag.parseTags(tags).size());
+                } catch (Exception ex) {
+                    //ex.printStackTrace();
+                }
+                try {
+                    user = notesAttribute.getObject().getAttribute("User").getSamples(jeVisSample.getTimestamp(), jeVisSample.getTimestamp()).get(0).getValueAsString();
+                } catch (Exception ex) {
+                    //ex.printStackTrace();
+                }
 
-                NotesRow alarmRow = new NotesRow(jeVisSample.getTimestamp(), jeVisSample.getValueAsString(), notesAttribute.getObject());
+                NotesRow alarmRow = new NotesRow(jeVisSample.getTimestamp(), jeVisSample.getValueAsString(), notesAttribute.getObject(), tags, user);
 
                 list.add(alarmRow);
             }
@@ -740,7 +1177,7 @@ public class NotesPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("rodentia-icons_text-x-playlist.png", 20, 20);
+        return JEConfig.getImage("data_note.png", 20, 20);
     }
 
     @Override
@@ -752,9 +1189,7 @@ public class NotesPlugin implements Plugin {
     public void setHasFocus() {
 
 
-        this.timeFrameComboBox.getSelectionModel().select(TimeFrame.PREVIEW);
-
-
+        this.timeFrameComboBox.getSelectionModel().select(TimeFrame.LAST_30_DAYS);
         Platform.runLater(() -> autoFitTable(tableView));
     }
 

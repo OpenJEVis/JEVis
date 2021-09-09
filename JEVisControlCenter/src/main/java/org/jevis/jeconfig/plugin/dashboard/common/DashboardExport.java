@@ -14,10 +14,13 @@ import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -47,18 +50,20 @@ public class DashboardExport {
             FileChooser fileChooser = new FileChooser();
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", ".pdf");
             fileChooser.getExtensionFilters().add(extFilter);
-            fileChooser.setInitialFileName(fileName + ".pdf");
+            fileChooser.setInitialFileName(FileNames.fixName(fileName) + ".pdf");
             Document document = new Document();
             File file = fileChooser.showSaveDialog(JEConfig.getStage());
             if (file != null) {
                 OutputStream fileStream = new FileOutputStream(file);
                 PdfWriter.getInstance(document, fileStream);
 
-                document.open();
+
                 document.setPageSize(PageSize.A4.rotate());
                 document.addAuthor("JEVis");
                 document.addTitle(control.getActiveDashboard().getTitle());
                 document.addCreationDate();
+                document.open();
+//berichtsperiode
 
                 WritableImage image = control.getDashboardPane().snapshot(new SnapshotParameters(), null);
                 String tmpFileName = UUID.randomUUID().toString();
@@ -69,12 +74,13 @@ public class DashboardExport {
                 PdfPTable table = new PdfPTable(1);
                 table.setWidthPercentage(100);
 
-                /* Does not work ?! */
-                Font CUSTOM_FONT_HEADER = new Font(Font.FontFamily.TIMES_ROMAN, 16, Font.BOLD | Font.UNDERLINE);
-                Font CUSTOM_FONT_TEXT = new Font(Font.FontFamily.TIMES_ROMAN, 11);
+               
+                Font CUSTOM_FONT_HEADER = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL | Font.UNDERLINE);
+                Font CUSTOM_FONT_TEXT = new Font(Font.FontFamily.HELVETICA, 8);
 
-                Paragraph headerParagraph = new Paragraph(title);
-                headerParagraph.setFont(CUSTOM_FONT_HEADER);
+                Paragraph headerParagraph = new Paragraph(title, CUSTOM_FONT_HEADER);
+                headerParagraph.setAlignment(Paragraph.ALIGN_LEFT);
+                //headerParagraph.setFont(CUSTOM_FONT_HEADER);
 
                 PdfPCell cellTitle = new PdfPCell(headerParagraph);
                 cellTitle.setBorder(Rectangle.NO_BORDER);
@@ -84,8 +90,33 @@ public class DashboardExport {
                 cellImage.setPadding(5);
 
 
-                Paragraph datePara = new Paragraph(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(new DateTime()));
-                datePara.setFont(CUSTOM_FONT_TEXT);
+                DateTimeFormatter dTF = DateTimeFormat.forPattern("yyyy.MM.dd HH:mm");
+                /*
+                String footer = String.format("%s: %s, %s: %s %s %s",
+                        I18n.getInstance().getString("dashboard.pdf.creatdate"),
+                        dTF.print(new DateTime()),
+                        I18n.getInstance().getString("dashboard.pdf.duration"),
+                        dTF.print(control.getInterval().getStart()),
+                        I18n.getInstance().getString("dashboard.pdf.until"),
+                        dTF.print(control.getInterval().getEnd())
+                );
+                */
+
+                String footer = String.format("%s: %s, %s: %s %s",
+                        I18n.getInstance().getString("dashboard.pdf.createdate"),
+                        dTF.print(new DateTime()),
+                        I18n.getInstance().getString("dashboard.pdf.duration"),
+                        control.getActiveTimeFrame().getListName(),
+                        control.getActiveTimeFrame().format(control.getInterval())
+
+                );
+
+
+                //controller.getActiveTimeFrame().format(controller.getInterval())
+                //controller.getActiveTimeFrame().getListName
+                Paragraph datePara = new Paragraph(footer, CUSTOM_FONT_TEXT);
+                //datePara.setFont(CUSTOM_FONT_TEXT);
+                datePara.setAlignment(Paragraph.ALIGN_LEFT);
                 PdfPCell cellFooter = new PdfPCell(datePara);
                 cellFooter.setBorder(Rectangle.NO_BORDER);
 
