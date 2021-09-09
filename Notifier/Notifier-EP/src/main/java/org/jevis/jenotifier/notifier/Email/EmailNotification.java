@@ -421,10 +421,12 @@ public class EmailNotification implements Notification {
     public void setAttachmentsAsFile(JEVisFile attachment) {
         FileOutputStream output = null;
         try {
-            output = new FileOutputStream("/tmp/" + attachment.getFilename());
+            String tmpdir = System.getProperty("java.io.tmpdir");
+            output = new FileOutputStream(tmpdir + "/" + attachment.getFilename());
             output.write(attachment.getBytes());
             output.close();
-            File tmpFile = new File("/tmp/" + attachment.getFilename());
+            File tmpFile = new File(tmpdir + "/" + attachment.getFilename());
+            tmpFile.deleteOnExit();
             setAttachmentsAsFile(tmpFile);
             //                tmpFile.delete();
             _attachmentsAsFile = new ArrayList<File>();
