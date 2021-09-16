@@ -161,6 +161,7 @@ public class LoadAnalysisDialog extends JFXDialog {
             }
         });
 
+
         if (!analysisListView.getItems().isEmpty()) {
             dateHelper.setStartTime(analysisDataModel.getWorkdayStart());
             dateHelper.setEndTime(analysisDataModel.getWorkdayEnd());
@@ -175,7 +176,6 @@ public class LoadAnalysisDialog extends JFXDialog {
         JEVisHelp.getInstance().setActiveSubModule(this.getClass().getSimpleName());
         JEVisHelp.getInstance().update();
 
-        JEVisHelp.getInstance().deactivatePluginModule();
     }
 
     private void addListener() {

@@ -43,10 +43,7 @@ public class JEVisHelp {
     private String activePlugin = "";
     private String activeSubModule = "";
     private final KeyCombination help = new KeyCodeCombination(KeyCode.F1);
-    //public static final Font font = Font.font("Liberation Mono", FontWeight.NORMAL, 12);
     public static final Font font = Font.font("DejaVu Sans", FontWeight.NORMAL, 13);
-    //public static final Font font = Font.font("Consolas", FontWeight.NORMAL, 12);
-    //public static final Font font = Font.font("EuropeExt Normal", FontWeight.NORMAL, 12);
 
     public enum LAYOUT {
         HORIZONTAL_TOP_LEFT,
@@ -58,11 +55,13 @@ public class JEVisHelp {
     }
 
     public void deactivatePluginModule() {
+        logger.debug("Disable active plugin: {}", activeSubModule);
         activeSubModule = "";
         update();
     }
 
     public void setActivePlugin(String plugin) {
+        logger.debug("Set active plugin: {}", plugin);
         activePlugin = plugin;
         activeSubModule = "";
         update();
@@ -72,7 +71,7 @@ public class JEVisHelp {
         logger.debug("Set active sub module: {},{}", activePlugin, subModule);
         //removeAll(activePlugin, subModule);
         this.activeSubModule = subModule;
-        //  update();
+        //update();
     }
 
 
@@ -96,10 +95,10 @@ public class JEVisHelp {
     }
 
     private void showToolTips(Map<String, Set<ToolTipElement>> map) {
-
+        logger.debug("showToolTips: {}", map.size());
         map.forEach((s, controls1) -> {
-            logger.debug("showToolTips.map: {}", s);
             String key = toKey(activePlugin, activeSubModule);
+            logger.debug("key.true.map: {}={}={}", s, key, key.equals(s));
             if (!key.equals(s)) return;
 
             logger.debug("Use map: {}->{}", key, controls1);
@@ -208,7 +207,13 @@ public class JEVisHelp {
 
 
     private String toKey(String plugin, String subModule) {
-        return plugin + "." + subModule;
+        if (subModule.isEmpty()) {
+            return plugin;
+        } else {
+            return plugin + "." + subModule;
+        }
+
+
     }
 
     public void removeAll(String plugin) {
