@@ -250,6 +250,7 @@ public class ToolBarView {
         dialog.show();
 
         dialog.setOnDialogClosed(event -> {
+            JEVisHelp.getInstance().deactivatePluginModule();
             if (dialog.getResponse() == Response.NEW) {
 
                 getGraphPluginView().handleRequest(Constants.Plugin.Command.NEW);
@@ -852,7 +853,6 @@ public class ToolBarView {
 
             //TODO: the plugin name must be the same the the Plugin.getName() function
 
-
             toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
             JEVisHelp.getInstance().addHelpItems(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
@@ -966,6 +966,7 @@ public class ToolBarView {
         addSeriesRunningMean.setOnAction(event -> addSeriesRunningMean());
 
         autoResize.setOnAction(event -> autoResizeInGraph());
+
     }
 
     private void customWorkDay() {
@@ -1171,7 +1172,6 @@ public class ToolBarView {
         Tooltip zoomOutTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
         zoomOut.setTooltip(zoomOutTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
-
 
         helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
         infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);

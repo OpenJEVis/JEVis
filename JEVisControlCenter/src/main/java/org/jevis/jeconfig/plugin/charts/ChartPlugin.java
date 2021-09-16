@@ -271,6 +271,7 @@ public class ChartPlugin implements Plugin {
         dialog.show();
 
         dialog.setOnDialogClosed(event -> {
+            JEVisHelp.getInstance().deactivatePluginModule();
             if (dialog.getResponse() == Response.NEW) {
 
                 newAnalysis();
