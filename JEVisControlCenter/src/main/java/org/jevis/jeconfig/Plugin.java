@@ -29,6 +29,8 @@ import org.jevis.api.JEVisDataSource;
  */
 public interface Plugin {
 
+    public static double IconSize = 25;
+
     String getClassName();
 
     String getName();

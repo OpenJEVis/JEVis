@@ -51,7 +51,7 @@ public class JEVisTree extends TreeTableView {
     private static final Logger logger = LogManager.getLogger(JEVisTree.class);
     private final ObservableList<TreePlugin> plugins = FXCollections.observableArrayList();
     private final JEVisDataSource ds;
-    private List<JEVisObject> copyObject;
+    private List<JEVisObject> copyObject = new ArrayList<>();
     private JEVisTreeRow dragItem;
     private final UUID uuid = UUID.randomUUID();
     private JEVisTreeFilter cellFilter;
@@ -61,6 +61,7 @@ public class JEVisTree extends TreeTableView {
     private SearchFilterBar searchBar;
     private HashMap<String, Object> configMap = new HashMap<>();
     private List<Long> calculationIDs = new ArrayList<>();
+    private ItemActionController itemActionController;
 
     /**
      * Create an default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
@@ -77,8 +78,10 @@ public class JEVisTree extends TreeTableView {
         this.cellFilter = filter;
         this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
+
 //        addCellFactory();
         initialize();
+        itemActionController = new ItemActionController(this);
 
     }
 
@@ -491,6 +494,10 @@ public class JEVisTree extends TreeTableView {
         logger.debug("Did not find Column: " + columnName);
         return null;
 
+    }
+
+    public ItemActionController getItemActionController() {
+        return itemActionController;
     }
 
     public void setConfigObject(String key, Object object) {

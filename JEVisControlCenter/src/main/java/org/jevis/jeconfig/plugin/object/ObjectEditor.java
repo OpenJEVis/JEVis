@@ -176,18 +176,20 @@ public class ObjectEditor {
 
                     installedExtensions.add(new CalculationExtension(dialogContainer, obj));
                     installedExtensions.add(new CleanDataExtension(dialogContainer, obj));
-                    installedExtensions.add(new MemberExtension(obj));
-                    installedExtensions.add(new RoleExtention(obj));
 
                     //Generic Extensions every Class has
                     //TODO: make an better logic to decide/configure the extension order
-                    this.installedExtensions.add(new GenericAttributeExtension(obj, this.tree));
+                    installedExtensions.add(new GenericAttributeExtension(obj, this.tree));
                     if (JEConfig.getExpert()) {
-                        this.installedExtensions.add(new ChildrenEditorPlugin(obj));
+                        installedExtensions.add(new StatisticExtension(obj));
+                        installedExtensions.add(new ChildrenEditorPlugin(obj));
                     }
-                    this.installedExtensions.add(new PermissionExtension(obj));
-                    this.installedExtensions.add(new RootExtension(dialogContainer, obj));
-                    this.installedExtensions.add(new LinkExtension(obj));
+                    installedExtensions.add(new MemberExtension(obj));
+                    installedExtensions.add(new RoleExtention(obj));
+                    installedExtensions.add(new PermissionExtension(obj));
+                    installedExtensions.add(new RootExtension(dialogContainer, obj));
+                    installedExtensions.add(new LinkExtension(obj));
+
 
                     activeExtensions = new ArrayList<>();
 

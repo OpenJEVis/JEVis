@@ -731,7 +731,7 @@ public class ReportPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("Report.png", 20, 20);
+        return JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize);
     }
 
     @Override

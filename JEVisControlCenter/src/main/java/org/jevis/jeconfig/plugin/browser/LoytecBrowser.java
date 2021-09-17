@@ -43,7 +43,7 @@ public class LoytecBrowser implements Plugin {
 
     public LoytecBrowser(JEVisDataSource ds) {
         this.ds = ds;
-        icon = JEConfig.getImage("if_50_2315874.png", 20, 20);
+        icon = JEConfig.getImage("if_50_2315874.png", Plugin.IconSize, Plugin.IconSize);
         try {
 //            final String username = ds.getCurrentUser().getAccountName();
 //            final String password = JEConfig.userpassword;

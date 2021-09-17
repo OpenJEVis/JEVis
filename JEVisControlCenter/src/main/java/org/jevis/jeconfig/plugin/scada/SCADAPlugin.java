@@ -665,7 +665,7 @@ public class SCADAPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("if_dashboard_46791.png", 20, 20);
+        return JEConfig.getImage("if_dashboard_46791.png", Plugin.IconSize, Plugin.IconSize);
     }
 
     @Override

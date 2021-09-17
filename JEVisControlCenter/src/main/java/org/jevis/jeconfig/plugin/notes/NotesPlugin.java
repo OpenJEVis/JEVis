@@ -1177,7 +1177,7 @@ public class NotesPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("data_note.png", 20, 20);
+        return JEConfig.getImage("data_note.png", Plugin.IconSize, Plugin.IconSize);
     }
 
     @Override

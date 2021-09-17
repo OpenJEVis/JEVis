@@ -42,6 +42,7 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -1045,7 +1046,7 @@ public class AccountingPlugin extends TablePlugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("accounting.png", 20, 20);
+        return JEConfig.getImage("accounting.png", Plugin.IconSize, Plugin.IconSize);
     }
 
     @Override

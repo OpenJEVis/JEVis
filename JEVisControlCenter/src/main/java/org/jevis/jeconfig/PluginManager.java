@@ -255,6 +255,9 @@ public class PluginManager {
 
 //        this.toolbar.setStyle("-fx-background-color: #CCFF99;");
         this.toolbar.getStyleClass().add("tool-bar");
+        /* magic number based on the biggest toolbar, so its not changing size wile switching plugin*/
+        this.toolbar.setMinHeight(55);
+        this.toolbar.setMaxHeight(55);
 //        AnchorPane.setTopAnchor(toolbar, 0.0);
 //        AnchorPane.setLeftAnchor(toolbar, 0.0);
 //        AnchorPane.setRightAnchor(toolbar, 0.0);
