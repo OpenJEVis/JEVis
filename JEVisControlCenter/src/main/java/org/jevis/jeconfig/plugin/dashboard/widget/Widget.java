@@ -466,7 +466,7 @@ public abstract class Widget extends Region {
                 if (show) {
                     loadingPane.setVisible(true);
                 } else {
-                    logger.error("Hide loading: widget: {}", getConfig().getUuid());
+                    logger.debug("Hide loading: widget: {}", getConfig().getUuid());
                     loadingPane.setVisible(false);
                 }
             } catch (Exception ex) {

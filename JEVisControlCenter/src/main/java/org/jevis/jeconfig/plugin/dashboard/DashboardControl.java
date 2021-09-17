@@ -643,13 +643,15 @@ public class DashboardControl {
 
     private void stopAllUpdates() {
         try {
-            logger.error("stopAllUpdates: " + JEConfig.getStatusBar().getTaskList().size());
+            logger.debug("stopAllUpdates: " + JEConfig.getStatusBar().getTaskList().size());
             this.isUpdateRunning = false;
 
             JEConfig.getStatusBar().stopTasks(DashBordPlugIn.class.getName());
             this.updateTask.cancel();
+        } catch (NullPointerException nex) {
+            logger.debug(nex, nex);
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error("Error while stoping running task", ex);
         }
     }
 
