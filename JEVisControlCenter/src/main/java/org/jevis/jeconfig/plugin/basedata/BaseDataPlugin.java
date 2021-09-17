@@ -26,6 +26,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.TablePlugin;
@@ -466,7 +467,7 @@ public class BaseDataPlugin extends TablePlugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("base_data.png", 20, 20);
+        return JEConfig.getImage("base_data.png", Plugin.IconSize, Plugin.IconSize);
     }
 
     @Override

@@ -285,7 +285,7 @@ public class ClassPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("1394482166_blueprint_tool.png", 20, 20);
+        return JEConfig.getImage("1394482166_blueprint_tool.png", Plugin.IconSize, Plugin.IconSize);
     }
 
     @Override

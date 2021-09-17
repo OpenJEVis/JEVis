@@ -471,7 +471,7 @@ public class ChartPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("1415314386_Graph.png", 20, 20);
+        return JEConfig.getImage("1415314386_Graph.png", Plugin.IconSize, Plugin.IconSize);
     }
 
     @Override

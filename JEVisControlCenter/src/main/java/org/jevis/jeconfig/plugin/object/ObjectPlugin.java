@@ -43,10 +43,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
@@ -63,6 +60,8 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.bulkedit.CreateTable;
 import org.jevis.jeconfig.bulkedit.EditTable;
 import org.jevis.jeconfig.dialog.*;
+import org.jevis.jeconfig.tool.AttributeCopy;
+import org.jevis.jeconfig.tool.CleanDatas;
 import org.jevis.jeconfig.tool.LoadingPane;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -308,8 +307,6 @@ public class ObjectPlugin implements Plugin {
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, delete, Constants.Plugin.Command.DELETE);
 
-            Separator sep1 = new Separator();
-
             ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, reload, Constants.Plugin.Command.RELOAD);
@@ -330,6 +327,115 @@ public class ObjectPlugin implements Plugin {
             ToggleButton collapseTree = new ToggleButton("", JEConfig.getImage("1404843819_node-tree.png", iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(collapseTree);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, collapseTree, Constants.Plugin.Command.COLLAPSE);
+
+
+            // Eigenschaften Kopieren
+            // Eigenschaften übertragen
+            // Exportieren
+            // Importieren
+
+            ToggleButton copyItem = new ToggleButton("", JEConfig.getImage("16_Copy_48x48.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(copyItem);
+            copyItem.setOnAction(event -> {
+                tree.setCopyObjectsBySelection(false);
+            });
+
+            ToggleButton pasteItem = new ToggleButton("", JEConfig.getImage("17_Paste_48x48.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(pasteItem);
+            pasteItem.setOnAction(event -> {
+                JEVisObject jeVisObject = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
+                if (tree.getCopyObject() != null) {
+                    if (tree.isCut()) {
+                        TreeHelper.EventDrop(tree, tree.getCopyObjects(), jeVisObject, CopyObjectDialog.DefaultAction.MOVE);
+                    } else {
+                        TreeHelper.EventDrop(tree, tree.getCopyObjects(), jeVisObject, CopyObjectDialog.DefaultAction.COPY);
+                    }
+                }
+            });
+
+            ToggleButton cutItem = new ToggleButton("", JEConfig.getImage("cut_17352.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(cutItem);
+            cutItem.setOnAction(event -> {
+                tree.setCopyObjectsBySelection(true);
+            });
+
+            ToggleButton copyAttributeItem = new ToggleButton("", JEConfig.getImage("pipette.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(copyAttributeItem);
+            copyAttributeItem.setOnAction(event -> {
+                JEVisObject jeVisObject = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
+                AttributeCopy attributeCopy = new AttributeCopy();
+                attributeCopy.showAttributeSelection(jeVisObject);
+                tree.setConfigObject(AttributeCopy.CONFIG_NAME, attributeCopy.getSelectedAttributes());
+
+            });
+            ToggleButton pasteAttributeItem = new ToggleButton("", JEConfig.getImage("Asset.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(pasteAttributeItem);
+            pasteAttributeItem.setOnAction(event -> {
+                AttributeCopy attributeCopy = new AttributeCopy();
+                List<JEVisAttribute> jeVisAttributes = (List<JEVisAttribute>) tree.getConfigObject(AttributeCopy.CONFIG_NAME);
+                attributeCopy.startPaste(jeVisAttributes, tree.getSelectionModel().getSelectedItems());
+
+            });
+            ToggleButton wizardItem = new ToggleButton("", JEConfig.getImage("Startup Wizard_18228.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(wizardItem);
+            wizardItem.setOnAction(event -> {
+                JEVisObject jeVisObject = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
+                KPIWizard wizard = new KPIWizard(dialogContainer, jeVisObject);
+                wizard.show();
+
+            });
+
+            ToggleButton reCalcItem = new ToggleButton("", JEConfig.getImage("calc.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(reCalcItem);
+            reCalcItem.setOnAction(event -> {
+                /* should work to simply call both because they are type same */
+                CleanDatas.createTask(tree);
+                CleanDatas.createTask(tree);
+            });
+
+            ToggleButton exportItem = new ToggleButton("", JEConfig.getImage("upload.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportItem);
+            exportItem.setOnAction(event -> {
+                JEVisTreeContextMenu.exportAction(tree);
+            });
+
+            ToggleButton importItem = new ToggleButton("", JEConfig.getImage("download.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(importItem);
+            importItem.setOnAction(event -> {
+                JEVisObject jeVisObject = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
+                JEVisTreeContextMenu.importAction(jeVisObject);
+            });
+
+            ToggleButton toSourceItem = new ToggleButton("", JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(toSourceItem);
+            toSourceItem.setOnAction(event -> {
+                JEVisObject jeVisObject = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
+                JEVisTreeContextMenu.goToSource(tree, jeVisObject);
+            });
+
+
+            ToggleButton manualSampleItem = new ToggleButton("", JEConfig.getImage("if_textfield_add_64870.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(manualSampleItem);
+            manualSampleItem.setOnAction(event -> {
+                try {
+                    JEVisObject obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
+                    JEVisSample lastValue = obj.getAttribute("Value").getLatestSample();
+                    EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, obj.getDataSource());
+                    enterDataDialog.setTarget(false, obj.getAttribute("Value"));
+                    enterDataDialog.setSample(lastValue);
+                    enterDataDialog.setShowValuePrompt(true);
+                    enterDataDialog.show();
+                } catch (Exception ex) {
+                    logger.fatal(ex);
+                }
+            });
+
+            reCalcItem.disableProperty().bind(tree.getItemActionController().recalcEnabledPropertyProperty().not());
+            wizardItem.disableProperty().bind(tree.getItemActionController().kpiWizardEnabledPropertyProperty().not());
+            toSourceItem.disableProperty().bind(tree.getItemActionController().gotoSourceEnabledPropertyProperty().not());
+            manualSampleItem.disableProperty().bind(tree.getItemActionController().manualValueEnabledPropertyProperty().not());
+            newB.disableProperty().bind(tree.getItemActionController().createEnabledPropertyProperty().not());
+            delete.disableProperty().bind(tree.getItemActionController().deleteEnabledPropertyProperty().not());
 
             final BooleanProperty toggleProperty = new SimpleBooleanProperty(false);
             collapseTree.setOnAction(new EventHandler<ActionEvent>() {
@@ -357,9 +463,30 @@ public class ObjectPlugin implements Plugin {
             delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.delete")));
             reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.reload")));
             collapseTree.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.collapse")));
+            copyItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.copy")));
+            cutItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.cut")));
+            pasteItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.paste")));
+            copyAttributeItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.copyatttibute")));
+            pasteAttributeItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.pasteattributes")));
+            wizardItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.wizard")));
+            reCalcItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.recalc")));
+            manualSampleItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.manualsample")));
+            exportItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.export")));
+            importItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.toolbar.import")));
+            toSourceItem.setTooltip(new Tooltip(I18n.getInstance().getString("jevistree.menu.gotosrc")));
+
+
+            Separator sep1 = new Separator();
+            Separator sep2 = new Separator();
+            Separator sep3 = new Separator();
+            Separator sep4 = new Separator();
 
             //JEVisHelp.getInstance().addHelpControl(ObjectPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, save, newB, delete, reload, collapseTree, sep1, helpButton);
-            toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
+            toolBar.getItems().setAll(save, newB, delete, reload, collapseTree,
+                    sep1, copyItem, cutItem, pasteItem,
+                    sep2, copyAttributeItem, pasteAttributeItem,
+                    sep3, wizardItem, reCalcItem, manualSampleItem, toSourceItem,
+                    sep4, exportItem, importItem);
             toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
             JEVisHelp.getInstance().addHelpItems(ObjectPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 

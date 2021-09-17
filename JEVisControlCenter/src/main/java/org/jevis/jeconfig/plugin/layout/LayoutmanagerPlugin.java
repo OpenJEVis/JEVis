@@ -322,6 +322,6 @@ public class LayoutmanagerPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("1394482640_package_settings.png", 20, 20);
+        return JEConfig.getImage("1394482640_package_settings.png", Plugin.IconSize, Plugin.IconSize);
     }
 }

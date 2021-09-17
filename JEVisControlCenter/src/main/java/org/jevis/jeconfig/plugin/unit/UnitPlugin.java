@@ -272,7 +272,7 @@ public class UnitPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("1405444584_measure.png", 20, 20);
+        return JEConfig.getImage("1405444584_measure.png", Plugin.IconSize, Plugin.IconSize);
     }
 
     @Override

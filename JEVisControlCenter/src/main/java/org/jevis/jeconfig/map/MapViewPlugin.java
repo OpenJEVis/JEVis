@@ -330,7 +330,7 @@ public class MapViewPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("map.png", 20, 20);
+        return JEConfig.getImage("map.png", Plugin.IconSize, Plugin.IconSize);
     }
 
     @Override

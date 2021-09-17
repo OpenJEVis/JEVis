@@ -127,108 +127,113 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildGoToSource() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.gotosrc"), ResourceLoader.getImage("1476393792_Gnome-Go-Jump-32.png", 20, 20));
         menu.setOnAction(t -> {
-                    try {
-                        AtomicBoolean foundTarget = new AtomicBoolean(false);
-                        JEVisDataSource ds = obj.getDataSource();
-
-                        if (tree.getCalculationIDs().contains(obj.getID())) {
-                            logger.error("target is a calculation");
-                            try {
-                                JEVisClass outputClass = ds.getJEVisClass("Output");
-
-                                ds.getObjects(outputClass, false).forEach(object -> {
-                                    try {
-                                        if (object.getAttribute("Output").hasSample()) {
-                                            TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute("Output"));
-                                            if ((targetHelper.hasObject() || targetHelper.hasAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
-                                                foundTarget.set(true);
-
-                                                List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);
-                                                toOpen.add(object);
-                                                TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
-                                            }
-                                        }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                });
-
-
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        } else {
-                            logger.error("target is no a calculation");
-                            try {
-                                JEVisClass loytecOutput = ds.getJEVisClass("Loytec XML-DL Channel");
-                                JEVisClass vida350Target = ds.getJEVisClass("VIDA350 Channel");
-
-                                List<JEVisObject> objects = new ArrayList<>();
-                                objects.addAll(ds.getObjects(loytecOutput, true));
-                                objects.addAll(ds.getObjects(vida350Target, true));
-
-                                objects.forEach(object -> {
-                                    try {
-                                        String attributeName = "NOTFOUND";
-                                        if (object.getJEVisClassName().equals("Loytec XML-DL Channel")) {
-                                            attributeName = "Target ID";
-                                        } else if (object.getJEVisClassName().equals("VIDA350 Channel")) {
-                                            attributeName = "Target";
-                                        }
-
-
-                                        if (object.getAttribute(attributeName).hasSample()) {
-                                            TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute(attributeName));
-                                            if ((targetHelper.hasObject() || targetHelper.hasAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
-                                                logger.error("found target");
-                                                foundTarget.set(true);
-                                                List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);
-                                                toOpen.add(object);
-                                                TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
-                                            }
-                                        }
-                                    } catch (JEVisException e) {
-                                        e.printStackTrace();
-                                    }
-                                });
-
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-
-                        }
-
-                        if (!foundTarget.get()) {
-
-                            JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.menu.gotosrc.close"));
-                            GridPane gridPane = new GridPane();
-                            gridPane.setPadding(new Insets(8));
-                            gridPane.setHgap(8);
-                            gridPane.setVgap(8);
-
-                            gridPane.add(new Label(I18n.getInstance().getString("jevistree.menu.gotosrc.error")), 0, 0);
-                            gridPane.add(new Separator(), 0, 1);
-                            gridPane.add(ok, 0, 2);
-                            GridPane.setHalignment(ok, HPos.RIGHT);
-                            JFXDialog jfxDialog = new JFXDialog(JEConfig.getStackPane(), gridPane, JFXDialog.DialogTransition.CENTER);
-
-                            ok.setDefaultButton(true);
-                            ok.setOnAction(event -> {
-                                jfxDialog.close();
-                            });
-
-                            jfxDialog.show();
-                        }
-
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
+                    goToSource(tree, obj);
                 }
 
         );
         return menu;
     }
+
+    public static void goToSource(JEVisTree tree, JEVisObject obj) {
+        try {
+            AtomicBoolean foundTarget = new AtomicBoolean(false);
+            JEVisDataSource ds = obj.getDataSource();
+
+            if (tree.getCalculationIDs().contains(obj.getID())) {
+                logger.error("target is a calculation");
+                try {
+                    JEVisClass outputClass = ds.getJEVisClass("Output");
+
+                    ds.getObjects(outputClass, false).forEach(object -> {
+                        try {
+                            if (object.getAttribute("Output").hasSample()) {
+                                TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute("Output"));
+                                if ((targetHelper.hasObject() || targetHelper.hasAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
+                                    foundTarget.set(true);
+
+                                    List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);
+                                    toOpen.add(object);
+                                    TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                logger.error("target is no a calculation");
+                try {
+                    JEVisClass loytecOutput = ds.getJEVisClass("Loytec XML-DL Channel");
+                    JEVisClass vida350Target = ds.getJEVisClass("VIDA350 Channel");
+
+                    List<JEVisObject> objects = new ArrayList<>();
+                    objects.addAll(ds.getObjects(loytecOutput, true));
+                    objects.addAll(ds.getObjects(vida350Target, true));
+
+                    objects.forEach(object -> {
+                        try {
+                            String attributeName = "NOTFOUND";
+                            if (object.getJEVisClassName().equals("Loytec XML-DL Channel")) {
+                                attributeName = "Target ID";
+                            } else if (object.getJEVisClassName().equals("VIDA350 Channel")) {
+                                attributeName = "Target";
+                            }
+
+
+                            if (object.getAttribute(attributeName).hasSample()) {
+                                TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute(attributeName));
+                                if ((targetHelper.hasObject() || targetHelper.hasAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
+                                    logger.error("found target");
+                                    foundTarget.set(true);
+                                    List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);
+                                    toOpen.add(object);
+                                    TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                                }
+                            }
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+
+            if (!foundTarget.get()) {
+
+                JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.menu.gotosrc.close"));
+                GridPane gridPane = new GridPane();
+                gridPane.setPadding(new Insets(8));
+                gridPane.setHgap(8);
+                gridPane.setVgap(8);
+
+                gridPane.add(new Label(I18n.getInstance().getString("jevistree.menu.gotosrc.error")), 0, 0);
+                gridPane.add(new Separator(), 0, 1);
+                gridPane.add(ok, 0, 2);
+                GridPane.setHalignment(ok, HPos.RIGHT);
+                JFXDialog jfxDialog = new JFXDialog(JEConfig.getStackPane(), gridPane, JFXDialog.DialogTransition.CENTER);
+
+                ok.setDefaultButton(true);
+                ok.setOnAction(event -> {
+                    jfxDialog.close();
+                });
+
+                jfxDialog.show();
+            }
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     private MenuItem buildReCalcClean() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.recalculate"), ResourceLoader.getImage("calc.png", 20, 20));
@@ -295,60 +300,59 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildExport() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
         menu.setOnAction(t -> {
-                    TreeExporterDelux exportMaster = new TreeExporterDelux();
-
-                    FileChooser fileChooser = new FileChooser();
-                    fileChooser.setTitle("Save");
-                    fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JEVis Export", "*.jex"));
-                    File file = fileChooser.showSaveDialog(JEConfig.getStage());
-
-                    if (file != null) {
-                        List<JEVisObject> objects = new ArrayList<>();
-                        tree.getSelectionModel().getSelectedItems().forEach(o -> {
-                            JEVisTreeItem jeVisTreeItem = (JEVisTreeItem) o;
-                            objects.add(jeVisTreeItem.getValue().getJEVisObject());
-                        });
-
-                        Task exportTask = exportMaster.exportToFileTask(file, objects);
-                        JEConfig.getStatusBar().addTask("Tree Exporter", exportTask, JEConfig.getImage("save.gif"), true);
-
-                    }
-                    // JsonExportDialog dia = new JsonExportDialog("Import", obj);
-
-
+                    exportAction(tree);
                 }
         );
         return menu;
     }
 
+    public static void exportAction(JEVisTree tree) {
+        TreeExporterDelux exportMaster = new TreeExporterDelux();
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JEVis Export", "*.jex"));
+        File file = fileChooser.showSaveDialog(JEConfig.getStage());
+
+        if (file != null) {
+            List<JEVisObject> objects = new ArrayList<>();
+            tree.getSelectionModel().getSelectedItems().forEach(o -> {
+                JEVisTreeItem jeVisTreeItem = (JEVisTreeItem) o;
+                objects.add(jeVisTreeItem.getValue().getJEVisObject());
+            });
+
+            Task exportTask = exportMaster.exportToFileTask(file, objects);
+            JEConfig.getStatusBar().addTask("Tree Exporter", exportTask, JEConfig.getImage("save.gif"), true);
+
+        }
+    }
+
+
     private MenuItem buildImport() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.import"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
-        menu.setOnAction(new EventHandler<ActionEvent>() {
-                             @Override
-                             public void handle(ActionEvent t) {
-
-                                 FileChooser fileChooser = new FileChooser();
-                                 fileChooser.setTitle("Open JEVis File");
-                                 fileChooser.getExtensionFilters().addAll(
-                                         new FileChooser.ExtensionFilter("JEVis Export", "*.jex"),
-                                         new FileChooser.ExtensionFilter("All Files", "*.*"));
-                                 File selectedFile = fileChooser.showOpenDialog(null);
-                                 if (selectedFile != null) {
-                                     try {
-                                         TreeExporterDelux exportMaster = new TreeExporterDelux();
-                                         Task exportTask = exportMaster.importFromFile(selectedFile, obj);
-                                         JEConfig.getStatusBar().addTask("Tree Importer", exportTask, JEConfig.getImage("save.gif"), true);
-                                         //List<DimpexObject> objects = DimpEX.readFile(selectedFile);
-                                         //DimpEX.importALL(obj.getDataSource(), objects, obj);
-                                     } catch (Exception ex) {
-                                         logger.fatal(ex);
-                                     }
-                                 }
-
-                             }
-                         }
+        menu.setOnAction(event -> importAction(obj)
         );
         return menu;
+    }
+
+    public static void importAction(JEVisObject obj) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open JEVis File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("JEVis Export", "*.jex"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            try {
+                TreeExporterDelux exportMaster = new TreeExporterDelux();
+                Task exportTask = exportMaster.importFromFile(selectedFile, obj);
+                JEConfig.getStatusBar().addTask("Tree Importer", exportTask, JEConfig.getImage("save.gif"), true);
+                //List<DimpexObject> objects = DimpEX.readFile(selectedFile);
+                //DimpEX.importALL(obj.getDataSource(), objects, obj);
+            } catch (Exception ex) {
+                logger.fatal(ex);
+            }
+        }
     }
 
     public List<MenuItem> buildMenuNewContent() {
