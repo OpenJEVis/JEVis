@@ -88,9 +88,6 @@ public class SideConfigPanel extends GridPane {
 
         });
 
-
-        System.out.println("Done side panel");
-
     }
 
 
@@ -217,7 +214,6 @@ public class SideConfigPanel extends GridPane {
             control.equalizeDataModel();
         });
 
-        System.out.println("start aliment box");
         alignmentBox.setPrefWidth(100);
         alignmentBox.setMinWidth(100);
         Callback<ListView<Pos>, ListCell<Pos>> cellFactory = new Callback<ListView<Pos>, ListCell<Pos>>() {

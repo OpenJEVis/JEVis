@@ -227,7 +227,6 @@ public class NotesPlugin implements Plugin {
         cm.getItems().addAll(selectAllMenuItem, deselectAllMenuItem);
 
         activeTags.forEach((tagKey, tagAktiv) -> {
-            System.out.println("Add to tag  menu:" + tagKey);
             JFXCheckBox cb = new JFXCheckBox(tagKey);
             cb.selectedProperty().bindBidirectional(tagAktiv);
             //cb.setSelected(tagAktiv.get());

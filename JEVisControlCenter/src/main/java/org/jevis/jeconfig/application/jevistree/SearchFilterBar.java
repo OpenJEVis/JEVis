@@ -148,7 +148,6 @@ public class SearchFilterBar extends GridPane {
         this.add(filterBox, 4, 0);
 
         showReplace.addListener((observable, oldValue, newValue) -> {
-            System.out.println("Show replacement gui: " + newValue);
             if (newValue) {
                 SearchFilterBar.this.add(replaceLabel, 0, 1);
                 SearchFilterBar.this.add(replaceField, 1, 1);

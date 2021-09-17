@@ -91,9 +91,6 @@ public class DashBoardToolbar extends ToolBar {
         this.objectRelations = new ObjectRelations(dashboardControl.getDataSource());
         initLayout();
         this.dashboardControl.registerToolBar(this);
-        this.heightProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("-------------new Toolbar height: " + newValue);
-        });
     }
 
 

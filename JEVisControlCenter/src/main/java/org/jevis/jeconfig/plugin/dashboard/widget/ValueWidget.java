@@ -108,7 +108,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateData(Interval interval) {
-        logger.error("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
+        logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
         Platform.runLater(() -> {
             showAlertOverview(false, "");
@@ -172,7 +172,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
         });
 
         updateLayout();
-        logger.error("Value.updateData.done: {}", this.getConfig().getTitle());
+        logger.debug("Value.updateData.done: {}", this.getConfig().getTitle());
     }
 
     private void updateText() {
@@ -405,7 +405,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        logger.error("init Value Widget: " + getConfig().getUuid());
+        logger.debug("init Value Widget: " + getConfig().getUuid());
 
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);

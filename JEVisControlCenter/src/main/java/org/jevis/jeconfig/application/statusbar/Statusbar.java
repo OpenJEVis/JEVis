@@ -244,7 +244,7 @@ public class Statusbar extends ToolBar {
      * @param autoStart if ture the shared executor will start the task.
      */
     public void addTask(String owner, Task task, Image image, boolean autoStart) {
-        logger.error("Starting new Task to statusbar: {}", task);
+        logger.debug("Starting new Task to statusbar: {}", task);
         imageList.put(task.toString(), image);
         task.stateProperty().addListener((observable, oldValue, newValue) -> {
             try {
