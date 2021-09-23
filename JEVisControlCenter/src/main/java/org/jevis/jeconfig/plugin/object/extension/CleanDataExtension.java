@@ -612,7 +612,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
                 try {
                     CommonMethods.processCleanData(obj);
                 } catch (Exception ex) {
-                    logger.error(ex);
+                    logger.error(ex, ex);
                 }
                 return null;
             }
