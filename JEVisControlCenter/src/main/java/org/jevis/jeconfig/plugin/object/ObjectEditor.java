@@ -176,6 +176,7 @@ public class ObjectEditor {
 
                     installedExtensions.add(new CalculationExtension(dialogContainer, obj));
                     installedExtensions.add(new CleanDataExtension(dialogContainer, obj));
+                    installedExtensions.add(new RoleExtention(obj));
 
                     //Generic Extensions every Class has
                     //TODO: make an better logic to decide/configure the extension order
@@ -185,7 +186,6 @@ public class ObjectEditor {
                         installedExtensions.add(new ChildrenEditorPlugin(obj));
                     }
                     installedExtensions.add(new MemberExtension(obj));
-                    installedExtensions.add(new RoleExtention(obj));
                     installedExtensions.add(new PermissionExtension(obj));
                     installedExtensions.add(new RootExtension(dialogContainer, obj));
                     installedExtensions.add(new LinkExtension(obj));

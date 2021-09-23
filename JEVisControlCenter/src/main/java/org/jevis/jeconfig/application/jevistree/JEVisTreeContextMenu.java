@@ -72,26 +72,27 @@ public class JEVisTreeContextMenu extends ContextMenu {
     public void setTree(JEVisTree tree) {
         this.tree = tree;
         tree.setOnMouseClicked(event -> {
-            obj = getObject();
-            getItems().setAll(
-                    buildNew2(),
-                    buildReload(),
-                    new SeparatorMenuItem(),
-                    buildDelete(),
-                    //buildRename(),
-                    buildMenuLocalize(),
-                    buildCopy(),
-                    buildCut(),
-                    buildPaste(),
-                    new SeparatorMenuItem(),
-                    buildCopyFormat(),
-                    buildParsedFormat(),
-                    new SeparatorMenuItem(),
-                    buildExport(),
-                    buildImport()
-            );
-
             try {
+                obj = getObject();
+                getItems().setAll(
+                        buildNew2(),
+                        buildReload(),
+                        new SeparatorMenuItem(),
+                        buildDelete(),
+                        //buildRename(),
+                        buildMenuLocalize(),
+                        buildCopy(),
+                        buildCut(),
+                        buildPaste(),
+                        new SeparatorMenuItem(),
+                        buildCopyFormat(),
+                        buildParsedFormat(),
+                        new SeparatorMenuItem(),
+                        buildExport(),
+                        buildImport()
+                );
+
+
                 if (obj.getJEVisClassName().equals("Calculation")) {
                     getItems().add(new SeparatorMenuItem());
                     getItems().add(buildMenuAddInput());
@@ -116,6 +117,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             } catch (Exception ex) {
                 logger.fatal(ex);
             }
+
         });
     }
 

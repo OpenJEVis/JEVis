@@ -13,6 +13,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -293,11 +294,14 @@ public class RoleExtention implements ObjectEditorExtension {
         gridPane.setId("rolegrid");
         gridPane.setHgap(4);
         gridPane.setVgap(8);
+        gridPane.setMinWidth(600);
 
 
         try {
             buildUserTable();
             buildGroupTable();
+            userTableView.setMinWidth(700);
+            groupTableView.setMinWidth(700);
             dashboadList = buildDashboardListView();
 
             int raw = 0;
@@ -306,14 +310,17 @@ public class RoleExtention implements ObjectEditorExtension {
             gridPane.add(new Separator(Orientation.HORIZONTAL), 0, ++raw, 3, 1);
             gridPane.addRow(++raw, groupTitle);
             gridPane.addRow(++raw, showActiveMember);
-            gridPane.add(groupFilterBox, 1, raw, 2, 1);
-            GridPane.setFillWidth(groupFilterBox, true);
+            gridPane.add(groupFilterBox, 2, raw, 1, 1);
             gridPane.add(groupTableView, 0, ++raw, 3, 1);
             gridPane.add(new Separator(Orientation.HORIZONTAL), 0, ++raw, 3, 1);
             gridPane.addRow(++raw, userTitle);
             gridPane.addRow(++raw, showActiveUser);
-            gridPane.add(userFilterBox, 1, raw, 2, 1);
+            gridPane.add(userFilterBox, 2, raw, 1, 1);
             gridPane.add(userTableView, 0, ++raw, 3, 1);
+
+            //GridPane.setFillWidth(groupFilterBox, true);
+            GridPane.setHalignment(groupFilterBox, HPos.RIGHT);
+            GridPane.setHalignment(userFilterBox, HPos.RIGHT);
 
             filterFieldGroup.textProperty().addListener(new ChangeListener<String>() {
                 @Override
@@ -353,6 +360,7 @@ public class RoleExtention implements ObjectEditorExtension {
         logger.error("buildGroupPane:");
 
         groupTableView = new TableView();
+        //groupTableView.setMinWidth(600);
 
         groupTableView.setEditable(true);
         TableColumn nameCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.group"));

@@ -32,6 +32,7 @@ import org.jevis.commons.report.JEVisFileWithSample;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
+import org.jevis.jeconfig.tool.ScreenSize;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -103,7 +104,7 @@ public class ImageViewerDialog {
 
         stage = new Stage();
 
-        stage.setTitle(I18n.getInstance().getString("dialog.pdfviewer.title"));
+        stage.setTitle(I18n.getInstance().getString("dialog.picture.title"));
 
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.DECORATED);
@@ -111,8 +112,8 @@ public class ImageViewerDialog {
 
         double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
         double maxScreenHeight = Screen.getPrimary().getBounds().getMaxY();
-        stage.setWidth(maxScreenWidth * 0.85);
-        stage.setHeight(maxScreenHeight * 0.85);
+        //stage.setWidth(maxScreenWidth * 0.85);
+        //stage.setHeight(maxScreenHeight * 0.85);
 
         stage.setResizable(true);
 
@@ -194,6 +195,12 @@ public class ImageViewerDialog {
             }
         });
 
+        ToggleButton rotateButton = new ToggleButton("", JEConfig.getImage("Rotate.png", iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(rotateButton);
+        rotateButton.setOnAction(event -> {
+            imageView.setRotate(imageView.getRotate() + 90);
+        });
+
         Region spacer = new Region();
         fileName = new Label(file.getFilename());
         fileName.setPadding(new Insets(0, 4, 0, 0));
@@ -243,7 +250,7 @@ public class ImageViewerDialog {
         VBox sampleSelection = new VBox(new HBox(4, left, fileComboBox, right));
         sampleSelection.setAlignment(Pos.CENTER);
 
-        headerBox.getChildren().addAll(saveButton, printButton, separator2, sampleSelection, spacer, fileName);
+        headerBox.getChildren().addAll(saveButton, printButton, rotateButton, separator2, sampleSelection, spacer, fileName);
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         bp.setTop(headerBox);
@@ -279,5 +286,17 @@ public class ImageViewerDialog {
         Image image = new Image(tempFile.toURI().toString());
         Platform.runLater(() -> imageView.setImage(image));
         Platform.runLater(() -> fileName.setText(file.getFilename()));
+
+        Platform.runLater(() -> {
+            imageView.setImage(image);
+            fileName.setText(file.getFilename());
+
+            stage.setWidth(ScreenSize.fitScreenWidth(image.getWidth()));
+            stage.setHeight(ScreenSize.fitScreenHeight(image.getHeight()));
+            stage.centerOnScreen();
+
+        });
+
+
     }
 }
