@@ -31,28 +31,50 @@ public class NoteTag {
     }
 
     public static List<NoteTag> parseTags(String tagString) {
-        System.out.println("parseTag: " + tagString);
+        //System.out.println("parseTag: " + tagString);
         List<NoteTag> tags = new ArrayList<>();
 
         for (String tString : tagString.split(";")) {
             try {
-                /**
-                 if (tString.equals(TAG_WARNING.getName())) {
-                 tags.add(TAG_WARNING);
-                 } else if (tString.equals(TAG_PROCESS.getName())) {
-                 tags.add(TAG_PROCESS);
-                 } else if (tString.equals(TAG_PROCESS.getName())) {
-                 tags.add(TAG_PROCESS);
-                 } else if (tString.equals(TAG_USER_ERROR.getName())) {
-                 tags.add(TAG_USER_ERROR);
-                 } else if (tString.equals(TAG_TECHNICAL_ERROR.getName())) {
-                 tags.add(TAG_TECHNICAL_ERROR);
-                 } else if (tString.equals(TAG_REMINDER.getName())) {
-                 tags.add(TAG_REMINDER);
-                 } else if (tString.equals(TAG_CHECK.getName())) {
-                 tags.add(TAG_CHECK);
-                 }
-                 **/
+
+                if (tString.equals(TAG_AUDIT.getName())) {
+                    tags.add(TAG_AUDIT);
+                    continue;
+                } else if (tString.equals(TAG_TASK.getName())) {
+                    tags.add(TAG_TASK);
+                    continue;
+                } else if (tString.equals(TAG_REPORT.getName())) {
+                    tags.add(TAG_REPORT);
+                    continue;
+                } else if (tString.equals(TAG_EVENT.getName())) {
+                    tags.add(TAG_EVENT);
+                    continue;
+                } else if (tString.equals(TAG_REMINDER.getName())) {
+                    tags.add(TAG_REMINDER);
+                    continue;
+                } else if (tString.equals(TAG_ERROR.getName())) {
+                    tags.add(TAG_ERROR);
+                    continue;
+                } else if (tString.equals(TAG_QUESTION.getName())) {
+                    tags.add(TAG_QUESTION);
+                    continue;
+                } else if (tString.equals(TAG_INSTANT.getName())) {
+                    tags.add(TAG_INSTANT);
+                    continue;
+                } else if (tString.equals(TAG_KENNZAHL.getName())) {
+                    tags.add(TAG_KENNZAHL);
+                    continue;
+                } else if (tString.equals(TAG_COMMENT.getName())) {
+                    tags.add(TAG_COMMENT);
+                    continue;
+                } else if (tString.equals(TAG_STOERUNG.getName())) {
+                    tags.add(TAG_STOERUNG);
+                    continue;
+                } else if (tString.equals(TAG_WARTUNG.getName())) {
+                    tags.add(TAG_WARTUNG);
+                    continue;
+                }
+
 
                 switch (tString) {
                     case "1":
@@ -73,9 +95,32 @@ public class NoteTag {
                     case "6":
                         tags.add(TAG_ERROR);
                         break;
+                    case "7":
+                        tags.add(TAG_QUESTION);
+                        break;
+                    case "8":
+                        tags.add(TAG_INSTANT);
+                        break;
+                    case "9":
+                        tags.add(TAG_KENNZAHL);
+                        break;
+                    case "10":
+                        tags.add(TAG_COMMENT);
+                        break;
+                    case "11":
+                        tags.add(TAG_MASSNAHME);
+                        break;
+                    case "12":
+                        tags.add(TAG_STOERUNG);
+                        break;
+                    case "13":
+                        tags.add(TAG_WARTUNG);
+                        break;
                     default:
+                        System.out.println("unparsable Tag: " + tString);
                         if (!tagString.isEmpty()) {
-                            tags.add(new NoteTag(tagString, tagString));
+                            //makes trouble
+                            // tags.add(new NoteTag(tagString, tagString));
                         }
 
                 }
@@ -103,10 +148,10 @@ public class NoteTag {
     public static NoteTag TAG_TASK = new NoteTag("Aufgabe", "2");
     public static NoteTag TAG_REPORT = new NoteTag("Bericht", "3");
     public static NoteTag TAG_EVENT = new NoteTag("Ereigniss", "4");
-    public static NoteTag TAG_REMINDER = new NoteTag("Errinerung", "5");
+    public static NoteTag TAG_REMINDER = new NoteTag("Erinnerung", "5");
     public static NoteTag TAG_ERROR = new NoteTag("Fehler", "6");
     public static NoteTag TAG_QUESTION = new NoteTag("Frage", "7");
-    public static NoteTag TAG_INSTANT = new NoteTag("Instantsetzung", "8");
+    public static NoteTag TAG_INSTANT = new NoteTag("Instandsetzung", "8");
     public static NoteTag TAG_KENNZAHL = new NoteTag("Kennzahl", "9");
     public static NoteTag TAG_COMMENT = new NoteTag("Kommentar", "10");
     public static NoteTag TAG_MASSNAHME = new NoteTag("Maßnahme", "11");

@@ -10,6 +10,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.converter.LocalTimeStringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
@@ -23,7 +25,9 @@ import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
@@ -31,6 +35,7 @@ import java.util.List;
 
 public class NotePane extends StackPane {
 
+    private static final Logger logger = LogManager.getLogger(NotePane.class);
     Label targetLabel = new Label(I18n.getInstance().getString("plugin.note.pane.target"));
     Label tagLabel = new Label(I18n.getInstance().getString("plugin.note.pane.tag"));
     Label noteLabel = new Label(I18n.getInstance().getString("plugin.note.pane.note"));
@@ -56,7 +61,6 @@ public class NotePane extends StackPane {
     DateTime date = new DateTime();
 
     public NotePane(ObservableList<String> allTags, JEVisDataSource dataSource, StackPane parentContainer) {
-
         GridPane gridPane = new GridPane();
         this.dataSource = dataSource;
 
@@ -115,7 +119,6 @@ public class NotePane extends StackPane {
                         for (UserSelection us : selectTargetDialog.getUserSelection()) {
                             targetTreeButton.setText(us.getSelectedObject().getName());
                             parentObject = us.getSelectedObject();
-                            System.out.println("new Target: " + parentObject.getName());
                         }
                     }
                 } catch (Exception ex) {
@@ -148,25 +151,32 @@ public class NotePane extends StackPane {
             JEVisClass noteClass = dataSource.getJEVisClass(NotesPlugin.NOTES_CLASS);
             List<JEVisObject> notes = parentObject.getChildren(noteClass, false);
             if (!notes.isEmpty()) {
+                logger.debug("Note Object exists");
                 newNoteObject = notes.get(0);
             } else {
+                logger.debug("create new Note Object");
                 newNoteObject = parentObject.buildObject(noteClass.getName(), noteClass);
                 newNoteObject.commit();
             }
+
+            LocalDate ldate = pickerDate.valueProperty().get();
+            LocalTime ltime = pickerTime.valueProperty().get();
+            date = new DateTime(ldate.getYear(), ldate.getMonthValue(), ldate.getDayOfMonth(), ltime.getHour(), ltime.getMinute());
 
             JEVisSample noteSample = newNoteObject.getAttribute("User Notes").buildSample(date, noteTextArea.getText());
             JEVisSample userSample = newNoteObject.getAttribute("User").buildSample(date, userField.getText());
 
             String tagString = "";
             for (String o : tagList.getSelectionModel().getSelectedItems()) {
-                System.out.println("-- selected tag: " + o);
+                //System.out.println("-- selected tag: " + o);
                 List<NoteTag> tags = NoteTag.parseTags(o);
                 for (NoteTag noteTag : tags) {
                     tagString += noteTag.getId() + ";";
                 }
             }
             System.out.println("Tags: " + tagString);
-            tagString = tagString.substring(0, tagString.length() - 2);
+            //tagString = tagString.substring(0, tagString.length() - 1);
+            //System.out.println("Tags2: " + tagString);
 
             JEVisSample tagSample = newNoteObject.getAttribute("Tag").buildSample(date, tagString);
 

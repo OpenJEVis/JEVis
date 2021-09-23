@@ -132,7 +132,7 @@ public class NotesPlugin implements Plugin {
         });
 
 
-        Label filterLabel = new Label("Search in:");
+        Label filterLabel = new Label("Suche in:");
         JFXToggleButton toggleUser = new JFXToggleButton();
         toggleUser.setText("User");
         toggleUser.setSelected(true);
@@ -272,7 +272,7 @@ public class NotesPlugin implements Plugin {
                                         });
                                     }
                                 } catch (Exception ex) {
-                                    System.out.println("Falscher Tag: " + s);
+                                    
                                 }
                             });
 
@@ -330,11 +330,8 @@ public class NotesPlugin implements Plugin {
         data.clear();
         filteredData.clear();
 
-        System.out.println("DataSize; " + data.size() + " " + filteredData.size());
-
         List<JEVisObject> noteObjects = getAllNoteObjects();
         JEConfig.getStatusBar().startProgressJob(NotesPlugin.class.getName(), noteObjects.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
-        System.out.println("All notes: " + noteObjects.size());
         noteObjects.forEach(noteObject -> {
             Task<List<NotesRow>> task = new Task<List<NotesRow>>() {
                 @Override
@@ -344,10 +341,11 @@ public class NotesPlugin implements Plugin {
                         Platform.runLater(() -> this.updateTitle("Loading Notes '" + noteObject.getName() + "'"));
                         JEVisAttribute userNotes = noteObject.getAttribute("User Notes");
                         //list.addAll(getNotesRow(userNotes));
-                        System.out.println("--  add to list: " + userNotes.getObjectID());
-                        data.addAll(getNotesRow(userNotes));
-
-                        filter();
+                        List<NotesRow> dataLust = getNotesRow(userNotes);
+                        Platform.runLater(() -> {
+                            data.addAll(dataLust);
+                            filter();
+                        });
                         //Platform.runLater(() -> autoFitTable(tableView));
                         //if (noteObjects.indexOf(noteObject) % 5 == 0
                         //       || noteObjects.indexOf(noteObject) == noteObjects.size() - 1) {
@@ -520,7 +518,6 @@ public class NotesPlugin implements Plugin {
                         jfxTextArea.setWrapText(true);
                         jfxTextArea.setPrefRowCount(8);
                         jfxTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                            System.out.println("Focus Lost: " + newValue);
                             if (!newValue) {
                                 //commitEdit(jfxTextArea.getText());
                                 tableSample.getNoteProperty().setValue(jfxTextArea.getText());
@@ -563,7 +560,6 @@ public class NotesPlugin implements Plugin {
                             }
 
                             button.setOnAction(event -> {
-                                System.out.println("--------------lable hight: " + label.getHeight());
                                 if (label.isWrapText()) {
                                     label.setMaxHeight(12);
                                     label.setWrapText(false);
@@ -742,18 +738,23 @@ public class NotesPlugin implements Plugin {
     }
 
     private Object getAnalysisRequest(NotesRow notesRow, JEVisObject noteItem) {
+        System.out.println("getAnalysisRequest: " + notesRow + " item: " + noteItem);
         DateTime start = notesRow.getTimeStamp().minusHours(12);
         DateTime end = notesRow.getTimeStamp().plusHours(12);
 
         JEVisObject parallelItem = null;
+
         try {
             JEVisObject parent = noteItem.getParents().get(0);
-            for (JEVisObject child : parent.getChildren()) {
-                if (!child.equals(noteItem) && child.getName().equals(noteItem.getName())) {
-                    parallelItem = child;
-                    break;
-                }
-            }
+            parallelItem = parent;
+            /**
+             for (JEVisObject child : parent.getChildren()) {
+             if (!child.equals(noteItem) && child.getName().equals(noteItem.getName())) {
+             parallelItem = child;
+             break;
+             }
+             }
+             **/
         } catch (Exception e) {
             logger.error("Could not get parallel item for note object {}:{}", noteItem.getName(), noteItem.getID());
         }
@@ -835,7 +836,12 @@ public class NotesPlugin implements Plugin {
                 if (jeVisObject != null) {
                     //data
                     NotesRow notesRow = new NotesRow(notePane.getDate(), jeVisObject);
-                    data.add(notesRow);
+                    Platform.runLater(() -> {
+                        data.add(notesRow);
+                        updateList();
+                        //tableView.refresh();
+                        filter();
+                    });
                 }
                 jfxDialog.close();
             });
@@ -1130,8 +1136,8 @@ public class NotesPlugin implements Plugin {
                 String user = "";
                 try {
                     tags = notesAttribute.getObject().getAttribute("Tag").getSamples(jeVisSample.getTimestamp(), jeVisSample.getTimestamp()).get(0).getValueAsString();
-                    System.out.println("Tags: " + tags);
-                    System.out.println("Tags.list: " + NoteTag.parseTags(tags).size());
+                    //System.out.println("Tags: " + tags);
+                    //System.out.println("Tags.list: " + NoteTag.parseTags(tags).size());
                 } catch (Exception ex) {
                     //ex.printStackTrace();
                 }
