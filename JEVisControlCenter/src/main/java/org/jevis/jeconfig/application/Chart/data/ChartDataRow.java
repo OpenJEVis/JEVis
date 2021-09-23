@@ -117,10 +117,16 @@ public class ChartDataRow {
 
         userNoteMap.clear();
         try {
-            JEVisClass noteclass = getObject().getDataSource().getJEVisClass("Data Notes");
-            for (JEVisObject jeVisObject : getObject().getChildren(noteclass, false)) {
-                for (JEVisSample jeVisSample : jeVisObject.getAttribute("User Notes").getSamples(getSelectedStart(), getSelectedEnd())) {
-                    userNoteMap.put(jeVisSample.getTimestamp(), jeVisSample);
+            final JEVisClass noteclass = getObject().getDataSource().getJEVisClass("Data Notes");
+            for (JEVisObject obj : attribute.getObject().getParents().get(0).getChildren(noteclass, true)) {
+                if (obj.getName().contains(attribute.getObject().getName())) {
+                    JEVisAttribute userNotesAttribute = obj.getAttribute("User Notes");
+                    if (userNotesAttribute.hasSample()) {
+                        for (JEVisSample jeVisSample : userNotesAttribute.getSamples(selectedStart, selectedEnd)) {
+                            userNoteMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                        }
+                    }
+                    break;
                 }
             }
         } catch (Exception e) {
@@ -423,6 +429,7 @@ public class ChartDataRow {
             for (JEVisSample sample : unmodifiedSamples) {
                 if (getUserDataMap().containsKey(sample.getTimestamp())) {
                     samplesToRemove.add(sample);
+                    getUserDataMap().get(sample.getTimestamp()).setNote(sample.getNote());
                 }
             }
 
