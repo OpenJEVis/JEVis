@@ -979,7 +979,7 @@ public class PatchNotesPage {
         final Stage stage = new Stage();
         remember.setSelected(true);
 
-        //TODO show it again if we habe a new version of the Config
+        //TODO show it again if we have a new version of the Config
         if (!pref.getBoolean("show", true)) {
             if (pref.get("version", "").equals(JEConfig.class.getPackage().getImplementationVersion())) {
                 return;
