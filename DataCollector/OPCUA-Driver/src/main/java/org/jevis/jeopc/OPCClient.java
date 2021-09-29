@@ -8,6 +8,7 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.UaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
+import org.eclipse.milo.opcua.sdk.client.nodes.UaVariableNode;
 import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
 import org.eclipse.milo.opcua.stack.client.UaStackClient;
 import org.eclipse.milo.opcua.stack.client.UaStackClientConfig;
@@ -401,12 +402,25 @@ public class OPCClient {
             for (ReferenceDescription rd : references) {
                 String xpath = xpathParent;
                 NodeId nodeId = new NodeId(rd.getNodeId().getNamespaceIndex(), (UInteger) rd.getNodeId().getIdentifier());
-                logger.debug("Add to Map: {}-{}", xpath, rd);
-                PathReferenceDescription pathReferenceDescription = new PathReferenceDescription(rd, xpath);
+                System.out.println(rd.getNodeClass().getValue());
+                PathReferenceDescription pathReferenceDescription;
 
-                Platform.runLater(() -> {
-                    list.add(pathReferenceDescription);
-                });
+                if (rd.getNodeClass().getValue() == 2) {
+                    DataValue datavalue = readValue(nodeId);
+                    pathReferenceDescription = new PathReferenceDescription(rd, xpath, datavalue);
+                }else {
+                    pathReferenceDescription = new PathReferenceDescription(rd, xpath, null);
+                }
+
+
+
+                logger.debug("Add to Map: {}-{}", xpath, rd);
+                if (rd.getNodeClass().getValue() == 1 || (rd.getNodeClass().getValue() == 2 )) {
+                    Platform.runLater(() -> {
+                        list.add(pathReferenceDescription);
+                    });
+                }
+
 
                 browseTree(list, xpath + "/" + rd.getBrowseName().getName(), nodeId);
             }
@@ -516,6 +530,20 @@ public class OPCClient {
         System.out.println("TypeId: " + endpointDescription.getTypeId());
         System.out.println("Server: " + endpointDescription.getServer().toString());
         return "";
+    }
+
+    private  DataValue readValue(NodeId nodeId) {
+        try {
+            UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
+            DataValue value = node.readValue();
+            System.out.println("---value---");
+            System.out.println(value);
+            return value;
+        } catch (UaException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 }
