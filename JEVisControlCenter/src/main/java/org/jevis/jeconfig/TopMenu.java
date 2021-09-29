@@ -335,7 +335,7 @@ public class TopMenu extends MenuBar {
         HiddenConfig.DASH_THREADS = prefThreads.getInt("count", optCores);
         int selectedThreadCount = prefThreads.getInt("count", optCores);
         Menu threadCount = new Menu(I18n.getInstance().getString("menu.options.threads"));
-        for (int i = 1; i < 16; i++) {
+        for (int i = 1; i <= optCores; i++) {
             CheckMenuItem cmi = new CheckMenuItem(String.valueOf(i));
 
             if (i == selectedThreadCount) cmi.setSelected(true);
