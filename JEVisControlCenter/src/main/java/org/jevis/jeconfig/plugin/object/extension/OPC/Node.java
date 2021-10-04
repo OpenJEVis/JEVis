@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.object.extension.OPC;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.structured.ReferenceDescription;
 
@@ -17,10 +18,13 @@ public class Node {
     public final StringProperty pathProperty;
     public StringProperty stringProperty = new SimpleStringProperty("hmmm");
     public StringProperty typeProperty = new SimpleStringProperty("");
+    public final DataValue dataValue;
+    public boolean selected;
 
-    public Node(ReferenceDescription referenceDescription, String xpath) {
+    public Node(ReferenceDescription referenceDescription, String xpath, DataValue dataValue) {
         pathProperty = new SimpleStringProperty(xpath);
         descriptionProperty=new SimpleObjectProperty<>(referenceDescription);
+        this.dataValue = dataValue;
 
         try {
             NodeId nodeId = Nodes.toNodeID(descriptionProperty.get());
@@ -34,6 +38,27 @@ public class Node {
         }
 
 
+    }
+    public String readData(){
+        if (descriptionProperty.get().getNodeClass().getValue() == 2) {
+            return dataValue.getValue().toString().split("=")[1].substring(0,dataValue.getValue().toString().split("=")[1].length()-1);
+        }else{
+            return "";
+        }
+    }
+
+
+    @Override
+    public String toString() {
+        return  descriptionProperty.get().getBrowseName().getName();
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 /**
     public ReferenceDescription getDescriptionProperty() {

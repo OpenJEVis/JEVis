@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.object.extension.OPC;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.collections.FXCollections;
@@ -10,6 +11,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -17,17 +19,24 @@ import javafx.util.Callback;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.OPCUAServer;
 
+import java.util.concurrent.ExecutionException;
+
 public class OPCBrowser {
 
     private JEVisObject opcServerObj = null;
-    JFXTextField username = new JFXTextField();
-    JFXTextField password = new JFXTextField();
+    private OPCClient opcClient;
+    //JFXTextField username = new JFXTextField();
+    //JFXTextField password = new JFXTextField();
+    JFXTextField port = new JFXTextField();
+    JFXButton getEndpoints = new JFXButton();
+    JFXComboBox<String> rootFolder = new JFXComboBox();
 
     public OPCBrowser(JEVisObject server) {
         this.opcServerObj = server;
@@ -38,19 +47,20 @@ public class OPCBrowser {
         stage.initModality(Modality.NONE);
         stage.initOwner(JEConfig.getStage());
 
-        BorderPane borderPane = new BorderPane();
-        Scene scene = new Scene(borderPane);
+        VBox vBox = new VBox();
+        Scene scene = new Scene(vBox);
         TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         //TODo better be dynamic
 
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(true);
-        stage.setWidth(365);
+        stage.setWidth(450);
         stage.setHeight(500);
+        stage.setAlwaysOnTop(true);
 
-        OPCUAServer opcuaServer = new OPCUAServer(opcServerObj);
-        OPCClient opcClient = new OPCClient(opcuaServer.getURL());//"opc.tcp://10.1.2.128:4840");
+        //OPCUAServer opcuaServer = new OPCUAServer(opcServerObj);
+        //OPCClient opcClient = new OPCClient(opcuaServer.getURL());//"opc.tcp://10.1.2.128:4840");
         try {
 
             /**
@@ -59,12 +69,8 @@ public class OPCBrowser {
              opcClient.connect();
              **/
             System.out.println("Get Endpoints:");
-            ObservableList<EndpointDescription> endpoints = FXCollections.observableArrayList(opcClient.getEndpoints());
-            endpoints.forEach(endpointDescription -> {
-                System.out.println("Endpoint: " + endpointDescription);
-            });
 
-            JFXComboBox<EndpointDescription> alignmentBox = new JFXComboBox<>(endpoints);
+            JFXComboBox<EndpointDescription> alignmentBox = new JFXComboBox<>();
             alignmentBox.setPrefWidth(1000);
             alignmentBox.setMinWidth(100);
 
@@ -96,21 +102,22 @@ public class OPCBrowser {
             alignmentBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                 //System.out.println("Select Endpoint: " + observable.toString().replace(",", "\n"));
                 try {
-                    UsernameProvider usernameProvider = new UsernameProvider(username.getText(), password.getText());
+                    UsernameProvider usernameProvider = new UsernameProvider(opcServerObj.getAttribute("User").getLatestSample().getValue().toString(), opcServerObj.getAttribute("Password").getLatestSample().getValue().toString());
                     opcClient.setEndpoints(newValue);
-                    if (!username.getText().isEmpty() && !password.getText().isEmpty()) {
-                        System.out.println("Use usernamen and password");
+
+                    if (!opcServerObj.getAttribute("User").getLatestSample().getValue().toString().isEmpty() && !opcServerObj.getAttribute("Password").getLatestSample().getValue().toString().isEmpty()) {
                         opcClient.setIdentification(usernameProvider);
                     }
+
+
+
                     opcClient.connect();
 
 
-                    NodeTable nodeTable = new NodeTable(opcClient);
-                    DataValueTable dataValueTable = new DataValueTable(opcClient);
-                    nodeTable.setDataValueTable(dataValueTable);
+                    NodeTreeTable nodeTable = new NodeTreeTable(opcClient,server,rootFolder.getValue());
 
-                    borderPane.setCenter(nodeTable.getView());
-                    borderPane.setRight(dataValueTable.getView());
+
+                    vBox.getChildren().add(nodeTable.getView());
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -121,14 +128,42 @@ public class OPCBrowser {
             FlowPane flowPane = new FlowPane();
 
 
-            username.setPromptText("Username");
+            //username.setPromptText("Username");
+            //password.setPromptText("Password");
 
-            password.setPromptText("Password");
+            port.setPromptText("Port");
 
-            flowPane.getChildren().addAll(alignmentBox, username, password);
-            borderPane.setTop(flowPane);
+            getEndpoints.setText("get Endpoints");
 
-            //borderPane.setStyle("-fx-background-color:blue;");
+            getEndpoints.setOnAction(event -> {
+                try {
+                   ;
+                    OPCUAServer opcuaServer = new OPCUAServer(opcServerObj);
+                    opcClient = new OPCClient(opcuaServer.getURL().replace(opcServerObj.getAttribute("Port").getLatestSample().getValue().toString(),port.getText()));//"opc.tcp://10.1.2.128:4840");
+                    ObservableList<EndpointDescription> endpoints = FXCollections.observableArrayList(opcClient.getEndpoints());
+                    endpoints.forEach(endpointDescription -> {
+                        System.out.println("Endpoint: " + endpointDescription);
+                    });
+                    alignmentBox.getItems().addAll(endpoints);
+                } catch (JEVisException | ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+            });
+
+            rootFolder.getItems().addAll("Loytec ROOT","Trend");
+            rootFolder.setValue(rootFolder.getItems().get(0));
+            rootFolder.setOnAction(event ->{
+                System.out.println(rootFolder.getValue());
+                    }
+
+            );
+
+            flowPane.getChildren().addAll(alignmentBox, rootFolder, port, getEndpoints);
+            vBox.getChildren().add(flowPane);
+
+            //vBox.setStyle("-fx-background-color:blue;");
             //opcClient.close();
         } catch (Exception ex) {
             ex.printStackTrace();
