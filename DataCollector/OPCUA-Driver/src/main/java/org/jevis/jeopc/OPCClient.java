@@ -379,12 +379,12 @@ public class OPCClient {
         }
     }
 
-    public void browse(ObservableList<PathReferenceDescription> list) {
-        browseTree(list, "", Identifiers.RootFolder);
+    public void browse(ObservableList<PathReferenceDescription> list, String rootFolder) {
+        browseTree(list, "", Identifiers.RootFolder,rootFolder);
 
     }
 
-    private void browseTree(ObservableList<PathReferenceDescription> list, String xpathParent, NodeId browseRoot) {
+    private void browseTree(ObservableList<PathReferenceDescription> list, String xpathParent, NodeId browseRoot, String rootFolder) {
         BrowseDescription browse = new BrowseDescription(
                 browseRoot,
                 BrowseDirection.Forward,
@@ -402,27 +402,23 @@ public class OPCClient {
             for (ReferenceDescription rd : references) {
                 String xpath = xpathParent;
                 NodeId nodeId = new NodeId(rd.getNodeId().getNamespaceIndex(), (UInteger) rd.getNodeId().getIdentifier());
-                System.out.println(rd.getNodeClass().getValue());
                 PathReferenceDescription pathReferenceDescription;
-
-                if (rd.getNodeClass().getValue() == 2) {
-                    DataValue datavalue = readValue(nodeId);
-                    pathReferenceDescription = new PathReferenceDescription(rd, xpath, datavalue);
-                }else {
-                    pathReferenceDescription = new PathReferenceDescription(rd, xpath, null);
-                }
-
-
-
+                if ((xpath+rd.getBrowseName().getName()).contains(rootFolder)) {
+                    if (rd.getNodeClass().getValue() == 2) {
+                        DataValue datavalue = readValue(nodeId);
+                        pathReferenceDescription = new PathReferenceDescription(rd, xpath, datavalue);
+                    }else {
+                        pathReferenceDescription = new PathReferenceDescription(rd, xpath, null);
+                    }
                 logger.debug("Add to Map: {}-{}", xpath, rd);
                 if (rd.getNodeClass().getValue() == 1 || (rd.getNodeClass().getValue() == 2 )) {
                     Platform.runLater(() -> {
                         list.add(pathReferenceDescription);
                     });
                 }
+                }
 
-
-                browseTree(list, xpath + "/" + rd.getBrowseName().getName(), nodeId);
+                browseTree(list, xpath + "/" + rd.getBrowseName().getName(), nodeId,rootFolder);
             }
         } catch (NullPointerException ex) {
             ex.printStackTrace();
@@ -536,8 +532,7 @@ public class OPCClient {
         try {
             UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
             DataValue value = node.readValue();
-            System.out.println("---value---");
-            System.out.println(value);
+            logger.debug(nodeId+ ":"+value);
             return value;
         } catch (UaException e) {
             e.printStackTrace();
