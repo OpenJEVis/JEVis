@@ -45,7 +45,6 @@ public class NodeTreeTable {
 
     private final ObservableList<Node> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
-    private DataValueTable dataValueTable;
     private JEVisObject object;
     private final String rootFolder;
 
@@ -74,11 +73,10 @@ public class NodeTreeTable {
                         setText(null);
                         setGraphic(null);
 
-                        if (!empty) {
+                        if (!empty && getTreeTableRow().getTreeItem()!=null) {
                             try {
-                                boolean show = getTreeTableRow().getTreeItem().getValue().descriptionProperty.get().getNodeClass().getValue() == 1;
 
-                                if (show) {
+                                if (getTreeTableRow().getTreeItem().getValue().descriptionProperty.get().getNodeClass().getValue() == 1) {
                                     JFXCheckBox box = new JFXCheckBox();
                                     box.setSelected(item);
                                     box.setOnAction(event -> {
@@ -219,14 +217,6 @@ public class NodeTreeTable {
 
     public VBox getView() {
         return view;
-    }
-
-    public void setDataValueTable(DataValueTable dataValueTable) {
-        this.dataValueTable = dataValueTable;
-    }
-
-    private boolean isLoytecTrend(Node p) {
-        return p.idStringProperty.get().toLowerCase().indexOf("(trend") != -1 && p.descriptionProperty.get().getNodeClass().equals(NodeClass.Variable);
     }
 
     public void setData() {
