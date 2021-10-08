@@ -15,6 +15,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -31,10 +33,10 @@ import java.util.Map;
 import static org.jevis.commons.classes.ClassHelper.isDirectory;
 
 public class StatisticExtension implements ObjectEditorExtension {
-
+    private static final Logger logger = LogManager.getLogger(StatisticExtension.class);
     private static final String TITLE = I18n.getInstance().getString("plugin.object.statistic.title");
     private final ScrollPane _view = new ScrollPane();
-    private JEVisObject object;
+    private final JEVisObject object;
 
 
     public StatisticExtension(JEVisObject object) {
@@ -90,46 +92,49 @@ public class StatisticExtension implements ObjectEditorExtension {
 
             int row = 0;
             for (Map.Entry<JEVisClass, List<JEVisObject>> entry : map.entrySet()) {
+                try {
+                    Image icon = SwingFXUtils.toFXImage(entry.getKey().getIcon(), null);
+                    ImageView imageView = new ImageView(icon);
+                    imageView.setPreserveRatio(true);
+                    imageView.setFitHeight(24);
 
-                Image icon = SwingFXUtils.toFXImage(entry.getKey().getIcon(), null);
-                ImageView imageView = new ImageView(icon);
-                imageView.setPreserveRatio(true);
-                imageView.setFitHeight(24);
 
-
-                JFXComboBox<JEVisObject> box = new JFXComboBox<>();
-                Callback<ListView<JEVisObject>, ListCell<JEVisObject>> objectNameCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-                    @Override
-                    public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                        return new JFXListCell<JEVisObject>() {
-                            @Override
-                            protected void updateItem(JEVisObject obj, boolean empty) {
-                                super.updateItem(obj, empty);
-                                if (obj == null || empty) {
-                                    setGraphic(null);
-                                    setText(null);
-                                } else {
-                                    setText(obj.getName());
+                    JFXComboBox<JEVisObject> box = new JFXComboBox<>();
+                    Callback<ListView<JEVisObject>, ListCell<JEVisObject>> objectNameCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+                        @Override
+                        public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                            return new JFXListCell<JEVisObject>() {
+                                @Override
+                                protected void updateItem(JEVisObject obj, boolean empty) {
+                                    super.updateItem(obj, empty);
+                                    if (obj == null || empty) {
+                                        setGraphic(null);
+                                        setText(null);
+                                    } else {
+                                        setText(obj.getName());
+                                    }
                                 }
-                            }
-                        };
+                            };
+                        }
+                    };
+
+                    box.setCellFactory(objectNameCellFactory);
+                    box.setButtonCell(objectNameCellFactory.call(null));
+
+                    box.getItems().addAll(entry.getValue());
+                    if (!entry.getValue().isEmpty()) {
+                        box.getSelectionModel().selectFirst();
                     }
-                };
 
-                box.setCellFactory(objectNameCellFactory);
-                box.setButtonCell(objectNameCellFactory.call(null));
 
-                box.getItems().addAll(entry.getValue());
-                if (!entry.getValue().isEmpty()) {
-                    box.getSelectionModel().selectFirst();
+                    gridPane.add(imageView, 0, row);
+                    gridPane.add(new Label(I18nWS.getInstance().getClassName(entry.getKey().getName()) + " x " + entry.getValue().size()), 1, row);
+                    gridPane.add(box, 2, row);
+
+                    row++;
+                } catch (Exception e) {
+                    logger.error("Could not create entry for {}", entry.getKey(), e);
                 }
-
-
-                gridPane.add(imageView, 0, row);
-                gridPane.add(new Label(I18nWS.getInstance().getClassName(entry.getKey().getName()) + " x " + entry.getValue().size()), 1, row);
-                gridPane.add(box, 2, row);
-
-                row++;
             }
             _view.setContent(gridPane);
         } catch (Exception ex) {

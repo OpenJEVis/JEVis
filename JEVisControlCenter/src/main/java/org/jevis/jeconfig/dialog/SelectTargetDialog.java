@@ -71,6 +71,7 @@ public class SelectTargetDialog extends JFXDialog {
         super();
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
+        setMinWidth(450);
 
         this.dialogContainer = dialogContainer;
         this.ds = ds;
