@@ -1026,7 +1026,7 @@ public class AnalysisDataModel {
         if (this.currentAnalysis != null && !this.currentAnalysis.equals(currentAnalysis)) {
             if (getTemporary()) {
                 try {
-                    ds.deleteObject(this.currentAnalysis.getID());
+//                    ds.deleteObject(this.currentAnalysis.getID());
                     updateListAnalyses();
                 } catch (Exception e) {
                     logger.error("Could not delete temporary analysis", e);

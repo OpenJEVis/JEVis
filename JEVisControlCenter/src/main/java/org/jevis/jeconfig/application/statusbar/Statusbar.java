@@ -63,6 +63,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.prefs.Preferences;
 
 /**
  * Status bar with user and connection infos.
@@ -95,9 +96,10 @@ public class Statusbar extends ToolBar {
     private boolean hideTaskList = false;
     private final Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
     private final Region spacer = new Region();
-    private final ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+    private final Preferences prefThreads = Preferences.userRoot().node("JEVis.JEConfig.threads");
     private final ConcurrentHashMap<Task, String> taskList = new ConcurrentHashMap<>();
     private final StackPane stackpane = new StackPane();
+    private ExecutorService executor;
     /**
      * This pane will hide the 'No task message' which we have no access to
      **/
@@ -118,6 +120,9 @@ public class Statusbar extends ToolBar {
     public Statusbar() {
         super();
 
+        int optCores = Runtime.getRuntime().availableProcessors() > 1 ? Runtime.getRuntime().availableProcessors() - 1 : 1;
+        HiddenConfig.DASH_THREADS = prefThreads.getInt("count", optCores);
+        executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
         hideTaskListPane.setStyle("-fx-background-color: #ffffff;");
         stackpane.getChildren().addAll(taskProgressView, hideTaskListPane);
 
@@ -532,6 +537,20 @@ public class Statusbar extends ToolBar {
 
     public JFXPopup getPopup() {
         return popup;
+    }
+
+    public void setParallelProcesses(int count) {
+        try {
+            executor.shutdownNow();
+
+            prefThreads.putInt("count", count);
+            HiddenConfig.DASH_THREADS = count;
+
+            executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+        } catch (Exception e) {
+            logger.error("Could not shutdown executor", e);
+        }
+
     }
 
     // TODO implement status bar for JEVis applications

@@ -39,6 +39,7 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.dialog.AboutDialog;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
+import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.joda.time.DateTime;
 
@@ -329,7 +330,39 @@ public class TopMenu extends MenuBar {
             Platform.runLater(() -> updateLayout());
         });
 
+        final Preferences prefThreads = Preferences.userRoot().node("JEVis.JEConfig.threads");
+        int optCores = Runtime.getRuntime().availableProcessors() > 1 ? Runtime.getRuntime().availableProcessors() - 1 : 1;
+        HiddenConfig.DASH_THREADS = prefThreads.getInt("count", optCores);
+        int selectedThreadCount = prefThreads.getInt("count", optCores);
+        Menu threadCount = new Menu(I18n.getInstance().getString("menu.options.threads"));
+        for (int i = 1; i <= optCores; i++) {
+            CheckMenuItem cmi = new CheckMenuItem(String.valueOf(i));
+
+            if (i == selectedThreadCount) cmi.setSelected(true);
+
+            int finalI = i;
+            cmi.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue) {
+                    JEConfig.getStatusBar().setParallelProcesses(finalI);
+                    for (MenuItem menuItem : threadCount.getItems()) {
+                        if (menuItem instanceof CheckMenuItem) {
+                            CheckMenuItem otherItem = (CheckMenuItem) menuItem;
+                            if (!otherItem.equals(cmi)) {
+                                otherItem.setSelected(false);
+                            }
+                        }
+                    }
+                }
+            });
+
+            threadCount.getItems().add(cmi);
+        }
+
         options.getItems().addAll(changePassword, enablePreview, welcome, showPatchNotes, expertMode);
+
+        if (JEConfig.getExpert()) {
+            options.getItems().add(threadCount);
+        }
 
         Menu view = new Menu(I18n.getInstance().getString("menu.view"));
         Menu theme = new Menu(I18n.getInstance().getString("menu.view.theme"));
