@@ -331,7 +331,7 @@ public class TopMenu extends MenuBar {
         });
 
         final Preferences prefThreads = Preferences.userRoot().node("JEVis.JEConfig.threads");
-        int optCores = Runtime.getRuntime().availableProcessors() > 1 ? Runtime.getRuntime().availableProcessors() - 1 : 1;
+        int optCores = Math.max(Runtime.getRuntime().availableProcessors(), 1);
         HiddenConfig.DASH_THREADS = prefThreads.getInt("count", optCores);
         int selectedThreadCount = prefThreads.getInt("count", optCores);
         Menu threadCount = new Menu(I18n.getInstance().getString("menu.options.threads"));

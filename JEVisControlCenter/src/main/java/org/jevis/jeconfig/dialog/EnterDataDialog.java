@@ -20,6 +20,7 @@ import org.jevis.commons.constants.EnterDataTypes;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -604,6 +605,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     private void loadLastValue() {
         if (selectedObject != null) {
             JEVisAttribute valueAttribute = null;
+            WorkDays workDays = new WorkDays(selectedObject);
             String unitString = "";
             try {
                 valueAttribute = selectedObject.getAttribute("Value");
@@ -629,7 +631,6 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                         lastTS = sample.getTimestamp();
                         lastValue = sample.getValueAsDouble();
                         if (lastTS != null && lastValue != null) {
-                            DateTime finalLastTS = lastTS;
                             Double finalLastValue = lastValue;
                             String finalUnitString = unitString;
                             Period p = null;
@@ -644,6 +645,10 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
                             Period finalP = p;
                             Platform.runLater(() -> {
+                                DateTime finalLastTS = lastTS;
+                                if (workDays.isCustomWorkDay() && workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd()) && PeriodHelper.isGreaterThenDays(finalP)) {
+                                    finalLastTS = finalLastTS.plusDays(1);
+                                }
                                 String normalPattern = PeriodHelper.getFormatString(finalP, isConversionToDifferential.get());
                                 lastTSLabel.setText(finalLastTS.toString(normalPattern) + " : ");
 
