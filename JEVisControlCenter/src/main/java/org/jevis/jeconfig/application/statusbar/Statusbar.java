@@ -120,7 +120,7 @@ public class Statusbar extends ToolBar {
     public Statusbar() {
         super();
 
-        int optCores = Runtime.getRuntime().availableProcessors() > 1 ? Runtime.getRuntime().availableProcessors() - 1 : 1;
+        int optCores = Math.max(Runtime.getRuntime().availableProcessors(), 1);
         HiddenConfig.DASH_THREADS = prefThreads.getInt("count", optCores);
         executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
         hideTaskListPane.setStyle("-fx-background-color: #ffffff;");
