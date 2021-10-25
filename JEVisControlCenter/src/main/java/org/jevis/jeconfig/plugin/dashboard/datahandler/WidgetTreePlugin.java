@@ -15,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -42,6 +44,7 @@ import java.util.Map;
 
 public class WidgetTreePlugin implements TreePlugin {
 
+    protected static final Logger logger = LogManager.getLogger(WidgetTreePlugin.class);
     public static String COLUMN = "DataModel";
     public static String COLUMN_COLOR = I18n.getInstance().getString("plugin.dashboard.datatree.color");
     public static String COLUMN_CHART_TYPE = I18n.getInstance().getString("graph.tabs.tab.charttype");
@@ -951,19 +954,30 @@ public class WidgetTreePlugin implements TreePlugin {
     public void resetUserSelection() {
         selectedTreeItems.clear();
         this.jeVisTree.getItems().forEach(jeVisTreeItem -> {
-            jeVisTreeItem.getValue().setDataObject(DATA_MODEL_NODE, null);
-            jeVisTreeItem.getValue().setDataObject(COLUMN_SELECTED, false);
-            jeVisTree.collapseAll(jeVisTree.getRoot(), false);
+            try {
+                jeVisTreeItem.getValue().setDataObject(DATA_MODEL_NODE, null);
+                jeVisTreeItem.getValue().setDataObject(COLUMN_SELECTED, false);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+            }
         });
+        try {
+            jeVisTree.collapseAll(jeVisTree.getRoot(), false);
+        } catch (Exception ex) {
+            logger.error(ex, ex);
+        }
     }
 
     public void setUserSelection(List<DataPointNode> userSelection) {
+        logger.error("setUserSelection: {}", userSelection);
         resetUserSelection();
 
         //dataPointNodes.setAll(userSelection);
 
         userSelection.forEach(dataModelNode -> {
             try {
+                logger.error("- Select Node:  {}", dataModelNode.getObjectID());
+
                 JEVisObject object = this.jeVisTree.getJEVisDataSource().getObject(dataModelNode.getObjectID());
                 if (object != null) {
                     JEVisTreeItem item = this.jeVisTree.getItemForObject(object);
