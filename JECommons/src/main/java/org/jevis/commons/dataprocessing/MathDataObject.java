@@ -417,12 +417,9 @@ public class MathDataObject {
         return false;
     }
 
-    public DateTime getNextRunWithOffset() {
-        AggregationPeriod aggregationPeriod = getReferencePeriod();
-        Long referencePeriodCount = getReferencePeriodCount();
-        DateTime start = getStartDate();
-        Long offset = getPeriodOffset();
-        for (int i = 0; i < referencePeriodCount; i++) {
+    public DateTime getNextRunWithOffset(AggregationPeriod aggregationPeriod, Long offset, DateTime start) {
+
+        for (int i = 0; i < Math.abs(offset); i++) {
             switch (aggregationPeriod) {
                 case NONE:
                     break;
