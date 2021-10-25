@@ -417,9 +417,9 @@ public class MathDataObject {
         return false;
     }
 
-    public DateTime getNextRunWithOffset(AggregationPeriod aggregationPeriod, Long offset, DateTime start) {
+    public DateTime getNextRunWithOffset(AggregationPeriod aggregationPeriod, Long offset, Long referencePeriodCount, DateTime start) {
 
-        for (int i = 0; i < Math.abs(offset); i++) {
+        for (int i = 0; i < referencePeriodCount; i++) {
             switch (aggregationPeriod) {
                 case NONE:
                     break;
@@ -489,7 +489,7 @@ public class MathDataObject {
         Long referencePeriodCount = getReferencePeriodCount();
         DateTime lastRun = getLastRun(getMathDataObject());
 
-        return PeriodHelper.getNextPeriod(lastRun, org.jevis.commons.datetime.Period.valueOf(aggregationPeriod.toString()), referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
+        return PeriodHelper.getNextPeriod(lastRun, org.jevis.commons.datetime.Period.parsePeriod(aggregationPeriod.toString()), referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
     }
 
     private DateTimeZone getTimeZone(JEVisObject object) {

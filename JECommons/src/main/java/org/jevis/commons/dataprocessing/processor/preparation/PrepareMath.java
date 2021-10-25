@@ -27,6 +27,7 @@ public class PrepareMath implements ProcessStep {
         Period inputPeriod = CleanDataObject.getPeriodForDate(periodRules, start);
 
         AggregationPeriod aggregationPeriod = mathDataObject.getReferencePeriod();
+        Long referencePeriodCount = mathDataObject.getReferencePeriodCount();
         Long periodOffset = mathDataObject.getPeriodOffset();
 
         boolean periodHasYear = inputPeriod.getYears() > 0;
@@ -104,7 +105,7 @@ public class PrepareMath implements ProcessStep {
                 Interval interval = new Interval(start, end.minusMillis(1));
 
                 if (periodOffset != 0L) {
-                    start = mathDataObject.getNextRunWithOffset(aggregationPeriod, periodOffset, start);
+                    start = mathDataObject.getNextRunWithOffset(aggregationPeriod, periodOffset, referencePeriodCount, start);
                 }
 
                 CleanInterval cleanInterval = new CleanInterval(interval, start);
