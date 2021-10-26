@@ -270,6 +270,11 @@ public class ReportLinkProperty implements ReportData {
 
                                                 linkMap.putAll(ProcessHelper.getAttributeSamples(calcJob.getResults(), attribute, property.getTimeZone()));
                                             }
+                                        } else if (dataObject.getJEVisClassName().equals("Data")) {
+                                            CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), ds, ReportLinkFactory.getEnPICalcMap(ds).get(dataObject),
+                                                    interval.getStart(), interval.getEnd(), aggregationPeriod);
+
+                                            linkMap.putAll(ProcessHelper.getAttributeSamples(calcJob.getResults(), attribute, property.getTimeZone()));
                                         }
                                     } catch (JEVisException e) {
                                         e.printStackTrace();
