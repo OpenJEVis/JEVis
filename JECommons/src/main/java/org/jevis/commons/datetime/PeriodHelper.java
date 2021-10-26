@@ -74,9 +74,6 @@ public class PeriodHelper {
                 break;
             case WEEKLY:
                 resultDate = resultDate.plusWeeks(i);
-                if (wasLastDay) {
-                    resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
-                }
                 break;
             case MONTHLY:
                 resultDate = resultDate.plusMonths(i);
