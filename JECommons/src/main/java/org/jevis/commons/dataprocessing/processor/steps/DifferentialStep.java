@@ -117,23 +117,6 @@ public class DifferentialStep implements ProcessStep {
             Double lastDiffVal = rawSamples.get(0).getValueAsDouble();
             CleanInterval lastInterval = null;
 
-            if (rawSamples.get(0).getTimestamp().equals(firstTS)) {
-                try {
-                    Period p1 = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), firstTS);
-                    List<JEVisSample> samples = cleanDataObject.getRawAttribute().getSamples(firstTS.minus(p1).minus(p1), firstTS);
-                    for (int i = samples.size() - 1; i >= 0; i--) {
-                        JEVisSample smp = samples.get(i);
-                        if (smp.getTimestamp().isBefore(firstTS)) {
-                            lastDiffVal = smp.getValueAsDouble();
-                            lastDiffTS = smp.getTimestamp();
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("Error while trying to get previous raw sample ts", e);
-                }
-            }
-
             for (JEVisSample smp : rawSamples) {
                 if (smp.getTimestamp().isBefore(firstTS)) {
                     lastDiffVal = smp.getValueAsDouble();
