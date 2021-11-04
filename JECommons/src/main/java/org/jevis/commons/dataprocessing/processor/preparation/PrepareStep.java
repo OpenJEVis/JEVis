@@ -147,8 +147,12 @@ public class PrepareStep implements ProcessStep {
                 maxEndDate = maxEndDate.plusHours(12);
             }
             if (firstCleanPeriod.getHours() > 0) {
-                currentDate = currentDate.minusHours(1);
-                maxEndDate = maxEndDate.plusMinutes(30);
+                currentDate = currentDate.minusHours(1).withMinuteOfHour(0);
+                maxEndDate = maxEndDate.plusMinutes(30).withMinuteOfHour(0);
+            }
+
+            if (firstCleanPeriod.getMinutes() > 0 && firstRawPeriod.getHours() == 1 && firstRawPeriod.getMinutes() == 0) {
+                currentDate = currentDate.withMinuteOfHour(0);
             }
 
             while (currentDate.isBefore(maxEndDate) && !periodCleanData.isEmpty() && !currentDate.equals(lastDate)) {
