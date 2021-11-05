@@ -107,8 +107,9 @@ public class PrepareStep implements ProcessStep {
         if (dtEnd.isBefore(dtStart) && IntStream.of(lastPeriod.getYears(), lastPeriod.getMonths(), lastPeriod.getWeeks()).anyMatch(i -> i > 0)) {
             currentDate = currentDate.minus(lastPeriod);
             maxEndDate = maxEndDate.minus(lastPeriod);
+        } else if (IntStream.of(lastPeriod.getYears(), lastPeriod.getMonths()).anyMatch(i -> i > 0)) {
+            maxEndDate = maxEndDate.minus(lastPeriod);
         }
-
         logger.info("[{}] getIntervals: currentDate: {}  MaxEndDate: {} ", cleanDataObject.getCleanObject().getID(), currentDate, maxEndDate);
 
         if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
