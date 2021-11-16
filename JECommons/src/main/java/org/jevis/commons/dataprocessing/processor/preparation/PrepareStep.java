@@ -131,12 +131,16 @@ public class PrepareStep implements ProcessStep {
             //add half a period to maxEndDate
             if (firstCleanPeriod.getYears() > 0) {
                 currentDate = currentDate.minusYears(1).withMonthOfYear(1).withDayOfMonth(1);
+                maxEndDate = maxEndDate.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+
                 if (dtEnd.isBefore(dtStart)) {
                     maxEndDate = maxEndDate.plusYears(1);
                 }
             }
             if (firstCleanPeriod.getMonths() > 0) {
                 currentDate = currentDate.minusMonths(1).withDayOfMonth(1);
+
+                maxEndDate = maxEndDate.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
 
                 if (dtEnd.isBefore(dtStart)) {
                     maxEndDate = maxEndDate.plusMonths(1);
