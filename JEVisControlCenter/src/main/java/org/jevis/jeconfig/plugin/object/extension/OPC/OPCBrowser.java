@@ -3,13 +3,10 @@ package org.jevis.jeconfig.plugin.object.extension.OPC;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -17,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
+import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
 import org.jevis.api.JEVisException;
@@ -35,8 +33,10 @@ public class OPCBrowser {
     //JFXTextField username = new JFXTextField();
     //JFXTextField password = new JFXTextField();
     JFXTextField port = new JFXTextField();
-    JFXButton getEndpoints = new JFXButton();
+    JFXButton connect = new JFXButton();
     JFXComboBox<String> rootFolder = new JFXComboBox();
+
+    private EndpointDescription endpointDescription;
 
     public OPCBrowser(JEVisObject server) {
         this.opcServerObj = server;
@@ -68,11 +68,11 @@ public class OPCBrowser {
              opcClient.setEndpoints(endpointDescription);
              opcClient.connect();
              **/
-            System.out.println("Get Endpoints:");
+            //System.out.println("Connect");
 
-            JFXComboBox<EndpointDescription> alignmentBox = new JFXComboBox<>();
-            alignmentBox.setPrefWidth(1000);
-            alignmentBox.setMinWidth(100);
+            //JFXComboBox<EndpointDescription> alignmentBox = new JFXComboBox<>();
+            //alignmentBox.setPrefWidth(1000);
+            //alignmentBox.setMinWidth(100);
 
             Callback<ListView<EndpointDescription>, ListCell<EndpointDescription>> cellFactory = new Callback<ListView<EndpointDescription>, ListCell<EndpointDescription>>() {
                 @Override
@@ -97,9 +97,9 @@ public class OPCBrowser {
                     return cell;
                 }
             };
-            alignmentBox.setCellFactory(cellFactory);
-            alignmentBox.setButtonCell(cellFactory.call(null));
-            alignmentBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            //alignmentBox.setCellFactory(cellFactory);
+            //alignmentBox.setButtonCell(cellFactory.call(null));
+/*            alignmentBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                 //System.out.println("Select Endpoint: " + observable.toString().replace(",", "\n"));
                 try {
                     UsernameProvider usernameProvider = new UsernameProvider(opcServerObj.getAttribute("User").getLatestSample().getValue().toString(), opcServerObj.getAttribute("Password").getLatestSample().getValue().toString());
@@ -122,8 +122,8 @@ public class OPCBrowser {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-            });
-            alignmentBox.getSelectionModel().selectFirst();
+            });*/
+            //alignmentBox.getSelectionModel().selectFirst();
 
             FlowPane flowPane = new FlowPane();
 
@@ -133,19 +133,40 @@ public class OPCBrowser {
 
             port.setPromptText("Port");
 
-            getEndpoints.setText("get Endpoints");
+            connect.setText("Connect");
 
-            getEndpoints.setOnAction(event -> {
+            connect.setOnAction(event -> {
                 try {
                    ;
                     OPCUAServer opcuaServer = new OPCUAServer(opcServerObj);
                     opcClient = new OPCClient(opcuaServer.getURL().replace(opcServerObj.getAttribute("Port").getLatestSample().getValue().toString(),port.getText()));//"opc.tcp://10.1.2.128:4840");
-                    ObservableList<EndpointDescription> endpoints = FXCollections.observableArrayList(opcClient.getEndpoints());
-                    endpoints.forEach(endpointDescription -> {
-                        System.out.println("Endpoint: " + endpointDescription);
-                    });
-                    alignmentBox.getItems().addAll(endpoints);
-                } catch (JEVisException | ExecutionException | InterruptedException e) {
+                    endpointDescription = opcClient.autoSelectEndpoint();
+
+
+                        UsernameProvider usernameProvider = new UsernameProvider(opcServerObj.getAttribute("User").getLatestSample().getValue().toString(), opcServerObj.getAttribute("Password").getLatestSample().getValue().toString());
+                        opcClient.setEndpoints(endpointDescription);
+
+                        if (!opcServerObj.getAttribute("User").getLatestSample().getValue().toString().isEmpty() && !opcServerObj.getAttribute("Password").getLatestSample().getValue().toString().isEmpty()) {
+                            opcClient.setIdentification(usernameProvider);
+                        }
+
+
+
+                        opcClient.connect();
+
+
+                        NodeTreeTable nodeTable = new NodeTreeTable(opcClient,server,rootFolder.getValue());
+
+
+                        vBox.getChildren().add(nodeTable.getView());
+
+
+
+
+
+
+                    //alignmentBox.getItems().addAll(endpoints);
+                } catch (JEVisException | ExecutionException | InterruptedException | UaException e) {
                     e.printStackTrace();
                 }
 
@@ -160,7 +181,8 @@ public class OPCBrowser {
 
             );
 
-            flowPane.getChildren().addAll(alignmentBox, rootFolder, port, getEndpoints);
+            //flowPane.getChildren().addAll(alignmentBox, rootFolder, port, getEndpoints);
+            flowPane.getChildren().addAll(rootFolder, port, connect);
             vBox.getChildren().add(flowPane);
 
             //vBox.setStyle("-fx-background-color:blue;");
