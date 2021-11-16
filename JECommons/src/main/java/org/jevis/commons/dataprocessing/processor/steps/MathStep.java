@@ -33,7 +33,7 @@ public class MathStep implements ProcessStep {
         List<CleanInterval> intervals = resourceManager.getIntervals();
         workDays = new WorkDays(mathDataObject.getMathDataObject());
 
-        if (mathDataObject.getTypeAttribute().hasSample()) {
+        if (mathDataObject.getManipulationAttribute().hasSample()) {
             DateTime start = null, end = null;
             DateTime beginning = mathDataObject.getBeginning();
             DateTime ending = mathDataObject.getEnding();

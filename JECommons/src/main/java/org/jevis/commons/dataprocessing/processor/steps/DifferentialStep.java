@@ -43,6 +43,7 @@ public class DifferentialStep implements ProcessStep {
         int rawPointer = 0;
         for (CleanInterval interval : intervals) {
             int compare = interval.getCompare();
+            Boolean isDifferential = interval.isDifferential();
 
             DateTime start = interval.getInterval().getStart();
             DateTime end = interval.getInterval().getEnd();
@@ -69,7 +70,7 @@ public class DifferentialStep implements ProcessStep {
                     //raw data  period is bigger then clean data period, e.g. day values -> 15-minute values
 
                     if (interval.getOutputPeriod().equals(Period.minutes(5))) {
-                        if (interval.isDifferential()) {
+                        if (isDifferential) {
                             if (rawPointer == 1) {
                                 Double newValue = jeVisSample.getValueAsDouble() - ((jeVisSample.getValueAsDouble() - rawSamples.get(0).getValueAsDouble()) / 2);
                                 VirtualSample virtualSample = new VirtualSample(timeStamp, newValue);
@@ -103,6 +104,10 @@ public class DifferentialStep implements ProcessStep {
                         interval.getRawSamples().add(jeVisSample);
                     }
 
+                    rawPointer++;
+                } else if (compare == 0 && !isDifferential && (timeStamp.equals(interval.getDate()))) {
+                    //raw data period equal clean data period
+                    interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
                 } else if (compare == 0 && (timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end)))) {
                     //raw data period equal clean data period
