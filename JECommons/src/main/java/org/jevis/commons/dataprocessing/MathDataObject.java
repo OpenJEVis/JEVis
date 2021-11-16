@@ -44,7 +44,7 @@ public class MathDataObject {
 
     private JEVisAttribute valueAttribute;
     private JEVisAttribute enabledAttribute;
-    private JEVisAttribute typeAttribute;
+    private JEVisAttribute manipulationAttribute;
     private JEVisAttribute formulaAttribute;
     private JEVisAttribute referencePeriodAttribute;
     private JEVisAttribute referencePeriodCountAttribute;
@@ -84,8 +84,8 @@ public class MathDataObject {
             valueAttribute = getMathDataObject().getAttribute(VALUE.getAttributeName());
         }
 
-        if (typeAttribute == null) {
-            typeAttribute = getMathDataObject().getAttribute(MANIPULATION.getAttributeName());
+        if (manipulationAttribute == null) {
+            manipulationAttribute = getMathDataObject().getAttribute(MANIPULATION.getAttributeName());
         }
 
         if (formulaAttribute == null) {
@@ -122,17 +122,49 @@ public class MathDataObject {
     }
 
     public void reloadAttributes() throws JEVisException {
-        getMathDataObject().getDataSource().reloadAttribute(enabledAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(valueAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(typeAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(formulaAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(referencePeriodAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(referencePeriodCountAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(periodOffsetAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(fillPeriodAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(beginningAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(endingAttribute);
-        getParentDataObject().getDataSource().reloadAttribute(periodAttribute);
+        if (enabledAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(enabledAttribute);
+            enabled = null;
+        }
+        if (valueAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(valueAttribute);
+        }
+        if (manipulationAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(manipulationAttribute);
+            manipulationMode = null;
+        }
+        if (formulaAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(formulaAttribute);
+            formula = null;
+        }
+        if (referencePeriodAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(referencePeriodAttribute);
+            referencePeriod = null;
+        }
+        if (referencePeriodCountAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(referencePeriodCountAttribute);
+            referencePeriodCount = null;
+        }
+        if (periodOffsetAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(periodOffsetAttribute);
+            periodOffset = null;
+        }
+        if (fillPeriodAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(fillPeriodAttribute);
+            fillPeriod = null;
+        }
+        if (beginningAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(beginningAttribute);
+            beginning = null;
+        }
+        if (endingAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(endingAttribute);
+            ending = null;
+        }
+        if (periodAttribute != null) {
+            getParentDataObject().getDataSource().reloadAttribute(periodAttribute);
+            periodData = null;
+        }
     }
 
     public Boolean getEnabled() {
@@ -241,10 +273,10 @@ public class MathDataObject {
         this.valueAttribute = inputAttribute;
     }
 
-    public JEVisAttribute getTypeAttribute() throws JEVisException {
-        if (typeAttribute == null)
-            typeAttribute = getMathDataObject().getAttribute(MANIPULATION.getAttributeName());
-        return typeAttribute;
+    public JEVisAttribute getManipulationAttribute() throws JEVisException {
+        if (manipulationAttribute == null)
+            manipulationAttribute = getMathDataObject().getAttribute(MANIPULATION.getAttributeName());
+        return manipulationAttribute;
     }
 
     public JEVisAttribute getReferencePeriodAttribute() throws JEVisException {
