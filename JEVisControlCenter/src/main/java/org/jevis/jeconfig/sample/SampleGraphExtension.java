@@ -132,7 +132,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
                 yAxis.setForceZeroInRange(true);
                 yAxis.setAutoGrowRanging(true);
                 yAxis.setAutoRanging(true);
-                CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
+                CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2, 2);
                 Platform.runLater(() -> {
                     yAxis.setTickLabelFormatter(tickLabelFormatter1);
                     yAxis.setAnimated(false);

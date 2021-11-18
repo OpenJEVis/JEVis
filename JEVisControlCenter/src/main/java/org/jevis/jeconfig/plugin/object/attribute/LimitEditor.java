@@ -36,6 +36,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
+import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -52,6 +53,7 @@ import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,6 +79,7 @@ public class LimitEditor implements AttributeEditor {
     private JEVisSample _lastSample;
     private List<JsonLimitsConfig> _listConfig;
     private final boolean delete = false;
+    private final DoubleValidator dv = DoubleValidator.getInstance();
 
     public LimitEditor(StackPane dialogContainer, JEVisAttribute att) {
         this.dialogContainer = dialogContainer;
@@ -427,8 +430,20 @@ public class LimitEditor implements AttributeEditor {
         /**
          * Fill configuration values into gui elements
          */
-        minField.setText(config.getMin());
-        maxField.setText(config.getMax());
+        try {
+            NumberFormat numberFormat = NumberFormat.getInstance(I18n.getInstance().getLocale());
+            if (config.getMin() != null) {
+                Double min = Double.parseDouble(config.getMin());
+                minField.setText(numberFormat.format(min));
+            }
+
+            if (config.getMax() != null) {
+                Double max = Double.parseDouble(config.getMax());
+                maxField.setText(numberFormat.format(max));
+            }
+        } catch (Exception e) {
+            logger.error("Could not parse limit values", e);
+        }
 
         typeBox.getSelectionModel().select(GapFillingType.parse(config.getTypeOfSubstituteValue()));
         referencePeriodBox.getSelectionModel().select(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
@@ -451,10 +466,20 @@ public class LimitEditor implements AttributeEditor {
         });
 
         minField.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setMin(newValue);
+            try {
+                String parsedValue = dv.validate(newValue, I18n.getInstance().getLocale()).toString();
+                config.setMin(parsedValue);
+            } catch (Exception e) {
+                minField.setText(oldValue);
+            }
         });
         maxField.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setMax(newValue);
+            try {
+                String parsedValue = dv.validate(newValue, I18n.getInstance().getLocale()).toString();
+                config.setMax(parsedValue);
+            } catch (Exception e) {
+                maxField.setText(oldValue);
+            }
         });
 
         /**

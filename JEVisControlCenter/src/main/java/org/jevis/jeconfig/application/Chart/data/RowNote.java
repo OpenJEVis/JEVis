@@ -1,20 +1,18 @@
 package org.jevis.jeconfig.application.Chart.data;
 
+import com.ibm.icu.text.DecimalFormat;
 import javafx.beans.property.SimpleStringProperty;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.constants.NoteConstants;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
-import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.text.NumberFormat;
 import java.util.List;
 
 public class RowNote {
@@ -26,6 +24,7 @@ public class RowNote {
     private final SimpleStringProperty userValue;
     private final SimpleStringProperty userValueUnit;
     private final Alarm alarm;
+    private final DecimalFormat nf = new DecimalFormat();
     private Boolean changed = false;
     private JEVisSample sample;
 
@@ -40,9 +39,9 @@ public class RowNote {
         this.alarm = alarm;
 
         StringBuilder formattedNote = new StringBuilder();
-        NumberFormat nf = NumberFormat.getInstance(JEConfig.getConfig().getLocale());
-        nf.setMinimumFractionDigits(2);
-        nf.setMaximumFractionDigits(2);
+
+        nf.setMaximumSignificantDigits(4);
+        nf.setSignificantDigitsUsed(true);
         String note = "";
 
         try {
@@ -69,7 +68,7 @@ public class RowNote {
                 JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
                 JEVisObject object = sample.getAttribute().getObject();
                 if (object.getJEVisClass().equals(cleanDataClass)) {
-                    CleanDataObject cleanDataObject = new CleanDataObject(object, new ObjectHandler(object.getDataSource()));
+                    CleanDataObject cleanDataObject = new CleanDataObject(object);
                     List<JsonLimitsConfig> limitsConfig = cleanDataObject.getLimitsConfig();
                     for (JsonLimitsConfig limitsConfig1 : limitsConfig) {
                         int index = limitsConfig.indexOf(limitsConfig1);
@@ -135,7 +134,7 @@ public class RowNote {
                 JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
                 JEVisObject object = sample.getAttribute().getObject();
                 if (object.getJEVisClass().equals(cleanDataClass)) {
-                    CleanDataObject cleanDataObject = new CleanDataObject(object, new ObjectHandler(object.getDataSource()));
+                    CleanDataObject cleanDataObject = new CleanDataObject(object);
                     List<JsonLimitsConfig> limitsConfig = cleanDataObject.getLimitsConfig();
                     for (JsonLimitsConfig limitsConfig1 : limitsConfig) {
                         int index = limitsConfig.indexOf(limitsConfig1);

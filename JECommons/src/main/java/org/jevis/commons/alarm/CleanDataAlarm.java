@@ -10,7 +10,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.AlarmConstants;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datatype.scheduler.SchedulerHandler;
 import org.jevis.commons.datatype.scheduler.cron.CronScheduler;
@@ -43,7 +42,7 @@ public class CleanDataAlarm {
     public CleanDataAlarm(JEVisObject cleanDataObject) throws JEVisException {
         this.cleanDataObject = cleanDataObject;
 
-        CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(cleanDataObject.getDataSource()));
+        CleanDataObject cdo = new CleanDataObject(cleanDataObject);
         isEnabled = cdo.isAlarmEnabled();
 
         createJsonList(cleanDataObject);

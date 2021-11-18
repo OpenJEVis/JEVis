@@ -40,7 +40,7 @@ public class NumberSpinner extends HBox {
     public static final String SPINNER_BUTTON_DOWN = "SpinnerButtonDown";
     private final String BUTTONS_BOX = "ButtonsBox";
     private final NumberTextField numberField;
-    private final ObjectProperty<BigDecimal> stepWitdhProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<BigDecimal> stepWidthProperty = new SimpleObjectProperty<>();
     private final double ARROW_SIZE = 4;
     private final JFXButton incrementButton;
     private final JFXButton decrementButton;
@@ -60,7 +60,7 @@ public class NumberSpinner extends HBox {
     public NumberSpinner(BigDecimal value, BigDecimal stepWidth, NumberFormat nf) {
         super();
         this.setId(NUMBER_SPINNER);
-        this.stepWitdhProperty.set(stepWidth);
+        this.stepWidthProperty.set(stepWidth);
 
         // JFXTextField
         numberField = new NumberTextField(value, nf);
@@ -146,7 +146,7 @@ public class NumberSpinner extends HBox {
      */
     private void increment() {
         BigDecimal value = numberField.getNumber();
-        value = value.add(stepWitdhProperty.get());
+        value = value.add(stepWidthProperty.get());
         numberField.setNumber(value);
     }
 
@@ -157,7 +157,7 @@ public class NumberSpinner extends HBox {
         //check if the value is bigger than 0
         if (numberField.getNumber().compareTo(BigDecimal.valueOf(1)) == 1) {
             BigDecimal value = numberField.getNumber();
-            value = value.subtract(stepWitdhProperty.get());
+            value = value.subtract(stepWidthProperty.get());
             numberField.setNumber(value);
         }
 

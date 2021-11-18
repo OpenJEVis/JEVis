@@ -9,7 +9,6 @@ import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.constants.NoteConstants;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -340,7 +339,7 @@ public class ChartDataRow {
                             samples = calcJob.getResults();
 
                             if (!getAbsolute() && dataProcessorObject != null) {
-                                CleanDataObject cleanDataObject = new CleanDataObject(dataProcessorObject, new ObjectHandler(dataSource));
+                                CleanDataObject cleanDataObject = new CleanDataObject(dataProcessorObject);
                                 if (cleanDataObject.getLimitsEnabled()) {
                                     List<JsonLimitsConfig> limitsConfig = cleanDataObject.getLimitsConfig();
                                     Double maxDouble = null;

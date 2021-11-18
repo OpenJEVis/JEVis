@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
+import com.ibm.icu.text.NumberFormat;
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.renderer.spi.LabelledMarkerRenderer;
@@ -15,19 +16,23 @@ import javafx.scene.text.TextAlignment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 
-import java.text.NumberFormat;
 import java.util.List;
 
 public class ColumnChartLabelRenderer extends LabelledMarkerRenderer {
     private static final Logger logger = LogManager.getLogger(ColumnChartLabelRenderer.class);
 
+    private final ChartSetting chartSetting;
     private final List<XYChartSerie> xyChartSerieList;
+    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
-    public ColumnChartLabelRenderer(List<XYChartSerie> xyChartSerieList) {
+    public ColumnChartLabelRenderer(ChartSetting chartSetting, List<XYChartSerie> xyChartSerieList) {
         super();
-
+        this.chartSetting = chartSetting;
         this.xyChartSerieList = xyChartSerieList;
+        this.nf.setMaximumFractionDigits(chartSetting.getMinFractionDigits());
+        this.nf.setMinimumFractionDigits(chartSetting.getMaxFractionDigits());
     }
 
     @Override
@@ -77,9 +82,6 @@ public class ColumnChartLabelRenderer extends LabelledMarkerRenderer {
         final double height = chart.getCanvas().getHeight();
         double lastLabel = -Double.MAX_VALUE;
         double lastFontSize = 0;
-        NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
-        nf.setMaximumFractionDigits(2);
-        nf.setMinimumFractionDigits(2);
 
         for (int i = indexMin; i < indexMax; i++) {
             final double screenX = (int) xAxis.getDisplayPosition(dataSet.get(DataSet.DIM_X, i));

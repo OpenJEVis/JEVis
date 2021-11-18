@@ -242,6 +242,8 @@ public class SaveAnalysisDialog extends JFXDialog {
             if (cset.getColorMapping() != null) set.setColorMapping(cset.getColorMapping().toString());
             if (cset.getOrientation() != null) set.setOrientation(cset.getOrientation().toString());
             if (cset.getGroupingInterval() != null) set.setGroupingInterval(cset.getGroupingInterval().toString());
+            if (cset.getMinFractionDigits() != null) set.setMinFractionDigits(cset.getMinFractionDigits().toString());
+            if (cset.getMaxFractionDigits() != null) set.setMaxFractionDigits(cset.getMaxFractionDigits().toString());
             if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());
 
             JsonChartTimeFrame jctf = new JsonChartTimeFrame();
