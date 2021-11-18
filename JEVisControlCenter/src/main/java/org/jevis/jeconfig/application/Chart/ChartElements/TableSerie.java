@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
@@ -18,8 +19,8 @@ import java.util.TreeMap;
 public class TableSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(TableSerie.class);
 
-    public TableSerie(ChartDataRow singleRow, Boolean hideShowIcons) throws JEVisException {
-        super(singleRow, hideShowIcons, false);
+    public TableSerie(ChartSetting chartSetting, ChartDataRow singleRow, Boolean hideShowIcons) throws JEVisException {
+        super(chartSetting, singleRow, hideShowIcons, false);
     }
 
     public void generateSeriesFromSamples() throws JEVisException {

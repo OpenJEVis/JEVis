@@ -59,7 +59,7 @@ public class TableChart extends XYChart {
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
         this.singleRow = singleRow;
-        TableSerie serie = new TableSerie(singleRow, showIcons);
+        TableSerie serie = new TableSerie(chartSetting, singleRow, showIcons);
 
         getHexColors().add(ColorHelper.toColor(singleRow.getColor()));
 

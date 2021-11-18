@@ -30,7 +30,6 @@ import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,8 +38,8 @@ public class BubbleChart extends XYChart {
     private final List<Color> hexColors = new ArrayList<>();
     private final List<Integer> noOfBubbles = new ArrayList<>();
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-    private final Map<Integer, Integer> modifiedX = new HashMap<>();
-    private final Map<Integer, Double> modifiedY = new HashMap<>();
+    private final Map<Double, Double> modifiedX = new HashMap<>();
+    private final Map<Double, Double> modifiedY = new HashMap<>();
     private final TreeMap<Double, Double> sampleTreeMap = new TreeMap<>();
     private TableEntry tableEntry;
     private final Double nearest = 0d;
@@ -57,7 +56,8 @@ public class BubbleChart extends XYChart {
 
         this.analysisDataModel = dataModel;
         this.chartDataRows = dataRows;
-        Long groupingInterval = chartSetting.getGroupingInterval();
+        this.chartSetting = chartSetting;
+        Double groupingInterval = chartSetting.getGroupingInterval();
 
         double totalJob = chartDataRows.size();
 
@@ -145,19 +145,19 @@ public class BubbleChart extends XYChart {
             }
         }
 
-        Map<Integer, List<DateTime>> yDates = new HashMap<>();
-        for (int i = -groupingInterval.intValue() / 2; i < maxX.get() + (2 * groupingInterval); i = i + groupingInterval.intValue()) {
+        Map<Double, List<DateTime>> yDates = new HashMap<>();
+        for (double i = -groupingInterval / 2; i < maxX.get() + (2 * groupingInterval); i = i + groupingInterval) {
             double upperBound = i + groupingInterval;
-            int meanX = i + groupingInterval.intValue() / 2;
+            double meanX = i + groupingInterval / 2;
             for (JEVisSample sample : xList) {
                 try {
-                    if (sample.getValueAsDouble() >= (double) i && sample.getValueAsDouble() < upperBound) {
+                    if (sample.getValueAsDouble() >= i && sample.getValueAsDouble() < upperBound) {
                         if (modifiedX.get(meanX) != null) {
-                            int old = modifiedX.get(meanX);
+                            double old = modifiedX.get(meanX);
                             modifiedX.remove(meanX);
                             modifiedX.put(meanX, old + 1);
                         } else {
-                            modifiedX.put(meanX, 1);
+                            modifiedX.put(meanX, 1.0);
                         }
 
                         if (yDates.get(meanX) != null) {
@@ -175,7 +175,7 @@ public class BubbleChart extends XYChart {
             }
         }
 
-        for (Map.Entry<Integer, List<DateTime>> entry : yDates.entrySet()) {
+        for (Map.Entry<Double, List<DateTime>> entry : yDates.entrySet()) {
             double value = 0d;
             int size = 0;
 
@@ -304,9 +304,6 @@ public class BubbleChart extends XYChart {
         DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics(doubleArray);
         Double standardDeviation = descriptiveStatistics.getStandardDeviation();
         Double variance = descriptiveStatistics.getVariance();
-        NumberFormat nf = NumberFormat.getInstance();
-        nf.setMinimumFractionDigits(2);
-        nf.setMaximumFractionDigits(2);
 
         if (standardDeviation.isNaN()) {
             tableEntry.setStandardDeviation("-");
@@ -370,7 +367,7 @@ public class BubbleChart extends XYChart {
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
-        XYChartSerie serie = new BubbleChartSerie(singleRow, showIcons, false);
+        XYChartSerie serie = new BubbleChartSerie(chartSetting, singleRow, showIcons, false);
 
         hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 

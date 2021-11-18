@@ -429,7 +429,19 @@ public class MathDataObject {
     }
 
     public boolean isReady() {
+
         DateTime nextRun = getEndDate();
+
+        Period periodForDate = CleanDataObject.getPeriodForDate(getPeriodAlignment(), nextRun);
+
+        if (getReferencePeriod() == AggregationPeriod.CUSTOM2) {
+            for (int i = 0; i < Math.abs(getPeriodOffset()); i++)
+                if (getPeriodOffset() > 0) {
+                    nextRun = PeriodHelper.addPeriodToDate(nextRun, periodForDate);
+                } else if (getPeriodOffset() < 0) {
+                    nextRun = PeriodHelper.minusPeriodToDate(nextRun, periodForDate);
+                }
+        }
 
         try {
             JEVisSample latestSample = getInputAttribute().getLatestSample();
@@ -437,6 +449,7 @@ public class MathDataObject {
             if (latestSample != null) {
                 try {
                     DateTime latestSampleTS = latestSample.getTimestamp().withZone(getTimeZone(getMathDataObject()));
+
                     return latestSampleTS.equals(getLastRun(this.getMathDataObject())) || latestSampleTS.isAfter(nextRun) || latestSampleTS.equals(nextRun);
                 } catch (JEVisException e) {
                     logger.error("Could not check ready state", e);

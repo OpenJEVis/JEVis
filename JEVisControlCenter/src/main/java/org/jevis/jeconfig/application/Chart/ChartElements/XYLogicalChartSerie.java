@@ -7,6 +7,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -20,8 +21,8 @@ import java.util.TreeMap;
 public class XYLogicalChartSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYLogicalChartSerie.class);
 
-    public XYLogicalChartSerie(ChartDataRow singleRow, Boolean hideShowIcons) throws JEVisException {
-        super(singleRow, hideShowIcons, false);
+    public XYLogicalChartSerie(ChartSetting chartSetting, ChartDataRow singleRow, Boolean hideShowIcons) throws JEVisException {
+        super(chartSetting, singleRow, hideShowIcons, false);
     }
 
     @Override

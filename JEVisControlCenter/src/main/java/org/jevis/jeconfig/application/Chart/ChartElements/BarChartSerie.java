@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
+import com.ibm.icu.text.NumberFormat;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
@@ -12,15 +13,16 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 
-import java.text.NumberFormat;
 import java.util.List;
 
 public class BarChartSerie {
     private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
+    private final ChartSetting chartSetting;
     private final String FINISHED_SERIE;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
 
@@ -29,7 +31,8 @@ public class BarChartSerie {
     private DateTime timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
     private final XYChart.Data<Number, String> data;
 
-    public BarChartSerie(ChartDataRow singleRow, Boolean lastValue) throws JEVisException {
+    public BarChartSerie(ChartSetting chartSetting, ChartDataRow singleRow, Boolean lastValue) throws JEVisException {
+        this.chartSetting = chartSetting;
         this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " " + singleRow.getTitle();
         String unit = UnitManager.getInstance().format(singleRow.getUnit());
         if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
@@ -63,8 +66,8 @@ public class BarChartSerie {
         }
 
         NumberFormat nf_out = NumberFormat.getNumberInstance();
-        nf_out.setMaximumFractionDigits(2);
-        nf_out.setMinimumFractionDigits(2);
+        nf_out.setMaximumFractionDigits(chartSetting.getMinFractionDigits());
+        nf_out.setMinimumFractionDigits(chartSetting.getMaxFractionDigits());
         String text = nf_out.format(result) + " " + unit;
         tableEntry.setValue(text);
 
