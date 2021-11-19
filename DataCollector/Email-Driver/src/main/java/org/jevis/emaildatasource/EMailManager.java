@@ -174,6 +174,7 @@ public class EMailManager {
      * @return List of InputStream
      */
     private static List<InputStream> prepareAnswer(Message message, String filename) throws IOException, MessagingException {
+        logger.debug("prepareAnswer message: '{}', filename: {}", message.getSubject(), filename);
         Multipart multiPart = (Multipart) message.getContent();
         List<InputStream> input = new ArrayList<>();
         // For all multipart contents
@@ -183,7 +184,7 @@ public class EMailManager {
             String disp = part.getDisposition();
             String partName = part.getFileName();
 
-            logger.info("is Multipart");
+            //logger.info("is Multipart");
             // If multipart content is attachment
             if (!Part.ATTACHMENT.equalsIgnoreCase(disp)
                     && !StringUtils.isNotBlank(partName)) {
@@ -215,6 +216,7 @@ public class EMailManager {
                 }
             }
         } //for multipart check
+        logger.debug("prepareAnswer message done");
         return input;
     }
 
@@ -251,40 +253,40 @@ public class EMailManager {
     }
 
     private static List<InputStream> getAnswerListFromAttach(List<Message> messages, String filename) {
+        logger.info("getAnswerListFromAttach: messages: {} file: {}" + messages.size(), filename);
         List<InputStream> input = new ArrayList<>();
 
         if (messages != null) {
             for (Message message : messages) {
                 try {
-                    logger.info("Content type: " + message.getContentType());
+                    logger.info("Message: Subj: '{}' Date: {}", message.getSubject(), message.getReceivedDate());
+                    //logger.info("Content type: {}", message.getContentType());
 
                     if (message.isMimeType("multipart/*") && !message.isMimeType("multipart/encrypted")) {
                         logger.info("Message content type {}", message.getContentType());
-                        //Message msg = (MimeMessage)message;
                         Object obj = message.getContent();
                         if (obj instanceof Multipart) {
                             input.addAll(prepareAnswer(message, filename));
-
-                        } //instanceof
-
+                        }
                     } else {
-                        logger.info("Mimetype of message is not a multipart/*");
-
+                        logger.error("Mimetype of message is not a multipart/*: {}", message.getContentType());
                     }
-                } catch (MessagingException | IOException ex) {
+                } catch (Exception ex) {
                     logger.error("Could not process the attachment!", ex);
                 }
             }
         }
+        logger.debug("getAnswerListFromAttach found inputs: {}", input.size());
+
         return input;
     }
 
     private static List<InputStream> getAnswerListFromBody(List<Message> messages) {
+        logger.debug("getAnswerListFromBody: {}", messages.size());
         List<InputStream> input = new ArrayList<>();
 
         if (messages != null) {
             for (Message message : messages) {
-
                 try {
                     logger.info("Content type: {}", message.getContentType());
 
