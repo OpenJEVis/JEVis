@@ -528,7 +528,7 @@ public class OPCClient {
         return "";
     }
 
-    private  DataValue readValue(NodeId nodeId) {
+    public  DataValue readValue(NodeId nodeId) {
         try {
             UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
             DataValue value = node.readValue();
@@ -538,6 +538,21 @@ public class OPCClient {
             e.printStackTrace();
             return null;
         }
+
+    }
+
+    public void writeValue(DataValue dataValue, NodeId nodeId) throws UaException {
+
+            UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
+            node.writeValue(dataValue);
+
+    }
+
+    public String getDataType(NodeId nodeId) throws UaException {
+
+            UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
+            DataValue value = node.readValue();
+            return value.getValue().getValue().getClass().getName();
 
     }
 
