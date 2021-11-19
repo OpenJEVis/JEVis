@@ -1,5 +1,6 @@
 package org.jevis.commons.dataprocessing.processor.preparation;
 
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
@@ -24,6 +25,10 @@ public class PrepareMath implements ProcessStep {
         DateTime start = mathDataObject.getStartDate();
         DateTime end = mathDataObject.getEndDate();
         Period inputPeriod = CleanDataObject.getPeriodForDate(periodRules, start);
+
+        AggregationPeriod aggregationPeriod = mathDataObject.getReferencePeriod();
+        Long referencePeriodCount = mathDataObject.getReferencePeriodCount();
+        Long periodOffset = mathDataObject.getPeriodOffset();
 
         boolean periodHasYear = inputPeriod.getYears() > 0;
         boolean periodHasMonths = inputPeriod.getMonths() > 0;
@@ -99,16 +104,24 @@ public class PrepareMath implements ProcessStep {
             } else {
                 Interval interval = new Interval(start, end.minusMillis(1));
 
-                Long periodOffset = mathDataObject.getPeriodOffset();
-
                 if (periodOffset != 0L) {
-                    start = mathDataObject.getNextRunWithOffset();
+                    start = mathDataObject.getNextRunWithOffset(aggregationPeriod, periodOffset, referencePeriodCount, start);
                 }
 
                 CleanInterval cleanInterval = new CleanInterval(interval, start);
                 intervals.add(cleanInterval);
                 resourceManager.setIntervals(intervals);
             }
+        } else {
+            Interval interval = new Interval(start, end.minusMillis(1));
+
+            if (periodOffset != 0L) {
+                start = mathDataObject.getNextRunWithOffset(aggregationPeriod, periodOffset, referencePeriodCount, start);
+            }
+
+            CleanInterval cleanInterval = new CleanInterval(interval, start);
+            intervals.add(cleanInterval);
+            resourceManager.setIntervals(intervals);
         }
     }
 

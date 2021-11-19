@@ -20,7 +20,6 @@ import org.apache.commons.validator.routines.LongValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
@@ -132,11 +131,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         scroll.setMaxSize(10000, 10000);
         scroll.setContent(gridPane);
 
-        try {
-            cleanDataObject = new CleanDataObject(_obj, new ObjectHandler(_obj.getDataSource()));
-        } catch (JEVisException e) {
-            logger.error("Could not get Clean Data Object.");
-        }
+        cleanDataObject = new CleanDataObject(_obj);
 
         try {
             buildGUI(cleanDataObject);

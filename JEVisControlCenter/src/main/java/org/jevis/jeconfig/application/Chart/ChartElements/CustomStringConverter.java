@@ -19,20 +19,22 @@ import org.jevis.commons.i18n.I18n;
 public class CustomStringConverter extends StringConverter<Number> implements NumberFormatter {
 
     private final NumberFormat format = NumberFormat.getInstance(I18n.getInstance().getLocale());
-    private int precision = 6;
+    private int min = 6;
+    private int max = 6;
 
     public CustomStringConverter() {
-        this(6);
+        this(6, 6);
     }
 
-    public CustomStringConverter(int precision) {
-        this.precision = precision;
+    public CustomStringConverter(int min, int max) {
+        this.min = min;
+        this.max = max;
         buildFormat();
     }
 
     private void buildFormat() {
-        this.format.setMinimumFractionDigits(precision);
-        this.format.setMaximumFractionDigits(precision);
+        this.format.setMinimumFractionDigits(min);
+        this.format.setMaximumFractionDigits(max);
     }
 
 
@@ -48,7 +50,7 @@ public class CustomStringConverter extends StringConverter<Number> implements Nu
      */
     @Override
     public int getPrecision() {
-        return precision;
+        return max;
     }
 
     @Override
@@ -68,7 +70,15 @@ public class CustomStringConverter extends StringConverter<Number> implements Nu
      */
     @Override
     public NumberFormatter setPrecision(int precision) {
-        this.precision = precision;
+        this.min = precision;
+        this.max = precision;
+        buildFormat();
+        return this;
+    }
+
+    public NumberFormatter setPrecision(int min, int max) {
+        this.min = min;
+        this.max = max;
         buildFormat();
         return this;
     }

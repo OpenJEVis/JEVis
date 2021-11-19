@@ -4,6 +4,7 @@
 
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
+import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.JFXTextField;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
@@ -41,7 +42,6 @@ import org.jevis.jeconfig.plugin.notes.NoteTag;
 import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.joda.time.DateTime;
 
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,7 +63,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
     private ChartPlugin chartPlugin;
 
     public DataPointNoteDialog(JEVisAttribute att, SampleTable table) {
-
+        NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
         Dialog<ButtonType> dialog = new Dialog<>();
 
         final ButtonType ok = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
@@ -112,7 +112,6 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                     timeStampLabel.setText(I18n.getInstance().getString("alarms.table.captions.timestamp") + ": "
                             + jevisSample.getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
 
-                    NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
                     Double userValueForTimeStampAsDouble = getUserValueForTimeStampAsDouble(jevisSample, jevisSample.getTimestamp());
 
                     if (userValueForTimeStampAsDouble != null) {

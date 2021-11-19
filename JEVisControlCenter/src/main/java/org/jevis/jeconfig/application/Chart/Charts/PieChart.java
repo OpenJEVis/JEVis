@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import com.ibm.icu.text.NumberFormat;
 import com.sun.javafx.charts.Legend;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -34,21 +35,19 @@ import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class PieChart implements Chart {
     private static final Logger logger = LogManager.getLogger(PieChart.class);
-    private final Integer chartId;
     private final Boolean showRawData;
     private final Boolean showSum;
-    private String chartName;
     private String unit;
     private final AnalysisDataModel analysisDataModel;
     private final List<ChartDataRow> chartDataRows;
     private final Boolean hideShowIcons;
+    private final ChartSetting chartSetting;
     private List<javafx.scene.chart.PieChart.Data> series = new ArrayList<>();
     private PieChartExtended pieChart;
     private final List<Color> hexColors = new ArrayList<>();
@@ -58,6 +57,7 @@ public class PieChart implements Chart {
     private Period period;
     private final ChartType chartType = ChartType.PIE;
     private boolean legendMode = false;
+    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
     private final ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
@@ -73,8 +73,9 @@ public class PieChart implements Chart {
         this.showRawData = analysisDataModel.getShowRawData();
         this.showSum = analysisDataModel.getShowSum();
         this.hideShowIcons = analysisDataModel.getShowIcons();
-        this.chartName = chartSetting.getName();
-        this.chartId = chartSetting.getId();
+        this.chartSetting = chartSetting;
+        this.nf.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
 
         double totalJob = chartDataRows.size();
 
@@ -179,9 +180,6 @@ public class PieChart implements Chart {
 
         Double whole = 0d;
         List<Double> listPercentages = new ArrayList<>();
-        NumberFormat nf = NumberFormat.getInstance();
-        nf.setMinimumFractionDigits(2);
-        nf.setMaximumFractionDigits(2);
         for (Double d : listSumsPiePieces) whole += d;
         for (Double d : listSumsPiePieces) {
             if (d > 0) {
@@ -215,11 +213,11 @@ public class PieChart implements Chart {
             pieChart = new PieChartExtended(FXCollections.observableArrayList(series));
         } else pieChart.setData(FXCollections.observableArrayList(series));
 
-        pieChart.setTitle(chartName);
+        pieChart.setTitle(chartSetting.getName());
         pieChart.setLegendVisible(false);
         pieChart.applyCss();
 
-        pieChart.setTitle(chartName);
+        pieChart.setTitle(chartSetting.getName());
         pieChart.setLegendVisible(true);
         pieChart.setLegendSide(Side.BOTTOM);
         pieChart.setLabelsVisible(true);
@@ -259,18 +257,23 @@ public class PieChart implements Chart {
     }
 
     @Override
+    public ChartSetting getChartSetting() {
+        return chartSetting;
+    }
+
+    @Override
     public String getChartName() {
-        return chartName;
+        return chartSetting.getName();
     }
 
     @Override
     public void setTitle(String s) {
-        chartName = s;
+        chartSetting.setName(s);
     }
 
     @Override
     public Integer getChartId() {
-        return null;
+        return chartSetting.getId();
     }
 
     @Override
@@ -347,9 +350,6 @@ public class PieChart implements Chart {
 
                 Double whole = 0d;
                 List<Double> listPercentages = new ArrayList<>();
-                NumberFormat nf = NumberFormat.getInstance();
-                nf.setMinimumFractionDigits(2);
-                nf.setMaximumFractionDigits(2);
                 for (Double d : listSumsPiePieces) whole += d;
                 for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
 
