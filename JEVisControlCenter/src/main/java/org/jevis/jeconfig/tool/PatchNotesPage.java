@@ -99,6 +99,7 @@ public class PatchNotesPage {
 
         final Stage stage = new Stage();
         remember.setSelected(true);
+        remember.setVisible(false);//we dont use it anymore for now
 
         //TODO show it again if we have a new version of the Config
         if (!pref.getBoolean("show", true)) {
@@ -154,7 +155,8 @@ public class PatchNotesPage {
             @Override
             public void handle(ActionEvent t) {
                 stage.hide();
-                storePreference();
+                //we dont use it anymore for now
+                //storePreference();
             }
         });
 

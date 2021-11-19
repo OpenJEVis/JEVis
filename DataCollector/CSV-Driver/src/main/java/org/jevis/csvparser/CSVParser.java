@@ -193,50 +193,27 @@ public class CSVParser {
     }
 
     private void parseLine(String[] line) {
+        logger.debug("Parse line: {}", line);
         DateTime dateTime = getDateTime(line);
 
         if (dateTime == null) {
+            logger.debug("DateTime var is null: Date Error");
             report.addError(new LineError(-3, -2, null, "Date Error"));
             return;//if there is no date the whole line is invalid... or generate a date?
+        } else {
+            logger.debug("DateTime parsed: {}", dateTime);
         }
 
         for (DataPoint dp : _dataPoints) {
             try {
-                String mappingIdentifier = dp.getMappingIdentifier();
+                logger.debug("-DP: valueindex: {}, MappingIdentifiyer: '{}', target: {}", dp.getValueIndex(), dp.getMappingIdentifier(), dp.getTarget());
                 Integer valueIndex = dp.getValueIndex();
                 String target = dp.getTarget();
 
-                Boolean mappingError = false;
-//                try {
-//                    String currentMappingValue = null;
-//
-//                    if (_dpIndex != null) {
-//                        if (dpType.equals("COLUMN")) {
-//                            currentMappingValue = line[_dpIndex];
-//                        }
-//                    }
-//
-//                    if (mappingIdentifier != null && currentMappingValue != null && !mappingIdentifier.equals(currentMappingValue)) {
-//                        mappingError = true;
-//                        _report.addError(new LineError(_currLineIndex, valueIndex, null, "Mapping Error"));
-//                        continue;
-//                    }
-//                } catch (Exception ex) {
-//                    _report.addError(new LineError(_currLineIndex, valueIndex, ex, "Mapping Exception"));
-//                    logger.warn("This line in the file is not valid: {}", _currLineIndex);
-//                }
-
-                Boolean valueValid = false;
                 String sVal = null;
                 Double value = null;
-                //               try {
                 sVal = line[valueIndex];
-//                if (_thousandSeperator != null && !_thousandSeperator.equals("")) {
-//                    sVal = sVal.replaceAll("\\" + _thousandSeperator, "");
-//                }
-//                if (_decimalSeperator != null && !_decimalSeperator.equals("")) {
-//                    sVal = sVal.replaceAll("\\" + _decimalSeperator, ".");
-//                }
+                logger.debug("-- ValueString: {}", sVal);
 
                 //todo bind locale to language or location?? ad thousands separator without regex
                 if (_decimalSeparator == null || _decimalSeparator.equals(",")) {
@@ -247,28 +224,6 @@ public class CSVParser {
                     value = nf_out.parse(sVal).doubleValue();
                 }
 
-//                    valueValid = true;
-//                } catch (Exception nfe) {
-//                    _report.addError(new LineError(_currLineIndex, valueIndex, nfe, " Parser Exeption"));
-//                    valueValid = false;
-                //                   continue;
-//                }
-
-//                if (!valueValid) {
-//                    StringBuilder failureLine = new StringBuilder();
-//                    for (int current = 0; current < line.length; current++) {
-//                        failureLine.append(line[current]);
-//                        if (current < line.length - 1) {
-//                            failureLine.append(_delim);
-//                        }
-//                    }
-//                    Logger.getLogger(this.getClass().getName()).log(Level.DEBUG, "Value Index " + valueIndex + "is not valid in line: " + _currLineIndex);
-//                    Logger.getLogger(this.getClass().getName()).log(Level.DEBUG, "Value Line: " + failureLine.toString());
-//                    continue;
-//                }
-//                if (mappingError) {
-//                    continue;
-//                }
                 Result tempResult = new Result(target, value, dateTime);
                 _results.add(tempResult);
                 report.addSuccess(_currLineIndex, valueIndex);
@@ -277,13 +232,13 @@ public class CSVParser {
 //                ex.printStackTrace();
             }
         }
+        logger.debug("Result: {}", _results.size());
     }
 
     public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
-        logger.info("Start CSV parsing");
         this.timeZone = timeZone;
         for (InputStream inputStream : inputList) {
-
+            logger.info("Importing importSteam");
             _converter.convertInput(inputStream, charset);
 
             String[] stringArrayInput = (String[]) _converter.getConvertedInput(String[].class);
@@ -300,8 +255,10 @@ public class CSVParser {
             } else {
                 calculateColumnsColumn(stringArrayInput);
             }
+            logger.error("Total lines/columns: {}", stringArrayInput.length);
 
             if (dpType != null && dpType.equals("ROW")) {
+                logger.info("Traversing ROWs");
                 for (int i = _headerLines; i < stringArrayInput.length; i++) {
                     _currLineIndex = i;
                     try {
@@ -318,6 +275,7 @@ public class CSVParser {
                     }
                 }
             } else {
+                logger.info("Traversing COLUMNNs");
                 for (int i = _headerLines; i < stringArrayInput.length; i++) {
                     _currLineIndex = i;
                     try {
@@ -387,6 +345,7 @@ public class CSVParser {
 
         //print error report based on Logger level
         report.print();
+        logger.info("Finished Importing importSteam");
 
     }
 
@@ -399,6 +358,7 @@ public class CSVParser {
     }
 
     private DateTime getDateTime(String[] line) {
+        logger.debug("getDateTime column: {} pattern: '{}' line: {}", _dateIndex, _dateFormat, line);
 
         if (_dateFormat == null) {
             logger.error("No date format found");
@@ -416,7 +376,7 @@ public class CSVParser {
                 pattern += " " + _timeFormat;
                 input += " " + time;
             }
-
+            logger.debug("-Parse: pattern: {}, timezone: {}, input: '{}'", pattern, timeZone, input);
             return TimeConverter.parseDateTime(input, pattern, timeZone);
         } catch (Exception ex) {
             logger.warn("Pattern: {}", pattern);

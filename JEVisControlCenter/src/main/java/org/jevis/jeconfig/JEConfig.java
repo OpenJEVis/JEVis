@@ -60,7 +60,6 @@ import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.Exceptions;
-import org.jevis.jeconfig.tool.PatchNotesPage;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
@@ -531,8 +530,9 @@ public class JEConfig extends Application {
                         logger.fatal(ex);
                     }
 
-                    PatchNotesPage patchNotesPage = new PatchNotesPage();
-                    patchNotesPage.show(primaryStage);
+                    //we dont use it anymore for now
+                    //PatchNotesPage patchNotesPage = new PatchNotesPage();
+                    //patchNotesPage.show(primaryStage);
 
 
                     Task preloadCalender = new Task() {

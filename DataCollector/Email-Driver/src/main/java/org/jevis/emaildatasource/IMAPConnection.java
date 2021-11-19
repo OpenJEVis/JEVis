@@ -26,6 +26,8 @@ import jakarta.mail.Folder;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.Store;
+import jakarta.mail.event.ConnectionEvent;
+import jakarta.mail.event.ConnectionListener;
 import org.apache.logging.log4j.LogManager;
 
 
@@ -52,8 +54,26 @@ public class IMAPConnection implements EMailConnection {
         }
         _foldName = param.getFolderName();
         try {
+            logger.info("Connect to IMAP Server: {}, User: {}, PW: '{}' .....", param.getHost(), param.getUserEMail(), param.getPassword());
+            _store.addConnectionListener(new ConnectionListener() {
+                @Override
+                public void opened(ConnectionEvent e) {
+                    logger.info("Connect established");
+                }
+
+                @Override
+                public void disconnected(ConnectionEvent e) {
+                    logger.info("Connect disconnected");
+                }
+
+                @Override
+                public void closed(ConnectionEvent e) {
+                    logger.info("Connect closed");
+                }
+            });
             _store.connect(param.getHost(), param.getUserEMail(), param.getPassword());
-        } catch (MessagingException ex) {
+            logger.info("Connect done");
+        } catch (Exception ex) {
             logger.error("EMail Connection setting failed. Wrong login data or properties.", ex);
         }
 
