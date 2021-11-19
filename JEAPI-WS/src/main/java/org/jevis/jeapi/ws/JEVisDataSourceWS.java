@@ -71,6 +71,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String host = "http://localhost";
     private HTTPConnection con;
+    /*
+     * Connection to check if the connection is alive
+     */
+    private HttpURLConnection isAliveConnection = null;
     //    private Gson gson = new Gson();
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
@@ -87,6 +91,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      **/
     private final int SAMPLE_REQUEST_SIZE = 10000;
     private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
+
 
     /**
      * fallback because some old client will call preload but we now a days do per default
@@ -1498,7 +1503,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.catching(ex);
             throw new JEVisException(ex.getMessage(), 402, ex);
         }
-
     }
 
     @Override
@@ -1520,20 +1524,23 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public boolean isConnectionAlive() {
 //        return true;
-        String resource = "api/rest/version";
+
         try {
-            URL url = new URL(this.host + "/" + resource);
+            if (isAliveConnection == null) {
+                String resource = "api/rest/version";
+                URL url = new URL(this.host + "/" + resource);
+                isAliveConnection = (HttpURLConnection) url.openConnection();
+                isAliveConnection.setConnectTimeout(25000);
+                isAliveConnection.setReadTimeout(5000);
+                isAliveConnection.setRequestMethod("GET");
+            }
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
-            conn.setRequestMethod("GET");
 
-            logger.debug("HTTP request {}", conn.getURL());
+            logger.debug("HTTP request {}", isAliveConnection.getURL());
 
-            conn.connect();
-            int responseCode = conn.getResponseCode();
-            conn.disconnect();
+            isAliveConnection.connect();
+            int responseCode = isAliveConnection.getResponseCode();
+            //isAliveConnection.disconnect();
 
             return responseCode == HttpURLConnection.HTTP_OK;
         } catch (ProtocolException e) {
