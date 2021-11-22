@@ -98,7 +98,7 @@ public class JEConfig extends Application {
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
     private static final Statusbar statusBar = new Statusbar();
-    private static StackPane dialogContainer = new StackPane();
+    private static final StackPane dialogContainer = new StackPane();
 
     private TopMenu menu;
     public static Date startDate = new Date();
@@ -264,7 +264,7 @@ public class JEConfig extends Application {
                     System.out.println("There is a newer version");
                     Notifications.create()
                             .title("JEVis Control Center Update")
-                            .text("New version " + serverJECCVersion + " is avabable")
+                            .text("New version " + serverJECCVersion + " is available")
                             .hideAfter(Duration.INDEFINITE)
                             .showInformation();
                 } else {
