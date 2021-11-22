@@ -165,6 +165,7 @@ public class JEVisHTTPDataSource implements DataSource {
 
             httpChannel.setLastReadout(lastReadout);
             httpChannel.setPath(path);
+            httpChannel.setChannelObject(channel);
         } catch (JEVisException ex) {
             logger.error(ex);
         }

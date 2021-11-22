@@ -41,6 +41,7 @@ import org.jevis.jeconfig.dialog.AboutDialog;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.PasswordDialog;
+import org.jevis.jeconfig.tool.PatchNotesPage;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -509,9 +510,11 @@ public class TopMenu extends MenuBar {
 
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 
+        MenuItem showChangelog = new MenuItem(I18n.getInstance().getString("menu.help.changelog"));
+
         MenuItem showHelp = new MenuItem(I18n.getInstance().getString("menu.showToolTips"));
         MenuItem about = new MenuItem(I18n.getInstance().getString("menu.about"));
-        help.getItems().addAll(showHelp, about);
+        help.getItems().addAll(showHelp, showChangelog, about);
 
         about.setOnAction(t -> {
             AboutDialog dia = new AboutDialog();
@@ -525,6 +528,10 @@ public class TopMenu extends MenuBar {
             JEVisHelp.getInstance().toggleHelp();
         });
 
+        showChangelog.setOnAction(event -> {
+            PatchNotesPage patchNotesPage = new PatchNotesPage();
+            patchNotesPage.show(JEConfig.getStage());
+        });
 
         MenuItem classImport = new MenuItem(I18n.getInstance().getString("menu.system.driver"));
         Menu system = new Menu(I18n.getInstance().getString("menu.system"));

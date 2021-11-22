@@ -48,25 +48,20 @@ public class EMailDataSource implements DataSource {
             final long timeStart = System.currentTimeMillis();
             //
             try {
+                logger.info("Starting with IMAP Channel: [{}] {} ", channel.getID(), channel.getName());
                 _result = new ArrayList<>();
 
+                logger.debug("Init parser: {} ", DataCollectorTypes.Parser.NAME);
                 JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
                 JEVisObject parser = channel.getChildren(parserJevisClass, true).get(0);
 
                 _parser = ParserFactory.getParser(parser);
                 logger.info("parser to string: {}", _parser.toString());
                 _parser.initialize(parser);
-//                //measurment
-//                final long timeAfterInit = System.currentTimeMillis();
-//                Logger.getLogger(EMailDataSource.class.getName()).log(Level.INFO, "Execution time for channel " + channel.getName() + ". Init done in: " + (timeAfterInit - timeStart) + " Millisek.");
-//                //
+                logger.debug("done loading parser: {} ", DataCollectorTypes.Parser.NAME);
 
                 Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
                 List<InputStream> input = this.sendSampleRequest(channel);
-//                //measurment
-//                final long timeSendReques = System.currentTimeMillis();
-//                Logger.getLogger(EMailDataSource.class.getName()).log(Level.INFO, "Execution time for channel " + channel.getName() + ". Response received in: " + (timeSendReques - timeStart) + " Millisek.");
-//                //
 
                 logger.info("Answer list is empty: {}", input.isEmpty());
                 logger.info("Answer list size: {}", input.size());
@@ -107,25 +102,22 @@ public class EMailDataSource implements DataSource {
 
     @Override
     public List<InputStream> sendSampleRequest(JEVisObject channel) {
+        logger.info("Starting sending Sample Request IMAP Channel: [{}] {} ", channel.getID(), channel.getName());
         List<InputStream> answerList = new ArrayList<>();
         final long start = System.currentTimeMillis();
         _eMailConnection = EMailManager.createConnection(_eMailServerParameters);
-        //measurment
         final long connectDone = System.currentTimeMillis();
         logger.info("Send sample request. Connection parameters and connection: {}  msec.", (connectDone - start));
-        //
         _channelParameters = new EMailChannelParameters(channel, _eMailServerParameters.getProtocol(), _eMailServerParameters.getTimezone());
-        //measurment
         final long channelDone = System.currentTimeMillis();
         logger.info("Send sample request. Channel parameters: {} msec.", (channelDone - start));
-        //
         answerList = EMailManager.getAnswerList(_channelParameters, _eMailConnection);
+        logger.info("Mails in response: {}, closing server connection", answerList.size());
 
         EMailManager.terminate(_eMailConnection);
-        //measurment
+        logger.info("done closing server connection");
         final long timeTotalSendreq = System.currentTimeMillis();
-        logger.info("Send sample request. Time Total: {} msec.", (timeTotalSendreq - start));
-        //
+        logger.info("Send sample request. Time Total: {} msec. for IMAP Channel: [{}] {}", (timeTotalSendreq - start), channel.getID(), channel.getName());
         return answerList;
     }
 

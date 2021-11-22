@@ -457,6 +457,7 @@ public class TablePlugin implements Plugin {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
                             JFXTextField textField = new JFXTextField();
+                            textField.setStyle("-fx-text-fill: black;");
 
                             try {
                                 JEVisAttribute attribute = registerTableRow.getAttributeMap().get(item.getType());
@@ -693,11 +694,13 @@ public class TablePlugin implements Plugin {
 
                             JFXTextField textField = new JFXTextField();
 
-                            if (getTableRow().getIndex() % 2 == 0) {
-                                textField.setStyle("-fx-text-fill: white;");
-                            } else {
-                                textField.setStyle("-fx-text-fill: black;");
-                            }
+                            /**
+                             if (getTableRow().getIndex() % 2 == 0) {
+                             textField.setStyle("-fx-text-fill: white;");
+                             } else {
+                             textField.setStyle("-fx-text-fill: black;");
+                             }
+                             **/
 
                             try {
                                 JEVisAttribute attribute = registerTableRow.getAttributeMap().get(item.getType());
@@ -775,11 +778,13 @@ public class TablePlugin implements Plugin {
 
                             JFXTextField textField = new JFXTextField();
 
-                            if (getTableRow().getIndex() % 2 == 0) {
-                                textField.setStyle("-fx-text-fill: white;");
-                            } else {
-                                textField.setStyle("-fx-text-fill: black;");
-                            }
+                            /**
+                             if (getTableRow().getIndex() % 2 == 0) {
+                             textField.setStyle("-fx-text-fill: white;");
+                             } else {
+                             textField.setStyle("-fx-text-fill: black;");
+                             }
+                             **/
 
                             try {
                                 JEVisAttribute attribute = registerTableRow.getAttributeMap().get(item.getType());
@@ -894,6 +899,7 @@ public class TablePlugin implements Plugin {
 
     }
 
+    @Override
     public JEVisDataSource getDataSource() {
         return ds;
     }
