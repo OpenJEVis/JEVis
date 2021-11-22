@@ -59,6 +59,7 @@ public class NodeTreeTable {
         TreeTableColumn<Node, String> nameCol = new TreeTableColumn<>("Name");
         TreeTableColumn<Node, String> valueCol = new TreeTableColumn<>("Value");
         TreeTableColumn<Node, Boolean> checkCol = new TreeTableColumn<>("Trend");
+        TreeTableColumn<Node, String> nodeIDCol = new TreeTableColumn<>("NodeID");
 
 
         checkCol.setCellFactory(new Callback<TreeTableColumn<Node, Boolean>, TreeTableCell<Node, Boolean>>() {
@@ -118,12 +119,13 @@ public class NodeTreeTable {
 
         nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().descriptionProperty.get().getBrowseName().getName()));
         valueCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().readData()));
+        nodeIDCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().nodeIdProperty.get().toParseableString()));
 
 
         nameCol.setPrefWidth(200);
         valueCol.setPrefWidth(80);
         checkCol.setPrefWidth(150);
-        treeTableView.getColumns().addAll(nameCol, checkCol, valueCol);
+        treeTableView.getColumns().addAll(nameCol, checkCol, valueCol,nodeIDCol);
 
 
         //view.setPadding(new Insets(8));
