@@ -4,15 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.jevis</groupId>
-    <artifactId>JEOpcUaWriter</artifactId>
+    <artifactId>JEOPCUAWriter</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>JEOpcUaWriter</name>
+    <name>JEOPCUAWriter</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mainClass>org.jevis.opcuawrite.OpcUaWriterLauncher</mainClass>
+        <mainClass>org.jevis.opcuawrite.OPCUAWriterLauncher</mainClass>
         <additionalparam>-Xdoclint:none</additionalparam>
         <skipjnlp>none</skipjnlp>
         <openfx.version>11.0.2</openfx.version>
@@ -72,7 +72,7 @@
                             <Application-Name>${project.name}</Application-Name>
                         </manifestEntries>
                         <manifest>
-                            <mainClass>org.jevis.opcuawrite.OpcUaWriterLauncher</mainClass>
+                            <mainClass>org.jevis.opcuawrite.OPCUAWriterLauncher</mainClass>
                         </manifest>
                     </archive>
 

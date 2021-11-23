@@ -428,6 +428,8 @@ public class OPCClient {
         } catch (ExecutionException e) {
             logger.error("ExecutionException: {}", e);
             e.printStackTrace();
+        } catch (UaException e) {
+            e.printStackTrace();
         }
     }
 
@@ -528,18 +530,22 @@ public class OPCClient {
         return "";
     }
 
-    public  DataValue readValue(NodeId nodeId) {
-        try {
+    public  DataValue readValue(NodeId nodeId) throws UaException {
+
             UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
             DataValue value = node.readValue();
+        if (value.getStatusCode().isGood()) {
+            logger.info("Data is good");
             logger.debug(nodeId+ ":"+value);
             return value;
-        } catch (UaException e) {
-            e.printStackTrace();
+        } else {
+            logger.info("Data is Bad");
             return null;
         }
 
-    }
+
+        }
+
 
     public void writeValue(DataValue dataValue, NodeId nodeId) throws UaException {
 
