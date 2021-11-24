@@ -68,8 +68,8 @@ public class XYChartSerie {
     }
 
     public void generateSeriesFromSamples() throws JEVisException {
-        timeStampFromFirstSample = new DateTime(1990, 1, 1, 0, 0, 0);
-        timeStampFromLastSample = DateTime.now();
+        timeStampFromFirstSample = DateTime.now();
+        timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
         Color color = ColorHelper.toColor(singleRow.getColor()).deriveColor(0, 1, 1, 0.9);
         Color brighter = ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor()));
 

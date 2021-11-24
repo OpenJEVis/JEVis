@@ -407,13 +407,24 @@ public abstract class AbstractCliApp {
         if (!runningJobs.isEmpty() && maxThreadTime != 0L) {
             SampleHandler sampleHandler = new SampleHandler();
             List<Long> toRemove = new ArrayList<>();
+            JEVisClass dataSource = null;
+            try {
+                dataSource = ds.getJEVisClass("Data Server");
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+
             for (Map.Entry<Long, DateTime> entry : runningJobs.entrySet()) {
                 try {
                     Interval interval = new Interval(entry.getValue(), new DateTime());
+
+                    Long maxTime = maxThreadTime;
                     JEVisObject object = ds.getObject(entry.getKey());
 
-                    ds.reloadAttribute(object);
-                    Long maxTime = sampleHandler.getLastSample(object, "Max thread time", maxThreadTime);
+                    if (dataSource != null && dataSource.getHeirs().contains(object.getJEVisClass())) {
+                        maxTime = sampleHandler.getLastSample(object, "Max thread time", maxThreadTime);
+                    }
+
                     if (interval.toDurationMillis() > maxTime) {
                         logger.warn("Task for {} is out of time, trying to cancel", entry.getKey());
                         try {
