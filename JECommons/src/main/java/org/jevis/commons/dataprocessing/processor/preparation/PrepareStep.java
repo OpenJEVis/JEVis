@@ -160,7 +160,7 @@ public class PrepareStep implements ProcessStep {
             }
 
             if (firstCleanPeriod.getMinutes() > 0 && firstRawPeriod.getHours() == 1 && firstRawPeriod.getMinutes() == 0) {
-                currentDate = currentDate.withMinuteOfHour(0);
+                currentDate = currentDate.plus(firstCleanPeriod);
             }
 
             while (currentDate.isBefore(maxEndDate) && !periodCleanData.isEmpty() && !currentDate.equals(lastDate)) {
