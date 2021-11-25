@@ -52,7 +52,7 @@ public class ObjectTable {
                     try {
                         JEVisAttribute attribute = tableData.getObject().getAttribute(attributeName);
                         SampleEditor se = new SampleEditor();
-                        se.show(JEConfig.getStage(), attribute);
+                        se.show(JEConfig.getStage(), attribute, start, end);
                     } catch (Exception e) {
                         logger.error("Could not open sample editor for row:col {}:{}, object {}:{} and attribute {}", row, col, tableData.getObject().getName(), attributeName, e);
                     }
@@ -120,35 +120,41 @@ public class ObjectTable {
                 }
                 TableColumn<TableData, String> column = new TableColumn<>(attributeName);
                 column.setId(attribute.getName());
+
                 column.setCellValueFactory(param -> {
-                    try {
-                        if (attribute.hasSample() && attribute.getName().equals("Value")) {
-                            List<JEVisSample> samples = attribute.getSamples(start, end);
+                    for (JEVisAttribute att : param.getValue().getAttributeList()) {
+                        if (att.getName().equals(column.getId())) {
+                            try {
+                                if (att.hasSample() && att.getName().equals("Value")) {
+                                    List<JEVisSample> samples = att.getSamples(start, end);
 
-                            String resultString = "";
-                            if (!samples.isEmpty()) {
-                                JEVisSample sample = samples.get(samples.size() - 1);
-                                resultString += sample.getValueAsString() + "@" + sample.getTimestamp().toString(PATTERN)
-                                        + " (" + I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount") + ": " + samples.size() + ")";
-                            } else {
-                                resultString += "(" + I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount") + ": 0)";
+                                    String resultString = "";
+                                    if (!samples.isEmpty()) {
+                                        JEVisSample sample = samples.get(samples.size() - 1);
+                                        resultString += sample.getValueAsString() + "@" + sample.getTimestamp().toString(PATTERN)
+                                                + " (" + I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount") + ": " + samples.size() + ")";
+                                    } else {
+                                        resultString += "(" + I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount") + ": 0)";
+                                    }
+
+                                    return new ReadOnlyObjectWrapper<>(resultString);
+                                } else if (att.hasSample()) {
+                                    JEVisSample latestSample = att.getLatestSample();
+                                    return new ReadOnlyObjectWrapper<>(latestSample.getValueAsString());
+                                }
+                            } catch (Exception ex) {
+                                logger.error(ex);
                             }
-
-                            return new ReadOnlyObjectWrapper<>(resultString);
-                        } else if (attribute.hasSample()) {
-                            JEVisSample latestSample = attribute.getLatestSample();
-                            return new ReadOnlyObjectWrapper<>(latestSample.getValueAsString());
                         }
-                    } catch (Exception ex) {
-                        logger.error(ex);
                     }
 
                     return new ReadOnlyObjectWrapper<>("");
                 });
 
-//                columns.add(column);
+
                 this.tableView.getColumns().add(column);
             }
+
             this.tableView.getItems().setAll(tableData);
 
 
