@@ -1,30 +1,65 @@
 package org.jevis.jeconfig.plugin.object.childrentableeditor;
 
+import com.jfoenix.controls.JFXDatePicker;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.util.Callback;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.CheckComboBox;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.sample.SampleEditor;
+import org.joda.time.DateTime;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectTable {
 
-    TableView tableView = new TableView<TableData>();
+    public static final String PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private final TableView<TableData> tableView = new TableView<TableData>();
 
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
+    private DateTime start;
+    private DateTime end;
 
-    public ObjectTable(JEVisObject parentObject) {
+    public ObjectTable(JEVisObject parentObject, JFXDatePicker startDatePicker, JFXDatePicker endDatePicker, ToggleButton reloadButton) {
+        reloadButton.setOnAction(event -> tableView.refresh());
+        startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0, 0));
+        endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59, 999));
+        tableView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent click) {
+                if (click.getClickCount() == 2) {
+                    @SuppressWarnings("rawtypes")
+                    TablePosition pos = tableView.getSelectionModel().getSelectedCells().get(0);
+                    int row = pos.getRow();
+                    int col = pos.getColumn();
+                    @SuppressWarnings("rawtypes")
+                    TableColumn column = pos.getTableColumn();
+                    TableData tableData = tableView.getSelectionModel().getSelectedItem();
+                    String attributeName = column.getId();
+                    try {
+                        JEVisAttribute attribute = tableData.getObject().getAttribute(attributeName);
+                        SampleEditor se = new SampleEditor();
+                        se.show(JEConfig.getStage(), attribute);
+                    } catch (Exception e) {
+                        logger.error("Could not open sample editor for row:col {}:{}, object {}:{} and attribute {}", row, col, tableData.getObject().getName(), attributeName, e);
+                    }
+                }
+            }
+        });
+
 
         try {
             List<JEVisObject> children = parentObject.getChildren();
@@ -32,23 +67,22 @@ public class ObjectTable {
             ObservableList<TableData> tableData = FXCollections.observableArrayList();
 //            List<TableColumn<String, JEVisAttribute>> columns = new ArrayList<>();
 
-            TableColumn<TableData, String> nameColumn = new TableColumn<>("Object Name");
-            nameColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<TableData, String>, ObservableValue<String>>() {
-                @Override
-                public ObservableValue<String> call(TableColumn.CellDataFeatures<TableData, String> param) {
-                    return new ReadOnlyObjectWrapper<>(param.getValue().getObject().getName());
-                }
-            });
 
-            TableColumn<TableData, String> classColumn = new TableColumn<>("Class Name");
-            classColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<TableData, String>, ObservableValue<String>>() {
-                @Override
-                public ObservableValue<String> call(TableColumn.CellDataFeatures<TableData, String> param) {
+            TableColumn<TableData, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.attribute.overview.name"));
+            nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject().getName()));
+
+            TableColumn<TableData, String> classColumn = new TableColumn<>(I18n.getInstance().getString("plugin.dtrc.dialog.classlabel"));
+            classColumn.setCellValueFactory(param -> {
+                try {
+                    String jeVisClassName = param.getValue().getObject().getJEVisClassName();
                     try {
-                        return new ReadOnlyObjectWrapper<>(param.getValue().getObject().getJEVisClassName());
-                    } catch (Exception ex) {
-                        return new ReadOnlyObjectWrapper<>("");
+                        jeVisClassName = I18nWS.getInstance().getClassName(jeVisClassName);
+                    } catch (Exception e) {
+                        logger.error("Could not get class name for {} class", jeVisClassName, e);
                     }
+                    return new ReadOnlyObjectWrapper<>(jeVisClassName);
+                } catch (Exception ex) {
+                    return new ReadOnlyObjectWrapper<>("");
                 }
             });
 
@@ -64,24 +98,52 @@ public class ObjectTable {
 //                tableData.add(new TableData(child));
 //            }
 
+            for (JEVisAttribute attribute : attributes) {
+                if (attribute.hasSample() && attribute.getName().equals("Value")) {
+                    if (attribute.getTimestampFromLastSample().isBefore(start)) {
+                        end = attribute.getTimestampFromLastSample();
+                        start = end.minusDays(1);
+                    }
+                }
+            }
+            Platform.runLater(() -> {
+                startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+                endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+            });
 
             for (JEVisAttribute attribute : attributes) {
-                TableColumn<TableData, String> column = new TableColumn<>(attribute.getName());
+                String attributeName = attribute.getName();
+                try {
+                    attributeName = I18nWS.getInstance().getAttributeName(attribute);
+                } catch (Exception e) {
+                    logger.error("Could not get name for {} attribute", attribute.getName(), e);
+                }
+                TableColumn<TableData, String> column = new TableColumn<>(attributeName);
                 column.setId(attribute.getName());
-                column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<TableData, String>, ObservableValue<String>>() {
-                    @Override
-                    public ObservableValue<String> call(TableColumn.CellDataFeatures<TableData, String> param) {
-                        try {
-                            JEVisAttribute att = param.getValue().getObject().getAttribute(attribute.getName());
-                            if (att != null && att.hasSample()) {
-                                return new ReadOnlyObjectWrapper<>(att.getLatestSample().getValueAsString());
-                            }
-                        } catch (Exception ex) {
-                            logger.error(ex);
-                        }
+                column.setCellValueFactory(param -> {
+                    try {
+                        if (attribute.hasSample() && attribute.getName().equals("Value")) {
+                            List<JEVisSample> samples = attribute.getSamples(start, end);
 
-                        return new ReadOnlyObjectWrapper<>("");
+                            String resultString = "";
+                            if (!samples.isEmpty()) {
+                                JEVisSample sample = samples.get(samples.size() - 1);
+                                resultString += sample.getValueAsString() + "@" + sample.getTimestamp().toString(PATTERN)
+                                        + " (" + I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount") + ": " + samples.size() + ")";
+                            } else {
+                                resultString += "(" + I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount") + ": 0)";
+                            }
+
+                            return new ReadOnlyObjectWrapper<>(resultString);
+                        } else if (attribute.hasSample()) {
+                            JEVisSample latestSample = attribute.getLatestSample();
+                            return new ReadOnlyObjectWrapper<>(latestSample.getValueAsString());
+                        }
+                    } catch (Exception ex) {
+                        logger.error(ex);
                     }
+
+                    return new ReadOnlyObjectWrapper<>("");
                 });
 
 //                columns.add(column);
@@ -119,7 +181,8 @@ public class ObjectTable {
         }
     }
 
-    private void addChildren(ObservableList<TableData> tableData, List<JEVisAttribute> attributes, JEVisObject parent) {
+    private void addChildren
+            (ObservableList<TableData> tableData, List<JEVisAttribute> attributes, JEVisObject parent) {
         try {
             for (JEVisObject child : parent.getChildren()) {
                 for (JEVisAttribute attribute : child.getAttributes()) {
