@@ -5,15 +5,16 @@
  */
 package org.jevis.httpdatasource;
 
+import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
 
 /**
- *
  * @author broder
  */
 public class Channel {
     private String _path;
     private DateTime _lastReadout;
+    private JEVisObject channelObject;
 
     public String getPath() {
         return _path;
@@ -30,6 +31,12 @@ public class Channel {
     public void setLastReadout(DateTime _lastReadout) {
         this._lastReadout = _lastReadout;
     }
-    
-    
+
+    public JEVisObject getChannelObject() {
+        return channelObject;
+    }
+
+    public void setChannelObject(JEVisObject channelObject) {
+        this.channelObject = channelObject;
+    }
 }

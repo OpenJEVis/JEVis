@@ -335,8 +335,16 @@ public class AnalysisDataModel {
                     } else newSettings.setOrientation(Orientation.HORIZONTAL);
 
                     if (settings.getGroupingInterval() != null) {
-                        newSettings.setGroupingInterval(Long.parseLong(settings.getGroupingInterval()));
-                    } else newSettings.setGroupingInterval(30L);
+                        newSettings.setGroupingInterval(Double.parseDouble(settings.getGroupingInterval()));
+                    } else newSettings.setGroupingInterval(30d);
+
+                    if (settings.getMinFractionDigits() != null) {
+                        newSettings.setMinFractionDigits(Integer.parseInt(settings.getMinFractionDigits()));
+                    } else newSettings.setMinFractionDigits(2);
+
+                    if (settings.getMaxFractionDigits() != null) {
+                        newSettings.setMaxFractionDigits(Integer.parseInt(settings.getMaxFractionDigits()));
+                    } else newSettings.setMaxFractionDigits(2);
 
                     if (settings.getHeight() != null) {
                         newSettings.setHeight(Double.parseDouble(settings.getHeight()));

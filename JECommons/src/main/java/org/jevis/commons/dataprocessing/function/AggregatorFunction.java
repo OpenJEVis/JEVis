@@ -105,17 +105,12 @@ public class AggregatorFunction implements ProcessFunction {
     public static int aggregateSamplesToPeriod(int lastPos, List<JsonSample> samplesInPeriod, DateTime intervalStart, DateTime intervalEnd, List<JsonSample> samples, Process mainTask) {
         for (int i = lastPos; i < samples.size(); i++) {
             DateTime sampleTS = new DateTime(samples.get(i).getTs());
-            boolean isDiff = mainTask.isDifferential(sampleTS);
-            if (isDiff && (sampleTS.equals(intervalEnd) || (sampleTS.isAfter(intervalStart) && sampleTS.isBefore(intervalEnd)))) {
-                //logger.info("add sample: " + samples.get(i));
-                samplesInPeriod.add(samples.get(i));
-                logger.debug("aggregate {} to interval {}-{} ", samples.get(i), intervalStart, intervalEnd);
-            } else if (!isDiff && (sampleTS.equals(intervalStart) || (sampleTS.isAfter(intervalStart) && sampleTS.isBefore(intervalEnd)))) {
+            if ((sampleTS.equals(intervalStart) || (sampleTS.isAfter(intervalStart) && sampleTS.isBefore(intervalEnd)))) {
                 //logger.info("add sample: " + samples.get(i));
                 samplesInPeriod.add(samples.get(i));
                 logger.debug("aggregate {} to interval {}-{} ", samples.get(i), intervalStart, intervalEnd);
             } else if (sampleTS.isAfter(intervalEnd)) {
-                lastPos = i;
+                lastPos = i - 1;
                 break;
             }
         }

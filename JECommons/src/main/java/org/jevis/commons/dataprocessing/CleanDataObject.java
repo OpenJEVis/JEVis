@@ -44,7 +44,7 @@ public class CleanDataObject {
     private static final Logger logger = LogManager.getLogger(CleanDataObject.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JEVisObject cleanObject;
-    private final JEVisObject rawDataObject;
+    private JEVisObject rawDataObject;
     //attributes
     private List<PeriodRule> periodCleanData;
     private List<PeriodRule> periodRawData;
@@ -94,15 +94,27 @@ public class CleanDataObject {
     private DateTime lastRawDate;
     private int processingSize = 10000;
 
-    public CleanDataObject(JEVisObject calcObject, ObjectHandler objectHandler) {
-        cleanObject = calcObject;
-        rawDataObject = objectHandler.getFirstParent(calcObject);
+    public CleanDataObject(JEVisObject cleanObject) {
+        this.cleanObject = cleanObject;
+        try {
+            ObjectHandler objectHandler = new ObjectHandler(cleanObject.getDataSource());
+            rawDataObject = objectHandler.getFirstParent(cleanObject);
+        } catch (JEVisException e) {
+            logger.error("Could not initialize Object Handler", e);
+        }
+
+        sampleHandler = new SampleHandler();
+    }
+
+    public CleanDataObject(JEVisObject cleanObject, ObjectHandler objectHandler) {
+        this.cleanObject = cleanObject;
+        rawDataObject = objectHandler.getFirstParent(cleanObject);
         sampleHandler = new SampleHandler();
 
         try {
-            calcObject.getDataSource().reloadAttribute(rawDataObject);
+            cleanObject.getDataSource().reloadAttribute(rawDataObject);
         } catch (JEVisException e) {
-            logger.error("Could not reload input data object for object {}:{}", calcObject.getName(), calcObject.getID(), e);
+            logger.error("Could not reload input data object for object {}:{}", cleanObject.getName(), cleanObject.getID(), e);
         }
     }
 
@@ -376,10 +388,10 @@ public class CleanDataObject {
             JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
             if (object != null && object.getJEVisClass().equals(dataClass)) {
                 JEVisObject cleanDataObject = CommonMethods.getFirstCleanObject(object);
-                CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(object.getDataSource()));
+                CleanDataObject cdo = new CleanDataObject(cleanDataObject);
                 isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
             } else if (object != null && object.getJEVisClass().equals(cleanDataClass)) {
-                CleanDataObject cdo = new CleanDataObject(object, new ObjectHandler(object.getDataSource()));
+                CleanDataObject cdo = new CleanDataObject(object);
                 isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
             }
         } catch (Exception e) {

@@ -112,6 +112,16 @@ public class PrepareMath implements ProcessStep {
                 intervals.add(cleanInterval);
                 resourceManager.setIntervals(intervals);
             }
+        } else {
+            Interval interval = new Interval(start, end.minusMillis(1));
+
+            if (periodOffset != 0L) {
+                start = mathDataObject.getNextRunWithOffset(aggregationPeriod, periodOffset, referencePeriodCount, start);
+            }
+
+            CleanInterval cleanInterval = new CleanInterval(interval, start);
+            intervals.add(cleanInterval);
+            resourceManager.setIntervals(intervals);
         }
     }
 

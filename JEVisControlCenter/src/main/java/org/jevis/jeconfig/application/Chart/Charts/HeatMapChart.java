@@ -1,11 +1,11 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import com.ibm.icu.text.NumberFormat;
 import de.jollyday.Holiday;
 import eu.hansolo.fx.charts.ChartType;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
 import eu.hansolo.fx.charts.series.MatrixItemSeries;
-import eu.hansolo.fx.charts.tools.ColorMapping;
 import eu.hansolo.fx.charts.tools.Helper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,7 +36,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -44,11 +43,9 @@ import java.util.stream.Collectors;
 
 public class HeatMapChart implements Chart {
     private static final Logger logger = LogManager.getLogger(HeatMapChart.class);
-    private final Integer chartId;
     private final WorkDays workDays;
-    private final ColorMapping colorMapping;
     private final List<ChartDataRow> chartDataRows;
-    private final String chartTitle;
+    private final ChartSetting chartSetting;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Long ROWS;
     private Long COLS;
@@ -67,9 +64,7 @@ public class HeatMapChart implements Chart {
 
     public HeatMapChart(List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
         this.chartDataRows = chartDataRows;
-        this.chartId = chartSetting.getId();
-        this.chartTitle = chartSetting.getName();
-        this.colorMapping = chartSetting.getColorMapping();
+        this.chartSetting = chartSetting;
         this.ROWS = 24L;
         this.COLS = 4L;
         this.workDays = new WorkDays(chartDataRows.get(0).getObject());
@@ -85,8 +80,8 @@ public class HeatMapChart implements Chart {
         Period period = new Period(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
         Period inputSampleRate = chartDataRow.getPeriod();
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
-        numberFormat.setMinimumFractionDigits(2);
-        numberFormat.setMaximumFractionDigits(2);
+        numberFormat.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
+        numberFormat.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
 
         HeatMapXY heatMapXY = getHeatMapXY(period, inputSampleRate);
         COLS = heatMapXY.getX();
@@ -184,7 +179,7 @@ public class HeatMapChart implements Chart {
 
         MatrixPane<MatrixChartItem> matrixHeatMap = new MatrixPane<>(matrixItemSeries1);
         matrixHeatMap.setMaxHeight(8192);
-        matrixHeatMap.setColorMapping(colorMapping);
+        matrixHeatMap.setColorMapping(chartSetting.getColorMapping());
         matrixHeatMap.getMatrix().setUseSpacer(false);
         matrixHeatMap.getMatrix().setColsAndRows(COLS.intValue(), ROWS.intValue());
 
@@ -254,7 +249,7 @@ public class HeatMapChart implements Chart {
 
         HBox titleBox = new HBox();
         titleBox.setAlignment(Pos.CENTER);
-        Label titleLabel = new Label(chartTitle);
+        Label titleLabel = new Label(chartSetting.getName());
         titleLabel.getStyleClass().setAll("chart-title");
         titleBox.setPadding(new Insets(8));
         titleLabel.setAlignment(Pos.CENTER);
@@ -318,7 +313,7 @@ public class HeatMapChart implements Chart {
 
     @Override
     public String getChartName() {
-        return chartTitle;
+        return chartSetting.getName();
     }
 
     @Override
@@ -328,7 +323,7 @@ public class HeatMapChart implements Chart {
 
     @Override
     public Integer getChartId() {
-        return chartId;
+        return chartSetting.getId();
     }
 
     @Override
@@ -369,6 +364,11 @@ public class HeatMapChart implements Chart {
     @Override
     public List<ChartDataRow> getChartDataRows() {
         return chartDataRows;
+    }
+
+    @Override
+    public ChartSetting getChartSetting() {
+        return chartSetting;
     }
 
     @Override

@@ -6,7 +6,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmType;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
@@ -27,7 +26,6 @@ public class Note {
 
     public Note(JEVisSample sample, JEVisSample noteSample, Alarm alarm) throws JEVisException {
         String note = sample.getNote();
-        ObjectHandler objectHandler = new ObjectHandler(sample.getDataSource());
 
         if (noteSample != null && !note.contains(USER_NOTES)) {
             note += "," + USER_NOTES;
@@ -51,7 +49,7 @@ public class Note {
                     changed = true;
 
                     try {
-                        CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject(), objectHandler);
+                        CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject());
                         JsonLimitsConfig l1Config = cleanDataObject.getLimitsConfig().get(0);
                         toolTipString += "L1 Min: " + l1Config.getMin() + " L1 Max: " + l1Config.getMax();
                     } catch (Exception e) {
@@ -73,7 +71,7 @@ public class Note {
                     changed = true;
 
                     try {
-                        CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject(), objectHandler);
+                        CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject());
                         JsonLimitsConfig l2Config = cleanDataObject.getLimitsConfig().get(1);
                         toolTipString += "L2 Min: " + l2Config.getMin() + " L2 Max: " + l2Config.getMax();
                     } catch (Exception e) {

@@ -8,7 +8,6 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.alarm.*;
 import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.constants.NoteConstants;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.DateHelper;
@@ -86,7 +85,7 @@ public class AlarmProcess {
 
             boolean hasData = true;
             for (JEVisObject obj : allCleanDataObjects) {
-                CleanDataObject cleanDataObject = new CleanDataObject(obj, new ObjectHandler(ds));
+                CleanDataObject cleanDataObject = new CleanDataObject(obj);
                 boolean alarmEnabled = false;
                 JEVisAttribute alarmEnabledAttribute = cleanDataObject.getAlarmEnabledAttribute();
                 if (alarmEnabledAttribute != null) {
@@ -275,7 +274,7 @@ public class AlarmProcess {
 
             List<JEVisSample> valueSamples = valueAtt.getSamples(start, end);
 
-            CleanDataObject cleanDataObject = new CleanDataObject(cleanData, new ObjectHandler(ds));
+            CleanDataObject cleanDataObject = new CleanDataObject(cleanData);
             List<JsonLimitsConfig> cleanDataObjectLimitsConfig = cleanDataObject.getLimitsConfig();
             double shouldBeValue1Min = 0d;
             double shouldBeValue2Min = 0d;

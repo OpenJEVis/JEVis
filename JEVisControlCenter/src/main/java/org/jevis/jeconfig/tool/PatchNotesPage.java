@@ -50,7 +50,33 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.56------\n" +
+            "------Version 3.9.57------\n" +
+                    "JECC - ChartPlugin - Automatic \"Math.\" detection\n" +
+                    "JECC - ChartPlugin - advanced setting for changing min/max fraction digits for each chart\n" +
+                    "JECC - Dashboard - Added additional error handling\n" +
+                    "JECC - Increased the time between connection alive checks\n" +
+                    "JECC - Moved changelog to menu  \n" +
+                    "JECC - ObjectPlugin - Limit setup now uses current locale for formatting\n" +
+                    "JECC - ObjectPlugin - SampleTable - fixed incorrect sizing\n" +
+                    "JECC - implemented workaround for white login screen\n" +
+                    "\n" +
+                    "DataCollector - CSV-Driver added debug messages\n" +
+                    "DataCollector - EMail-Driver added debug massages\n" +
+                    "JEAPI-WS - isConnectionAlive will now reuse the same connection\n" +
+                    "\n" +
+                    "JECommons - CleanDataObject - fixed constructor for non-service calls\n" +
+                    "JECommons - fixed aggregation problem \n" +
+                    "\n" +
+                    "JEDataProcessor - DifferentialStep - fixed problem\n" +
+                    "JEDataProcessor - MathDataObject - fixed period offset calculation\n" +
+                    "JEDataProcessor - MathDataObject - fixed some null pointer\n" +
+                    "JEDataProcessor - MathObjects - fixed some period problems\n" +
+                    "JEDataProcessor - fixed aggregation period for yearly\n" +
+                    "JEDataProcessor - fixed some problems with monthly & yearly aggregation\n" +
+                    "JEDataProcessor - hours to 15 minutes fix\n" +
+                    "\n" +
+                    "JEReport - ReportLinkProperty - fixed calculation setting for data links\n\n" +
+                    "------Version 3.9.56------\n" +
                     "JECC - Add Icon for ImageWidget\n" +
                     "JECC - Add an exeption log to the recalculation result\n" +
                     "JECC - ChartPlugin - Fixed tooltip help\n" +
@@ -99,6 +125,7 @@ public class PatchNotesPage {
 
         final Stage stage = new Stage();
         remember.setSelected(true);
+        remember.setVisible(false);//we dont use it anymore for now
 
         //TODO show it again if we have a new version of the Config
         if (!pref.getBoolean("show", true)) {
@@ -154,7 +181,8 @@ public class PatchNotesPage {
             @Override
             public void handle(ActionEvent t) {
                 stage.hide();
-                storePreference();
+                //we dont use it anymore for now
+                //storePreference();
             }
         });
 
