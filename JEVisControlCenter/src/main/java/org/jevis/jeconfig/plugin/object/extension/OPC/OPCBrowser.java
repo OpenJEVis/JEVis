@@ -4,10 +4,9 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.scene.Scene;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -21,24 +20,33 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.OPCUAServer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class OPCBrowser {
 
     private JEVisObject opcServerObj = null;
     private OPCClient opcClient;
-    //JFXTextField username = new JFXTextField();
-    //JFXTextField password = new JFXTextField();
     JFXTextField port = new JFXTextField();
     JFXButton connect = new JFXButton();
     JFXComboBox<String> rootFolder = new JFXComboBox();
+    private List<UserSelection> userSelections = new ArrayList<>();
+    JFXButton button = new JFXButton();
 
     private EndpointDescription endpointDescription;
 
     public OPCBrowser(JEVisObject server) {
+
+
+
+
         this.opcServerObj = server;
         final Stage stage = new Stage();
 
@@ -47,17 +55,57 @@ public class OPCBrowser {
         stage.initModality(Modality.NONE);
         stage.initOwner(JEConfig.getStage());
 
+        StackPane stackPane = new StackPane();
         VBox vBox = new VBox();
-        Scene scene = new Scene(vBox);
+        stackPane.getChildren().add(vBox);
+
+        Scene scene = new Scene(stackPane);
         TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         //TODo better be dynamic
 
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(true);
-        stage.setWidth(450);
+        stage.setWidth(650);
         stage.setHeight(500);
         stage.setAlwaysOnTop(true);
+
+
+
+
+
+        button.setOnAction(event -> {
+            try {
+                List<JEVisTreeFilter> allFilter = new ArrayList<>();
+                JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllObjects();
+                JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
+                allFilter.add(allDataFilter);
+                allFilter.add(allAttributesFilter);
+
+
+                SelectTargetDialog selectTargetDialog = new SelectTargetDialog(stackPane, allFilter, allDataFilter, null, SelectionMode.SINGLE, opcServerObj.getDataSource(), userSelections);
+                selectTargetDialog.show();
+                selectTargetDialog.setOnDialogClosed(event1 -> {
+                    System.out.println(selectTargetDialog.getResponse());
+
+                    if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                        System.out.println(selectTargetDialog.getUserSelection().get(0).getSelectedObject().getID());
+                    } else if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.CANCEL) {
+
+                    }
+
+
+
+                });
+
+
+
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+
+
+        });
 
         //OPCUAServer opcuaServer = new OPCUAServer(opcServerObj);
         //OPCClient opcClient = new OPCClient(opcuaServer.getURL());//"opc.tcp://10.1.2.128:4840");
@@ -180,9 +228,9 @@ public class OPCBrowser {
                     }
 
             );
-
+            button.setText("Root");
             //flowPane.getChildren().addAll(alignmentBox, rootFolder, port, getEndpoints);
-            flowPane.getChildren().addAll(rootFolder, port, connect);
+            flowPane.getChildren().addAll(rootFolder, port, connect, button);
             vBox.getChildren().add(flowPane);
 
             //vBox.setStyle("-fx-background-color:blue;");

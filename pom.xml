@@ -24,6 +24,7 @@
         <module>JEDataProcessor</module>
         <module>JEStatus</module>
         <module>JEAlarm</module>
+        <module>JEOPCUAWriter</module>
     </modules>
 
     <profiles>

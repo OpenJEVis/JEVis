@@ -9,7 +9,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
@@ -20,7 +19,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
-import org.eclipse.milo.opcua.stack.core.types.enumerated.NodeClass;
 import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
@@ -46,20 +44,22 @@ public class NodeTreeTable {
     private final ObservableList<Node> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
     private JEVisObject object;
-    private final String rootFolder;
+    private final String opcUARootFolder;
 
 
     public NodeTreeTable(OPCClient opcClient, JEVisObject object, String rootFolder) {
 
         this.opcClient = opcClient;
         this.object = object;
-        this.rootFolder = rootFolder;
+        this.opcUARootFolder = rootFolder;
+
 
 
         TreeTableColumn<Node, String> nameCol = new TreeTableColumn<>("Name");
         TreeTableColumn<Node, String> valueCol = new TreeTableColumn<>("Value");
         TreeTableColumn<Node, Boolean> checkCol = new TreeTableColumn<>("Trend");
         TreeTableColumn<Node, String> nodeIDCol = new TreeTableColumn<>("NodeID");
+
 
 
         checkCol.setCellFactory(new Callback<TreeTableColumn<Node, Boolean>, TreeTableCell<Node, Boolean>>() {
