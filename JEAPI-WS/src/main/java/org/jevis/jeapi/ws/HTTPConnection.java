@@ -192,6 +192,9 @@ public class HTTPConnection {
                 case HttpURLConnection.HTTP_UNAVAILABLE:
                     logger.warn(url + "**unavailable**");
                     break;
+                case HttpURLConnection.HTTP_INTERNAL_ERROR:
+                    logger.warn(url + "**internal server error**");
+                    return null;
                 default:
                     logger.warn(url + " **{} : unknown response code**.", conn.getResponseCode());
                     break;
