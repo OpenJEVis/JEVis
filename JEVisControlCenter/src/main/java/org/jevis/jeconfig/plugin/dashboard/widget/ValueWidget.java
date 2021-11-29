@@ -341,6 +341,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
         Double result = value / reference * 100;
         if (!result.isNaN()) {
             if (result >= 0.01) {
+                ValueWidget.this.nfPercent.setMinimumFractionDigits(percent.getMinFracDigits());
+                ValueWidget.this.nfPercent.setMaximumFractionDigits(percent.getMaxFracDigits());
                 percentText = ValueWidget.this.nfPercent.format(result) + "%";
             } else {
                 percentText = " < 0.01 %";
@@ -410,9 +412,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
 
-        nfPercent.setMaximumFractionDigits(0);
-        nfPercent.setRoundingMode(RoundingMode.CEILING);
-
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));
         try {
             this.limit = new Limit(this.control, this.config.getConfigNode(LIMIT_NODE_NAME));
@@ -427,6 +426,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
         try {
             this.percent = new Percent(this.control, this.config.getConfigNode(PERCENT_NODE_NAME));
+            nfPercent.setMinimumFractionDigits(percent.getMinFracDigits());
+            nfPercent.setMaximumFractionDigits(percent.getMaxFracDigits());
+            nfPercent.setRoundingMode(RoundingMode.HALF_UP);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
