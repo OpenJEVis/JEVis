@@ -12,10 +12,7 @@ import org.eclipse.milo.opcua.stack.core.UaException;
 import org.jevis.api.*;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.DataSource;
-import org.jevis.commons.driver.DataSourceFactory;
 import org.jevis.commons.task.LogTaskManager;
-import org.jevis.jeopc.OPCClient;
 import org.joda.time.DateTime;
 import org.jevis.commons.task.Task;
 

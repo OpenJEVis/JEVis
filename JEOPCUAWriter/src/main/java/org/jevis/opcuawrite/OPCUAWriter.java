@@ -31,21 +31,32 @@ public class OPCUAWriter {
 
 
     private void writeToOPCUA(Double value, NodeId nodeId) throws UaException {
+        System.out.println("write");
+        System.out.println(value);
+        logger.info("Value :", value);
         DataValue dataValue = new DataValue(new Variant(value), null, null, null);
         opcClient.writeValue(dataValue, nodeId);
     }
 
     private void writeToOPCUA(Integer value, NodeId nodeId) throws UaException {
+        System.out.println("write");
+        System.out.println(value);
+        logger.info("Value :", value);
         DataValue dataValue = new DataValue(new Variant(value), null, null, null);
         opcClient.writeValue(dataValue, nodeId);
     }
 
     private void writeToOPCUA(String value, NodeId nodeId) throws UaException {
+        System.out.println("write");
+        System.out.println(value);
+        logger.info("Value :", value);
         DataValue dataValue = new DataValue(new Variant(value), null, null, null);
         opcClient.writeValue(dataValue, nodeId);
     }
 
     private void writeToOPCUA(Boolean value, NodeId nodeId) throws UaException {
+        System.out.println("write");
+        System.out.println(value);
         DataValue dataValue = new DataValue(new Variant(value), null, null, null);
         opcClient.writeValue(dataValue, nodeId);
     }
@@ -70,7 +81,7 @@ public class OPCUAWriter {
                         writeToOPCUA(dataObject.getAttribute(VALUE).getLatestSample().getValueAsDouble(), nodeId);
 
                     } else if (datatype.equals(Boolean.class.getName())) {
-                        writeToOPCUA(dataObject.getAttribute(VALUE).getLatestSample().getValueAsBoolean(), nodeId);
+                        writeToOPCUA(convertToBool(dataObject.getAttribute(VALUE).getLatestSample().getValueAsDouble()), nodeId);
 
                     } else if (datatype.equals(String.class.getName())) {
                         writeToOPCUA(dataObject.getAttribute(VALUE).getLatestSample().getValueAsString(), nodeId);
@@ -126,6 +137,16 @@ public class OPCUAWriter {
     public void disconnect() {
         logger.info("Disconnected from OPC-UA Server");
         opcClient.close();
+    }
+
+    public Boolean convertToBool(Double value) {
+        if (value == 1.0) {
+            return true;
+        } else if (value == 0.0) {
+            return false;
+        } else {
+            return null;
+        }
     }
 
 
