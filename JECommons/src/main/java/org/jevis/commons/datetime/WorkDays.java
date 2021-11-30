@@ -38,7 +38,7 @@ public class WorkDays {
         if (currentObject != null) {
             try {
                 siteClass = currentObject.getDataSource().getJEVisClass("Building");
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.fatal("Could not get JEVisClass for Building");
             }
         }

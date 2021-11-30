@@ -22,7 +22,6 @@ package org.jevis.commons.dataprocessing.function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.Process;
@@ -267,7 +266,7 @@ public class AggregatorFunction implements ProcessFunction {
             if (allSamples.size() > 0) {
                 try {
                     attribute = allSamples.get(0).getAttribute();
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Could not get Attribute: ", e);
                 }
             }
@@ -281,7 +280,7 @@ public class AggregatorFunction implements ProcessFunction {
                 if (allSamples.size() > 1) {
                     try {
                         oldPeriod = new Period(allSamples.get(0).getTimestamp(), allSamples.get(1).getTimestamp());
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         logger.error("Could not get old Period: ", e);
                     }
                 }
@@ -303,8 +302,8 @@ public class AggregatorFunction implements ProcessFunction {
                             lastPos = i;
                             break;
                         }
-                    } catch (JEVisException ex) {
-                        logger.fatal("JEVisException while going through sample: {}", ex.getMessage(), ex);
+                    } catch (Exception ex) {
+                        logger.fatal("Exception while going through sample: {}", ex.getMessage(), ex);
                     }
                 }
 
@@ -316,7 +315,7 @@ public class AggregatorFunction implements ProcessFunction {
                         sum += sample.getValueAsDouble();
                         hasSamples = true;
                         if (unit == null) unit = sample.getUnit();
-                    } catch (JEVisException ex) {
+                    } catch (Exception ex) {
                         logger.fatal(ex);
                     }
                 }
@@ -337,7 +336,7 @@ public class AggregatorFunction implements ProcessFunction {
                     if (oldPeriod != null && newPeriod != null) {
                         try {
                             resultSum.setNote("Aggregation(" + oldPeriod + "/" + newPeriod + ")");
-                        } catch (JEVisException e) {
+                        } catch (Exception e) {
                             logger.error("Could not set new Note to sample: ", e);
                         }
                     }

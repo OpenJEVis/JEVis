@@ -2,7 +2,6 @@ package org.jevis.commons.ws.sql.sg;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.function.AggregatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
@@ -60,7 +59,7 @@ public class JsonSampleGenerator {
             basicProcess.setJsonAttribute(attribute);
 
             input.setJsonObject(object);
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -137,7 +136,7 @@ public class JsonSampleGenerator {
                 try {
                     aggregationProcess.setJsonObject(ds.getObject(attribute.getObjectID()));
                     aggregationProcess.setJsonAttribute(attribute);
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 

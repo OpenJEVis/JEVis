@@ -469,7 +469,7 @@ public class CalcJobFactory {
         List<CalcInputObject> calcObjects = new ArrayList<>();
 
         try {
-            for (JEVisObject child : getCalcInputObjects(jevisObject)) { //Todo differenciate based on input type
+            for (JEVisObject child : getCalcInputObjects(jevisObject)) { //Todo differentiate based on input type
                 JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
@@ -483,7 +483,7 @@ public class CalcJobFactory {
                 logger.info("Got samples for id {}", calcInputObject.getIdentifier());
                 calcObjects.add(calcInputObject);
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.fatal(ex);
         }
         return calcObjects;
