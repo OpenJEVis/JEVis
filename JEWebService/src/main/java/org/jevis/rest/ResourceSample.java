@@ -274,12 +274,13 @@ public class ResourceSample {
             JsonObject obj = ds.getObject(id);
             if (obj == null) {
                 return Response.status(Status.NOT_FOUND)
-                        .entity("Object is not accessible").build();
+                        .entity("Object not found").build();
             }
 
             if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
                 if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                    throw new JEVisException("permission denied", 3022);
+                    return Response.status(Status.FORBIDDEN)
+                            .entity("Object is not accessible").build();
                 }
             } else {
                 ds.getUserManager().canRead(obj);

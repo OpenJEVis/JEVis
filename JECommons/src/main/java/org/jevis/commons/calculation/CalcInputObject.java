@@ -7,7 +7,10 @@ package org.jevis.commons.calculation;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -65,7 +68,7 @@ public class CalcInputObject {
         List<JEVisSample> returnSamples = new ArrayList<>();
         try {
             valueAttribute.getDataSource().reloadAttribute(valueAttribute);
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not reload attribute. ", e);
         }
 
@@ -83,7 +86,7 @@ public class CalcInputObject {
                     }
                 }
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -131,7 +134,7 @@ public class CalcInputObject {
                 }
 
                 returnSamples = new ArrayList<>(map.values());
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -145,7 +148,7 @@ public class CalcInputObject {
         List<JEVisSample> returnSamples = new ArrayList<>();
         try {
             valueAttribute.getDataSource().reloadAttribute(valueAttribute);
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not reload attribute. ", e);
         }
         switch (inputType) {
@@ -174,7 +177,7 @@ public class CalcInputObject {
         List<JEVisSample> returnSamples = new ArrayList<>();
         try {
             valueAttribute.getDataSource().reloadAttribute(valueAttribute);
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not reload attribute. ", e);
         }
         switch (inputType) {
@@ -199,7 +202,7 @@ public class CalcInputObject {
                         virtualSample.setNote("");
                         returnSamples.add(virtualSample);
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Could not generate samples: ", e);
                 }
                 break;

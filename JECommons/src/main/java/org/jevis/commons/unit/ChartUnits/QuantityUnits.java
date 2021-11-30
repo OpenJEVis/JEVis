@@ -2,7 +2,10 @@ package org.jevis.commons.unit.ChartUnits;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
@@ -230,7 +233,7 @@ public class QuantityUnits {
                             }
                         }
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error(e);
                 }
             }
@@ -243,7 +246,7 @@ public class QuantityUnits {
             JsonObject object = null;
             try {
                 object = sqlDataSource.getObject(attribute.getObjectID());
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             if (object != null) {
@@ -256,7 +259,7 @@ public class QuantityUnits {
                                 JsonObject parent = sqlDataSource.getObject(jsonRelationship.getTo());
                                 isQuantity = isQuantity(parent, isQuantity);
                                 break;
-                            } catch (JEVisException e) {
+                            } catch (Exception e) {
                                 logger.error("Could not get parent {} of object {}", jsonRelationship.getTo(), object.getId());
                             }
                         }
@@ -268,7 +271,7 @@ public class QuantityUnits {
                                 JsonObject child = sqlDataSource.getObject(jsonRelationship.getTo());
                                 isQuantity = isQuantity(child, isQuantity);
                                 break;
-                            } catch (JEVisException e) {
+                            } catch (Exception e) {
                                 logger.error("Could not get parent {} of object {}", jsonRelationship.getTo(), object.getId());
                             }
                         }

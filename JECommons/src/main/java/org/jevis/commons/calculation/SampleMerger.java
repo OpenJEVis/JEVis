@@ -13,7 +13,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author broder
@@ -28,7 +27,11 @@ public class SampleMerger {
     private final List<String> asyncVariables = new ArrayList<>();
 
     private void addPeriodic(List<JEVisSample> jevisSamples, String variable, CalcInputType calcInputType) {
-        List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable, calcInputType)).collect(Collectors.toList());
+        List<Sample> samples = new ArrayList<>();
+        for (JEVisSample currentSample : jevisSamples) {
+            Sample sample = new Sample(currentSample, variable, calcInputType);
+            samples.add(sample);
+        }
         allSamples.add(samples);
     }
 
@@ -38,7 +41,11 @@ public class SampleMerger {
     }
 
     private void addPeriodConstant(List<JEVisSample> jevisSamples, String variable, CalcInputType calcInputType) {
-        List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable, calcInputType)).collect(Collectors.toList());
+        List<Sample> samples = new ArrayList<>();
+        for (JEVisSample currentSample : jevisSamples) {
+            Sample sample = new Sample(currentSample, variable, calcInputType);
+            samples.add(sample);
+        }
         periodConstants.add(samples);
     }
 
