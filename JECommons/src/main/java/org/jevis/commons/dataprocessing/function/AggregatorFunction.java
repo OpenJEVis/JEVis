@@ -108,7 +108,7 @@ public class AggregatorFunction implements ProcessFunction {
                 //logger.info("add sample: " + samples.get(i));
                 samplesInPeriod.add(samples.get(i));
                 logger.debug("aggregate {} to interval {}-{} ", samples.get(i), intervalStart, intervalEnd);
-            } else if (sampleTS.isAfter(intervalEnd)) {
+            } else if (sampleTS.isAfter(intervalEnd) && i > 0) {
                 lastPos = i - 1;
                 break;
             }
