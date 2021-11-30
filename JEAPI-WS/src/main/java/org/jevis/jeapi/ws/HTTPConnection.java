@@ -178,7 +178,10 @@ public class HTTPConnection {
 
             switch (conn.getResponseCode()) {
                 case HttpURLConnection.HTTP_NOT_FOUND:
+                    logger.warn(url + "**not found**");
+                    return null;
                 case HttpURLConnection.HTTP_FORBIDDEN:
+                    logger.warn(url + "**forbidden**");
                     return null;
                 case HttpURLConnection.HTTP_OK:
                     if ("gzip".equals(conn.getContentEncoding())) {
@@ -189,15 +192,18 @@ public class HTTPConnection {
                 case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:
                     logger.warn(url + " **gateway timeout**");
                     break;
+                case HttpURLConnection.HTTP_CLIENT_TIMEOUT:
+                    logger.warn(url + " **client timeout**");
+                    break;
                 case HttpURLConnection.HTTP_UNAVAILABLE:
                     logger.warn(url + "**unavailable**");
                     break;
                 case HttpURLConnection.HTTP_INTERNAL_ERROR:
-                    logger.warn(url + "**internal server error**");
+                    logger.warn(url + "**internal server error** - " + conn.getInputStream());
                     return null;
                 default:
                     logger.warn(url + " **{} : unknown response code**.", conn.getResponseCode());
-                    break;
+                    return null;
             }
 
             conn.disconnect();
