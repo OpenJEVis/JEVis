@@ -9,22 +9,30 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.PathReferenceDescription;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class NodeTreeTable {
@@ -40,19 +48,37 @@ public class NodeTreeTable {
     private TreeItem<Node> currentTreeItem;
     private boolean rootSet = false;
     private final JFXButton createTrendObject = new JFXButton();
+    private final JFXButton selectTarget;
 
+    private JEVisObject targetDataObject;
+    private JEVisDataSource ds;
     private final ObservableList<Node> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
+    private StackPane dialogContainer;
+    private static final String LOYTEC_XML_DL_DIRECTORY = "Loytec XML-DL CEA709 Channel Directory";
+    private static final String DATA_DIRECTORY = "Data Directory";
+    private static final String LOYTEC_XML_DL_CHANNEL = "Loytec XML-DL Channel";
+    private static final String TREND_ID = "Trend ID";
+    private static final String TARGET_ID = "Target ID";
+    private static final String IMPORTED_FROM_OPC_UA = "Imported From OPC UA";
+
+
     private JEVisObject object;
     private final String opcUARootFolder;
 
 
-    public NodeTreeTable(OPCClient opcClient, JEVisObject object, String rootFolder) {
+    public NodeTreeTable(OPCClient opcClient, JEVisObject object, String opcUaRootFolder, StackPane dialogContainer) {
 
         this.opcClient = opcClient;
         this.object = object;
-        this.opcUARootFolder = rootFolder;
-
+        this.opcUARootFolder = opcUaRootFolder;
+        this.dialogContainer = dialogContainer;
+        selectTarget = buildTargetButton();
+        try {
+            ds = object.getDataSource();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
 
 
         TreeTableColumn<Node, String> nameCol = new TreeTableColumn<>("Name");
@@ -140,13 +166,16 @@ public class NodeTreeTable {
                 DateTime dateTime = DateTime.now();
 
 
-                JEVisClass dataClass = object.getDataSource().getJEVisClass("Loytec XML-DL CEA709 Channel Directory");
+                JEVisClass trendClass = object.getDataSource().getJEVisClass(LOYTEC_XML_DL_DIRECTORY);
+                JEVisClass dataClass = object.getDataSource().getJEVisClass(DATA_DIRECTORY);
 
-                JEVisObject newObj = object.buildObject("Imported From OPC UA", dataClass);
-                if (newObj.isAllowedUnder(object)) {
+                JEVisObject rootTrendObject = object.buildObject(IMPORTED_FROM_OPC_UA, trendClass);
+                JEVisObject rootDataObject = targetDataObject.buildObject(IMPORTED_FROM_OPC_UA, dataClass);
+                if (rootTrendObject.isAllowedUnder(object)&& rootDataObject.isAllowedUnder(targetDataObject)) {
 
-                    newObj.commit();
-                    createTrendTree(rootTreeItem, newObj, dateTime);
+                    rootTrendObject.commit();
+                    rootDataObject.commit();
+                    createTrendDataTree(rootTreeItem, rootTrendObject, dateTime, rootDataObject);
                 }
 
             } catch (JEVisException e) {
@@ -156,7 +185,7 @@ public class NodeTreeTable {
 
         });
 
-        view.getChildren().add(createTrendObject);
+        view.getChildren().addAll(createTrendObject,selectTarget);
         GridPane.setFillWidth(treeTableView, true);
         GridPane.setFillHeight(treeTableView, true);
 
@@ -171,10 +200,10 @@ public class NodeTreeTable {
                             c.getAddedSubList().forEach(o -> {
                                 System.out.println("New Des: " + o.getPath() + "  -> " + o.getReferenceDescription().getBrowseName().getName());
                                 PathReferenceDescription x = o;
-                                if (o.getReferenceDescription().getBrowseName().getName().equals(rootFolder)) {
+                                if (o.getReferenceDescription().getBrowseName().getName().equals(opcUaRootFolder)) {
                                     currentTreeItem = setRoot(new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue()));
                                 } else if (rootSet == true) {
-                                    currentTreeItem = createChildren(currentTreeItem, new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue()));
+                                    currentTreeItem = createOPCUAChildren(currentTreeItem, new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue()));
                                     System.out.println(rootTreeItem.getChildren());
                                 }
 
@@ -191,7 +220,7 @@ public class NodeTreeTable {
                 @Override
                 protected Object call() throws Exception {
                     try {
-                        opcClient.browse(list, rootFolder);
+                        opcClient.browse(list, opcUaRootFolder);
                         list.forEach(System.out::println);
 
                         super.done();
@@ -236,20 +265,20 @@ public class NodeTreeTable {
     }
 
 
-    private TreeItem<Node> createChildren(TreeItem<Node> parent, Node node) {
+    private TreeItem<Node> createOPCUAChildren(TreeItem<Node> parent, Node node) {
 
         if ((parent.getValue().pathProperty.get() + "/" + parent.getValue().descriptionProperty.get().getBrowseName().getName()).equals(node.pathProperty.get())) {
             TreeItem<Node> treeItem = new TreeItem<>(node);
             parent.getChildren().add(treeItem);
             return treeItem;
         } else if (parent.getValue().pathProperty.get().contains(rootTreeItem.getValue().pathProperty.get())) {
-            return createChildren(parent.getParent(), node);
+            return createOPCUAChildren(parent.getParent(), node);
         } else {
             return parent;
         }
     }
 
-    private void createTrendTree(TreeItem<Node> node, JEVisObject object, DateTime dateTime) throws JEVisException {
+    private void createTrendDataTree(TreeItem<Node> node, JEVisObject trendObject, DateTime dateTime, JEVisObject dataObject) throws JEVisException {
 
         System.out.println(node.getValue().descriptionProperty.get().getBrowseName().getName());
 
@@ -258,19 +287,29 @@ public class NodeTreeTable {
 
             if (node.getChildren().get(0).getValue().descriptionProperty.getValue().getNodeClass().getValue() == 1) {
                 if (node.getValue().isSelected()) {
-                    object = createJEVisObject(node, object, "Loytec XML-DL CEA709 Channel Directory");
+                    trendObject = createJEVisObject(node, trendObject, LOYTEC_XML_DL_DIRECTORY);
+                    dataObject = createJEVisObject(node, dataObject, DATA_DIRECTORY);
 
                 }
             } else if (node.getChildren().get(0).getValue().descriptionProperty.getValue().getNodeClass().getValue() == 2) {
                 System.out.println("2");
                 if (node.getValue().isSelected()) {
-                    object = createJEVisObject(node, object, "Loytec XML-DL Channel");
+                    trendObject = createJEVisObject(node, trendObject, LOYTEC_XML_DL_CHANNEL);
+                    dataObject = createJEVisObject(node, dataObject, "Data");
+                    JEVisAttribute jeVisAttributeTarget = trendObject.getAttribute(TARGET_ID);
+                  jeVisAttributeTarget.buildSample(dateTime,dataObject.getID()+":Value").commit();
+
+
+
                     if (node.getChildren().stream().filter(nodeTreeItem -> nodeTreeItem.getValue().descriptionProperty.get().getBrowseName().getName().equals("CsvFile")).map(nodeTreeItem -> nodeTreeItem.getValue()).count() > 0) {
                         Node csvNode = node.getChildren().stream().filter(nodeTreeItem -> nodeTreeItem.getValue().descriptionProperty.get().getBrowseName().getName().equals("CsvFile")).map(nodeTreeItem -> nodeTreeItem.getValue()).findFirst().get();
 
-                        if (object.getAttribute("Trend ID") != null) {
-                            JEVisAttribute jeVisAttribute = object.getAttribute("Trend ID");
-                            JEVisSample jeVisSample = jeVisAttribute.buildSample(dateTime, csvNode.readData().split("/")[csvNode.readData().split("/").length - 1].replace(".csv", ""));
+                        if (trendObject.getAttribute(TREND_ID) != null) {
+                            JEVisAttribute jeVisAttribute = trendObject.getAttribute(TREND_ID);
+                            System.out.println(csvNode.readData());
+                            String csvString = csvNode.readData().split("/")[csvNode.readData().split("/").length - 1].substring(0, 4);
+
+                            JEVisSample jeVisSample = jeVisAttribute.buildSample(dateTime, csvString);
                             jeVisSample.commit();
                         }
                     }
@@ -281,7 +320,7 @@ public class NodeTreeTable {
 
 
             for (TreeItem<Node> nodeChild : node.getChildren()) {
-                createTrendTree(nodeChild, object, dateTime);
+                createTrendDataTree(nodeChild, trendObject, dateTime, dataObject);
             }
         }
 
@@ -311,6 +350,59 @@ public class NodeTreeTable {
         }
 
 
+    }
+
+    private JFXButton buildTargetButton() {
+        final JFXButton button = new JFXButton(I18n.getInstance().getString("csv.import_target"));//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
+        button.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+
+                List<JEVisTreeFilter> allFilter = new ArrayList<>();
+                JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllObjects();
+
+
+                SelectTargetDialog selectionDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, ds, new ArrayList<UserSelection>());
+                //selectionDialog.show();
+                selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
+
+                selectionDialog.setOnDialogClosed(event -> {
+                    if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                        logger.trace("Selection Done");
+                        for (UserSelection us : selectionDialog.getUserSelection()) {
+                            try {
+                                String buttonText = "";
+                                if (us.getSelectedObject() != null) {
+                                    logger.trace("us: {}", us.getSelectedObject().getID());
+                                    buttonText += us.getSelectedObject().getName();
+                                    targetDataObject = us.getSelectedObject();
+                                }
+//                                if (us.getSelectedAttribute() != null) {
+//                                    logger.trace("att: {}", us.getSelectedAttribute().getName());
+//                                    target = us.getSelectedObject();
+//                                    buttonText += "." + target.getName();
+//                                }
+
+                                button.setText(buttonText);
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle(I18n.getInstance().getString("csv.target.error.title"));
+                                alert.setHeaderText(I18n.getInstance().getString("csv.target.error.message"));
+                                alert.setContentText(ex.getMessage());
+
+                                alert.showAndWait();
+                            }
+                        }
+                    }
+                });
+                selectionDialog.show();
+            }
+        });
+
+        return button;
     }
 
 

@@ -40,9 +40,14 @@ public class Node {
 
     }
     public String readData(){
-        if (descriptionProperty.get().getNodeClass().getValue() == 2) {
-            return dataValue.getValue().toString().split("=")[1].substring(0,dataValue.getValue().toString().split("=")[1].length()-1);
-        }else{
+        try {
+            if (descriptionProperty.get().getNodeClass().getValue() == 2) {
+                return dataValue.getValue().toString().split("=")[1].substring(0, dataValue.getValue().toString().split("=")[1].length() - 1);
+            } else {
+                return "";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             return "";
         }
     }

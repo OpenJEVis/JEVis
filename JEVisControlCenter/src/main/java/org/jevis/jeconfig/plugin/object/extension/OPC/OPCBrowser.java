@@ -3,6 +3,8 @@ package org.jevis.jeconfig.plugin.object.extension.OPC;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
@@ -12,16 +14,23 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.driver.DataSource;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
+import org.jevis.jeconfig.csv.CSVColumnHeader;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.OPCUAServer;
@@ -32,22 +41,40 @@ import java.util.concurrent.ExecutionException;
 
 public class OPCBrowser {
 
-    private JEVisObject opcServerObj = null;
+    private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
+
+
     private OPCClient opcClient;
+    public final JEVisObject opcServerObj;
+
     JFXTextField port = new JFXTextField();
     JFXButton connect = new JFXButton();
+
+    StackPane dialogContainer = new StackPane();
+
     JFXComboBox<String> rootFolder = new JFXComboBox();
-    private List<UserSelection> userSelections = new ArrayList<>();
-    JFXButton button = new JFXButton();
+
+
+    private JEVisDataSource ds;
 
     private EndpointDescription endpointDescription;
 
-    public OPCBrowser(JEVisObject server) {
 
 
 
 
-        this.opcServerObj = server;
+
+
+    public OPCBrowser(JEVisObject opcServerObj) {
+
+        this.opcServerObj = opcServerObj;
+        try {
+            ds = opcServerObj.getDataSource();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+
         final Stage stage = new Stage();
 
 
@@ -55,11 +82,11 @@ public class OPCBrowser {
         stage.initModality(Modality.NONE);
         stage.initOwner(JEConfig.getStage());
 
-        StackPane stackPane = new StackPane();
+        //StackPane stackPane = new StackPane();
         VBox vBox = new VBox();
-        stackPane.getChildren().add(vBox);
+        dialogContainer.getChildren().add(vBox);
 
-        Scene scene = new Scene(stackPane);
+        Scene scene = new Scene(dialogContainer);
         TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
         //TODo better be dynamic
@@ -72,55 +99,8 @@ public class OPCBrowser {
 
 
 
-
-
-        button.setOnAction(event -> {
-            try {
-                List<JEVisTreeFilter> allFilter = new ArrayList<>();
-                JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllObjects();
-                JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
-                allFilter.add(allDataFilter);
-                allFilter.add(allAttributesFilter);
-
-
-                SelectTargetDialog selectTargetDialog = new SelectTargetDialog(stackPane, allFilter, allDataFilter, null, SelectionMode.SINGLE, opcServerObj.getDataSource(), userSelections);
-                selectTargetDialog.show();
-                selectTargetDialog.setOnDialogClosed(event1 -> {
-                    System.out.println(selectTargetDialog.getResponse());
-
-                    if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
-                        System.out.println(selectTargetDialog.getUserSelection().get(0).getSelectedObject().getID());
-                    } else if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.CANCEL) {
-
-                    }
-
-
-
-                });
-
-
-
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-
-
-        });
-
-        //OPCUAServer opcuaServer = new OPCUAServer(opcServerObj);
-        //OPCClient opcClient = new OPCClient(opcuaServer.getURL());//"opc.tcp://10.1.2.128:4840");
         try {
 
-            /**
-             EndpointDescription endpointDescription = opcClient.autoSelectEndpoint();
-             opcClient.setEndpoints(endpointDescription);
-             opcClient.connect();
-             **/
-            //System.out.println("Connect");
-
-            //JFXComboBox<EndpointDescription> alignmentBox = new JFXComboBox<>();
-            //alignmentBox.setPrefWidth(1000);
-            //alignmentBox.setMinWidth(100);
 
             Callback<ListView<EndpointDescription>, ListCell<EndpointDescription>> cellFactory = new Callback<ListView<EndpointDescription>, ListCell<EndpointDescription>>() {
                 @Override
@@ -145,39 +125,11 @@ public class OPCBrowser {
                     return cell;
                 }
             };
-            //alignmentBox.setCellFactory(cellFactory);
-            //alignmentBox.setButtonCell(cellFactory.call(null));
-/*            alignmentBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-                //System.out.println("Select Endpoint: " + observable.toString().replace(",", "\n"));
-                try {
-                    UsernameProvider usernameProvider = new UsernameProvider(opcServerObj.getAttribute("User").getLatestSample().getValue().toString(), opcServerObj.getAttribute("Password").getLatestSample().getValue().toString());
-                    opcClient.setEndpoints(newValue);
 
-                    if (!opcServerObj.getAttribute("User").getLatestSample().getValue().toString().isEmpty() && !opcServerObj.getAttribute("Password").getLatestSample().getValue().toString().isEmpty()) {
-                        opcClient.setIdentification(usernameProvider);
-                    }
-
-
-
-                    opcClient.connect();
-
-
-                    NodeTreeTable nodeTable = new NodeTreeTable(opcClient,server,rootFolder.getValue());
-
-
-                    vBox.getChildren().add(nodeTable.getView());
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            });*/
-            //alignmentBox.getSelectionModel().selectFirst();
 
             FlowPane flowPane = new FlowPane();
 
 
-            //username.setPromptText("Username");
-            //password.setPromptText("Password");
 
             port.setPromptText("Port");
 
@@ -186,15 +138,15 @@ public class OPCBrowser {
             connect.setOnAction(event -> {
                 try {
                    ;
-                    OPCUAServer opcuaServer = new OPCUAServer(opcServerObj);
-                    opcClient = new OPCClient(opcuaServer.getURL().replace(opcServerObj.getAttribute("Port").getLatestSample().getValue().toString(),port.getText()));//"opc.tcp://10.1.2.128:4840");
+                    OPCUAServer opcuaServer = new OPCUAServer(this.opcServerObj);
+                    opcClient = new OPCClient(opcuaServer.getURL().replace(this.opcServerObj.getAttribute("Port").getLatestSample().getValue().toString(),port.getText()));//"opc.tcp://10.1.2.128:4840");
                     endpointDescription = opcClient.autoSelectEndpoint();
 
 
-                        UsernameProvider usernameProvider = new UsernameProvider(opcServerObj.getAttribute("User").getLatestSample().getValue().toString(), opcServerObj.getAttribute("Password").getLatestSample().getValue().toString());
+                        UsernameProvider usernameProvider = new UsernameProvider(this.opcServerObj.getAttribute("User").getLatestSample().getValue().toString(), this.opcServerObj.getAttribute("Password").getLatestSample().getValue().toString());
                         opcClient.setEndpoints(endpointDescription);
 
-                        if (!opcServerObj.getAttribute("User").getLatestSample().getValue().toString().isEmpty() && !opcServerObj.getAttribute("Password").getLatestSample().getValue().toString().isEmpty()) {
+                        if (!this.opcServerObj.getAttribute("User").getLatestSample().getValue().toString().isEmpty() && !this.opcServerObj.getAttribute("Password").getLatestSample().getValue().toString().isEmpty()) {
                             opcClient.setIdentification(usernameProvider);
                         }
 
@@ -203,7 +155,7 @@ public class OPCBrowser {
                         opcClient.connect();
 
 
-                        NodeTreeTable nodeTable = new NodeTreeTable(opcClient,server,rootFolder.getValue());
+                        NodeTreeTable nodeTable = new NodeTreeTable(opcClient,opcServerObj,rootFolder.getValue(),dialogContainer);
 
 
                         vBox.getChildren().add(nodeTable.getView());
@@ -228,19 +180,15 @@ public class OPCBrowser {
                     }
 
             );
-            button.setText("Root");
-            //flowPane.getChildren().addAll(alignmentBox, rootFolder, port, getEndpoints);
-            flowPane.getChildren().addAll(rootFolder, port, connect, button);
+            flowPane.getChildren().addAll(rootFolder, port, connect);
             vBox.getChildren().add(flowPane);
 
-            //vBox.setStyle("-fx-background-color:blue;");
-            //opcClient.close();
         } catch (Exception ex) {
             ex.printStackTrace();
-            //opcClient.close();
+
         }
 
-        //stage.sizeToScene();
+
         stage.showAndWait();
     }
 
@@ -270,4 +218,7 @@ public class OPCBrowser {
                 , product, endpoints, securtyMode, security, userTokens);
         return info;
     }
+
+
+
 }
