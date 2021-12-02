@@ -33,9 +33,11 @@ import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 public class CalculationExtension implements ObjectEditorExtension {
 
@@ -168,6 +170,12 @@ public class CalculationExtension implements ObjectEditorExtension {
                         final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "...");
 
                         StringProperty errorMsg = new SimpleStringProperty();
+                        logger.debug("Setting default timezone to UTC");
+                        TimeZone defaultTimeZone = TimeZone.getDefault();
+                        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+                        DateTimeZone defaultDateTimeZone = DateTimeZone.getDefault();
+                        DateTimeZone.setDefault(DateTimeZone.UTC);
+
                         Task<Void> set = new Task<Void>() {
                             @Override
                             protected Void call() {
@@ -221,11 +229,15 @@ public class CalculationExtension implements ObjectEditorExtension {
                                 return null;
                             }
                         };
-                        set.setOnSucceeded(event -> pForm.getDialogStage().close());
+                        set.setOnSucceeded(event -> {
+                            pForm.getDialogStage().close();
+                            restoreTimeZone(defaultTimeZone, defaultDateTimeZone);
+                        });
 
                         set.setOnCancelled(event -> {
                             logger.debug("Setting all multiplier and differential switches cancelled");
                             pForm.getDialogStage().hide();
+                            restoreTimeZone(defaultTimeZone, defaultDateTimeZone);
                         });
 
                         set.setOnFailed(event -> {
@@ -236,7 +248,7 @@ public class CalculationExtension implements ObjectEditorExtension {
                             error.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.title"));
                             TopMenu.applyActiveTheme(error.getDialogPane().getScene());
                             error.setContentText(errorMsg.get());
-
+                            restoreTimeZone(defaultTimeZone, defaultDateTimeZone);
                         });
 
                         pForm.activateProgressBar(set);
@@ -261,6 +273,12 @@ public class CalculationExtension implements ObjectEditorExtension {
         }
 
 
+    }
+
+    private void restoreTimeZone(TimeZone defaultTimeZone, DateTimeZone defaultDateTimeZone) {
+        logger.debug("Setting default timezone to old timezone {}", defaultTimeZone.getID());
+        TimeZone.setDefault(defaultTimeZone);
+        DateTimeZone.setDefault(defaultDateTimeZone);
     }
 
     @Override

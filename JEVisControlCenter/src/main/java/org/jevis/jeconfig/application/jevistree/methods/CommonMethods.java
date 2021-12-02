@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.jevistree.methods;
 
+import javafx.concurrent.Task;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumnBase;
 import javafx.scene.control.TableView;
@@ -13,8 +14,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,10 +26,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class CommonMethods {
     private static final Logger logger = LogManager.getLogger(CommonMethods.class);
+
+    public static final String RECALCULATION = "Recalculation";
+    public static final String WAIT_FOR_TIMEZONE = "Wait for TZ";
 
     public static JEVisFile createXLSXFile(String name, TableView tableView) throws IOException {
         if (name == null || name.equals("")) {
@@ -184,6 +194,27 @@ public class CommonMethods {
             }
         } catch (Exception e) {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
+        }
+    }
+
+    public static void checkForActiveRecalculation(TimeZone timeZone, DateTimeZone dateTimeZone) throws InterruptedException {
+        Thread.sleep(1000);
+        AtomicBoolean hasActiveCleaning = new AtomicBoolean(false);
+        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
+        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
+            String s = entry.getValue();
+            if (s.equals(RECALCULATION)) {
+                hasActiveCleaning.set(true);
+                break;
+            }
+        }
+        if (!hasActiveCleaning.get()) {
+            logger.debug("Setting default timezone to old default {}", timeZone.getID());
+            TimeZone.setDefault(timeZone);
+            DateTimeZone.setDefault(dateTimeZone);
+        } else {
+            Thread.sleep(1000);
+            checkForActiveRecalculation(timeZone, dateTimeZone);
         }
     }
 

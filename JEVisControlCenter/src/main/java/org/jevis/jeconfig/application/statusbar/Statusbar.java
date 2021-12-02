@@ -259,7 +259,7 @@ public class Statusbar extends ToolBar {
                     imageList.remove(task.toString());
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error(ex);
             }
         });
         Platform.runLater(() -> {
