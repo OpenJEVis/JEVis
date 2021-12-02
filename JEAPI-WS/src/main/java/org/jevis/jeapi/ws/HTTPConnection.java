@@ -190,8 +190,10 @@ public class HTTPConnection {
                         return conn.getInputStream();
                     }
                 case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:
-                case HttpURLConnection.HTTP_CLIENT_TIMEOUT:
                     logger.warn(url + " **gateway timeout**");
+                    break;
+                case HttpURLConnection.HTTP_CLIENT_TIMEOUT:
+                    logger.warn(url + " **client timeout**");
                     break;
                 case HttpURLConnection.HTTP_UNAVAILABLE:
                     logger.warn(url + "**unavailable**");
