@@ -134,7 +134,7 @@ public class AlarmHandler {
 
             initializeNotification();
 
-            logger.info("Initialized Notifictation. Sending...");
+            logger.info("Initialized Notification. Sending...");
 
             sendNotification(notificationObject, sb.toString());
 

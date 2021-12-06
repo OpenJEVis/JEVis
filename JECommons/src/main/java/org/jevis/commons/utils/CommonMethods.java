@@ -266,10 +266,10 @@ public class CommonMethods {
         return DateTime.now().minusHours(12);
     }
 
-    public static void processCleanData(JEVisObject cleanDataObject) throws Exception {
+    public static void processCleanData(JEVisObject cleanDataObject, DateTime from, DateTime to) throws Exception {
         cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
 
-        deleteAllSamples(cleanDataObject, false, true);
+        deleteAllSamples(cleanDataObject, from, to, false, true);
 
         ProcessManager processManager = new ProcessManager(
                 cleanDataObject,
@@ -281,11 +281,32 @@ public class CommonMethods {
         logger.info("cleaning done for: {}:{}", cleanDataObject.getName(), cleanDataObject.getID());
     }
 
-    public static void processAllCleanData(JEVisObject cleanDataObject) throws Exception {
+    public static void processAllCleanData(JEVisObject cleanDataObject, DateTime from, DateTime to) throws Exception {
+        processCleanData(cleanDataObject, from, to);
+
+        for (JEVisObject jeVisObject : cleanDataObject.getChildren()) {
+            processAllCleanData(jeVisObject, from, to);
+        }
+    }
+
+    public static void processCleanData(JEVisObject cleanDataObject) throws Exception {
+        cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
+
+        ProcessManager processManager = new ProcessManager(
+                cleanDataObject,
+                new ObjectHandler(cleanDataObject.getDataSource()), getProcessingSizeFromService(cleanDataObject.getDataSource(), "JEDataProcessor")
+        );
+        processManager.start();
+
+        cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
+        logger.info("cleaning done for: {}:{}", cleanDataObject.getName(), cleanDataObject.getID());
+    }
+
+    public static void processAllCleanDataNoDelete(JEVisObject cleanDataObject) throws Exception {
         processCleanData(cleanDataObject);
 
         for (JEVisObject jeVisObject : cleanDataObject.getChildren()) {
-            processAllCleanData(jeVisObject);
+            processAllCleanDataNoDelete(jeVisObject);
         }
     }
 

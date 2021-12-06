@@ -113,7 +113,7 @@ public class Calculations {
 
                     for (JEVisObject jeVisObject : targets) {
                         for (JEVisObject jeVisObject1 : jeVisObject.getChildren()) {
-                            org.jevis.commons.utils.CommonMethods.processAllCleanData(jeVisObject1);
+                            org.jevis.commons.utils.CommonMethods.processAllCleanData(jeVisObject1, null, null);
                         }
                     }
 

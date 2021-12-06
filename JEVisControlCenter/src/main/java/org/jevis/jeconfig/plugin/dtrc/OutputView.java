@@ -383,8 +383,10 @@ public class OutputView extends Tab {
 
         int column = 0;
         for (TemplateInput ungroupedInput : ungroupedInputs) {
-
-            Label label = new Label(ungroupedInput.getVariableName());
+            String variableName = ungroupedInput.getVariableName();
+            Label label = new Label(variableName);
+            label.setTooltip(new Tooltip(variableName));
+            label.setMinWidth(120);
             label.setAlignment(Pos.CENTER_LEFT);
 
             if (column == 6) {
@@ -410,7 +412,7 @@ public class OutputView extends Tab {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Could not get object {} for ungrouped input {}", ungroupedInput.getObjectID(), ungroupedInput.getVariableName());
+                    logger.error("Could not get object {} for ungrouped input {}", ungroupedInput.getObjectID(), variableName);
                 }
 
                 objectSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -440,11 +442,14 @@ public class OutputView extends Tab {
                 } else {
                     String objectClassString = ungroupedInput.getObjectClass();
                     JEVisClass jeVisClass = ds.getJEVisClass(objectClassString).getInheritance();
+                    String translatedClassName;
                     if (jeVisClass != null) {
-                        label.setText(I18nWS.getInstance().getClassName(jeVisClass.getName()));
+                        translatedClassName = I18nWS.getInstance().getClassName(jeVisClass.getName());
                     } else {
-                        label.setText(I18nWS.getInstance().getClassName(objectClassString));
+                        translatedClassName = I18nWS.getInstance().getClassName(objectClassString);
                     }
+                    label.setText(translatedClassName);
+                    label.setTooltip(new Tooltip(translatedClassName));
                     Region region = new Region();
                     region.setMinWidth(25);
                     Platform.runLater(() -> {
@@ -486,6 +491,8 @@ public class OutputView extends Tab {
                 e.printStackTrace();
             }
             Label label = new Label(className);
+            label.setTooltip(new Tooltip(className));
+            label.setMinWidth(120);
             label.setAlignment(Pos.CENTER_LEFT);
 
             JFXComboBox<JEVisObject> objectSelector = createObjectSelector(groupedInputs.get(0).getObjectClass(), groupedInputs.get(0).getFilter());
@@ -541,9 +548,13 @@ public class OutputView extends Tab {
                 region.setMinWidth(25);
                 try {
                     if (jeVisClass.getInheritance() != null) {
-                        label.setText(I18nWS.getInstance().getClassName(jeVisClass.getInheritance().getName()));
+                        String translatedClassName = I18nWS.getInstance().getClassName(jeVisClass.getInheritance().getName());
+                        label.setText(translatedClassName);
+                        label.setTooltip(new Tooltip(translatedClassName));
                     } else {
-                        label.setText(I18nWS.getInstance().getClassName(jeVisClass.getName()));
+                        String translatedClassName = I18nWS.getInstance().getClassName(jeVisClass.getName());
+                        label.setText(translatedClassName);
+                        label.setTooltip(new Tooltip(translatedClassName));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -1,6 +1,9 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXRadioButton;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,14 +12,9 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
@@ -35,6 +33,7 @@ import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewCon
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -165,9 +164,44 @@ public class CalculationExtension implements ObjectEditorExtension {
                 alert.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.question"));
                 TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
 
+                GridPane gp = new GridPane();
+                gp.setHgap(6);
+                gp.setVgap(6);
+                final ToggleGroup toggleGroup = new ToggleGroup();
+
+                JFXRadioButton allRadioButton = new JFXRadioButton(I18n.getInstance().getString("plugin.object.report.dialog.period.all"));
+                allRadioButton.setSelected(true);
+                allRadioButton.setToggleGroup(toggleGroup);
+
+                JFXRadioButton nowRadioButton = new JFXRadioButton(I18n.getInstance().getString("graph.datehelper.referencepoint.now"));
+                nowRadioButton.setToggleGroup(toggleGroup);
+
+                JFXRadioButton fromRadioButton = new JFXRadioButton(I18n.getInstance().getString("plugin.graph.dialog.export.from"));
+                fromRadioButton.setToggleGroup(toggleGroup);
+                JFXDatePicker fromDatePicker = new JFXDatePicker();
+                fromDatePicker.setPrefWidth(120d);
+                JFXTimePicker fromTimePicker = new JFXTimePicker();
+                fromTimePicker.setPrefWidth(100d);
+                fromTimePicker.setMaxWidth(100d);
+                fromTimePicker.set24HourView(true);
+                fromTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+                gp.add(allRadioButton, 0, 0);
+                gp.add(nowRadioButton, 1, 0);
+                gp.add(fromRadioButton, 2, 0);
+                gp.add(fromDatePicker, 3, 0);
+                gp.add(fromTimePicker, 4, 0);
+
+                alert.getDialogPane().setContent(gp);
+
                 alert.showAndWait().ifPresent(buttonType -> {
                     if (buttonType.equals(ButtonType.OK)) {
                         final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "...");
+                        boolean all = allRadioButton.isSelected();
+                        boolean now = nowRadioButton.isSelected();
+                        boolean from = fromRadioButton.isSelected();
+                        DateTime fromDate = new DateTime(fromDatePicker.getValue().getYear(), fromDatePicker.getValue().getMonthValue(), fromDatePicker.getValue().getDayOfMonth(),
+                                fromTimePicker.getValue().getHour(), fromTimePicker.getValue().getMinute(), fromTimePicker.getValue().getSecond(), 0);
 
                         StringProperty errorMsg = new SimpleStringProperty();
                         logger.debug("Setting default timezone to UTC");
@@ -196,7 +230,11 @@ public class CalculationExtension implements ObjectEditorExtension {
                                                 TargetHelper th = new TargetHelper(_obj.getDataSource(), attribute);
                                                 targets.addAll(th.getObject());
                                                 for (JEVisObject dataObject : th.getObject()) {
-                                                    CommonMethods.deleteAllSamples(dataObject, true, true);
+                                                    if (all) {
+                                                        CommonMethods.deleteAllSamples(dataObject, true, true);
+                                                    } else if (from) {
+                                                        CommonMethods.deleteAllSamples(dataObject, fromDate, null, true, true);
+                                                    }
                                                 }
                                             }
                                         } catch (Exception e) {
@@ -217,7 +255,13 @@ public class CalculationExtension implements ObjectEditorExtension {
 
                                     for (JEVisObject jeVisObject : targets) {
                                         for (JEVisObject jeVisObject1 : jeVisObject.getChildren()) {
-                                            CommonMethods.processAllCleanData(jeVisObject1);
+                                            if (all) {
+                                                CommonMethods.processAllCleanData(jeVisObject1, null, null);
+                                            } else if (from)
+                                                CommonMethods.processAllCleanData(jeVisObject1, fromDate, null);
+                                            else {
+                                                CommonMethods.processAllCleanDataNoDelete(jeVisObject1);
+                                            }
                                         }
                                     }
 
