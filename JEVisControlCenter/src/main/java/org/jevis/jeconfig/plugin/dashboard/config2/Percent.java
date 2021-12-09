@@ -34,8 +34,7 @@ public class Percent {
             try {
                 minFracDigits = jsonNode.get("minFracDigits").asInt(0);
                 maxFracDigits = jsonNode.get("maxFracDigits").asInt(0);
-            } catch (Exception e) {
-                logger.error("Error while reading json config for fraction digits", e);
+            } catch (Exception ignored) {
             }
         }
     }
