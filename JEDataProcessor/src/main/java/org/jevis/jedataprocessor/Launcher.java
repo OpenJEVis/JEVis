@@ -46,6 +46,7 @@ public class Launcher extends AbstractCliApp {
     public static void main(String[] args) {
 
         logger.info("-------Start JEDataProcessor-------");
+        System.setProperty("user.timezone", "UTC");
         Launcher app = new Launcher(args, APP_INFO);
         app.execute();
     }

@@ -87,25 +87,25 @@ public class ChartUnits {
         final JEVisUnit MWh = new JEVisUnitImp(_MWh);
         final JEVisUnit GWh = new JEVisUnitImp(_GWh);
 
-        final JEVisUnit va = new JEVisUnitImp(_one);
-        va.setLabel("va");
-        final JEVisUnit kva = new JEVisUnitImp(_one);
-        kva.setLabel("kva");
+        final Unit _va = SI.WATT.alternate("va");
+        final JEVisUnit va = new JEVisUnitImp(_va, "va", "NONE");
+        final Unit _kva = SI.KILO(_va);
+        final JEVisUnit kva = new JEVisUnitImp(_kva, "kva", "KILO");
 
-        final JEVisUnit var = new JEVisUnitImp(_one);
-        var.setLabel("var");
-        final JEVisUnit kvar = new JEVisUnitImp(_one);
-        kvar.setLabel("kvar");
+        final Unit _var = SI.WATT.alternate("var");
+        final JEVisUnit var = new JEVisUnitImp(_var, "var", "NONE");
+        final Unit _kvar = SI.KILO(_var);
+        final JEVisUnit kvar = new JEVisUnitImp(_kvar, "kvar", "KILO");
 
-        final JEVisUnit vah = new JEVisUnitImp(_one);
-        vah.setLabel("vah");
-        final JEVisUnit kvah = new JEVisUnitImp(_one);
-        kvah.setLabel("kvah");
+        final Unit _vah = SI.WATT.alternate("va").times(NonSI.HOUR);
+        final JEVisUnit vah = new JEVisUnitImp(_vah, "vah", "NONE");
+        final Unit _kvah = SI.KILO(_vah);
+        final JEVisUnit kvah = new JEVisUnitImp(_kvah, "kvah", "KILO");
 
-        final JEVisUnit varh = new JEVisUnitImp(_one);
-        varh.setLabel("varh");
-        final JEVisUnit kvarh = new JEVisUnitImp(_one);
-        kvarh.setLabel("kvarh");
+        final Unit _varh = SI.WATT.alternate("var").times(NonSI.HOUR);
+        final JEVisUnit varh = new JEVisUnitImp(_varh, "varh", "NONE");
+        final Unit _kvarh = SI.KILO(_varh);
+        final JEVisUnit kvarh = new JEVisUnitImp(_kvarh, "kvarh", "KILO");
 
         final JEVisUnit cal = new JEVisUnitImp(_one);
         cal.setLabel("cal");

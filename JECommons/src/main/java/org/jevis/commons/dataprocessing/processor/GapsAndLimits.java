@@ -210,20 +210,22 @@ public class GapsAndLimits {
         if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
             switch (gapFillingType) {
                 case MINIMUM:
-                    Double minValue = listSamples.get(0).getValueAsDouble();
+                    Double minValue = null;
                     for (JEVisSample sample : listSamples) {
-                        if (sample.getValueAsDouble() != null) {
+                        if (sample.getValueAsDouble() != null && minValue == null) {
+                            minValue = sample.getValueAsDouble();
+                        } else if (sample.getValueAsDouble() != null) {
                             minValue = Math.min(minValue, sample.getValueAsDouble());
                         }
                     }
                     return minValue;
                 case MAXIMUM:
-                    Double maxValue = listSamples.get(0).getValueAsDouble();
+                    Double maxValue = null;
                     for (JEVisSample sample : listSamples) {
-                        if (sample.getValueAsDouble() != null) {
-                            if (sample.getValueAsDouble() != null) {
-                                maxValue = Math.max(maxValue, sample.getValueAsDouble());
-                            }
+                        if (sample.getValueAsDouble() != null && maxValue == null) {
+                            maxValue = sample.getValueAsDouble();
+                        } else if (sample.getValueAsDouble() != null) {
+                            maxValue = Math.max(maxValue, sample.getValueAsDouble());
                         }
                     }
                     return maxValue;

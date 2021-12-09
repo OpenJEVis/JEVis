@@ -1,10 +1,11 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -15,6 +16,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.commons.validator.routines.LongValidator;
 import org.apache.logging.log4j.LogManager;
@@ -36,13 +38,16 @@ import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.tool.FavUnitList;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import javax.measure.quantity.Dimensionless;
 import java.text.NumberFormat;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 public class CleanDataExtension implements ObjectEditorExtension {
 
@@ -222,11 +227,41 @@ public class CleanDataExtension implements ObjectEditorExtension {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle(I18n.getInstance().getString("plugin.object.cleandata.reclean"));
             alert.setHeaderText(I18n.getInstance().getString("plugin.object.cleandata.reclean.question"));
+            GridPane gp = new GridPane();
+            gp.setHgap(6);
+            gp.setVgap(6);
+            final ToggleGroup toggleGroup = new ToggleGroup();
+
+            JFXRadioButton allRadioButton = new JFXRadioButton(I18n.getInstance().getString("plugin.object.report.dialog.period.all"));
+            allRadioButton.setSelected(true);
+            allRadioButton.setToggleGroup(toggleGroup);
+
+            JFXRadioButton nowRadioButton = new JFXRadioButton(I18n.getInstance().getString("graph.datehelper.referencepoint.now"));
+            nowRadioButton.setToggleGroup(toggleGroup);
+
+            JFXRadioButton fromRadioButton = new JFXRadioButton(I18n.getInstance().getString("plugin.graph.dialog.export.from"));
+            fromRadioButton.setToggleGroup(toggleGroup);
+            JFXDatePicker fromDatePicker = new JFXDatePicker();
+            fromDatePicker.setPrefWidth(120d);
+            JFXTimePicker fromTimePicker = new JFXTimePicker();
+            fromTimePicker.setPrefWidth(100d);
+            fromTimePicker.setMaxWidth(100d);
+            fromTimePicker.set24HourView(true);
+            fromTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+            gp.add(allRadioButton, 0, 0);
+            gp.add(nowRadioButton, 1, 0);
+            gp.add(fromRadioButton, 2, 0);
+            gp.add(fromDatePicker, 3, 0);
+            gp.add(fromTimePicker, 4, 0);
+
+            alert.getDialogPane().setContent(gp);
+
             Optional<ButtonType> option = alert.showAndWait();
             if (option.get() == null) {
             } else if (option.get() == ButtonType.OK) {
                 try {
-                    recleanCleanData(cleanDataObject.getCleanObject());
+                    recleanCleanData(allRadioButton, nowRadioButton, fromRadioButton, fromDatePicker, fromTimePicker, cleanDataObject.getCleanObject());
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -597,15 +632,33 @@ public class CleanDataExtension implements ObjectEditorExtension {
         view.setCenter(scrollPane);
     }
 
-    private void recleanCleanData(JEVisObject obj) {
+    private void recleanCleanData(JFXRadioButton allRadioButton, JFXRadioButton nowRadioButton, JFXRadioButton fromRadioButton, JFXDatePicker fromDatePicker, JFXTimePicker fromTimePicker, JEVisObject obj) {
 
         final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "[" + obj.getID() + "] " + obj.getName() + "  ...");
+        boolean all = allRadioButton.isSelected();
+        boolean now = nowRadioButton.isSelected();
+        boolean from = fromRadioButton.isSelected();
+        DateTime fromDate = new DateTime(fromDatePicker.getValue().getYear(), fromDatePicker.getValue().getMonthValue(), fromDatePicker.getValue().getDayOfMonth(),
+                fromTimePicker.getValue().getHour(), fromTimePicker.getValue().getMinute(), fromTimePicker.getValue().getSecond(), 0);
+
+        StringProperty errorMsg = new SimpleStringProperty();
+        logger.debug("Setting default timezone to UTC");
+        TimeZone defaultTimeZone = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        DateTimeZone defaultDateTimeZone = DateTimeZone.getDefault();
+        DateTimeZone.setDefault(DateTimeZone.UTC);
 
         Task<Void> set = new Task<Void>() {
             @Override
             protected Void call() {
                 try {
-                    CommonMethods.processCleanData(obj);
+                    if (all) {
+                        CommonMethods.processAllCleanData(obj, null, null);
+                    } else if (from) {
+                        CommonMethods.processAllCleanData(obj, fromDate, null);
+                    } else if (now) {
+                        CommonMethods.processAllCleanDataNoDelete(obj);
+                    }
                 } catch (Exception ex) {
                     logger.error(ex, ex);
                 }
@@ -617,7 +670,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             Platform.runLater(() -> pForm.getDialogStage().close());
             try {
                 for (JEVisObject childObj : obj.getChildren()) {
-                    recleanCleanData(childObj);
+                    recleanCleanData(allRadioButton, nowRadioButton, fromRadioButton, fromDatePicker, fromTimePicker, childObj);
                 }
             } catch (Exception ex) {
                 logger.error(ex);
@@ -637,6 +690,25 @@ public class CleanDataExtension implements ObjectEditorExtension {
         pForm.getDialogStage().show();
 
         JEConfig.getStatusBar().addTask(CleanDataExtension.class.getName(), set, JEConfig.getImage("1476369770_Sync.png"), true);
+
+        Task<Void> waitTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                try {
+                    org.jevis.jeconfig.application.jevistree.methods.CommonMethods.checkForActiveRecalculation(defaultTimeZone, defaultDateTimeZone);
+                } catch (Exception e) {
+                    failed();
+                } finally {
+                    succeeded();
+                }
+
+                return null;
+            }
+        };
+
+        if (!JEConfig.getStatusBar().getTaskList().containsValue(org.jevis.jeconfig.application.jevistree.methods.CommonMethods.WAIT_FOR_TIMEZONE)) {
+            JEConfig.getStatusBar().addTask(org.jevis.jeconfig.application.jevistree.methods.CommonMethods.WAIT_FOR_TIMEZONE, waitTask, JEConfig.getImage("1476369770_Sync.png"), true);
+        }
 
     }
 
