@@ -50,7 +50,41 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.57------\n" +
+            "------Version 3.9.58------\n" +
+                    "JEVisCore - updated log4j version to address critical zero-day log4jshell issue\n" +
+                    "\n" +
+                    "JECC - AccountingPlugin - set min size for auto generated variable name labels\n" +
+                    "JECC - ChartPlugin - If reactive power (kvar) is displayed, there is no sum of reactive work (kvarh)\n" +
+                    "JECC - ChartPlugin - XYChart - start timestamp of analsysis timeframe on X-axis is not correct\n" +
+                    "JECC - ChildrenEditorExtension - added date selection\n" +
+                    "JECC - ChildrenEditorExtension - added export visible columns to xlsx function\n" +
+                    "JECC - ChildrenEditorExtension - added menu to show/hide columns\n" +
+                    "JECC - ChildrenEditorExtension - added sample count for value attributes\n" +
+                    "JECC - ChildrenEditorExtension - added sample editor on double click\n" +
+                    "JECC - ChildrenEditorExtension - added translations\n" +
+                    "JECC - ChildrenEditorExtension - changed name\n" +
+                    "JECC - ChildrenEditorExtension - fixed invalid attributes for parents\n" +
+                    "JECC - ChildrenEditorExtension - sample editor is now loading selected time frame\n" +
+                    "JECC - DashboardPlugin - ValueWidget - allow fraction digits configuration for percentage values\n" +
+                    "JECC - DashboardPlugin - ValueWidget - changed rounding method to half-up\n" +
+                    "JECC - DashboardPlugin - fixed null pointer for old percent configuration\n" +
+                    "JECC - ObjectPlugin - added alarm wizard\n" +
+                    "JECC - ObjectPlugin - added time range to delete calculation/clean data functions (only single mode yet)\n" +
+                    "\n" +
+                    "JEAPI-WS - HTTPConnection - improved return message \n" +
+                    "JEAlarm - AlarmProcess - improved null pointer handling for async data\n" +
+                    "JEAlarm - AlarmProcess - now supports only l2 step configurations\n" +
+                    "\n" +
+                    "JECommons - AbstractCliApp - fixed null pointer on cancel job for not-dataserver object\n" +
+                    "JECommons - AggregatorFunction - fixed index out of bounds exception\n" +
+                    "JECommons - Calculations - improved exception handling\n" +
+                    "JECommons - GapsAndLimits - fixed super rare null pointer for replacement value generation\n" +
+                    "\n" +
+                    "JEDataProcessor - AggregationAlignmentStep - fixed upscaling on first value\n" +
+                    "JEDataProcessor - set default timezone to utc to circumvent timezone shifting problems\n" +
+                    "\n" +
+                    "JEStatus - ServiceStatus - added column for average service cycle runtime\n\n" +
+                    "------Version 3.9.57------\n" +
                     "JECC - ChartPlugin - Automatic \"Math.\" detection\n" +
                     "JECC - ChartPlugin - advanced setting for changing min/max fraction digits for each chart\n" +
                     "JECC - Dashboard - Added additional error handling\n" +
