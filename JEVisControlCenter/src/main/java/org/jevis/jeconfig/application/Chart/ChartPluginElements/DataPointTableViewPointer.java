@@ -254,7 +254,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
                 Note formattedNote = new Note(sample, noteMap.get(sample.getTimestamp()), alarmMap.get(sample.getTimestamp()));
 
-                if (workDays != null && period != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())
+                if (workDays != null && period != null && workDays.getWorkdayEnd(dateTime).isBefore(workDays.getWorkdayStart(dateTime))
                         && (period.getDays() > 0
                         || period.getWeeks() > 0
                         || period.getMonths() > 0

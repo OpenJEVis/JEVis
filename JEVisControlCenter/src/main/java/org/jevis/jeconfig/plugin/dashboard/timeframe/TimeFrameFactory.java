@@ -149,8 +149,7 @@ public class TimeFrameFactory {
                 dateHelper.setCustomPeriodObject(cpo);
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
                 if (wd != null) {
-                    dateHelper.setStartTime(wd.getWorkdayStart());
-                    dateHelper.setEndTime(wd.getWorkdayEnd());
+                    dateHelper.setWorkDays(wd);
                 }
 
                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
@@ -308,7 +307,7 @@ public class TimeFrameFactory {
 
     private Interval removeWorkdayInterval(Interval interval) {
 
-        if (wd != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
+        if (wd != null && wd.getWorkdayEnd(interval.getStart()).isBefore(wd.getWorkdayStart(interval.getStart()))) {
             try {
                 if (interval.toDurationMillis() > 86400000) {
                     interval = new Interval(interval.getStart().plusDays(1), interval.getEnd());
@@ -387,9 +386,9 @@ public class TimeFrameFactory {
 
     private Interval applyWorkDay(DateTime start, DateTime end) {
         if (wd != null) {
-            start = start.withHourOfDay(wd.getWorkdayStart().getHour()).withMinuteOfHour(wd.getWorkdayStart().getMinute()).withSecondOfMinute(wd.getWorkdayStart().getSecond());
-            end = end.withHourOfDay(wd.getWorkdayEnd().getHour()).withMinuteOfHour(wd.getWorkdayEnd().getMinute()).withSecondOfMinute(wd.getWorkdayEnd().getSecond());
-            if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
+            start = start.withHourOfDay(wd.getWorkdayStart(start).getHour()).withMinuteOfHour(wd.getWorkdayStart(start).getMinute()).withSecondOfMinute(wd.getWorkdayStart(start).getSecond());
+            end = end.withHourOfDay(wd.getWorkdayEnd(start).getHour()).withMinuteOfHour(wd.getWorkdayEnd(start).getMinute()).withSecondOfMinute(wd.getWorkdayEnd(start).getSecond());
+            if (wd.getWorkdayEnd(start).isBefore(wd.getWorkdayStart(start))) {
                 start = start.minusDays(1);
             }
         }

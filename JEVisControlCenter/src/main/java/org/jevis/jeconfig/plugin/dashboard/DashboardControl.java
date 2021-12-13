@@ -564,7 +564,7 @@ public class DashboardControl {
         logger.error("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
         this.activeTimeFrame = activeTimeFrame;
         DateTime start = activeInterval.getStart();
-        if (wd != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart()) && activeInterval.toDuration().getStandardDays() > 1) {
+        if (wd != null && wd.getWorkdayEnd(new DateTime()).isBefore(wd.getWorkdayStart(new DateTime())) && activeInterval.toDuration().getStandardDays() > 1) {
             start = start.plusDays(1);
         }
 

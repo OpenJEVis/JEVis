@@ -645,7 +645,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                             Period finalP = p;
                             Platform.runLater(() -> {
                                 DateTime finalLastTS = lastTS;
-                                if (workDays.isCustomWorkDay() && workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd()) && PeriodHelper.isGreaterThenDays(finalP)) {
+                                if (workDays.isCustomWorkDay() && workDays.getWorkdayStart(finalLastTS).isAfter(workDays.getWorkdayEnd(finalLastTS)) && PeriodHelper.isGreaterThenDays(finalP)) {
                                     finalLastTS = finalLastTS.plusDays(1);
                                 }
                                 String normalPattern = PeriodHelper.getFormatString(finalP, isConversionToDifferential.get());

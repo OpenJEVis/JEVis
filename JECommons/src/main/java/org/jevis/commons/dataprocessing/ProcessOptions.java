@@ -168,7 +168,8 @@ public class ProcessOptions {
         }
 
         WorkDays wd = task.getJsonSampleGenerator().getWorkDays();
-        if (result[0] != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) result[0] = result[0].minusDays(1);
+        if (result[0] != null && wd.getWorkdayEnd(result[0]).isBefore(wd.getWorkdayStart(result[0])))
+            result[0] = result[0].minusDays(1);
 
         Period period = Period.ZERO;
         for (ProcessOption option : task.getOptions()) {
@@ -519,6 +520,6 @@ public class ProcessOptions {
         WorkDays workDays = new WorkDays(task.getSqlDataSource(), task.getJsonObject());
         workDays.setEnabled(isCustomWorkDay);
 
-        return workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart());
+        return workDays.getWorkdayEnd(new DateTime()).isBefore(workDays.getWorkdayStart(new DateTime()));
     }
 }
