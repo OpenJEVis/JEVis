@@ -13,7 +13,6 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.datetime.DateHelper;
-import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -128,7 +127,6 @@ public class PickerCombo {
         }
 
     }
-
 
 
     public void addListener() {
@@ -349,101 +347,6 @@ public class PickerCombo {
         }
 
     }
-
-    private void applySelectedDatePresetToDataModel(TimeFrame newValue) {
-        JEVisObject forCustomTime = analysisDataModel.getCurrentAnalysis();
-        if (forCustomTime != null) {
-            WorkDays wd = new WorkDays(analysisDataModel.getCurrentAnalysis());
-            wd.setEnabled(analysisDataModel.isCustomWorkDay());
-            if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
-                dateHelper.setStartTime(wd.getWorkdayStart());
-                dateHelper.setEndTime(wd.getWorkdayEnd());
-            }
-        } else if (!analysisDataModel.getObservableListAnalyses().isEmpty()) {
-            WorkDays wd = new WorkDays(analysisDataModel.getObservableListAnalyses().get(0));
-            wd.setEnabled(analysisDataModel.isCustomWorkDay());
-            if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
-                dateHelper.setStartTime(wd.getWorkdayStart());
-                dateHelper.setEndTime(wd.getWorkdayEnd());
-            }
-        }
-
-
-//        if (newValue != TimeFrame.PREVIEW) {
-//            if (chartDataModels == null) {
-//                graphDataModel.isGlobalAnalysisTimeFrame(true);
-//                graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
-//            } else {
-//                dateHelper.setMinMaxForDateHelper(chartDataModels);
-//                graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, dateHelper, new AnalysisTimeFrame(newValue));
-//            }
-//        }
-
-        switch (newValue) {
-            //Custom
-            case CUSTOM:
-                break;
-            //current
-            case CURRENT:
-                dateHelper.setType(DateHelper.TransformType.CURRENT);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            //today
-            case TODAY:
-                dateHelper.setType(DateHelper.TransformType.TODAY);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            //yesterday
-            case YESTERDAY:
-                dateHelper.setType(DateHelper.TransformType.YESTERDAY);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            //last 7 days
-            case LAST_7_DAYS:
-                dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            //this Week
-            case THIS_WEEK:
-                dateHelper.setType(DateHelper.TransformType.THISWEEK);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            //last Week
-            case LAST_WEEK:
-                dateHelper.setType(DateHelper.TransformType.LASTWEEK);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            //last 30 days
-            case LAST_30_DAYS:
-                dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            case THIS_MONTH:
-                //last Month
-                dateHelper.setType(DateHelper.TransformType.THISMONTH);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            case LAST_MONTH:
-                //last Month
-                dateHelper.setType(DateHelper.TransformType.LASTMONTH);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            case THIS_YEAR:
-                //this Year
-                dateHelper.setType(DateHelper.TransformType.THISYEAR);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            case LAST_YEAR:
-                //last Year
-                dateHelper.setType(DateHelper.TransformType.LASTYEAR);
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            case CUSTOM_START_END:
-            default:
-                break;
-        }
-    }
-
 
     public void setPicker(DateTime start, DateTime end) {
 

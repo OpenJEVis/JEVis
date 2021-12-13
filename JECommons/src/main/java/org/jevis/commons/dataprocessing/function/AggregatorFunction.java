@@ -38,6 +38,7 @@ import org.joda.time.DateTimeComparator;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -173,15 +174,17 @@ public class AggregatorFunction implements ProcessFunction {
             }
 
             if (isCustomWorkDay && newPeriod != null && PeriodHelper.isGreaterThenDays(newPeriod)) {
-                intervalStart = intervalStart.withHourOfDay(wd.getWorkdayStart().getHour())
-                        .withMinuteOfHour(wd.getWorkdayStart().getMinute())
-                        .withSecondOfMinute(wd.getWorkdayStart().getSecond());
+                LocalTime workdayStart = wd.getWorkdayStart(intervalStart);
+                intervalStart = intervalStart.withHourOfDay(workdayStart.getHour())
+                        .withMinuteOfHour(workdayStart.getMinute())
+                        .withSecondOfMinute(workdayStart.getSecond());
 
-                intervalEnd = intervalEnd.withHourOfDay(wd.getWorkdayEnd().getHour())
-                        .withMinuteOfHour(wd.getWorkdayEnd().getMinute())
-                        .withSecondOfMinute(wd.getWorkdayEnd().getSecond());
+                LocalTime workdayEnd = wd.getWorkdayEnd(intervalStart);
+                intervalEnd = intervalEnd.withHourOfDay(workdayEnd.getHour())
+                        .withMinuteOfHour(workdayEnd.getMinute())
+                        .withSecondOfMinute(workdayEnd.getSecond());
 
-                if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
+                if (workdayEnd.isBefore(workdayStart)) {
                     intervalStart = intervalStart.minusDays(1);
                     intervalEnd = intervalEnd.minusDays(1).plusSeconds(1);
                 }
@@ -368,15 +371,17 @@ public class AggregatorFunction implements ProcessFunction {
                 }
 
                 if (isCustomWorkDay && newPeriod != null && PeriodHelper.isGreaterThenDays(newPeriod)) {
-                    intervalStart = intervalStart.withHourOfDay(wd.getWorkdayStart().getHour())
-                            .withMinuteOfHour(wd.getWorkdayStart().getMinute())
-                            .withSecondOfMinute(wd.getWorkdayStart().getSecond());
+                    LocalTime workdayStart = wd.getWorkdayStart(intervalStart);
+                    intervalStart = intervalStart.withHourOfDay(workdayStart.getHour())
+                            .withMinuteOfHour(workdayStart.getMinute())
+                            .withSecondOfMinute(workdayStart.getSecond());
 
-                    intervalEnd = intervalEnd.withHourOfDay(wd.getWorkdayEnd().getHour())
-                            .withMinuteOfHour(wd.getWorkdayEnd().getMinute())
-                            .withSecondOfMinute(wd.getWorkdayEnd().getSecond());
+                    LocalTime workdayEnd = wd.getWorkdayEnd(intervalStart);
+                    intervalEnd = intervalEnd.withHourOfDay(workdayEnd.getHour())
+                            .withMinuteOfHour(workdayEnd.getMinute())
+                            .withSecondOfMinute(workdayEnd.getSecond());
 
-                    if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) intervalStart = intervalStart.minusDays(1);
+                    if (workdayEnd.isBefore(workdayStart)) intervalStart = intervalStart.minusDays(1);
                 }
 
                 JsonAttribute jsonAttribute = mainTask.getJsonAttribute();

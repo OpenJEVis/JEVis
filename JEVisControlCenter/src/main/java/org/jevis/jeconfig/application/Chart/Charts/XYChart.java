@@ -899,7 +899,7 @@ public class XYChart implements Chart {
         DateTime end = lastTS;
         try {
             AggregationPeriod aggregationPeriod = chartDataRows.stream().findFirst().map(ChartDataRow::getAggregationPeriod).orElse(AggregationPeriod.NONE);
-            if (analysisDataModel.isCustomWorkDay() && workDays != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart()) && new Interval(start, end).toDuration().getStandardDays() > 5) {
+            if (analysisDataModel.isCustomWorkDay() && workDays != null && workDays.getWorkdayEnd(start).isBefore(workDays.getWorkdayStart(start)) && new Interval(start, end).toDuration().getStandardDays() > 5) {
                 switch (aggregationPeriod) {
                     case NONE:
                     case MINUTELY:
@@ -931,18 +931,6 @@ public class XYChart implements Chart {
                 dtfOutLegend.print(end));
 
         Platform.runLater(() -> dateAxis.setUnit(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall));
-    }
-
-    private Period removeWorkdayInterval(DateTime workStart, DateTime workEnd) {
-//        System.out.println("workStart.before÷ " + workStart + "|" + workEnd);
-        if (workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd())) {
-            workStart = workStart.plusDays(1);
-        }
-
-        workStart = workStart.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-        DateTime workEnd2 = workEnd.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-//        System.out.println("workStart.after÷ " + workStart + "|" + workEnd2);
-        return new Period(workStart, workEnd2);
     }
 
     @Override
@@ -1102,7 +1090,7 @@ public class XYChart implements Chart {
 
                     Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()), serie.getSingleRow().getAlarms(false).get(sample.getTimestamp()));
 
-                    if (workDays != null && period != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())
+                    if (workDays != null && period != null && workDays.getWorkdayEnd(nearest).isBefore(workDays.getWorkdayStart(nearest))
                             && (period.getDays() > 0
                             || period.getWeeks() > 0
                             || period.getMonths() > 0
