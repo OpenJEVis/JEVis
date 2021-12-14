@@ -33,6 +33,8 @@ import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewCon
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
@@ -179,8 +181,10 @@ public class CalculationExtension implements ObjectEditorExtension {
                 JFXRadioButton fromRadioButton = new JFXRadioButton(I18n.getInstance().getString("plugin.graph.dialog.export.from"));
                 fromRadioButton.setToggleGroup(toggleGroup);
                 JFXDatePicker fromDatePicker = new JFXDatePicker();
+                fromDatePicker.setValue(LocalDate.now());
                 fromDatePicker.setPrefWidth(120d);
                 JFXTimePicker fromTimePicker = new JFXTimePicker();
+                fromTimePicker.setValue(LocalTime.now());
                 fromTimePicker.setPrefWidth(100d);
                 fromTimePicker.setMaxWidth(100d);
                 fromTimePicker.set24HourView(true);
