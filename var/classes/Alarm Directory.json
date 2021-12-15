@@ -14,6 +14,11 @@
       "type": 3
     },
     {
+      "start": "Alarm Directory",
+      "end": "Alarm Directory",
+      "type": 3
+    },
+    {
       "start": "Report Directory",
       "end": "Building",
       "type": 3
