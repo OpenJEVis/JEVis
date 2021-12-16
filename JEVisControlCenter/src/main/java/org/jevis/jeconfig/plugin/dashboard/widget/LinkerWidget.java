@@ -200,6 +200,7 @@ public class LinkerWidget extends Widget {
                         JEVisObject selectedAnalyis = getDataSource().getObject(dataModelNode.getGraphAnalysisObject());
                         if (selectedAnalyis != null) {
                             analysisListView.getSelectionModel().select(selectedAnalyis);
+                            analysisListView.scrollTo(selectedAnalyis);
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();
