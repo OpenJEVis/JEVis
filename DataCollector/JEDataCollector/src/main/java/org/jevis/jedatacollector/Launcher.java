@@ -15,6 +15,7 @@ import org.jevis.commons.driver.DataSourceFactory;
 import org.jevis.commons.driver.DriverHelper;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
+import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
 
@@ -127,7 +128,8 @@ public class Launcher extends AbstractCliApp {
             dataSource.run();
         } catch (Exception e) {
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
-            removeJob(object);
+            logger.error("Error in job {}:{}", object.getName(), object.getID(), e);
+
         } finally {
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
             removeJob(object);
@@ -190,6 +192,7 @@ public class Launcher extends AbstractCliApp {
             checkForTimeout();
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 //                if (!firstRun) {
 //                    try {
 //                        ds.clearCache();

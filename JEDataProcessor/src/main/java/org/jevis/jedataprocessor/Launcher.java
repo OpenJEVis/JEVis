@@ -18,6 +18,7 @@ import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
+import org.jevis.commons.task.TaskPrinter;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
@@ -72,20 +73,20 @@ public class Launcher extends AbstractCliApp {
                             currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds), processingSize);
                             currentProcess.start();
                         } catch (Exception ex) {
-                            logger.debug(ex);
+                            logger.debug("Error in job {}:{}", currentCleanDataObject.getName(), currentCleanDataObject.getID(), ex);
                             if (currentProcess != null) currentProcess.setFinished(true);
                             LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
                             removeJob(currentCleanDataObject);
                         }
+
+                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
-                        removeJob(currentCleanDataObject);
 
-                        logger.info("Planned Jobs: {} running Jobs: {} runnables: {}", plannedJobs.size(), runningJobs.size(), runnables.size());
+                        logger.error("Failed Job: {}:{}", currentCleanDataObject.getName(), currentCleanDataObject.getID(), e);
 
-                        checkLastJob();
                     } finally {
-                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
+
                         removeJob(currentCleanDataObject);
 
                         logger.info("Planned Jobs: {} running Jobs: {} runnables: {}", plannedJobs.size(), runningJobs.size(), runnables.size());
@@ -141,6 +142,7 @@ public class Launcher extends AbstractCliApp {
             checkForTimeout();
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 //                if (!firstRun) {
 //                    try {
 //                        ds.clearCache();
