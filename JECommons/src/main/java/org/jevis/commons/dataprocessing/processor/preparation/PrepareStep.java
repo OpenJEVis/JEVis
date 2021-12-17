@@ -98,14 +98,17 @@ public class PrepareStep implements ProcessStep {
         DateTime currentDate = cleanDataObject.getFirstDate();
         DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
         WorkDays wd = new WorkDays(cleanDataObject.getCleanObject());
-        LocalTime dtStart = wd.getWorkdayStart();
-        LocalTime dtEnd = wd.getWorkdayEnd();
+        LocalTime dtStart = wd.getWorkdayStart(currentDate);
+        LocalTime dtEnd = wd.getWorkdayEnd(currentDate);
         DateTime maxEndDate = cleanDataObject.getMaxEndDate();
+        Boolean firstIsDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
 
         int indexLastRawSample = cleanDataObject.getRawSamplesDown().size() - 1;
         Period lastPeriod = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), cleanDataObject.getRawSamplesDown().get(indexLastRawSample).getTimestamp());
         if (dtEnd.isBefore(dtStart) && IntStream.of(lastPeriod.getYears(), lastPeriod.getMonths(), lastPeriod.getWeeks()).anyMatch(i -> i > 0)) {
             currentDate = currentDate.minus(lastPeriod);
+            maxEndDate = maxEndDate.minus(lastPeriod);
+        } else if (IntStream.of(lastPeriod.getYears(), lastPeriod.getMonths()).anyMatch(i -> i > 0) && firstIsDifferential) {
             maxEndDate = maxEndDate.minus(lastPeriod);
         }
 
@@ -120,7 +123,6 @@ public class PrepareStep implements ProcessStep {
             PeriodComparator periodComparator = new PeriodComparator();
             DateTime lastDate = null;
 
-            Boolean firstIsDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
             Period firstRawPeriod = CleanDataObject.getPeriodForDate(periodRawData, currentDate);
             Period firstCleanPeriod = CleanDataObject.getPeriodForDate(periodCleanData, currentDate);
             int maxProcessingSize = cleanDataObject.getMaxProcessingSize();
@@ -129,10 +131,16 @@ public class PrepareStep implements ProcessStep {
             //add half a period to maxEndDate
             if (firstCleanPeriod.getYears() > 0) {
                 currentDate = currentDate.minusYears(1).withMonthOfYear(1).withDayOfMonth(1);
-                maxEndDate = maxEndDate.plusMonths(6);
+                maxEndDate = maxEndDate.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+
+                if (dtEnd.isBefore(dtStart)) {
+                    maxEndDate = maxEndDate.plusYears(1);
+                }
             }
             if (firstCleanPeriod.getMonths() > 0) {
                 currentDate = currentDate.minusMonths(1).withDayOfMonth(1);
+
+                maxEndDate = maxEndDate.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
 
                 if (dtEnd.isBefore(dtStart)) {
                     maxEndDate = maxEndDate.plusMonths(1);
@@ -147,8 +155,12 @@ public class PrepareStep implements ProcessStep {
                 maxEndDate = maxEndDate.plusHours(12);
             }
             if (firstCleanPeriod.getHours() > 0) {
-                currentDate = currentDate.minusHours(1);
-                maxEndDate = maxEndDate.plusMinutes(30);
+                currentDate = currentDate.minusHours(1).withMinuteOfHour(0);
+                maxEndDate = maxEndDate.plusMinutes(30).withMinuteOfHour(0);
+            }
+
+            if (firstCleanPeriod.getMinutes() > 0 && firstRawPeriod.getHours() == 1 && firstRawPeriod.getMinutes() == 0) {
+                currentDate = currentDate.plus(firstCleanPeriod);
             }
 
             while (currentDate.isBefore(maxEndDate) && !periodCleanData.isEmpty() && !currentDate.equals(lastDate)) {
@@ -158,6 +170,8 @@ public class PrepareStep implements ProcessStep {
                 Period cleanPeriod = CleanDataObject.getPeriodForDate(periodCleanData, currentDate);
                 Boolean isDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
                 boolean greaterThenDays = false;
+                dtStart = wd.getWorkdayStart(currentDate);
+                dtEnd = wd.getWorkdayEnd(currentDate);
 
                 startDateTime = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
                         currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());
@@ -165,12 +179,20 @@ public class PrepareStep implements ProcessStep {
                         currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());
 
                 if (cleanPeriod.getYears() > 0) {
-                    startDateTime = startDateTime.minusYears(cleanPeriod.getYears()).withMonthOfYear(1).withDayOfMonth(1);
+                    if (isDifferential) {
+                        startDateTime = startDateTime.minusYears(cleanPeriod.getYears()).withMonthOfYear(1).withDayOfMonth(1);
+                    } else {
+                        startDateTime = startDateTime.withMonthOfYear(1).withDayOfMonth(1);
+                    }
                     endDateTime = startDateTime.plusYears(cleanPeriod.getYears()).withMonthOfYear(1).withDayOfMonth(1).minusDays(1);
                     greaterThenDays = true;
                 }
                 if (cleanPeriod.getMonths() > 0) {
-                    startDateTime = startDateTime.minusMonths(cleanPeriod.getMonths()).withDayOfMonth(1);
+                    if (isDifferential) {
+                        startDateTime = startDateTime.minusMonths(cleanPeriod.getMonths()).withDayOfMonth(1);
+                    } else {
+                        startDateTime = startDateTime.withDayOfMonth(1);
+                    }
                     endDateTime = startDateTime.plusMonths(cleanPeriod.getMonths()).withDayOfMonth(1).minusDays(1);
                     greaterThenDays = true;
                 }
@@ -216,6 +238,12 @@ public class PrepareStep implements ProcessStep {
 
                     currentInterval = new CleanInterval(interval, endDateTime);
                     currentInterval.getResult().setTimeStamp(endDateTime);
+                } else if (!isDifferential &&
+                        (rawPeriod.getMonths() == 1 && cleanPeriod.getMonths() == 1)
+                        || (rawPeriod.getYears() == 1 && cleanPeriod.getYears() == 1)) {
+                    Interval interval = new Interval(startDateTime, endDateTime);
+                    currentInterval = new CleanInterval(interval, startDateTime);
+                    currentInterval.getResult().setTimeStamp(startDateTime);
                 } else if (!isDifferential) {
                     Interval interval = new Interval(startDateTime.plusSeconds(1), endDateTime.plusSeconds(1));
                     currentInterval = new CleanInterval(interval, startDateTime);

@@ -4,6 +4,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
@@ -40,4 +41,6 @@ public interface Chart {
     void setRegion(Region region);
 
     List<ChartDataRow> getChartDataRows();
+
+    ChartSetting getChartSetting();
 }

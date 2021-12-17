@@ -32,7 +32,9 @@ public class ContextBuilder {
 
     public ConcurrentHashMap<String, Object> buildContext(List<ReportData> reportLinkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
         ConcurrentHashMap<String, Object> templateMap = new ConcurrentHashMap<>();
-        reportLinkProperty.forEach(linkProperty -> templateMap.putAll(linkProperty.getReportMap(property, intervalCalc)));
+        for (ReportData linkProperty : reportLinkProperty) {
+            templateMap.putAll(linkProperty.getReportMap(property, intervalCalc));
+        }
         logger.info("Built Context for {} report links", templateMap.size());
 
         return templateMap;

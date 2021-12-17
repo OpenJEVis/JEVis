@@ -41,6 +41,8 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
@@ -314,8 +316,8 @@ public class SampleTableExtension implements SampleEditorExtension {
                     try {
                         BigDecimal d = new BigDecimal(valueField.getText());
 
-
                         final ProgressForm pForm = new ProgressForm("Setting values...");
+                        List<PeriodRule> periodAlignmentForObject = CleanDataObject.getPeriodAlignmentForObject(att.getObject());
 
                         Task<List<JEVisSample>> set = new Task<List<JEVisSample>>() {
                             @Override
@@ -325,10 +327,12 @@ public class SampleTableExtension implements SampleEditorExtension {
                                 DateTime date = minMax[0].plus(periodForDate);
 
                                 while (date.isBefore(minMax[1])) {
-                                    sampleList.add(att.buildSample(date, d, noteField.getText()));
-                                    pForm.addMessage("Created sample " + date + " - " + d + " - " + noteField.getText());
+                                    VirtualSample sample = new VirtualSample(date, d.doubleValue());
+                                    sample.setNote(noteField.getText());
+                                    sampleList.add(sample);
+                                    logger.info("Created sample " + date + " - " + d + " - " + noteField.getText());
 
-                                    CleanDataObject.getPeriodForDate(att.getObject(), date);
+                                    CleanDataObject.getPeriodForDate(periodAlignmentForObject, date);
                                     date = date.plus(periodForDate);
                                 }
 

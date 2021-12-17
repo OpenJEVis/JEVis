@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -36,7 +37,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
 
-import java.text.NumberFormat;
 import java.util.*;
 
 public class TableChartV extends XYChart {
@@ -82,7 +82,7 @@ public class TableChartV extends XYChart {
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
         this.singleRow = singleRow;
-        TableSerie serie = new TableSerie(singleRow, showIcons);
+        TableSerie serie = new TableSerie(chartSetting, singleRow, showIcons);
 
         getHexColors().add(ColorHelper.toColor(singleRow.getColor()));
 
@@ -113,9 +113,6 @@ public class TableChartV extends XYChart {
         xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getSortCriteria));
 
         try {
-            NumberFormat nf = NumberFormat.getNumberInstance();
-            nf.setMaximumFractionDigits(2);
-            nf.setMinimumFractionDigits(2);
             tableHeader.getItems().clear();
             Platform.runLater(() -> tableHeader.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY));
 
@@ -427,7 +424,7 @@ public class TableChartV extends XYChart {
                                     textField.setText(I18n.getInstance().getString("plugin.graph.table.sum"));
                                 } else {
                                     textField.setStyle("-fx-alignment: CENTER-RIGHT;");
-                                    if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                    if (workDays.getWorkdayEnd(item).isBefore(workDays.getWorkdayStart(item))) {
                                         DateTime modDateTime = item.plusDays(1);
                                         textField.setText(modDateTime.toString(normalPattern));
                                     } else {

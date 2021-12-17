@@ -17,9 +17,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.constants.EnterDataTypes;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -193,7 +193,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                                 valueAttribute = selectedObject.getAttribute("Value");
                                 for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
                                     diffAttribute = jeVisObject.getAttribute("Conversion to Differential");
-                                    CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject, new ObjectHandler(ds));
+                                    CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject);
                                     if (cleanDataObject.getLimitsConfig().size() > 0) {
                                         limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
                                     }
@@ -604,6 +604,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     private void loadLastValue() {
         if (selectedObject != null) {
             JEVisAttribute valueAttribute = null;
+            WorkDays workDays = new WorkDays(selectedObject);
             String unitString = "";
             try {
                 valueAttribute = selectedObject.getAttribute("Value");
@@ -629,13 +630,12 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                         lastTS = sample.getTimestamp();
                         lastValue = sample.getValueAsDouble();
                         if (lastTS != null && lastValue != null) {
-                            DateTime finalLastTS = lastTS;
                             Double finalLastValue = lastValue;
                             String finalUnitString = unitString;
                             Period p = null;
                             if (!selectedObject.getChildren().isEmpty()) {
                                 JEVisObject cleanDataObject = selectedObject.getChildren(cleanDataClass, true).get(0);
-                                CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(ds));
+                                CleanDataObject cdo = new CleanDataObject(cleanDataObject);
                                 isConversionToDifferential.set(CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), lastTS));
                                 p = CleanDataObject.getPeriodForDate(cdo.getCleanDataPeriodAlignment(), lastTS);
                             } else {
@@ -644,6 +644,10 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
                             Period finalP = p;
                             Platform.runLater(() -> {
+                                DateTime finalLastTS = lastTS;
+                                if (workDays.isCustomWorkDay() && workDays.getWorkdayStart(finalLastTS).isAfter(workDays.getWorkdayEnd(finalLastTS)) && PeriodHelper.isGreaterThenDays(finalP)) {
+                                    finalLastTS = finalLastTS.plusDays(1);
+                                }
                                 String normalPattern = PeriodHelper.getFormatString(finalP, isConversionToDifferential.get());
                                 lastTSLabel.setText(finalLastTS.toString(normalPattern) + " : ");
 

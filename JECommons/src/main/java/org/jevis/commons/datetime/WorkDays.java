@@ -11,6 +11,7 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.time.LocalTime;
 
@@ -32,13 +33,14 @@ public class WorkDays {
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private boolean enabled = true;
+    private DateTimeZone zone = DateTimeZone.UTC;
 
     public WorkDays(JEVisObject currentObject) {
         this.currentObject = currentObject;
         if (currentObject != null) {
             try {
                 siteClass = currentObject.getDataSource().getJEVisClass("Building");
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.fatal("Could not get JEVisClass for Building");
             }
         }
@@ -63,6 +65,7 @@ public class WorkDays {
                     try {
                         JEVisAttribute attStart = site.getAttribute("Workday Beginning");
                         JEVisAttribute attEnd = site.getAttribute("Workday End");
+                        JEVisAttribute zoneAtt = site.getAttribute("Timezone");
                         if (attStart.hasSample()) {
                             String startStr = attStart.getLatestSample().getValueAsString();
                             DateTime dtStart = DateTime.parse(startStr);
@@ -72,6 +75,10 @@ public class WorkDays {
                             String endStr = attEnd.getLatestSample().getValueAsString();
                             DateTime dtEnd = DateTime.parse(endStr);
                             end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
+                        }
+                        if (zoneAtt.hasSample()) {
+                            String zoneStr = zoneAtt.getLatestSample().getValueAsString();
+                            zone = DateTimeZone.forID(zoneStr);
                         }
                     } catch (Exception e) {
                         logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getID(), e);
@@ -100,6 +107,7 @@ public class WorkDays {
                     try {
                         JsonAttribute attStart = sqlDataSource.getAttribute(site.getId(), "Workday Beginning");
                         JsonAttribute attEnd = sqlDataSource.getAttribute(site.getId(), "Workday End");
+                        JsonAttribute zoneAtt = sqlDataSource.getAttribute(site.getId(), "Timezone");
                         if (attStart.getLatestValue() != null) {
                             String startStr = attStart.getLatestValue().getValue();
                             DateTime dtStart = DateTime.parse(startStr);
@@ -109,6 +117,10 @@ public class WorkDays {
                             String endStr = attEnd.getLatestValue().getValue();
                             DateTime dtEnd = DateTime.parse(endStr);
                             end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
+                        }
+                        if (zoneAtt.getLatestValue() != null) {
+                            String zoneStr = zoneAtt.getLatestValue().getValue();
+                            zone = DateTimeZone.forID(zoneStr);
                         }
                     } catch (Exception e) {
                         logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getId(), e);
@@ -159,19 +171,21 @@ public class WorkDays {
         return nextJsonSiteParent;
     }
 
-    public LocalTime getWorkdayStart() {
+    public LocalTime getWorkdayStart(DateTime currentDate) {
+        int offset = zone.getOffset(currentDate);
         if (enabled) {
-            return workdayStart;
+            return workdayStart.minusSeconds(offset / 1000);
         } else {
-            return workdayStartDisabled;
+            return workdayStartDisabled.minusSeconds(offset / 1000);
         }
     }
 
-    public LocalTime getWorkdayEnd() {
+    public LocalTime getWorkdayEnd(DateTime currentDate) {
+        int offset = zone.getOffset(currentDate);
         if (enabled) {
-            return workdayEnd;
+            return workdayEnd.minusSeconds(offset / 1000);
         } else {
-            return workdayEndDisabled;
+            return workdayEndDisabled.minusSeconds(offset / 1000);
         }
     }
 

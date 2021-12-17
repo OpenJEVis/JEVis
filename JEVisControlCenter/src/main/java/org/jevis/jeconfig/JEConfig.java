@@ -60,7 +60,6 @@ import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.Exceptions;
-import org.jevis.jeconfig.tool.PatchNotesPage;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
@@ -99,7 +98,7 @@ public class JEConfig extends Application {
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
     private static final Statusbar statusBar = new Statusbar();
-    private static StackPane dialogContainer = new StackPane();
+    private static final StackPane dialogContainer = new StackPane();
 
     private TopMenu menu;
     public static Date startDate = new Date();
@@ -265,7 +264,7 @@ public class JEConfig extends Application {
                     System.out.println("There is a newer version");
                     Notifications.create()
                             .title("JEVis Control Center Update")
-                            .text("New version " + serverJECCVersion + " is avabable")
+                            .text("New version " + serverJECCVersion + " is available")
                             .hideAfter(Duration.INDEFINITE)
                             .showInformation();
                 } else {
@@ -531,8 +530,9 @@ public class JEConfig extends Application {
                         logger.fatal(ex);
                     }
 
-                    PatchNotesPage patchNotesPage = new PatchNotesPage();
-                    patchNotesPage.show(primaryStage);
+                    //we dont use it anymore for now
+                    //PatchNotesPage patchNotesPage = new PatchNotesPage();
+                    //patchNotesPage.show(primaryStage);
 
 
                     Task preloadCalender = new Task() {

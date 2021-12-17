@@ -17,6 +17,7 @@ import org.joda.time.Days;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.stream.IntStream;
 
@@ -56,6 +57,21 @@ public class PeriodHelper {
         return resultingDate;
     }
 
+    public static DateTime minusPeriodToDate(DateTime currentDate, org.joda.time.Period cleanPeriod) {
+        DateTime resultingDate = currentDate;
+
+        resultingDate = resultingDate.minusYears(cleanPeriod.getYears());
+        resultingDate = resultingDate.minusMonths(cleanPeriod.getMonths());
+        resultingDate = resultingDate.minusWeeks(cleanPeriod.getWeeks());
+        resultingDate = resultingDate.minusDays(cleanPeriod.getDays());
+        resultingDate = resultingDate.minusHours(cleanPeriod.getHours());
+        resultingDate = resultingDate.minusMinutes(cleanPeriod.getMinutes());
+        resultingDate = resultingDate.minusSeconds(cleanPeriod.getSeconds());
+        resultingDate = resultingDate.minusMillis(cleanPeriod.getMillis());
+
+        return resultingDate;
+    }
+
     public static DateTime getNextPeriod(DateTime start, Period schedule, int i, org.joda.time.Period customPeriod) {
         DateTime resultDate = start;
         boolean wasLastDay = start.getDayOfMonth() == start.dayOfMonth().getMaximumValue();
@@ -74,9 +90,6 @@ public class PeriodHelper {
                 break;
             case WEEKLY:
                 resultDate = resultDate.plusWeeks(i);
-                if (wasLastDay) {
-                    resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
-                }
                 break;
             case MONTHLY:
                 resultDate = resultDate.plusMonths(i);
@@ -353,14 +366,15 @@ public class PeriodHelper {
         }
 
         if (isGreaterThenDays && lowerTS != null) {
-            lowerTS = lowerTS.withHourOfDay(workDays.getWorkdayStart().getHour())
-                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
-                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
-            higherTS = higherTS.withHourOfDay(workDays.getWorkdayStart().getHour())
-                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
-                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
+            LocalTime workdayStart = workDays.getWorkdayStart(firstDate);
+            lowerTS = lowerTS.withHourOfDay(workdayStart.getHour())
+                    .withMinuteOfHour(workdayStart.getMinute())
+                    .withSecondOfMinute(workdayStart.getSecond());
+            higherTS = higherTS.withHourOfDay(workdayStart.getHour())
+                    .withMinuteOfHour(workdayStart.getMinute())
+                    .withSecondOfMinute(workdayStart.getSecond());
 
-            if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+            if (workDays.getWorkdayEnd(firstDate).isBefore(workdayStart)) {
                 lowerTS = lowerTS.minusDays(1);
                 higherTS = higherTS.minusDays(1);
             }

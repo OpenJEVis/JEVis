@@ -778,8 +778,7 @@ public class ToolBarView {
 
             if (!listAnalysesComboBox.getItems().isEmpty()) {
 
-                dateHelper.setStartTime(model.getWorkdayStart());
-                dateHelper.setEndTime(model.getWorkdayEnd());
+                dateHelper.setWorkDays(model.getWorkDays());
             }
 
             toolBar.getItems().clear();

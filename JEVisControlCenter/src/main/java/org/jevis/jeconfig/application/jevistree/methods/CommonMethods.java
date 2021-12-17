@@ -1,19 +1,161 @@
 package org.jevis.jeconfig.application.jevistree.methods;
 
+import javafx.concurrent.Task;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumnBase;
+import javafx.scene.control.TableView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFDataFormat;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jevis.api.*;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class CommonMethods {
     private static final Logger logger = LogManager.getLogger(CommonMethods.class);
+
+    public static final String RECALCULATION = "Recalculation";
+    public static final String WAIT_FOR_TIMEZONE = "Wait for TZ";
+
+    public static JEVisFile createXLSXFile(String name, TableView tableView) throws IOException {
+        if (name == null || name.equals("")) {
+            name = "table";
+        }
+        DateTime now = new DateTime();
+        name += "_" + now.toString(" YYYYMMdd ");
+        XSSFWorkbook workbook = new XSSFWorkbook(); //create workbook
+
+        XSSFFont defaultFont = workbook.createFont();
+        defaultFont.setFontHeightInPoints((short) 10);
+        defaultFont.setFontName("Arial");
+        defaultFont.setColor(IndexedColors.BLACK.getIndex());
+        defaultFont.setBold(false);
+        defaultFont.setItalic(false);
+
+        XSSFFont boldFont = workbook.createFont();
+        boldFont.setFontHeightInPoints((short) 10);
+        boldFont.setFontName("Arial");
+        boldFont.setColor(IndexedColors.BLACK.getIndex());
+        boldFont.setBold(true);
+        boldFont.setItalic(false);
+
+        XSSFFont boldHeaderFont = workbook.createFont();
+        boldHeaderFont.setFontHeightInPoints((short) 12);
+        boldHeaderFont.setFontName("Arial");
+        boldHeaderFont.setColor(IndexedColors.BLACK.getIndex());
+        boldHeaderFont.setBold(true);
+        boldHeaderFont.setItalic(false);
+
+        CellStyle defaultStyle = workbook.createCellStyle();
+        defaultStyle.setFont(defaultFont);
+
+        CellStyle boldStyle = workbook.createCellStyle();
+        boldStyle.setFont(boldFont);
+
+        CellStyle boldHeaderStyle = workbook.createCellStyle();
+        boldHeaderStyle.setFont(boldHeaderFont);
+
+        XSSFDataFormat dataFormatDates = workbook.createDataFormat();
+        dataFormatDates.putFormat((short) 165, "YYYY-MM-dd HH:MM:ss");
+        CellStyle cellStyleDates = workbook.createCellStyle();
+        cellStyleDates.setDataFormat((short) 165);
+        cellStyleDates.setFont(defaultFont);
+
+        CellStyle cellStyleValues = workbook.createCellStyle();
+        cellStyleValues.setDataFormat((short) 4);
+        cellStyleValues.setFont(defaultFont);
+
+        List<TableColumn> allColumns = tableView.getColumns();
+        List<TableColumn> visibleColumns = allColumns.stream().filter(TableColumnBase::isVisible).collect(Collectors.toList());
+        int width = visibleColumns.size();
+        List<List<TableColumn>> lists = new ArrayList<>();
+
+        if (width > 50) {
+            int noOfSubLists = width / 50 + 1;
+            for (int i = 0; i < noOfSubLists; i++) {
+                List<TableColumn> subList = new ArrayList<>();
+                lists.add(subList);
+            }
+
+            int i = 0;
+            for (int j = 0; j < lists.size(); j++) {
+                while (i < visibleColumns.size() && i < (50 * (j + 1))) {
+                    List<TableColumn> columns = lists.get(j);
+                    TableColumn column = visibleColumns.get(i);
+                    columns.add(column);
+                    i++;
+                }
+            }
+
+        } else {
+            lists.add(visibleColumns);
+        }
+
+        for (List<TableColumn> tableColumns : lists) {
+            int number = lists.indexOf(tableColumns);
+            int sheetWidth = tableColumns.size();
+            Sheet sheet = workbook.createSheet("Data" + number); //create sheet
+            String lastCellColumnName = CellReference.convertNumToColString(sheetWidth);
+
+            for (int i = 0; i < tableColumns.size(); i++) {
+                TableColumn column = tableColumns.get(i);
+                Cell caption = getOrCreateCell(sheet, 0, i);
+                caption.setCellValue(column.getText());
+                caption.setCellStyle(boldHeaderStyle);
+
+                int counter = 1;
+                for (Object item : tableView.getItems()) {
+                    Cell attributeValueCell = getOrCreateCell(sheet, counter, i);
+                    attributeValueCell.setCellValue((String) column.getCellObservableValue(item).getValue());
+                    attributeValueCell.setCellStyle(defaultStyle);
+
+                    counter++;
+                }
+            }
+        }
+
+        Path templatePath = Files.createTempFile("template", "xlsx");
+        File templateFile = new File(templatePath.toString());
+        templateFile.deleteOnExit();
+        workbook.write(new FileOutputStream(templateFile));
+        workbook.close();
+        return new JEVisFileImp(name + ".xlsx", templateFile);
+    }
+
+    private static Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {
+        Row row = sheet.getRow(rowIdx);
+        if (row == null) {
+            row = sheet.createRow(rowIdx);
+        }
+
+        Cell cell = row.getCell(colIdx);
+        if (cell == null) {
+            cell = row.createCell(colIdx);
+        }
+
+        return cell;
+    }
 
     public static JEVisObject getFirstParentalDataObject(JEVisObject jeVisObject) throws JEVisException {
         for (JEVisObject object : jeVisObject.getParents()) {
@@ -52,6 +194,27 @@ public class CommonMethods {
             }
         } catch (Exception e) {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
+        }
+    }
+
+    public static void checkForActiveRecalculation(TimeZone timeZone, DateTimeZone dateTimeZone) throws InterruptedException {
+        Thread.sleep(1000);
+        AtomicBoolean hasActiveCleaning = new AtomicBoolean(false);
+        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
+        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
+            String s = entry.getValue();
+            if (s.equals(RECALCULATION)) {
+                hasActiveCleaning.set(true);
+                break;
+            }
+        }
+        if (!hasActiveCleaning.get()) {
+            logger.debug("Setting default timezone to old default {}", timeZone.getID());
+            TimeZone.setDefault(timeZone);
+            DateTimeZone.setDefault(dateTimeZone);
+        } else {
+            Thread.sleep(1000);
+            checkForActiveRecalculation(timeZone, dateTimeZone);
         }
     }
 

@@ -39,7 +39,9 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.dialog.AboutDialog;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
+import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.PasswordDialog;
+import org.jevis.jeconfig.tool.PatchNotesPage;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -288,14 +290,6 @@ public class TopMenu extends MenuBar {
         welcome.setSelected(prefWelcome.getBoolean("show", true));
         welcome.setOnAction(e -> prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", false)));
 
-        final Preferences patchNotes = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
-        CheckMenuItem showPatchNotes = new CheckMenuItem(I18n.getInstance().getString("menu.options.patchnotes"));
-        showPatchNotes.setSelected(prefWelcome.getBoolean("show", true));
-        showPatchNotes.setOnAction(e -> {
-            patchNotes.put("version", JEConfig.class.getPackage().getImplementationVersion());
-            patchNotes.putBoolean("show", !patchNotes.getBoolean("show", true));
-        });
-
         MenuItem changePassword = new MenuItem(I18n.getInstance().getString("menu.options.changepassword"));
         changePassword.setOnAction(event -> {
             PasswordDialog dia = new PasswordDialog();
@@ -329,7 +323,39 @@ public class TopMenu extends MenuBar {
             Platform.runLater(() -> updateLayout());
         });
 
-        options.getItems().addAll(changePassword, enablePreview, welcome, showPatchNotes, expertMode);
+        final Preferences prefThreads = Preferences.userRoot().node("JEVis.JEConfig.threads");
+        int optCores = Math.max(Runtime.getRuntime().availableProcessors(), 1);
+        HiddenConfig.DASH_THREADS = prefThreads.getInt("count", optCores);
+        int selectedThreadCount = prefThreads.getInt("count", optCores);
+        Menu threadCount = new Menu(I18n.getInstance().getString("menu.options.threads"));
+        for (int i = 1; i <= optCores; i++) {
+            CheckMenuItem cmi = new CheckMenuItem(String.valueOf(i));
+
+            if (i == selectedThreadCount) cmi.setSelected(true);
+
+            int finalI = i;
+            cmi.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue) {
+                    JEConfig.getStatusBar().setParallelProcesses(finalI);
+                    for (MenuItem menuItem : threadCount.getItems()) {
+                        if (menuItem instanceof CheckMenuItem) {
+                            CheckMenuItem otherItem = (CheckMenuItem) menuItem;
+                            if (!otherItem.equals(cmi)) {
+                                otherItem.setSelected(false);
+                            }
+                        }
+                    }
+                }
+            });
+
+            threadCount.getItems().add(cmi);
+        }
+
+        options.getItems().addAll(changePassword, enablePreview, welcome, expertMode);
+
+        if (JEConfig.getExpert()) {
+            options.getItems().add(threadCount);
+        }
 
         Menu view = new Menu(I18n.getInstance().getString("menu.view"));
         Menu theme = new Menu(I18n.getInstance().getString("menu.view.theme"));
@@ -476,9 +502,10 @@ public class TopMenu extends MenuBar {
 
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 
+        MenuItem showChangelog = new MenuItem(I18n.getInstance().getString("menu.options.patchnotes"));
         MenuItem showHelp = new MenuItem(I18n.getInstance().getString("menu.showToolTips"));
         MenuItem about = new MenuItem(I18n.getInstance().getString("menu.about"));
-        help.getItems().addAll(showHelp, about);
+        help.getItems().addAll(showHelp, showChangelog, about);
 
         about.setOnAction(t -> {
             AboutDialog dia = new AboutDialog();
@@ -487,11 +514,12 @@ public class TopMenu extends MenuBar {
                     , JEConfig.PROGRAM_INFO, JEConfig.getImage("JEConfig_mac.png"));
 
         });
-        showHelp.setOnAction(event -> {
-            //activePlugin.handleRequest(Constants.Plugin.Command.SHOW_TOOLTIP_HELP);
-            JEVisHelp.getInstance().toggleHelp();
-        });
+        showHelp.setOnAction(event -> JEVisHelp.getInstance().toggleHelp());
 
+        showChangelog.setOnAction(event -> {
+            PatchNotesPage patchNotesPage = new PatchNotesPage();
+            patchNotesPage.show(JEConfig.getStage());
+        });
 
         MenuItem classImport = new MenuItem(I18n.getInstance().getString("menu.system.driver"));
         Menu system = new Menu(I18n.getInstance().getString("menu.system"));

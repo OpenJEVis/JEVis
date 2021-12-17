@@ -2,6 +2,7 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
@@ -26,7 +27,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -53,7 +53,6 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -106,6 +105,7 @@ public class XYChart implements Chart {
     public static final Image taskImage = JEConfig.getImage("Analysis.png");
     public static String JOB_NAME = "Create series";
     ChartSetting chartSetting;
+    NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
     public XYChart() {
         init();
@@ -143,6 +143,14 @@ public class XYChart implements Chart {
         this.analysisDataModel = dataModel;
         this.chartDataRows = dataRows;
         this.chartSetting = chartSetting;
+
+        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());
+        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());
+        y1Axis.setTickLabelFormatter(tickLabelFormatter1);
+        y2Axis.setTickLabelFormatter(tickLabelFormatter2);
+
+        this.nf.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
 
         double totalJob = chartDataRows.size();
 
@@ -209,7 +217,7 @@ public class XYChart implements Chart {
 
                         if (singleRow.hasForecastData()) {
                             try {
-                                XYChartSerie forecast = new XYChartSerie(singleRow, showIcons, true);
+                                XYChartSerie forecast = new XYChartSerie(chartSetting, singleRow, showIcons, true);
 
                                 hexColors.add(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
                                 xyChartSerieList.add(forecast);
@@ -396,6 +404,7 @@ public class XYChart implements Chart {
     }
 
     public void init() {
+
         initializeChart();
 
         getChart().setStyle("-fx-font-size: " + 12 + "px;");
@@ -464,7 +473,7 @@ public class XYChart implements Chart {
 
         CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChartSerieList);
         labelledMarkerRenderer.getAxes().add(y1Axis);
-        ColumnChartLabelRenderer columnChartLabelRenderer = new ColumnChartLabelRenderer(xyChartSerieList);
+        ColumnChartLabelRenderer columnChartLabelRenderer = new ColumnChartLabelRenderer(chartSetting, xyChartSerieList);
 
         ErrorDataSetRenderer trendLineRenderer = new ErrorDataSetRenderer();
         trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
@@ -701,7 +710,7 @@ public class XYChart implements Chart {
         List<DoubleDataSet> list = new ArrayList<>();
         try {
             if (showL1L2 && xyChartSerie.getSingleRow().getDataProcessor() != null) {
-                CleanDataObject cleanDataObject = new CleanDataObject(xyChartSerie.getSingleRow().getDataProcessor(), new ObjectHandler(xyChartSerie.getSingleRow().getObject().getDataSource()));
+                CleanDataObject cleanDataObject = new CleanDataObject(xyChartSerie.getSingleRow().getDataProcessor());
                 xyChartSerie.getSingleRow().updateScaleFactor();
                 Double scaleFactor = xyChartSerie.getSingleRow().getScaleFactor();
                 if (cleanDataObject.getLimitsEnabled()) {
@@ -747,10 +756,6 @@ public class XYChart implements Chart {
         chart.legendVisibleProperty().set(false);
         chart.getToolBar().setVisible(false);
 
-        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
-
-        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(2);
-
         y1Axis.setForceZeroInRange(true);
         y1Axis.setAutoGrowRanging(true);
         y1Axis.setAutoRanging(true);
@@ -759,18 +764,16 @@ public class XYChart implements Chart {
         y2Axis.setAutoRanging(true);
         y2Axis.setAutoGrowRanging(true);
 
-        y1Axis.setTickLabelFormatter(tickLabelFormatter1);
         y1Axis.setAnimated(false);
         y1Axis.setName("");
 
-        y2Axis.setTickLabelFormatter(tickLabelFormatter2);
         y2Axis.setAnimated(false);
         y2Axis.setSide(Side.RIGHT);
         y2Axis.setName("");
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
-        XYChartSerie serie = new XYChartSerie(singleRow, showIcons, false);
+        XYChartSerie serie = new XYChartSerie(chartSetting, singleRow, showIcons, false);
 
         hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
@@ -808,7 +811,7 @@ public class XYChart implements Chart {
         if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
             ManipulationMode oldMode = singleRow.getManipulationMode();
             singleRow.setManipulationMode(addSeriesOfType);
-            XYChartSerie serie2 = new XYChartSerie(singleRow, showIcons, false);
+            XYChartSerie serie2 = new XYChartSerie(chartSetting, singleRow, showIcons, false);
 
             hexColors.add(ColorHelper.toColor(singleRow.getColor()).darker());
 
@@ -896,7 +899,7 @@ public class XYChart implements Chart {
         DateTime end = lastTS;
         try {
             AggregationPeriod aggregationPeriod = chartDataRows.stream().findFirst().map(ChartDataRow::getAggregationPeriod).orElse(AggregationPeriod.NONE);
-            if (analysisDataModel.isCustomWorkDay() && workDays != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart()) && new Interval(start, end).toDuration().getStandardDays() > 5) {
+            if (analysisDataModel.isCustomWorkDay() && workDays != null && workDays.getWorkdayEnd(start).isBefore(workDays.getWorkdayStart(start)) && new Interval(start, end).toDuration().getStandardDays() > 5) {
                 switch (aggregationPeriod) {
                     case NONE:
                     case MINUTELY:
@@ -928,18 +931,6 @@ public class XYChart implements Chart {
                 dtfOutLegend.print(end));
 
         Platform.runLater(() -> dateAxis.setUnit(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall));
-    }
-
-    private Period removeWorkdayInterval(DateTime workStart, DateTime workEnd) {
-//        System.out.println("workStart.before÷ " + workStart + "|" + workEnd);
-        if (workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd())) {
-            workStart = workStart.plusDays(1);
-        }
-
-        workStart = workStart.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-        DateTime workEnd2 = workEnd.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-//        System.out.println("workStart.after÷ " + workStart + "|" + workEnd2);
-        return new Period(workStart, workEnd2);
     }
 
     @Override
@@ -1081,9 +1072,6 @@ public class XYChart implements Chart {
         }
         if (valueForDisplay != null) {
             DateTime finalValueForDisplay = valueForDisplay;
-            NumberFormat nf = NumberFormat.getInstance();
-            nf.setMinimumFractionDigits(2);
-            nf.setMaximumFractionDigits(2);
 
             xyChartSerieList.forEach(serie -> {
                 try {
@@ -1102,7 +1090,7 @@ public class XYChart implements Chart {
 
                     Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()), serie.getSingleRow().getAlarms(false).get(sample.getTimestamp()));
 
-                    if (workDays != null && period != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())
+                    if (workDays != null && period != null && workDays.getWorkdayEnd(nearest).isBefore(workDays.getWorkdayStart(nearest))
                             && (period.getDays() > 0
                             || period.getWeeks() > 0
                             || period.getMonths() > 0
@@ -1245,6 +1233,11 @@ public class XYChart implements Chart {
     @Override
     public List<ChartDataRow> getChartDataRows() {
         return chartDataRows;
+    }
+
+    @Override
+    public ChartSetting getChartSetting() {
+        return chartSetting;
     }
 
     public Double getMinValue() {

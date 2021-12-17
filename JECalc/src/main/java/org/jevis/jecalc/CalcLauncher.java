@@ -16,6 +16,7 @@ import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
+import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
 
@@ -56,6 +57,7 @@ public class CalcLauncher extends AbstractCliApp {
             checkForTimeout();
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 //                if (!firstRun) {
 //                    try {
 //                        ds.clearCache();
@@ -105,15 +107,13 @@ public class CalcLauncher extends AbstractCliApp {
                             calcJob.execute();
                         } while (!calcJob.hasProcessedAllInputSamples());
 
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
-                        removeJob(object);
 
-                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+                        logger.error("Failed Job: {}:{}", object.getName(), object.getID(), e);
 
-                        checkLastJob();
                     } finally {
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
                         removeJob(object);
 
                         logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());

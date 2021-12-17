@@ -29,18 +29,13 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisItemLoader;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * The Central tree representation of the JEVisSystem.
@@ -59,9 +54,9 @@ public class JEVisTree extends TreeTableView {
     private final ObservableList<JEVisObject> highlighterList = FXCollections.observableArrayList();
     private boolean isCut = false;
     private SearchFilterBar searchBar;
-    private HashMap<String, Object> configMap = new HashMap<>();
-    private List<Long> calculationIDs = new ArrayList<>();
-    private ItemActionController itemActionController;
+    private final HashMap<String, Object> configMap = new HashMap<>();
+    private final List<Long> calculationIDs = new ArrayList<>();
+    private final ItemActionController itemActionController;
 
     /**
      * Create an default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
@@ -139,6 +134,36 @@ public class JEVisTree extends TreeTableView {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public Map<Long, Long> getENPICalcMap() throws JEVisException {
+        Map<Long, Long> calcAndResult = new HashMap<>();
+
+        JEVisClass calculation = this.getJEVisDataSource().getJEVisClass("Calculation");
+        JEVisClass outputClass = this.getJEVisDataSource().getJEVisClass("Output");
+
+        for (JEVisObject calculationObj : this.getJEVisDataSource().getObjects(calculation, true)) {
+            try {
+                List<JEVisObject> outputs = calculationObj.getChildren(outputClass, true);
+
+                if (outputs != null && !outputs.isEmpty()) {
+                    for (JEVisObject output : outputs) {
+                        JEVisAttribute targetAttribute = output.getAttribute("Output");
+                        if (targetAttribute != null) {
+                            try {
+                                TargetHelper th = new TargetHelper(this.getJEVisDataSource(), targetAttribute);
+                                if (th.getObject() != null && !th.getObject().isEmpty()) {
+                                    calcAndResult.put(th.getObject().get(0).getID(), calculationObj.getID());
+                                }
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return calcAndResult;
     }
 
 

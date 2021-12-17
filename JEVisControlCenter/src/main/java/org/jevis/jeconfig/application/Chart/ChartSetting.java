@@ -12,8 +12,10 @@ public class ChartSetting {
     private ChartType chartType;
     private Double height;
     private ColorMapping colorMapping = ColorMapping.GREEN_YELLOW_RED;
-    private Long groupingInterval;
+    private Double groupingInterval;
     private Orientation orientation;
+    private Integer minFractionDigits = 2;
+    private Integer maxFractionDigits = 2;
 
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
 
@@ -68,11 +70,11 @@ public class ChartSetting {
         this.colorMapping = colorMapping;
     }
 
-    public Long getGroupingInterval() {
+    public Double getGroupingInterval() {
         return groupingInterval;
     }
 
-    public void setGroupingInterval(Long groupingInterval) {
+    public void setGroupingInterval(Double groupingInterval) {
         this.groupingInterval = groupingInterval;
     }
 
@@ -90,5 +92,21 @@ public class ChartSetting {
 
     public void setOrientation(Orientation orientation) {
         this.orientation = orientation;
+    }
+
+    public Integer getMinFractionDigits() {
+        return minFractionDigits;
+    }
+
+    public void setMinFractionDigits(Integer minFractionDigits) {
+        this.minFractionDigits = minFractionDigits;
+    }
+
+    public Integer getMaxFractionDigits() {
+        return maxFractionDigits;
+    }
+
+    public void setMaxFractionDigits(Integer maxFractionDigits) {
+        this.maxFractionDigits = maxFractionDigits;
     }
 }

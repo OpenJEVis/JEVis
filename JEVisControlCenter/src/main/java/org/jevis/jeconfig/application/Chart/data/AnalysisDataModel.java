@@ -85,8 +85,6 @@ public class AnalysisDataModel {
     private JsonChartDataModel listAnalysisModel = new JsonChartDataModel();
     private JsonChartSettings jsonChartSettings = new JsonChartSettings();
     private boolean customWorkDay = true;
-    private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
-    private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis = null;
     private Boolean multiSite = null;
     private Boolean multiDir = null;
@@ -129,6 +127,36 @@ public class AnalysisDataModel {
             };
         }
     };
+    private WorkDays wd;
+
+    public AnalysisDataModel(JEVisDataSource ds, ChartPlugin chartPlugin) {
+        this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
+        this.chartPlugin = chartPlugin;
+        this.globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+        /**
+         * objectMapper configuration for backwards compatibility. Can be removed in the future.
+         */
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
+        updateListAnalyses();
+        dateHelper.setWorkDays(wd);
+        this.globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
+        this.globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
+
+        changed.addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue && newValue) {
+                changed.set(false);
+
+                selectedData = new HashSet<>();
+                charts = new ChartSettings();
+                updateSelectedData();
+
+                update();
+            }
+        });
+    }
 
     public Set<ChartDataRow> getSelectedData() {
         if (selectedData == null || selectedData.isEmpty()) {
@@ -155,34 +183,8 @@ public class AnalysisDataModel {
         this.selectedData = data;
     }
 
-    public AnalysisDataModel(JEVisDataSource ds, ChartPlugin chartPlugin) {
-        this.ds = ds;
-        this.objectRelations = new ObjectRelations(ds);
-        this.chartPlugin = chartPlugin;
-        this.globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
-        /**
-         * objectMapper configuration for backwards compatibility. Can be removed in the future.
-         */
-        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
-        updateListAnalyses();
-        if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
-        if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
-        this.globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
-        this.globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
-
-        changed.addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue && newValue) {
-                changed.set(false);
-
-                selectedData = new HashSet<>();
-                charts = new ChartSettings();
-                updateSelectedData();
-
-                update();
-            }
-        });
+    public WorkDays getWorkDays() {
+        return wd;
     }
 
     private AggregationPeriod globalAggregationPeriod = AggregationPeriod.NONE;
@@ -293,10 +295,8 @@ public class AnalysisDataModel {
                         }
                     }
 
-                    WorkDays wd = new WorkDays(getCurrentAnalysis());
+                    wd = new WorkDays(getCurrentAnalysis());
                     wd.setEnabled(isCustomWorkDay());
-                    if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
-                    if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
                 }
             } catch (JEVisException e) {
                 logger.error("Error: could not get analysis model", e);
@@ -335,8 +335,16 @@ public class AnalysisDataModel {
                     } else newSettings.setOrientation(Orientation.HORIZONTAL);
 
                     if (settings.getGroupingInterval() != null) {
-                        newSettings.setGroupingInterval(Long.parseLong(settings.getGroupingInterval()));
-                    } else newSettings.setGroupingInterval(30L);
+                        newSettings.setGroupingInterval(Double.parseDouble(settings.getGroupingInterval()));
+                    } else newSettings.setGroupingInterval(30d);
+
+                    if (settings.getMinFractionDigits() != null) {
+                        newSettings.setMinFractionDigits(Integer.parseInt(settings.getMinFractionDigits()));
+                    } else newSettings.setMinFractionDigits(2);
+
+                    if (settings.getMaxFractionDigits() != null) {
+                        newSettings.setMaxFractionDigits(Integer.parseInt(settings.getMaxFractionDigits()));
+                    } else newSettings.setMaxFractionDigits(2);
 
                     if (settings.getHeight() != null) {
                         newSettings.setHeight(Double.parseDouble(settings.getHeight()));
@@ -670,8 +678,7 @@ public class AnalysisDataModel {
         if (selectedData != null && !selectedData.isEmpty()) {
             isGlobalAnalysisTimeFrame(false);
 
-            if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
-            if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
+            dateHelper.setWorkDays(wd);
 
             switch (analysisTimeFrame.getTimeFrame()) {
                 //Custom
@@ -878,9 +885,7 @@ public class AnalysisDataModel {
             JEVisClass analysesDirectory = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
             listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
 
-            if (listAnalysesDirectories.size() > 0
-                    && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
-                    && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
+            if (listAnalysesDirectories.size() > 0) {
                 updateWorkdayTimesFromJEVisObject(listAnalysesDirectories.get(0));
             }
         } catch (JEVisException e) {
@@ -988,10 +993,6 @@ public class AnalysisDataModel {
     private void updateWorkdayTimesFromJEVisObject(JEVisObject jeVisObject) {
         WorkDays wd = new WorkDays(jeVisObject);
         wd.setEnabled(isCustomWorkDay());
-        if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
-            workdayStart = wd.getWorkdayStart();
-            workdayEnd = wd.getWorkdayEnd();
-        }
     }
 
     public ObservableList<JEVisObject> getObservableListAnalyses() {
@@ -999,22 +1000,18 @@ public class AnalysisDataModel {
         return observableListAnalyses;
     }
 
-    public LocalTime getWorkdayStart() {
-        if (observableListAnalyses.size() > 0
-                && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
-                && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
+    public LocalTime getWorkdayStart(DateTime currentDate) {
+        if (observableListAnalyses.size() > 0) {
             updateWorkdayTimesFromJEVisObject(observableListAnalyses.get(0));
         }
-        return workdayStart;
+        return wd.getWorkdayStart(currentDate);
     }
 
-    public LocalTime getWorkdayEnd() {
-        if (observableListAnalyses.size() > 0
-                && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
-                && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
+    public LocalTime getWorkdayEnd(DateTime currentDate) {
+        if (observableListAnalyses.size() > 0) {
             updateWorkdayTimesFromJEVisObject(observableListAnalyses.get(0));
         }
-        return workdayEnd;
+        return wd.getWorkdayEnd(currentDate);
     }
 
     public JEVisObject getCurrentAnalysis() {
@@ -1026,7 +1023,7 @@ public class AnalysisDataModel {
         if (this.currentAnalysis != null && !this.currentAnalysis.equals(currentAnalysis)) {
             if (getTemporary()) {
                 try {
-                    ds.deleteObject(this.currentAnalysis.getID());
+//                    ds.deleteObject(this.currentAnalysis.getID());
                     updateListAnalyses();
                 } catch (Exception e) {
                     logger.error("Could not delete temporary analysis", e);
@@ -1198,8 +1195,8 @@ public class AnalysisDataModel {
                 && !globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM)
                 && !globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
             DateHelper dateHelper = new DateHelper();
-            if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
-            if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
+            dateHelper.setWorkDays(wd);
+
             setMinMaxForDateHelper(dateHelper, chartDataRows);
             dateHelper.setType(TimeFrame.parseTransformType(globalAnalysisTimeFrame.getTimeFrame()));
             globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());

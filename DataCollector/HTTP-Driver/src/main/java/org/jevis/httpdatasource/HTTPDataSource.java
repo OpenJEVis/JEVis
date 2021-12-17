@@ -23,6 +23,7 @@ import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSourceHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.jsoup.Jsoup;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -74,87 +75,98 @@ public class HTTPDataSource {
         }
 
         URL requestUrl;
-            if (_userName == null || _password == null || _userName.equals("") || _password.equals("")) {
+        PathFollower pathFollower = new PathFollower(channel.getChannelObject());
+        if (pathFollower.isActive()) {
 
-                path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
-                HttpURLConnection request = null;
-                if (!_serverURL.contains("://")) {
-                    _serverURL = "http://" + _serverURL;
-                }
+            _serverURL = pathFollower.followLinks(_serverURL, _userName, _password);
+            org.jsoup.Connection.Response result = Jsoup.connect(_serverURL)
+                    .ignoreContentType(true).execute();
 
-                if (_ssl) {
-                    _serverURL = _serverURL.replace("http", "https");
-                }
+            InputStream stream = new ByteArrayInputStream(result.bodyAsBytes());
+            answer.add(stream);
 
-                if (_port != null) {
-                    requestUrl = new URL(_serverURL + ":" + _port + "/" + path);
-                } else {
-                    requestUrl = new URL(_serverURL + "/" + path);
-                }
-                if (_ssl) {
-                    DataSourceHelper.doTrustToCertificates();
-                }
-                logger.info("Connection URL: {}", requestUrl);
-                request = (HttpURLConnection) requestUrl.openConnection();
+        } else if (_userName == null || _password == null || _userName.equals("") || _password.equals("")) {
+
+            path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
+            HttpURLConnection request = null;
+            if (!_serverURL.contains("://")) {
+                _serverURL = "http://" + _serverURL;
+            }
+
+            if (_ssl) {
+                _serverURL = _serverURL.replace("http", "https");
+            }
+
+            if (_port != null) {
+                requestUrl = new URL(_serverURL + ":" + _port + "/" + path);
+            } else {
+                requestUrl = new URL(_serverURL + "/" + path);
+            }
+            if (_ssl) {
+                DataSourceHelper.doTrustToCertificates();
+            }
+            logger.info("Connection URL: {}", requestUrl);
+            request = (HttpURLConnection) requestUrl.openConnection();
 
 //                    if (_connectionTimeout == null) {
-                int connTimeoutInMSec = _connectionTimeout * 1000;
+            int connTimeoutInMSec = _connectionTimeout * 1000;
 //                    }
-                //  logger.info("Connect timeout: " + _connectionTimeout+ " s");
-                request.setConnectTimeout(connTimeoutInMSec);
+            //  logger.info("Connect timeout: " + _connectionTimeout+ " s");
+            request.setConnectTimeout(connTimeoutInMSec);
 
 //                    if (_readTimeout == null) {
-                int readTimeoutInMSec = _readTimeout * 1000;
+            int readTimeoutInMSec = _readTimeout * 1000;
 //                    }
-                //   logger.info("read timeout: " + _readTimeout + " s");
-                request.setReadTimeout(readTimeoutInMSec);
-                answer.add(request.getInputStream());
+            //   logger.info("read timeout: " + _readTimeout + " s");
+            request.setReadTimeout(readTimeoutInMSec);
+            answer.add(request.getInputStream());
+        } else {
+            DefaultHttpClient _httpClient;
+            HttpHost _targetHost;
+            HttpGet _httpGet;
+            BasicHttpContext _localContext = new BasicHttpContext();
+            _httpClient = new DefaultHttpClient();
+
+            path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
+            if (_ssl) {
+                DataSourceHelper.doTrustToCertificates();
+                _targetHost = new HttpHost(_serverURL, ((int) (long) _port), "https");
             } else {
-                DefaultHttpClient _httpClient;
-                HttpHost _targetHost;
-                HttpGet _httpGet;
-                BasicHttpContext _localContext = new BasicHttpContext();
-                _httpClient = new DefaultHttpClient();
-
-                path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
-                if (_ssl) {
-                    DataSourceHelper.doTrustToCertificates();
-                    _targetHost = new HttpHost(_serverURL, ((int) (long) _port), "https");
-                } else {
-                    _targetHost = new HttpHost(_serverURL, ((int) (long) _port), "http");
-                }
-                /*
-                 * set the sope for the authentification
-                 */
-                _httpClient.getCredentialsProvider().setCredentials(
-                        new AuthScope(_targetHost.getHostName(), _targetHost.getPort()),
-                        new UsernamePasswordCredentials(_userName, _password));
-
-                // Create AuthCache instance
-                AuthCache authCache = new BasicAuthCache();
-
-                //set Authenticication scheme
-                BasicScheme basicAuth = new BasicScheme();
-                authCache.put(_targetHost, basicAuth);
-
-                path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
-
-                _httpGet = new HttpGet(path);
-                //TODO: Connection timeouts and error handling
-
-                HttpResponse oResponse = _httpClient.execute(_targetHost, _httpGet, _localContext);
-
-                HttpEntity oEntity = oResponse.getEntity();
-                String oXmlString = EntityUtils.toString(oEntity);
-                EntityUtils.consume(oEntity);
-                InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
-                answer.add(stream);
+                _targetHost = new HttpHost(_serverURL, ((int) (long) _port), "http");
             }
+            /*
+             * set the sope for the authentification
+             */
+            _httpClient.getCredentialsProvider().setCredentials(
+                    new AuthScope(_targetHost.getHostName(), _targetHost.getPort()),
+                    new UsernamePasswordCredentials(_userName, _password));
+
+            // Create AuthCache instance
+            AuthCache authCache = new BasicAuthCache();
+
+            //set Authenticication scheme
+            BasicScheme basicAuth = new BasicScheme();
+            authCache.put(_targetHost, basicAuth);
+
+            path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
+
+            _httpGet = new HttpGet(path);
+            //TODO: Connection timeouts and error handling
+
+            HttpResponse oResponse = _httpClient.execute(_targetHost, _httpGet, _localContext);
+
+            HttpEntity oEntity = oResponse.getEntity();
+            String oXmlString = EntityUtils.toString(oEntity);
+            EntityUtils.consume(oEntity);
+            InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
+            answer.add(stream);
+        }
 //        List<InputHandler> answerList = new ArrayList<InputHandler>();
 //        answerList.add(InputHandlerFactory.getInputConverter(answer));
 
         return answer;
     }
+
     private String _serverURL;
     private Integer _port;
     private Integer _connectionTimeout;

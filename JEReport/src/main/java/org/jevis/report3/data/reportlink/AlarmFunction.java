@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.*;
 import org.jevis.commons.constants.AlarmConstants;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -77,7 +76,7 @@ public class AlarmFunction implements ReportData {
         try {
             logger.debug("\n\nCheck Alarm: [{}]{}", alarmObj.getID(), alarmObj.getName());
 
-            CleanDataObject cleanDataObject = new CleanDataObject(alarmObj, new ObjectHandler(alarmObj.getDataSource()));
+            CleanDataObject cleanDataObject = new CleanDataObject(alarmObj);
             cleanDataObject.getAttributes();
             CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(alarmObj);
 

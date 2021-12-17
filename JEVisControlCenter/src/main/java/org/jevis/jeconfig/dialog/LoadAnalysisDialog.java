@@ -163,8 +163,7 @@ public class LoadAnalysisDialog extends JFXDialog {
 
 
         if (!analysisListView.getItems().isEmpty()) {
-            dateHelper.setStartTime(analysisDataModel.getWorkdayStart());
-            dateHelper.setEndTime(analysisDataModel.getWorkdayEnd());
+            dateHelper.setWorkDays(analysisDataModel.getWorkDays());
         }
 
         if (analysisDataModel.getCurrentAnalysis() != null && analysisDataModel.getCurrentAnalysis().getName() != null
@@ -603,8 +602,7 @@ public class LoadAnalysisDialog extends JFXDialog {
                             if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
                                 dateHelper.setCustomPeriodObject(cpo);
                                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
-                                dateHelper.setStartTime(analysisDataModel.getWorkdayStart());
-                                dateHelper.setEndTime(analysisDataModel.getWorkdayEnd());
+                                dateHelper.setWorkDays(analysisDataModel.getWorkDays());
 
                                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
                                 newTimeFrame.setTimeFrame(TimeFrame.CUSTOM_START_END);

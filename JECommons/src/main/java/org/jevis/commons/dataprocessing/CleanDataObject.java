@@ -44,7 +44,7 @@ public class CleanDataObject {
     private static final Logger logger = LogManager.getLogger(CleanDataObject.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JEVisObject cleanObject;
-    private final JEVisObject rawDataObject;
+    private JEVisObject rawDataObject;
     //attributes
     private List<PeriodRule> periodCleanData;
     private List<PeriodRule> periodRawData;
@@ -94,15 +94,27 @@ public class CleanDataObject {
     private DateTime lastRawDate;
     private int processingSize = 10000;
 
-    public CleanDataObject(JEVisObject calcObject, ObjectHandler objectHandler) {
-        cleanObject = calcObject;
-        rawDataObject = objectHandler.getFirstParent(calcObject);
+    public CleanDataObject(JEVisObject cleanObject) {
+        this.cleanObject = cleanObject;
+        try {
+            ObjectHandler objectHandler = new ObjectHandler(cleanObject.getDataSource());
+            rawDataObject = objectHandler.getFirstParent(cleanObject);
+        } catch (Exception e) {
+            logger.error("Could not initialize Object Handler", e);
+        }
+
+        sampleHandler = new SampleHandler();
+    }
+
+    public CleanDataObject(JEVisObject cleanObject, ObjectHandler objectHandler) {
+        this.cleanObject = cleanObject;
+        rawDataObject = objectHandler.getFirstParent(cleanObject);
         sampleHandler = new SampleHandler();
 
         try {
-            calcObject.getDataSource().reloadAttribute(rawDataObject);
-        } catch (JEVisException e) {
-            logger.error("Could not reload input data object for object {}:{}", calcObject.getName(), calcObject.getID(), e);
+            cleanObject.getDataSource().reloadAttribute(rawDataObject);
+        } catch (Exception e) {
+            logger.error("Could not reload input data object for object {}:{}", cleanObject.getName(), cleanObject.getID(), e);
         }
     }
 
@@ -143,12 +155,6 @@ public class CleanDataObject {
      * Check if the configuration is valid. Returns false if configuration is not valid.
      */
     public boolean checkConfig() {
-
-        try {
-            reloadAttributes();
-        } catch (JEVisException e) {
-            logger.error("Could not reload attributes. ", e);
-        }
 
         List<String> errors = new ArrayList<>();
         if (getLimitsEnabled() && getLimitsConfig().isEmpty()) {
@@ -217,6 +223,7 @@ public class CleanDataObject {
                 stringBuilder.append(s);
             });
             LogTaskManager.getInstance().getTask(getCleanObject().getID()).setException(new Exception(stringBuilder.toString()));
+            logger.info("Job of {}:{} stopped. Error: {}", getCleanObject().getName(), getCleanObject().getID(), errors.toString());
 
             return false;
         }
@@ -376,10 +383,10 @@ public class CleanDataObject {
             JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
             if (object != null && object.getJEVisClass().equals(dataClass)) {
                 JEVisObject cleanDataObject = CommonMethods.getFirstCleanObject(object);
-                CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(object.getDataSource()));
+                CleanDataObject cdo = new CleanDataObject(cleanDataObject);
                 isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
             } else if (object != null && object.getJEVisClass().equals(cleanDataClass)) {
-                CleanDataObject cdo = new CleanDataObject(object, new ObjectHandler(object.getDataSource()));
+                CleanDataObject cdo = new CleanDataObject(object);
                 isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
             }
         } catch (Exception e) {
@@ -572,7 +579,7 @@ public class CleanDataObject {
             JEVisAttribute attribute = null;
             try {
                 attribute = getCleanObject().getAttribute(VALUE_ATTRIBUTE_NAME);
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get attribute {} of object {}:{}", VALUE_ATTRIBUTE_NAME, getCleanObject().getName(), getCleanObject().getID());
             }
             if (attribute != null) {
@@ -580,7 +587,7 @@ public class CleanDataObject {
                 if (lastSample != null) {
                     try {
                         timestampFromLastCleanSample = lastSample.getTimestamp();
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         logger.error("Could not get last sample of attribute {} of object {}:{}", attribute.getName(), getCleanObject().getName(), getCleanObject().getID());
                     }
                 }
@@ -661,6 +668,9 @@ public class CleanDataObject {
                 } catch (IOException e) {
                     logger.error("Could not parse gapFillingConfig because of IOException: {}", limitsConfiguration, e);
                     return new ArrayList<>();
+                } catch (Exception e) {
+                    logger.error("Could not parse gapFillingConfig because of Exception: {}", limitsConfiguration, e);
+                    return new ArrayList<>();
                 }
             } else {
                 return new ArrayList<>();
@@ -705,7 +715,7 @@ public class CleanDataObject {
                     lastDate = this.rawSamplesDown.get(indexLastRawSample).getTimestamp().plus(lastPeriod);
                 }
                 //lastDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(getCleanDataPeriodAlignment());
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get timestamp of last Raw sample.");
             }
         }
@@ -726,7 +736,8 @@ public class CleanDataObject {
                     }
                 }
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
+            logger.error("Could not get notes map for {}:{}", cleanObject.getName(), cleanObject.getID(), e);
         }
         return notesMap;
     }
@@ -750,7 +761,8 @@ public class CleanDataObject {
                     }
                 }
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
+            logger.error("Could not get user data map for {}:{}", cleanObject.getName(), cleanObject.getID(), e);
         }
         return userDataMap;
     }
@@ -758,8 +770,9 @@ public class CleanDataObject {
     public List<JEVisSample> getMultiplier() {
         if (multiplier == null) {
             multiplier = sampleHandler.getAllSamples(getCleanObject(), MULTIPLIER.getAttributeName());
-            if (multiplier.isEmpty())
+            if (multiplier.isEmpty()) {
                 multiplier.add(new VirtualSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), 1.0));
+            }
         }
         return multiplier;
     }

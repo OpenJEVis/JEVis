@@ -168,6 +168,8 @@ public class FXLogin extends AnchorPane {
 
         Platform.runLater(() -> {
             this.userName.setEditable(true);
+            this.mainStage.setMaximized(false);
+            this.mainStage.setMaximized(true);
         });
     }
 
