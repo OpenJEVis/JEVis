@@ -14,6 +14,7 @@ import org.jevis.commons.alarm.AlarmConfiguration;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
+import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
 
@@ -62,15 +63,13 @@ public class Launcher extends AbstractCliApp {
                         AlarmProcess currentProcess = new AlarmProcess(alarmConfiguration);
                         currentProcess.start();
 
+                        LogTaskManager.getInstance().getTask(alarmConfiguration.getObject().getID()).setStatus(Task.Status.FINISHED);
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(alarmConfiguration.getObject().getID()).setStatus(Task.Status.FAILED);
-                        removeJob(alarmConfiguration.getObject());
 
-                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+                        logger.error("Error in Job: {}:{}", alarmConfiguration.getName(), alarmConfiguration.getId(), e);
 
-                        checkLastJob();
                     } finally {
-                        LogTaskManager.getInstance().getTask(alarmConfiguration.getObject().getID()).setStatus(Task.Status.FINISHED);
                         removeJob(alarmConfiguration.getObject());
 
                         logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
@@ -124,6 +123,7 @@ public class Launcher extends AbstractCliApp {
             List<AlarmConfiguration> enabledAlarmConfigurations = new ArrayList<>();
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 //                if (!firstRun) {
 //                    try {
 //                        ds.clearCache();
