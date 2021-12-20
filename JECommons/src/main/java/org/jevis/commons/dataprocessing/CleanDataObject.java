@@ -156,12 +156,6 @@ public class CleanDataObject {
      */
     public boolean checkConfig() {
 
-        try {
-            reloadAttributes();
-        } catch (Exception e) {
-            logger.error("Could not reload attributes. ", e);
-        }
-
         List<String> errors = new ArrayList<>();
         if (getLimitsEnabled() && getLimitsConfig().isEmpty()) {
             errors.add("Missing Limit configuration");
@@ -229,6 +223,7 @@ public class CleanDataObject {
                 stringBuilder.append(s);
             });
             LogTaskManager.getInstance().getTask(getCleanObject().getID()).setException(new Exception(stringBuilder.toString()));
+            logger.info("Job of {}:{} stopped. Error: {}", getCleanObject().getName(), getCleanObject().getID(), errors.toString());
 
             return false;
         }
