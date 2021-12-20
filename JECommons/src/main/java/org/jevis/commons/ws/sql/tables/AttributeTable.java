@@ -98,6 +98,42 @@ public class AttributeTable {
         return attributes;
     }
 
+    public JsonAttribute getAttribute(long object, String name) {
+        logger.trace("getAttribute:  {}, {}", object, name);
+
+        JsonAttribute attribute = null;
+
+        String sql = "select o.type,a.*,s.* " +
+                "FROM attribute a left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) " +
+                "left join object o on (o.id=a.object) where a.object=? and a.attribute=?;";
+
+
+        try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, object);
+
+            logger.debug("SQL {}", ps);
+            ResultSet rs = ps.executeQuery();
+
+
+            while (rs.next()) {
+                try {
+                    attribute = SQLtoJsonFactory.buildAttributeThisLastValue(rs);
+
+                } catch (Exception ex) {
+                    logger.trace(ex);
+                }
+
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+
+        return attribute;
+    }
+
+
     public List<JsonAttribute> getAllAttributes() throws JEVisException {
         logger.trace("getAllAttributes ");
         List<JsonAttribute> attributes = new ArrayList<>();
@@ -138,7 +174,20 @@ public class AttributeTable {
      */
     public void updateMinMaxTS(long objectID, String attribute) {
         logger.debug("updateMinMaxTS: {}:{}", objectID, attribute);
-        String selectSQL = String.format("select min(%s) as min,max(%s) as max,count(%s) as count " +
+        /* with count
+         String selectSQL = String.format("select min(%s) as min,max(%s) as max,count(%s) as count " +
+                        "from %s where object=? and attribute=?  ",
+                SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.TABLE);
+
+        String sqlUpdate = String.format("insert into %s ( %s,%s,%s,%s,%s) " +
+                        "VALUES (?,?,?,?,?) " +
+                        "ON DUPLICATE KEY UPDATE  %s=VALUES(%s), %s=VALUES(%s), %s=VALUES(%s)",
+                TABLE, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_OBJECT, COLUMN_NAME,
+                COLUMN_MIN_TS, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_COUNT);
+
+         */
+
+        String selectSQL = String.format("select min(%s) as min,max(%s) as max " +
                         "from %s where object=? and attribute=?  ",
                 SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.TABLE);
 
@@ -161,7 +210,11 @@ public class AttributeTable {
             while (rs.next()) {
                 Timestamp mindate = rs.getTimestamp("min");
                 Timestamp maxdate = rs.getTimestamp("max");
-                long count = rs.getLong("count");
+                //long count = rs.getLong("count"); // tmp disabled for performance
+                long count = 0;
+                if (mindate != null) {//tmp performance workaround.
+                    count = 1;
+                }
                 logger.debug("count: {},min: {}", count, mindate);
 
                 try (PreparedStatement psUpdate = ds.getConnection().prepareStatement(sqlUpdate)) {
@@ -205,7 +258,8 @@ public class AttributeTable {
      */
     public void updateAttribute(long object, JsonAttribute att) throws JEVisException {
 
-        String sql = String.format("insert into %s( %s,%s,%s,%s,%s,%s) Values ( ?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE %s=?,%s=?,%s=?,%s=?", TABLE, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE, COLUMN_OBJECT, COLUMN_NAME, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE);
+        String sql = String.format("insert into %s( %s,%s,%s,%s,%s,%s) Values ( ?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE %s=?,%s=?,%s=?,%s=?",
+                TABLE, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE, COLUMN_OBJECT, COLUMN_NAME, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE);
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
 //            Gson gson = new Gson();

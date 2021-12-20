@@ -287,7 +287,54 @@ public class ResourceSample {
 
             logger.trace("got Object: {}", obj);
 
-            List<JsonAttribute> attributes = ds.getAttributes(id);
+            JsonAttribute att = ds.getAttribute(id, attribute);
+            if (att == null) {
+                return Response.status(Status.NOT_FOUND)
+                        .entity("No such Attribute").build();
+            }
+
+            DateTime startDate = null;
+            DateTime endDate = null;
+            if (start != null) {
+                startDate = fmt.parseDateTime(start);
+                if (startDate.getYear() < 1980) {
+                    Response.ok(new ArrayList<JsonSample>()).build();
+                }
+            }
+            if (end != null) {
+                endDate = fmt.parseDateTime(end);
+                if (endDate.getYear() < 1980) {
+                    Response.ok(new ArrayList<JsonSample>()).build();
+                }
+            }
+
+            if (onlyLatest) {
+                logger.trace("Last sample mode");
+
+                JsonSample sample = ds.getLastSample(id, attribute);
+                if (sample != null) {
+                    return Response.ok(sample).build();
+                } else {
+                    return Response.status(Status.NOT_FOUND).entity("Has no samples").build();
+                }
+
+            }
+
+            if ((aggregationPeriod.equals("") && manipulationMode.equals(""))
+                    || (aggregationPeriod.equals("NONE") && manipulationMode.equals("NONE"))) {
+                list = ds.getSamples(id, attribute, startDate, endDate, limit);
+            } else {
+                AggregationPeriod ap = AggregationPeriod.parseAggregation(aggregationPeriod);
+                ManipulationMode mm = ManipulationMode.parseManipulation(manipulationMode);
+                DateTimeZone dateTimeZone = DateTimeZone.forID(timeZone);
+                JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap, dateTimeZone);
+
+                list = sg.getAggregatedSamples();
+            }
+
+            return Response.ok(list).build();
+
+            /*
             for (JsonAttribute att : attributes) {
                 if (att.getType().equals(attribute)) {
                     DateTime startDate = null;
@@ -334,9 +381,11 @@ public class ResourceSample {
 
                 }
             }
+
             return Response.status(Status.NOT_FOUND)
                     .entity("No such Attribute").build();
 
+            */
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception jex) {

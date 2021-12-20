@@ -510,15 +510,6 @@ public class SQLDataSource {
         return false;
     }
 
-    public JsonAttribute getAttribute(long objectID, String name) {
-        for (JsonAttribute att : getAttributes(objectID)) {
-            if (att.getType().equals(name)) {
-                return att;
-            }
-        }
-        return null;
-    }
-
     public boolean deleteAllSample(long object, String attribute) {
         return getSampleTable().deleteAllSamples(object, attribute);
     }
@@ -559,6 +550,65 @@ public class SQLDataSource {
             logger.error("Error while loading AllAttributes", ex);
         }
         return new ArrayList<>();
+    }
+
+    /*
+    public JsonAttribute getAttribute(long objectID, String name) {
+        for (JsonAttribute att : getAttributes(objectID)) {
+            if (att.getType().equals(name)) {
+                return att;
+            }
+        }
+        return null;
+    }
+    */
+
+
+    public JsonAttribute getAttribute(long objectID, String name) {
+        try {
+            JsonObject ob = getObject(objectID);
+            JsonJEVisClass jc = Config.getClassCache().get(ob.getJevisClass());
+            JsonAttribute attribute = getAttributeTable().getAttribute(objectID, name);
+
+            if (attribute != null) {
+                return attribute;
+            } else {
+                if (jc.getTypes() != null) {
+                    for (JsonType type : jc.getTypes()) {
+                        boolean exists = false;
+
+                        if (type.getName().equals(name)) {
+                            JsonAttribute newAtt = new JsonAttribute();
+                            newAtt.setObjectID(objectID);
+                            newAtt.setType(type.getName());
+                            newAtt.setBegins("");
+                            newAtt.setEnds("");
+                            newAtt.setDisplaySampleRate(Period.ZERO.toString());
+                            newAtt.setInputSampleRate("");
+                            newAtt.setSampleCount(0);
+                            newAtt.setPrimitiveType(type.getPrimitiveType());
+
+                            JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+
+                            newAtt.setDisplayUnit(unit);
+                            newAtt.setInputUnit(unit);
+                            return newAtt;
+                        }
+
+                    }
+                }
+            }
+
+            // because jevis will not create default attributes or manage the update of types
+            // we check that all and only all types are there
+
+            logger.info("Empty Type list for class: " + jc.getName());
+            return null;
+        } catch (Exception ex) {
+            logger.info("================= Error in attribute: " + objectID);
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     public List<JsonAttribute> getAttributes(long objectID) {
@@ -602,7 +652,7 @@ public class SQLDataSource {
                 return result;
 
             }
-            logger.info("Emty Type list for class: " + jc.getName());
+            logger.info("Empty Type list for class: " + jc.getName());
             return new ArrayList<>();
         } catch (Exception ex) {
             logger.info("================= Error in attribute: " + objectID);
