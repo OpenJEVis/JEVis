@@ -234,7 +234,6 @@ public class AggregationAlignmentStep implements ProcessStep {
                 Double value = null;
 
                 if (currentInterval.getRawSamples() == null || currentInterval.getRawSamples().isEmpty()) {
-
                     String note = "";
                     if (j < intervals.size() - 1) {
                         for (int i = j; i < intervals.size(); i++) {
@@ -268,6 +267,21 @@ public class AggregationAlignmentStep implements ProcessStep {
                             sample1.setValue(value);
                             sample1.setNote(note);
                         }
+                    }
+                } else if (j == 0) {
+                    try {
+                        long periodCount = inputPeriod.toStandardDuration().getMillis() / outputPeriod.toStandardDuration().getMillis();
+                        value = currentInterval.getResult().getValueAsDouble() / periodCount;
+                        String note = currentInterval.getResult().getNote();
+                        if (note == null || note.equals("")) {
+                            note = "agg(yes,up," + periodCount + ",avg)";
+                        } else {
+                            note = note + ",agg(yes,up," + periodCount + ",avg)";
+                        }
+                        currentInterval.getResult().setValue(value);
+                        currentInterval.getResult().setNote(note);
+                    } catch (Exception e) {
+                        logger.error("Could not get period count", e);
                     }
                 }
 

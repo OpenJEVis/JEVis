@@ -175,7 +175,7 @@ public class LimitsStep implements ProcessStep {
         return l;
     }
 
-    private List<LimitBreak> identifyLimitBreaks(ResourceManager resourceManager, List<CleanInterval> intervals, List<JsonLimitsConfig> conf, Double firstValue) throws Exception {
+    private List<LimitBreak> identifyLimitBreaks(ResourceManager resourceManager, List<CleanInterval> intervals, List<JsonLimitsConfig> conf, Double firstValue) {
 
         List<LimitBreak> limitBreaks = new ArrayList<>();
         LimitBreak currentLimitBreak = null;

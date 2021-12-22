@@ -17,7 +17,7 @@ public class ReportName {
         String prefix = "";
         try {
             WorkDays wd = new WorkDays(reportObject);
-            if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
+            if (wd.getWorkdayEnd(startDate).isBefore(wd.getWorkdayStart(startDate))) {
                 startDate = startDate.plusDays(1);
             }
 

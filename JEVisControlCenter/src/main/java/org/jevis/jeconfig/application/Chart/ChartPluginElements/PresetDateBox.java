@@ -275,8 +275,7 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
 
         if (object != null) {
             workDays = new WorkDays(object);
-            dateHelper.setStartTime(workDays.getWorkdayStart());
-            dateHelper.setEndTime(workDays.getWorkdayEnd());
+            dateHelper.setWorkDays(workDays);
             try {
                 ds = object.getDataSource();
             } catch (JEVisException e) {
@@ -335,8 +334,7 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
 
                 dateHelper.setCustomPeriodObject(cpo);
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
-                dateHelper.setStartTime(workDays.getWorkdayStart());
-                dateHelper.setEndTime(workDays.getWorkdayEnd());
+                dateHelper.setWorkDays(workDays);
 
                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM_START_END, cpo.getObject().getID(), cpo.getObject().getName());
                 newTimeFrame.setStart(dateHelper.getStartDate());

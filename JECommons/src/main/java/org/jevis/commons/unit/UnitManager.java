@@ -511,6 +511,8 @@ public class UnitManager {
         nonSI.add(javax.measure.unit.NonSI.STOKE);
         nonSI.add(javax.measure.unit.NonSI.TON_UK);
         nonSI.add(javax.measure.unit.NonSI.TON_US);
+        nonSI.add(SI.WATT.alternate("va").times(NonSI.HOUR));
+        nonSI.add(SI.WATT.alternate("var").times(NonSI.HOUR));
         nonSI.add(javax.measure.unit.NonSI.WEEK);
         nonSI.add(javax.measure.unit.NonSI.YARD);
         nonSI.add(javax.measure.unit.NonSI.YEAR);
@@ -723,6 +725,8 @@ public class UnitManager {
         si.add(javax.measure.unit.SI.SQUARE_METRE);
         si.add(javax.measure.unit.SI.STERADIAN);
         si.add(javax.measure.unit.SI.TESLA);
+        si.add(SI.WATT.alternate("va"));
+        si.add(SI.WATT.alternate("var"));
         si.add(javax.measure.unit.SI.VOLT);
         si.add(javax.measure.unit.SI.WATT);
         si.add(javax.measure.unit.SI.WEBER);

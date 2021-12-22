@@ -183,7 +183,7 @@ public class ObjectEditor {
                     installedExtensions.add(new GenericAttributeExtension(obj, this.tree));
                     if (JEConfig.getExpert()) {
                         installedExtensions.add(new StatisticExtension(obj));
-                        installedExtensions.add(new ChildrenEditorPlugin(obj));
+                        installedExtensions.add(new ChildrenEditorExtension(obj));
                     }
                     installedExtensions.add(new MemberExtension(obj));
                     installedExtensions.add(new PermissionExtension(obj));

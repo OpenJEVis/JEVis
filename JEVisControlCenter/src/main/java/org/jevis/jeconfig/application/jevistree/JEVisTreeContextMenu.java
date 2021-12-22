@@ -48,6 +48,7 @@ import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
 import org.jevis.jeconfig.tool.AttributeCopy;
 import org.jevis.jeconfig.tool.Calculations;
 import org.jevis.jeconfig.tool.CleanDatas;
+import org.jevis.jeconfig.tool.CreateAlarms;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -102,6 +103,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     getItems().add(buildOCP());
                 } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
                     getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
+                    getItems().add(buildCreateAlarms());
                 } else if (obj.getJEVisClassName().equals("Data")) {
                     getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
                     getItems().add(buildReCalcClean());
@@ -242,6 +244,15 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
         menu.setOnAction(t -> {
             CleanDatas.createTask(tree);
+        });
+        return menu;
+    }
+
+    private MenuItem buildCreateAlarms() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.createalarms"), ResourceLoader.getImage("alarm_icon.png", 20, 20));
+
+        menu.setOnAction(t -> {
+            CreateAlarms.createTask(tree);
         });
         return menu;
     }

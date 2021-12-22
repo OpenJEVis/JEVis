@@ -17,6 +17,7 @@ import org.jevis.commons.datetime.WorkDays;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -198,14 +199,17 @@ public class PeriodAlignmentStep implements ProcessStep {
             }
 
             if (isGreaterThenDays && lowerTS != null) {
-                lowerTS = lowerTS.withHourOfDay(workDays.getWorkdayStart().getHour())
-                        .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
-                        .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
-                higherTS = higherTS.withHourOfDay(workDays.getWorkdayStart().getHour())
-                        .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
-                        .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
+                LocalTime workdayStart = workDays.getWorkdayStart(lowerTS);
+                lowerTS = lowerTS.withHourOfDay(workdayStart.getHour())
+                        .withMinuteOfHour(workdayStart.getMinute())
+                        .withSecondOfMinute(workdayStart.getSecond());
 
-                if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                higherTS = higherTS.withHourOfDay(workdayStart.getHour())
+                        .withMinuteOfHour(workdayStart.getMinute())
+                        .withSecondOfMinute(workdayStart.getSecond());
+
+                LocalTime workdayEnd = workDays.getWorkdayEnd(lowerTS);
+                if (workdayEnd.isBefore(workdayStart)) {
                     lowerTS = lowerTS.minusDays(1);
                     higherTS = higherTS.minusDays(1);
                 }

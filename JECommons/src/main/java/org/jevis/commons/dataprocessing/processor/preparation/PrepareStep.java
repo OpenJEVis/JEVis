@@ -98,8 +98,8 @@ public class PrepareStep implements ProcessStep {
         DateTime currentDate = cleanDataObject.getFirstDate();
         DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
         WorkDays wd = new WorkDays(cleanDataObject.getCleanObject());
-        LocalTime dtStart = wd.getWorkdayStart();
-        LocalTime dtEnd = wd.getWorkdayEnd();
+        LocalTime dtStart = wd.getWorkdayStart(currentDate);
+        LocalTime dtEnd = wd.getWorkdayEnd(currentDate);
         DateTime maxEndDate = cleanDataObject.getMaxEndDate();
         Boolean firstIsDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
 
@@ -160,7 +160,7 @@ public class PrepareStep implements ProcessStep {
             }
 
             if (firstCleanPeriod.getMinutes() > 0 && firstRawPeriod.getHours() == 1 && firstRawPeriod.getMinutes() == 0) {
-                currentDate = currentDate.withMinuteOfHour(0);
+                currentDate = currentDate.plus(firstCleanPeriod);
             }
 
             while (currentDate.isBefore(maxEndDate) && !periodCleanData.isEmpty() && !currentDate.equals(lastDate)) {
@@ -170,6 +170,8 @@ public class PrepareStep implements ProcessStep {
                 Period cleanPeriod = CleanDataObject.getPeriodForDate(periodCleanData, currentDate);
                 Boolean isDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
                 boolean greaterThenDays = false;
+                dtStart = wd.getWorkdayStart(currentDate);
+                dtEnd = wd.getWorkdayEnd(currentDate);
 
                 startDateTime = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
                         currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());

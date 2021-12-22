@@ -17,6 +17,7 @@ import org.joda.time.Days;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.stream.IntStream;
 
@@ -365,14 +366,15 @@ public class PeriodHelper {
         }
 
         if (isGreaterThenDays && lowerTS != null) {
-            lowerTS = lowerTS.withHourOfDay(workDays.getWorkdayStart().getHour())
-                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
-                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
-            higherTS = higherTS.withHourOfDay(workDays.getWorkdayStart().getHour())
-                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
-                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond());
+            LocalTime workdayStart = workDays.getWorkdayStart(firstDate);
+            lowerTS = lowerTS.withHourOfDay(workdayStart.getHour())
+                    .withMinuteOfHour(workdayStart.getMinute())
+                    .withSecondOfMinute(workdayStart.getSecond());
+            higherTS = higherTS.withHourOfDay(workdayStart.getHour())
+                    .withMinuteOfHour(workdayStart.getMinute())
+                    .withSecondOfMinute(workdayStart.getSecond());
 
-            if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+            if (workDays.getWorkdayEnd(firstDate).isBefore(workdayStart)) {
                 lowerTS = lowerTS.minusDays(1);
                 higherTS = higherTS.minusDays(1);
             }

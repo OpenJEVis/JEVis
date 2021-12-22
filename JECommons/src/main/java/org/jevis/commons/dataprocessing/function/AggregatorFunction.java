@@ -22,7 +22,6 @@ package org.jevis.commons.dataprocessing.function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.Process;
@@ -39,6 +38,7 @@ import org.joda.time.DateTimeComparator;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,7 +109,7 @@ public class AggregatorFunction implements ProcessFunction {
                 //logger.info("add sample: " + samples.get(i));
                 samplesInPeriod.add(samples.get(i));
                 logger.debug("aggregate {} to interval {}-{} ", samples.get(i), intervalStart, intervalEnd);
-            } else if (sampleTS.isAfter(intervalEnd)) {
+            } else if (sampleTS.isAfter(intervalEnd) && i > 0) {
                 lastPos = i - 1;
                 break;
             }
@@ -174,15 +174,17 @@ public class AggregatorFunction implements ProcessFunction {
             }
 
             if (isCustomWorkDay && newPeriod != null && PeriodHelper.isGreaterThenDays(newPeriod)) {
-                intervalStart = intervalStart.withHourOfDay(wd.getWorkdayStart().getHour())
-                        .withMinuteOfHour(wd.getWorkdayStart().getMinute())
-                        .withSecondOfMinute(wd.getWorkdayStart().getSecond());
+                LocalTime workdayStart = wd.getWorkdayStart(intervalStart);
+                intervalStart = intervalStart.withHourOfDay(workdayStart.getHour())
+                        .withMinuteOfHour(workdayStart.getMinute())
+                        .withSecondOfMinute(workdayStart.getSecond());
 
-                intervalEnd = intervalEnd.withHourOfDay(wd.getWorkdayEnd().getHour())
-                        .withMinuteOfHour(wd.getWorkdayEnd().getMinute())
-                        .withSecondOfMinute(wd.getWorkdayEnd().getSecond());
+                LocalTime workdayEnd = wd.getWorkdayEnd(intervalStart);
+                intervalEnd = intervalEnd.withHourOfDay(workdayEnd.getHour())
+                        .withMinuteOfHour(workdayEnd.getMinute())
+                        .withSecondOfMinute(workdayEnd.getSecond());
 
-                if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
+                if (workdayEnd.isBefore(workdayStart)) {
                     intervalStart = intervalStart.minusDays(1);
                     intervalEnd = intervalEnd.minusDays(1).plusSeconds(1);
                 }
@@ -267,7 +269,7 @@ public class AggregatorFunction implements ProcessFunction {
             if (allSamples.size() > 0) {
                 try {
                     attribute = allSamples.get(0).getAttribute();
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Could not get Attribute: ", e);
                 }
             }
@@ -281,7 +283,7 @@ public class AggregatorFunction implements ProcessFunction {
                 if (allSamples.size() > 1) {
                     try {
                         oldPeriod = new Period(allSamples.get(0).getTimestamp(), allSamples.get(1).getTimestamp());
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         logger.error("Could not get old Period: ", e);
                     }
                 }
@@ -303,8 +305,8 @@ public class AggregatorFunction implements ProcessFunction {
                             lastPos = i;
                             break;
                         }
-                    } catch (JEVisException ex) {
-                        logger.fatal("JEVisException while going through sample: {}", ex.getMessage(), ex);
+                    } catch (Exception ex) {
+                        logger.fatal("Exception while going through sample: {}", ex.getMessage(), ex);
                     }
                 }
 
@@ -316,7 +318,7 @@ public class AggregatorFunction implements ProcessFunction {
                         sum += sample.getValueAsDouble();
                         hasSamples = true;
                         if (unit == null) unit = sample.getUnit();
-                    } catch (JEVisException ex) {
+                    } catch (Exception ex) {
                         logger.fatal(ex);
                     }
                 }
@@ -337,7 +339,7 @@ public class AggregatorFunction implements ProcessFunction {
                     if (oldPeriod != null && newPeriod != null) {
                         try {
                             resultSum.setNote("Aggregation(" + oldPeriod + "/" + newPeriod + ")");
-                        } catch (JEVisException e) {
+                        } catch (Exception e) {
                             logger.error("Could not set new Note to sample: ", e);
                         }
                     }
@@ -369,15 +371,17 @@ public class AggregatorFunction implements ProcessFunction {
                 }
 
                 if (isCustomWorkDay && newPeriod != null && PeriodHelper.isGreaterThenDays(newPeriod)) {
-                    intervalStart = intervalStart.withHourOfDay(wd.getWorkdayStart().getHour())
-                            .withMinuteOfHour(wd.getWorkdayStart().getMinute())
-                            .withSecondOfMinute(wd.getWorkdayStart().getSecond());
+                    LocalTime workdayStart = wd.getWorkdayStart(intervalStart);
+                    intervalStart = intervalStart.withHourOfDay(workdayStart.getHour())
+                            .withMinuteOfHour(workdayStart.getMinute())
+                            .withSecondOfMinute(workdayStart.getSecond());
 
-                    intervalEnd = intervalEnd.withHourOfDay(wd.getWorkdayEnd().getHour())
-                            .withMinuteOfHour(wd.getWorkdayEnd().getMinute())
-                            .withSecondOfMinute(wd.getWorkdayEnd().getSecond());
+                    LocalTime workdayEnd = wd.getWorkdayEnd(intervalStart);
+                    intervalEnd = intervalEnd.withHourOfDay(workdayEnd.getHour())
+                            .withMinuteOfHour(workdayEnd.getMinute())
+                            .withSecondOfMinute(workdayEnd.getSecond());
 
-                    if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) intervalStart = intervalStart.minusDays(1);
+                    if (workdayEnd.isBefore(workdayStart)) intervalStart = intervalStart.minusDays(1);
                 }
 
                 JsonAttribute jsonAttribute = mainTask.getJsonAttribute();

@@ -21,7 +21,6 @@ package org.jevis.commons.dataprocessing.function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 
@@ -89,7 +87,7 @@ public class InputFunction implements ProcessFunction {
                 long oid = Long.parseLong((ProcessOptions.GetLatestOption(task, OBJECT_ID, new BasicProcessOption(OBJECT_ID, "")).getValue()));
                 try {
                     object = sql.getObject(oid);
-                } catch (JEVisException ex) {
+                } catch (Exception ex) {
                     logger.fatal(ex);
                 }
             } else if (task.getObject() != null) {
@@ -99,7 +97,7 @@ public class InputFunction implements ProcessFunction {
                             object = sql.getObject(rel.getTo());//TODO make save
                         }
                     }
-                } catch (JEVisException ex) {
+                } catch (Exception ex) {
                     logger.error(ex);
                 }
             }
@@ -134,6 +132,7 @@ public class InputFunction implements ProcessFunction {
                                     }
                                 }
                             }
+                            if (foundUserDataObject) break;
                         }
                     }
 
@@ -142,7 +141,10 @@ public class InputFunction implements ProcessFunction {
 
                     if (foundUserDataObject && att != null) {
 
-                        SortedMap<DateTime, JsonSample> map = sql.getSamples(object.getId(), att.getType(), startEnd[0], startEnd[1], LIMIT).stream().collect(Collectors.toMap(jeVisSample -> new DateTime(jeVisSample.getTs()), jeVisSample -> jeVisSample, (a, b) -> b, TreeMap::new));
+                        SortedMap<DateTime, JsonSample> map = new TreeMap<>();
+                        for (JsonSample jeVisSample : sql.getSamples(object.getId(), att.getType(), startEnd[0], startEnd[1], LIMIT)) {
+                            map.put(new DateTime(jeVisSample.getTs()), jeVisSample);
+                        }
 
                         List<JsonSample> userValues = sql.getSamples(correspondingUserDataObject.getId(), "Value", startEnd[0], startEnd[1], LIMIT);
 
@@ -163,7 +165,7 @@ public class InputFunction implements ProcessFunction {
                     }
 
                     logger.info("Input result: {}", _jsonResult.size());
-                } catch (JEVisException ex) {
+                } catch (Exception ex) {
                     logger.fatal(ex);
                 }
             } else {

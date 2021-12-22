@@ -290,14 +290,6 @@ public class TopMenu extends MenuBar {
         welcome.setSelected(prefWelcome.getBoolean("show", true));
         welcome.setOnAction(e -> prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", false)));
 
-        final Preferences patchNotes = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
-        CheckMenuItem showPatchNotes = new CheckMenuItem(I18n.getInstance().getString("menu.options.patchnotes"));
-        showPatchNotes.setSelected(prefWelcome.getBoolean("show", true));
-        showPatchNotes.setOnAction(e -> {
-            patchNotes.put("version", JEConfig.class.getPackage().getImplementationVersion());
-            patchNotes.putBoolean("show", !patchNotes.getBoolean("show", true));
-        });
-
         MenuItem changePassword = new MenuItem(I18n.getInstance().getString("menu.options.changepassword"));
         changePassword.setOnAction(event -> {
             PasswordDialog dia = new PasswordDialog();
@@ -359,7 +351,7 @@ public class TopMenu extends MenuBar {
             threadCount.getItems().add(cmi);
         }
 
-        options.getItems().addAll(changePassword, enablePreview, welcome, showPatchNotes, expertMode);
+        options.getItems().addAll(changePassword, enablePreview, welcome, expertMode);
 
         if (JEConfig.getExpert()) {
             options.getItems().add(threadCount);
@@ -510,8 +502,7 @@ public class TopMenu extends MenuBar {
 
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 
-        MenuItem showChangelog = new MenuItem(I18n.getInstance().getString("menu.help.changelog"));
-
+        MenuItem showChangelog = new MenuItem(I18n.getInstance().getString("menu.options.patchnotes"));
         MenuItem showHelp = new MenuItem(I18n.getInstance().getString("menu.showToolTips"));
         MenuItem about = new MenuItem(I18n.getInstance().getString("menu.about"));
         help.getItems().addAll(showHelp, showChangelog, about);
@@ -523,10 +514,7 @@ public class TopMenu extends MenuBar {
                     , JEConfig.PROGRAM_INFO, JEConfig.getImage("JEConfig_mac.png"));
 
         });
-        showHelp.setOnAction(event -> {
-            //activePlugin.handleRequest(Constants.Plugin.Command.SHOW_TOOLTIP_HELP);
-            JEVisHelp.getInstance().toggleHelp();
-        });
+        showHelp.setOnAction(event -> JEVisHelp.getInstance().toggleHelp());
 
         showChangelog.setOnAction(event -> {
             PatchNotesPage patchNotesPage = new PatchNotesPage();

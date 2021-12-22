@@ -2,7 +2,10 @@ package org.jevis.commons.unit.ChartUnits;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
@@ -25,13 +28,13 @@ import java.util.List;
 public class QuantityUnits {
     private static final Logger logger = LogManager.getLogger(QuantityUnits.class);
 
-    private final Unit _mg = SI.GRAM.divide(1000);
+    private final Unit _mg = SI.MILLI(SI.GRAM);
     private final JEVisUnit mg = new JEVisUnitImp(_mg);
     private final Unit _g = SI.GRAM;
     private final JEVisUnit g = new JEVisUnitImp(_g);
     private final Unit _kg = SI.KILOGRAM;
     private final JEVisUnit kg = new JEVisUnitImp(_kg);
-    private final Unit _kkg = SI.KILOGRAM.times(1000);
+    private final Unit _kkg = SI.KILO(SI.KILOGRAM);
     private final JEVisUnit kkg = new JEVisUnitImp(_kkg);
     private final Unit _t = NonSI.METRIC_TON;
     private final JEVisUnit t = new JEVisUnitImp(_t);
@@ -58,25 +61,25 @@ public class QuantityUnits {
     private final Unit _GW = SI.GIGA(SI.WATT);
     private final JEVisUnit GW = new JEVisUnitImp(_GW);
 
-    private final Unit _vah = Unit.ONE.alternate("vah");
-    private final JEVisUnit vah = new JEVisUnitImp(_vah);
-    private final Unit _kvah = Unit.ONE.alternate("kvah");
-    private final JEVisUnit kvah = new JEVisUnitImp(_kvah);
+    private final Unit _va = SI.WATT.alternate("va");
+    private final JEVisUnit va = new JEVisUnitImp(_va, "va", "NONE");
+    private final Unit _kva = SI.KILO(_va);
+    private final JEVisUnit kva = new JEVisUnitImp(_kva, "kva", "KILO");
 
-    private final Unit _varh = Unit.ONE.alternate("varh");
-    private final JEVisUnit varh = new JEVisUnitImp(_varh);
-    private final Unit _kvarh = Unit.ONE.alternate("kvarh");
-    private final JEVisUnit kvarh = new JEVisUnitImp(_kvarh);
+    private final Unit _var = SI.WATT.alternate("var");
+    private final JEVisUnit var = new JEVisUnitImp(_var, "var", "NONE");
+    private final Unit _kvar = SI.KILO(_var);
+    private final JEVisUnit kvar = new JEVisUnitImp(_kvar, "kvar", "KILO");
 
-    private final Unit _va = Unit.ONE.alternate("va");
-    private final JEVisUnit va = new JEVisUnitImp(_va);
-    private final Unit _kva = Unit.ONE.alternate("kva");
-    private final JEVisUnit kva = new JEVisUnitImp(_kva);
+    private final Unit _vah = SI.WATT.alternate("va").times(NonSI.HOUR);
+    private final JEVisUnit vah = new JEVisUnitImp(_vah, "vah", "NONE");
+    private final Unit _kvah = SI.KILO(_vah);
+    private final JEVisUnit kvah = new JEVisUnitImp(_kvah, "kvah", "KILO");
 
-    private final Unit _var = Unit.ONE.alternate("var");
-    private final JEVisUnit var = new JEVisUnitImp(_var);
-    private final Unit _kvar = Unit.ONE.alternate("kvar");
-    private final JEVisUnit kvar = new JEVisUnitImp(_kvar);
+    private final Unit _varh = SI.WATT.alternate("var").times(NonSI.HOUR);
+    private final JEVisUnit varh = new JEVisUnitImp(_varh, "varh", "NONE");
+    private final Unit _kvarh = SI.KILO(_varh);
+    private final JEVisUnit kvarh = new JEVisUnitImp(_kvarh, "kvarh", "KILO");
 
     private final Unit _eur = Currency.EUR;
     private final Unit _usd = Currency.USD;
@@ -230,7 +233,7 @@ public class QuantityUnits {
                             }
                         }
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error(e);
                 }
             }
@@ -243,7 +246,7 @@ public class QuantityUnits {
             JsonObject object = null;
             try {
                 object = sqlDataSource.getObject(attribute.getObjectID());
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             if (object != null) {
@@ -256,7 +259,7 @@ public class QuantityUnits {
                                 JsonObject parent = sqlDataSource.getObject(jsonRelationship.getTo());
                                 isQuantity = isQuantity(parent, isQuantity);
                                 break;
-                            } catch (JEVisException e) {
+                            } catch (Exception e) {
                                 logger.error("Could not get parent {} of object {}", jsonRelationship.getTo(), object.getId());
                             }
                         }
@@ -268,7 +271,7 @@ public class QuantityUnits {
                                 JsonObject child = sqlDataSource.getObject(jsonRelationship.getTo());
                                 isQuantity = isQuantity(child, isQuantity);
                                 break;
-                            } catch (JEVisException e) {
+                            } catch (Exception e) {
                                 logger.error("Could not get parent {} of object {}", jsonRelationship.getTo(), object.getId());
                             }
                         }

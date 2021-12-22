@@ -14,6 +14,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
+import org.jevis.commons.task.TaskPrinter;
 import org.jevis.report3.data.report.ReportAttributes;
 import org.jevis.report3.data.report.ReportExecutor;
 import org.jevis.report3.policy.ReportPolicy;
@@ -80,21 +81,27 @@ public class ReportLauncher extends AbstractCliApp {
                         Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
                         if (!reportEnabled) {
                             logger.info("Report is not enabled");
+                            LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
+
                         } else {
 
                             ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
 
-                            executor.executeReport();
+                            if (executor != null) {
+                                executor.executeReport();
+
+                                LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
+                            } else {
+                                LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
+                            }
                         }
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
-                        removeJob(reportObject);
 
-                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+                        logger.error("Error Job: {}:{}", reportObject.getName(), reportObject.getID(), e);
 
-                        checkLastJob();
                     } finally {
-                        LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
+
                         removeJob(reportObject);
 
                         logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
@@ -153,6 +160,7 @@ public class ReportLauncher extends AbstractCliApp {
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
                 if (!firstRun) {
+                    TaskPrinter.printJobStatus(LogTaskManager.getInstance());
                     try {
                         ds.clearCache();
                         ds.preload();
