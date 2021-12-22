@@ -1469,7 +1469,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public boolean connect(String username, String password) throws JEVisException {
         logger.debug("Connect with user {} to: {}", username, this.host);
 
-        //this.con = new HTTPConnection(this.host, username, password, sslTrustMode);
+        this.con = new HTTPConnection(this.host, username, password, sslTrustMode);
 
         try {
             String resource
