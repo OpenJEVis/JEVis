@@ -172,6 +172,13 @@ public class AttributeTable {
         return attributes;
     }
 
+    /**
+     * Prototype for an DataProcessor JobListener
+     * Does not work because of the Monthly Row -> Monthly Clean problem
+     *
+     * @return
+     * @throws JEVisException
+     */
     public List<JsonObject> getDataProcessorTodoList() throws JEVisException {
         logger.trace("getAllAttributes ");
         Map<Long, JsonAttribute> aMap = new HashMap<>();
@@ -279,7 +286,7 @@ public class AttributeTable {
 
             ps.setLong(1, objectID);
             ps.setString(2, attribute);
-            logger.error("SQL {}", ps);
+            logger.debug("SQL {}", ps);
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -293,7 +300,7 @@ public class AttributeTable {
                 logger.debug("count: {},min: {}", count, mindate);
 
                 try (PreparedStatement psUpdate = ds.getConnection().prepareStatement(sqlUpdate)) {
-                    logger.error("SQL2.update: {}", psUpdate);
+                    logger.debug("SQL2.update: {}", psUpdate);
                     /** values */
                     if (mindate != null) {
                         psUpdate.setTimestamp(1, mindate);

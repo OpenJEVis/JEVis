@@ -49,7 +49,6 @@ public class CachedAccessControl {
             groupMemberships.put(rel.getFrom(), userRelList);
         }
 
-        logger.error("Finished user cache:");
         users.forEach((s, jeVisUserNew) -> {
             try {
                 logger.debug("User: '{}', memberships: {}", jeVisUserNew.getAccountName(), groupMemberships.get(jeVisUserNew.getUserID()).size());

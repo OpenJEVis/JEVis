@@ -219,6 +219,9 @@ public class SQLDataSource {
     }
 
     public ObjectTable getObjectTable() {
+        if (oTable == null) {
+            this.oTable = new ObjectTable(this);
+        }
         return this.oTable;
     }
 
@@ -268,6 +271,7 @@ public class SQLDataSource {
                     String username = dauth[0];
                     String password = dauth[1];
                     try {
+                        logger.error("User: {}  PW: {}", username, password);
                         //this.user = this.lTable.loginUser(username, password);
                         CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this);
                         this.user = fastUserManager.getUser(username);
@@ -276,11 +280,6 @@ public class SQLDataSource {
                             throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
                         }
 
-                        try {
-
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
 
                     } catch (Exception ex) {
                         logger.error(ex, ex);
@@ -375,7 +374,7 @@ public class SQLDataSource {
             }
         }
         logger.debug("getObject- NON cache");
-        JsonObject ob = this.oTable.getObject(id);
+        JsonObject ob = this.getObjectTable().getObject(id);
         if (ob != null) {
             this.allObjects.add(ob);
         }

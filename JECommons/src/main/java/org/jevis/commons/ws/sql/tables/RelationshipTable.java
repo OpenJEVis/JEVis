@@ -57,7 +57,7 @@ public class RelationshipTable {
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setInt(1, type);
 
-            logger.trace("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -87,7 +87,7 @@ public class RelationshipTable {
             ps.setLong(1, id);
             ps.setLong(2, id);
 
-            logger.error("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -151,7 +151,7 @@ public class RelationshipTable {
             ps.setLong(1, start);
             ps.setLong(2, end);
             ps.setInt(3, type);
-            logger.trace("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             int count = ps.executeUpdate();
             if (count == 1) {
                 return true;
@@ -202,7 +202,7 @@ public class RelationshipTable {
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
             ps.setInt(2, JEVisConstants.ObjectRelationship.OWNER);
-            logger.error("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
@@ -227,7 +227,7 @@ public class RelationshipTable {
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
             ps.setInt(2, JEVisConstants.ObjectRelationship.PARENT);
-            logger.error("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
@@ -253,7 +253,7 @@ public class RelationshipTable {
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
             ps.setLong(2, object);
-            logger.error("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
@@ -303,7 +303,7 @@ public class RelationshipTable {
         String sql = String.format("select * from %s where %s in(%s)", TABLE, COLUMN_TYPE, memberTypes);
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            logger.error("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {

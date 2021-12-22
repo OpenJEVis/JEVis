@@ -428,10 +428,17 @@ public class ResourceSample {
                     }
                 }
 
+
                 if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
                     if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
                         throw new JEVisException("permission denied", 3022);
+                    } else if (attribute.equals("Password")) {
+                        canWrite = true;
+                    } else {
+                        canWrite = ds.getUserManager().canWriteWOE(object);
                     }
+
+
                 } else {
 
                     /**
@@ -453,56 +460,54 @@ public class ResourceSample {
                 }
 
 
-                List<JsonAttribute> attributes = ds.getAttributes(id);
-                for (JsonAttribute att : attributes) {
-                    if (att.getType().equals(attribute)) {
-                        List<JsonSample> samples = new ArrayList<>(Arrays.asList(objectMapper.readValue(input, JsonSample[].class)));
-                        JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
+                JsonAttribute att = ds.getAttribute(id, attribute);
+                if (att.getType().equals(attribute)) {
+                    List<JsonSample> samples = new ArrayList<>(Arrays.asList(objectMapper.readValue(input, JsonSample[].class)));
+                    JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
 
 
-                        // If user can write -> OK
-                        // If user can execute and only Note changed -> OK
-                        int result = 0;
-                        if (canWrite || (canExecute &&
-                                (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")))) {
-                            logger.debug("canWrite import");
-                            result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-                        } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(2))) {
-                            /** update notes but not samples **/
-                            logger.debug("canExecute Sample: {}-{} for: {}", id, att, ds.getCurrentUser().getAccountName());
-                            for (JsonSample jsonSample : samples) {
-                                logger.debug("jsonSample: {}", jsonSample);
-                                List<JsonSample> sampleList = new ArrayList<>();
-                                try {
-                                    List<JsonSample> onDB = ds.getSampleTable().getSamples(id, attribute, JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), 1);
-                                    for (JsonSample dbSample : onDB) {
-                                        if (dbSample.getValue().equals(jsonSample.getValue())) {
-                                            sampleList.add(jsonSample);
-                                            logger.debug("dbSample: {}", dbSample);
-                                        }
+                    // If user can write -> OK
+                    // If user can execute and only Note changed -> OK
+                    int result = 0;
+                    if (canWrite || (canExecute && (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")))) {
+                        logger.debug("canWrite import");
+                        result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+                    } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(2))) {
+                        /** update notes but not samples **/
+                        logger.debug("canExecute Sample: {}-{} for: {}", id, att, ds.getCurrentUser().getAccountName());
+                        for (JsonSample jsonSample : samples) {
+                            logger.debug("jsonSample: {}", jsonSample);
+                            List<JsonSample> sampleList = new ArrayList<>();
+                            try {
+                                List<JsonSample> onDB = ds.getSampleTable().getSamples(id, attribute, JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), 1);
+                                for (JsonSample dbSample : onDB) {
+                                    if (dbSample.getValue().equals(jsonSample.getValue())) {
+                                        sampleList.add(jsonSample);
+                                        logger.debug("dbSample: {}", dbSample);
                                     }
-
-                                } catch (JEVisException jex) {
-                                    logger.error(jex);
                                 }
-                                logger.debug("Add Notes: {}", sampleList);
-                                result += ds.setSamples(id, attribute, type.getPrimitiveType(), sampleList);
+
+                            } catch (JEVisException jex) {
+                                logger.error(jex);
                             }
+                            logger.debug("Add Notes: {}", sampleList);
+                            result += ds.setSamples(id, attribute, type.getPrimitiveType(), sampleList);
                         }
-
-                        ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE, String.format("%s:%s|%s|%s", id, attribute, result, Samples.getDuration(samples)));
-                        samples.clear();
-                        samples = null;
-
-                        try {
-                            CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.ADD);
-                        } catch (Exception ex) {
-                            logger.error(ex, ex);
-                        }
-
-                        return Response.status(Status.CREATED).build();
                     }
+
+                    ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE, String.format("%s:%s|%s|%s", id, attribute, result, Samples.getDuration(samples)));
+                    samples.clear();
+                    samples = null;
+
+                    try {
+                        CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.ADD);
+                    } catch (Exception ex) {
+                        logger.error(ex, ex);
+                    }
+
+                    return Response.status(Status.CREATED).build();
                 }
+
 
                 return Response.status(Status.NOT_MODIFIED).build();
 

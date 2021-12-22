@@ -127,7 +127,7 @@ public class LoginTable {
             //ps.setString(1, name);
             //ps.setBoolean(2, true);
 
-            logger.error("SQL: {}", ps.toString());
+            logger.debug("SQL: {}", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
