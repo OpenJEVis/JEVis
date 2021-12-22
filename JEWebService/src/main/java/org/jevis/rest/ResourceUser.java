@@ -55,7 +55,8 @@ public class ResourceUser {
 
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            logger.debug("Get User: {}", ds.getCurrentUser().getUserObject().getName());
+            logger.debug("Get User: {}", ds.getCurrentUser().getAccountName());
+
             return Response.ok(ds.getCurrentUser().getUserObject()).build();
 
         } catch (JEVisException jex) {
