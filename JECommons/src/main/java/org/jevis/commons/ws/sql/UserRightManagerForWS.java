@@ -312,7 +312,7 @@ public class UserRightManagerForWS {
         }
 
         //check for group permissions
-        for (JsonRelationship rel : this.ds.getRelationships(object.getId())) {
+        for (JsonRelationship rel : this.ds.getRelationships(object.getId(), JEVisConstants.ObjectRelationship.OWNER)) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && this.writeGIDS.contains(rel.getTo())) {
                 return true;
             }
@@ -338,11 +338,19 @@ public class UserRightManagerForWS {
         }
 
         //check for group permissions
+        /*
         for (JsonRelationship rel : this.ds.getRelationships(object.getId())) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && this.createGIDS.contains(rel.getTo())) {
                 return true;
             }
         }
+        */
+        for (JsonRelationship rel : this.ds.getRelationships(object.getId(), JEVisConstants.ObjectRelationship.OWNER)) {
+            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && this.createGIDS.contains(rel.getTo())) {
+                return true;
+            }
+        }
+
 
         /** Rule exception , to allow all users to create notes if they can see the Data Object **/
         if (exceptionClass.contains(jevisClass) && canExecuteWOE(object)) {
@@ -361,7 +369,7 @@ public class UserRightManagerForWS {
         }
 
         //check for group permissions
-        for (JsonRelationship rel : this.ds.getRelationships(object.getId())) {
+        for (JsonRelationship rel : this.ds.getRelationships(object.getId(), JEVisConstants.ObjectRelationship.OWNER)) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && this.createGIDS.contains(rel.getTo())) {
                 return true;
             }
@@ -386,7 +394,7 @@ public class UserRightManagerForWS {
         }
 
         //check for group permissions
-        for (JsonRelationship rel : this.ds.getRelationships(object.getId())) {
+        for (JsonRelationship rel : this.ds.getRelationships(object.getId(), JEVisConstants.ObjectRelationship.OWNER)) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && this.exeGIDS.contains(rel.getTo())) {
                 return true;
             }
@@ -403,7 +411,7 @@ public class UserRightManagerForWS {
         }
 
         //check for group permissions
-        for (JsonRelationship rel : this.ds.getRelationships(object.getId())) {
+        for (JsonRelationship rel : this.ds.getRelationships(object.getId(), JEVisConstants.ObjectRelationship.OWNER)) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && this.deleteGIDS.contains(rel.getTo())) {
                 return true;
             }
