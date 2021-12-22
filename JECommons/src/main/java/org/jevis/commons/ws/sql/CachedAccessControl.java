@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CachedAccessControl {
 
@@ -20,17 +21,18 @@ public class CachedAccessControl {
     private static CachedAccessControl fastUserManager = null;
     private Map<String, JEVisUserNew> users;
     private Map<Long, List<JsonRelationship>> groupMemberships = new ConcurrentHashMap();
-    private SQLDataSource dataSource;
+    private AtomicBoolean needUpdate = new AtomicBoolean(false);
+    //private SQLDataSource dataSource;
 
     public enum Change {
         ADD, DELETE, CHANGE
     }
 
-    public CachedAccessControl(SQLDataSource dataSource) throws Exception {
-        this.dataSource = dataSource;
+    public CachedAccessControl() throws Exception {
+        //this.dataSource = dataSource;
     }
 
-    public synchronized void updateCache() throws Exception {
+    public synchronized void updateCache(SQLDataSource dataSource) throws Exception {
         logger.error("Update Access Control Cache");
         Benchmark benchmark = new Benchmark();
         users = dataSource.getLoginTable().getAllUser();
@@ -77,7 +79,8 @@ public class CachedAccessControl {
                 case JEVisConstants.ObjectRelationship.MEMBER_WRITE:
                 case JEVisConstants.ObjectRelationship.MEMBER_EXECUTE:
                 case JEVisConstants.ObjectRelationship.MEMBER_CREATE:
-                    updateCache();
+                    //updateCache();
+                    needUpdate.set(true);
                     break;
                 default:
                     break;
@@ -99,7 +102,8 @@ public class CachedAccessControl {
     public void checkForChanges(JsonObject object, String attribute, Change change) {
         try {
             if (attribute.equals("Password") && object.getJevisClass().equals("User")) {
-                updateCache();
+                //updateCache();
+                needUpdate.set(true);
             }
 
         } catch (Exception ex) {
@@ -110,9 +114,11 @@ public class CachedAccessControl {
     public void checkForChanges(JsonObject object, Change change) {
         try {
             if (object.getName().equals("User") && (change == Change.DELETE || change == Change.ADD || change == Change.CHANGE)) {
-                updateCache();
+                //updateCache();
+                needUpdate.set(true);
             } else if (object.getName().equals("Group") && (change == Change.DELETE || change == Change.ADD)) {
-                updateCache();
+                //updateCache();
+                needUpdate.set(true);
             }
 
         } catch (Exception ex) {
@@ -140,12 +146,32 @@ public class CachedAccessControl {
 
     }
 
-    public static CachedAccessControl getInstance(SQLDataSource dataSource) throws Exception {
+    public boolean needUpdate() {
+        return needUpdate.get();
+    }
+
+    /*
+        public static CachedAccessControl getInstance(SQLDataSource dataSource) throws Exception {
+            if (fastUserManager != null) {
+                return fastUserManager;
+            } else {
+                fastUserManager = new CachedAccessControl(dataSource);
+                fastUserManager.updateCache();
+                return fastUserManager;
+            }
+
+
+        }
+
+     */
+    public static CachedAccessControl getInstance(SQLDataSource ds) throws Exception {
         if (fastUserManager != null) {
+            if (fastUserManager.needUpdate()) fastUserManager.updateCache(ds);
+            
             return fastUserManager;
         } else {
-            fastUserManager = new CachedAccessControl(dataSource);
-            fastUserManager.updateCache();
+            fastUserManager = new CachedAccessControl();
+            fastUserManager.updateCache(ds);
             return fastUserManager;
         }
 
