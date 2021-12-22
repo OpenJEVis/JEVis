@@ -1469,15 +1469,28 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public boolean connect(String username, String password) throws JEVisException {
         logger.debug("Connect with user {} to: {}", username, this.host);
 
-        this.con = new HTTPConnection(this.host, username, password, sslTrustMode);
+        //this.con = new HTTPConnection(this.host, username, password, sslTrustMode);
 
         try {
             String resource
                     = REQUEST.API_PATH_V1
                     + REQUEST.JEVISUSER.PATH;
 
-            HttpURLConnection conn = getHTTPConnection().getGetConnection(resource);
-            logger.debug("Login Response: {}", conn.getResponseCode());
+
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            if (inputStream != null) {
+                JsonObject json = this.objectMapper.readValue(inputStream, JsonObject.class);
+                inputStream.close();
+                this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
+                return true;
+            } else {
+                return false;
+            }
+
+
+            //HttpURLConnection conn = getHTTPConnection().getGetConnection(resource);
+            //logger.debug("Login Response: {}", conn.getResponseCode());
+            /*
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
 //                logger.debug("Login response: {}", conn.getContent().toString());
@@ -1488,7 +1501,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 inputStream.close();
 
 
-                /** We will now always preload the JEVisDataSource **/
                 this.preload();
 
                 this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
@@ -1498,6 +1510,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 logger.error("Login failed: [{}] {}", conn.getResponseCode(), conn.getResponseMessage());
                 return false;
             }
+        */
 
         } catch (Exception ex) {
             logger.catching(ex);
