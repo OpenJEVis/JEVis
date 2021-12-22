@@ -282,7 +282,9 @@ public class SQLDataSource {
                         //this.user = this.lTable.loginUser(username, password);
                         CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this);
                         this.user = fastUserManager.getUser(username);
-                        logger.debug("FastUserManager PW Check: {}", fastUserManager.validLogin(username, password));
+                        //this.user.setDataSource(this);
+
+                        logger.debug("FastUserManager PW Check: {} User: {}", fastUserManager.validLogin(username, password), this.user);
                         if (!fastUserManager.validLogin(username, password)) {
                             throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
                         }
