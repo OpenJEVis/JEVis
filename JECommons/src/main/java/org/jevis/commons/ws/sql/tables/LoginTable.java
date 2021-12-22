@@ -45,6 +45,8 @@ public class LoginTable {
     public final static String COLUMN_PASSWORD = "password";
     public final static String COLUMN_ENABLED = "enabled";
     public final static String COLUMN_SYS_ADMIN = "sysadmin";
+    public final static String COLUMN_FIRST_NAME = "firstname";
+    public final static String COLUMN_LAST_NAME = "lastname";
     private static final Logger logger = LogManager.getLogger(LoginTable.class);
     private final SQLDataSource _connection;
 
@@ -119,7 +121,21 @@ public class LoginTable {
     public Map<String, JEVisUserNew> getAllUser() throws JEVisException {
         logger.debug("Get all Logins ");
         String sqlALlUser = "select `t`.`object` AS `object`,`t`.`login` AS `login`,max(`t`.`password`) AS `password`,max(`t`.`enabled`) AS `enabled`,max(`t`.`sysadmin`) AS `sysadmin` from (select `o`.`id` AS `object`,`o`.`name` AS `login`,coalesce((case when (`s`.`attribute` = 'Password') then `s`.`value` end),0) AS `password`,coalesce((case when (`s`.`attribute` = 'Enabled') then `s`.`value` end),0) AS `enabled`,coalesce((case when (`s`.`attribute` = 'Sys Admin') then `s`.`value` end),0) AS `sysadmin` from (`jevis`.`sample` `s` left join (`jevis`.`attribute` `a` left join `jevis`.`object` `o` on((`o`.`id` = `a`.`object`))) on(((`o`.`id` = `s`.`object`) and (`a`.`name` = `s`.`attribute`) and (`a`.`maxts` = `s`.`timestamp`)))) where (`o`.`type` = 'User')) `t` group by `t`.`object`";
-
+        /*
+        String sqlALlUser = "select `t`.`object` AS `object`,\n" +
+                "`t`.`login` AS `login`,\n" +
+                "max(`t`.`password`) AS `password`,\n" +
+                "max(`t`.`firstname`) AS `firstname`,\n" +
+                "max(`t`.`lastname`) AS `lastname`,\n" +
+                "max(`t`.`enabled`) AS `enabled`,max(`t`.`sysadmin`) AS `sysadmin` \n" +
+                "from (select `o`.`id` AS `object`,`o`.`name` AS `login`\n" +
+                ",coalesce((case when (`s`.`attribute` = 'Password') then `s`.`value` end),0) AS `password`\n" +
+                ",coalesce((case when (`s`.`attribute` = 'Enabled') then `s`.`value` end),0) AS `enabled`\n" +
+                ",coalesce((case when (`s`.`attribute` = 'Sys Admin') then `s`.`value` end),0) AS `sysadmin` \n" +
+                ",coalesce((case when (`s`.`attribute` = 'First Name') then `s`.`value` end),0) AS `firstname` \n" +
+                ",coalesce((case when (`s`.`attribute` = 'Last Name') then `s`.`value` end),0) AS `lastname` \n" +
+                "from (`jevis`.`sample` `s` left join (`jevis`.`attribute` `a` left join `jevis`.`object` `o` on((`o`.`id` = `a`.`object`))) on(((`o`.`id` = `s`.`object`) and (`a`.`name` = `s`.`attribute`) and (`a`.`maxts` = `s`.`timestamp`)))) where (`o`.`type` = 'User')) `t` group by `t`.`object`";
+        */
         //String sqlUser = String.format("select * from %s where %s=? and %s =? limit 1", TABLE, COLUMN_LOGIN, COLUMN_ENABLED);
         Map<String, JEVisUserNew> users = new ConcurrentHashMap<>();
 
@@ -134,6 +150,12 @@ public class LoginTable {
                 try {
                     if (rs.getBoolean(COLUMN_ENABLED)) {
                         users.put(rs.getString(COLUMN_LOGIN).toLowerCase(Locale.ROOT), new JEVisUserNew(_connection, rs.getString(COLUMN_LOGIN), rs.getLong(COLUMN_OBJECT), rs.getBoolean(COLUMN_SYS_ADMIN), rs.getBoolean(COLUMN_ENABLED), rs.getString(COLUMN_PASSWORD)));
+                        /*
+                        users.put(rs.getString(COLUMN_LOGIN).toLowerCase(Locale.ROOT), new JEVisUserNew(
+                                rs.getLong(COLUMN_OBJECT), rs.getString(COLUMN_LOGIN), rs.getBoolean(COLUMN_SYS_ADMIN),
+                                rs.getBoolean(COLUMN_ENABLED), rs.getString(COLUMN_PASSWORD),
+                                rs.getString(COLUMN_FIRST_NAME), rs.getString(COLUMN_FIRST_NAME)));
+                        */
                     }
 
                 } catch (Exception ex) {
