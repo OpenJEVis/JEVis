@@ -30,6 +30,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.utils.Samples;
 import org.jevis.commons.ws.json.*;
+import org.jevis.commons.ws.sql.CachedAccessControl;
 import org.jevis.commons.ws.sql.Config;
 import org.jevis.commons.ws.sql.JEVisClassHelper;
 import org.jevis.commons.ws.sql.SQLDataSource;
@@ -133,6 +134,7 @@ public class ResourceSample {
             samples.add(sample);
 
             JsonType type = JEVisClassHelper.getType(obj.getJevisClass(), attribute);
+
 
             int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
             samples.clear();
@@ -491,6 +493,12 @@ public class ResourceSample {
                         samples.clear();
                         samples = null;
 
+                        try {
+                            CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.ADD);
+                        } catch (Exception ex) {
+                            logger.error(ex, ex);
+                        }
+
                         return Response.status(Status.CREATED).build();
                     }
                 }
@@ -568,6 +576,12 @@ public class ResourceSample {
             } else {
                 logger.debug("Delete Between");
                 ds.deleteSamplesBetween(object.getId(), attribute, startDate, endDate);
+            }
+
+            try {
+                CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.DELETE);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
             }
 
             ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE, String.format("%s:%s|%s -> %s", id, attribute, startDate, endDate));

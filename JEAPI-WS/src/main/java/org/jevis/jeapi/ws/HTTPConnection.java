@@ -64,6 +64,7 @@ public class HTTPConnection {
     public static String RESOURCE_ATTRIBUTES = "attributes";
     public static String RESOURCE_TYPES = "types";
     public static String RESOURCE_I18N = "i18n";
+    public static String RESOURCE_ACCESSCONTROL = "accesscontrol";
     private final String baseURL;
     private final String username;
     private final String password;

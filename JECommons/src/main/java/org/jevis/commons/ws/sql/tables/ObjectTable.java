@@ -173,7 +173,7 @@ public class ObjectTable {
 
             while (rs.next()) {
                 JsonObject obj = SQLtoJsonFactory.buildObject(rs);
-                List<JsonRelationship> relationships = _connection.getRelationships(obj.getId());
+                List<JsonRelationship> relationships = _connection.getParentRelationships(obj.getId());
                 relationships.forEach(jsonRelationship -> {
                     if (jsonRelationship.getType() == JEVisConstants.ObjectRelationship.PARENT && jsonRelationship.getFrom() == obj.getId()) {
                         //child -> parent

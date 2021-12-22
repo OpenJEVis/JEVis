@@ -30,6 +30,7 @@ import org.jevis.commons.ws.sql.SQLDataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -85,7 +86,7 @@ public class LoginTable {
     }
 
 
-    public Map<String, JEVisUserNew> getAccounts()throws JEVisException,SQLException{
+    public Map<String, JEVisUserNew> getAccounts() throws JEVisException, SQLException {
         logger.debug("getAccounts ");
         Map<String, JEVisUserNew> acounts = new ConcurrentHashMap<>();
         String sqlUser = String.format("select * from %s ", TABLE);
@@ -99,7 +100,7 @@ public class LoginTable {
                     acounts.put(rs.getString(COLUMN_LOGIN).toLowerCase(),
                             new JEVisUserNew(_connection, rs.getString(COLUMN_LOGIN),
                                     rs.getLong(COLUMN_OBJECT), rs.getBoolean(COLUMN_SYS_ADMIN),
-                                    rs.getBoolean(COLUMN_ENABLED),rs.getString(COLUMN_PASSWORD)));
+                                    rs.getBoolean(COLUMN_ENABLED), rs.getString(COLUMN_PASSWORD)));
 
                 } catch (Exception ex) {
                     logger.error("Login NOK");
@@ -108,5 +109,44 @@ public class LoginTable {
         }
         return acounts;
     }
+
+
+    /**
+     * ------------------------------------------
+     * Fast Login below
+     */
+
+    public Map<String, JEVisUserNew> getAllUser() throws JEVisException {
+        logger.debug("Get all Logins ");
+        String sqlALlUser = "select `t`.`object` AS `object`,`t`.`login` AS `login`,max(`t`.`password`) AS `password`,max(`t`.`enabled`) AS `enabled`,max(`t`.`sysadmin`) AS `sysadmin` from (select `o`.`id` AS `object`,`o`.`name` AS `login`,coalesce((case when (`s`.`attribute` = 'Password') then `s`.`value` end),0) AS `password`,coalesce((case when (`s`.`attribute` = 'Enabled') then `s`.`value` end),0) AS `enabled`,coalesce((case when (`s`.`attribute` = 'Sys Admin') then `s`.`value` end),0) AS `sysadmin` from (`jevis`.`sample` `s` left join (`jevis`.`attribute` `a` left join `jevis`.`object` `o` on((`o`.`id` = `a`.`object`))) on(((`o`.`id` = `s`.`object`) and (`a`.`name` = `s`.`attribute`) and (`a`.`maxts` = `s`.`timestamp`)))) where (`o`.`type` = 'User')) `t` group by `t`.`object`";
+
+        //String sqlUser = String.format("select * from %s where %s=? and %s =? limit 1", TABLE, COLUMN_LOGIN, COLUMN_ENABLED);
+        Map<String, JEVisUserNew> users = new ConcurrentHashMap<>();
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sqlALlUser)) {
+            //ps.setString(1, name);
+            //ps.setBoolean(2, true);
+
+            logger.error("SQL: {}", ps.toString());
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                try {
+                    if (rs.getBoolean(COLUMN_ENABLED)) {
+                        users.put(rs.getString(COLUMN_LOGIN).toLowerCase(Locale.ROOT), new JEVisUserNew(_connection, rs.getString(COLUMN_LOGIN), rs.getLong(COLUMN_OBJECT), rs.getBoolean(COLUMN_SYS_ADMIN), rs.getBoolean(COLUMN_ENABLED), rs.getString(COLUMN_PASSWORD)));
+                    }
+
+                } catch (Exception ex) {
+                    logger.debug("Login NOK");
+                    throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
+                }
+            }
+        } catch (SQLException ex) {
+            logger.error(ex);
+            throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
+        }
+        return users;
+    }
+
 
 }

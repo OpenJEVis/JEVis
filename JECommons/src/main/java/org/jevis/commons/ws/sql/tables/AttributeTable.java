@@ -22,18 +22,25 @@ package org.jevis.commons.ws.sql.tables;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonAttribute;
+import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.commons.ws.sql.SQLtoJsonFactory;
 import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import javax.measure.unit.Unit;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author florian.simon@envidatec.com
@@ -81,17 +88,17 @@ public class AttributeTable {
                 try {
                     JsonAttribute att = SQLtoJsonFactory.buildAttributeThisLastValue(rs);
                     if (att != null) {
-                        attributes.add(SQLtoJsonFactory.buildAttributeThisLastValue(rs));
+                        attributes.add(att);
                     }
 
                 } catch (Exception ex) {
-                    logger.trace(ex);
+                    logger.trace(ex, ex);
                 }
 
             }
 
         } catch (SQLException ex) {
-            logger.error(ex);
+            logger.error(ex, ex);
         }
 
 
@@ -105,11 +112,12 @@ public class AttributeTable {
 
         String sql = "select o.type,a.*,s.* " +
                 "FROM attribute a left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) " +
-                "left join object o on (o.id=a.object) where a.object=? and a.attribute=?;";
+                "left join object o on (o.id=a.object) where a.object=? and a.name=?;";
 
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
+            ps.setString(2, name);
 
             logger.debug("SQL {}", ps);
             ResultSet rs = ps.executeQuery();
@@ -120,13 +128,13 @@ public class AttributeTable {
                     attribute = SQLtoJsonFactory.buildAttributeThisLastValue(rs);
 
                 } catch (Exception ex) {
-                    logger.trace(ex);
+                    logger.trace(ex, ex);
                 }
 
             }
 
         } catch (SQLException ex) {
-            logger.error(ex);
+            logger.error(ex, ex);
         }
 
 
@@ -148,20 +156,85 @@ public class AttributeTable {
                 try {
                     JsonAttribute att = SQLtoJsonFactory.buildAttributeThisLastValue(rs);
                     if (att != null) {
-                        attributes.add(SQLtoJsonFactory.buildAttributeThisLastValue(rs));
+                        attributes.add(att);
                     }
 
                 } catch (Exception ex) {
-                    logger.trace(ex);
+                    logger.trace(ex, ex);
                 }
             }
 
         } catch (SQLException ex) {
-            logger.error(ex);
+            logger.error(ex, ex);
         }
 
 
         return attributes;
+    }
+
+    public List<JsonObject> getDataProcessorTodoList() throws JEVisException {
+        logger.trace("getAllAttributes ");
+        Map<Long, JsonAttribute> aMap = new HashMap<>();
+        List<JsonObject> objects = new ArrayList<>();
+
+        String sql = "select o.type,a.*,s.* FROM attribute a left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) left join object o on (o.id=a.object) where a.name=\"Value\";";
+
+        try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
+
+            logger.debug("SQL {}", ps);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                try {
+                    JsonAttribute att = SQLtoJsonFactory.buildAttributeThisLastValue(rs);
+                    if (att != null) {
+                        aMap.put(att.getObjectID(), att);
+                    }
+
+                } catch (Exception ex) {
+                    logger.trace(ex, ex);
+                }
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex, ex);
+        }
+
+        /** todo: the get(Type) filter does not work, fix to remove manual filter here*/
+        List<JsonRelationship> allRelationships = ds.getRelationshipTable().getAll();
+        List<JsonRelationship> relationships = new ArrayList<>();
+        allRelationships.forEach(jsonRelationship -> {
+            if (jsonRelationship.getType() == JEVisConstants.ObjectRelationship.PARENT) {
+                relationships.add(jsonRelationship);
+            }
+        });
+
+
+        DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
+
+        int count = 0;
+        for (JsonRelationship rel : relationships) {
+            if (aMap.get(rel.getFrom()) != null && aMap.get(rel.getTo()) != null) {
+                JsonAttribute rowDR = aMap.get(rel.getFrom());
+                JsonAttribute cleanDR = aMap.get(rel.getTo());
+                boolean isNewer = false;
+                if (rowDR.getEnds() != null && !rowDR.getEnds().isEmpty() && cleanDR.getEnds() != null && !cleanDR.getEnds().isEmpty()) {
+                    if (sampleDTF.parseDateTime(rowDR.getEnds()).isAfter(sampleDTF.parseDateTime(cleanDR.getEnds()))) {
+                        isNewer = true;
+                        logger.trace("-------- is newer");
+                        count++;
+                        JsonObject jsonObject = new JsonObject();
+                        jsonObject.setId(cleanDR.getObjectID());
+                        objects.add(jsonObject);
+                    }
+                }
+
+                logger.trace("Row: [{}] {} clean: [{}] {} = {}", rowDR.getObjectID(), rowDR.getEnds(), cleanDR.getObjectID(), cleanDR.getEnds(), isNewer);
+            }
+        }
+        logger.trace("Total amount of to calc objects: {}/{}", count, aMap.size());
+
+
+        return objects;
     }
 
 
@@ -189,7 +262,7 @@ public class AttributeTable {
 
         String selectSQL = String.format("select min(%s) as min,max(%s) as max " +
                         "from %s where object=? and attribute=?  ",
-                SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.TABLE);
+                SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.TABLE);
 
 
         String sqlUpdate = String.format("insert into %s ( %s,%s,%s,%s,%s) " +
@@ -198,13 +271,15 @@ public class AttributeTable {
                 TABLE, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_OBJECT, COLUMN_NAME,
                 COLUMN_MIN_TS, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_COUNT);
 
+        //logger.error("SqlS1: {}", selectSQL);
+        //logger.error("SqlS2: {}", sqlUpdate);
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(selectSQL)) {
 
 
             ps.setLong(1, objectID);
             ps.setString(2, attribute);
-            logger.debug("SQL {}", ps);
+            logger.error("SQL {}", ps);
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -218,6 +293,7 @@ public class AttributeTable {
                 logger.debug("count: {},min: {}", count, mindate);
 
                 try (PreparedStatement psUpdate = ds.getConnection().prepareStatement(sqlUpdate)) {
+                    logger.error("SQL2.update: {}", psUpdate);
                     /** values */
                     if (mindate != null) {
                         psUpdate.setTimestamp(1, mindate);
@@ -237,15 +313,13 @@ public class AttributeTable {
                     psUpdate.executeUpdate();
 
                 } catch (SQLException ex) {
-                    logger.error(ex);
-                    ex.printStackTrace();
+                    logger.error(ex, ex);
                 }
 
             }
 
         } catch (SQLException ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error(ex, ex);
         }
 
 

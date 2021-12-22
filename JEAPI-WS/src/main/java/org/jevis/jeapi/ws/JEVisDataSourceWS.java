@@ -1649,6 +1649,69 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         Optimization.getInstance().clearCache();
     }
 
+    @Override
+    public void updateAccessControl() {
+        logger.debug("updateAccessControl");
+        String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_ACCESSCONTROL + "/update";
+        try {
+
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            this.objectMapper.readValue(inputStream, JsonObject.class);
+            /*
+            JsonObject json = null;
+            if (inputStream != null) {
+                json = this.objectMapper.readValue(inputStream, JsonObject.class);
+                inputStream.close();
+            }
+            */
+
+            /** TODO: implement error handling **/
+
+        } catch (JsonParseException ex) {
+            logger.error("Json parse exception. Error while fetching Object: {}", ex);
+        } catch (JsonMappingException ex) {
+            logger.error("Object is not accessible: {}", ex);
+        } catch (IOException ex) {
+            logger.error("IO exception. Error while fetching Object: {}", ex);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception while fetching Object: {}, reason: {}", ex.getMessage());
+        }
+    }
+
+    /* removed from WS because its not working wiht the dataprocessor workflow
+    public List<JEVisObject> getDataProcessorTask() {
+        logger.debug("updateAccessControl");
+        String resource = HTTPConnection.API_PATH_V1 + "/task/dataprocessor";
+        try {
+
+
+            List<JsonObject> jsonObjects = new ArrayList<>();
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            jsonObjects = Arrays.asList(this.objectMapper.readValue(inputStream, JsonObject[].class));
+            inputStream.close();
+
+            List<JEVisObject> objects = new ArrayList<>();
+            jsonObjects.forEach(jsonObject -> {
+                JEVisObjectWS newObject = new JEVisObjectWS(this, jsonObject);
+                objects.add(newObject);
+            });
+
+            return objects;
+
+
+        } catch (JsonParseException ex) {
+            logger.error("Json parse exception. Error while fetching Object: {}", ex);
+        } catch (JsonMappingException ex) {
+            logger.error("Object is not accessible: {}", ex);
+        } catch (IOException ex) {
+            logger.error("IO exception. Error while fetching Object: {}", ex);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception while fetching Object: {}, reason: {}", ex.getMessage());
+        }
+        return new ArrayList<>();
+    }
+    */
+
     public ObjectMapper getObjectMapper() {
         return this.objectMapper;
     }

@@ -28,6 +28,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
+import org.jevis.commons.ws.sql.CachedAccessControl;
 import org.jevis.commons.ws.sql.Config;
 import org.jevis.commons.ws.sql.SQLDataSource;
 
@@ -184,6 +185,12 @@ public class ResourceObject {
                 this.ds.deleteObject(obj);
             }
 
+            try {
+                CachedAccessControl.getInstance(ds).checkForChanges(obj, CachedAccessControl.Change.DELETE);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+            }
+
             return Response.status(Response.Status.OK).build();
 
         } catch (JEVisException jex) {
@@ -229,7 +236,7 @@ public class ResourceObject {
                 }
 
                 JsonObject parentObj = this.ds.getObject(json.getParent());
-                boolean canCreate = this.ds.getUserManager().canCreateWOE(parentObj,json.getJevisClass());
+                boolean canCreate = this.ds.getUserManager().canCreateWOE(parentObj, json.getJevisClass());
 
                 if (parentObj != null && canCreate) {
 
@@ -245,13 +252,19 @@ public class ResourceObject {
                         }
                     } else {
 
-                        String jsonString=null;
-                        if(json.getI18n()!=null && !json.getI18n().isEmpty()){
-                           jsonString = objectMapper.writeValueAsString(json.getI18n());
+                        String jsonString = null;
+                        if (json.getI18n() != null && !json.getI18n().isEmpty()) {
+                            jsonString = objectMapper.writeValueAsString(json.getI18n());
                         }
 
-                        JsonObject newObj = this.ds.buildObject(json, parentObj.getId(),jsonString);
+                        JsonObject newObj = this.ds.buildObject(json, parentObj.getId(), jsonString);
                         ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_OBJECT, String.format("%s:%s", newObj.getId(), newObj.getName()));
+                        try {
+                            CachedAccessControl.getInstance(ds).checkForChanges(json, CachedAccessControl.Change.DELETE);
+                        } catch (Exception ex) {
+                            logger.error(ex, ex);
+                        }
+
                         return Response.ok(newObj).build();
                     }
 
@@ -302,22 +315,29 @@ public class ResourceObject {
             JsonObject json = objectMapper.readValue(object, JsonObject.class);
             JsonObject existingObj = this.ds.getObject(id);
             if (existingObj != null && this.ds.getUserManager().canWrite(json)) {
-                String jsonstring=null;
-                if(json.getI18n()!=null && !json.getI18n().isEmpty()){
+                String jsonstring = null;
+                if (json.getI18n() != null && !json.getI18n().isEmpty()) {
                     jsonstring = objectMapper.writeValueAsString(json.getI18n());
+                }
+
+                try {
+                    CachedAccessControl.getInstance(ds).checkForChanges(json, CachedAccessControl.Change.CHANGE);
+                } catch (Exception ex) {
+                    logger.error(ex, ex);
                 }
 
                 /** TODO: note to self, why did i do an if and no the boolean as var? **/
                 if (existingObj.getisPublic() != json.getisPublic()) {
                     ds.logUserAction(SQLDataSource.LOG_EVENT.UPDATE_OBJECT, String.format("%s:%s", existingObj.getId(), existingObj.getName()));
 
+
                     if (this.ds.getUserManager().isSysAdmin()) {
-                        return Response.ok(this.ds.updateObject(id, json.getName(), json.getisPublic(),jsonstring)).build();
+                        return Response.ok(this.ds.updateObject(id, json.getName(), json.getisPublic(), jsonstring)).build();
                     } else {
-                        return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(),jsonstring)).build();
+                        return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(), jsonstring)).build();
                     }
                 } else {
-                    return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(),jsonstring)).build();
+                    return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(), jsonstring)).build();
                 }
             } else {
                 return Response.notModified().build();

@@ -10,10 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisRelationship;
+import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
@@ -75,11 +72,12 @@ public class SQLDataSource {
 
             if (this.dbConn.isValid(2000)) {
                 this.lTable = new LoginTable(this);
+                this.rTable = new RelationshipTable(this);
                 jevisLogin(httpHeaders);
                 this.oTable = new ObjectTable(this);
-                this.aTable = new AttributeTable(this);
+                this.aTable = new AttributeTable(this);//back
                 this.sTable = new SampleTable(this);
-                this.rTable = new RelationshipTable(this);
+                //this.rTable = new RelationshipTable(this);
                 this.um = new UserRightManagerForWS(this);
 
             }
@@ -270,10 +268,22 @@ public class SQLDataSource {
                     String username = dauth[0];
                     String password = dauth[1];
                     try {
-                        this.user = this.lTable.loginUser(username, password);
+                        //this.user = this.lTable.loginUser(username, password);
+                        CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this);
+                        this.user = fastUserManager.getUser(username);
+                        logger.error("FastUserManager PW Check: {}", fastUserManager.validLogin(username, password));
+                        if (!fastUserManager.validLogin(username, password)) {
+                            throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
+                        }
 
-                    } catch (JEVisException ex) {
-                        ex.printStackTrace();
+                        try {
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                    } catch (Exception ex) {
+                        logger.error(ex, ex);
                         throw new AuthenticationException("Username/Password is not correct.");
                     }
                 } else {
@@ -285,11 +295,8 @@ public class SQLDataSource {
         } else {
             throw new AuthenticationException("Authorization header is missing");
         }
-//        }
-//        catch (Exception ex) {
-//            ex.printStackTrace();
-//            throw new AuthenticationException("Authorization header incorrect", ex);
-//        }
+
+
     }
 
 
@@ -454,6 +461,46 @@ public class SQLDataSource {
         return getSampleTable().getLatest(obj, attribute);
     }
 
+    public List<JsonRelationship> getParentRelationships(long object) {
+
+        if (!this.allRelationships.isEmpty()) {
+
+            List<JsonRelationship> list = Collections.synchronizedList(new LinkedList<>());
+            this.allRelationships.parallelStream().forEach(rel -> {
+                if (rel.getTo() == object || rel.getFrom() == object) {
+                    if (!list.contains(rel)) {
+                        list.add(rel);
+                    }
+
+                }
+            });
+            return list;
+        }
+
+        return getRelationshipTable().getParentObject(object);
+
+    }
+
+    public List<JsonRelationship> getGroupOwnerRelationships(long object) {
+
+        if (!this.allRelationships.isEmpty()) {
+            List<JsonRelationship> list = Collections.synchronizedList(new LinkedList<>());
+            this.allRelationships.parallelStream().forEach(rel -> {
+                if (rel.getTo() == object || rel.getFrom() == object) {
+                    if (!list.contains(rel)) {
+                        list.add(rel);
+                    }
+
+                }
+            });
+            return list;
+        }
+
+        return getRelationshipTable().getGroupOwnerObject(object);
+
+    }
+
+
     public List<JsonRelationship> getRelationships(long object) {
         if (!this.allRelationships.isEmpty()) {
 
@@ -469,7 +516,6 @@ public class SQLDataSource {
             return list;
         }
         return getRelationshipTable().getAllForObject(object);
-
     }
 
     public List<JsonRelationship> getRelationships(int type) {
