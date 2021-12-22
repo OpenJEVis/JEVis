@@ -23,7 +23,6 @@ package org.jevis.rest;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -68,7 +67,9 @@ public class ResourceSample {
     /**
      * List of classes which can be updated with the execute permission
      **/
-    public final List<String> executeUpdateExceptions = Lists.newArrayList("Data Notes", "User Data", "Clean Data");
+    String[] executeClasses = new String[]{"Data Notes", "User Data", "Clean Data"};
+    public final List<String> executeUpdateExceptions = Arrays.asList(executeClasses);
+    //public final List<String> executeUpdateExceptions = Lists.newArrayList("Data Notes", "User Data", "Clean Data");
 
 
     //JEWebService/v1/files/8598/attributes/File/samples/files/20180604T141441?filename=nb-configuration.xml
