@@ -244,6 +244,33 @@ public class RelationshipTable {
         return relations;
     }
 
+    public List<JsonRelationship> getAllForObject(long object, int type) {
+        List<JsonRelationship> relations = new LinkedList<>();
+
+
+        String sql = String.format("select * from %s where  ( %s=? or %s=?) and %s=?", TABLE, COLUMN_END, COLUMN_START, COLUMN_TYPE);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, object);
+            ps.setLong(2, object);
+            ps.setLong(3, type);
+            logger.debug("SQL: {}", ps);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                try {
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return relations;
+    }
+
     public List<JsonRelationship> getAllForObject(long object) {
         List<JsonRelationship> relations = new LinkedList<>();
 
