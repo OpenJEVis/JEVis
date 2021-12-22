@@ -7,7 +7,6 @@ package org.jevis.commons.ws.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -261,7 +260,15 @@ public class SQLDataSource {
         if (auth != null && !auth.isEmpty()) {
 
             auth = auth.replaceFirst("[Bb]asic ", "");
-            byte[] decoded = Base64.decodeBase64(auth);
+            try {
+                //byte[] decoded = Base64.decodeBase64(auth);
+                //System.out.println(decoded);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            byte[] decoded = Base64.getDecoder().decode(auth);
+            //byte[] decoded = Base64.decodeBase64(auth);
 
             try {
                 String decodeS = (new String(decoded, StandardCharsets.UTF_8));
@@ -271,11 +278,11 @@ public class SQLDataSource {
                     String username = dauth[0];
                     String password = dauth[1];
                     try {
-                        logger.error("User: {}  PW: {}", username, password);
+                        logger.debug("User: {}  PW: {}", username, password);
                         //this.user = this.lTable.loginUser(username, password);
                         CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this);
                         this.user = fastUserManager.getUser(username);
-                        logger.error("FastUserManager PW Check: {}", fastUserManager.validLogin(username, password));
+                        logger.debug("FastUserManager PW Check: {}", fastUserManager.validLogin(username, password));
                         if (!fastUserManager.validLogin(username, password)) {
                             throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
                         }
@@ -341,7 +348,7 @@ public class SQLDataSource {
 
             if (children) {
                 ob.setObjects(new ArrayList<>());
-                getRelationshipTable().getAllForObject(ob.getId()).forEach(rel -> {
+                getRelationshipTable().getAllForObject(ob.getId(), JEVisConstants.ObjectRelationship.PARENT).forEach(rel -> {
                     if (rel.getTo() == ob.getId() && rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
                         try {
                             JsonObject child = getObject(rel.getFrom(), false);
@@ -499,6 +506,23 @@ public class SQLDataSource {
 
     }
 
+
+    public List<JsonRelationship> getRelationships(long object, int type) {
+        if (!this.allRelationships.isEmpty()) {
+
+            List<JsonRelationship> list = Collections.synchronizedList(new LinkedList<>());
+            this.allRelationships.parallelStream().forEach(rel -> {
+                if ((rel.getTo() == object || rel.getFrom() == object) && type == rel.getType()) {
+                    if (!list.contains(rel)) {
+                        list.add(rel);
+                    }
+
+                }
+            });
+            return list;
+        }
+        return getRelationshipTable().getAllForObject(object, type);
+    }
 
     public List<JsonRelationship> getRelationships(long object) {
         if (!this.allRelationships.isEmpty()) {
@@ -686,10 +710,15 @@ public class SQLDataSource {
                         newAtt.setSampleCount(0);
                         newAtt.setPrimitiveType(type.getPrimitiveType());
 
-                        JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+                        try {
+                            JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+                            newAtt.setDisplayUnit(unit);
+                            newAtt.setInputUnit(unit);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
 
-                        newAtt.setDisplayUnit(unit);
-                        newAtt.setInputUnit(unit);
+
                         result.add(newAtt);
                     }
                 }
