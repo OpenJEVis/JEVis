@@ -21,109 +21,10 @@
   ],
   "types": [
     {
-      "name": "Conversion to Differential",
-      "primitiveType": 4,
-      "guiType": "Check Box",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
       "name": "Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "Limits Enabled",
-      "primitiveType": 4,
-      "guiType": "Check Box",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "Limits Configuration",
-      "primitiveType": 0,
-      "guiType": "Limits Config",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "GapFilling Enabled",
-      "primitiveType": 4,
-      "guiType": "Check Box",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "Gap Filling Config",
-      "primitiveType": 0,
-      "guiType": "Gap Filling Config",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "Alarm Enabled",
-      "primitiveType": 4,
-      "guiType": "Check Box",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "Alarm Config",
-      "primitiveType": 0,
-      "guiType": "Alarm Config",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "Alarm Log",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "Period Alignment",
-      "primitiveType": 4,
-      "guiType": "Check Box",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "Period Offset",
-      "primitiveType": 2,
-      "guiType": "Number",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Clean Data"
-    },
-    {
-      "name": "Value is a Quantity",
-      "primitiveType": 4,
-      "guiType": "Check Box",
-      "guiposition": 0,
+      "guiposition": 2,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -132,7 +33,7 @@
       "name": "Value Multiplier",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 3,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -141,7 +42,16 @@
       "name": "Value Offset",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 4,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Value is a Quantity",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 5,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -150,7 +60,115 @@
       "name": "Counter Overflow",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 6,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Conversion to Differential",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 7,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Period Alignment",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 8,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Period Offset",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 9,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Limits Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 10,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Limits Configuration",
+      "primitiveType": 0,
+      "guiType": "Limits Config",
+      "guiposition": 11,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "GapFilling Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 12,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Gap Filling Config",
+      "primitiveType": 0,
+      "guiType": "Gap Filling Config",
+      "guiposition": 13,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Delta Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 14,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Delta Config",
+      "primitiveType": 0,
+      "guiType": "Delta Config",
+      "guiposition": 15,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Alarm Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 16,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Alarm Config",
+      "primitiveType": 0,
+      "guiType": "Alarm Config",
+      "guiposition": 17,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Alarm Log",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "guiposition": 18,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
