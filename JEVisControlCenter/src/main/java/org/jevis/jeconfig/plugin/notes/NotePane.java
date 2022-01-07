@@ -45,12 +45,10 @@ public class NotePane extends StackPane {
 
     JFXTextField userField = new JFXTextField();
     TextArea noteTextArea = new TextArea();
-    JFXListView<String> tagList = new JFXListView();
+    private final JFXDatePicker pickerDate = new JFXDatePicker();
     JFXButton targetTreeButton = new JFXButton(I18n.getInstance().getString("plugin.note.pane.opentree"));
-
-
-    private JFXDatePicker pickerDate = new JFXDatePicker();
-    private JFXTimePicker pickerTime = new JFXTimePicker();
+    private final JFXTimePicker pickerTime = new JFXTimePicker();
+    JFXListView<String> tagList = new JFXListView<>();
     HBox hBox = new HBox(pickerDate, pickerTime);
 
     JEVisTree jeVisTree;
@@ -174,7 +172,7 @@ public class NotePane extends StackPane {
                     tagString += noteTag.getId() + ";";
                 }
             }
-            System.out.println("Tags: " + tagString);
+            logger.debug("Tags: " + tagString);
             //tagString = tagString.substring(0, tagString.length() - 1);
             //System.out.println("Tags2: " + tagString);
 

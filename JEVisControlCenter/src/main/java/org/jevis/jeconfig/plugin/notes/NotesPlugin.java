@@ -78,7 +78,7 @@ public class NotesPlugin implements Plugin {
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
     private final JFXDatePicker startDatePicker = new JFXDatePicker();
     private final JFXDatePicker endDatePicker = new JFXDatePicker();
-    private boolean init = false;
+    private final boolean init = false;
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame = TimeFrame.LAST_WEEK;
@@ -92,7 +92,7 @@ public class NotesPlugin implements Plugin {
     StringProperty searchTextProperty = new SimpleStringProperty("");
     ObservableList<String> selectedTags = FXCollections.observableArrayList();
     ObservableList<String> allTags = FXCollections.observableArrayList();
-    HashMap<String, BooleanProperty> activeTags = new HashMap();
+    HashMap<String, BooleanProperty> activeTags = new HashMap<>();
 
     public NotesPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;

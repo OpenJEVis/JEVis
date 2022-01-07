@@ -35,6 +35,20 @@ public class NoteConstants {
                 LIMIT_INTERPOLATION, LIMIT_MEDIAN, LIMIT_MAX));
     }
 
+    public interface Deltas {
+        String DELTA_STEP1 = "delta(Step1)";
+        String DELTA_DEFAULT = "delta(Default)";
+        String DELTA_STATIC = "delta(Static)";
+        String DELTA_AVERAGE = "delta(Average)";
+        String DELTA_MEDIAN = "delta(Median)";
+        String DELTA_INTERPOLATION = "delta(Interpolation)";
+        String DELTA_MIN = "delta(Minimum)";
+        String DELTA_MAX = "delta(Maximum)";
+
+        List<String> ALL_DELTAS_2 = new ArrayList<>(Arrays.asList(DELTA_AVERAGE, DELTA_STATIC, DELTA_MIN, DELTA_DEFAULT,
+                DELTA_INTERPOLATION, DELTA_MEDIAN, DELTA_MAX));
+    }
+
     public interface Gap {
         String GAP = "gap(";
         String GAP_DEFAULT = "gap(Default)";

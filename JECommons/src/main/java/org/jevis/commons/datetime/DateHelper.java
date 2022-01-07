@@ -519,8 +519,8 @@ public class DateHelper {
         this.workDays = workDays;
 
         if (workDays != null) {
-            startTime = workDays.getWorkdayStart(new DateTime());
-            endTime = workDays.getWorkdayEnd(new DateTime());
+            startTime = workDays.getWorkdayStart();
+            endTime = workDays.getWorkdayEnd();
         }
     }
 

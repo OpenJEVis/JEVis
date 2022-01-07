@@ -103,7 +103,7 @@ public class TransformerProcessor implements Function {
 
             try {
                 double sum = (sample.getValueAsDouble() * m) + b;
-                samples.add(new VirtualSample(sample.getTimestamp(), sum, dataProcessorObject.getDataSource(), new VirtualAttribute(null)));
+                samples.add(new VirtualSample(sample.getTimestamp(), sum, dataProcessorObject.getDataSource(), new VirtualAttribute(null, "Sum Attribute")));
             } catch (JEVisException ex) {
                 logger.fatal(ex);
             }

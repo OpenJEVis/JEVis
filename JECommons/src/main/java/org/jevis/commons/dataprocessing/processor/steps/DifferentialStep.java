@@ -125,12 +125,26 @@ public class DifferentialStep implements ProcessStep {
             DateTime lastDiffTS = firstTS;
             Double lastDiffVal = rawSamples.get(0).getValueAsDouble();
             CleanInterval lastInterval = null;
+            boolean found = false;
 
             for (JEVisSample smp : rawSamples) {
                 if (smp.getTimestamp().isBefore(firstTS)) {
                     lastDiffVal = smp.getValueAsDouble();
                     lastDiffTS = smp.getTimestamp();
+                    found = true;
                 } else break;
+            }
+
+            if (!found) {
+                Period period = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), lastDiffTS);
+                DateTime approximateLastDate = lastDiffTS.minus(period).minus(period);
+                List<JEVisSample> samples = cleanDataObject.getRawAttribute().getSamples(approximateLastDate, lastDiffTS);
+                for (JEVisSample smp : samples) {
+                    if (smp.getTimestamp().isBefore(firstTS)) {
+                        lastDiffVal = smp.getValueAsDouble();
+                        lastDiffTS = smp.getTimestamp();
+                    } else break;
+                }
             }
 
             logger.debug("[{}] use differential mode with starting value {}", cleanDataObject.getCleanObject().getID(), lastDiffVal);

@@ -88,9 +88,9 @@ public class DifferentialProcessor implements Function {
                         diff = sample.getValueAsDouble() - lastSample.getValueAsDouble();
 //                            logger.info("pV: " + lastSample.getValueAsDouble() + "  nV:" + sample.getValueAsDouble() + "  diff:" + diff);
                         if (mode == TS_MODE.BEGINNING) {
-                            samples.add(new VirtualSample(lastSample.getTimestamp(), diff, dpObject.getDataSource(), new VirtualAttribute(null)));
+                            samples.add(new VirtualSample(lastSample.getTimestamp(), diff, dpObject.getDataSource(), new VirtualAttribute(null, "Diff Attribute")));
                         } else {
-                            samples.add(new VirtualSample(sample.getTimestamp(), diff, dpObject.getDataSource(), new VirtualAttribute(null)));
+                            samples.add(new VirtualSample(sample.getTimestamp(), diff, dpObject.getDataSource(), new VirtualAttribute(null, "Diff Attribute")));
                         }
 
                     } else {

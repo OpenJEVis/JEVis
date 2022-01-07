@@ -20,8 +20,10 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -30,6 +32,7 @@ import java.util.Map;
 public class ResourceManager {
 
     private static final Logger logger = LogManager.getLogger(ResourceManager.class);
+    private final NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
     public List<CleanInterval> intervals = new ArrayList<>();
     private CleanDataObject cleanDataObject;
     private ForecastDataObject forecastDataObject;
@@ -40,6 +43,11 @@ public class ResourceManager {
     private List<JEVisSample> sampleCache = new ArrayList<>();
     private List<CleanInterval> rawIntervals = new ArrayList<>();
     private Boolean isClean = true;
+
+    public ResourceManager() {
+        numberFormat.setMinimumFractionDigits(4);
+        numberFormat.setMaximumFractionDigits(4);
+    }
 
     public List<CleanInterval> getIntervals() {
         return intervals;
@@ -266,5 +274,9 @@ public class ResourceManager {
 
     public void setClean(Boolean clean) {
         isClean = clean;
+    }
+
+    public NumberFormat getNumberFormat() {
+        return numberFormat;
     }
 }
