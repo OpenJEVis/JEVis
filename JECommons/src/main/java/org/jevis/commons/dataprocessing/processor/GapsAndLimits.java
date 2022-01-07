@@ -283,6 +283,7 @@ public class GapsAndLimits {
                     }
                 }
                 break;
+            case DELTA_TYPE:
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
@@ -300,7 +301,11 @@ public class GapsAndLimits {
                         sample.setValue(value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += "," + NoteConstants.Limits.LIMIT_MAX;
+                        if (gapsAndLimitsType == GapsAndLimitsType.LIMITS_TYPE) {
+                            note += "," + NoteConstants.Limits.LIMIT_MAX;
+                        } else {
+                            note += "," + NoteConstants.Deltas.DELTA_MAX;
+                        }
                         sample.setNote(note);
                     }
                 }
@@ -329,6 +334,7 @@ public class GapsAndLimits {
                     }
                 }
                 break;
+            case DELTA_TYPE:
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
@@ -346,7 +352,11 @@ public class GapsAndLimits {
                         sample.setValue(value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += "," + NoteConstants.Limits.LIMIT_MEDIAN;
+                        if (gapsAndLimitsType == GapsAndLimitsType.LIMITS_TYPE) {
+                            note += "," + NoteConstants.Limits.LIMIT_MEDIAN;
+                        } else {
+                            note += "," + NoteConstants.Deltas.DELTA_MEDIAN;
+                        }
                         sample.setNote(note);
                     }
                 }
@@ -376,6 +386,7 @@ public class GapsAndLimits {
                     }
                 }
                 break;
+            case DELTA_TYPE:
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
@@ -393,7 +404,11 @@ public class GapsAndLimits {
                         sample.setValue(value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += "," + NoteConstants.Limits.LIMIT_AVERAGE;
+                        if (gapsAndLimitsType == GapsAndLimitsType.LIMITS_TYPE) {
+                            note += "," + NoteConstants.Limits.LIMIT_AVERAGE;
+                        } else {
+                            note += "," + NoteConstants.Deltas.DELTA_AVERAGE;
+                        }
                         sample.setNote(note);
                     }
                 }
@@ -416,6 +431,7 @@ public class GapsAndLimits {
                 }
                 rawSamples.removeAll(tobeRemovedGaps);
                 break;
+            case DELTA_TYPE:
             case LIMITS_TYPE:
                 if (rawSamples != null) {
                     List<JEVisSample> tobeRemovedLimits = new ArrayList<>();
@@ -469,6 +485,7 @@ public class GapsAndLimits {
                     }
                 }
                 break;
+            case DELTA_TYPE:
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     Double firstValue = currentLimitBreak.getFirstValue();
@@ -490,7 +507,11 @@ public class GapsAndLimits {
                             sample.setValue(currentValue);
                             String note = "";
                             note += getNote(currentInterval);
-                            note += "," + NoteConstants.Limits.LIMIT_INTERPOLATION;
+                            if (gapsAndLimitsType == GapsAndLimitsType.LIMITS_TYPE) {
+                                note += "," + NoteConstants.Limits.LIMIT_INTERPOLATION;
+                            } else {
+                                note += "," + NoteConstants.Deltas.DELTA_INTERPOLATION;
+                            }
                             sample.setNote(note);
                             currentValue += stepSize;
                         }
@@ -515,6 +536,7 @@ public class GapsAndLimits {
                     }
                 }
                 break;
+            case DELTA_TYPE:
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
@@ -523,7 +545,11 @@ public class GapsAndLimits {
                         sample.setValue(defaultValue);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += "," + NoteConstants.Limits.LIMIT_DEFAULT;
+                        if (gapsAndLimitsType == GapsAndLimitsType.LIMITS_TYPE) {
+                            note += "," + NoteConstants.Limits.LIMIT_DEFAULT;
+                        } else {
+                            note += "," + NoteConstants.Deltas.DELTA_DEFAULT;
+                        }
                         sample.setNote(note);
                     }
                 }
@@ -551,6 +577,7 @@ public class GapsAndLimits {
                     }
                 }
                 break;
+            case DELTA_TYPE:
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
@@ -560,7 +587,11 @@ public class GapsAndLimits {
                         sample.setValue(value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += "," + NoteConstants.Limits.LIMIT_MIN;
+                        if (gapsAndLimitsType == GapsAndLimitsType.LIMITS_TYPE) {
+                            note += "," + NoteConstants.Limits.LIMIT_MIN;
+                        } else {
+                            note += "," + NoteConstants.Deltas.DELTA_MIN;
+                        }
                         sample.setNote(note);
                     }
                 }
@@ -608,6 +639,7 @@ public class GapsAndLimits {
                     }
                 }
                 break;
+            case DELTA_TYPE:
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     Double firstValue = currentLimitBreak.getFirstValue();
@@ -617,7 +649,11 @@ public class GapsAndLimits {
                         sample.setValue(firstValue);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += "," + NoteConstants.Limits.LIMIT_STATIC;
+                        if (gapsAndLimitsType == GapsAndLimitsType.LIMITS_TYPE) {
+                            note += "," + NoteConstants.Limits.LIMIT_STATIC;
+                        } else {
+                            note += "," + NoteConstants.Deltas.DELTA_STATIC;
+                        }
                         sample.setNote(note);
                     }
                 }
@@ -649,6 +685,6 @@ public class GapsAndLimits {
     }
 
     public enum GapsAndLimitsType {
-        LIMITS_TYPE, GAPS_TYPE, FORECAST_TYPE
+        LIMITS_TYPE, GAPS_TYPE, FORECAST_TYPE, DELTA_TYPE
     }
 }

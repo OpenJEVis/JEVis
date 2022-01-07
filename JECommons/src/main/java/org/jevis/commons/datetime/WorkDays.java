@@ -33,7 +33,7 @@ public class WorkDays {
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private boolean enabled = true;
-    private DateTimeZone zone = DateTimeZone.UTC;
+    private DateTimeZone dateTimeZone = DateTimeZone.getDefault();
 
     public WorkDays(JEVisObject currentObject) {
         this.currentObject = currentObject;
@@ -78,7 +78,7 @@ public class WorkDays {
                         }
                         if (zoneAtt.hasSample()) {
                             String zoneStr = zoneAtt.getLatestSample().getValueAsString();
-                            zone = DateTimeZone.forID(zoneStr);
+                            dateTimeZone = DateTimeZone.forID(zoneStr);
                         }
                     } catch (Exception e) {
                         logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getID(), e);
@@ -120,7 +120,7 @@ public class WorkDays {
                         }
                         if (zoneAtt.getLatestValue() != null) {
                             String zoneStr = zoneAtt.getLatestValue().getValue();
-                            zone = DateTimeZone.forID(zoneStr);
+                            dateTimeZone = DateTimeZone.forID(zoneStr);
                         }
                     } catch (Exception e) {
                         logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getId(), e);
@@ -172,7 +172,7 @@ public class WorkDays {
     }
 
     public LocalTime getWorkdayStart(DateTime currentDate) {
-        int offset = zone.getOffset(currentDate);
+        int offset = dateTimeZone.getOffset(currentDate);
         if (enabled) {
             return workdayStart.minusSeconds(offset / 1000);
         } else {
@@ -180,12 +180,28 @@ public class WorkDays {
         }
     }
 
+    public LocalTime getWorkdayStart() {
+        if (enabled) {
+            return workdayStart;
+        } else {
+            return workdayStartDisabled;
+        }
+    }
+
     public LocalTime getWorkdayEnd(DateTime currentDate) {
-        int offset = zone.getOffset(currentDate);
+        int offset = dateTimeZone.getOffset(currentDate);
         if (enabled) {
             return workdayEnd.minusSeconds(offset / 1000);
         } else {
             return workdayEndDisabled.minusSeconds(offset / 1000);
+        }
+    }
+
+    public LocalTime getWorkdayEnd() {
+        if (enabled) {
+            return workdayEnd;
+        } else {
+            return workdayEndDisabled;
         }
     }
 
@@ -203,5 +219,9 @@ public class WorkDays {
 
     public boolean isCustomWorkDay() {
         return !(workdayStart.equals(workdayStartDisabled) && workdayEnd.equals(workdayEndDisabled));
+    }
+
+    public DateTimeZone getDateTimeZone() {
+        return dateTimeZone;
     }
 }

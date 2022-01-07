@@ -432,7 +432,7 @@ public class GapFillingEditor implements AttributeEditor {
      * @param jsonstring
      * @return
      */
-    private List<JsonGapFillingConfig> parseJson(String jsonstring) throws IOException {
+    public List<JsonGapFillingConfig> parseJson(String jsonstring) throws IOException {
         List<JsonGapFillingConfig> list = new ArrayList<>();
 
 

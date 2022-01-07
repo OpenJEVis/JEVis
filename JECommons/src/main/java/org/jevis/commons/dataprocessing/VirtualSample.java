@@ -200,7 +200,7 @@ public class VirtualSample implements JEVisSample {
 
     @Override
     public void commit() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //Because its virtual, we should do nothing here
     }
 
     @Override
