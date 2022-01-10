@@ -12,12 +12,14 @@ import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -376,8 +378,33 @@ public abstract class Widget extends Region {
 
 
             if (event.getButton().equals(MouseButton.SECONDARY)) {
-                contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
-                event.consume();
+                if (event.isShiftDown()) {
+                    /* debug help to show json */
+                    try {
+                        Alert.AlertType alertAlertType;
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.initModality(Modality.NONE);
+                        alert.setResizable(true);
+                        alert.setTitle("Widget: " + getConfig().getTitle());
+
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        TextArea textArea = new TextArea(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this.toNode()));
+                        textArea.setPrefColumnCount(40);
+                        textArea.setPrefRowCount(20);
+                        textArea.setEditable(false);
+                        textArea.setWrapText(true);
+                        alert.getDialogPane().setContent(textArea);
+                        alert.show();
+                        event.consume();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+
+                } else {
+                    contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
+                    event.consume();
+                }
+
             }
 
         });

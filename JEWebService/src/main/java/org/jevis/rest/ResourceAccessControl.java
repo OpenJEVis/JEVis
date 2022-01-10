@@ -22,7 +22,7 @@ package org.jevis.rest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
+import org.jevis.commons.ws.sql.CachedAccessControl;
 import org.jevis.commons.ws.sql.Config;
 import org.jevis.commons.ws.sql.SQLDataSource;
 
@@ -38,14 +38,15 @@ import javax.ws.rs.core.*;
  *
  * @author Florian Simon<florian.simon@openjevis.org>
  */
-@Path("/JEWebService/v1/user")
-public class ResourceUser {
+@Path("/JEWebService/v1/accesscontrol")
+public class ResourceAccessControl {
 
-    private static final Logger logger = LogManager.getLogger(ResourceUser.class);
+    private static final Logger logger = LogManager.getLogger(ResourceAccessControl.class);
     private SQLDataSource ds;
 
     @GET
     @Logged
+    @Path("/update")
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(
             @Context HttpHeaders httpHeaders,
@@ -55,15 +56,15 @@ public class ResourceUser {
 
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            logger.debug("Get User: {}", ds.getCurrentUser().getAccountName());
+            logger.error("update Access Control: {}", ds.getCurrentUser().getAccountName());
+            CachedAccessControl.getInstance(ds);
+            return Response.ok().build();
 
-            return Response.ok(ds.getCurrentUser().getUserObject()).build();
-
-        } catch (JEVisException jex) {
-            logger.catching(jex);
-            return Response.serverError().build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+        } catch (Exception jex) {
+            logger.catching(jex);
+            return Response.serverError().build();
         } finally {
             Config.CloseDS(ds);
         }

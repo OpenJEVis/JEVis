@@ -5,11 +5,9 @@
  */
 package org.jevis.commons.ws.sql;
 
-import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonObject;
 
 /**
- *
  * @author fs
  */
 public class JEVisUserNew {
@@ -21,13 +19,24 @@ public class JEVisUserNew {
     private final String firstname;
     private JsonObject userObj;
     private final String accountName;
-    private final SQLDataSource ds;
+    private SQLDataSource ds;
     private String password;
 
     public JEVisUserNew(SQLDataSource ds, String account, Long objID, boolean isSysAdmin, boolean enabled, String password) {
-        this( ds,  account,  objID,  isSysAdmin,  enabled);
-        this.password=password;
+        this(ds, account, objID, isSysAdmin, enabled);
+        this.password = password;
     }
+
+    public JEVisUserNew(long userid, String accountname, boolean isSysAdmin, boolean enabled, String passHash, String firstName, String lastName) {
+        this.isSysAdmin = isSysAdmin;
+        this.uID = userid;
+        this.firstname = firstName;
+        this.lastName = lastName;
+        this.enabled = enabled;
+        this.accountName = accountname;
+        this.password = passHash;
+    }
+
 
     public JEVisUserNew(SQLDataSource ds, JsonObject obj, boolean isSysAdmin, boolean enabled, String firstName, String lastName) {
         this.isSysAdmin = isSysAdmin;
@@ -50,7 +59,10 @@ public class JEVisUserNew {
         this.accountName = account;
         this.ds = ds;
     }
-   
+
+    public void setDataSource(SQLDataSource dataSource) {
+        this.ds = dataSource;
+    }
 
     public String getAccountName() {
         return accountName;
@@ -80,18 +92,27 @@ public class JEVisUserNew {
         return password;
     }
 
+    @Deprecated
     public JsonObject getUserObject() {
+        JsonObject userObj = new JsonObject();
+        userObj.setName(accountName);
+        userObj.setId(getUserID());
+        userObj.setJevisClass("User");
+        return userObj;
+
+        /*
         if (userObj == null) {
             try {
-                userObj= ds.getObject(uID);
+                userObj = ds.getObject(uID);
             } catch (JEVisException ex) {
                 ex.printStackTrace();
             }
         }
 
         return userObj;
+
+         */
     }
 
 
- 
 }

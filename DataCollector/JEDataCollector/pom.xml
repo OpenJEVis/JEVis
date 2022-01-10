@@ -58,7 +58,6 @@
     </build>
 
 
-
     <dependencies>
         <dependency>
             <groupId>org.eclipse.milo</groupId>
@@ -94,7 +93,6 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>

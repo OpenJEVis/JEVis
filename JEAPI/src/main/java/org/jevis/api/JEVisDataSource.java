@@ -299,7 +299,7 @@ public interface JEVisDataSource {
     void reloadAttributes() throws JEVisException;
 
     /**
-     * request the reload of an attribute
+     * request to reload of an attribute
      *
      * @throws JEVisException
      */
@@ -318,4 +318,11 @@ public interface JEVisDataSource {
      * Clears the internal cache
      */
     void clearCache();
+
+    /**
+     * Request an Access Control update.
+     * This is needed after changing User,Group and there the membership Relationships.
+     */
+    void updateAccessControl();
+
 }
