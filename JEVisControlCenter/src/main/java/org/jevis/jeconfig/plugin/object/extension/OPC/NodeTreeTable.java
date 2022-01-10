@@ -11,12 +11,13 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
@@ -42,13 +43,15 @@ public class NodeTreeTable {
     private final VBox view = new VBox();
 
 
-    private final TreeTableView<Node> treeTableView = new TreeTableView<>();
+    private final TreeTableView<Node> opcUATreeTableView = new TreeTableView<>();
     private final OPCClient opcClient;
     private TreeItem<Node> rootTreeItem;
     private TreeItem<Node> currentTreeItem;
     private boolean rootSet = false;
     private final JFXButton createTrendObject = new JFXButton();
     private final JFXButton selectTarget;
+
+    private int count;
 
     private JEVisObject targetDataObject;
     private JEVisDataSource ds;
@@ -67,25 +70,50 @@ public class NodeTreeTable {
     private final String opcUARootFolder;
 
 
-    public NodeTreeTable(OPCClient opcClient, JEVisObject object, String opcUaRootFolder, StackPane dialogContainer) {
+    public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, StackPane dialogContainer) {
+
 
         this.opcClient = opcClient;
-        this.object = object;
+        this.object = trendRoot;
         this.opcUARootFolder = opcUaRootFolder;
         this.dialogContainer = dialogContainer;
         selectTarget = buildTargetButton();
         try {
-            ds = object.getDataSource();
+            ds = trendRoot.getDataSource();
         } catch (JEVisException e) {
             e.printStackTrace();
         }
+
+
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem copyNodeId = new MenuItem(I18n.getInstance().getString("plugin.object.opcua.copynodeid"));
+
+
+        opcUATreeTableView.setOnKeyPressed(event -> {
+            if (event.isControlDown()) {
+                if (KeyCode.C.equals(event.getCode())) {
+                    copyNodeId();
+                }
+            }
+
+
+        });
+
+
+        copyNodeId.setOnAction(event -> {
+
+            copyNodeId();
+
+        });
+
+        contextMenu.getItems().add(copyNodeId);
+        opcUATreeTableView.setContextMenu(contextMenu);
 
 
         TreeTableColumn<Node, String> nameCol = new TreeTableColumn<>("Name");
         TreeTableColumn<Node, String> valueCol = new TreeTableColumn<>("Value");
         TreeTableColumn<Node, Boolean> checkCol = new TreeTableColumn<>("Trend");
         TreeTableColumn<Node, String> nodeIDCol = new TreeTableColumn<>("NodeID");
-
 
 
         checkCol.setCellFactory(new Callback<TreeTableColumn<Node, Boolean>, TreeTableCell<Node, Boolean>>() {
@@ -100,7 +128,7 @@ public class NodeTreeTable {
                         setText(null);
                         setGraphic(null);
 
-                        if (!empty && getTreeTableRow().getTreeItem()!=null) {
+                        if (!empty && getTreeTableRow().getTreeItem() != null) {
                             try {
 
                                 if (getTreeTableRow().getTreeItem().getValue().descriptionProperty.get().getNodeClass().getValue() == 1) {
@@ -112,7 +140,7 @@ public class NodeTreeTable {
                                         getTreeTableRow().getTreeItem().getValue().setSelected(box.isSelected());
 
                                         childrenSetSelected(getTreeTableRow().getTreeItem());
-                                        treeTableView.refresh();
+                                        opcUATreeTableView.refresh();
 
                                     });
 
@@ -140,22 +168,21 @@ public class NodeTreeTable {
         });
 
 
-        treeTableView.setEditable(true);
+        opcUATreeTableView.setEditable(true);
         checkCol.setEditable(true);
 
         nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().descriptionProperty.get().getBrowseName().getName()));
         valueCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().readData()));
         nodeIDCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().nodeIdProperty.get().toParseableString()));
 
-
-        nameCol.setPrefWidth(200);
-        valueCol.setPrefWidth(80);
-        checkCol.setPrefWidth(150);
-        treeTableView.getColumns().addAll(nameCol, checkCol, valueCol,nodeIDCol);
+        opcUATreeTableView.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
+        VBox.setVgrow(opcUATreeTableView, Priority.ALWAYS);
+        checkCol.setPrefWidth(80);
+        opcUATreeTableView.getColumns().addAll(nameCol, checkCol, valueCol, nodeIDCol);
 
 
         //view.setPadding(new Insets(8));
-        view.getChildren().add(treeTableView);
+        view.getChildren().add(opcUATreeTableView);
 
 
         createTrendObject.setText("Create Trend Objects");
@@ -165,18 +192,29 @@ public class NodeTreeTable {
             try {
                 DateTime dateTime = DateTime.now();
 
+                if (targetDataObject != null) {
+                    JEVisClass trendClass = trendRoot.getDataSource().getJEVisClass(LOYTEC_XML_DL_DIRECTORY);
+                    JEVisClass dataClass = trendRoot.getDataSource().getJEVisClass(DATA_DIRECTORY);
 
-                JEVisClass trendClass = object.getDataSource().getJEVisClass(LOYTEC_XML_DL_DIRECTORY);
-                JEVisClass dataClass = object.getDataSource().getJEVisClass(DATA_DIRECTORY);
+                    JEVisObject rootTrendObject = trendRoot.buildObject(IMPORTED_FROM_OPC_UA, trendClass);
+                    JEVisObject rootDataObject = targetDataObject.buildObject(IMPORTED_FROM_OPC_UA, dataClass);
+                    if (rootTrendObject.isAllowedUnder(trendRoot) && rootDataObject.isAllowedUnder(targetDataObject)) {
 
-                JEVisObject rootTrendObject = object.buildObject(IMPORTED_FROM_OPC_UA, trendClass);
-                JEVisObject rootDataObject = targetDataObject.buildObject(IMPORTED_FROM_OPC_UA, dataClass);
-                if (rootTrendObject.isAllowedUnder(object)&& rootDataObject.isAllowedUnder(targetDataObject)) {
+                        rootTrendObject.commit();
+                        rootDataObject.commit();
+                        createTrendDataTree(rootTreeItem, rootTrendObject, dateTime, rootDataObject);
 
-                    rootTrendObject.commit();
-                    rootDataObject.commit();
-                    createTrendDataTree(rootTreeItem, rootTrendObject, dateTime, rootDataObject);
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("OPC-UA Trend");
+                        //alert.setHeaderText("Look, an Information Dialog");
+                        alert.setContentText(count + " Trend Object with Data Objects have been created ");
+                        alert.showAndWait();
+                    }
+
+                } else {
+                    logger.info("no target selected");
                 }
+
 
             } catch (JEVisException e) {
                 e.printStackTrace();
@@ -185,9 +223,16 @@ public class NodeTreeTable {
 
         });
 
-        view.getChildren().addAll(createTrendObject,selectTarget);
-        GridPane.setFillWidth(treeTableView, true);
-        GridPane.setFillHeight(treeTableView, true);
+        HBox hBox = new HBox();
+
+        hBox.getChildren().addAll(selectTarget, createTrendObject);
+
+        hBox.setSpacing(10);
+        hBox.setPadding(new Insets(10, 10, 10, 10));
+
+        view.getChildren().add(hBox);
+        GridPane.setFillWidth(opcUATreeTableView, true);
+        GridPane.setFillHeight(opcUATreeTableView, true);
 
 
         try {
@@ -200,11 +245,20 @@ public class NodeTreeTable {
                             c.getAddedSubList().forEach(o -> {
                                 System.out.println("New Des: " + o.getPath() + "  -> " + o.getReferenceDescription().getBrowseName().getName());
                                 PathReferenceDescription x = o;
-                                if (o.getReferenceDescription().getBrowseName().getName().equals(opcUaRootFolder)) {
+
+                                if (rootSet == false) {
+
                                     currentTreeItem = setRoot(new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue()));
-                                } else if (rootSet == true) {
+
+                                }
+//                                if (o.getReferenceDescription().getBrowseName().getName().equals(opcUaRootFolder)) {
+//                                    currentTreeItem = setRoot(new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue()));
+//                                }
+                                else if (rootSet == true) {
                                     currentTreeItem = createOPCUAChildren(currentTreeItem, new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue()));
                                     System.out.println(rootTreeItem.getChildren());
+
+
                                 }
 
                             });
@@ -220,9 +274,7 @@ public class NodeTreeTable {
                 @Override
                 protected Object call() throws Exception {
                     try {
-                        opcClient.browse(list, opcUaRootFolder);
-                        list.forEach(System.out::println);
-
+                        opcClient.browse(list, opcUARootFolder);
                         super.done();
                     } catch (Exception ex) {
                         super.failed();
@@ -246,29 +298,53 @@ public class NodeTreeTable {
         }
     }
 
+    /**
+     * copy node into clipboard of Node
+     */
+    private void copyNodeId() {
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get());
+        Clipboard.getSystemClipboard().setContent(content);
+    }
+
     public VBox getView() {
         return view;
     }
+
 
     public void setData() {
 
     }
 
+    /**
+     * @param node to be set as Root object for OPC-UA Browser
+     * @return
+     */
+
     private TreeItem<Node> setRoot(Node node) {
         System.out.println("set Root");
         rootTreeItem = new TreeItem<>(node);
         rootSet = true;
-        treeTableView.setRoot(rootTreeItem);
+        opcUATreeTableView.setRoot(rootTreeItem);
 
         return rootTreeItem;
 
     }
 
+    /**
+     * @param parent OPC-UA Parent
+     * @param node   OPC-UA Node to add OPC-Browser
+     * @return parent OPC-UA Node
+     */
 
     private TreeItem<Node> createOPCUAChildren(TreeItem<Node> parent, Node node) {
 
+        //System.out.println(node.pathProperty.get());
+        //System.out.println(parent.getValue().pathProperty.get() + "/" + parent.getValue().descriptionProperty.get().getBrowseName().getName());
+
         if ((parent.getValue().pathProperty.get() + "/" + parent.getValue().descriptionProperty.get().getBrowseName().getName()).equals(node.pathProperty.get())) {
             TreeItem<Node> treeItem = new TreeItem<>(node);
+            logger.info("OPC-UA children: {} added", node.descriptionProperty.get().getBrowseName());
             parent.getChildren().add(treeItem);
             return treeItem;
         } else if (parent.getValue().pathProperty.get().contains(rootTreeItem.getValue().pathProperty.get())) {
@@ -278,36 +354,46 @@ public class NodeTreeTable {
         }
     }
 
-    private void createTrendDataTree(TreeItem<Node> node, JEVisObject trendObject, DateTime dateTime, JEVisObject dataObject) throws JEVisException {
+    /**
+     * @param node                  OPC-UA Node
+     * @param dataSourceJEVisObject Datasource Parent
+     * @param dateTime              DateTime Stamp for JEVIs Sample
+     * @param dataJEVisObject       Data Parent
+     * @throws JEVisException
+     */
 
-        System.out.println(node.getValue().descriptionProperty.get().getBrowseName().getName());
+    private void createTrendDataTree(TreeItem<Node> node, JEVisObject dataSourceJEVisObject, DateTime dateTime, JEVisObject dataJEVisObject) throws JEVisException {
+
+        //System.out.println(node.getValue().descriptionProperty.get().getBrowseName().getName());
 
         if (node.getChildren().size() > 0) {
 
 
             if (node.getChildren().get(0).getValue().descriptionProperty.getValue().getNodeClass().getValue() == 1) {
+                logger.info("OPC-UA Node: {} is a Folder", node.getChildren().get(0).getValue().descriptionProperty.get().getDisplayName());
                 if (node.getValue().isSelected()) {
-                    trendObject = createJEVisObject(node, trendObject, LOYTEC_XML_DL_DIRECTORY);
-                    dataObject = createJEVisObject(node, dataObject, DATA_DIRECTORY);
+                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_DIRECTORY);
+                    dataJEVisObject = createJEVisObject(node, dataJEVisObject, DATA_DIRECTORY);
 
                 }
             } else if (node.getChildren().get(0).getValue().descriptionProperty.getValue().getNodeClass().getValue() == 2) {
-                System.out.println("2");
+                logger.info("OPC-UA Node: {} is not Folder", node.getChildren().get(0).getValue().descriptionProperty.get().getDisplayName());
                 if (node.getValue().isSelected()) {
-                    trendObject = createJEVisObject(node, trendObject, LOYTEC_XML_DL_CHANNEL);
-                    dataObject = createJEVisObject(node, dataObject, "Data");
-                    JEVisAttribute jeVisAttributeTarget = trendObject.getAttribute(TARGET_ID);
-                  jeVisAttributeTarget.buildSample(dateTime,dataObject.getID()+":Value").commit();
-
+                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_CHANNEL);
+                    dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
+                    JEVisAttribute jeVisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
+                    jeVisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
+                    createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
 
 
                     if (node.getChildren().stream().filter(nodeTreeItem -> nodeTreeItem.getValue().descriptionProperty.get().getBrowseName().getName().equals("CsvFile")).map(nodeTreeItem -> nodeTreeItem.getValue()).count() > 0) {
+                        logger.info("OPC-UA Node: {} is trend Object", node.getChildren().get(0).getValue().descriptionProperty.get().getDisplayName());
                         Node csvNode = node.getChildren().stream().filter(nodeTreeItem -> nodeTreeItem.getValue().descriptionProperty.get().getBrowseName().getName().equals("CsvFile")).map(nodeTreeItem -> nodeTreeItem.getValue()).findFirst().get();
 
-                        if (trendObject.getAttribute(TREND_ID) != null) {
-                            JEVisAttribute jeVisAttribute = trendObject.getAttribute(TREND_ID);
-                            System.out.println(csvNode.readData());
+                        if (dataSourceJEVisObject.getAttribute(TREND_ID) != null) {
+                            JEVisAttribute jeVisAttribute = dataSourceJEVisObject.getAttribute(TREND_ID);
                             String csvString = csvNode.readData().split("/")[csvNode.readData().split("/").length - 1].substring(0, 4);
+                            logger.info("Trend Id: {} added in Sample", csvString);
 
                             JEVisSample jeVisSample = jeVisAttribute.buildSample(dateTime, csvString);
                             jeVisSample.commit();
@@ -320,27 +406,60 @@ public class NodeTreeTable {
 
 
             for (TreeItem<Node> nodeChild : node.getChildren()) {
-                createTrendDataTree(nodeChild, trendObject, dateTime, dataObject);
+                createTrendDataTree(nodeChild, dataSourceJEVisObject, dateTime, dataJEVisObject);
             }
         }
 
 
     }
 
-    private JEVisObject createJEVisObject(TreeItem<Node> node, JEVisObject object, String className) throws JEVisException {
+    /**
+     * @param node              of OPC-UA Node Item
+     * @param jevisParentObject Parnet under which the JVEis Object will vbe created
+     * @param className         Class of the new JEVis Object
+     * @return
+     * @throws JEVisException
+     */
+    private JEVisObject createJEVisObject(TreeItem<Node> node, JEVisObject jevisParentObject, String className) throws JEVisException {
+        JEVisClass dataClass = jevisParentObject.getDataSource().buildClass(className);
 
-        JEVisClass dataClass = object.getDataSource().buildClass(className);
-        JEVisObject newObject = object.buildObject(node.getValue().descriptionProperty.get().getBrowseName().getName(), dataClass);
-        if (newObject.isAllowedUnder(object)) {
+
+        JEVisObject newObject = jevisParentObject.buildObject(node.getValue().descriptionProperty.get().getBrowseName().getName(), dataClass);
+        if (newObject.isAllowedUnder(jevisParentObject)) {
             newObject.commit();
+            count++;
             return newObject;
         } else {
-            return object;
+            return jevisParentObject;
         }
 
     }
 
+    /**
+     *
+     * @param jevisParentObject
+     * @param className Name of the Jevis Class
+     * @param objectName name of the JEVis Object in JEVis
+     * @return
+     * @throws JEVisException
+     */
+    private JEVisObject createJEVisObject(JEVisObject jevisParentObject, String className, String objectName) throws JEVisException {
+        JEVisClass dataClass = jevisParentObject.getDataSource().buildClass(className);
+        JEVisObject newObject = jevisParentObject.buildObject(objectName,dataClass);
+        if (newObject.isAllowedUnder(jevisParentObject)) {
+            System.out.println(newObject);
+            newObject.commit();
+        }
 
+        return newObject;
+
+    }
+
+    /**
+     * select children if parent is selected
+     *
+     * @param nodeTreeItem
+     */
     public void childrenSetSelected(TreeItem<Node> nodeTreeItem) {
         for (int i = 0; i < nodeTreeItem.getChildren().size(); i++) {
             nodeTreeItem.getChildren().get(i).getValue().setSelected(nodeTreeItem.getValue().isSelected());
@@ -352,8 +471,10 @@ public class NodeTreeTable {
 
     }
 
+
     private JFXButton buildTargetButton() {
-        final JFXButton button = new JFXButton(I18n.getInstance().getString("csv.import_target"));//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
+        final JFXButton button = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.button"), JEConfig.getImage("folders_explorer.png", 18, 18));
+        button.wrapTextProperty().setValue(true);
         button.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override

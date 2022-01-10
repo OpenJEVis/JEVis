@@ -33,10 +33,7 @@ import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -380,11 +377,58 @@ public class OPCClient {
     }
 
     public void browse(ObservableList<PathReferenceDescription> list, String rootFolder) {
-        browseTree(list, "", Identifiers.RootFolder,rootFolder);
+        NodeId nodeId = Identifiers.RootFolder;
+
+        PathReferenceDescription pathReferenceDescription = null;
+
+        for (int i = 0; i < rootFolder.split("/").length; i++) {
+           List<ReferenceDescription> referenceDescriptionList = browseToRoot (nodeId,rootFolder.split("/")[i]);
+
+            for (int j = 0; j < referenceDescriptionList.size(); j++) {
+
+                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[i])) {
+                    nodeId = new NodeId(referenceDescriptionList.get(j).getNodeId().getNamespaceIndex(), (UInteger) referenceDescriptionList.get(j).getNodeId().getIdentifier());
+                }
+                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[rootFolder.split("/").length-1])) {
+                    pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(j), "", null);
+                    list.add(pathReferenceDescription);
+
+                }
+            }
+        }
+
+
+        System.out.println(nodeId);
+        browseTree(list,"/"+rootFolder.split("/")[rootFolder.split("/").length-1], nodeId);
 
     }
 
-    private void browseTree(ObservableList<PathReferenceDescription> list, String xpathParent, NodeId browseRoot, String rootFolder) {
+
+    public List<ReferenceDescription> browseToRoot(NodeId opcRoot, String root) {
+        BrowseDescription browse = new BrowseDescription(
+                opcRoot,
+                BrowseDirection.Forward,
+                Identifiers.References,
+                true,
+                uint(NodeClass.Object.getValue() | NodeClass.Variable.getValue()),
+                uint(BrowseResultMask.All.getValue())
+        );
+
+        try {
+            BrowseResult browseResult = client.browse(browse).get();
+
+            List<ReferenceDescription> references = toList(browseResult.getReferences());
+            //references.stream().map(referenceDescription -> referenceDescription.getBrowseName().getName()).forEach(System.out::println);
+
+            return references;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private void browseTree(ObservableList<PathReferenceDescription> list, String xpathParent, NodeId browseRoot) {
         BrowseDescription browse = new BrowseDescription(
                 browseRoot,
                 BrowseDirection.Forward,
@@ -399,26 +443,37 @@ public class OPCClient {
 
             List<ReferenceDescription> references = toList(browseResult.getReferences());
 
+
+
+
+
+
             for (ReferenceDescription rd : references) {
                 String xpath = xpathParent;
                 NodeId nodeId = new NodeId(rd.getNodeId().getNamespaceIndex(), (UInteger) rd.getNodeId().getIdentifier());
                 PathReferenceDescription pathReferenceDescription;
-                if ((xpath+rd.getBrowseName().getName()).contains(rootFolder)) {
+
+                System.out.println(rd.getBrowseName().getName());
+
+                System.out.println(rd.getNodeClass().getValue());
+
                     if (rd.getNodeClass().getValue() == 2) {
                         DataValue datavalue = readValue(nodeId);
                         pathReferenceDescription = new PathReferenceDescription(rd, xpath, datavalue);
                     }else {
                         pathReferenceDescription = new PathReferenceDescription(rd, xpath, null);
                     }
+
                 logger.debug("Add to Map: {}-{}", xpath, rd);
                 if (rd.getNodeClass().getValue() == 1 || (rd.getNodeClass().getValue() == 2 )) {
                     Platform.runLater(() -> {
+                        System.out.println(pathReferenceDescription.getPath());
                         list.add(pathReferenceDescription);
                     });
                 }
-                }
 
-                browseTree(list, xpath + "/" + rd.getBrowseName().getName(), nodeId,rootFolder);
+
+                browseTree(list, xpath + "/" + rd.getBrowseName().getName(), nodeId);
             }
         } catch (NullPointerException ex) {
             ex.printStackTrace();
@@ -428,7 +483,8 @@ public class OPCClient {
         } catch (ExecutionException e) {
             logger.error("ExecutionException: {}", e);
             e.printStackTrace();
-        } catch (UaException e) {
+        }
+        catch (UaException e) {
             e.printStackTrace();
         }
     }
@@ -561,6 +617,7 @@ public class OPCClient {
             return value.getValue().getValue().getClass().getName();
 
     }
+
 
 }
 

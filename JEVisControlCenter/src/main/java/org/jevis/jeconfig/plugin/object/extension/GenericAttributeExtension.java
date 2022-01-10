@@ -88,7 +88,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         return _changed;
     }
 
-    public static AttributeEditor getEditor(StackPane dialogContainer, JEVisType type, JEVisAttribute att) throws JEVisException {
+    public static  AttributeEditor getEditor(StackPane dialogContainer, JEVisType type, JEVisAttribute att) throws JEVisException {
         String guiDisplayType = type.getGUIDisplayType();
         AttributeEditor editor = null;
         switch (type.getPrimitiveType()) {

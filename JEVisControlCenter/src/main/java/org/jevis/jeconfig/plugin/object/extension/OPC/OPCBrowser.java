@@ -2,14 +2,15 @@ package org.jevis.jeconfig.plugin.object.extension.OPC;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -31,7 +32,9 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.csv.CSVColumnHeader;
+import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.OPCUAServer;
 
@@ -42,6 +45,8 @@ import java.util.concurrent.ExecutionException;
 public class OPCBrowser {
 
     private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
+
+    public static String ICON = "Loytec XML-DL Server.png";
 
 
     private OPCClient opcClient;
@@ -60,14 +65,14 @@ public class OPCBrowser {
     private EndpointDescription endpointDescription;
 
 
-
-
-
+    JFXDialog opcUaBrowserDialog;
 
 
     public OPCBrowser(JEVisObject opcServerObj) {
-
         this.opcServerObj = opcServerObj;
+        //init();
+
+
         try {
             ds = opcServerObj.getDataSource();
         } catch (JEVisException e) {
@@ -75,28 +80,34 @@ public class OPCBrowser {
         }
 
 
-        final Stage stage = new Stage();
+        final Stage stage;
+        stage = new Stage();
 
-
-        stage.setTitle("");
-        stage.initModality(Modality.NONE);
-        stage.initOwner(JEConfig.getStage());
-
-        //StackPane stackPane = new StackPane();
         VBox vBox = new VBox();
-        dialogContainer.getChildren().add(vBox);
+        try {
+            stage.initOwner(JEConfig.getStage());
 
-        Scene scene = new Scene(dialogContainer);
-        TopMenu.applyActiveTheme(scene);
-        stage.setScene(scene);
-        //TODo better be dynamic
+            dialogContainer.getChildren().add(vBox);
 
-        stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(true);
-        stage.setWidth(650);
-        stage.setHeight(500);
-        stage.setAlwaysOnTop(true);
+            Node header = DialogHeader.getDialogHeader(ImageConverter.convertToImageView(opcServerObj.getJEVisClass().getIcon(), 64, 64), opcServerObj.getName());
+            System.out.println(opcServerObj.getName());
 
+            vBox.getChildren().add(header);
+
+            vBox.setSpacing(10);
+
+            Scene scene = new Scene(dialogContainer);
+            TopMenu.applyActiveTheme(scene);
+            stage.setScene(scene);
+            //TODo better be dynamic
+
+            stage.initStyle(StageStyle.UTILITY);
+            stage.setResizable(true);
+            stage.setWidth(650);
+            stage.setHeight(800);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
 
 
         try {
@@ -130,53 +141,60 @@ public class OPCBrowser {
             FlowPane flowPane = new FlowPane();
 
 
-
             port.setPromptText("Port");
 
             connect.setText("Connect");
 
             connect.setOnAction(event -> {
                 try {
-                   ;
+                    ;
                     OPCUAServer opcuaServer = new OPCUAServer(this.opcServerObj);
-                    opcClient = new OPCClient(opcuaServer.getURL().replace(this.opcServerObj.getAttribute("Port").getLatestSample().getValue().toString(),port.getText()));//"opc.tcp://10.1.2.128:4840");
+                    opcClient = new OPCClient(opcuaServer.getURL().replace(this.opcServerObj.getAttribute("Port").getLatestSample().getValue().toString(), port.getText()));//"opc.tcp://10.1.2.128:4840");
                     endpointDescription = opcClient.autoSelectEndpoint();
 
 
-                        UsernameProvider usernameProvider = new UsernameProvider(this.opcServerObj.getAttribute("User").getLatestSample().getValue().toString(), this.opcServerObj.getAttribute("Password").getLatestSample().getValue().toString());
-                        opcClient.setEndpoints(endpointDescription);
+                    UsernameProvider usernameProvider = new UsernameProvider(this.opcServerObj.getAttribute("User").getLatestSample().getValue().toString(), this.opcServerObj.getAttribute("Password").getLatestSample().getValue().toString());
+                    opcClient.setEndpoints(endpointDescription);
 
-                        if (!this.opcServerObj.getAttribute("User").getLatestSample().getValue().toString().isEmpty() && !this.opcServerObj.getAttribute("Password").getLatestSample().getValue().toString().isEmpty()) {
-                            opcClient.setIdentification(usernameProvider);
-                        }
-
-
-
-                        opcClient.connect();
+                    if (!this.opcServerObj.getAttribute("User").getLatestSample().getValue().toString().isEmpty() && !this.opcServerObj.getAttribute("Password").getLatestSample().getValue().toString().isEmpty()) {
+                        opcClient.setIdentification(usernameProvider);
+                    }
 
 
-                        NodeTreeTable nodeTable = new NodeTreeTable(opcClient,opcServerObj,rootFolder.getValue(),dialogContainer);
+                    opcClient.connect();
 
 
+                    NodeTreeTable nodeTable = new NodeTreeTable(opcClient, opcServerObj, rootFolder.getValue(), dialogContainer);
+                    if (vBox.getChildren().size() > 2) {
+                        vBox.getChildren().set(2, nodeTable.getView());
+                        VBox.setVgrow(nodeTable.getView(), Priority.ALWAYS);
+                    } else {
                         vBox.getChildren().add(nodeTable.getView());
+                        VBox.setVgrow(nodeTable.getView(), Priority.ALWAYS);
+                    }
 
 
-
-
-
-
-                    //alignmentBox.getItems().addAll(endpoints);
                 } catch (JEVisException | ExecutionException | InterruptedException | UaException e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+
+                    System.out.println(I18n.getInstance().getString("plugin.object.opcua.error.title"));
+                    alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.error.title"));
+                    alert.setHeaderText(I18n.getInstance().getString("plugin.object.opcua.error.message"));
+                    alert.setContentText(e.getMessage());
+
+                    alert.showAndWait();
+
+
                     e.printStackTrace();
                 }
 
 
             });
 
-            rootFolder.getItems().addAll("Loytec ROOT","Trend");
+            rootFolder.getItems().addAll("/Objects/Loytec ROOT/Trend", "/Objects/Loytec ROOT", "/Objects/Loytec ROOT/User Registers");
             rootFolder.setValue(rootFolder.getItems().get(0));
-            rootFolder.setOnAction(event ->{
-                System.out.println(rootFolder.getValue());
+            rootFolder.setOnAction(event -> {
+                        System.out.println(rootFolder.getValue());
                     }
 
             );
@@ -219,6 +237,10 @@ public class OPCBrowser {
         return info;
     }
 
+    private void init() {
+
+
+    }
 
 
 }
