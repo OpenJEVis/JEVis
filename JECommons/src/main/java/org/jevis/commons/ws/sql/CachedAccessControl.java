@@ -34,11 +34,14 @@ public class CachedAccessControl {
 
     public synchronized void updateCache(SQLDataSource dataSource) throws Exception {
         logger.error("Update Access Control Cache");
+        needUpdate.set(false);
         Benchmark benchmark = new Benchmark();
         users = dataSource.getLoginTable().getAllUser();
 
         //dataSource.getAttributeTable().getDataPorozessorTodoList();
+        groupMemberships.clear();
 
+        
         users.forEach((s, jeVisUserNew) -> {
             groupMemberships.put(jeVisUserNew.getUserID(), new ArrayList<>());
         });
@@ -50,19 +53,21 @@ public class CachedAccessControl {
             userRelList.add(rel);
             groupMemberships.put(rel.getFrom(), userRelList);
         }
-
+/*
         users.forEach((s, jeVisUserNew) -> {
             try {
                 logger.debug("User: '{}', memberships: {}", jeVisUserNew.getAccountName(), groupMemberships.get(jeVisUserNew.getUserID()).size());
-                /*
+
                 groupMemberships.get(jeVisUserNew.getUserID()).forEach(jsonRelationship -> {
                     logger.trace("-- {}", jsonRelationship.getTo());
                 });
-                 */
+
             } catch (Exception ex) {
                 logger.error(ex);
             }
         });
+
+ */
         benchmark.printBechmark("Finished Access Control Cache update");
 
     }
@@ -167,7 +172,6 @@ public class CachedAccessControl {
     public static CachedAccessControl getInstance(SQLDataSource ds) throws Exception {
         if (fastUserManager != null) {
             if (fastUserManager.needUpdate()) fastUserManager.updateCache(ds);
-            
             return fastUserManager;
         } else {
             fastUserManager = new CachedAccessControl();
