@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import javax.measure.unit.Unit;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,14 +33,18 @@ import java.util.List;
  */
 public class VirtualAttribute implements JEVisAttribute {
 
-    private JEVisObject _object;
+    private final JEVisObject object;
+    private final List<JEVisSample> sampleList = new ArrayList<>();
+    private final String name;
 
-    public VirtualAttribute(JEVisObject object) {
+    public VirtualAttribute(JEVisObject object, String name) {
+        this.object = object;
+        this.name = name;
     }
 
     @Override
     public String getName() {
-        return "Virtual Attribute";
+        return name;
     }
 
     @Override
@@ -54,12 +59,12 @@ public class VirtualAttribute implements JEVisAttribute {
 
     @Override
     public JEVisObject getObject() {
-        return _object;
+        return object;
     }
 
     @Override
     public List<JEVisSample> getAllSamples() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return sampleList;
     }
 
     @Override
@@ -74,12 +79,24 @@ public class VirtualAttribute implements JEVisAttribute {
 
     @Override
     public int addSamples(List<JEVisSample> samples) throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int prevSize = sampleList.size();
+        samples.stream().filter(sample -> !sampleList.contains(sample)).forEach(sampleList::add);
+        samples.sort((o1, o2) -> {
+            try {
+                return o1.getTimestamp().compareTo(o2.getTimestamp());
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+            return 0;
+        });
+        return sampleList.size() - prevSize;
     }
 
     @Override
     public JEVisSample buildSample(DateTime ts, Object value) throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        JEVisSample newSample = new VirtualSample(ts, value.toString());
+        sampleList.add(newSample);
+        return newSample;
     }
 
     @Override
@@ -99,7 +116,9 @@ public class VirtualAttribute implements JEVisAttribute {
 
     @Override
     public JEVisSample getLatestSample() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (!sampleList.isEmpty()) {
+            return sampleList.get(sampleList.size() - 1);
+        } else return null;
     }
 
     @Override
@@ -109,7 +128,7 @@ public class VirtualAttribute implements JEVisAttribute {
 
     @Override
     public boolean hasSample() {
-        return false;
+        return sampleList.size() > 0;
     }
 
     @Override
@@ -119,12 +138,21 @@ public class VirtualAttribute implements JEVisAttribute {
 
     @Override
     public DateTime getTimestampFromLastSample() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (!sampleList.isEmpty()) {
+            try {
+                sampleList.get(sampleList.size() - 1).getTimestamp();
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
     }
 
     @Override
     public boolean deleteAllSample() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        sampleList.clear();
+        return true;
     }
 
     @Override
@@ -179,7 +207,7 @@ public class VirtualAttribute implements JEVisAttribute {
 
     @Override
     public long getSampleCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return sampleList.size();
     }
 
     @Override
@@ -189,7 +217,7 @@ public class VirtualAttribute implements JEVisAttribute {
 
     @Override
     public void commit() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     @Override
@@ -224,7 +252,7 @@ public class VirtualAttribute implements JEVisAttribute {
 
     @Override
     public Long getObjectID() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return object.getID();
     }
 
 }

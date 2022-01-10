@@ -9,6 +9,7 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.json.JsonDeltaConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -85,6 +86,26 @@ public class RowNote {
                             formattedNote.append(System.getProperty("line.separator"));
                         }
                     }
+                }
+            } catch (Exception e) {
+            }
+        }
+
+        if (note.contains(NoteConstants.Deltas.DELTA_STEP1)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.delta1"));
+            formattedNote.append(System.getProperty("line.separator"));
+
+            try {
+                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
+                JEVisObject object = sample.getAttribute().getObject();
+                if (object.getJEVisClass().equals(cleanDataClass)) {
+                    CleanDataObject cleanDataObject = new CleanDataObject(object);
+                    JsonDeltaConfig deltaConfig = cleanDataObject.getDeltaConfig();
+
+                    formattedNote.append("D1: ");
+                    formattedNote.append(deltaConfig.getMin());
+                    formattedNote.append(" %");
+                    formattedNote.append(System.getProperty("line.separator"));
                 }
             } catch (Exception e) {
             }
@@ -220,6 +241,95 @@ public class RowNote {
             formattedNote.append(System.getProperty("line.separator"));
         }
         if (note.contains(NoteConstants.Limits.LIMIT_MAX)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.max"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+
+        if (note.contains(NoteConstants.Deltas.DELTA_DEFAULT) || note.contains(NoteConstants.Deltas.DELTA_INTERPOLATION)
+                || note.contains(NoteConstants.Deltas.DELTA_MEDIAN) || note.contains(NoteConstants.Deltas.DELTA_AVERAGE)
+                || note.contains(NoteConstants.Deltas.DELTA_MAX) || note.contains(NoteConstants.Deltas.DELTA_MIN)
+                || note.contains(NoteConstants.Deltas.DELTA_STATIC)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.delta2.limit"));
+            formattedNote.append(System.getProperty("line.separator"));
+            try {
+                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
+                JEVisObject object = sample.getAttribute().getObject();
+                if (object.getJEVisClass().equals(cleanDataClass)) {
+                    CleanDataObject cleanDataObject = new CleanDataObject(object);
+                    JsonDeltaConfig deltaConfig = cleanDataObject.getDeltaConfig();
+
+                    formattedNote.append("D2: ");
+                    formattedNote.append(deltaConfig.getMax());
+                    formattedNote.append(" %");
+                    formattedNote.append(System.getProperty("line.separator"));
+
+                    DateTime timestamp = sample.getTimestamp();
+                    JEVisAttribute rawDataValueAttribute = object.getParents().get(0).getAttribute("Value");
+                    JEVisAttribute rawDataPeriodAttribute = object.getParents().get(0).getAttribute("Period");
+                    if (!cleanDataObject.getDifferentialRules().isEmpty()) {
+                        for (DifferentialRule jeVisSample : cleanDataObject.getDifferentialRules()) {
+                            if (jeVisSample.isDifferential()) {
+                                if (timestamp.isAfter(jeVisSample.getStartOfPeriod())) {
+                                    List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp.minus(new Period(rawDataPeriodAttribute.getLatestSample().getValueAsString())), timestamp);
+                                    if (samples.size() == 2) {
+                                        formattedNote.append("Original Value: ");
+                                        formattedNote.append(nf.format(samples.get(1).getValueAsDouble() - samples.get(0).getValueAsDouble()));
+                                        formattedNote.append(" ").append(cleanDataObject.getValueAttribute().getDisplayUnit().getLabel());
+                                        formattedNote.append(System.getProperty("line.separator"));
+                                    }
+                                }
+                            } else {
+                                if (timestamp.isAfter(jeVisSample.getStartOfPeriod())) {
+                                    List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp, timestamp);
+                                    if (!samples.isEmpty()) {
+                                        formattedNote.append("Original: ");
+                                        formattedNote.append(nf.format(samples.get(0).getValueAsDouble()));
+                                        formattedNote.append(" ").append(cleanDataObject.getValueAttribute().getDisplayUnit().getLabel());
+                                        formattedNote.append(System.getProperty("line.separator"));
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp, timestamp);
+                        if (!samples.isEmpty()) {
+                            formattedNote.append("Original: ");
+                            formattedNote.append(samples.get(0).getValueAsDouble());
+                            formattedNote.append(System.getProperty("line.separator"));
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+            }
+        }
+
+
+        if (note.contains(NoteConstants.Deltas.DELTA_DEFAULT)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.default"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Deltas.DELTA_STATIC)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.static"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Deltas.DELTA_AVERAGE)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.average"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Deltas.DELTA_MEDIAN)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.median"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Deltas.DELTA_INTERPOLATION)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.interpolation"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Deltas.DELTA_MIN)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.min"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Deltas.DELTA_MAX)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.max"));
             formattedNote.append(System.getProperty("line.separator"));
         }

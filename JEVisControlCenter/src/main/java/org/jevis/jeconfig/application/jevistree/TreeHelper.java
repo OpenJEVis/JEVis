@@ -55,6 +55,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.TimeZoneBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PresetDateBox;
 import org.jevis.jeconfig.application.jevistree.dialog.NewObject;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -83,10 +84,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
@@ -2037,11 +2035,19 @@ public class TreeHelper {
         JFXTextField textField = new JFXTextField();
         Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples their period x field");
         JFXCheckBox correctUTC = new JFXCheckBox("Correct UTC diff");
+        JFXCheckBox allObjects = new JFXCheckBox("All objects");
+        Label tzInputLabel = new Label("input timezone");
+        Label tzOutputLabel = new Label("output timezone");
+        TimeZoneBox timeZoneBoxInput = new TimeZoneBox();
+        TimeZoneBox timeZoneBoxOutput = new TimeZoneBox();
+
+        HBox inputBox = new HBox(6, tzInputLabel, timeZoneBoxInput);
+        HBox outputBox = new HBox(6, tzOutputLabel, timeZoneBoxOutput);
 
         JFXTextArea textArea = new JFXTextArea();
         textArea.setPrefRowCount(20);
 
-        VBox vBox = new VBox(message, textField, correctUTC, textArea);
+        VBox vBox = new VBox(6, message, textField, correctUTC, allObjects, inputBox, outputBox, textArea);
         warning.getDialogPane().setContent(vBox);
 
         ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
@@ -2116,51 +2122,76 @@ public class TreeHelper {
                             }
                         }
                     } else {
-                        List<JEVisObject> allDataObjects = CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), dataClass);
-                        allDataObjects.addAll(CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), cleanDataClass));
+                        logger.debug("Setting default timezone to UTC");
+                        TimeZone defaultTimeZone = TimeZone.getDefault();
+                        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+                        DateTimeZone defaultDateTimeZone = DateTimeZone.getDefault();
+                        DateTimeZone.setDefault(DateTimeZone.UTC);
+
+                        List<JEVisObject> allDataObjects = new ArrayList<>();
+                        if (allObjects.isSelected()) {
+                            allDataObjects.addAll(getAllObjectsRecursive(items.get(0).getValue().getJEVisObject()));
+                        } else {
+                            allDataObjects.addAll(CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), dataClass));
+                            allDataObjects.addAll(CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), cleanDataClass));
+                        }
+
                         for (JEVisObject object : allDataObjects) {
                             final String formatStr = "yyyy-MM-dd HH:mm:ss";
 //                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " moving samples"));
                             logger.info(object.getName() + ":" + object.getID() + " moving samples");
 
-                            JEVisAttribute value = object.getAttribute("Value");
-                            if (value != null) {
-                                List<JEVisSample> allSamples = value.getAllSamples();
-                                List<JEVisSample> virtualSamples = new ArrayList<>();
+                            List<JEVisAttribute> allAttributes = new ArrayList<>();
+                            if (allObjects.isSelected()) {
+                                allAttributes.addAll(object.getAttributes());
+                            } else {
+                                JEVisAttribute valueAtt = object.getAttribute("Value");
+                                allAttributes.add(valueAtt);
+                            }
 
-                                for (JEVisSample sample : allSamples) {
-                                    DateTime oldTS = sample.getTimestamp();
-                                    DateTime movedTimeStamp = null;
+                            for (JEVisAttribute att : allAttributes) {
+                                try {
 
-                                    if (oldTS.getHourOfDay() == 20) {
-                                        movedTimeStamp = oldTS.plusHours(4);
-                                    } else if (oldTS.getHourOfDay() == 21) {
-                                        movedTimeStamp = oldTS.plusHours(3);
-                                    } else if (oldTS.getHourOfDay() == 22) {
-                                        movedTimeStamp = oldTS.plusHours(2);
-                                    } else if (oldTS.getHourOfDay() == 23) {
-                                        movedTimeStamp = oldTS.plusHours(1);
-                                    }
+                                    int primitiveType = att.getPrimitiveType();
 
-                                    JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());
-                                    virtualSample.setNote(sample.getNote());
-                                    DateTime finalMovedTimeStamp = movedTimeStamp;
+                                    if (primitiveType != 3 && primitiveType != 7) {
+                                        List<JEVisSample> allSamples = att.getAllSamples();
+                                        List<JEVisSample> newSamples = new ArrayList<>();
+
+                                        for (JEVisSample sample : allSamples) {
+                                            try {
+                                                DateTime oldTS = sample.getTimestamp().withZoneRetainFields(timeZoneBoxInput.getValue());
+                                                DateTime movedTimeStamp = oldTS.withZone(timeZoneBoxOutput.getValue());
+
+                                                JEVisSample newSample = att.buildSample(movedTimeStamp, sample.getValue(), sample.getNote());
+
+                                                DateTime finalMovedTimeStamp = movedTimeStamp;
 //                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
-                                    logger.info(object.getName() + ":" + object.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr));
-                                    virtualSamples.add(virtualSample);
-                                }
+                                                logger.info(object.getName() + ":" + object.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr));
+                                                newSamples.add(newSample);
+                                            } catch (Exception e) {
+                                                logger.error("Could not generate sampel {}", sample, e);
+                                            }
+                                        }
 
-//                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
-                                logger.info(object.getName() + ":" + object.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples");
+//                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " found " + allSamples.size() + " samples, created " + newSamples.size() + " new samples"));
+                                        logger.info(object.getName() + ":" + object.getID() + " found " + allSamples.size() + " samples, created " + newSamples.size() + " new samples");
 
-                                if (allSamples.size() == virtualSamples.size()) {
-                                    value.deleteAllSample();
-                                    value.addSamples(virtualSamples);
+                                        if (allSamples.size() == newSamples.size()) {
+                                            att.deleteAllSample();
+                                            att.addSamples(newSamples);
 //                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " finished moving samples"));
-                                    logger.info(object.getName() + ":" + object.getID() + " finished moving samples");
+                                            logger.info(object.getName() + ":" + object.getID() + " finished moving samples");
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    logger.error("Could not generate samples for attribute {}", att, e);
                                 }
                             }
                         }
+
+                        TimeZone.setDefault(defaultTimeZone);
+                        DateTimeZone.setDefault(defaultDateTimeZone);
                     }
 
                 } catch (JEVisException e) {
@@ -2169,5 +2200,16 @@ public class TreeHelper {
 
             }
         });
+    }
+
+    public static List<JEVisObject> getAllObjectsRecursive(JEVisObject parent) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+
+        list.add(parent);
+
+        for (JEVisObject child : parent.getChildren()) {
+            list.addAll(getAllObjectsRecursive(child));
+        }
+        return list;
     }
 }

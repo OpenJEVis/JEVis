@@ -47,7 +47,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -998,20 +997,6 @@ public class AnalysisDataModel {
     public ObservableList<JEVisObject> getObservableListAnalyses() {
         if (observableListAnalyses.isEmpty()) updateListAnalyses();
         return observableListAnalyses;
-    }
-
-    public LocalTime getWorkdayStart(DateTime currentDate) {
-        if (observableListAnalyses.size() > 0) {
-            updateWorkdayTimesFromJEVisObject(observableListAnalyses.get(0));
-        }
-        return wd.getWorkdayStart(currentDate);
-    }
-
-    public LocalTime getWorkdayEnd(DateTime currentDate) {
-        if (observableListAnalyses.size() > 0) {
-            updateWorkdayTimesFromJEVisObject(observableListAnalyses.get(0));
-        }
-        return wd.getWorkdayEnd(currentDate);
     }
 
     public JEVisObject getCurrentAnalysis() {

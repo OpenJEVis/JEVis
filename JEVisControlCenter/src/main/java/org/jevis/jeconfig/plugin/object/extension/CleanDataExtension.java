@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.json.JsonDeltaConfig;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -63,6 +64,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private JEVisAttribute enabledAttribute;
     private JEVisAttribute limitsEnabledAttribute;
     private JEVisAttribute gapFillingEnabledAttribute;
+    private JEVisAttribute deltaEnabledAttribute;
     private JEVisAttribute alarmEnabledAttribute;
     private JEVisAttribute periodAlignmentAttribute;
     private JEVisAttribute periodOffsetAttribute;
@@ -75,6 +77,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private ToggleSwitchPlus conversionToDifferential;
     private ToggleSwitchPlus enabled;
     private ToggleSwitchPlus limitsEnabled;
+    private ToggleSwitchPlus deltaEnabled;
     private ToggleSwitchPlus gapsEnabled;
     private ToggleSwitchPlus alarmEnabled;
     private ToggleSwitchPlus periodAlignment;
@@ -93,6 +96,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private boolean changedPeriod = false;
     private JEVisAttribute gapFillingConfigAttribute;
     private JEVisAttribute limitsConfigurationAttribute;
+    private JEVisAttribute deltaConfigurationAttribute;
     private final NumberFormat nf = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
 
     public CleanDataExtension(StackPane dialogContainer, JEVisObject _obj) {
@@ -154,6 +158,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
         limitsConfigurationAttribute = cleanDataObject.getLimitsConfigurationAttribute();
         gapFillingEnabledAttribute = cleanDataObject.getGapFillingEnabledAttribute();
         gapFillingConfigAttribute = cleanDataObject.getGapFillingConfigAttribute();
+        deltaEnabledAttribute = cleanDataObject.getDeltaEnabledAttribute();
+        deltaConfigurationAttribute = cleanDataObject.getDeltaConfigurationAttribute();
         alarmEnabledAttribute = cleanDataObject.getAlarmEnabledAttribute();
         JEVisAttribute alarmConfigAttribute = cleanDataObject.getAlarmConfigAttribute();
         JEVisAttribute alarmLogAttribute = cleanDataObject.getAlarmLogAttribute();
@@ -170,6 +176,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
         JEVisSample enabledLastSample = enabledAttribute.getLatestSample();
         JEVisSample limitsEnabledLastSample = limitsEnabledAttribute.getLatestSample();
         JEVisSample limitsConfigurationLastSample = limitsConfigurationAttribute.getLatestSample();
+        JEVisSample deltaEnabledLastSample = deltaEnabledAttribute.getLatestSample();
+        JEVisSample deltaConfigurationLastSample = deltaConfigurationAttribute.getLatestSample();
         JEVisSample gapFillingEnabledLastSample = gapFillingEnabledAttribute.getLatestSample();
         JEVisSample gapFillingConfigLastSample = gapFillingConfigAttribute.getLatestSample();
         JEVisSample alarmEnabledLastSample = alarmEnabledAttribute.getLatestSample();
@@ -287,6 +295,26 @@ public class CleanDataExtension implements ObjectEditorExtension {
             nameLimitsConfiguration.setTooltip(ttLimitsConfiguration);
         }
         LimitEditor limitsConfiguration = new LimitEditor(dialogContainer, limitsConfigurationAttribute);
+
+        /**
+         *  Delta
+         */
+        Label nameDeltaEnabled = new Label(I18nWS.getInstance().getAttributeName(deltaEnabledAttribute));
+        Tooltip ttDeltaEnabled = new Tooltip(I18nWS.getInstance().getAttributeDescription(deltaEnabledAttribute));
+        if (!ttDeltaEnabled.getText().isEmpty()) {
+            nameDeltaEnabled.setTooltip(ttDeltaEnabled);
+        }
+        deltaEnabled = new ToggleSwitchPlus();
+        if (deltaEnabledLastSample != null) {
+            deltaEnabled.setSelected(deltaEnabledLastSample.getValueAsBoolean());
+        }
+
+        Label nameDeltaConfiguration = new Label(I18nWS.getInstance().getAttributeName(deltaConfigurationAttribute));
+        Tooltip ttDeltaConfiguration = new Tooltip(I18nWS.getInstance().getAttributeDescription(deltaConfigurationAttribute));
+        if (!ttDeltaConfiguration.getText().isEmpty()) {
+            nameDeltaConfiguration.setTooltip(ttDeltaConfiguration);
+        }
+        DeltaEditor deltaConfiguration = new DeltaEditor(dialogContainer, deltaConfigurationAttribute);
 
         /**
          *  Gaps
@@ -484,12 +512,9 @@ public class CleanDataExtension implements ObjectEditorExtension {
         setupListener(conversionToDifferentialTimeStampEditor, conversionToDifferential,
                 enabled,
                 limitsEnabled,
-                limitsConfiguration,
+                deltaEnabled,
                 gapsEnabled,
-                gapsConfiguration,
                 alarmEnabled,
-                alarmConfiguration,
-                alarmLog,
                 periodAlignment,
                 periodOffset,
                 valueIsAQuantity,
@@ -613,6 +638,14 @@ public class CleanDataExtension implements ObjectEditorExtension {
         gridPane.add(lcBox, 3, row, 3, 1);
         row++;
 
+        gridPane.add(nameDeltaConfiguration, 0, row);
+        gridPane.add(deltaEnabled, 2, row, colSpan, 1);
+        HBox dcBox = (HBox) deltaConfiguration.getEditor();
+        dcBox.setFillHeight(true);
+        dcBox.setAlignment(Pos.CENTER_LEFT);
+        gridPane.add(dcBox, 3, row, 3, 1);
+        row++;
+
         gridPane.add(nameAlarmConfiguration, 0, row);
         gridPane.add(alarmEnabled, 2, row, colSpan, 1);
         HBox acBox = (HBox) alarmConfiguration.getEditor();
@@ -638,8 +671,11 @@ public class CleanDataExtension implements ObjectEditorExtension {
         boolean all = allRadioButton.isSelected();
         boolean now = nowRadioButton.isSelected();
         boolean from = fromRadioButton.isSelected();
-        DateTime fromDate = new DateTime(fromDatePicker.getValue().getYear(), fromDatePicker.getValue().getMonthValue(), fromDatePicker.getValue().getDayOfMonth(),
-                fromTimePicker.getValue().getHour(), fromTimePicker.getValue().getMinute(), fromTimePicker.getValue().getSecond(), 0);
+        DateTime fromDate = new DateTime();
+        if (from) {
+            fromDate = new DateTime(fromDatePicker.getValue().getYear(), fromDatePicker.getValue().getMonthValue(), fromDatePicker.getValue().getDayOfMonth(),
+                    fromTimePicker.getValue().getHour(), fromTimePicker.getValue().getMinute(), fromTimePicker.getValue().getSecond(), 0);
+        }
 
         StringProperty errorMsg = new SimpleStringProperty();
         logger.debug("Setting default timezone to UTC");
@@ -648,6 +684,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         DateTimeZone defaultDateTimeZone = DateTimeZone.getDefault();
         DateTimeZone.setDefault(DateTimeZone.UTC);
 
+        DateTime finalFromDate = fromDate;
         Task<Void> set = new Task<Void>() {
             @Override
             protected Void call() {
@@ -655,7 +692,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
                     if (all) {
                         CommonMethods.processAllCleanData(obj, null, null);
                     } else if (from) {
-                        CommonMethods.processAllCleanData(obj, fromDate, null);
+                        CommonMethods.processAllCleanData(obj, finalFromDate, null);
                     } else if (now) {
                         CommonMethods.processAllCleanDataNoDelete(obj);
                     }
@@ -713,9 +750,9 @@ public class CleanDataExtension implements ObjectEditorExtension {
     }
 
     private void setupListener(TimeStampEditor conversionToDifferentialTimeStampEditor, ToggleSwitchPlus conversionToDifferential,
-                               ToggleSwitchPlus enabled, ToggleSwitchPlus limitsEnabled, LimitEditor limitsConfiguration,
-                               ToggleSwitchPlus gapsEnabled, GapFillingEditor gapsConfiguration, ToggleSwitchPlus alarmEnabled,
-                               AlarmEditor alarmConfiguration, JFXTextField alarmLog, ToggleSwitchPlus periodAlignment,
+                               ToggleSwitchPlus enabled, ToggleSwitchPlus limitsEnabled,
+                               ToggleSwitchPlus deltaEnabled, ToggleSwitchPlus gapsEnabled, ToggleSwitchPlus alarmEnabled,
+                               ToggleSwitchPlus periodAlignment,
                                JFXTextField periodOffset, ToggleSwitchPlus valueIsAQuantity, TimeStampEditor valueMultiplierTimeStampEditor,
                                JFXTextField valueMultiplier, JFXTextField valueOffset, TimeStampEditor valueTimeStampEditor,
                                JFXTextField value, JFXTextField counterOverflow, TimeStampEditor periodTimeStampEditor, SamplingRateUI samplingRateUI) {
@@ -746,6 +783,13 @@ public class CleanDataExtension implements ObjectEditorExtension {
             _changed.set(true);
             if (!changedAttributes.contains(limitsEnabledAttribute)) {
                 changedAttributes.add(limitsEnabledAttribute);
+            }
+        });
+
+        deltaEnabled.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            _changed.set(true);
+            if (!changedAttributes.contains(deltaEnabledAttribute)) {
+                changedAttributes.add(deltaEnabledAttribute);
             }
         });
 
@@ -810,13 +854,6 @@ public class CleanDataExtension implements ObjectEditorExtension {
                 valueMultiplier.setText(oldValue);
             }
         });
-
-//        value.focusedProperty().addListener((observable, oldValue, newValue) -> {
-//            _changed.set(true);
-//            if (!changedAttributes.contains(valueAttribute)) {
-//                changedAttributes.add(valueAttribute);
-//            }
-//        });
 
         valueOffset.textProperty().addListener((observable, oldValue, newValue) -> {
             DoubleValidator validator = DoubleValidator.getInstance();
@@ -909,6 +946,15 @@ public class CleanDataExtension implements ObjectEditorExtension {
                         if (limitsEnabled.isSelected() && !limitsConfigurationAttribute.hasSample()) {
                             List<JsonLimitsConfig> defaultConfig = LimitEditor.createDefaultConfig();
                             JEVisSample newConfigSample = limitsConfigurationAttribute.buildSample(DateTime.now(), defaultConfig.toString());
+                            newConfigSample.commit();
+                        }
+                    } else if (attribute.equals(deltaEnabledAttribute)) {
+                        JEVisSample newSample = deltaEnabledAttribute.buildSample(DateTime.now(), deltaEnabled.isSelected());
+                        newSample.commit();
+                        savedAttributes.add(deltaEnabledAttribute);
+                        if (deltaEnabled.isSelected() && !deltaConfigurationAttribute.hasSample()) {
+                            JsonDeltaConfig defaultConfig = DeltaEditor.createDefaultConfig();
+                            JEVisSample newConfigSample = deltaConfigurationAttribute.buildSample(DateTime.now(), defaultConfig.toString());
                             newConfigSample.commit();
                         }
                     } else if (attribute.equals(gapFillingEnabledAttribute)) {

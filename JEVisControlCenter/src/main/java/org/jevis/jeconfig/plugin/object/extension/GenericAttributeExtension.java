@@ -125,6 +125,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         editor = new GapFillingEditor(dialogContainer, att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LIMITS_CONFIG.getId())) {
                         editor = new LimitEditor(dialogContainer, att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DELTA_CONFIG.getId())) {
+                        editor = new DeltaEditor(dialogContainer, att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.ALARM_CONFIG.getId())) {
                         editor = new AlarmEditor(dialogContainer, att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.CALENDAR.getId())) {
