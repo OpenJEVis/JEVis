@@ -18,10 +18,7 @@ import org.eclipse.milo.opcua.stack.core.Identifiers;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
-import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
-import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
+import org.eclipse.milo.opcua.stack.core.types.builtin.*;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UByte;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseDirection;
@@ -348,6 +345,12 @@ public class OPCClient {
         return map;
     }
 
+    /**
+     *
+     * @param hashMap
+     * @param xpathParent
+     * @param browseRoot
+     */
     private void browseTree(HashMap<String, ReferenceDescription> hashMap, String xpathParent, NodeId browseRoot) {
         BrowseDescription browse = new BrowseDescription(
                 browseRoot,
@@ -376,13 +379,18 @@ public class OPCClient {
         }
     }
 
+    /**
+     *
+     * @param list of the OPC-UA Nodes
+     * @param rootFolder of OPC-UA
+     */
     public void browse(ObservableList<PathReferenceDescription> list, String rootFolder) {
         NodeId nodeId = Identifiers.RootFolder;
 
         PathReferenceDescription pathReferenceDescription = null;
 
         for (int i = 0; i < rootFolder.split("/").length; i++) {
-           List<ReferenceDescription> referenceDescriptionList = browseToRoot (nodeId,rootFolder.split("/")[i]);
+           List<ReferenceDescription> referenceDescriptionList = browseToRoot (nodeId);
 
             for (int j = 0; j < referenceDescriptionList.size(); j++) {
 
@@ -403,8 +411,12 @@ public class OPCClient {
 
     }
 
-
-    public List<ReferenceDescription> browseToRoot(NodeId opcRoot, String root) {
+    /**
+     * browse to specified Root folder
+     * @param opcRoot
+     * @return
+     */
+    public List<ReferenceDescription> browseToRoot(NodeId opcRoot) {
         BrowseDescription browse = new BrowseDescription(
                 opcRoot,
                 BrowseDirection.Forward,
@@ -418,7 +430,6 @@ public class OPCClient {
             BrowseResult browseResult = client.browse(browse).get();
 
             List<ReferenceDescription> references = toList(browseResult.getReferences());
-            //references.stream().map(referenceDescription -> referenceDescription.getBrowseName().getName()).forEach(System.out::println);
 
             return references;
         } catch (Exception e) {
@@ -453,9 +464,6 @@ public class OPCClient {
                 NodeId nodeId = new NodeId(rd.getNodeId().getNamespaceIndex(), (UInteger) rd.getNodeId().getIdentifier());
                 PathReferenceDescription pathReferenceDescription;
 
-                System.out.println(rd.getBrowseName().getName());
-
-                System.out.println(rd.getNodeClass().getValue());
 
                     if (rd.getNodeClass().getValue() == 2) {
                         DataValue datavalue = readValue(nodeId);
@@ -586,6 +594,12 @@ public class OPCClient {
         return "";
     }
 
+    /**
+     *
+     * @param nodeId of Node
+     * @return Vale as DataValue
+     * @throws UaException
+     */
     public  DataValue readValue(NodeId nodeId) throws UaException {
 
             UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
@@ -602,7 +616,12 @@ public class OPCClient {
 
         }
 
-
+    /**
+     *
+     * @param dataValue
+     * @param nodeId
+     * @throws UaException
+     */
     public void writeValue(DataValue dataValue, NodeId nodeId) throws UaException {
 
             UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
@@ -610,6 +629,60 @@ public class OPCClient {
 
     }
 
+    /**
+     *
+     * @param value to be written into Node (Double)
+     * @param nodeId
+     * @throws UaException
+     */
+    public void writeValue(Double value, NodeId nodeId) throws UaException {
+        logger.info("Value :", value);
+        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
+        writeValue(dataValue, nodeId);
+    }
+
+    /**
+     *
+     * @param value to be written into Node (Int)
+     * @param nodeId
+     * @throws UaException
+     */
+    public void writeValue(Integer value, NodeId nodeId) throws UaException {
+        logger.info("Value :", value);
+        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
+        writeValue(dataValue, nodeId);
+    }
+
+    /**
+     *
+     * @param value to be written int Node (String)
+     * @param nodeId
+     * @throws UaException
+     */
+    public void writeValue(String value, NodeId nodeId) throws UaException {
+        logger.info("Value :", value);
+        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
+        writeValue(dataValue, nodeId);
+    }
+
+    /**
+     *
+     * @param value to be written int Node (Bool)
+     * @param nodeId
+     * @throws UaException
+     */
+    public void writeValue(Boolean value, NodeId nodeId) throws UaException {
+        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
+        writeValue(dataValue, nodeId);
+    }
+
+
+    /**
+     *
+     * @param nodeId
+     * @return Datatype of OPC Node
+     * @throws UaException
+     */
     public String getDataType(NodeId nodeId) throws UaException {
 
             UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);

@@ -30,36 +30,7 @@ public class OPCUAWriter {
 
 
 
-    private void writeToOPCUA(Double value, NodeId nodeId) throws UaException {
-        System.out.println("write");
-        System.out.println(value);
-        logger.info("Value :", value);
-        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
-        opcClient.writeValue(dataValue, nodeId);
-    }
 
-    private void writeToOPCUA(Integer value, NodeId nodeId) throws UaException {
-        System.out.println("write");
-        System.out.println(value);
-        logger.info("Value :", value);
-        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
-        opcClient.writeValue(dataValue, nodeId);
-    }
-
-    private void writeToOPCUA(String value, NodeId nodeId) throws UaException {
-        System.out.println("write");
-        System.out.println(value);
-        logger.info("Value :", value);
-        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
-        opcClient.writeValue(dataValue, nodeId);
-    }
-
-    private void writeToOPCUA(Boolean value, NodeId nodeId) throws UaException {
-        System.out.println("write");
-        System.out.println(value);
-        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
-        opcClient.writeValue(dataValue, nodeId);
-    }
 
     public Boolean sendOPCUANotification(JEVisObject outputChannel, JEVisObject dataObject) {
 
@@ -78,13 +49,13 @@ public class OPCUAWriter {
                     logger.info("OPC-UA Node datatype:", datatype);
 
                     if (datatype.equals(Double.class.getName())) {
-                        writeToOPCUA(dataObject.getAttribute(VALUE).getLatestSample().getValueAsDouble(), nodeId);
+                        opcClient.writeValue(dataObject.getAttribute(VALUE).getLatestSample().getValueAsDouble(), nodeId);
 
                     } else if (datatype.equals(Boolean.class.getName())) {
-                        writeToOPCUA(convertToBool(dataObject.getAttribute(VALUE).getLatestSample().getValueAsDouble()), nodeId);
+                        opcClient.writeValue(convertToBool(dataObject.getAttribute(VALUE).getLatestSample().getValueAsDouble()), nodeId);
 
                     } else if (datatype.equals(String.class.getName())) {
-                        writeToOPCUA(dataObject.getAttribute(VALUE).getLatestSample().getValueAsString(), nodeId);
+                        opcClient.writeValue(dataObject.getAttribute(VALUE).getLatestSample().getValueAsString(), nodeId);
 
                     } else {
                         throw new Exception("Datatype not found");
