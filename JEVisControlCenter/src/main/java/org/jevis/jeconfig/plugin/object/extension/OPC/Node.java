@@ -18,7 +18,7 @@ public class Node {
     public final StringProperty pathProperty;
     public StringProperty stringProperty = new SimpleStringProperty("hmmm");
     public StringProperty typeProperty = new SimpleStringProperty("");
-    public final DataValue dataValue;
+    public DataValue dataValue;
     public boolean selected;
 
     public Node(ReferenceDescription referenceDescription, String xpath, DataValue dataValue) {

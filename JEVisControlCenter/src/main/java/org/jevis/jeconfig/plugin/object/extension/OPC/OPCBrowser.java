@@ -4,14 +4,10 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
@@ -24,22 +20,15 @@ import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.driver.DataSource;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
-import org.jevis.jeconfig.application.jevistree.UserSelection;
-import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.csv.CSVColumnHeader;
 import org.jevis.jeconfig.dialog.DialogHeader;
-import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.OPCUAServer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class OPCBrowser {
@@ -177,9 +166,9 @@ public class OPCBrowser {
                 } catch (JEVisException | ExecutionException | InterruptedException | UaException e) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
 
-                    System.out.println(I18n.getInstance().getString("plugin.object.opcua.error.title"));
-                    alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.error.title"));
-                    alert.setHeaderText(I18n.getInstance().getString("plugin.object.opcua.error.message"));
+                    System.out.println(I18n.getInstance().getString("plugin.object.opcua.error.server.title"));
+                    alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.error.server.title"));
+                    alert.setHeaderText(I18n.getInstance().getString("plugin.object.opcua.error.server.message"));
                     alert.setContentText(e.getMessage());
 
                     alert.showAndWait();

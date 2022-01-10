@@ -1,8 +1,7 @@
 package org.jevis.jeconfig.plugin.object.extension.OPC;
 
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.*;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -20,6 +19,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.filter.RegexFilter;
+import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
@@ -50,6 +52,7 @@ public class NodeTreeTable {
     private boolean rootSet = false;
     private final JFXButton createTrendObject = new JFXButton();
     private final JFXButton selectTarget;
+    private JFXDialog setValueDialog;
 
     private int count;
 
@@ -86,7 +89,7 @@ public class NodeTreeTable {
 
 
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem copyNodeId = new MenuItem(I18n.getInstance().getString("plugin.object.opcua.copynodeid"));
+        MenuItem cMcopyNodeId = new MenuItem(I18n.getInstance().getString("plugin.object.opcua.copynodeid"));
 
 
         opcUATreeTableView.setOnKeyPressed(event -> {
@@ -100,13 +103,20 @@ public class NodeTreeTable {
         });
 
 
-        copyNodeId.setOnAction(event -> {
+        cMcopyNodeId.setOnAction(event -> {
 
             copyNodeId();
 
         });
 
-        contextMenu.getItems().add(copyNodeId);
+
+        MenuItem cMsetValue = new MenuItem(I18n.getInstance().getString("plugin.object.opcua.setvalue"));
+        cMsetValue.setOnAction(event -> {
+            setSetValueDialog(opcClient, dialogContainer);
+
+
+        });
+        contextMenu.getItems().addAll(cMcopyNodeId, cMsetValue);
         opcUATreeTableView.setContextMenu(contextMenu);
 
 
@@ -181,7 +191,6 @@ public class NodeTreeTable {
         opcUATreeTableView.getColumns().addAll(nameCol, checkCol, valueCol, nodeIDCol);
 
 
-        //view.setPadding(new Insets(8));
         view.getChildren().add(opcUATreeTableView);
 
 
@@ -189,45 +198,67 @@ public class NodeTreeTable {
         createTrendObject.setOnAction(event -> {
 
 
-            try {
-                DateTime dateTime = DateTime.now();
+            Task<Void> task = new Task<Void>() {
+                @Override
+                protected Void call() {
 
-                if (targetDataObject != null) {
-                    JEVisClass trendClass = trendRoot.getDataSource().getJEVisClass(LOYTEC_XML_DL_DIRECTORY);
-                    JEVisClass dataClass = trendRoot.getDataSource().getJEVisClass(DATA_DIRECTORY);
 
-                    JEVisObject rootTrendObject = trendRoot.buildObject(IMPORTED_FROM_OPC_UA, trendClass);
-                    JEVisObject rootDataObject = targetDataObject.buildObject(IMPORTED_FROM_OPC_UA, dataClass);
-                    if (rootTrendObject.isAllowedUnder(trendRoot) && rootDataObject.isAllowedUnder(targetDataObject)) {
+                    try {
+                        DateTime dateTime = DateTime.now();
 
-                        rootTrendObject.commit();
-                        rootDataObject.commit();
-                        createTrendDataTree(rootTreeItem, rootTrendObject, dateTime, rootDataObject);
+                        if (targetDataObject != null) {
+                            JEVisClass trendClass = trendRoot.getDataSource().getJEVisClass(LOYTEC_XML_DL_DIRECTORY);
+                            JEVisClass dataClass = trendRoot.getDataSource().getJEVisClass(DATA_DIRECTORY);
 
+                            JEVisObject rootTrendObject = trendRoot.buildObject(IMPORTED_FROM_OPC_UA, trendClass);
+                            JEVisObject rootDataObject = targetDataObject.buildObject(IMPORTED_FROM_OPC_UA, dataClass);
+                            if (rootTrendObject.isAllowedUnder(trendRoot) && rootDataObject.isAllowedUnder(targetDataObject)) {
+
+                                rootTrendObject.commit();
+                                rootDataObject.commit();
+                                createTrendDataTree(rootTreeItem, rootTrendObject, dateTime, rootDataObject);
+
+                            }
+
+                        } else {
+                            logger.info("no target selected");
+                        }
+
+
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("OPC-UA Trend");
                         //alert.setHeaderText("Look, an Information Dialog");
                         alert.setContentText(count + " Trend Object with Data Objects have been created ");
                         alert.showAndWait();
                     }
-
-                } else {
-                    logger.info("no target selected");
+                    return null;
                 }
+            };
+
+            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), task, taskIcon, true);
+
+            task.setOnSucceeded(event1 -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("OPC-UA Trend");
+                //alert.setHeaderText("Look, an Information Dialog");
+                alert.setContentText(count + " Trend Object with Data Objects have been created ");
+                alert.showAndWait();
+            });
 
 
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
+
+
+
 
 
         });
 
-        HBox hBox = new HBox();
+        HBox hBox = new HBox(10);
 
         hBox.getChildren().addAll(selectTarget, createTrendObject);
 
-        hBox.setSpacing(10);
         hBox.setPadding(new Insets(10, 10, 10, 10));
 
         view.getChildren().add(hBox);
@@ -295,6 +326,90 @@ public class NodeTreeTable {
             //System.out.println("List: " + list.size());
         } catch (Exception ex) {
             logger.error("error while browsing Client: {}", ex);
+        }
+    }
+
+    private void setSetValueDialog(OPCClient opcClient, StackPane dialogContainer) {
+        try {
+            String dataType = opcClient.getDataType(NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+
+
+            setValueDialog = new JFXDialog();
+            setValueDialog.setDialogContainer(dialogContainer);
+            GridPane gridPane = new GridPane();
+            gridPane.setPadding(new Insets(10));
+            gridPane.setHgap(10);
+            gridPane.setVgap(5);
+            gridPane.setMinHeight(150);
+            gridPane.setMinWidth(235);
+
+
+            Label valueLabel = new Label(I18n.getInstance().getString("plugin.graph.table.value"));
+
+            HBox hbox = new HBox(6);
+            JFXTextField valueField = new JFXTextField();
+
+            JFXComboBox<Boolean> valueComboBox = new JFXComboBox();
+            valueComboBox.getItems().addAll(true, false);
+
+
+            if (dataType.equals(Boolean.class.getName())) {
+                hbox.getChildren().addAll(valueLabel, valueComboBox);
+            } else {
+                hbox.getChildren().addAll(valueLabel, valueField);
+            }
+
+
+            final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
+            ok.setDefaultButton(true);
+            final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
+            cancel.setCancelButton(true);
+
+            HBox buttonBar = new HBox(20, cancel, ok);
+
+            cancel.setOnAction(event1 -> setValueDialog.close());
+
+
+            ok.setOnAction(event1 -> {
+                try {
+
+
+                    if (dataType.equals(Boolean.class.getName())) {
+                        opcClient.writeValue(valueComboBox.getValue(), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                    } else if (dataType.equals(String.class.getName())) {
+                        opcClient.writeValue(valueField.getText(), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                    } else if (dataType.equals(Double.class.getName())) {
+                        opcClient.writeValue(Double.valueOf(valueField.getText()), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                    } else if (dataType.equals(Integer.class.getName())) {
+                        opcClient.writeValue(Integer.valueOf(valueField.getText()), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                    } else {
+                        logger.info("Datatype Mismatch");
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.error.datatype.title"));
+                        alert.setHeaderText(I18n.getInstance().getString("plugin.object.opcua.error.datatype.message"));
+                        alert.showAndWait();
+                    }
+
+                    opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().dataValue = opcClient.readValue(NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                    opcUATreeTableView.refresh();
+                } catch (UaException e) {
+                    e.printStackTrace();
+                } finally {
+                    setValueDialog.close();
+                }
+
+
+            });
+
+            gridPane.add(hbox, 0, 0);
+            gridPane.add(buttonBar, 0, 3);
+
+            setValueDialog.setContent(gridPane);
+
+            setValueDialog.show();
+
+        } catch (UaException e) {
+            e.printStackTrace();
         }
     }
 
@@ -391,8 +506,9 @@ public class NodeTreeTable {
                         Node csvNode = node.getChildren().stream().filter(nodeTreeItem -> nodeTreeItem.getValue().descriptionProperty.get().getBrowseName().getName().equals("CsvFile")).map(nodeTreeItem -> nodeTreeItem.getValue()).findFirst().get();
 
                         if (dataSourceJEVisObject.getAttribute(TREND_ID) != null) {
+                            System.out.println(csvNode.readData());
                             JEVisAttribute jeVisAttribute = dataSourceJEVisObject.getAttribute(TREND_ID);
-                            String csvString = csvNode.readData().split("/")[csvNode.readData().split("/").length - 1].substring(0, 4);
+                            String csvString = csvNode.readData().split("\\.|\\/")[csvNode.readData().split("\\.|\\/.").length - 2];
                             logger.info("Trend Id: {} added in Sample", csvString);
 
                             JEVisSample jeVisSample = jeVisAttribute.buildSample(dateTime, csvString);
@@ -436,16 +552,15 @@ public class NodeTreeTable {
     }
 
     /**
-     *
      * @param jevisParentObject
-     * @param className Name of the Jevis Class
-     * @param objectName name of the JEVis Object in JEVis
+     * @param className         Name of the Jevis Class
+     * @param objectName        name of the JEVis Object in JEVis
      * @return
      * @throws JEVisException
      */
     private JEVisObject createJEVisObject(JEVisObject jevisParentObject, String className, String objectName) throws JEVisException {
         JEVisClass dataClass = jevisParentObject.getDataSource().buildClass(className);
-        JEVisObject newObject = jevisParentObject.buildObject(objectName,dataClass);
+        JEVisObject newObject = jevisParentObject.buildObject(objectName, dataClass);
         if (newObject.isAllowedUnder(jevisParentObject)) {
             System.out.println(newObject);
             newObject.commit();
@@ -489,6 +604,7 @@ public class NodeTreeTable {
                 selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
 
                 selectionDialog.setOnDialogClosed(event -> {
+
                     if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
                         logger.trace("Selection Done");
                         for (UserSelection us : selectionDialog.getUserSelection()) {
@@ -518,6 +634,9 @@ public class NodeTreeTable {
                             }
                         }
                     }
+
+
+
                 });
                 selectionDialog.show();
             }
