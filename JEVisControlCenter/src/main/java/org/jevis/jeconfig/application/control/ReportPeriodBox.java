@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.tool;
+package org.jevis.jeconfig.application.control;
 
 import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;

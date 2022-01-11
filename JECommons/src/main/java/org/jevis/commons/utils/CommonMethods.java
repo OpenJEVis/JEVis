@@ -43,7 +43,7 @@ public class CommonMethods {
 
     public static JEVisObject getFirstCleanObject(JEVisObject jeVisObject) throws JEVisException {
         for (JEVisObject object : jeVisObject.getChildren()) {
-            if (object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("Clean data")) {
+            if (object.getJEVisClassName().equals("Clean data")) {
                 return object;
             } else {
                 return getFirstCleanObject(object);

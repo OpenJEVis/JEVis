@@ -41,11 +41,15 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.control.ReportAggregationBox;
+import org.jevis.jeconfig.application.control.ReportFixedPeriodBox;
+import org.jevis.jeconfig.application.control.ReportManipulationBox;
+import org.jevis.jeconfig.application.control.ReportPeriodBox;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
-import org.jevis.jeconfig.tool.*;
+import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
 import java.io.File;
