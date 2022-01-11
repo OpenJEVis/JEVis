@@ -45,7 +45,7 @@ public class JEVisDates {
      * @return
      */
     public static String printDefaultDate(DateTime date) {
-        logger.error("print: {} {}", date);
+        logger.debug("print: {} {}", date);
         if (date == null) {
             throw new IllegalArgumentException();
         }
@@ -54,7 +54,7 @@ public class JEVisDates {
     }
 
     public static void saveDefaultDate(JEVisAttribute attibute, DateTime timestamp, DateTime date) throws IllegalArgumentException, JEVisException {
-        logger.error("Save Date: {} {} {}", attibute, timestamp, date);
+        logger.debug("Save Date: {} {} {}", attibute, timestamp, date);
         if (date == null || attibute == null) {
             throw new IllegalArgumentException();
         }
