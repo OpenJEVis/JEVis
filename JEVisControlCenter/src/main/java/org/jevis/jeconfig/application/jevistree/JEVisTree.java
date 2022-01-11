@@ -31,7 +31,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisItemLoader;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 
@@ -82,9 +81,7 @@ public class JEVisTree extends TreeTableView {
 
     protected void initialize() {
         try {
-            Benchmark b = new Benchmark();
             loadCalcFilter();
-            b.printBenchmarkDetail("Time to load Calc Tree Filter");
 
             this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), this.ds.getRootObjects());
             this.itemLoader.filterTree(this.cellFilter);
@@ -104,14 +101,12 @@ public class JEVisTree extends TreeTableView {
         return calculationIDs;
     }
 
+    /**
+     * Find all calculations used to select icon
+     */
     private void loadCalcFilter() {
         try {
-            JEVisClass calcClass = ds.getJEVisClass("Calculation");
             JEVisClass outputClass = ds.getJEVisClass("Output");
-            List<JEVisObject> objects = new ArrayList<>();
-            objects = ds.getObjects(calcClass, false);
-
-
             ds.getObjects(outputClass, true).forEach(object -> {
                 try {
                     TargetHelper th = new TargetHelper(ds, object.getAttribute("Output"));
@@ -121,22 +116,20 @@ public class JEVisTree extends TreeTableView {
                 }
             });
 
-            objects.forEach(object -> {
 
-            });
-
-            /**
-             System.out.println("----");
-             calculationIDs.forEach(aLong -> {
-             System.out.println("Calculation target: " + aLong);
-             });
-             **/
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
+    /**
+     * Get all calculations and the corresponding data datarows.
+     *
+     * @return
+     * @throws JEVisException
+     */
     public Map<Long, Long> getENPICalcMap() throws JEVisException {
+
         Map<Long, Long> calcAndResult = new HashMap<>();
 
         JEVisClass calculation = this.getJEVisDataSource().getJEVisClass("Calculation");
