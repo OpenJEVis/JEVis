@@ -508,8 +508,8 @@ public class NodeTreeTable {
                     dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_CHANNEL);
                     JEVisAttribute jeVisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
                     if (dataJEVisObject != null) {
-                        jeVisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
                         dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
+                        jeVisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
                         createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
                     }
 
