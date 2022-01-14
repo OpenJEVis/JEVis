@@ -424,7 +424,7 @@ public class TableChartV extends XYChart {
                                     textField.setText(I18n.getInstance().getString("plugin.graph.table.sum"));
                                 } else {
                                     textField.setStyle("-fx-alignment: CENTER-RIGHT;");
-                                    if (workDays.getWorkdayEnd(item).isBefore(workDays.getWorkdayStart(item))) {
+                                    if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
                                         DateTime modDateTime = item.plusDays(1);
                                         textField.setText(modDateTime.toString(normalPattern));
                                     } else {

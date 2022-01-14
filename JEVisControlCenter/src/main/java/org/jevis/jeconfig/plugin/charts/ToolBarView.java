@@ -12,11 +12,19 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +50,7 @@ import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.dialog.BaseLoadDialog;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
@@ -52,6 +61,9 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +124,7 @@ public class ToolBarView {
     private ToggleButton calcFullLoadHours;
     private ToggleButton calcHoursAboveBelow;
     private ToggleButton calcSumAboveBelow;
+    private ToggleButton calcBaseLoad;
 
     private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
@@ -411,6 +424,161 @@ public class ToolBarView {
         fullLoadHours.getItems().sort((o1, o2) -> ac.compare(o1.getTitle(), o2.getTitle()));
 
         infoBox.getDialogPane().setContent(fullLoadHours);
+        infoBox.show();
+    }
+
+    private void calcBaseLoad() {
+        JFXDialog infoBox = new JFXDialog();
+        infoBox.setDialogContainer(chartPlugin.getDialogContainer());
+        infoBox.setTransitionType(JFXDialog.DialogTransition.NONE);
+
+        Label baseLoadTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.timeframe"));
+
+        JFXDatePicker baseLoadStartDate = new JFXDatePicker(LocalDate.now());
+        baseLoadStartDate.setPrefWidth(120d);
+
+        JFXTimePicker baseLoadStartTime = new JFXTimePicker(LocalTime.now());
+        baseLoadStartTime.setPrefWidth(100d);
+        baseLoadStartTime.setMaxWidth(100d);
+        baseLoadStartTime.set24HourView(true);
+        baseLoadStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+        JFXDatePicker baseLoadEndDate = new JFXDatePicker(LocalDate.now());
+        baseLoadEndDate.setPrefWidth(120d);
+
+        JFXTimePicker baseLoadEndTime = new JFXTimePicker(LocalTime.now());
+        baseLoadEndTime.setPrefWidth(100d);
+        baseLoadEndTime.setMaxWidth(100d);
+        baseLoadEndTime.set24HourView(true);
+        baseLoadEndTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+        Label baseLoadBinding = new Label(I18n.getInstance().getString("dialog.baseload.repeatingtimeframe"));
+        ObservableList<Integer> list = FXCollections.observableArrayList(0, 1, 2, 3, 4);
+        JFXComboBox<Integer> boundSpecificBox = new JFXComboBox<>(list);
+
+        Callback<ListView<Integer>, ListCell<Integer>> cellFactoryBoundToSpecificBox = new Callback<javafx.scene.control.ListView<Integer>, ListCell<Integer>>() {
+            @Override
+            public ListCell<Integer> call(javafx.scene.control.ListView<Integer> param) {
+                return new ListCell<Integer>() {
+                    @Override
+                    protected void updateItem(Integer no, boolean empty) {
+                        super.updateItem(no, empty);
+                        if (empty || no == null) {
+                            setText("");
+                        } else {
+                            String text = "";
+                            switch (no) {
+                                case 0:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.boundtospecific.none");
+                                    break;
+                                case 1:
+                                    text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.day");
+                                    break;
+                                case 2:
+                                    text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.week");
+                                    break;
+                                case 3:
+                                    text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.month");
+                                    break;
+                                case 4:
+                                    text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.year");
+                                    break;
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        };
+        boundSpecificBox.setCellFactory(cellFactoryBoundToSpecificBox);
+        boundSpecificBox.setButtonCell(cellFactoryBoundToSpecificBox.call(null));
+        boundSpecificBox.getSelectionModel().select(0);
+
+        Label resultTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.resulttimeframe"));
+
+        JFXDatePicker resultStartDate = new JFXDatePicker(pickerDateStart.getValue());
+        resultStartDate.setPrefWidth(120d);
+
+        JFXTimePicker resultStartTime = new JFXTimePicker(pickerTimeStart.getValue());
+        resultStartTime.setPrefWidth(100d);
+        resultStartTime.setMaxWidth(100d);
+        resultStartTime.set24HourView(true);
+        resultStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+        JFXDatePicker resultEndDate = new JFXDatePicker(pickerDateEnd.getValue());
+        resultEndDate.setPrefWidth(120d);
+
+        JFXTimePicker resultEndTime = new JFXTimePicker(pickerTimeEnd.getValue());
+        resultEndTime.setPrefWidth(100d);
+        resultEndTime.setMaxWidth(100d);
+        resultEndTime.set24HourView(true);
+        resultEndTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+        GridPane gp = new GridPane();
+        gp.setVgap(6);
+        gp.setHgap(6);
+
+        int row = 0;
+        gp.add(baseLoadTimeFrame, 0, row, 4, 1);
+        row++;
+
+        gp.add(baseLoadStartDate, 0, row);
+        gp.add(baseLoadStartTime, 1, row);
+        gp.add(baseLoadEndDate, 2, row);
+        gp.add(baseLoadEndTime, 3, row);
+        row++;
+
+        gp.add(baseLoadBinding, 0, row, 4, 1);
+        row++;
+
+        gp.add(boundSpecificBox, 0, row, 2, 1);
+        row++;
+
+        gp.add(resultTimeFrame, 0, row, 4, 1);
+        row++;
+
+        gp.add(resultStartDate, 0, row);
+        gp.add(resultStartTime, 1, row);
+        gp.add(resultEndDate, 2, row);
+        gp.add(resultEndTime, 3, row);
+
+        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
+        ok.setDefaultButton(true);
+        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
+        cancel.setCancelButton(true);
+
+        HBox buttonBar = new HBox(6, cancel, ok);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        buttonBar.setPadding(new Insets(12));
+
+        Separator separator = new Separator(Orientation.HORIZONTAL);
+        separator.setPadding(new Insets(8, 0, 8, 0));
+
+        VBox vBox = new VBox(6, gp, separator, buttonBar);
+        vBox.setPadding(new Insets(12));
+
+        ok.setOnAction(event -> {
+            try {
+                BaseLoadSetting setting = new BaseLoadSetting();
+                setting.setBaseLoadStart(baseLoadStartDate.getValue(), baseLoadStartTime.getValue());
+                setting.setBaseLoadEnd(baseLoadEndDate.getValue(), baseLoadEndTime.getValue());
+                setting.setRepeatType(boundSpecificBox.getSelectionModel().getSelectedItem());
+                setting.setResultStart(resultStartDate.getValue(), resultStartTime.getValue());
+                setting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
+
+                BaseLoadDialog dialog = new BaseLoadDialog(chartPlugin.getDialogContainer(), setting, model);
+
+                dialog.show();
+
+            } catch (Exception e) {
+                logger.error(e);
+            }
+            infoBox.close();
+        });
+
+        cancel.setOnAction(event -> infoBox.close());
+
+        infoBox.setContent(vBox);
         infoBox.show();
     }
 
@@ -753,6 +921,7 @@ public class ToolBarView {
         calcFullLoadHours.setDisable(bool);
         calcHoursAboveBelow.setDisable(bool);
         calcSumAboveBelow.setDisable(bool);
+        calcBaseLoad.setDisable(bool);
         customWorkDay.setDisable(bool);
         disableIcons.setDisable(bool);
         zoomOut.setDisable(bool);
@@ -828,7 +997,7 @@ public class ToolBarView {
                 }
 
                 if (isAdditionalCalcPossible) {
-                    toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow);
+                    toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad);
                 }
 
                 toolBar.getItems().addAll(showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
@@ -844,7 +1013,7 @@ public class ToolBarView {
                 }
 
                 if (isAdditionalCalcPossible) {
-                    toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow);
+                    toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad);
                 }
 
                 toolBar.getItems().addAll(showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
@@ -953,6 +1122,8 @@ public class ToolBarView {
         calcRegression.setOnAction(event -> calcRegression());
 
         calcFullLoadHours.setOnAction(event -> calcFullLoadHours());
+
+        calcBaseLoad.setOnAction(event -> calcBaseLoad());
 
         calcHoursAboveBelow.setOnAction(event -> calcHoursAboveBelow());
 
@@ -1121,6 +1292,11 @@ public class ToolBarView {
         Tooltip calcSumAboveBelowTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcsumabovebelow"));
         calcSumAboveBelow.setTooltip(calcSumAboveBelowTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcSumAboveBelow);
+
+        calcBaseLoad = new ToggleButton("", JEConfig.getImage("baseload.png", iconSize, iconSize));
+        Tooltip calcBaseLoadHoursTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcbaseloadhours"));
+        calcBaseLoad.setTooltip(calcBaseLoadHoursTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcBaseLoad);
 
         customWorkDay = new ToggleButton("", JEConfig.getImage("iconfinder_calendar-clock_299096.png", iconSize, iconSize));
         Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));

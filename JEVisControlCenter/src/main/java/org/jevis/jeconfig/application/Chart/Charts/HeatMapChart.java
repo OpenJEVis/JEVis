@@ -120,10 +120,10 @@ public class HeatMapChart implements Chart {
         xAxisList = new ArrayList<>();
 
         boolean isCustomStart = false;
-        if (workDays.getWorkdayEnd(currentTS).isBefore(workDays.getWorkdayStart(currentTS))) {
+        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
             LocalTime of = LocalTime.of(chartDataRow.getSelectedStart().getHourOfDay(), chartDataRow.getSelectedStart().getMinuteOfHour());
 
-            if (workDays.getWorkdayStart(currentTS).equals(of)) {
+            if (workDays.getWorkdayStart().equals(of)) {
                 isCustomStart = true;
             }
         }

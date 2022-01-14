@@ -53,8 +53,7 @@ public class JsonSampleGenerator {
 
         basicProcess.setSQLDataSource(ds);
         try {
-            JsonObject object = ds.getObject(attribute.getObjectID());
-
+            //JsonObject object = ds.getObject(attribute.getObjectID());
             basicProcess.setJsonObject(object);
             basicProcess.setJsonAttribute(attribute);
 
@@ -134,7 +133,8 @@ public class JsonSampleGenerator {
             if (manipulationMode == ManipulationMode.NONE) {
                 aggregationProcess.setSQLDataSource(ds);
                 try {
-                    aggregationProcess.setJsonObject(ds.getObject(attribute.getObjectID()));
+                    //aggregationProcess.setJsonObject(ds.getObject(attribute.getObjectID()));
+                    aggregationProcess.setJsonObject(object);
                     aggregationProcess.setJsonAttribute(attribute);
                 } catch (Exception e) {
                     e.printStackTrace();

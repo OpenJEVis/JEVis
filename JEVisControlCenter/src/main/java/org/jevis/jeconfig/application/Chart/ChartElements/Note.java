@@ -8,9 +8,11 @@ import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.json.JsonDeltaConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 
 import static org.jevis.commons.constants.NoteConstants.Calc.CALC_INFINITE;
+import static org.jevis.commons.constants.NoteConstants.Deltas.*;
 import static org.jevis.commons.constants.NoteConstants.Differential.COUNTER_OVERFLOW;
 import static org.jevis.commons.constants.NoteConstants.Forecast.FORECAST_1;
 import static org.jevis.commons.constants.NoteConstants.Forecast.FORECAST_2;
@@ -74,6 +76,45 @@ public class Note {
                         CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject());
                         JsonLimitsConfig l2Config = cleanDataObject.getLimitsConfig().get(1);
                         toolTipString += "L2 Min: " + l2Config.getMin() + " L2 Max: " + l2Config.getMax();
+                    } catch (Exception e) {
+
+                    }
+                } catch (Exception e) {
+                }
+            }
+
+            if (note.contains(DELTA_STEP1)) {
+                try {
+                    sb.append(I18n.getInstance().getString("plugin.graph.chart.note.delta1"));
+                    noOfNotes++;
+                    changed = true;
+
+                    try {
+                        CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject());
+                        JsonDeltaConfig l1Config = cleanDataObject.getDeltaConfig();
+                        toolTipString += "D1: " + l1Config.getMin();
+                    } catch (Exception e) {
+
+                    }
+                } catch (Exception e) {
+                }
+            }
+
+            if (note.contains(DELTA_DEFAULT) || note.contains(DELTA_STATIC) || note.contains(DELTA_AVERAGE)
+                    || note.contains(DELTA_MEDIAN) || note.contains(DELTA_INTERPOLATION) || note.contains(DELTA_MIN) || note.contains(DELTA_MAX)) {
+                try {
+                    if (noOfNotes > 0) {
+                        sb = new StringBuilder();
+                        toolTipString += " ";
+                    }
+                    sb.append(I18n.getInstance().getString("plugin.graph.chart.note.delta2"));
+                    noOfNotes++;
+                    changed = true;
+
+                    try {
+                        CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject());
+                        JsonLimitsConfig l2Config = cleanDataObject.getLimitsConfig().get(1);
+                        toolTipString += "D2: " + l2Config.getMax();
                     } catch (Exception e) {
 
                     }

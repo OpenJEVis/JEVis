@@ -556,7 +556,7 @@ public class MathDataObject {
     }
 
     private DateTime getLastRun(JEVisObject object) {
-        DateTime dateTime = new DateTime(1990, 1, 1, 0, 0, 0).withZone(getTimeZone(object));
+        DateTime dateTime = new DateTime(1990, 1, 1, 0, 0, 0);
 
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
@@ -571,7 +571,7 @@ public class MathDataObject {
             logger.error("Could not get data source last run time: ", e);
         }
 
-        return dateTime;
+        return dateTime.withZone(getTimeZone(object));
     }
 
 

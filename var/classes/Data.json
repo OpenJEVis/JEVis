@@ -43,7 +43,7 @@
       "name": "Period",
       "primitiveType": 0,
       "guiType": "Period",
-      "guiposition": 0,
+      "guiposition": 1,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Data"

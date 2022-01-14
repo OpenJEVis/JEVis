@@ -284,13 +284,13 @@ public class ChartUnits {
                         factor = 4d / 1d;
                         break;
                     case "kWh":
-                        factor = 4d / 1000d;
+                        factor = 1000d * 4;
                         break;
                     case "MWh":
-                        factor = 4d / 1000000d;
+                        factor = 1000000d * 4;
                         break;
                     case "GWh":
-                        factor = 4d / 1000000000d;
+                        factor = 1000000000d * 4;
                         break;
                 }
                 break;
@@ -300,10 +300,10 @@ public class ChartUnits {
                         factor = 1d / 1000;
                         break;
                     case "MW":
-                        factor = 1d / 1000d;
+                        factor = 1000d;
                         break;
                     case "GW":
-                        factor = 1d / 1000000d;
+                        factor = 1000000d;
                         break;
                     case "Wh":
                         factor = 4d / 1000d;
@@ -406,16 +406,16 @@ public class ChartUnits {
                         factor = 1000000d;
                         break;
                     case "W":
-                        factor = 1000d / 4d;
+                        factor = 1d / 4000d;
                         break;
                     case "kW":
                         factor = 1d / 4d;
                         break;
                     case "MW":
-                        factor = 1d / 4000d;
+                        factor = 1000d / 4d;
                         break;
                     case "GW":
-                        factor = 1d / 4000000d;
+                        factor = 1000000d / 4d;
                         break;
                 }
                 break;
@@ -496,6 +496,7 @@ public class ChartUnits {
             case "kg":
                 switch (inputUnit) {
                     case "t":
+                    case "kkg":
                         factor = 1000d;
                         break;
                     case "mg":
@@ -503,9 +504,6 @@ public class ChartUnits {
                         break;
                     case "g":
                         factor = 1 / 1000d;
-                        break;
-                    case "kkg":
-                        factor = 1000d;
                         break;
                 }
                 break;
@@ -550,8 +548,6 @@ public class ChartUnits {
                         factor = 1 / 1000d;
                         break;
                     case "kkg":
-                        factor = 1000000d;
-                        break;
                     case "t":
                         factor = 1000000d;
                         break;
@@ -566,8 +562,6 @@ public class ChartUnits {
                         factor = 1000d;
                         break;
                     case "kkg":
-                        factor = 1000000000d;
-                        break;
                     case "t":
                         factor = 1000000000d;
                         break;

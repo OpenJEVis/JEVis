@@ -39,10 +39,20 @@ public class DataPointNode {
         this.name = name;
     }
 
+    /**
+     * @return
+     * @deprecated the CalculationID field should be enough and It's not only for EnPI
+     */
+    @Deprecated
     public boolean isEnpi() {
         return this.enpi;
     }
 
+    /**
+     * @return
+     * @deprecated the CalculationID field should be enough and It's not only for EnPI
+     */
+    @Deprecated
     public void setEnpi(boolean enpi) {
         this.enpi = enpi;
     }
@@ -53,6 +63,12 @@ public class DataPointNode {
 
     public void setCalculationID(Long calculationID) {
         this.calculationID = calculationID;
+        if (calculationID != null && calculationID > 0l) {
+            this.setEnpi(true);
+        } else {
+            this.setEnpi(false);
+        }
+
     }
 
     public Long getObjectID() {

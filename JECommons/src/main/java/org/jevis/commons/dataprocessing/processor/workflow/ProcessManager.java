@@ -14,6 +14,7 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
+import org.jevis.commons.dataprocessing.processor.delta.DeltaStep;
 import org.jevis.commons.dataprocessing.processor.limits.LimitsStep;
 import org.jevis.commons.dataprocessing.processor.preparation.PrepareForecast;
 import org.jevis.commons.dataprocessing.processor.preparation.PrepareMath;
@@ -105,6 +106,9 @@ public class ProcessManager {
 
         ProcessStep limitsStep = new LimitsStep();
         processSteps.add(limitsStep);
+
+        ProcessStep deltaStep = new DeltaStep();
+        processSteps.add(deltaStep);
 
         ProcessStep importStep = new ImportStep();
         processSteps.add(importStep);

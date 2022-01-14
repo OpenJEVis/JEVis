@@ -476,7 +476,7 @@ public class DataModelDataHandler {
                 start = start.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0);
                 end = end.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
 
-                if (wd.getWorkdayEnd(start).isBefore(wd.getWorkdayStart(start))) {
+                if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
                     start = start.plusDays(1);
                 }
             }

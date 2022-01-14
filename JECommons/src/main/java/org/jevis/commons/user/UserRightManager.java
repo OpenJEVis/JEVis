@@ -40,13 +40,13 @@ public class UserRightManager {
     private List<Long> readGIDS;
     private List<Long> createGIDS;
     private List<Long> deleteGIDS;
-    private List<Long> exeGIDS;
+    private List<Long> executeGIDS;
     private List<Long> writeGIDS;
     private List<JEVisObject> objects;
 
     //    public UserRightManager(JEVisDataSource ds, JEVisUser user, List<JEVisRelationship> permissions) {
     public UserRightManager(JEVisDataSource ds, JEVisUser user) {
-        logger.trace("Init UserRightManager for user: [{}]{} {}", user.getUserID());
+        logger.trace("Init UserRightManager for user: {}:{}", user.getAccountName(), user.getUserID());
         this.user = user;
         this.ds = ds;
 
@@ -97,15 +97,15 @@ public class UserRightManager {
         return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_DELETE);
     }
 
-    public boolean canDeleteClass(String jclass) {
+    public boolean canDeleteClass(String jevisClass) {
         return user.isSysAdmin();
     }
 
     public List<Long> getGroupsRead() {
         try {
             permissions = ds.getRelationships();
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Error getting group reads", e);
         }
         getGroupPermissions();
         return readGIDS;
@@ -137,7 +137,7 @@ public class UserRightManager {
     public List<JEVisRelationship> filterRelationships() {
         Long start = new Date().getTime();
         logger.trace("filterRelationships() total: {}", permissions.size());
-        List<JEVisRelationship> filterd = new ArrayList<JEVisRelationship>();
+        List<JEVisRelationship> filtered = new ArrayList<JEVisRelationship>();
         List<Long> owned = new ArrayList<Long>();
 
         getGroupPermissions();
@@ -161,54 +161,53 @@ public class UserRightManager {
             try {
                 if (owned.contains(rel.getStartID())
                         || owned.contains(rel.getEndID())) {
-                    filterd.add(rel);
+                    filtered.add(rel);
                 } else if (rel.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ
                         && rel.getType() <= JEVisConstants.ObjectRelationship.MEMBER_DELETE
                         && getGroupsRead().contains(rel.getEndID())) {
                     //for the local UserRightsManager to work we need also the membership Relationships
-                    filterd.add(rel);
+                    filtered.add(rel);
 //                    logger.info("---> add Membership Relationships: {}", rel);
                 }
             } catch (Exception ex) {
-
+                logger.error("Error filtering relationships", ex);
             }
         }
-        logger.trace("after filter {}", filterd.size());
+        logger.trace("after filter {}", filtered.size());
 
-        logger.trace("Time for Filter: {}ms", ((new Date().getTime()) - start));
+        logger.trace("Time for Filter: {} ms", ((new Date().getTime()) - start));
 
-        return filterd;
+        return filtered;
     }
 
     public void reload() {
         try {
-            logger.debug("----------------------------- Reload");
+            logger.trace("----------------------------- Reload");
             permissions = ds.getRelationships();
             readGIDS = null;
         } catch (Exception ex) {
-            logger.catching(ex);
+            logger.error("Error while reloading relationships", ex);
         }
     }
 
 
     private void getGroupPermissions() {
         if (readGIDS == null) {
-            logger.debug("reload user rights");
+            logger.trace("reload user rights");
             readGIDS = new ArrayList<Long>();
             createGIDS = new ArrayList<Long>();
             writeGIDS = new ArrayList<Long>();
             deleteGIDS = new ArrayList<Long>();
-            exeGIDS = new ArrayList<Long>();
+            executeGIDS = new ArrayList<Long>();
 
-            logger.debug("UserID: {}", user.getUserID());
+            logger.trace("UserID: {}", user.getUserID());
             for (JEVisRelationship or : permissions) {
 
                 try {
-                    logger.debug("Type: {}", or.getType());
-                    if (or.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ || or.getStartID() == user.getUserID()) {
-                        logger.debug("Membership: {}", or);
+                    if (or.getType() < JEVisConstants.ObjectRelationship.MEMBER_READ) {
+                        or.getStartID();
+                        user.getUserID();
                     }
-
 
                     //from user to group
                     if (or.getStartID() == user.getUserID()) {
@@ -225,7 +224,7 @@ public class UserRightManager {
                                 deleteGIDS.add(or.getEndID());
                                 break;
                             case JEVisConstants.ObjectRelationship.MEMBER_EXECUTE:
-                                exeGIDS.add(or.getEndID());
+                                executeGIDS.add(or.getEndID());
                                 break;
                             case JEVisConstants.ObjectRelationship.MEMBER_CREATE:
                                 createGIDS.add(or.getEndID());
@@ -234,11 +233,11 @@ public class UserRightManager {
 
                     }
                 } catch (Exception ex) {
-
+                    logger.error("Error while getting group permissions", ex);
                 }
             }
 
-            logger.trace("Groups (Read,Write,Del,Exe,Cre): {},{},{},{},{}", readGIDS, writeGIDS, deleteGIDS, exeGIDS, createGIDS);
+            logger.trace("Groups (Read,Write,Del,Exe,Cre): {},{},{},{},{}", readGIDS, writeGIDS, deleteGIDS, executeGIDS, createGIDS);
         }
 
     }
@@ -251,7 +250,7 @@ public class UserRightManager {
     private boolean checkMembershipForType(long object, int type) {
         logger.trace("CheckMembership user:{} object:{} type:{}", user.getUserID(), object, type);
         if (isSysAdmin()) {
-            //Sys Admins can do everything wihout questions
+            //Sys Admins can do everything without questions
             return true;
         }
 
@@ -263,22 +262,22 @@ public class UserRightManager {
             //User Object is a special case
             // - User can Read him self
             // - User can edit all attributes except "Sys Admin" and Enabled are protectet
-            // - User cannot remame the object for now
+            // - User cannot rename the object for now
             // - What is with the right to create relationships?!
             if (user.getUserID() == object) {
                 if (type == JEVisConstants.ObjectRelationship.MEMBER_READ || type == JEVisConstants.ObjectRelationship.MEMBER_WRITE) {
-//                    logger.info("----> is userobject: o:{} u:{}", object, user);
+//                    logger.info("----> is user object: o:{} u:{}", object, user);
                     return true;
                 }
             }
 
-            //Common userrights
+            //Common user rights
             for (JEVisRelationship or : permissions) {
                 try {
 //                    logger.debug("---------------> PerRel: {}", or);
 
                     if (or.getType() == JEVisConstants.ObjectRelationship.OWNER && or.getStartID() == object) {
-                        logger.info("----> Ownership: {}", or);
+                        logger.trace("----> Ownership: {}", or);
 
                         switch (type) {
                             case JEVisConstants.ObjectRelationship.MEMBER_READ:
@@ -292,7 +291,7 @@ public class UserRightManager {
                                 }
                                 break;
                             case JEVisConstants.ObjectRelationship.MEMBER_EXECUTE:
-                                if (exeGIDS.contains(or.getEndID())) {
+                                if (executeGIDS.contains(or.getEndID())) {
                                     can = true;
                                 }
                                 break;
@@ -314,13 +313,13 @@ public class UserRightManager {
 
                     }
                 } catch (Exception ex) {
-                    logger.catching(ex);
+                    logger.error("Error getting common user rights", ex);
                 }
 
             }
             return can;
         } catch (Exception ne) {
-            logger.debug("Error while checking Memberships:  {}", ne);//ToDO there is some error here
+            logger.error("Error while checking Memberships", ne);//ToDO there is some error here
         }
         return false;
     }

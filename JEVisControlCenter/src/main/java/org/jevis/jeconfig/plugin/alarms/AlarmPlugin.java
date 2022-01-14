@@ -35,6 +35,7 @@ import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmConfiguration;
+import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
@@ -418,6 +419,8 @@ public class AlarmPlugin implements Plugin {
                                 case "<=":
                                     setText("\u2264");
                                     break;
+                                default:
+                                    setText(item);
                             }
                         }
                     }
@@ -453,8 +456,13 @@ public class AlarmPlugin implements Plugin {
                             text += numberFormat.format(item);
                             if (getTableRow() != null && getTableRow().getItem() != null) {
                                 AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+
                                 try {
-                                    text += " " + UnitManager.getInstance().format(alarmRow.getAlarm().getAttribute().getDisplayUnit());
+                                    text += " ";
+                                    if (alarmRow.getAlarm().getAlarmType() != AlarmType.D1 && alarmRow.getAlarm().getAlarmType() != AlarmType.D2) {
+                                        text += UnitManager.getInstance().format(alarmRow.getAlarm().getAttribute().getDisplayUnit());
+                                    }
+
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
