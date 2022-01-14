@@ -229,11 +229,6 @@ public class NodeTreeTable {
 
                     } catch (JEVisException e) {
                         e.printStackTrace();
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("OPC-UA Trend");
-                        //alert.setHeaderText("Look, an Information Dialog");
-                        alert.setContentText(count + " Trend Object with Data Objects have been created ");
-                        alert.showAndWait();
                     }
                     return null;
                 }
@@ -244,8 +239,9 @@ public class NodeTreeTable {
             task.setOnSucceeded(event1 -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.import.finish.title"));
-                //alert.setHeaderText("Look, an Information Dialog");
-                alert.setContentText(count + I18n.getInstance().getString("plugin.object.opcua.import.finish.message"));
+                alert.setHeaderText("");
+                alert.setContentText(I18n.getInstance().getString("plugin.object.opcua.import.finish.message")+""+count);
+                count = 0;
                 alert.showAndWait();
             });
 
