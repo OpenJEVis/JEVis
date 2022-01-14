@@ -20,6 +20,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -207,7 +208,7 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(copyButton);
         copyButton.setOnAction(event -> {
             try {
-                System.out.println("Copy widget:");
+                logger.debug("Copy widget:");
                 if (!dashboardControl.getSelectedWidgets().isEmpty()) {
                     Widget oldWidget = Iterables.getLast(dashboardControl.getSelectedWidgets());
                     Widget newWidget = oldWidget.clone();
@@ -226,7 +227,7 @@ public class DashBoardToolbar extends ToolBar {
                 }
 
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("Error while copying widget", ex);
             }
         });
 
@@ -414,6 +415,35 @@ public class DashBoardToolbar extends ToolBar {
     public void updateDashboardList(final ObservableList<JEVisObject> dashboardList, final DashboardPojo dashboardSettings) {
         logger.debug("updateDashboardList: {}", dashboardSettings);
         disableEventListener = true;
+
+        AlphanumComparator ac = new AlphanumComparator();
+        if (!isMultiDir() && !isMultiSite())
+            dashboardList.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+        else {
+            dashboardList.sort((o1, o2) -> {
+
+                String prefix1 = "";
+                String prefix2 = "";
+
+                if (isMultiSite()) {
+                    prefix1 += objectRelations.getObjectPath(o1);
+                }
+                if (isMultiDir()) {
+                    prefix1 += objectRelations.getRelativePath(o1);
+                }
+                prefix1 += o1.getName();
+
+                if (isMultiSite()) {
+                    prefix2 += objectRelations.getObjectPath(o2);
+                }
+                if (isMultiDir()) {
+                    prefix2 += objectRelations.getRelativePath(o2);
+                }
+                prefix2 += o2.getName();
+
+                return ac.compare(prefix1, prefix2);
+            });
+        }
 
         listAnalysesComboBox.setItems(dashboardList);
 
