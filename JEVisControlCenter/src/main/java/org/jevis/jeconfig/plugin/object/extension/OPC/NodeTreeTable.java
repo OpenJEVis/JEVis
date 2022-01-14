@@ -19,7 +19,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.filter.RegexFilter;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.jevis.api.*;
@@ -194,7 +193,7 @@ public class NodeTreeTable {
         view.getChildren().add(opcUATreeTableView);
 
 
-        createTrendObject.setText("Create Trend Objects");
+        createTrendObject.setText(I18n.getInstance().getString("plugin.object.opcua.button.import"));
         createTrendObject.setOnAction(event -> {
 
 
@@ -205,12 +204,13 @@ public class NodeTreeTable {
 
                     try {
                         DateTime dateTime = DateTime.now();
-
+                        JEVisClass trendClass = trendRoot.getDataSource().getJEVisClass(LOYTEC_XML_DL_DIRECTORY);
+                        JEVisObject rootTrendObject = trendRoot.buildObject(IMPORTED_FROM_OPC_UA, trendClass);
                         if (targetDataObject != null) {
-                            JEVisClass trendClass = trendRoot.getDataSource().getJEVisClass(LOYTEC_XML_DL_DIRECTORY);
+
                             JEVisClass dataClass = trendRoot.getDataSource().getJEVisClass(DATA_DIRECTORY);
 
-                            JEVisObject rootTrendObject = trendRoot.buildObject(IMPORTED_FROM_OPC_UA, trendClass);
+
                             JEVisObject rootDataObject = targetDataObject.buildObject(IMPORTED_FROM_OPC_UA, dataClass);
                             if (rootTrendObject.isAllowedUnder(trendRoot) && rootDataObject.isAllowedUnder(targetDataObject)) {
 
@@ -222,6 +222,8 @@ public class NodeTreeTable {
 
                         } else {
                             logger.info("no target selected");
+                            rootTrendObject.commit();
+                            createTrendDataTree(rootTreeItem, rootTrendObject, dateTime, null);
                         }
 
 
@@ -241,9 +243,9 @@ public class NodeTreeTable {
 
             task.setOnSucceeded(event1 -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("OPC-UA Trend");
+                alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.import.finish.title"));
                 //alert.setHeaderText("Look, an Information Dialog");
-                alert.setContentText(count + " Trend Object with Data Objects have been created ");
+                alert.setContentText(count + I18n.getInstance().getString("plugin.object.opcua.import.finish.message"));
                 alert.showAndWait();
             });
 
@@ -392,8 +394,14 @@ public class NodeTreeTable {
 
                     opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().dataValue = opcClient.readValue(NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
                     opcUATreeTableView.refresh();
-                } catch (UaException e) {
+                } catch (UaException | NumberFormatException e) {
                     e.printStackTrace();
+                    logger.info("Datatype Mismatch");
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.error.datatype.title"));
+                    alert.setHeaderText(I18n.getInstance().getString("plugin.object.opcua.error.datatype.message"));
+                    alert.setContentText(e.getMessage());
+                    alert.showAndWait();
                 } finally {
                     setValueDialog.close();
                 }
@@ -488,33 +496,25 @@ public class NodeTreeTable {
                 logger.info("OPC-UA Node: {} is a Folder", node.getChildren().get(0).getValue().descriptionProperty.get().getDisplayName());
                 if (node.getValue().isSelected()) {
                     dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_DIRECTORY);
-                    dataJEVisObject = createJEVisObject(node, dataJEVisObject, DATA_DIRECTORY);
+                    if (dataJEVisObject != null) {
+
+                        dataJEVisObject = createJEVisObject(node, dataJEVisObject, DATA_DIRECTORY);
+                    }
 
                 }
             } else if (node.getChildren().get(0).getValue().descriptionProperty.getValue().getNodeClass().getValue() == 2) {
                 logger.info("OPC-UA Node: {} is not Folder", node.getChildren().get(0).getValue().descriptionProperty.get().getDisplayName());
                 if (node.getValue().isSelected()) {
                     dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_CHANNEL);
-                    dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
                     JEVisAttribute jeVisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
-                    jeVisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
-                    createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
-
-
-                    if (node.getChildren().stream().filter(nodeTreeItem -> nodeTreeItem.getValue().descriptionProperty.get().getBrowseName().getName().equals("CsvFile")).map(nodeTreeItem -> nodeTreeItem.getValue()).count() > 0) {
-                        logger.info("OPC-UA Node: {} is trend Object", node.getChildren().get(0).getValue().descriptionProperty.get().getDisplayName());
-                        Node csvNode = node.getChildren().stream().filter(nodeTreeItem -> nodeTreeItem.getValue().descriptionProperty.get().getBrowseName().getName().equals("CsvFile")).map(nodeTreeItem -> nodeTreeItem.getValue()).findFirst().get();
-
-                        if (dataSourceJEVisObject.getAttribute(TREND_ID) != null) {
-                            System.out.println(csvNode.readData());
-                            JEVisAttribute jeVisAttribute = dataSourceJEVisObject.getAttribute(TREND_ID);
-                            String csvString = csvNode.readData().split("\\.|\\/")[csvNode.readData().split("\\.|\\/.").length - 2];
-                            logger.info("Trend Id: {} added in Sample", csvString);
-
-                            JEVisSample jeVisSample = jeVisAttribute.buildSample(dateTime, csvString);
-                            jeVisSample.commit();
-                        }
+                    if (dataJEVisObject != null) {
+                        jeVisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
+                        dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
+                        createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
                     }
+
+
+                    readOutTrendId(node, dataSourceJEVisObject, dateTime);
 
 
                 }
@@ -527,6 +527,30 @@ public class NodeTreeTable {
         }
 
 
+    }
+
+    /**
+     *
+     * @param node OPC parent node (in one of the children is the trend id stored)
+     * @param dataSourceJEVisObject to add the TrendId into
+     * @param dateTime of the Sample
+     * @throws JEVisException
+     */
+    private void readOutTrendId(TreeItem<Node> node, JEVisObject dataSourceJEVisObject, DateTime dateTime) throws JEVisException {
+        if (node.getChildren().stream().filter(nodeTreeItem -> nodeTreeItem.getValue().descriptionProperty.get().getBrowseName().getName().equals("CsvFile")).map(nodeTreeItem -> nodeTreeItem.getValue()).count() > 0) {
+            logger.info("OPC-UA Node: {} is trend Object", node.getChildren().get(0).getValue().descriptionProperty.get().getDisplayName());
+            Node csvNode = node.getChildren().stream().filter(nodeTreeItem -> nodeTreeItem.getValue().descriptionProperty.get().getBrowseName().getName().equals("CsvFile")).map(nodeTreeItem -> nodeTreeItem.getValue()).findFirst().get();
+
+            if (dataSourceJEVisObject.getAttribute(TREND_ID) != null) {
+                System.out.println(csvNode.readData());
+                JEVisAttribute jeVisAttribute = dataSourceJEVisObject.getAttribute(TREND_ID);
+                String csvString = csvNode.readData().split("\\.|\\/")[csvNode.readData().split("\\.|\\/.").length - 2];
+                logger.info("Trend Id: {} added in Sample", csvString);
+
+                JEVisSample jeVisSample = jeVisAttribute.buildSample(dateTime, csvString);
+                jeVisSample.commit();
+            }
+        }
     }
 
     /**

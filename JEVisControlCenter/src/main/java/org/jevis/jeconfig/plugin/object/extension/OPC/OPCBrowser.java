@@ -59,7 +59,6 @@ public class OPCBrowser {
 
     public OPCBrowser(JEVisObject opcServerObj) {
         this.opcServerObj = opcServerObj;
-        //init();
 
 
         try {
@@ -73,6 +72,16 @@ public class OPCBrowser {
         stage = new Stage();
 
         VBox vBox = new VBox();
+
+        stage.setOnHiding(event -> {
+
+            if (opcClient != null) {
+
+                opcClient.close();
+            }
+
+
+        });
         try {
             stage.initOwner(JEConfig.getStage());
 
