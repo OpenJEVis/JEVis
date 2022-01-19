@@ -70,7 +70,7 @@ import java.util.concurrent.Future;
 
 public class AlarmPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(AlarmPlugin.class);
-    private static int ROWS_PER_PAGE = 35;
+    private static int ROWS_PER_PAGE = 25;
     public static String PLUGIN_NAME = "Alarm Plugin";
     public static String ALARM_CONFIG_CLASS = "Alarm Configuration";
     private final JEVisDataSource ds;
@@ -1146,13 +1146,11 @@ public class AlarmPlugin implements Plugin {
 
     private List<AlarmConfiguration> getAllAlarmConfigs() {
         List<AlarmConfiguration> list = new ArrayList<>();
-        JEVisClass alarmConfigClass = null;
         try {
-            alarmConfigClass = ds.getJEVisClass(ALARM_CONFIG_CLASS);
+            JEVisClass alarmConfigClass = ds.getJEVisClass(ALARM_CONFIG_CLASS);
             List<JEVisObject> allObjects = ds.getObjects(alarmConfigClass, true);
             for (JEVisObject object : allObjects) {
                 AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, object);
-                Boolean linkEnabled = alarmConfiguration.isLinkDisabled();
 
                 if (alarmConfiguration.isEnabled()) {
                     if (showCheckedAlarms == 0 && !alarmConfiguration.isChecked()) {

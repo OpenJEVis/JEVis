@@ -188,7 +188,11 @@ public class ProcessManager {
                 ps.run(resourceManager);
             } catch (Exception e) {
                 setFinished(true);
-                logger.error("Error in step {} of object {}:{}", ps, this.getName(), this.getId(), e);
+                if (ps instanceof PrepareStep) {
+                    logger.info("Error in step {} of object {}:{}", ps, this.getName(), this.getId(), e);
+                } else {
+                    logger.error("Error in step {} of object {}:{}", ps, this.getName(), this.getId(), e);
+                }
                 throw e;
             }
         }
