@@ -17,24 +17,25 @@ import java.util.Map;
 public class TableData {
 
     private static final Logger logger = LogManager.getLogger(TableData.class);
-    private final Map<Long, Long> calcMap;
-    private final Map<Long, Long> targetLoytecXML;
-    private final Map<Long, Long> targetOPCUA;
+    private final Map<Long, List<Long>> calcMap;
+    private final Map<Long, List<Long>> targetLoytecXML;
+    private final Map<Long, List<Long>> targetOPCUA;
     private JEVisObject object = null;
-    private final Map<Long, Long> targetVIDA;
-    private final Map<Long, Long> targetCSV;
-    private final Map<Long, Long> targetXML;
-    private final Map<Long, Long> targetDWD;
-    private final Map<Long, Long> targetDataPoint;
+    private final Map<Long, List<Long>> targetVIDA;
+    private final Map<Long, List<Long>> targetCSV;
+    private final Map<Long, List<Long>> targetXML;
+    private final Map<Long, List<Long>> targetDWD;
+    private final Map<Long, List<Long>> targetDataPoint;
     private String sourceString = "";
     private String sourceDetailed = "";
     private String classString = "";
     private List<JEVisAttribute> attributeList = new ArrayList<>();
     private JEVisDataSource ds;
+    private boolean duplicate = false;
 
-    public TableData(JEVisObject object, Map<Long, Long> calcMap, Map<Long, Long> targetLoytecXML, Map<Long, Long> targetOPCUA,
-                     Map<Long, Long> targetVIDA, Map<Long, Long> targetCSV, Map<Long, Long> targetXML,
-                     Map<Long, Long> targetDWD, Map<Long, Long> targetDataPoint) {
+    public TableData(JEVisObject object, Map<Long, List<Long>> calcMap, Map<Long, List<Long>> targetLoytecXML, Map<Long, List<Long>> targetOPCUA,
+                     Map<Long, List<Long>> targetVIDA, Map<Long, List<Long>> targetCSV, Map<Long, List<Long>> targetXML,
+                     Map<Long, List<Long>> targetDWD, Map<Long, List<Long>> targetDataPoint) {
         this.object = object;
         this.calcMap = calcMap;
         this.targetLoytecXML = targetLoytecXML;
@@ -69,94 +70,68 @@ public class TableData {
 
         try {
             String jeVisClassName = object.getJEVisClassName();
-            String resultString = "";
-            String sourceDetails = "";
+            StringBuilder resultString = new StringBuilder();
+            StringBuilder sourceDetails = new StringBuilder();
             if (jeVisClassName.equals("Data")) {
                 boolean hasPreviousResult = false;
-                JEVisObject sourceObject = ds.getObject(calcMap.get(object.getID()));
-                if (sourceObject != null) {
-                    resultString += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceAttributes(sourceObject);
-
-                    hasPreviousResult = true;
+                List<JEVisObject> sourceObjects = new ArrayList<>();
+                if (calcMap.get(object.getID()) != null) {
+                    for (Long id : calcMap.get(object.getID())) {
+                        sourceObjects.add(ds.getObject(id));
+                    }
+                }
+                if (targetLoytecXML.get(object.getID()) != null) {
+                    for (Long id : targetLoytecXML.get(object.getID())) {
+                        sourceObjects.add(ds.getObject(id));
+                    }
+                }
+                if (targetOPCUA.get(object.getID()) != null) {
+                    for (Long id : targetOPCUA.get(object.getID())) {
+                        sourceObjects.add(ds.getObject(id));
+                    }
+                }
+                if (targetVIDA.get(object.getID()) != null) {
+                    for (Long id : targetVIDA.get(object.getID())) {
+                        sourceObjects.add(ds.getObject(id));
+                    }
+                }
+                if (targetCSV.get(object.getID()) != null) {
+                    for (Long id : targetCSV.get(object.getID())) {
+                        sourceObjects.add(ds.getObject(id));
+                    }
+                }
+                if (targetXML.get(object.getID()) != null) {
+                    for (Long id : targetXML.get(object.getID())) {
+                        sourceObjects.add(ds.getObject(id));
+                    }
+                }
+                if (targetDWD.get(object.getID()) != null) {
+                    for (Long id : targetDWD.get(object.getID())) {
+                        sourceObjects.add(ds.getObject(id));
+                    }
+                }
+                if (targetDataPoint.get(object.getID()) != null) {
+                    for (Long id : targetDataPoint.get(object.getID())) {
+                        sourceObjects.add(ds.getObject(id));
+                    }
                 }
 
-                sourceObject = null;
-                sourceObject = ds.getObject(targetLoytecXML.get(object.getID()));
-                if (sourceObject != null) {
-                    if (hasPreviousResult) resultString += "\n";
+                for (JEVisObject sourceObject : sourceObjects) {
+                    if (hasPreviousResult) resultString.append("\n");
                     else hasPreviousResult = true;
 
-                    resultString += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceAttributes(sourceObject);
+                    String string = getSourceDetails(sourceObject);
+                    resultString.append(string);
+                    sourceDetails.append(string);
+                    sourceDetails.append(getSourceAttributes(sourceObject));
                 }
 
-                sourceObject = null;
-                sourceObject = ds.getObject(targetOPCUA.get(object.getID()));
-                if (sourceObject != null) {
-                    if (hasPreviousResult) resultString += "\n";
-                    else hasPreviousResult = true;
-
-                    resultString += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceAttributes(sourceObject);
-                }
-                sourceObject = null;
-                sourceObject = ds.getObject(targetVIDA.get(object.getID()));
-                if (sourceObject != null) {
-                    if (hasPreviousResult) resultString += "\n";
-                    else hasPreviousResult = true;
-
-                    resultString += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceAttributes(sourceObject);
-                }
-                sourceObject = null;
-                sourceObject = ds.getObject(targetCSV.get(object.getID()));
-                if (sourceObject != null) {
-                    if (hasPreviousResult) resultString += "\n";
-                    else hasPreviousResult = true;
-
-                    resultString += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceAttributes(sourceObject);
-                }
-                sourceObject = null;
-                sourceObject = ds.getObject(targetXML.get(object.getID()));
-                if (sourceObject != null) {
-                    if (hasPreviousResult) resultString += "\n";
-                    else hasPreviousResult = true;
-
-                    resultString += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceAttributes(sourceObject);
-                }
-                sourceObject = null;
-                sourceObject = ds.getObject(targetDWD.get(object.getID()));
-                if (sourceObject != null) {
-                    if (hasPreviousResult) resultString += "\n";
-                    else hasPreviousResult = true;
-
-                    resultString += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceAttributes(sourceObject);
+                if (!sourceObjects.isEmpty() && sourceObjects.size() > 1) {
+                    duplicate = true;
                 }
 
-                sourceObject = null;
-                sourceObject = ds.getObject(targetDataPoint.get(object.getID()));
-                if (sourceObject != null) {
-                    if (hasPreviousResult) resultString += "\n";
-                    else hasPreviousResult = true;
-
-                    resultString += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceDetails(sourceObject);
-                    sourceDetails += getSourceAttributes(sourceObject);
-                }
-
-                this.sourceString = resultString;
-                this.sourceDetailed = sourceDetails;
+                this.sourceString = resultString.toString();
+                this.sourceDetailed = sourceDetails.toString();
             }
         } catch (Exception ex) {
             logger.error(ex);
@@ -202,6 +177,10 @@ public class TableData {
 
     public String getSourceDetailed() {
         return sourceDetailed;
+    }
+
+    public boolean isDuplicate() {
+        return duplicate;
     }
 
     public void setObject(JEVisObject object) {

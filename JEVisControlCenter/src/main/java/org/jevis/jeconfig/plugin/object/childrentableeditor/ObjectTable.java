@@ -42,17 +42,17 @@ public class ObjectTable {
     private final TableView<TableData> tableView = new TableView<TableData>();
 
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
-    private final Map<Long, Long> targetLoytecXML = new HashMap<>();
-    private final Map<Long, Long> targetOPCUA = new HashMap<>();
+    private final Map<Long, List<Long>> targetLoytecXML = new HashMap<>();
+    private final Map<Long, List<Long>> targetOPCUA = new HashMap<>();
     private DateTime start;
     private DateTime end;
-    private final Map<Long, Long> targetVIDA = new HashMap<>();
-    private final Map<Long, Long> targetCSV = new HashMap<>();
-    private final Map<Long, Long> targetXML = new HashMap<>();
-    private final Map<Long, Long> targetDWD = new HashMap<>();
-    private final Map<Long, Long> targetDataPoint = new HashMap<>();
+    private final Map<Long, List<Long>> targetVIDA = new HashMap<>();
+    private final Map<Long, List<Long>> targetCSV = new HashMap<>();
+    private final Map<Long, List<Long>> targetXML = new HashMap<>();
+    private final Map<Long, List<Long>> targetDWD = new HashMap<>();
+    private final Map<Long, List<Long>> targetDataPoint = new HashMap<>();
     private final FilteredList<TableData> filteredData;
-    private Map<Long, Long> calcMap = new HashMap<>();
+    private Map<Long, List<Long>> calcMap = new HashMap<>();
     private JEVisDataSource ds;
 
     public ObjectTable(JEVisObject parentObject, JFXDatePicker startDatePicker, JFXDatePicker endDatePicker, ToggleButton reloadButton, ToggleButton xlsxButton, JFXTextField filterInclude, JFXTextField filterExclude, JFXComboBox<String> columnBox, JFXCheckBox sourceDetails) {
@@ -130,13 +130,25 @@ public class ObjectTable {
             classColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getClassString()));
 
             ds = parentObject.getDataSource();
-            calcMap = getTargetMaps(ds);
+            calcMap = getCalcMap(ds);
             getDataServerTargetMaps();
 
             TableColumn<TableData, String> sourceColumn = new TableColumn<>(I18n.getInstance().getString("jevis.types.source"));
+            tableView.setRowFactory(tv -> new TableRow<TableData>() {
+                @Override
+                protected void updateItem(TableData item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || item.getObject() == null)
+                        setStyle("");
+                    else if (item.isDuplicate())
+                        setStyle("-fx-background-color: red;");
+                    else
+                        setStyle("");
+                }
+            });
+
             sourceColumn.setCellValueFactory(param -> {
-                if (!sourceDetails.isSelected())
-                    return new ReadOnlyObjectWrapper<>(param.getValue().getSourceString());
+                if (!sourceDetails.isSelected()) return new ReadOnlyObjectWrapper<>(param.getValue().getSourceString());
                 else return new ReadOnlyObjectWrapper<>(param.getValue().getSourceDetailed());
             });
 
@@ -236,7 +248,8 @@ public class ObjectTable {
 
             menu.getItems().addAll(selectAll);
             classColumn.setContextMenu(menu);
-        } catch (Exception ex) {
+        } catch (
+                Exception ex) {
             logger.error(ex);
         }
 
@@ -308,6 +321,7 @@ public class ObjectTable {
         };
         filterInclude.textProperty().addListener(changeListener);
         filterExclude.textProperty().addListener(changeListener);
+
     }
 
     private void addChildren
@@ -348,9 +362,9 @@ public class ObjectTable {
         }
     }
 
-    public Map<Long, Long> getTargetMaps(JEVisDataSource ds) throws JEVisException {
+    public Map<Long, List<Long>> getCalcMap(JEVisDataSource ds) throws JEVisException {
 
-        Map<Long, Long> targetAndCalculation = new HashMap<>();
+        Map<Long, List<Long>> targetAndCalculation = new HashMap<>();
 
         JEVisClass calculation = ds.getJEVisClass("Calculation");
         JEVisClass outputClass = ds.getJEVisClass("Output");
@@ -366,7 +380,16 @@ public class ObjectTable {
                             try {
                                 TargetHelper th = new TargetHelper(ds, targetAttribute);
                                 if (th.getObject() != null && !th.getObject().isEmpty()) {
-                                    targetAndCalculation.put(th.getObject().get(0).getID(), calculationObj.getID());
+                                    Long id = th.getObject().get(0).getID();
+                                    if (targetAndCalculation.get(id) == null) {
+                                        List<Long> objects = new ArrayList<>();
+                                        objects.add(calculationObj.getID());
+                                        targetAndCalculation.put(id, objects);
+                                    } else {
+                                        List<Long> list = new ArrayList<>(targetAndCalculation.remove(id));
+                                        list.add(calculationObj.getID());
+                                        targetAndCalculation.put(id, list);
+                                    }
                                 }
                             } catch (Exception ignored) {
                             }
@@ -379,6 +402,7 @@ public class ObjectTable {
         return targetAndCalculation;
 
     }
+
 
     public void getDataServerTargetMaps() {
         try {
@@ -410,12 +434,37 @@ public class ObjectTable {
                         if (object.getAttribute(attributeName).hasSample()) {
                             TargetHelper th = new TargetHelper(ds, object.getAttribute(attributeName));
                             if (th.getObject() != null && !th.getObject().isEmpty()) {
+                                Long id = th.getObject().get(0).getID();
                                 if (object.getJEVisClass().equals(loytecChannel)) {
-                                    targetLoytecXML.put(th.getObject().get(0).getID(), object.getID());
-                                } else if (object.getJEVisClass().equals(loytecChannel)) {
-                                    targetOPCUA.put(th.getObject().get(0).getID(), object.getID());
+                                    if (targetLoytecXML.get(id) == null) {
+                                        List<Long> list = new ArrayList<>();
+                                        list.add(object.getID());
+                                        targetLoytecXML.put(id, list);
+                                    } else {
+                                        List<Long> list = new ArrayList<>(targetLoytecXML.remove(id));
+                                        list.add(object.getID());
+                                        targetLoytecXML.put(id, list);
+                                    }
+                                } else if (object.getJEVisClass().equals(loytecOPCUAChannel)) {
+                                    if (targetOPCUA.get(id) == null) {
+                                        List<Long> list = new ArrayList<>();
+                                        list.add(object.getID());
+                                        targetOPCUA.put(id, list);
+                                    } else {
+                                        List<Long> list = new ArrayList<>(targetOPCUA.remove(id));
+                                        list.add(object.getID());
+                                        targetOPCUA.put(id, list);
+                                    }
                                 } else if (object.getJEVisClass().equals(vida350Channel)) {
-                                    targetVIDA.put(th.getObject().get(0).getID(), object.getID());
+                                    if (targetVIDA.get(id) == null) {
+                                        List<Long> list = new ArrayList<>();
+                                        list.add(object.getID());
+                                        targetVIDA.put(id, list);
+                                    } else {
+                                        List<Long> list = new ArrayList<>(targetVIDA.remove(id));
+                                        list.add(object.getID());
+                                        targetVIDA.put(id, list);
+                                    }
                                 }
                             }
                         }
@@ -447,10 +496,27 @@ public class ObjectTable {
                                 if (lastSampleTarget != null) {
                                     th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
                                     if (th.getObject() != null && !th.getObject().isEmpty()) {
-                                        if (object.getJEVisClass().equals(csvDataPointClass)) {
-                                            targetCSV.put(th.getObject().get(0).getID(), object.getID());
-                                        } else if (object.getJEVisClass().equals(xmlDataPointClass)) {
-                                            targetXML.put(th.getObject().get(0).getID(), object.getID());
+                                        Long id = th.getObject().get(0).getID();
+                                        if (dp.getJEVisClass().equals(csvDataPointClass)) {
+                                            if (targetCSV.get(id) == null) {
+                                                List<Long> list = new ArrayList<>();
+                                                list.add(dp.getID());
+                                                targetCSV.put(id, list);
+                                            } else {
+                                                List<Long> list = new ArrayList<>(targetCSV.remove(id));
+                                                list.add(dp.getID());
+                                                targetCSV.put(id, list);
+                                            }
+                                        } else if (dp.getJEVisClass().equals(xmlDataPointClass)) {
+                                            if (targetXML.get(id) == null) {
+                                                List<Long> list = new ArrayList<>();
+                                                list.add(dp.getID());
+                                                targetXML.put(id, list);
+                                            } else {
+                                                List<Long> list = new ArrayList<>(targetXML.remove(id));
+                                                list.add(dp.getID());
+                                                targetXML.put(id, list);
+                                            }
                                         }
                                     }
                                 }
