@@ -170,7 +170,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     ex.printStackTrace();
                 }
             } else {
-                logger.error("target is no a calculation");
+                logger.error("target is not a calculation");
                 try {
                     JEVisClass loytecOutput = ds.getJEVisClass("Loytec XML-DL Channel");
                     JEVisClass vida350Target = ds.getJEVisClass("VIDA350 Channel");

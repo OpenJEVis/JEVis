@@ -28,8 +28,6 @@ public class WorkDays {
     private JEVisObject nextSiteParent;
     private JsonObject nextJsonSiteParent;
     private JEVisClass siteClass;
-    private final LocalTime workdayStartDisabled = LocalTime.of(0, 0, 0, 0);
-    private final LocalTime workdayEndDisabled = LocalTime.of(23, 59, 59, 999999999);
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private boolean enabled = true;
@@ -173,10 +171,12 @@ public class WorkDays {
 
     public LocalTime getWorkdayStart(DateTime currentDate) {
         int offset = dateTimeZone.getOffset(currentDate);
-        if (enabled) {
+        if (enabled && offset < 0) {
             return workdayStart.minusSeconds(offset / 1000);
+        } else if (enabled) {
+            return workdayStart.plusSeconds(offset / 1000);
         } else {
-            return workdayStartDisabled.minusSeconds(offset / 1000);
+            return LocalTime.of(0, 0, 0, 0).minusSeconds(offset / 1000);
         }
     }
 
@@ -184,16 +184,18 @@ public class WorkDays {
         if (enabled) {
             return workdayStart;
         } else {
-            return workdayStartDisabled;
+            return LocalTime.of(0, 0, 0, 0);
         }
     }
 
     public LocalTime getWorkdayEnd(DateTime currentDate) {
         int offset = dateTimeZone.getOffset(currentDate);
-        if (enabled) {
+        if (enabled && offset < 0) {
             return workdayEnd.minusSeconds(offset / 1000);
+        } else if (enabled) {
+            return workdayEnd.plusSeconds(offset / 1000);
         } else {
-            return workdayEndDisabled.minusSeconds(offset / 1000);
+            return LocalTime.of(23, 59, 59, 999999999).minusSeconds(offset / 1000);
         }
     }
 
@@ -201,7 +203,7 @@ public class WorkDays {
         if (enabled) {
             return workdayEnd;
         } else {
-            return workdayEndDisabled;
+            return LocalTime.of(23, 59, 59, 999999999);
         }
     }
 
@@ -218,7 +220,7 @@ public class WorkDays {
     }
 
     public boolean isCustomWorkDay() {
-        return !(workdayStart.equals(workdayStartDisabled) && workdayEnd.equals(workdayEndDisabled));
+        return !(workdayStart.equals(LocalTime.of(0, 0, 0, 0)) && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999)));
     }
 
     public DateTimeZone getDateTimeZone() {
