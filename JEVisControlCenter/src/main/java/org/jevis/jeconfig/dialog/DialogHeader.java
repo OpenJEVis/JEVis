@@ -63,4 +63,31 @@ public class DialogHeader {
         return header;
     }
 
+    public static Node getDialogHeader(ImageView icon, String text) {
+        BorderPane header = new BorderPane();
+//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
+        header.setPadding(new Insets(10, 10, 10, 10));
+        header.getStyleClass().add("dialog-header");
+        System.out.println(text);
+        Label topTitle = new Label(text);
+        topTitle.setTextFill(Color.web("#0076a3"));
+        topTitle.setFont(Font.font("Cambria", 25));
+
+        //ImageView imageView = ResourceLoader.getImage(icon, 64, 64);
+
+        VBox vboxLeft = new VBox();
+        VBox vboxRight = new VBox();
+        vboxLeft.getChildren().add(topTitle);
+        vboxLeft.setAlignment(Pos.CENTER_LEFT);
+        vboxRight.setAlignment(Pos.CENTER_LEFT);
+        vboxRight.getChildren().add(icon);
+
+        header.setLeft(vboxLeft);
+
+        header.setRight(vboxRight);
+
+        return header;
+    }
+
+
 }

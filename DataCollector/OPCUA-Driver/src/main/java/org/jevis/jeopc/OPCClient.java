@@ -8,6 +8,7 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.UaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
+import org.eclipse.milo.opcua.sdk.client.nodes.UaVariableNode;
 import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
 import org.eclipse.milo.opcua.stack.client.UaStackClient;
 import org.eclipse.milo.opcua.stack.client.UaStackClientConfig;
@@ -17,10 +18,7 @@ import org.eclipse.milo.opcua.stack.core.Identifiers;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
-import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
-import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
+import org.eclipse.milo.opcua.stack.core.types.builtin.*;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UByte;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseDirection;
@@ -32,10 +30,7 @@ import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -350,6 +345,12 @@ public class OPCClient {
         return map;
     }
 
+    /**
+     *
+     * @param hashMap
+     * @param xpathParent
+     * @param browseRoot
+     */
     private void browseTree(HashMap<String, ReferenceDescription> hashMap, String xpathParent, NodeId browseRoot) {
         BrowseDescription browse = new BrowseDescription(
                 browseRoot,
@@ -378,8 +379,63 @@ public class OPCClient {
         }
     }
 
-    public void browse(ObservableList<PathReferenceDescription> list) {
-        browseTree(list, "", Identifiers.RootFolder);
+    /**
+     *
+     * @param list of the OPC-UA Nodes
+     * @param rootFolder of OPC-UA
+     */
+    public void browse(ObservableList<PathReferenceDescription> list, String rootFolder) {
+        NodeId nodeId = Identifiers.RootFolder;
+
+        PathReferenceDescription pathReferenceDescription = null;
+
+        for (int i = 0; i < rootFolder.split("/").length; i++) {
+           List<ReferenceDescription> referenceDescriptionList = browseToRoot (nodeId);
+
+            for (int j = 0; j < referenceDescriptionList.size(); j++) {
+
+                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[i])) {
+                    nodeId = new NodeId(referenceDescriptionList.get(j).getNodeId().getNamespaceIndex(), (UInteger) referenceDescriptionList.get(j).getNodeId().getIdentifier());
+                }
+                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[rootFolder.split("/").length-1])) {
+                    pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(j), "", null);
+                    list.add(pathReferenceDescription);
+
+                }
+            }
+        }
+
+
+        System.out.println(nodeId);
+        browseTree(list,"/"+rootFolder.split("/")[rootFolder.split("/").length-1], nodeId);
+
+    }
+
+    /**
+     * browse to specified Root folder
+     * @param opcRoot
+     * @return
+     */
+    public List<ReferenceDescription> browseToRoot(NodeId opcRoot) {
+        BrowseDescription browse = new BrowseDescription(
+                opcRoot,
+                BrowseDirection.Forward,
+                Identifiers.References,
+                true,
+                uint(NodeClass.Object.getValue() | NodeClass.Variable.getValue()),
+                uint(BrowseResultMask.All.getValue())
+        );
+
+        try {
+            BrowseResult browseResult = client.browse(browse).get();
+
+            List<ReferenceDescription> references = toList(browseResult.getReferences());
+
+            return references;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 
     }
 
@@ -398,15 +454,32 @@ public class OPCClient {
 
             List<ReferenceDescription> references = toList(browseResult.getReferences());
 
+
+
+
+
+
             for (ReferenceDescription rd : references) {
                 String xpath = xpathParent;
                 NodeId nodeId = new NodeId(rd.getNodeId().getNamespaceIndex(), (UInteger) rd.getNodeId().getIdentifier());
-                logger.debug("Add to Map: {}-{}", xpath, rd);
-                PathReferenceDescription pathReferenceDescription = new PathReferenceDescription(rd, xpath);
+                PathReferenceDescription pathReferenceDescription;
 
-                Platform.runLater(() -> {
-                    list.add(pathReferenceDescription);
-                });
+
+                    if (rd.getNodeClass().getValue() == 2) {
+                        DataValue datavalue = readValue(nodeId);
+                        pathReferenceDescription = new PathReferenceDescription(rd, xpath, datavalue);
+                    }else {
+                        pathReferenceDescription = new PathReferenceDescription(rd, xpath, null);
+                    }
+
+                logger.debug("Add to Map: {}-{}", xpath, rd);
+                if (rd.getNodeClass().getValue() == 1 || (rd.getNodeClass().getValue() == 2 )) {
+                    Platform.runLater(() -> {
+                        System.out.println(pathReferenceDescription.getPath());
+                        list.add(pathReferenceDescription);
+                    });
+                }
+
 
                 browseTree(list, xpath + "/" + rd.getBrowseName().getName(), nodeId);
             }
@@ -417,6 +490,9 @@ public class OPCClient {
             e.printStackTrace();
         } catch (ExecutionException e) {
             logger.error("ExecutionException: {}", e);
+            e.printStackTrace();
+        }
+        catch (UaException e) {
             e.printStackTrace();
         }
     }
@@ -517,6 +593,104 @@ public class OPCClient {
         System.out.println("Server: " + endpointDescription.getServer().toString());
         return "";
     }
+
+    /**
+     *
+     * @param nodeId of Node
+     * @return Vale as DataValue
+     * @throws UaException
+     */
+    public  DataValue readValue(NodeId nodeId) throws UaException {
+
+            UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
+            DataValue value = node.readValue();
+        if (value.getStatusCode().isGood()) {
+            logger.info("Data is good");
+            logger.debug(nodeId+ ":"+value);
+            return value;
+        } else {
+            logger.info("Data is Bad");
+            return null;
+        }
+
+
+        }
+
+    /**
+     *
+     * @param dataValue
+     * @param nodeId
+     * @throws UaException
+     */
+    public void writeValue(DataValue dataValue, NodeId nodeId) throws UaException {
+
+            UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
+            node.writeValue(dataValue);
+
+    }
+
+    /**
+     *
+     * @param value to be written into Node (Double)
+     * @param nodeId
+     * @throws UaException
+     */
+    public void writeValue(Double value, NodeId nodeId) throws UaException {
+        logger.info("Value :", value);
+        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
+        writeValue(dataValue, nodeId);
+    }
+
+    /**
+     *
+     * @param value to be written into Node (Int)
+     * @param nodeId
+     * @throws UaException
+     */
+    public void writeValue(Integer value, NodeId nodeId) throws UaException {
+        logger.info("Value :", value);
+        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
+        writeValue(dataValue, nodeId);
+    }
+
+    /**
+     *
+     * @param value to be written int Node (String)
+     * @param nodeId
+     * @throws UaException
+     */
+    public void writeValue(String value, NodeId nodeId) throws UaException {
+        logger.info("Value :", value);
+        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
+        writeValue(dataValue, nodeId);
+    }
+
+    /**
+     *
+     * @param value to be written int Node (Bool)
+     * @param nodeId
+     * @throws UaException
+     */
+    public void writeValue(Boolean value, NodeId nodeId) throws UaException {
+        DataValue dataValue = new DataValue(new Variant(value), null, null, null);
+        writeValue(dataValue, nodeId);
+    }
+
+
+    /**
+     *
+     * @param nodeId
+     * @return Datatype of OPC Node
+     * @throws UaException
+     */
+    public String getDataType(NodeId nodeId) throws UaException {
+
+            UaVariableNode node = client.getAddressSpace().getVariableNode(nodeId);
+            DataValue value = node.readValue();
+            return value.getValue().getValue().getClass().getName();
+
+    }
+
 
 }
 
