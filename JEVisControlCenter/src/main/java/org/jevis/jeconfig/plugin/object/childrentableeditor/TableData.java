@@ -6,8 +6,10 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.classes.ClassHelper;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CalcMethods;
 import org.jevis.jeconfig.application.application.I18nWS;
 
 import java.util.ArrayList;
@@ -150,7 +152,11 @@ public class TableData {
             resultString.append(I18nWS.getInstance().getAttributeName(attribute));
             resultString.append(": ");
             if (attribute.hasSample()) {
-                resultString.append(attribute.getLatestSample().getValueAsString());
+                if (attribute.getName().equals(CalcJobFactory.Calculation.EXPRESSION.getName()) && sourceObject.getJEVisClassName().equals("Calculation")) {
+                    resultString.append(CalcMethods.getTranslatedFormula(sourceObject));
+                } else {
+                    resultString.append(attribute.getLatestSample().getValueAsString());
+                }
                 resultString.append("@");
                 resultString.append(attribute.getLatestSample().getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
             }

@@ -261,6 +261,7 @@ public class ToolBarView {
         LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin.getDialogContainer(), ds, model);
 
         dialog.show();
+        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
 
         dialog.setOnDialogClosed(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();

@@ -35,6 +35,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.utils.CalcMethods;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
@@ -454,11 +455,12 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
                     if (chartDataRow.getEnPI()) {
                         try {
+                            alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));
+
                             CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
                                     this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
-                            alert.setHeaderText(getTranslatedFormula(calcJob.getCalcInputObjects(), calcJob.getExpression()));
 
                             for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 
@@ -513,33 +515,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     }
 
-    public String getTranslatedFormula(List<CalcInputObject> calcInputObjects, String expression) {
-        try {
-            for (CalcInputObject calcInputObject : calcInputObjects) {
-                String name = "";
-                if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Clean Data")) {
-                    JEVisObject parent = CommonMethods.getFirstParentalDataObject(calcInputObject.getValueAttribute().getObject());
-                    if (parent != null) {
-                        name = parent.getName();
-                    }
-                } else if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Data")) {
-                    name = calcInputObject.getValueAttribute().getObject().getName();
-                }
-
-                if (!name.equals("")) {
-                    expression = expression.replace(calcInputObject.getIdentifier(), name);
-                }
-            }
-
-            expression = expression.replace("#", "");
-            expression = expression.replace("{", "");
-            expression = expression.replace("}", "");
-        } catch (Exception e) {
-
-        }
-
-        return expression;
-    }
 
 
     @Override
