@@ -262,6 +262,7 @@ public class ChartPlugin implements Plugin {
 
         LoadAnalysisDialog dialog = new LoadAnalysisDialog(dialogContainer, ds, dataModel);
         dialog.show();
+        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
 
         JEVisHelp.getInstance().registerHotKey((Stage) dialog.getScene().getWindow());
         JEVisHelp.getInstance().setActiveSubModule(LoadAnalysisDialog.class.getSimpleName());

@@ -77,7 +77,7 @@ public class GapsAndLimits {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 if (!isDifferentialForDate(sample.getTimestamp())) {
                                     boundListSamples.add(sample);
-                                } else if (sampleCache.indexOf(sample) > 0) {
+                                } else if (sampleCache.indexOf(sample) > 0 && lastValue != null && sample.getValueAsDouble() != null) {
                                     Double currentValue = sample.getValueAsDouble() - lastValue;
                                     currentValue = scaleValue(currentValue, sample.getTimestamp());
 
@@ -99,7 +99,7 @@ public class GapsAndLimits {
                                 if ((jeVisSample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (jeVisSample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                     if (!isDifferentialForDate(jeVisSample.getTimestamp())) {
                                         boundListSamples.add(jeVisSample);
-                                    } else if (rawSamples.indexOf(jeVisSample) > 0) {
+                                    } else if (rawSamples.indexOf(jeVisSample) > 0 && lastValue != null && jeVisSample.getValueAsDouble() != null) {
                                         Double currentValue = jeVisSample.getValueAsDouble() - lastValue;
                                         currentValue = scaleValue(currentValue, jeVisSample.getTimestamp());
 
@@ -123,7 +123,7 @@ public class GapsAndLimits {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 if (!isDifferentialForDate(sample.getTimestamp())) {
                                     boundListSamples.add(sample);
-                                } else if (sampleCache.indexOf(sample) > 0) {
+                                } else if (sampleCache.indexOf(sample) > 0 && lastValue != null && sample.getValueAsDouble() != null) {
                                     Double currentValue = sample.getValueAsDouble() - lastValue;
                                     currentValue = scaleValue(currentValue, sample.getTimestamp());
 
@@ -145,7 +145,7 @@ public class GapsAndLimits {
                                 if ((jeVisSample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (jeVisSample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                     if (!isDifferentialForDate(jeVisSample.getTimestamp())) {
                                         boundListSamples.add(jeVisSample);
-                                    } else if (rawSamples.indexOf(jeVisSample) > 0) {
+                                    } else if (rawSamples.indexOf(jeVisSample) > 0 && lastValue != null && jeVisSample.getValueAsDouble() != null) {
                                         Double currentValue = jeVisSample.getValueAsDouble() - lastValue;
                                         currentValue = scaleValue(currentValue, jeVisSample.getTimestamp());
 
@@ -169,7 +169,7 @@ public class GapsAndLimits {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 if (!isDifferentialForDate(sample.getTimestamp())) {
                                     boundListSamples.add(sample);
-                                } else if (sampleCache.indexOf(sample) > 0) {
+                                } else if (sampleCache.indexOf(sample) > 0 && lastValue != null && sample.getValueAsDouble() != null) {
                                     Double currentValue = sample.getValueAsDouble() - lastValue;
                                     currentValue = scaleValue(currentValue, sample.getTimestamp());
 
@@ -191,7 +191,7 @@ public class GapsAndLimits {
                                 if ((jeVisSample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (jeVisSample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                     if (!isDifferentialForDate(jeVisSample.getTimestamp())) {
                                         boundListSamples.add(jeVisSample);
-                                    } else if (rawSamples.indexOf(jeVisSample) > 0) {
+                                    } else if (rawSamples.indexOf(jeVisSample) > 0 && lastValue != null && jeVisSample.getValueAsDouble() != null) {
                                         Double currentValue = jeVisSample.getValueAsDouble() - lastValue;
                                         currentValue = scaleValue(currentValue, jeVisSample.getTimestamp());
 
@@ -214,7 +214,7 @@ public class GapsAndLimits {
                         if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                             if (!isDifferentialForDate(sample.getTimestamp())) {
                                 boundListSamples.add(sample);
-                            } else if (sampleCache.indexOf(sample) > 0) {
+                            } else if (sampleCache.indexOf(sample) > 0 && lastValue != null && sample.getValueAsDouble() != null) {
                                 Double currentValue = sample.getValueAsDouble() - lastValue;
                                 currentValue = scaleValue(currentValue, sample.getTimestamp());
 
@@ -234,7 +234,7 @@ public class GapsAndLimits {
                             if ((jeVisSample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (jeVisSample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 if (!isDifferentialForDate(jeVisSample.getTimestamp())) {
                                     boundListSamples.add(jeVisSample);
-                                } else if (rawSamples.indexOf(jeVisSample) > 0) {
+                                } else if (rawSamples.indexOf(jeVisSample) > 0 && lastValue != null && jeVisSample.getValueAsDouble() != null) {
                                     Double currentValue = jeVisSample.getValueAsDouble() - lastValue;
                                     currentValue = scaleValue(currentValue, jeVisSample.getTimestamp());
 

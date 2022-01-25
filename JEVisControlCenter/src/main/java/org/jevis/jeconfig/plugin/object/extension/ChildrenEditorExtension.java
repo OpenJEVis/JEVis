@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
@@ -31,7 +32,7 @@ public class ChildrenEditorExtension implements ObjectEditorExtension {
     private final JFXDatePicker endDatePicker = new JFXDatePicker(LocalDate.now());
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
     private final ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", iconSize, iconSize));
-    private final Label columnLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.columnlabel"));
+    private final Label columnLabel = new Label(I18n.getInstance().getString("searchbar.filter") + " " + I18n.getInstance().getString("plugin.dtrc.dialog.columnlabel"));
     private final Label includeLabel = new Label(I18n.getInstance().getString("plugin.object.childreneditor.includelabel"));
     private final Label excludeLabel = new Label(I18n.getInstance().getString("plugin.object.childreneditor.excludelabel"));
     private final JFXComboBox<String> columnBox = new JFXComboBox<>();
@@ -63,6 +64,7 @@ public class ChildrenEditorExtension implements ObjectEditorExtension {
         startDatePicker.setValue(LocalDate.now().minusDays(1));
         endDatePicker.setValue(LocalDate.now());
 
+        dateSelection.setPadding(new Insets(5));
         dateSelection.setHgap(6);
         dateSelection.setVgap(6);
 

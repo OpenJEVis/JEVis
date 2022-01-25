@@ -640,6 +640,7 @@ public class LoadAnalysisDialog extends JFXDialog {
             pickerDateEnd = pickerCombo.getEndDatePicker();
             pickerTimeEnd = pickerCombo.getEndTimePicker();
             filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
+            filterInput.setStyle("-fx-font-weight: bold;");
 
             Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
             Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
@@ -757,5 +758,7 @@ public class LoadAnalysisDialog extends JFXDialog {
         });
     }
 
-
+    public JFXTextField getFilterInput() {
+        return filterInput;
+    }
 }

@@ -141,7 +141,7 @@ public class ObjectTable {
                     if (item == null || item.getObject() == null)
                         setStyle("");
                     else if (item.isDuplicate())
-                        setStyle("-fx-background-color: red;");
+                        setStyle("-fx-background-color: orange;");
                     else
                         setStyle("");
                 }
