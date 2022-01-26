@@ -144,7 +144,7 @@ public class ObjectTable {
             ps.setString(3, i18n);
             ps.setLong(4, id);
 
-            logger.error("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             int count = ps.executeUpdate();
             if (count == 1) {
                 return getObject(id);
