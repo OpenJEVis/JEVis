@@ -50,7 +50,30 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.59------\n" +
+            "------Version 3.9.60------\n" +
+                    "JECC - AlarmPlugin - added pagination to tableview\n" +
+                    "JECC - ChartPlugin - LoadAnalysisDialog - highlighted and focused filter\n" +
+                    "JECC - ChildrenEditorExtension - added duplicate check\n" +
+                    "JECC - ChildrenEditorExtension - added including/excluding filter option\n" +
+                    "JECC - ChildrenEditorExtension - added source column\n" +
+                    "JECC - ChildrenEditorExtension - fixed datapoint recognition\n" +
+                    "JECC - DashBoardToolbar - fixed dashboard list sorting\n" +
+                    "JECC - EquipmentPlugin - fixed column width for target column\n" +
+                    "JECC - OPCUA Browser updated Error Message Windows\n" +
+                    "JECC - ObjectPlugin - ChildrenEditorExtension - added padding for better visibility\n" +
+                    "JECC - ObjectPlugin - ChildrenEditorExtension - using calculation expression translation\n" +
+                    "JECC - SelectTargetDialog - improved size\n" +
+                    "JECC - OPCUA Browser finish Message\n" +
+                    "JECC - OPCUA Browser target Link\n" +
+                    "\n" +
+                    "JECommons - CalcMethods - moved and improved calculation expression translation to commons\n" +
+                    "\n" +
+                    "JEDataProcessor - Gaps - fixed sample cache for counter\n" +
+                    "JEDataProcessor - GapsAndLimits - added null pointer check\n" +
+                    "JEDataProcessor - fixed 15 minutes bug\n" +
+                    "\n" +
+                    "JEStatus - DataServerTable - added opc data server\n\n" +
+                    "------Version 3.9.59------\n" +
                     "JECC - CalculationExtension - fixed null pointer for unset pickers\n" +
                     "JECC - ChartPlugin - Displaying of kWh as W does not work\n" +
                     "JECC - ChartPlugin - added power button for base load\n" +
