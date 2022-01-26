@@ -137,7 +137,6 @@ public class ObjectTable {
 
     public JsonObject updateObject(long id, String newname, boolean ispublic, String i18n) throws JEVisException {
         String sql = String.format("update %s set %s=?,%s=?,%s=? where %s=?", TABLE, COLUMN_NAME, COLUMN_PUBLIC, COLUMN_I18N, COLUMN_ID);
-        System.out.println("updateObject: " + sql);
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, newname);
             ps.setBoolean(2, ispublic);
