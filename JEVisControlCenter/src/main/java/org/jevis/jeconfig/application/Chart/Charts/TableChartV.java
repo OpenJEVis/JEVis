@@ -185,11 +185,16 @@ public class TableChartV extends XYChart {
                             updateSample(nf, columnSums, xyChartSerie, index, jeVisSample, nts);
 
                             tableSamples.put(jeVisSample.getTimestamp(), nts);
-                            rowSums.put(jeVisSample.getTimestamp(), jeVisSample.getValueAsDouble());
+                            if (!xyChartSerie.getSingleRow().isStringData()) {
+                                rowSums.put(jeVisSample.getTimestamp(), jeVisSample.getValueAsDouble());
+                            }
                         } else {
                             updateSample(nf, columnSums, xyChartSerie, index, jeVisSample, tableSample);
-                            double aDouble = rowSums.get(jeVisSample.getTimestamp()) + jeVisSample.getValueAsDouble();
-                            rowSums.replace(jeVisSample.getTimestamp(), aDouble);
+
+                            if (!xyChartSerie.getSingleRow().isStringData()) {
+                                double aDouble = rowSums.get(jeVisSample.getTimestamp()) + jeVisSample.getValueAsDouble();
+                                rowSums.replace(jeVisSample.getTimestamp(), aDouble);
+                            }
                         }
                     } catch (JEVisException e) {
                         logger.error(e);
