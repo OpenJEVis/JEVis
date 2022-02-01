@@ -105,7 +105,7 @@ public class RelationshipTable extends TableView {
                                 logger.fatal(ex);
                             }
 
-                            box.getChildren().add(new Label(item.getName()));
+                            box.getChildren().add(new Label(item.getName() + " (" + item.getID() + ")"));
                             setGraphic(box);
 //                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         } else {
@@ -135,7 +135,7 @@ public class RelationshipTable extends TableView {
                                 logger.fatal(ex);
                             }
 
-                            box.getChildren().add(new Label(item.getName()));
+                            box.getChildren().add(new Label(item.getName() + " (" + item.getID() + ")"));
                             setGraphic(box);
 //                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         } else {
@@ -254,7 +254,7 @@ public class RelationshipTable extends TableView {
 
         private SimpleIntegerProperty direction = new SimpleIntegerProperty();
         private SimpleStringProperty object = new SimpleStringProperty("");
-        private SimpleStringProperty other = new SimpleStringProperty("");
+        private final SimpleStringProperty other = new SimpleStringProperty("");
         private SimpleIntegerProperty type = new SimpleIntegerProperty();
         private JEVisRelationship _relationship = null;
         private JEVisObject _thisObject;

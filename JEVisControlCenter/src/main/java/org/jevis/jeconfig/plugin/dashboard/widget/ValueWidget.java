@@ -183,7 +183,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
         StringProperty valueText = new SimpleStringProperty();
         if (displayedSample.getValue().isNaN()) {
-
+            valueText.setValue("");
         } else {
             if (getConfig().getShowValue()) {
                 valueText.setValue(this.nf.format(displayedSample.getValue()) + " " + displayedUnit.getValue());
