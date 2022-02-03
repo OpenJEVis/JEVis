@@ -269,6 +269,7 @@ public class SampleTable {
     }
 
     public List<JsonSample> getSamples(long object, String att, DateTime from, DateTime until, long limit) throws JEVisException {
+        logger.debug("getSamples: {}:{} from: {} until: {}", object, att, from, until);
         List<JsonSample> samples = new ArrayList<>();
 
         String sql = String.format("select * from %s where %s=? and %s=?",
@@ -282,7 +283,9 @@ public class SampleTable {
         }
         sql += " order by " + COLUMN_TIMESTAMP + " limit " + limit;
 
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY)) {
+            //ps.setFetchDirection(ResultSet.FETCH_FORWARD);
             int pos = 1;
 
             ps.setLong(pos++, object);
@@ -296,7 +299,6 @@ public class SampleTable {
 
             logger.trace("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
                 try {
                     samples.add(SQLtoJsonFactory.buildSample(rs));
