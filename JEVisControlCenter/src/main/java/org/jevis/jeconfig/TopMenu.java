@@ -29,6 +29,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -42,6 +43,7 @@ import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.jevis.jeconfig.tool.PatchNotesPage;
+import org.jevis.jeconfig.tool.TrianglePerformanceTest;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -522,8 +524,26 @@ public class TopMenu extends MenuBar {
         });
 
         MenuItem classImport = new MenuItem(I18n.getInstance().getString("menu.system.driver"));
+
+
         Menu system = new Menu(I18n.getInstance().getString("menu.system"));
         system.getItems().add(classImport);
+        if (JEConfig.getExpert()) {
+            MenuItem benchmark = new MenuItem("Benchmark");
+            benchmark.setOnAction(event -> {
+                try {
+                    TrianglePerformanceTest trianglePerformanceTest = new TrianglePerformanceTest();
+                    Stage stage = new Stage();
+                    trianglePerformanceTest.start(stage);
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            });
+            system.getItems().add(benchmark);
+        }
+
 
         //TODO: replace this very simple driver import
         classImport.setOnAction(event -> {
