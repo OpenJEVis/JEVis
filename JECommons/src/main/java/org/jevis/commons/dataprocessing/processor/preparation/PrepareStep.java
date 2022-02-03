@@ -98,8 +98,8 @@ public class PrepareStep implements ProcessStep {
         DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
         WorkDays wd = new WorkDays(cleanDataObject.getCleanObject());
         DateTimeZone timeZone = wd.getDateTimeZone();
-        LocalTime dtStart = wd.getWorkdayStart(currentDate);
-        LocalTime dtEnd = wd.getWorkdayEnd(currentDate);
+        LocalTime dtStart = wd.getWorkdayStart();
+        LocalTime dtEnd = wd.getWorkdayEnd();
         DateTime maxEndDate = cleanDataObject.getMaxEndDate();
         Boolean firstIsDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
 
@@ -120,9 +120,6 @@ public class PrepareStep implements ProcessStep {
         } else {
             logger.info("[{}] Calc interval between start date {} and end date {}", cleanDataObject.getCleanObject().getID(), datePattern.print(currentDate), datePattern.print(maxEndDate));
 
-            currentDate = currentDate.withZone(timeZone);
-            maxEndDate = maxEndDate.withZone(timeZone);
-
             PeriodComparator periodComparator = new PeriodComparator();
             DateTime lastDate = null;
 
@@ -133,75 +130,82 @@ public class PrepareStep implements ProcessStep {
             boolean isFinished = true;
 
             //add half a period to maxEndDate
+
+            DateTime currentDateLocal = currentDate.withZone(timeZone);
+            DateTime maxEndDateLocal = maxEndDate.withZone(timeZone);
+
             if (firstCleanPeriod.getYears() > 0) {
-                currentDate = currentDate.minusYears(1).withMonthOfYear(1).withDayOfMonth(1);
-                maxEndDate = maxEndDate.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                currentDateLocal = currentDateLocal.minusYears(1).withMonthOfYear(1).withDayOfMonth(1);
+                maxEndDateLocal = maxEndDateLocal.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
 
                 if (dtEnd.isBefore(dtStart)) {
-                    maxEndDate = maxEndDate.plusYears(1);
+                    maxEndDateLocal = maxEndDateLocal.plusYears(1);
                 }
             }
             if (compare < 0 && firstRawPeriod.getYears() > 0) {
-                currentDate = currentDate.minusYears(1).withMonthOfYear(1).withDayOfMonth(1);
+                currentDateLocal = currentDateLocal.minusYears(1).withMonthOfYear(1).withDayOfMonth(1);
             }
 
             if (firstCleanPeriod.getMonths() > 0) {
-                currentDate = currentDate.minusMonths(1).withDayOfMonth(1);
+                currentDateLocal = currentDateLocal.minusMonths(1).withDayOfMonth(1);
 
-                maxEndDate = maxEndDate.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                maxEndDateLocal = maxEndDateLocal.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
 
                 if (dtEnd.isBefore(dtStart)) {
-                    maxEndDate = maxEndDate.plusMonths(1);
+                    maxEndDateLocal = maxEndDateLocal.plusMonths(1);
                 }
             }
             if (compare < 0 && firstRawPeriod.getMonths() > 0) {
-                currentDate = currentDate.minusMonths(1).withDayOfMonth(1);
+                currentDateLocal = currentDateLocal.minusMonths(1).withDayOfMonth(1);
             }
 
             if (firstCleanPeriod.getWeeks() > 0) {
-                currentDate = currentDate.minusWeeks(1).withDayOfWeek(1);
-                maxEndDate = maxEndDate.plusWeeks(1).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                currentDateLocal = currentDateLocal.minusWeeks(1).withDayOfWeek(1);
+                maxEndDateLocal = maxEndDateLocal.plusWeeks(1).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             }
             if (compare < 0 && firstRawPeriod.getWeeks() > 0) {
-                currentDate = currentDate.minusWeeks(1).withDayOfWeek(1);
+                currentDateLocal = currentDateLocal.minusWeeks(1).withDayOfWeek(1);
             }
 
             if (firstCleanPeriod.getDays() > 0) {
-                currentDate = currentDate.minusDays(1);
-                maxEndDate = maxEndDate.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                currentDateLocal = currentDateLocal.minusDays(1);
+                maxEndDateLocal = maxEndDateLocal.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             }
             if (compare < 0 && firstRawPeriod.getDays() > 0) {
-                currentDate = currentDate.minusDays(1);
+                currentDateLocal = currentDateLocal.minusDays(1);
             }
 
             if (firstCleanPeriod.getHours() > 0) {
-                currentDate = currentDate.minusHours(1).withMinuteOfHour(0);
+                currentDateLocal = currentDateLocal.minusHours(1).withMinuteOfHour(0);
                 //like days?
-                maxEndDate = maxEndDate.plusMinutes(30).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                maxEndDateLocal = maxEndDateLocal.plusMinutes(30).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             }
             if (compare < 0 && firstRawPeriod.getHours() > 0) {
-                currentDate = currentDate.minusHours(1).withMinuteOfHour(0);
+                currentDateLocal = currentDateLocal.minusHours(1).withMinuteOfHour(0);
             }
 
             if (firstCleanPeriod.getMinutes() > 0 && firstRawPeriod.getHours() == 1 && firstRawPeriod.getMinutes() == 0) {
-                currentDate = currentDate.plus(firstCleanPeriod);
+                currentDateLocal = currentDateLocal.plus(firstCleanPeriod);
             }
+
+            if (firstCleanPeriod.getMinutes() > 0) {
+                currentDateLocal = currentDateLocal.minusMinutes(firstCleanPeriod.getMinutes()).withSecondOfMinute(0);
+            }
+
+            currentDate = currentDateLocal.withZone(DateTimeZone.UTC);
+            maxEndDate = maxEndDateLocal.withZone(DateTimeZone.UTC);
 
             while (currentDate.isBefore(maxEndDate) && !periodCleanData.isEmpty() && !currentDate.equals(lastDate)) {
                 DateTime startDateTime = null;
                 DateTime endDateTime = null;
-                DateTime currentDateUTC = currentDate.withZone(DateTimeZone.UTC);
+
                 Period rawPeriod = CleanDataObject.getPeriodForDate(periodRawData, currentDate);
                 Period cleanPeriod = CleanDataObject.getPeriodForDate(periodCleanData, currentDate);
                 Boolean isDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
                 boolean greaterThenDays = false;
-                dtStart = wd.getWorkdayStart(currentDate);
-                dtEnd = wd.getWorkdayEnd(currentDate);
 
-                startDateTime = new DateTime(currentDateUTC.getYear(), currentDateUTC.getMonthOfYear(), currentDateUTC.getDayOfMonth(),
-                        currentDateUTC.getHourOfDay(), currentDateUTC.getMinuteOfHour(), currentDateUTC.getSecondOfMinute());
-                endDateTime = new DateTime(currentDateUTC.getYear(), currentDateUTC.getMonthOfYear(), currentDateUTC.getDayOfMonth(),
-                        currentDateUTC.getHourOfDay(), currentDateUTC.getMinuteOfHour(), currentDateUTC.getSecondOfMinute());
+                startDateTime = currentDate.withZone(timeZone);
+                endDateTime = currentDate.withZone(timeZone);
 
                 if (cleanPeriod.getYears() > 0) {
                     if (isDifferential) {
@@ -243,16 +247,19 @@ public class PrepareStep implements ProcessStep {
 
                 if (greaterThenDays) {
                     startDateTime = new DateTime(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth(),
-                            dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond());
+                            dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond(), timeZone);
                     endDateTime = new DateTime(endDateTime.getYear(), endDateTime.getMonthOfYear(), endDateTime.getDayOfMonth(),
-                            dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond());
+                            dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond(), timeZone);
 
                     if (dtEnd.isBefore(dtStart)) {
                         startDateTime = startDateTime.minusDays(1);
                     }
                 }
 
+                startDateTime = startDateTime.withZone(DateTimeZone.UTC);
+                endDateTime = endDateTime.withZone(DateTimeZone.UTC);
                 CleanInterval currentInterval;
+
                 if (!greaterThenDays) {
                     Interval interval = null;
                     if (rawPeriod.equals(Period.minutes(15)) && cleanPeriod.equals(Period.minutes(5))) {
@@ -286,7 +293,8 @@ public class PrepareStep implements ProcessStep {
                 cleanIntervals.add(currentInterval);
 
                 lastDate = currentDate;
-                currentDate = PeriodHelper.addPeriodToDate(currentDate, cleanPeriod);
+                currentDateLocal = PeriodHelper.addPeriodToDate(currentDateLocal, cleanPeriod);
+                currentDate = currentDateLocal.withZone(DateTimeZone.UTC);
 
                 if (cleanIntervals.size() >= maxProcessingSize) {
                     isFinished = false;

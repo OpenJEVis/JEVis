@@ -126,8 +126,8 @@ public class DataServerTable extends AlarmTable {
                 }
             }
 
-            if (channel.getJEVisClass().equals(getLoytecXMLDLChannelClass()) || channel.getJEVisClass().equals(getVida350ChannelClass())) {
-                if (channel.getJEVisClass().equals(getLoytecXMLDLChannelClass()))
+            if (channel.getJEVisClass().equals(getLoytecXMLDLChannelClass()) || channel.getJEVisClass().equals(getLoytecOPCUAChannelClass()) || channel.getJEVisClass().equals(getVida350ChannelClass())) {
+                if (channel.getJEVisClass().equals(getLoytecXMLDLChannelClass()) || channel.getJEVisClass().equals(getLoytecOPCUAChannelClass()))
                     targetAtt = channel.getAttribute("Target ID");
                 else if (channel.getJEVisClass().equals(getVida350ChannelClass())) {
                     targetAtt = channel.getAttribute("Target");
@@ -442,8 +442,6 @@ public class DataServerTable extends AlarmTable {
             }
         }
     }
-
-
 
 
     private List<JEVisObject> getChannelObjects() throws JEVisException {

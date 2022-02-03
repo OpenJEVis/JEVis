@@ -44,6 +44,7 @@ public class AlarmTable {
     private String tableString;
     private JEVisClass vida350ChannelClass;
     private JEVisClass loytecXMLDLChannelClass;
+    private JEVisClass loytecOPCUAChannelClass;
     private JEVisClass organizationClass;
     private JEVisClass buildingClass;
     private JEVisClass ftpChannelClass;
@@ -140,6 +141,7 @@ public class AlarmTable {
             organizationClass = dataSource.getJEVisClass("Organization");
             buildingClass = dataSource.getJEVisClass("Monitored Object");
             loytecXMLDLChannelClass = dataSource.getJEVisClass("Loytec XML-DL Channel");
+            loytecOPCUAChannelClass = dataSource.getJEVisClass("OPC UA Channel");
             vida350ChannelClass = dataSource.getJEVisClass("VIDA350 Channel");
             ftpChannelClass = dataSource.getJEVisClass("FTP Channel");
             httpChannelClass = dataSource.getJEVisClass("HTTP Channel");
@@ -329,6 +331,10 @@ public class AlarmTable {
 
     public JEVisClass getLoytecXMLDLChannelClass() {
         return loytecXMLDLChannelClass;
+    }
+
+    public JEVisClass getLoytecOPCUAChannelClass() {
+        return loytecOPCUAChannelClass;
     }
 
     public JEVisClass getVida350ChannelClass() {

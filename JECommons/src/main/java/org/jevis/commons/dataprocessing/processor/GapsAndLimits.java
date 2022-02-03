@@ -11,11 +11,13 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.limits.LimitBreak;
+import org.jevis.commons.dataprocessing.processor.steps.ScalingStep;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.joda.time.DateTime;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,19 +68,30 @@ public class GapsAndLimits {
         DateTime firstDate;
 
         firstDate = getFirstDate(lastDate);
-        List<JEVisSample> listSamplesNew = new ArrayList<>();
         switch (bindToSpecificValue) {
             case WEEKDAY:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
+                    Double lastValue = sampleCache.get(0).getValueAsDouble();
                     for (JEVisSample sample : sampleCache) {
                         if (sample.getTimestamp().getDayOfWeek() == lastDate.getDayOfWeek()) {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                boundListSamples.add(sample);
+                                if (!isDifferentialForDate(sample.getTimestamp())) {
+                                    boundListSamples.add(sample);
+                                } else if (sampleCache.indexOf(sample) > 0 && lastValue != null && sample.getValueAsDouble() != null) {
+                                    Double currentValue = sample.getValueAsDouble() - lastValue;
+                                    currentValue = scaleValue(currentValue, sample.getTimestamp());
+
+                                    VirtualSample virtualSample = new VirtualSample(sample.getTimestamp(), currentValue);
+                                    virtualSample.setNote(sample.getNote());
+
+                                    boundListSamples.add(virtualSample);
+                                }
                             }
                         }
+                        lastValue = sample.getValueAsDouble();
                     }
-                }
-                if (rawSamples != null) {
+                } else if (rawSamples != null) {
+                    Double lastValue = rawSamples.get(0).getValueAsDouble();
                     for (JEVisSample jeVisSample : rawSamples) {
                         if (jeVisSample.getTimestamp().equals(firstDate) || (jeVisSample.getTimestamp().isAfter(firstDate) && jeVisSample.getTimestamp().isBefore(lastDate))
                                 || jeVisSample.getTimestamp().equals(lastDate)) {
@@ -86,9 +99,9 @@ public class GapsAndLimits {
                                 if ((jeVisSample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (jeVisSample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                     if (!isDifferentialForDate(jeVisSample.getTimestamp())) {
                                         boundListSamples.add(jeVisSample);
-                                    } else if (rawSamples.indexOf(jeVisSample) > 0) {
-                                        Double currentValue = jeVisSample.getValueAsDouble() - rawSamples.get(rawSamples.indexOf(jeVisSample) - 1).getValueAsDouble();
-                                        currentValue *= CleanDataObject.getMultiplierForDate(cleanDataObject.getCleanObject(), jeVisSample.getTimestamp());
+                                    } else if (rawSamples.indexOf(jeVisSample) > 0 && lastValue != null && jeVisSample.getValueAsDouble() != null) {
+                                        Double currentValue = jeVisSample.getValueAsDouble() - lastValue;
+                                        currentValue = scaleValue(currentValue, jeVisSample.getTimestamp());
 
                                         VirtualSample virtualSample = new VirtualSample(jeVisSample.getTimestamp(), currentValue);
                                         virtualSample.setNote(jeVisSample.getNote());
@@ -98,20 +111,33 @@ public class GapsAndLimits {
                                 }
                             }
                         }
+                        lastValue = jeVisSample.getValueAsDouble();
                     }
                 }
                 return calcValueWithType(boundListSamples);
             case WEEKOFYEAR:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
+                    Double lastValue = sampleCache.get(0).getValueAsDouble();
                     for (JEVisSample sample : sampleCache) {
                         if (sample.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                boundListSamples.add(sample);
+                                if (!isDifferentialForDate(sample.getTimestamp())) {
+                                    boundListSamples.add(sample);
+                                } else if (sampleCache.indexOf(sample) > 0 && lastValue != null && sample.getValueAsDouble() != null) {
+                                    Double currentValue = sample.getValueAsDouble() - lastValue;
+                                    currentValue = scaleValue(currentValue, sample.getTimestamp());
+
+                                    VirtualSample virtualSample = new VirtualSample(sample.getTimestamp(), currentValue);
+                                    virtualSample.setNote(sample.getNote());
+
+                                    boundListSamples.add(virtualSample);
+                                }
                             }
                         }
+                        lastValue = sample.getValueAsDouble();
                     }
-                }
-                if (rawSamples != null) {
+                } else if (rawSamples != null) {
+                    Double lastValue = rawSamples.get(0).getValueAsDouble();
                     for (JEVisSample jeVisSample : rawSamples) {
                         if (jeVisSample.getTimestamp().equals(firstDate) || (jeVisSample.getTimestamp().isAfter(firstDate) && jeVisSample.getTimestamp().isBefore(lastDate))
                                 || jeVisSample.getTimestamp().equals(lastDate)) {
@@ -119,9 +145,9 @@ public class GapsAndLimits {
                                 if ((jeVisSample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (jeVisSample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                     if (!isDifferentialForDate(jeVisSample.getTimestamp())) {
                                         boundListSamples.add(jeVisSample);
-                                    } else if (rawSamples.indexOf(jeVisSample) > 0) {
-                                        Double currentValue = jeVisSample.getValueAsDouble() - rawSamples.get(rawSamples.indexOf(jeVisSample) - 1).getValueAsDouble();
-                                        currentValue *= CleanDataObject.getMultiplierForDate(cleanDataObject.getCleanObject(), jeVisSample.getTimestamp());
+                                    } else if (rawSamples.indexOf(jeVisSample) > 0 && lastValue != null && jeVisSample.getValueAsDouble() != null) {
+                                        Double currentValue = jeVisSample.getValueAsDouble() - lastValue;
+                                        currentValue = scaleValue(currentValue, jeVisSample.getTimestamp());
 
                                         VirtualSample virtualSample = new VirtualSample(jeVisSample.getTimestamp(), currentValue);
                                         virtualSample.setNote(jeVisSample.getNote());
@@ -131,20 +157,33 @@ public class GapsAndLimits {
                                 }
                             }
                         }
+                        lastValue = jeVisSample.getValueAsDouble();
                     }
                 }
                 return calcValueWithType(boundListSamples);
             case MONTHOFYEAR:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
+                    Double lastValue = sampleCache.get(0).getValueAsDouble();
                     for (JEVisSample sample : sampleCache) {
                         if (sample.getTimestamp().getMonthOfYear() == lastDate.getMonthOfYear()) {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                boundListSamples.add(sample);
+                                if (!isDifferentialForDate(sample.getTimestamp())) {
+                                    boundListSamples.add(sample);
+                                } else if (sampleCache.indexOf(sample) > 0 && lastValue != null && sample.getValueAsDouble() != null) {
+                                    Double currentValue = sample.getValueAsDouble() - lastValue;
+                                    currentValue = scaleValue(currentValue, sample.getTimestamp());
+
+                                    VirtualSample virtualSample = new VirtualSample(sample.getTimestamp(), currentValue);
+                                    virtualSample.setNote(sample.getNote());
+
+                                    boundListSamples.add(virtualSample);
+                                }
                             }
                         }
+                        lastValue = sample.getValueAsDouble();
                     }
-                }
-                if (rawSamples != null) {
+                } else if (rawSamples != null) {
+                    Double lastValue = rawSamples.get(0).getValueAsDouble();
                     for (JEVisSample jeVisSample : rawSamples) {
                         if (jeVisSample.getTimestamp().equals(firstDate) || (jeVisSample.getTimestamp().isAfter(firstDate) && jeVisSample.getTimestamp().isBefore(lastDate))
                                 || jeVisSample.getTimestamp().equals(lastDate)) {
@@ -152,9 +191,9 @@ public class GapsAndLimits {
                                 if ((jeVisSample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (jeVisSample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                     if (!isDifferentialForDate(jeVisSample.getTimestamp())) {
                                         boundListSamples.add(jeVisSample);
-                                    } else if (rawSamples.indexOf(jeVisSample) > 0) {
-                                        Double currentValue = jeVisSample.getValueAsDouble() - rawSamples.get(rawSamples.indexOf(jeVisSample) - 1).getValueAsDouble();
-                                        currentValue *= CleanDataObject.getMultiplierForDate(cleanDataObject.getCleanObject(), jeVisSample.getTimestamp());
+                                    } else if (rawSamples.indexOf(jeVisSample) > 0 && lastValue != null && jeVisSample.getValueAsDouble() != null) {
+                                        Double currentValue = jeVisSample.getValueAsDouble() - lastValue;
+                                        currentValue = scaleValue(currentValue, jeVisSample.getTimestamp());
 
                                         VirtualSample virtualSample = new VirtualSample(jeVisSample.getTimestamp(), currentValue);
                                         virtualSample.setNote(jeVisSample.getNote());
@@ -164,27 +203,40 @@ public class GapsAndLimits {
                                 }
                             }
                         }
+                        lastValue = jeVisSample.getValueAsDouble();
                     }
                 }
                 return calcValueWithType(boundListSamples);
             default:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
+                    Double lastValue = sampleCache.get(0).getValueAsDouble();
                     for (JEVisSample sample : sampleCache) {
                         if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                            listSamplesNew.add(sample);
+                            if (!isDifferentialForDate(sample.getTimestamp())) {
+                                boundListSamples.add(sample);
+                            } else if (sampleCache.indexOf(sample) > 0 && lastValue != null && sample.getValueAsDouble() != null) {
+                                Double currentValue = sample.getValueAsDouble() - lastValue;
+                                currentValue = scaleValue(currentValue, sample.getTimestamp());
+
+                                VirtualSample virtualSample = new VirtualSample(sample.getTimestamp(), currentValue);
+                                virtualSample.setNote(sample.getNote());
+
+                                boundListSamples.add(virtualSample);
+                            }
                         }
+                        lastValue = sample.getValueAsDouble();
                     }
-                }
-                if (rawSamples != null) {
+                } else if (rawSamples != null) {
+                    Double lastValue = rawSamples.get(0).getValueAsDouble();
                     for (JEVisSample jeVisSample : rawSamples) {
                         if (jeVisSample.getTimestamp().equals(firstDate) || (jeVisSample.getTimestamp().isAfter(firstDate) && jeVisSample.getTimestamp().isBefore(lastDate))
                                 || jeVisSample.getTimestamp().equals(lastDate)) {
                             if ((jeVisSample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (jeVisSample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 if (!isDifferentialForDate(jeVisSample.getTimestamp())) {
                                     boundListSamples.add(jeVisSample);
-                                } else if (rawSamples.indexOf(jeVisSample) > 0) {
-                                    Double currentValue = jeVisSample.getValueAsDouble() - rawSamples.get(rawSamples.indexOf(jeVisSample) - 1).getValueAsDouble();
-                                    currentValue *= CleanDataObject.getMultiplierForDate(cleanDataObject.getCleanObject(), jeVisSample.getTimestamp());
+                                } else if (rawSamples.indexOf(jeVisSample) > 0 && lastValue != null && jeVisSample.getValueAsDouble() != null) {
+                                    Double currentValue = jeVisSample.getValueAsDouble() - lastValue;
+                                    currentValue = scaleValue(currentValue, jeVisSample.getTimestamp());
 
                                     VirtualSample virtualSample = new VirtualSample(jeVisSample.getTimestamp(), currentValue);
                                     virtualSample.setNote(jeVisSample.getNote());
@@ -193,14 +245,37 @@ public class GapsAndLimits {
                                 }
                             }
                         }
+                        lastValue = jeVisSample.getValueAsDouble();
                     }
                 }
-                return calcValueWithType(listSamplesNew);
+                return calcValueWithType(boundListSamples);
         }
     }
 
     private boolean isDifferentialForDate(DateTime timestamp) {
         return CleanDataObject.isDifferentialForDate(differentialRules, timestamp);
+    }
+
+    private Double scaleValue(Double inputValue, DateTime dateTime) {
+        BigDecimal offset = new BigDecimal(cleanDataObject.getOffset().toString());
+        BigDecimal currentMulti = ScalingStep.getCurrentMultiplier(cleanDataObject.getMultiplier(), dateTime);
+        BigDecimal rawValueDec = new BigDecimal(inputValue.toString());
+        BigDecimal productDec = new BigDecimal(0);
+        productDec = productDec.add(rawValueDec);
+        productDec = productDec.multiply(currentMulti);
+        productDec = productDec.add(offset);
+        return productDec.doubleValue();
+    }
+
+    private Double scaleValueBack(Double inputValue, DateTime dateTime) {
+        BigDecimal offset = new BigDecimal(cleanDataObject.getOffset().toString());
+        BigDecimal currentMulti = ScalingStep.getCurrentMultiplier(cleanDataObject.getMultiplier(), dateTime);
+        BigDecimal rawValueDec = new BigDecimal(inputValue.toString());
+        BigDecimal divDec = new BigDecimal(0);
+        divDec = divDec.add(rawValueDec);
+        divDec = divDec.divide(currentMulti);
+        divDec = divDec.add(offset);
+        return divDec.doubleValue();
     }
 
     private Double calcValueWithType(List<JEVisSample> listSamples) throws
@@ -269,9 +344,9 @@ public class GapsAndLimits {
                     Double value = currentGap.getFirstValue();
                     for (DateTime dateTime : currentGap.getMissingDateTimes()) {
                         if (!isDifferentialForDate(dateTime)) {
-                            value = getSpecificValue(dateTime);
+                            value = scaleValueBack(getSpecificValue(dateTime), dateTime);
                         } else {
-                            value += getSpecificValue(dateTime);
+                            value += scaleValueBack(getSpecificValue(dateTime), dateTime);
                         }
 
                         VirtualSample sample = new VirtualSample(dateTime, value);
@@ -320,9 +395,9 @@ public class GapsAndLimits {
                     Double value = currentGap.getFirstValue();
                     for (DateTime dateTime : currentGap.getMissingDateTimes()) {
                         if (!isDifferentialForDate(dateTime)) {
-                            value = getSpecificValue(dateTime);
+                            value = scaleValueBack(getSpecificValue(dateTime), dateTime);
                         } else {
-                            value += getSpecificValue(dateTime);
+                            value += scaleValueBack(getSpecificValue(dateTime), dateTime);
                         }
 
                         VirtualSample sample = new VirtualSample(dateTime, value);
@@ -371,10 +446,12 @@ public class GapsAndLimits {
                 for (Gap currentGap : gapList) {
                     Double value = currentGap.getFirstValue();
                     for (DateTime dateTime : currentGap.getMissingDateTimes()) {
+                        Double specificValue = getSpecificValue(dateTime);
+                        Double scaledValue = scaleValueBack(specificValue, dateTime);
                         if (!isDifferentialForDate(dateTime)) {
-                            value = getSpecificValue(dateTime);
+                            value = scaledValue;
                         } else {
-                            value += getSpecificValue(dateTime);
+                            value += scaledValue;
                         }
 
                         VirtualSample sample = new VirtualSample(dateTime, value);
@@ -564,9 +641,9 @@ public class GapsAndLimits {
                     Double value = currentGap.getFirstValue();
                     for (DateTime dateTime : currentGap.getMissingDateTimes()) {
                         if (!isDifferentialForDate(dateTime)) {
-                            value = getSpecificValue(dateTime);
+                            value = scaleValueBack(getSpecificValue(dateTime), dateTime);
                         } else {
-                            value += getSpecificValue(dateTime);
+                            value += scaleValueBack(getSpecificValue(dateTime), dateTime);
                         }
                         VirtualSample sample = new VirtualSample(dateTime, value);
                         String note = "";

@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>31.0.1-jre</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -92,7 +92,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.21</version>
+            <version>5.1.48</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

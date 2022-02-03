@@ -34,10 +34,12 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
@@ -258,6 +260,8 @@ public class TablePlugin implements Plugin {
                                     JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
                             gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
+                            AnalysisLinkButton analysisLinkButton = null;
+
                             try {
                                 if (item.hasSample()) {
                                     addEventManSampleAction(item.getLatestSample(), manSampleButton, registerTableRow.getName());
@@ -265,7 +269,25 @@ public class TablePlugin implements Plugin {
                                 }
 
                             } catch (Exception ex) {
-                                logger.catching(ex);
+                                logger.error(ex);
+                            }
+
+                            try {
+                                TargetHelper th = new TargetHelper(getDataSource(), item.getLatestSample().getValueAsString());
+                                if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+
+                                    JEVisObject firstCleanObject = CommonMethods.getFirstCleanObject(th.getObject().get(0));
+                                    if (firstCleanObject != null) {
+
+                                        JEVisAttribute valueAttribute = firstCleanObject.getAttribute("Value");
+
+                                        if (valueAttribute != null) {
+                                            analysisLinkButton = new AnalysisLinkButton(valueAttribute);
+                                        }
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                logger.error(ex);
                             }
 
                             gotoButton.setOnAction(event -> {
@@ -276,7 +298,7 @@ public class TablePlugin implements Plugin {
                                         JEConfig.openObjectInPlugin(ObjectPlugin.PLUGIN_NAME, findObj);
                                     }
                                 } catch (Exception ex) {
-                                    logger.catching(ex);
+                                    logger.error(ex);
                                 }
                             });
 
@@ -333,18 +355,18 @@ public class TablePlugin implements Plugin {
                                                     addEventManSampleAction(newTargetSample, manSampleButton, registerTableRow.getName());
                                                     manSampleButton.setDisable(false);
                                                 } catch (Exception ex) {
-                                                    ex.printStackTrace();
+                                                    logger.error(ex);
                                                 }
 
                                             }
                                             setToolTipText(treeButton, item);
                                         } catch (Exception ex) {
-                                            logger.catching(ex);
+                                            logger.error(ex);
                                         }
                                     });
                                     selectTargetDialog.show();
                                 } catch (Exception ex) {
-                                    logger.catching(ex);
+                                    logger.error(ex);
                                 }
                             });
 
@@ -354,6 +376,10 @@ public class TablePlugin implements Plugin {
 
                             hBox.getChildren().add(gotoButton);
                             gotoButton.setDisable(!setToolTipText(treeButton, item));
+
+                            if (analysisLinkButton != null) {
+                                hBox.getChildren().add(analysisLinkButton);
+                            }
 
                             VBox vBox = new VBox(hBox);
                             vBox.setAlignment(Pos.CENTER);

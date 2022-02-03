@@ -137,7 +137,7 @@ public class MeterPlugin extends TablePlugin {
                             column.setCellFactory(valueCellStringPassword());
                         } else if (type.getGUIDisplayType().equals(GUIConstants.TARGET_OBJECT.getId()) || type.getGUIDisplayType().equals(GUIConstants.TARGET_ATTRIBUTE.getId())) {
                             column.setCellFactory(valueCellTargetSelection());
-                            column.setMinWidth(120);
+                            column.setMinWidth(150);
                         } else if (type.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || type.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                             column.setCellFactory(valueCellDateTime());
                             column.setMinWidth(110);

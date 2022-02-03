@@ -101,7 +101,7 @@
       }
     },
     {
-      "type": "Delta Configuration",
+      "type": "Delta Config",
       "descriptions": {
         "de": "Einstellmöglichkeiten für Methode zur Ersatzwertbildung bei Über-/Unterschreitung der Änderungsschwellen",
         "ru": "Параметры настройки метода генерации замещающих значений при превышении или недостижении пороговых значений изменения",

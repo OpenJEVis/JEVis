@@ -98,7 +98,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     getItems().add(new SeparatorMenuItem());
                     getItems().add(buildMenuAddInput());
                     getItems().add(buildRecalculate());
-                } else if (obj.getJEVisClassName().equals("OPC UA Server")) {
+                } else if (obj.getJEVisClassName().equals("Loytec XML-DL Server")) {
                     getItems().add(new SeparatorMenuItem());
                     getItems().add(buildOCP());
                 } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
@@ -170,7 +170,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     ex.printStackTrace();
                 }
             } else {
-                logger.error("target is no a calculation");
+                logger.error("target is not a calculation");
                 try {
                     JEVisClass loytecOutput = ds.getJEVisClass("Loytec XML-DL Channel");
                     JEVisClass vida350Target = ds.getJEVisClass("VIDA350 Channel");

@@ -50,7 +50,72 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.58------\n" +
+            "------Version 3.9.60------\n" +
+                    "JECC - AlarmPlugin - added pagination to tableview\n" +
+                    "JECC - ChartPlugin - LoadAnalysisDialog - highlighted and focused filter\n" +
+                    "JECC - ChildrenEditorExtension - added duplicate check\n" +
+                    "JECC - ChildrenEditorExtension - added including/excluding filter option\n" +
+                    "JECC - ChildrenEditorExtension - added source column\n" +
+                    "JECC - ChildrenEditorExtension - fixed datapoint recognition\n" +
+                    "JECC - DashBoardToolbar - fixed dashboard list sorting\n" +
+                    "JECC - EquipmentPlugin - fixed column width for target column\n" +
+                    "JECC - OPCUA Browser updated Error Message Windows\n" +
+                    "JECC - ObjectPlugin - ChildrenEditorExtension - added padding for better visibility\n" +
+                    "JECC - ObjectPlugin - ChildrenEditorExtension - using calculation expression translation\n" +
+                    "JECC - SelectTargetDialog - improved size\n" +
+                    "JECC - OPCUA Browser finish Message\n" +
+                    "JECC - OPCUA Browser target Link\n" +
+                    "\n" +
+                    "JECommons - CalcMethods - moved and improved calculation expression translation to commons\n" +
+                    "\n" +
+                    "JEDataProcessor - Gaps - fixed sample cache for counter\n" +
+                    "JEDataProcessor - GapsAndLimits - added null pointer check\n" +
+                    "JEDataProcessor - fixed 15 minutes bug\n" +
+                    "\n" +
+                    "JEStatus - DataServerTable - added opc data server\n\n" +
+                    "------Version 3.9.59------\n" +
+                    "JECC - CalculationExtension - fixed null pointer for unset pickers\n" +
+                    "JECC - ChartPlugin - Displaying of kWh as W does not work\n" +
+                    "JECC - ChartPlugin - added power button for base load\n" +
+                    "JECC - ChartPlugin - fixed null pointer for cases where no data processor is selected\n" +
+                    "JECC - DashboardPlugin - minor change regarding Widget-Tree bug\n" +
+                    "JECC - DashboardPlugin - LinkerWidget - scroll to selected link on opening\n" +
+                    "\n" +
+                    "JEAPIWS - fixed a bug where the login would be done twice\n" +
+                    "JEAPIWS - fixed a nullpointer\n" +
+                    "\n" +
+                    "JECommons - fixed some problem with custom workdays\n" +
+                    "\n" +
+                    "JEDataProcessor - MathDataObject - fixed missing timezone\n" +
+                    "JEDataProcessor - detect and dismiss values if the increasing from the previous value to the next value is unrealistic fixes #184\n" +
+                    "JEDataProcessor - fixed some aggregation problems for utc timezone\n" +
+                    "JEDataProcessor - improved config check\n" +
+                    "\n" +
+                    "JEVisCore - CleanData - added new attribute translation\n" +
+                    "JEVisCore - Classes - updated data & clean data\n" +
+                    "JEVisCore - updated log4j lib\n" +
+                    "JEVisCore - www - removed google api font, changed copy right note\n" +
+                    "\n" +
+                    "JEWebService - fixed a bug where new user right would reduce performance by reloading\n" +
+                    "JEWebservice - added a cached access control\n" +
+                    "JEWebservice - fixed a bug where the access cached used the wrong datasource\n" +
+                    "JEWebservice - fixed a bug where the user can not change his own password\n" +
+                    "JEWebservice - improved relationship queries for user rights\n" +
+                    "JEWebservice - optimized SQL query\n" +
+                    "JEWebservice - optimized some code for performance\n" +
+                    "JEWebservice - updated dependencies mainly msql. also set commons-io to the main pom to have the same version\n" +
+                    "JEWebservice - added filtered query for relationships.\n" +
+                    "JEWebservice - adjusted the user object to the new cache\n" +
+                    "JEWebservice - adjusted the user object to the new cache\n" +
+                    "JEWebservice - changed version to 1.9.5\n" +
+                    "JEWebservice - fixed nullpointer\n" +
+                    "JEWebservice - insertSample performance optimisation\n" +
+                    "JEWebservice - replaced lists class because of dependencies\n" +
+                    "JEWebservice - switched to a other Base64 decoder because of dependencies\n" +
+                    "JEWebservice/API - Attribute performance improvement\n" +
+                    "\n" +
+                    "MYSQL - Add new Index to Object, Attribute and Relationship table\n\n" +
+                    "------Version 3.9.58------\n" +
                     "JEVisCore - updated log4j version to address critical zero-day log4jshell issue\n" +
                     "\n" +
                     "JECC - AccountingPlugin - set min size for auto generated variable name labels\n" +

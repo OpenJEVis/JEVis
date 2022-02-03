@@ -3,6 +3,9 @@ package org.jevis.commons.utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.calculation.CalcInputObject;
+import org.jevis.commons.calculation.CalcInputType;
+import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
@@ -130,6 +133,51 @@ public class CalcMethods extends CommonMethods {
             }
         }
     }
+
+    public static String getTranslatedFormula(JEVisObject calculationObject) {
+        String expression = "";
+
+        try {
+            JEVisDataSource ds = calculationObject.getDataSource();
+            JEVisAttribute expressionAttribute = calculationObject.getAttribute(CalcJobFactory.Calculation.EXPRESSION.getName());
+            expression = expressionAttribute.getLatestSample().getValueAsString();
+            JEVisClass inputClass = ds.getJEVisClass(CalcJobFactory.Calculation.INPUT.getName());
+            List<JEVisObject> calcInputObjects = calculationObject.getChildren(inputClass, false);
+
+            for (JEVisObject inputObject : calcInputObjects) {
+                JEVisAttribute targetAttr = inputObject.getAttribute(CalcJobFactory.Calculation.INPUT_DATA.getName());
+                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+                String identifier = inputObject.getAttribute(CalcJobFactory.Calculation.IDENTIFIER.getName()).getLatestSample().getValueAsString();
+                String inputTypeString = inputObject.getAttribute(CalcJobFactory.Calculation.INPUT_TYPE.getName()).getLatestSample().getValueAsString();
+                CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
+                CalcInputObject calcInputObject = new CalcInputObject(identifier, inputType, valueAttribute);
+                String name = "\"";
+                if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Clean Data")) {
+                    JEVisObject parent = CommonMethods.getFirstParentalDataObject(calcInputObject.getValueAttribute().getObject());
+                    if (parent != null) {
+                        name += parent.getName();
+                    }
+                } else if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Data")) {
+                    name += calcInputObject.getValueAttribute().getObject().getName();
+                }
+                name += "\"";
+
+                if (!name.equals("\"\"")) {
+                    expression = expression.replace(calcInputObject.getIdentifier(), name);
+                }
+            }
+
+            expression = expression.replace("#", "");
+            expression = expression.replace("{", "");
+            expression = expression.replace("}", "");
+        } catch (Exception e) {
+
+        }
+
+        return expression;
+    }
+
 
     public static void deleteAllCalculations(JEVisObject jeVisObject, DateTime from, DateTime to) {
         JEVisClass calculationClass = null;
