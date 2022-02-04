@@ -8,6 +8,7 @@ import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.constants.AlarmConstants;
+import org.jevis.commons.constants.GapFillingType;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -331,9 +332,17 @@ public class ChartDataRow {
                             CalcJob calcJob;
 
                             if (!getAbsolute()) {
+                                logger.debug("Getting calc job not absolute for object {}:{} from {} to {} with period {}",
+                                        calculationObject.getName(), calculationObject.getID(),
+                                        selectedStart.toString("yyyy-MM-dd HH:mm:ss"), selectedEnd.toString("yyyy-MM-dd HH:mm:ss"),
+                                        aggregationPeriod.toString());
                                 calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
                                         selectedStart, selectedEnd, aggregationPeriod);
                             } else {
+                                logger.debug("Getting calc job absolute for object {}:{} from {} to {} with period {}",
+                                        calculationObject.getName(), calculationObject.getID(),
+                                        selectedStart.toString("yyyy-MM-dd HH:mm:ss"), selectedEnd.toString("yyyy-MM-dd HH:mm:ss"),
+                                        aggregationPeriod.toString());
                                 calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
                                         selectedStart, selectedEnd, true);
                             }
@@ -345,6 +354,7 @@ public class ChartDataRow {
                                 if (cleanDataObject.getLimitsEnabled()) {
                                     List<JsonLimitsConfig> limitsConfig = cleanDataObject.getLimitsConfig();
                                     Double maxDouble = null;
+                                    Double minDouble = null;
                                     for (JsonLimitsConfig jsonLimitsConfig : limitsConfig) {
                                         if (limitsConfig.indexOf(jsonLimitsConfig) == 1) {
                                             String maxString = jsonLimitsConfig.getMax();
@@ -353,15 +363,22 @@ public class ChartDataRow {
                                             } catch (Exception e) {
                                                 logger.error("Could not parse string {} to double", maxString, e);
                                             }
+
+                                            String minString = jsonLimitsConfig.getMin();
+                                            try {
+                                                minDouble = Double.parseDouble(minString);
+                                            } catch (Exception e) {
+                                                logger.error("Could not parse string {} to double", maxString, e);
+                                            }
                                         }
                                     }
 
-                                    if (maxDouble != null) {
+                                    if (maxDouble != null || minDouble != null) {
                                         Double replacementValue = null;
                                         List<JsonGapFillingConfig> gapFillingConfig = cleanDataObject.getGapFillingConfig();
 
                                         for (JsonGapFillingConfig jsonGapFillingConfig : gapFillingConfig) {
-                                            if (gapFillingConfig.indexOf(jsonGapFillingConfig) == 1) {
+                                            if (gapFillingConfig.indexOf(jsonGapFillingConfig) == 1 && jsonGapFillingConfig.getType().equals(GapFillingType.DEFAULT_VALUE.toString())) {
                                                 String defaultValue = jsonGapFillingConfig.getDefaultvalue();
                                                 try {
                                                     replacementValue = Double.parseDouble(defaultValue);
@@ -372,21 +389,19 @@ public class ChartDataRow {
                                         }
 
                                         if (replacementValue != null) {
-                                            Double finalMaxDouble = maxDouble;
-                                            Double finalReplacementValue = replacementValue;
-                                            samples.forEach(jeVisSample -> {
+                                            for (JEVisSample jeVisSample : samples) {
                                                 try {
-                                                    if (jeVisSample.getValueAsDouble() > finalMaxDouble) {
-                                                        jeVisSample.setValue(finalReplacementValue);
+                                                    if ((maxDouble != null && jeVisSample.getValueAsDouble() > maxDouble) || (minDouble != null && jeVisSample.getValueAsDouble() < minDouble)) {
+                                                        jeVisSample.setValue(replacementValue);
                                                         String note = "";
                                                         note += jeVisSample.getNote();
                                                         note += "," + NoteConstants.Limits.LIMIT_DEFAULT;
                                                         jeVisSample.setNote(note);
                                                     }
-                                                } catch (JEVisException e) {
-                                                    e.printStackTrace();
+                                                } catch (Exception e) {
+                                                    logger.error("Could not get replacement value for ts {} of sample for object {}:{}", jeVisSample.getTimestamp(), dataProcessorObject.getName(), dataProcessorObject.getID());
                                                 }
-                                            });
+                                            }
                                         }
                                     }
                                 }
@@ -424,26 +439,36 @@ public class ChartDataRow {
         return samples;
     }
 
-    private void applyUserData(List<JEVisSample> unmodifiedSamples) throws JEVisException {
-        if (!getUserDataMap().isEmpty()) {
-            List<JEVisSample> samplesToRemove = new ArrayList<>();
-            for (JEVisSample sample : unmodifiedSamples) {
-                if (getUserDataMap().containsKey(sample.getTimestamp())) {
-                    samplesToRemove.add(sample);
-                    getUserDataMap().get(sample.getTimestamp()).setNote(sample.getNote());
+    private void applyUserData(List<JEVisSample> unmodifiedSamples) {
+        try {
+            //TODO make aggregation check for congruent data periods of clean data row and user data row
+            if (!getUserDataMap().isEmpty()) {
+                List<JEVisSample> samplesToRemove = new ArrayList<>();
+                List<JEVisSample> samplesToAdd = new ArrayList<>();
+                for (JEVisSample sample : unmodifiedSamples) {
+                    if (getUserDataMap().containsKey(sample.getTimestamp())) {
+                        samplesToRemove.add(sample);
+                        JEVisSample userDataSample = getUserDataMap().get(sample.getTimestamp());
+                        userDataSample.setNote(sample.getNote());
+                        samplesToAdd.add(userDataSample);
+                    }
+                }
+
+                if (!samplesToRemove.isEmpty()) {
+                    unmodifiedSamples.removeAll(samplesToRemove);
+                    unmodifiedSamples.addAll(samplesToAdd);
+                    unmodifiedSamples.sort(Comparator.comparing(sample -> {
+                        try {
+                            return sample.getTimestamp();
+                        } catch (JEVisException e) {
+                            logger.error("Could not compare sample {}", sample, e);
+                        }
+                        return null;
+                    }));
                 }
             }
-
-            unmodifiedSamples.removeAll(samplesToRemove);
-            unmodifiedSamples.addAll(getUserDataMap().values());
-            unmodifiedSamples.sort(Comparator.comparing(sample -> {
-                try {
-                    return sample.getTimestamp();
-                } catch (JEVisException e) {
-                    logger.error("Could not compare sample {}", sample, e);
-                }
-                return null;
-            }));
+        } catch (Exception e) {
+            logger.error("Could not apply user data correctly for object {}:{}", dataProcessorObject.getName(), dataProcessorObject.getID(), e);
         }
     }
 
@@ -536,55 +561,63 @@ public class ChartDataRow {
         scaleFactor = cu.scaleValue(inputUnit, outputUnit);
     }
 
-    private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {
+    private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) {
         if (unit != null) {
-            String outputUnit = UnitManager.getInstance().format(unit).replace("·", "");
-            if (outputUnit.equals("")) outputUnit = unit.getLabel();
+            try {
+                String outputUnit = UnitManager.getInstance().format(unit).replace("·", "");
+                if (outputUnit.equals("")) outputUnit = unit.getLabel();
 
-            String inputUnit = UnitManager.getInstance().format(attribute.getDisplayUnit()).replace("·", "");
-            if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
+                String inputUnit = UnitManager.getInstance().format(attribute.getDisplayUnit()).replace("·", "");
+                if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
 
-            ChartUnits cu = new ChartUnits();
-            scaleFactor = cu.scaleValue(inputUnit, outputUnit);
+                ChartUnits cu = new ChartUnits();
+                scaleFactor = cu.scaleValue(inputUnit, outputUnit);
 
-            if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
-                    && (outputUnit.equals("kW") || outputUnit.equals("W") || outputUnit.equals("MW") || outputUnit.equals("GW"))) {
-                Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
-                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
-                PeriodComparator periodComparator = new PeriodComparator();
-                int compare = periodComparator.compare(currentPeriod, rowPeriod);
+                if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
+                        && (outputUnit.equals("kW") || outputUnit.equals("W") || outputUnit.equals("MW") || outputUnit.equals("GW"))) {
+                    Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+                    if (inputList.size() > 1) {
+                        Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                        PeriodComparator periodComparator = new PeriodComparator();
+                        int compare = periodComparator.compare(currentPeriod, rowPeriod);
 
-                if (!currentPeriod.equals(rowPeriod) && compare > 0) {
-                    if (currentPeriod.equals(Period.hours(1))) {
-                        timeFactor *= 1 / 4d;
-                    } else if (currentPeriod.equals(Period.days(1))) {
-                        timeFactor *= 1 / 4d / 24;
-                    } else if (currentPeriod.equals(Period.weeks(1))) {
-                        timeFactor *= 1 / 4d / 24 / 7;
-                    } else if (currentPeriod.equals(Period.months(1))) {
-                        timeFactor *= 1 / 4d / 24 / 30.25;
-                    } else if (currentPeriod.equals(Period.months(3))) {
-                        timeFactor *= 1 / 4d / 24 / 30.25 / 3;
-                    } else if (currentPeriod.equals(Period.years(1))) {
-                        timeFactor *= 1 / 4d / 24 / 365.25;
+                        if (!currentPeriod.equals(rowPeriod) && compare > 0) {
+                            if (currentPeriod.equals(Period.hours(1))) {
+                                timeFactor *= 1 / 4d;
+                            } else if (currentPeriod.equals(Period.days(1))) {
+                                timeFactor *= 1 / 4d / 24;
+                            } else if (currentPeriod.equals(Period.weeks(1))) {
+                                timeFactor *= 1 / 4d / 24 / 7;
+                            } else if (currentPeriod.equals(Period.months(1))) {
+                                timeFactor *= 1 / 4d / 24 / 30.25;
+                            } else if (currentPeriod.equals(Period.months(3))) {
+                                timeFactor *= 1 / 4d / 24 / 30.25 / 3;
+                            } else if (currentPeriod.equals(Period.years(1))) {
+                                timeFactor *= 1 / 4d / 24 / 365.25;
+                            }
+                        }
+                    } else {
+                        logger.debug("Can not determine time factor for fewer than two samples");
                     }
                 }
-            }
 
-            inputList.forEach(sample -> {
-                try {
-                    sample.setValue(sample.getValueAsDouble() * scaleFactor * timeFactor);
-                } catch (Exception e) {
+                inputList.forEach(sample -> {
                     try {
-                        logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue()
-                                + " of attribute: " + getAttribute().getName()
-                                + " of object: " + getObject().getName() + ":" + getObject().getID());
-                    } catch (Exception e1) {
-                        logger.fatal(e1);
+                        sample.setValue(sample.getValueAsDouble() * scaleFactor * timeFactor);
+                    } catch (Exception e) {
+                        try {
+                            logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue()
+                                    + " of attribute: " + getAttribute().getName()
+                                    + " of object: " + getObject().getName() + ":" + getObject().getID());
+                        } catch (Exception e1) {
+                            logger.fatal(e1);
+                        }
                     }
-                }
-            });
+                });
 
+            } catch (Exception e) {
+                logger.error("Could not factorize samples correctly for object {}:{}", dataProcessorObject.getName(), dataProcessorObject.getID(), e);
+            }
         }
         return inputList;
     }
