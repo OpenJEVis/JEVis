@@ -17,6 +17,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -28,7 +30,6 @@ import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
-import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -86,18 +87,11 @@ public class LinkerWidget extends Widget {
             });
             lastInterval = interval;
 
-            this.graphAnalysisLinker.applyConfig(
-                    DataModelDataHandler.getAggregationPeriod(interval),
-                    DataModelDataHandler.getManipulationMode(interval),
-                    interval);
+            this.graphAnalysisLinker.applyConfig(AggregationPeriod.NONE, ManipulationMode.NONE, interval);
 
-
-        } catch (
-                Exception ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
-
-
     }
 
     @Override

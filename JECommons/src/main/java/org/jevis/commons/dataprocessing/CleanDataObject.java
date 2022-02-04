@@ -329,6 +329,21 @@ public class CleanDataObject {
         return Period.ZERO;
     }
 
+    public static DateTime getDateForPeriodForDate(List<PeriodRule> periodRules, DateTime dateTime) {
+        for (PeriodRule periodRule : periodRules) {
+            PeriodRule nextRule = null;
+            if (periodRules.size() > periodRules.indexOf(periodRule) + 1) {
+                nextRule = periodRules.get(periodRules.indexOf(periodRule) + 1);
+            }
+
+            DateTime ts = periodRule.getStartOfPeriod();
+            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
+                return periodRule.getStartOfPeriod();
+            }
+        }
+        return new DateTime(1990, 1, 1, 0, 0, 0, 0);
+    }
+
     public Boolean getEnabled() {
         if (enabled == null)
             enabled = sampleHandler.getLastSample(getCleanObject(), ENABLED.getAttributeName(), false);
