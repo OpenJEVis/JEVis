@@ -183,7 +183,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
         StringProperty valueText = new SimpleStringProperty();
         if (displayedSample.getValue().isNaN()) {
-
+            valueText.setValue("");
         } else {
             if (getConfig().getShowValue()) {
                 valueText.setValue(this.nf.format(displayedSample.getValue()) + " " + displayedUnit.getValue());
@@ -410,7 +410,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
         this.sampleHandler.setMultiSelect(false);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));

@@ -119,14 +119,11 @@ public class PieWidget extends Widget implements DataModelWidget {
         for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
             try {
                 double value = 0;
-                String dataName = chartDataRow.getObject().getName();
                 boolean hasNoData = chartDataRow.getSamples().isEmpty();
 
                 String textValue = "";
 
-
                 if (!hasNoData) {
-                    logger.debug("Samples: ({}) {}", dataName, chartDataRow.getSamples());
                     try {
                         value = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), chartDataRow.getSamples(), chartDataRow);
                         logger.debug("part.total: [{}] {}", chartDataRow.getObject().getName(), value);
@@ -241,7 +238,7 @@ public class PieWidget extends Widget implements DataModelWidget {
     public void init() {
 
         try {
-            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
             ex.printStackTrace();

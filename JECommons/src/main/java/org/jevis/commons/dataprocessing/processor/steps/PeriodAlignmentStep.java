@@ -15,6 +15,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.datetime.WorkDays;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import java.time.LocalTime;
@@ -42,24 +43,28 @@ public class PeriodAlignmentStep implements ProcessStep {
         }
 
         WorkDays workDays = new WorkDays(cleanDataObject.getCleanObject());
+        DateTimeZone timeZone = workDays.getDateTimeZone();
 
         Map<Integer, JEVisSample> replacementMap = new HashMap<>();
 
         for (JEVisSample rawSample : rawSamples) {
-            DateTime rawSampleTS = rawSample.getTimestamp();
-            VirtualSample resultSample = new VirtualSample(rawSampleTS, rawSample.getValueAsDouble());
+            DateTime rawSampleUTCTS = rawSample.getTimestamp();
+            DateTime rawSampleTS = rawSampleUTCTS.withZone(timeZone);
+            VirtualSample resultSample = new VirtualSample(rawSampleUTCTS, rawSample.getValueAsDouble());
             resultSample.setNote(rawSample.getNote());
-            Period periodForRawSample = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSampleTS);
+            Period periodForRawSample = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSampleUTCTS);
             if (periodForRawSample.equals(Period.ZERO)) {
                 logger.debug("Asynchronous period, no alignment possible, continuing");
                 continue;
             }
 
-            JEVisSample userDataSample = userDataMap.get(rawSampleTS);
+            JEVisSample userDataSample = userDataMap.get(rawSampleUTCTS);
             if (userDataSample != null) {
                 resultSample.setValue(userDataSample.getValueAsDouble());
                 if (!userDataSample.getNote().isEmpty()) {
                     resultSample.setNote(resultSample.getNote() + "," + userDataSample.getNote() + "," + NoteConstants.User.USER_VALUE);
+                } else {
+                    resultSample.setNote(resultSample.getNote() + "," + NoteConstants.User.USER_VALUE);
                 }
             }
 
@@ -174,8 +179,9 @@ public class PeriodAlignmentStep implements ProcessStep {
                 higherTS = rawSampleTS.plusHours(84).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 isGreaterThenDays = true;
             } else if (periodForRawSample.getMonths() == 1) {
-                lowerTS = rawSampleTS.minusHours(363).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                higherTS = rawSampleTS.plusHours(363).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                int halfHoursOfMonth = rawSampleTS.dayOfMonth().getMaximumValue() * 12;
+                lowerTS = rawSampleTS.minusHours(halfHoursOfMonth).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = rawSampleTS.plusHours(halfHoursOfMonth).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 isGreaterThenDays = true;
             } else if (periodForRawSample.getMonths() == 3) {
                 isGreaterThenDays = true;
@@ -194,12 +200,13 @@ public class PeriodAlignmentStep implements ProcessStep {
                 }
             } else if (periodForRawSample.getYears() == 1) {
                 isGreaterThenDays = true;
-                lowerTS = rawSampleTS.minusDays(182).minusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                higherTS = rawSampleTS.plusDays(182).plusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                int halfDaysOfYear = rawSampleTS.dayOfYear().getMaximumValue() / 2;
+                lowerTS = rawSampleTS.minusDays(halfDaysOfYear).minusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                higherTS = rawSampleTS.plusDays(halfDaysOfYear).plusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             }
 
             if (isGreaterThenDays && lowerTS != null) {
-                LocalTime workdayStart = workDays.getWorkdayStart(lowerTS);
+                LocalTime workdayStart = workDays.getWorkdayStart();
                 lowerTS = lowerTS.withHourOfDay(workdayStart.getHour())
                         .withMinuteOfHour(workdayStart.getMinute())
                         .withSecondOfMinute(workdayStart.getSecond());
@@ -208,7 +215,7 @@ public class PeriodAlignmentStep implements ProcessStep {
                         .withMinuteOfHour(workdayStart.getMinute())
                         .withSecondOfMinute(workdayStart.getSecond());
 
-                LocalTime workdayEnd = workDays.getWorkdayEnd(lowerTS);
+                LocalTime workdayEnd = workDays.getWorkdayEnd();
                 if (workdayEnd.isBefore(workdayStart)) {
                     lowerTS = lowerTS.minusDays(1);
                     higherTS = higherTS.minusDays(1);
@@ -223,10 +230,10 @@ public class PeriodAlignmentStep implements ProcessStep {
                     resultSample.setNote(resultSample.getNote() + ",");
                 }
                 if (lowerDiff < higherDiff && !lowerTS.equals(rawSampleTS)) {
-                    resultSample.setTimeStamp(lowerTS);
+                    resultSample.setTimeStamp(lowerTS.withZone(DateTimeZone.UTC));
                     resultSample.setNote(resultSample.getNote() + NoteConstants.Alignment.ALIGNMENT_YES + lowerDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
                 } else if (higherDiff < lowerDiff && !higherTS.equals(rawSampleTS)) {
-                    resultSample.setTimeStamp(higherTS);
+                    resultSample.setTimeStamp(higherTS.withZone(DateTimeZone.UTC));
                     resultSample.setNote(resultSample.getNote() + NoteConstants.Alignment.ALIGNMENT_YES + higherDiff / 1000 + NoteConstants.Alignment.ALIGNMENT_YES_CLOSE);
                 } else {
                     resultSample.setNote(resultSample.getNote() + NoteConstants.Alignment.ALIGNMENT_NO);

@@ -9,12 +9,14 @@ import com.google.inject.Injector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.milo.opcua.stack.core.UaException;
-import org.jevis.api.*;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.task.LogTaskManager;
-import org.joda.time.DateTime;
 import org.jevis.commons.task.Task;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,12 +80,8 @@ public class OPCUAWriterLauncher extends AbstractCliApp {
     @Override
     protected void runSingle(List<Long> ids) {
 
-        logger.info("Start Single Mode");
-        ids.forEach(System.out::println);
-
         for (Long id : ids) {
             JEVisObject loytecServer = null;
-
 
             try {
                 logger.info("Try adding Single Mode for ID {}", id);
@@ -105,7 +103,7 @@ public class OPCUAWriterLauncher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        System.out.println("run service help");
+
         if (checkConnection()) {
 
             checkForTimeout();
@@ -124,11 +122,10 @@ public class OPCUAWriterLauncher extends AbstractCliApp {
                 if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
 
                     List<JEVisObject> enabeledLoytecServsObjects = getEnabledDataServer();
-                    System.out.println("test");
-                    enabeledLoytecServsObjects.forEach(System.out::println);
+
                     executeOPCUA(enabeledLoytecServsObjects);
 
-                    logger.info("Queued all report objects, entering sleep mode for {} ms", cycleTime);
+                    logger.info("Queued all loytec objects, entering sleep mode for {} ms", cycleTime);
 
                 } else {
                     logger.info("Service was disabled.");
@@ -148,7 +145,6 @@ public class OPCUAWriterLauncher extends AbstractCliApp {
 
 
     private void getOutputChannels(JEVisObject object) {
-        logger.info("get all output Channels");
 
         try {
             if (object.getJEVisClassName().equals("Loytec XML-DL Output Channel")) {
@@ -157,8 +153,8 @@ public class OPCUAWriterLauncher extends AbstractCliApp {
             for (JEVisObject child : object.getChildren()) {
                 getOutputChannels(child);
             }
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error(e);
         }
     }
 
@@ -183,13 +179,13 @@ public class OPCUAWriterLauncher extends AbstractCliApp {
             }
 
         } catch (UaException | ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            logger.error(e);
             for (JEVisObject outputChannel : outputChannels) {
                 OPCUAStatus opcUAStatus = new OPCUAStatus(OPCUAStatus.OPC_SERVER_NOT_REACHABLE);
                 opcUAStatus.writeStatus(outputChannel, DateTime.now());
             }
-        } catch (JEVisException jeVisException) {
-            jeVisException.printStackTrace();
+        } catch (Exception e) {
+            logger.error(e);
         }
 
 
@@ -213,7 +209,7 @@ public class OPCUAWriterLauncher extends AbstractCliApp {
 
                 }
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

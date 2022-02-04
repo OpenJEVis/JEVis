@@ -119,7 +119,7 @@ public class TableData {
                 }
 
                 for (JEVisObject sourceObject : sourceObjects) {
-                    if (hasPreviousResult) resultString.append("\n");
+                    if (hasPreviousResult) resultString.append(" \n");
                     else hasPreviousResult = true;
 
                     String string = getSourceDetails(sourceObject);
@@ -148,17 +148,18 @@ public class TableData {
         StringBuilder resultString = new StringBuilder();
 
         for (JEVisAttribute attribute : sourceObject.getAttributes()) {
-            resultString.append("\n");
+            resultString.append(" \n");
             resultString.append(I18nWS.getInstance().getAttributeName(attribute));
-            resultString.append(": ");
+            resultString.append(": \"");
             if (attribute.hasSample()) {
                 if (attribute.getName().equals(CalcJobFactory.Calculation.EXPRESSION.getName()) && sourceObject.getJEVisClassName().equals("Calculation")) {
                     resultString.append(CalcMethods.getTranslatedFormula(sourceObject));
                 } else {
                     resultString.append(attribute.getLatestSample().getValueAsString());
                 }
-                resultString.append("@");
+                resultString.append("\"@\"");
                 resultString.append(attribute.getLatestSample().getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
+                resultString.append("\"");
             }
         }
 
