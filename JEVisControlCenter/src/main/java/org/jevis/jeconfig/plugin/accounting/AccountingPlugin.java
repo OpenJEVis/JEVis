@@ -1557,6 +1557,7 @@ public class AccountingPlugin extends TablePlugin {
         try {
             JEVisClass accountingConfigurationClass = ds.getJEVisClass("Accounting Configuration");
             objects.addAll(ds.getObjects(accountingConfigurationClass, false));
+            objects.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
         } catch (JEVisException e) {
             logger.error("Could not get any accounting configuration", e);
         }
