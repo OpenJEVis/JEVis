@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -36,17 +37,16 @@ public class OPCBrowser {
     private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
 
     public static String ICON = "Loytec XML-DL Server.png";
-
-
     private OPCClient opcClient;
     public final JEVisObject opcServerObj;
+    public static final String DEFAULT_OPC_PORT = "4840";
+    public static final String ROOT_FOLDER_TREND = "/Objects/Loytec ROOT/Trend";
 
     JFXTextField port = new JFXTextField();
     JFXButton connect = new JFXButton();
-
     StackPane dialogContainer = new StackPane();
-
-    JFXComboBox<String> rootFolder = new JFXComboBox();
+    JFXComboBox<String> comboRootFolder = new JFXComboBox();
+    JFXComboBox<String> comboMode = new JFXComboBox<>();
 
 
     private JEVisDataSource ds;
@@ -87,8 +87,8 @@ public class OPCBrowser {
 
             dialogContainer.getChildren().add(vBox);
 
-            Node header = DialogHeader.getDialogHeader(ImageConverter.convertToImageView(opcServerObj.getJEVisClass().getIcon(), 64, 64), opcServerObj.getName());
-            System.out.println(opcServerObj.getName());
+
+            Node header = DialogHeader.getDialogHeader(ImageConverter.convertToImageView(opcServerObj.getJEVisClass().getIcon(), 64, 64), I18n.getInstance().getString("plugin.object.opcua.mode.title"));
 
             vBox.getChildren().add(header);
 
@@ -140,10 +140,12 @@ public class OPCBrowser {
 
 
             port.setPromptText("Port");
+            port.setText(DEFAULT_OPC_PORT);
 
             connect.setText("Connect");
 
             connect.setOnAction(event -> {
+
                 try {
                     ;
                     OPCUAServer opcuaServer = new OPCUAServer(this.opcServerObj);
@@ -162,7 +164,7 @@ public class OPCBrowser {
                     opcClient.connect();
 
 
-                    NodeTreeTable nodeTable = new NodeTreeTable(opcClient, opcServerObj, rootFolder.getValue(), dialogContainer);
+                    NodeTreeTable nodeTable = new NodeTreeTable(opcClient, opcServerObj, comboRootFolder.getValue(), dialogContainer, comboMode.getValue());
                     if (vBox.getChildren().size() > 2) {
                         vBox.getChildren().set(2, nodeTable.getView());
                         VBox.setVgrow(nodeTable.getView(), Priority.ALWAYS);
@@ -175,7 +177,6 @@ public class OPCBrowser {
                 } catch (JEVisException | ExecutionException | InterruptedException | UaException e) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
 
-                    System.out.println(I18n.getInstance().getString("plugin.object.opcua.error.server.title"));
                     alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.error.server.title"));
                     alert.setHeaderText(I18n.getInstance().getString("plugin.object.opcua.error.server.message"));
                     alert.setContentText(e.getMessage());
@@ -189,14 +190,29 @@ public class OPCBrowser {
 
             });
 
-            rootFolder.getItems().addAll("/Objects/Loytec ROOT/Trend", "/Objects/Loytec ROOT", "/Objects/Loytec ROOT/User Registers");
-            rootFolder.setValue(rootFolder.getItems().get(0));
-            rootFolder.setOnAction(event -> {
-                        System.out.println(rootFolder.getValue());
+            comboMode.getItems().addAll(NodeTreeTable.SETUP_MODE, NodeTreeTable.BROWSER_MODE);
+            comboMode.setValue(comboMode.getItems().get(0));
+            comboRootFolder.managedProperty().bind(comboRootFolder.visibleProperty());
+            comboMode.setOnAction(event -> {
+                if (comboMode.getValue().equals(NodeTreeTable.BROWSER_MODE)) {
+                    comboRootFolder.setVisible(true);
+                    comboRootFolder.setValue(comboRootFolder.getItems().get(0));
+                } else if (comboMode.getValue().equals(NodeTreeTable.SETUP_MODE)) {
+                    comboRootFolder.setVisible(false);
+                    comboRootFolder.setValue(ROOT_FOLDER_TREND);
+                }
+
+            });
+            comboRootFolder.setVisible(false);
+            comboRootFolder.getItems().addAll("/Objects/Loytec ROOT","/Objects/Loytec ROOT/LIOB-IP","/Objects/Loytec ROOT/LIOB","/Objects/Loytec ROOT/Local IO","/Objects/Loytec ROOT/BACnet Port","/Objects/Loytec ROOT/CEA709 Port","/Objects/Loytec ROOT/Trend","/Objects/Loytec ROOT/Scheduler","/Objects/Loytec ROOT/User Registers", "/Objects/Loytec ROOT/System Registers");
+            comboRootFolder.setValue(ROOT_FOLDER_TREND);
+            comboRootFolder.setOnAction(event -> {
+                        System.out.println(comboRootFolder.getValue());
                     }
 
             );
-            flowPane.getChildren().addAll(rootFolder, port, connect);
+            flowPane.getChildren().setAll(comboMode,comboRootFolder, port, connect);
+            flowPane.setHgap(10);
             vBox.getChildren().add(flowPane);
 
         } catch (Exception ex) {
