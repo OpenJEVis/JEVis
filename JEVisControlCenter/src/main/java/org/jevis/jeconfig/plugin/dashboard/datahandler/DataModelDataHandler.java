@@ -31,6 +31,7 @@ import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.LastPeriod;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.dashboard.widget.ChartWidget;
 import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -45,6 +46,7 @@ public class DataModelDataHandler {
     private static final Logger logger = LogManager.getLogger(DataModelDataHandler.class);
     private final JEVisDataSource jeVisDataSource;
     private final DashboardControl dashboardControl;
+    private final String widgetType;
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
     private final Map<String, JEVisAttribute> attributeMap = new HashMap<>();
     private final BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
@@ -63,9 +65,10 @@ public class DataModelDataHandler {
     private final PeriodComparator periodComparator = new PeriodComparator();
     private WorkDays wd;
 
-    public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, JsonNode configNode) {
+    public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, JsonNode configNode, String id) {
         this.jeVisDataSource = jeVisDataSource;
         this.dashboardControl = dashboardControl;
+        this.widgetType = id;
 
         try {
             if (configNode != null) {
@@ -164,7 +167,7 @@ public class DataModelDataHandler {
      *
      * @param interval
      */
-    public static AggregationPeriod getAggregationPeriod(Interval interval) {
+    private AggregationPeriod getAggregationPeriod(Interval interval) {
         AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
 
         /** less then an week take original **/
@@ -263,23 +266,6 @@ public class DataModelDataHandler {
 
     }
 
-    public static ManipulationMode getManipulationMode(Interval interval) {
-        ManipulationMode manipulationMode = ManipulationMode.NONE;
-
-        if (interval.toDuration().getStandardDays() < 27) {
-            manipulationMode = ManipulationMode.NONE;
-        }
-        /** less than year take day **/
-        else if (interval.toDuration().getStandardDays() < 364) {
-            manipulationMode = ManipulationMode.NONE;
-        }
-        /** more than a year take week **/
-        else {
-            manipulationMode = ManipulationMode.NONE;
-        }
-        return manipulationMode;
-    }
-
     public TimeFrame getTimeFrameFactory() {
         if (this.forcedPeriod == null) {
             return null;
@@ -367,17 +353,20 @@ public class DataModelDataHandler {
 
 
                 if (periodComparator.compare(userPeriod, objectPeriod) < 0) {
+                    // check if data row period is bigger than requested period
                     chartDataRow.setAggregationPeriod(AggregationPeriod.NONE);
+                } else if (initialAggregation == AggregationPeriod.NONE && widgetType.equals(ChartWidget.WIDGET_ID)) {
+                    // exception for chart widgets for better visualisation and performance
+                    AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
+                    chartDataRow.setAggregationPeriod(aggregationPeriod);
                 } else {
-                    if (initialAggregation == AggregationPeriod.NONE) {
-                        AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
-                        chartDataRow.setAggregationPeriod(aggregationPeriod);
-                    }
+                    // use user specified aggregation if above isn't valid
+                    chartDataRow.setAggregationPeriod(initialAggregation);
                 }
             } catch (NullPointerException ex) {
-                logger.error("Nullpointer in {}", chartDataRow);
+                logger.error("Null pointer in {}", chartDataRow);
             } catch (Exception ex) {
-                logger.error(ex, ex);
+                logger.error(ex);
             }
         }
     }
