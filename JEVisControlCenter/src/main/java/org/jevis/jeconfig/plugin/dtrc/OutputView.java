@@ -649,7 +649,20 @@ public class OutputView extends Tab {
             logger.error("Could not get JEVisClass {}", jeVisClassName, e);
         }
 
-        objects.sort((o1, o2) -> alphanumComparator.compare(objectRelations.getRelativePath(o1) + objectRelations.getObjectPath(o1) + o1.getName(), objectRelations.getRelativePath(o2) + objectRelations.getObjectPath(o2) + o2.getName()));
+        objects.sort((o1, o2) -> {
+
+            String relativePathO1 = objectRelations.getRelativePath(o1);
+            String objectPathO1 = objectRelations.getObjectPath(o1);
+
+            String o1Name = objectPathO1 + relativePathO1 + TRCPlugin.getRealName(o1);
+
+            String relativePathO2 = objectRelations.getRelativePath(o1);
+            String objectPathO2 = objectRelations.getObjectPath(o1);
+
+            String o2Name = objectPathO2 + relativePathO2 + TRCPlugin.getRealName(o2);
+
+            return alphanumComparator.compare(o1Name, o2Name);
+        });
 
         JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
         objectSelector.setMaxWidth(Double.MAX_VALUE);
@@ -666,12 +679,12 @@ public class OutputView extends Tab {
                             setText(null);
                         } else {
                             try {
-                                String relativePath = objectRelations.getRelativePath(obj);
                                 String objectPath = objectRelations.getObjectPath(obj);
+                                String relativePath = objectRelations.getRelativePath(obj);
                                 if (!obj.getJEVisClassName().equals("Clean Data")) {
-                                    setText(relativePath + objectPath + obj.getName());
+                                    setText(objectPath + relativePath + obj.getName());
                                 } else {
-                                    setText(relativePath + objectPath + TRCPlugin.getRealName(obj));
+                                    setText(objectPath + relativePath + TRCPlugin.getRealName(obj));
                                 }
                             } catch (JEVisException e) {
                                 logger.error("Could not get JEVisClass of object {}:{}", obj.getName(), obj.getID(), e);

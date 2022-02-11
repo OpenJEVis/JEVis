@@ -1064,20 +1064,18 @@ public class AccountingPlugin extends TablePlugin {
                 initialized = true;
 
                 initGUI();
+
+                List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
+                if (allAccountingConfigurations.isEmpty()) {
+                    SelectionTemplate selectionTemplate = new SelectionTemplate();
+                    ath.setSelectionTemplate(selectionTemplate);
+                    viewTab.setSelectionTemplate(selectionTemplate);
+                } else {
+                    configComboBox.getItems().clear();
+                    configComboBox.getItems().addAll(allAccountingConfigurations);
+                    configComboBox.getSelectionModel().selectFirst();
+                }
             }
-
-            List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
-            if (allAccountingConfigurations.isEmpty()) {
-                SelectionTemplate selectionTemplate = new SelectionTemplate();
-                ath.setSelectionTemplate(selectionTemplate);
-                viewTab.setSelectionTemplate(selectionTemplate);
-            } else {
-                configComboBox.getItems().clear();
-                configComboBox.getItems().addAll(allAccountingConfigurations);
-                configComboBox.getSelectionModel().selectFirst();
-            }
-
-
         } catch (JEVisException e) {
             e.printStackTrace();
         }
