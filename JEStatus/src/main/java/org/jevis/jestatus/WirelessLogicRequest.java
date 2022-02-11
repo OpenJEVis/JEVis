@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class WirelessLogicRequest {
     public static final String STATUS_ACTIVE = "active";
     public static final String STATUS_CANCELLED = "cancelled";
     public ObjectMapper objectMapper = new ObjectMapper();
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(WirelessLogicRequest.class);
 
     /**
      *
@@ -53,7 +55,8 @@ public class WirelessLogicRequest {
 
         JsonNode jsonNode = objectMapper.readTree(getRequest(stringBuilder.toString()));
         ArrayNode arr = (ArrayNode) jsonNode.get("sims");
-        System.out.println(arr);
+        List<JsonNode> sims = arrayNodeToList(arr);
+        logger.debug(sims);
         return arrayNodeToList(arr);
 
 
@@ -82,7 +85,7 @@ public class WirelessLogicRequest {
      * @return
      */
     public double getDataIncluded(JsonNode tariffDetails, List<JsonNode> activeSimCards) {
-        if (tariffDetails.size() > 0) {
+        if (tariffDetails.size() > 0 && !tariffDetails.has("error")) {
             return tariffDetails.get(0).get("gprs_inc").asDouble() * activeSimCards.size();
         }
         return 0;
@@ -146,7 +149,6 @@ public class WirelessLogicRequest {
      * @throws IOException
      */
     public String getRequest(String api) throws IOException {
-        System.out.println(api);
         Map<String, String> data = new HashMap<String, String>();
         data.put("user", user);
         data.put("password", password);

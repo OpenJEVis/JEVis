@@ -20,9 +20,7 @@ public class WirelessLogicStatus extends AlarmTable {
     public WirelessLogicStatus(JEVisDataSource ds, List<String> tariffs, String username, String password) {
         super(ds);
 
-        tariffs.forEach(System.out::println);
-        System.out.println(username);
-        System.out.println(password);
+
 
         try {
             createTableString(tariffs, username, password);
@@ -62,9 +60,13 @@ public class WirelessLogicStatus extends AlarmTable {
                     for (String tariff : tariffs) {
                         List<JsonNode> sims = wirelessLogicRequest.getSims(tariff, WirelessLogicRequest.STATUS_ACTIVE);
                         JsonNode tariffDetails = wirelessLogicRequest.getTariffDetails(tariff);
+                        if (tariffDetails.has("error")) {
+                            continue;
+                        }
                         double dataIncluded = wirelessLogicRequest.getDataIncluded(tariffDetails, sims);
                         double totalDataUsed = wirelessLogicRequest.getTotalDataUsed(wirelessLogicRequest.getSimUsage(sims));
                         offlineSims.addAll(wirelessLogicRequest.getOfflineSim(wirelessLogicRequest.getSimUsage(sims), 1));
+
 
                         sb.append("<tr>");
                         sb.append("<td style=\"");
@@ -105,7 +107,6 @@ public class WirelessLogicStatus extends AlarmTable {
                     sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lastseen")).append("</th>");
                     sb.append("  </tr>");
                     for (JsonNode offlineSim:offlineSims) {
-                        System.out.println(offlineSim);
 
                         sb.append("<tr>");
                         sb.append("<td style=\"");
