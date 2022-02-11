@@ -20,7 +20,7 @@ public class Node {
     public StringProperty typeProperty = new SimpleStringProperty("");
     public DataValue dataValue;
     public String TrendID;
-    public String logIntervall = "";
+    public String logInterval = "";
     public boolean selected;
 
     public Node(ReferenceDescription referenceDescription, String xpath, DataValue dataValue) {
@@ -76,12 +76,12 @@ public class Node {
         TrendID = trendID;
     }
 
-    public String getLogIntervall() {
-        return logIntervall;
+    public String getLogInterval() {
+        return logInterval;
     }
 
-    public void setLogIntervall(String logIntervall) {
-        this.logIntervall = logIntervall;
+    public void setLogInterval(String logInterval) {
+        this.logInterval = logInterval;
     }
 /**
     public ReferenceDescription getDescriptionProperty() {

@@ -119,7 +119,7 @@ public class NodeTreeTable {
             TreeTableColumn<Node, Boolean> checkCol = new TreeTableColumn<>(I18n.getInstance().getString("plugin.object.opcua.column.import"));
             TreeTableColumn<Node, String> trendIdCol = new TreeTableColumn<>(I18n.getInstance().getString("plugin.object.opcua.column.trendid"));
             TreeTableColumn<Node, String> intervallIdCol = new TreeTableColumn<>(I18n.getInstance().getString("plugin.object.opcua.column.logintervall"));
-            intervallIdCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getValue().getLogIntervall())));
+            intervallIdCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getValue().getLogInterval())));
             trendIdCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().getTrendID()));
             opcUATreeTableView.getColumns().addAll(nameCol, checkCol, trendIdCol, intervallIdCol);
 
@@ -422,7 +422,7 @@ public class NodeTreeTable {
                     parent.getValue().setTrendID(csvString);
                 } else if (node.descriptionProperty.get().getBrowseName().getName().equals("Configuration")) {
                     try {
-                        parent.getValue().setLogIntervall(getLogInterval(node.readData()));
+                        parent.getValue().setLogInterval(getLogInterval(node.readData()));
                     } catch (ParserConfigurationException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -575,7 +575,7 @@ public class NodeTreeTable {
      */
     private void setLogIntervalToJEVisObject(TreeItem<Node> node, JEVisObject dataJEVisObject) throws JEVisException {
         JEVisAttribute jeVisAttribute = dataJEVisObject.getAttribute("Value");
-        jeVisAttribute.setInputSampleRate(convertInterval(node.getValue().getLogIntervall()));
+        jeVisAttribute.setInputSampleRate(convertInterval(node.getValue().getLogInterval()));
         logger.debug(jeVisAttribute);
         jeVisAttribute.commit();
 
