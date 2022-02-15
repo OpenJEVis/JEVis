@@ -6,6 +6,7 @@ import java.util.List;
 public class RCTemplate {
 
     private List<TemplateInput> templateInputs = new ArrayList<>();
+    private List<TemplateInput> templateFormulaInputs = new ArrayList<>();
     private List<TemplateOutput> templateOutputs = new ArrayList<>();
     private List<TemplateFormula> templateFormulas = new ArrayList<>();
 
@@ -31,5 +32,13 @@ public class RCTemplate {
 
     public void setTemplateFormulas(List<TemplateFormula> templateFormulas) {
         this.templateFormulas = templateFormulas;
+    }
+
+    public List<TemplateInput> getTemplateFormulaInputs() {
+        return templateFormulaInputs;
+    }
+
+    public void setTemplateFormulaInputs(List<TemplateInput> templateFormulaInputs) {
+        this.templateFormulaInputs = templateFormulaInputs;
     }
 }
