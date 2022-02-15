@@ -14,6 +14,9 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TemplateHandler {
     public final static String TYPE = "SimpleDataHandler";
     private static final Logger logger = LogManager.getLogger(TemplateHandler.class);
@@ -52,23 +55,32 @@ public class TemplateHandler {
         try {
             this.rcTemplate = this.mapper.treeToValue(jsonNode, RCTemplate.class);
 
-            checkForMissingFormulaInputs();
+            removeOldStyleFormulaInputs();
+
+            createFormulaInputs();
         } catch (JsonProcessingException e) {
             logger.error("Could not parse json model", e);
         }
     }
 
-    private void checkForMissingFormulaInputs() {
-        for (TemplateFormula templateFormula : getRcTemplate().getTemplateFormulas()) {
-            boolean hasInput = getRcTemplate().getTemplateInputs().stream().anyMatch(templateInput -> templateInput.getTemplateFormula() != null && templateInput.getTemplateFormula().equals(templateFormula.getName()));
-
-            if (!hasInput) {
-                TemplateInput formulaInput = new TemplateInput();
-                formulaInput.setVariableName(templateFormula.getName());
-                formulaInput.setTemplateFormula(templateFormula.getName());
-                formulaInput.setVariableType(InputVariableType.FORMULA.toString());
-                getRcTemplate().getTemplateInputs().add(formulaInput);
+    private void removeOldStyleFormulaInputs() {
+        List<TemplateInput> inputsToRemove = new ArrayList<>();
+        for (TemplateInput templateInput : getRcTemplate().getTemplateInputs()) {
+            if (templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                inputsToRemove.add(templateInput);
             }
+        }
+
+        getRcTemplate().getTemplateInputs().removeAll(inputsToRemove);
+    }
+
+    private void createFormulaInputs() {
+        for (TemplateFormula templateFormula : getRcTemplate().getTemplateFormulas()) {
+            TemplateInput formulaInput = new TemplateInput();
+            formulaInput.setVariableName(templateFormula.getName());
+            formulaInput.setTemplateFormula(templateFormula.getId());
+            formulaInput.setVariableType(InputVariableType.FORMULA.toString());
+            getRcTemplate().getTemplateFormulaInputs().add(formulaInput);
         }
     }
 

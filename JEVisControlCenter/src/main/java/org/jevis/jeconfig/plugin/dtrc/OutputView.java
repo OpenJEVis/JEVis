@@ -51,7 +51,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 
 public class OutputView extends Tab {
     private static final Logger logger = LogManager.getLogger(OutputView.class);
@@ -214,55 +213,57 @@ public class OutputView extends Tab {
         if (templateHandler.getRcTemplate() == null) return;
 
         Platform.runLater(() -> gridPane.getChildren().clear());
+        resultMap.clear();
 
         DateTime start = getStart();
         DateTime end = getEnd();
 
-        //Sort outputs by formula
-        List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
-        templateOutputs.sort(this::compareTemplateOutputs);
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() {
+                //Sort outputs by formula
+                List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
+                templateOutputs.sort((o1, o2) -> compareTemplateOutputs(o1, o2));
 
-        if (timeframeField != null) {
-            String overall = String.format("%s %s %s",
-                    dtfOutLegend.print(start),
-                    I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
-                    dtfOutLegend.print(end));
+                if (timeframeField != null) {
+                    String overall = String.format("%s %s %s",
+                            dtfOutLegend.print(start),
+                            I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
+                            dtfOutLegend.print(end));
 
-            Platform.runLater(() -> timeframeField.setText(overall));
-        }
-
-        for (TemplateOutput templateOutput : templateOutputs) {
-            if (!templateOutput.getSeparator()) {
-                Label label = new Label(templateOutput.getName());
-                if (templateOutput.getNameBold()) {
-                    label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, label.getFont().getSize()));
-                }
-                Label result = new Label();
-                result.setTextAlignment(TextAlignment.RIGHT);
-                result.setAlignment(Pos.CENTER_RIGHT);
-                if (templateOutput.getResultBold()) {
-                    result.setFont(Font.font(result.getFont().getFamily(), FontWeight.BOLD, result.getFont().getSize()));
-                }
-                HBox hBox = new HBox(label, result);
-
-                if (templateOutput.getName() == null || templateOutput.getName().equals("")) {
-                    hBox.setAlignment(Pos.CENTER_RIGHT);
+                    Platform.runLater(() -> timeframeField.setText(overall));
                 }
 
-                if (templateOutput.getVariableName() == null || templateOutput.getVariableName().equals("")) {
-                    if (templateOutput.getColSpan() > 1) {
-                        hBox.setAlignment(Pos.CENTER);
-                    }
-                }
+                for (TemplateOutput templateOutput : templateOutputs) {
+                    if (!templateOutput.getSeparator()) {
+                        Label label = new Label(templateOutput.getName());
+                        if (templateOutput.getNameBold()) {
+                            label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, label.getFont().getSize()));
+                        }
+                        Label result = new Label();
+                        result.setTextAlignment(TextAlignment.RIGHT);
+                        result.setAlignment(Pos.CENTER_RIGHT);
+                        if (templateOutput.getResultBold()) {
+                            result.setFont(Font.font(result.getFont().getFamily(), FontWeight.BOLD, result.getFont().getSize()));
+                        }
+                        HBox hBox = new HBox(label, result);
 
-                Task<String> task = new Task<String>() {
-                    @Override
-                    protected String call() {
-                        String result = NO_RESULT;
+                        if (templateOutput.getName() == null || templateOutput.getName().equals("")) {
+                            hBox.setAlignment(Pos.CENTER_RIGHT);
+                        }
+
+                        if (templateOutput.getVariableName() == null || templateOutput.getVariableName().equals("")) {
+                            if (templateOutput.getColSpan() > 1) {
+                                hBox.setAlignment(Pos.CENTER);
+                            }
+                        }
 
                         TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
 
                         if (formula != null) {
+
+                            result.setText(NO_RESULT);
+
                             String formulaString = formula.getFormula();
                             boolean isText = false;
                             for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
@@ -272,17 +273,20 @@ public class OutputView extends Tab {
                                             isText = true;
                                         }
 
-                                        if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-                                            formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
-                                        } else {
-                                            Double d = resultMap.get(templateInput.getVariableName());
-                                            if (d != null) {
-                                                formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
-                                            }
-                                        }
+                                        formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
 
                                     } catch (JEVisException e) {
                                         logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
+                                    }
+                                }
+                            }
+
+                            for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateFormulaInputs()) {
+                                if (formula.getInputIds().contains(templateInput.getTemplateFormula())) {
+
+                                    Double d = resultMap.get(templateInput.getTemplateFormula());
+                                    if (d != null) {
+                                        formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
                                     }
                                 }
                             }
@@ -292,50 +296,38 @@ public class OutputView extends Tab {
                                     Expression expression = new Expression(formulaString);
                                     Double calculate = expression.calculate();
                                     if (!calculate.isNaN()) {
-                                        resultMap.put(formula.getName(), calculate);
+                                        resultMap.put(formula.getId(), calculate);
                                     }
-                                    result = nf.format(calculate) + " " + templateOutput.getUnit();
+                                    result.setText(nf.format(calculate) + " " + templateOutput.getUnit());
                                     succeeded();
                                 } catch (Exception e) {
                                     logger.error("Error in formula {}", formula.getName(), e);
                                 }
                             } else {
-                                result = formulaString;
-                                succeeded();
+                                result.setText(formulaString);
                             }
-                        } else result = "";
+                        }
 
-                        return result;
+                        Platform.runLater(() -> gridPane.add(hBox, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan()));
+                    } else {
+                        Separator separator = new Separator();
+                        if (templateOutput.getColSpan() > 1) {
+                            separator.setPadding(new Insets(8, 0, 8, 0));
+                            separator.setOrientation(Orientation.HORIZONTAL);
+                        }
+                        if (templateOutput.getRowSpan() > 1) {
+                            separator.setPadding(new Insets(0, 8, 0, 8));
+                            separator.setOrientation(Orientation.VERTICAL);
+                        }
+
+                        Platform.runLater(() -> gridPane.add(separator, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan()));
                     }
-                };
-
-                task.setOnSucceeded(event -> Platform.runLater(() -> {
-                    try {
-                        result.setText(task.get());
-                    } catch (InterruptedException e) {
-                        logger.error("InterruptedException", e);
-                    } catch (ExecutionException e) {
-                        logger.error("ExecutionException", e);
-                    }
-                }));
-
-                JEConfig.getStatusBar().addTask(OutputView.class.getSimpleName(), task, null, true);
-
-                Platform.runLater(() -> gridPane.add(hBox, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan()));
-            } else {
-                Separator separator = new Separator();
-                if (templateOutput.getColSpan() > 1) {
-                    separator.setPadding(new Insets(8, 0, 8, 0));
-                    separator.setOrientation(Orientation.HORIZONTAL);
                 }
-                if (templateOutput.getRowSpan() > 1) {
-                    separator.setPadding(new Insets(0, 8, 0, 8));
-                    separator.setOrientation(Orientation.VERTICAL);
-                }
-
-                Platform.runLater(() -> gridPane.add(separator, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan()));
+                return null;
             }
-        }
+        };
+
+        JEConfig.getStatusBar().addTask(OutputView.class.getSimpleName(), task, null, true);
     }
 
     public void updateViewInputFlowPane() {
@@ -741,22 +733,11 @@ public class OutputView extends Tab {
         } else if (formulaO1 == null && formulaO2 != null) {
             return -1;
         } else if (formulaO1 != null && formulaO2 != null) {
-            List<TemplateInput> formulaInputsO1 = new ArrayList<>();
-            for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-                if (formulaO1.getInputIds().contains(templateInput.getId()) && templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-                    formulaInputsO1.add(templateInput);
-                }
+            for (String inputId : formulaO1.getInputIds()) {
+                if (inputId.equals(formulaO2.getId())) return -1;
             }
-            List<TemplateInput> formulaInputsO2 = new ArrayList<>();
-            for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-                if (formulaO1.getInputIds().contains(templateInput.getId()) && templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-                    formulaInputsO2.add(templateInput);
-                }
-            }
-
-            return Integer.compare(formulaInputsO1.size(), formulaInputsO2.size());
         }
-        return -1;
+        return 1;
     }
 
     public void setContractsGP(GridPane contractsGP) {

@@ -1000,11 +1000,27 @@ public class AccountingPlugin extends TablePlugin {
                                 initialized = true;
                             }
 
+                            JEVisObject selectedItem = configComboBox.getSelectionModel().getSelectedItem();
+                            List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
                             Platform.runLater(() -> {
                                 try {
-                                    updateGUI();
+                                    if (allAccountingConfigurations.isEmpty()) {
+                                        SelectionTemplate selectionTemplate = new SelectionTemplate();
+                                        ath.setSelectionTemplate(selectionTemplate);
+                                        viewTab.setSelectionTemplate(selectionTemplate);
+                                    } else {
+                                        configComboBox.getItems().clear();
+                                        configComboBox.getItems().addAll(allAccountingConfigurations);
+
+                                        if (configComboBox.getItems().contains(selectedItem)) {
+                                            configComboBox.getSelectionModel().select(selectedItem);
+                                        } else {
+                                            configComboBox.getSelectionModel().selectFirst();
+                                        }
+                                    }
                                 } catch (Exception e) {
                                     e.printStackTrace();
+                                    failed();
                                 }
                             });
 

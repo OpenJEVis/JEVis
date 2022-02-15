@@ -69,6 +69,7 @@ public class TRCPlugin implements Plugin {
     private final ToolBar toolBar = new ToolBar();
     private final FlowPane configFormulas = new FlowPane(4, 4);
     private final FlowPane configInputs = new FlowPane(4, 4);
+    private final FlowPane configFormulaInputs = new FlowPane(4, 4);
     private final GridPane configOutputs = new GridPane();
     private final Tab configurationTab = new Tab(I18n.getInstance().getString("graph.tabs.configuration"));
     private final TabPane tabPane = new TabPane();
@@ -458,13 +459,19 @@ public class TRCPlugin implements Plugin {
             case Constants.Plugin.Command.RELOAD:
                 //TODO: Reload Function
                 List<JEVisObject> allTemplateCalculations = getAllTemplateCalculations();
+                JEVisObject selectedItem = trcs.getSelectionModel().getSelectedItem();
                 if (allTemplateCalculations.isEmpty()) {
                     templateHandler.setRcTemplate(new RCTemplate());
                 } else {
                     Platform.runLater(() -> {
                         trcs.getItems().clear();
                         trcs.getItems().addAll(allTemplateCalculations);
-                        trcs.getSelectionModel().selectFirst();
+
+                        if (trcs.getItems().contains(selectedItem)) {
+                            trcs.getSelectionModel().select(selectedItem);
+                        } else {
+                            trcs.getSelectionModel().selectFirst();
+                        }
                     });
                 }
 //                Platform.runLater(() -> replaceButton.setDisable(true));
@@ -576,6 +583,7 @@ public class TRCPlugin implements Plugin {
         configInputs.getChildren().add(buildAddInputButton());
 
         Label formulaLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
+        Label formulaInputsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel") + " " + I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
         Label inputsLabel2 = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
         Label outputsLabel2 = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.outputslabel"));
 
@@ -585,8 +593,11 @@ public class TRCPlugin implements Plugin {
         Separator separator4 = new Separator(Orientation.HORIZONTAL);
         separator4.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox configVBox = new VBox(4, formulaLabel, configFormulas, separator3,
-                inputsLabel2, configInputs, separator4,
+        Separator separator5 = new Separator(Orientation.HORIZONTAL);
+        separator5.setPadding(new Insets(8, 0, 8, 0));
+
+        VBox configVBox = new VBox(4, formulaLabel, configFormulas, separator3, formulaInputsLabel, configFormulaInputs, separator4,
+                inputsLabel2, configInputs, separator5,
                 new HBox(outputsLabel2, buildAddOutputButton()), configOutputs);
 
         configVBox.setPadding(new Insets(12));
@@ -691,12 +702,14 @@ public class TRCPlugin implements Plugin {
     private void updateFormulas() {
 
         configFormulas.getChildren().clear();
+        configFormulaInputs.getChildren().clear();
         configFormulas.getChildren().add(buildAddFormulaButton());
         templateHandler.getRcTemplate().getTemplateFormulas().sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
 
         for (TemplateFormula templateFormula : templateHandler.getRcTemplate().getTemplateFormulas()) {
             int index = templateHandler.getRcTemplate().getTemplateFormulas().indexOf(templateFormula);
             configFormulas.getChildren().add(createFormulaButton(templateFormula, index));
+            configFormulaInputs.getChildren().add(createFormulaInputButton(templateFormula, index));
         }
     }
 
@@ -761,8 +774,9 @@ public class TRCPlugin implements Plugin {
         JFXButton formulaButton = new JFXButton(templateFormula.getName());
         formulaButton.setMnemonicParsing(false);
 
-        if (templateFormula.getName() == null || templateFormula.getName().equals(""))
+        if (templateFormula.getName() == null || templateFormula.getName().equals("")) {
             formulaButton.setText(String.valueOf(index));
+        }
 
         formulaButton.setOnAction(event -> {
             TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula);
@@ -781,12 +795,22 @@ public class TRCPlugin implements Plugin {
         return formulaButton;
     }
 
+    private JFXButton createFormulaInputButton(TemplateFormula templateFormula, int index) {
+
+        JFXButton formulaInputButton = new JFXButton(templateFormula.getName());
+        formulaInputButton.setMnemonicParsing(false);
+        formulaInputButton.setStyle("-fx-background-color: derive(-fx-base, 120%);");
+
+        if (templateFormula.getName() == null || templateFormula.getName().equals("")) {
+            formulaInputButton.setText(String.valueOf(index));
+        }
+
+        return formulaInputButton;
+    }
+
     private JFXButton createInputButton(TemplateInput templateInput) {
         JFXButton inputButton = new JFXButton(templateInput.getVariableName());
         inputButton.setMnemonicParsing(false);
-        if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-            inputButton.setStyle("-fx-background-color: derive(-fx-base, 120%);");
-        }
 
         inputButton.setOnAction(event -> {
             TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
