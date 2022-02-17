@@ -1,11 +1,11 @@
 package org.jevis.jestatus;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.i18n.I18n;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -21,10 +21,15 @@ public class WirelessLogicStatus extends AlarmTable {
         super(ds);
 
 
-
         try {
-            createTableString(tariffs, username, password);
-        } catch (JEVisException e) {
+            if (tariffs.isEmpty() || username == null || password == null) {
+                logger.error("Missing Setting, abort");
+                setTableString("");
+            } else {
+                createTableString(tariffs, username, password);
+            }
+
+        } catch (Exception e) {
             logger.error("Could not initialize.");
         }
     }
@@ -106,7 +111,7 @@ public class WirelessLogicStatus extends AlarmTable {
                     sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.iccid")).append("</th>");
                     sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lastseen")).append("</th>");
                     sb.append("  </tr>");
-                    for (JsonNode offlineSim:offlineSims) {
+                    for (JsonNode offlineSim : offlineSims) {
 
                         sb.append("<tr>");
                         sb.append("<td style=\"");
@@ -123,10 +128,6 @@ public class WirelessLogicStatus extends AlarmTable {
                         sb.append("</td>");
                         sb.append("</tr>");
                     }
-
-
-
-
 
 
                 }
