@@ -114,8 +114,13 @@ public class AlarmHandler {
 //        sb.append("<br>");
 //        sb.append(alarm.getMessage());
 
+        AutoMySQLBackupTable autoMySQLBackupTable = new AutoMySQLBackupTable(_ds, getLatestReported());
+        sb.append(autoMySQLBackupTable.getTableString());
+
+
         ServiceStatus serviceStatus = new ServiceStatus(_ds);
         sb.append(serviceStatus.getTableString());
+
 
         DataServerTable dataServerTable = new DataServerTable(_ds, getLatestReported());
         sb.append(dataServerTable.getTableString());
@@ -318,6 +323,7 @@ public class AlarmHandler {
             //create Authenticator object to pass in Session.getInstance argument
             Authenticator auth = new Authenticator() {
                 //override the getPasswordAuthentication method
+                @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(conf.getSmtpUser(), conf.getSmtpPW());
                 }
