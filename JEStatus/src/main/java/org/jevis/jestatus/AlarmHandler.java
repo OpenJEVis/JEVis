@@ -31,10 +31,7 @@ import org.jevis.jenotifier.notifier.Email.EmailServiceProperty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This Class handles the logic and the sending of the alarms.
@@ -130,6 +127,8 @@ public class AlarmHandler {
 
         CleanDataTable cleanDataTable = new CleanDataTable(_ds, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
         sb.append(cleanDataTable.getTableString());
+        WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
+        sb.append(wirelessLogicStatus.getTableString());
 
         sb.append("</html>");
 
@@ -362,6 +361,38 @@ public class AlarmHandler {
 
     private DateTime getLatestReported() {
         return now.minus(Period.hours(latestReported.intValue()));
+    }
+    private List<String> getTariff() throws JEVisException {
+        JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
+        List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
+        if (jEStatusObjects.size() > 0) {
+            String tariff = jEStatusObjects.get(0).getAttribute("Tariffs").getLatestSample().getValueAsString();
+            if (tariff.equals("")) {
+                return null;
+            } else {
+                return Arrays.asList(tariff.split(";"));
+            }
+
+        } else return null;
+    }
+    private String getUsername() throws JEVisException {
+        JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
+        List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
+        if (jEStatusObjects.size() > 0) {
+            return jEStatusObjects.get(0).getAttribute("User").getLatestSample().getValueAsString();
+        } else {
+            return null;
+        }
+    }
+
+    private String getPassword() throws  JEVisException{
+        JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
+        List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
+        if (jEStatusObjects.size() > 0) {
+            return jEStatusObjects.get(0).getAttribute("Password").getLatestSample().getValueAsString();
+        } else {
+            return null;
+        }
     }
 
 

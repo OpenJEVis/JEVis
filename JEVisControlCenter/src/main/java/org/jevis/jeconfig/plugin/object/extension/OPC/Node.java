@@ -19,6 +19,8 @@ public class Node {
     public StringProperty stringProperty = new SimpleStringProperty("hmmm");
     public StringProperty typeProperty = new SimpleStringProperty("");
     public DataValue dataValue;
+    public String TrendID;
+    public String logInterval = "";
     public boolean selected;
 
     public Node(ReferenceDescription referenceDescription, String xpath, DataValue dataValue) {
@@ -42,7 +44,7 @@ public class Node {
     public String readData(){
         try {
             if (descriptionProperty.get().getNodeClass().getValue() == 2) {
-                return dataValue.getValue().toString().split("=")[1].substring(0, dataValue.getValue().toString().split("=")[1].length() - 1);
+                return dataValue.getValue().getValue().toString();
             } else {
                 return "";
             }
@@ -64,6 +66,22 @@ public class Node {
 
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    public String getTrendID() {
+        return TrendID;
+    }
+
+    public void setTrendID(String trendID) {
+        TrendID = trendID;
+    }
+
+    public String getLogInterval() {
+        return logInterval;
+    }
+
+    public void setLogInterval(String logInterval) {
+        this.logInterval = logInterval;
     }
 /**
     public ReferenceDescription getDescriptionProperty() {

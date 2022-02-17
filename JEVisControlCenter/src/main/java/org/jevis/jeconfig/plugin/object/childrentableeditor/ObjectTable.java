@@ -36,9 +36,10 @@ import java.util.*;
 import static org.jevis.commons.utils.CommonMethods.getChildrenRecursive;
 
 public class ObjectTable {
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     protected final String STANDARD_TARGET_ATTRIBUTE_NAME = "Target";
     protected final String VALUE_ATTRIBUTE_NAME = "Value";
-    public static final String PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String PATTERN = DATE_FORMAT;
     private final TableView<TableData> tableView = new TableView<TableData>();
 
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
@@ -158,7 +159,10 @@ public class ObjectTable {
                 }
             });
 
-            this.tableView.getColumns().addAll(nameColumn, classColumn, sourceColumn);
+            TableColumn<TableData, String> minTSColumn = buildMinMaxTSColumn(false);
+            TableColumn<TableData, String> maxTSColumn = buildMinMaxTSColumn(true);
+
+            this.tableView.getColumns().addAll(nameColumn, classColumn, sourceColumn, minTSColumn, maxTSColumn);
 
             addChildren(tableData, attributes, parentObject);
 
@@ -574,4 +578,46 @@ public class ObjectTable {
         }
     }
 
+    private TableColumn<TableData, String> buildMinMaxTSColumn(boolean max) {
+        String columnName;
+        if (max) {
+            columnName = I18n.getInstance().getString("jevistree.column.maxts");
+        } else {
+            columnName = I18n.getInstance().getString("jevistree.column.mints");
+        }
+
+        TableColumn<TableData, String> column = new TableColumn<>(columnName);
+        column.setId(columnName);
+        column.setPrefWidth(135);
+
+        column.setCellValueFactory(param -> {
+            try {
+                JEVisAttribute valueAttribute = null;
+                for (JEVisAttribute att : param.getValue().getAttributeList()) {
+                    if (att.getName().equals("Value")) valueAttribute = att;
+                }
+
+                if (valueAttribute != null) {
+                    if (valueAttribute.hasSample()) {
+                        if (max) {
+                            return new ReadOnlyObjectWrapper<>(valueAttribute.getTimestampFromLastSample().toString(DATE_FORMAT));
+                        } else {
+                            return new ReadOnlyObjectWrapper<>(valueAttribute.getTimestampFromFirstSample().toString(DATE_FORMAT));
+                        }
+                    } else {
+                        return new ReadOnlyObjectWrapper<>("");
+                    }
+
+                } else {
+                    return new ReadOnlyObjectWrapper<>("");
+                }
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+            return new ReadOnlyObjectWrapper<>("");
+        });
+
+        return column;
+    }
 }
