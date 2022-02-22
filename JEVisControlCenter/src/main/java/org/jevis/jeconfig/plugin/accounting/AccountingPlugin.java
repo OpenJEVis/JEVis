@@ -605,7 +605,41 @@ public class AccountingPlugin extends TablePlugin {
         Sheet sheet = workbook.createSheet(I18n.getInstance().getString("plugin.dtrc.view.output"));
 
         List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
-        templateOutputs.sort(viewTab::compareTemplateOutputs);
+        final List<TemplateFormula> templateFormulas = templateHandler.getRcTemplate().getTemplateFormulas();
+
+        List<TemplateOutput> separatorOutputs = new ArrayList<>();
+
+        List<TemplateOutput> noInputOutputs = new ArrayList<>();
+        List<TemplateOutput> singleInputFormulaOutputs = new ArrayList<>();
+        List<TemplateOutput> multiInputFormulaOutputs = new ArrayList<>();
+
+        for (TemplateOutput output : templateOutputs) {
+            if (output.getSeparator()) {
+                separatorOutputs.add(output);
+            } else {
+                TemplateFormula templateFormula = templateFormulas.stream().filter(formula -> formula.getOutput().equals(output.getId())).findFirst().orElse(null);
+
+                if (templateFormula != null) {
+                    boolean foundFormulaInput = templateFormulas.stream().anyMatch(otherFormula -> templateFormula.getInputIds().contains(otherFormula.getId()));
+
+                    if (!foundFormulaInput) {
+                        singleInputFormulaOutputs.add(output);
+                    } else {
+                        multiInputFormulaOutputs.add(output);
+                    }
+                } else {
+                    noInputOutputs.add(output);
+                }
+            }
+        }
+
+        viewTab.sortMultiInputFormulaOutputs(multiInputFormulaOutputs);
+
+        List<TemplateOutput> sortedList = new ArrayList<>();
+        sortedList.addAll(noInputOutputs);
+        sortedList.addAll(singleInputFormulaOutputs);
+        sortedList.addAll(multiInputFormulaOutputs);
+
         Map<String, Double> resultMap = new HashMap<>();
 
         DateTime start = viewTab.getStart();
@@ -633,7 +667,7 @@ public class AccountingPlugin extends TablePlugin {
         invoiceHeaderCell.setCellValue(I18n.getInstance().getString("plugin.accounting.invoice"));
 
         int maxColumn = 0;
-        for (TemplateOutput templateOutput : templateOutputs) {
+        for (TemplateOutput templateOutput : sortedList) {
             maxColumn = Math.max(maxColumn, templateOutput.getColumn());
             if (!templateOutput.getSeparator()) {
                 Cell cell = getOrCreateCell(sheet, templateOutput.getRow() + 9, templateOutput.getColumn(), templateOutput.getRowSpan(), templateOutput.getColSpan());
@@ -649,23 +683,19 @@ public class AccountingPlugin extends TablePlugin {
                     boolean isText = false;
                     for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
                         if (formula.getInputIds().contains(templateInput.getId())) {
-                            try {
-                                if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
-                                    isText = true;
-                                }
-
-                                if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-                                    formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
-                                } else {
-                                    Double d = resultMap.get(templateInput.getVariableName());
-                                    if (d != null) {
-                                        formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
-                                    }
-                                }
-
-                            } catch (JEVisException e) {
-                                logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
+                            if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
+                                isText = true;
                             }
+
+                            if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                                formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
+                            } else {
+                                Double d = resultMap.get(templateInput.getVariableName());
+                                if (d != null) {
+                                    formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
+                                }
+                            }
+
                         }
                     }
 
@@ -678,12 +708,20 @@ public class AccountingPlugin extends TablePlugin {
                             }
 
                             if (hasLabel) {
-                                cell.setCellValue(cell.getStringCellValue() + ": " + nf.format(calculate) + " " + templateOutput.getUnit());
+                                if (templateOutput.getUnit() != null) {
+                                    cell.setCellValue(cell.getStringCellValue() + ": " + nf.format(calculate) + " " + templateOutput.getUnit());
+                                } else {
+                                    cell.setCellValue(cell.getStringCellValue() + ": " + nf.format(calculate));
+                                }
                             } else {
                                 cell.setCellValue(calculate);
                                 DataFormat format = workbook.createDataFormat();
                                 CellStyle cellStyle = workbook.createCellStyle();
-                                cellStyle.setDataFormat(format.getFormat("#,##0.00 [$" + templateOutput.getUnit() + "]"));
+                                if (templateOutput.getUnit() != null) {
+                                    cellStyle.setDataFormat(format.getFormat("#,##0.00 [$" + templateOutput.getUnit() + "]"));
+                                } else {
+                                    cellStyle.setDataFormat(format.getFormat("#,##0.00"));
+                                }
                                 cell.setCellStyle(cellStyle);
                             }
                         } catch (Exception e) {
