@@ -34,16 +34,16 @@ import java.io.File;
 import java.util.Date;
 
 /**
- * @author Florian Simon <florian.simon@envidatec.com>
+ * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
-@Path("/jecc")
-public class ResourceJECCVersion {
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceJECCVersion.class);
+@Path("/java")
+public class ResourceJavaVersion {
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceJavaVersion.class);
 
     @GET
     @Path("/version")
     public Response get() {
-        return Response.ok(Config.getJECCVersion()).build();
+        return Response.ok(Config.getJavaVersion()).build();
     }
 
     @GET
@@ -52,7 +52,7 @@ public class ResourceJECCVersion {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getFile() {
         try {
-            File file = new File(Config.getJECCFilePath());
+            File file = new File(Config.getJavaFilePath());
             if (file.exists() && file.canRead()) {
                 Response.ResponseBuilder response = Response.ok(file, MediaType.APPLICATION_OCTET_STREAM)
                         .header(HttpHeaders.CONTENT_DISPOSITION, file.getName())

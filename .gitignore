@@ -6,6 +6,7 @@ etc/log4j2.xml
 etc/log4j.properties
 etc/keystore.jks
 var/files/
+java/
 
 # Created by https://www.gitignore.io/api/intellij
 

@@ -70,6 +70,9 @@ public class Config {
     private static File _classDir;
     private static File _freemarkerDir;
     private static String _jeccVersion = "0";
+    private static String _jeccFile = "";
+    private static String _javaVersion = "0";
+    private static String _javaFile = "";
     private static ConcurrentHashMap<String, JsonJEVisClass> _classCache = new ConcurrentHashMap<>();
 
 
@@ -123,7 +126,7 @@ public class Config {
         return _keyFilePW;
     }
 
-    public static String getKeyType(){
+    public static String getKeyType() {
         return _keyType;
     }
 
@@ -223,9 +226,7 @@ public class Config {
 
                     _keyFile = getParameter(config, "webservice.keystore", homeDir + "/etc/keystore.jks");
                     _keyFilePW = getParameter(config, "webservice.keystorepw", "jevispw");
-                    _keyType= getParameter(config,"webservice.keystoretype","");
-                    _jeccVersion = getParameter(config, "webservice.jeccversion", "0");
-
+                    _keyType = getParameter(config, "webservice.keystoretype", "");
 
                     _i18nDir = new File(getParameter(config, "webservice.i18ndir", homeDir + "/jevis/var/i18n/").replaceAll("%$", ""));
                     _fileDir = new File(getParameter(config, "webservice.filedir", homeDir + "/jevis/var/files/").replaceAll("%$", ""));
@@ -233,6 +234,8 @@ public class Config {
                     _freemarkerDir = new File(getParameter(config, "webservice.freemarkerdir", homeDir + "/jevis/var/freemarker/").replaceAll("%$", ""));
 
                     //Woraround solution for the registration service
+                    getJECCVersion();
+                    getJavaVersion();
 
                     _demoRoot = getParameter(config, "webservice.registration.root", -1);
                     _demoGroup = getParameter(config, "webservice.registration.demogroup", -1);
@@ -254,7 +257,58 @@ public class Config {
     }
 
     public static String getJECCVersion() {
+        try {
+            String homeDirectory = System.getProperty("user.home");
+
+            String jeccPathString = homeDirectory + File.separator + "/jevis/JEVisControlCenter/target/";
+            File jeccPath = new File(jeccPathString);
+            File[] folderContent = jeccPath.listFiles();
+
+            if (folderContent != null) {
+                for (final File fileEntry : folderContent) {
+                    if (!fileEntry.isDirectory() && fileEntry.getName().contains("-jar-with-dependencies.jar")) {
+                        _jeccVersion = fileEntry.getName().replace("JEVisControlCenter-", "").replace("-jar-with-dependencies.jar", "");
+                        _jeccFile = fileEntry.getAbsolutePath();
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
         return _jeccVersion;
+    }
+
+    public static String getJECCFilePath() {
+        return _jeccFile;
+    }
+
+    public static String getJavaFilePath() {
+        return _javaFile;
+    }
+
+    public static String getJavaVersion() {
+        try {
+            String homeDirectory = System.getProperty("user.home");
+
+            String javaPathString = homeDirectory + File.separator + "/jevis/java/";
+            File javaPath = new File(javaPathString);
+            File[] folderContent = javaPath.listFiles();
+
+            if (folderContent != null) {
+                Arrays.sort(folderContent, Comparator.comparingLong(File::lastModified).reversed());
+
+                File last = folderContent[0];
+
+                _javaVersion = last.getName().replace(".zip", "");
+                _javaFile = last.getAbsolutePath();
+
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return _javaVersion;
     }
 
     public static void setJECCVersion(String jeccVersion) {

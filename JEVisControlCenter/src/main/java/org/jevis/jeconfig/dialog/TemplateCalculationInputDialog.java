@@ -25,6 +25,7 @@ import org.jevis.jeconfig.plugin.dtrc.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TemplateCalculationInputDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(TemplateCalculationInputDialog.class);
@@ -60,10 +61,18 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         Label typeLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.typelabel"));
         GridPane.setHgrow(typeLabel, Priority.ALWAYS);
 
+        boolean oldNameFound = templateInput.getVariableName() != null;
+        String oldName = templateInput.getVariableName();
+        AtomicBoolean changedName = new AtomicBoolean(false);
         JFXTextField variableNameField = new JFXTextField(templateInput.getVariableName());
         GridPane.setHgrow(variableNameField, Priority.ALWAYS);
 
-        variableNameField.textProperty().addListener((observable, oldValue, newValue) -> templateInput.setVariableName(newValue));
+        variableNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            templateInput.setVariableName(newValue);
+            if (oldNameFound) {
+                changedName.set(true);
+            }
+        });
 
         JFXComboBox<InputVariableType> inputVariableTypeJFXComboBox = new JFXComboBox<>(FXCollections.observableArrayList(InputVariableType.values()));
         Callback<ListView<InputVariableType>, ListCell<InputVariableType>> inputVariableTypeJFXComboBoxCellFactory = new Callback<ListView<InputVariableType>, ListCell<InputVariableType>>() {
@@ -421,6 +430,14 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {
             response = Response.OK;
+            if (changedName.get() && oldName != null) {
+                rcTemplate.getTemplateFormulas().forEach(templateFormula -> {
+                    if (templateFormula.getFormula().contains(oldName)) {
+                        logger.debug("Detected variable name change. Found formula {}, replacing old name \"{}\" with \"{}\"", templateFormula.getName(), oldName, variableNameField.getText());
+                        templateFormula.setFormula(templateFormula.getFormula().replace(oldName, variableNameField.getText()));
+                    }
+                });
+            }
             this.close();
         });
 
