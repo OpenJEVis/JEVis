@@ -47,17 +47,17 @@ public class ObjectRelations {
                 JEVisObject motherOrganisation = getOrganisationParent(organisation);
                 if (motherOrganisation != null) {
                     s += motherOrganisation.getName();
-                    s += " / ";
+                    s += " \\ ";
                 }
 
                 s += organisation.getName();
-                s += " / ";
+                s += " \\ ";
             }
 
             JEVisObject building = getBuildingParent(object);
             if (building != null) {
                 s += building.getName();
-                s += " / ";
+                s += " \\ ";
             }
         } catch (Exception e) {
         }
@@ -74,7 +74,7 @@ public class ObjectRelations {
             for (JEVisObject parent : object.getParents()) {
                 if (!parent.equals(primaryParent)) {
                     s.append(parent.getName());
-                    s.append(" / ");
+                    s.append(" \\ ");
                     s.append(getRelativePath(parent));
                 }
             }

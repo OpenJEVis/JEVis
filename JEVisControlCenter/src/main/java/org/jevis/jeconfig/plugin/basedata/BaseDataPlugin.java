@@ -69,14 +69,24 @@ public class BaseDataPlugin extends TablePlugin {
     private void createColumns(TableView<RegisterTableRow> tableView) {
 
         try {
+            TableColumn<RegisterTableRow, String> pathColumn = new TableColumn<>(I18n.getInstance().getString("plugin.basedata.table.path.columnname"));
+            pathColumn.setCellValueFactory(param -> {
+                if (param.getValue().isMultiSite()) {
+                    return new ReadOnlyObjectWrapper<>(objectRelations.getObjectPath(param.getValue().getObject()));
+                } else return new ReadOnlyObjectWrapper<>("");
+            });
+            pathColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+            pathColumn.setSortable(true);
+            pathColumn.setSortType(TableColumn.SortType.ASCENDING);
+
             TableColumn<RegisterTableRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.basedata.table.basedata.columnname"));
             nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
             nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
             nameColumn.setSortable(true);
             nameColumn.setSortType(TableColumn.SortType.ASCENDING);
 
-            tableView.getColumns().add(nameColumn);
-            tableView.getSortOrder().addAll(nameColumn);
+            tableView.getColumns().addAll(nameColumn, pathColumn);
+            tableView.getSortOrder().addAll(pathColumn, nameColumn);
 
             JEVisClass baseDataClass = ds.getJEVisClass(BASE_DATA_CLASS);
 
@@ -86,11 +96,11 @@ public class BaseDataPlugin extends TablePlugin {
                     NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
                     numberFormat.setMinimumFractionDigits(2);
                     numberFormat.setMaximumFractionDigits(2);
-                    TableColumn<RegisterTableRow, JEVisObject> lastValueColumn = new TableColumn<>(I18nWS.getInstance().getTypeName(baseDataClass.getName(), type.getName()));
-                    lastValueColumn.setStyle("-fx-alignment: CENTER;");
-                    lastValueColumn.setMinWidth(250);
-                    lastValueColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject()));
-                    lastValueColumn.setCellFactory(new Callback<TableColumn<RegisterTableRow, JEVisObject>, TableCell<RegisterTableRow, JEVisObject>>() {
+                    TableColumn<RegisterTableRow, JEVisObject> lastValueEnterDataColumn = new TableColumn<>(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
+                    lastValueEnterDataColumn.setStyle("-fx-alignment: CENTER;");
+                    lastValueEnterDataColumn.setMinWidth(250);
+                    lastValueEnterDataColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject()));
+                    lastValueEnterDataColumn.setCellFactory(new Callback<TableColumn<RegisterTableRow, JEVisObject>, TableCell<RegisterTableRow, JEVisObject>>() {
                         @Override
                         public TableCell<RegisterTableRow, JEVisObject> call(TableColumn<RegisterTableRow, JEVisObject> param) {
                             return new TableCell<RegisterTableRow, JEVisObject>() {
@@ -109,26 +119,11 @@ public class BaseDataPlugin extends TablePlugin {
 
                                         if (att != null) {
                                             try {
-                                                JEVisAttribute periodAtt = item.getAttribute("Period");
-
-                                                if (att.hasSample() && periodAtt != null) {
-                                                    JEVisSample latestSample = att.getLatestSample();
-                                                    JEVisSample periodSample = periodAtt.getLatestSample();
-                                                    Period period = new Period(periodSample.getValueAsString());
-                                                    boolean isCounter = CleanDataObject.isCounter(att.getObject(), latestSample);
-                                                    JEVisUnit displayUnit = att.getDisplayUnit();
-                                                    String unitString = UnitManager.getInstance().format(displayUnit);
-                                                    String normalPattern = PeriodHelper.getFormatString(period, isCounter);
-
-                                                    addEventManSampleAction(new VirtualSample(new DateTime(), att.getObject().getID() + ":" + att.getName()), manSampleButton, registerTableRow.getName());
-
-                                                    String timeString = latestSample.getTimestamp().toString(normalPattern);
-
-                                                    setText(numberFormat.format(latestSample.getValueAsDouble()) + " " + unitString + " @ " + timeString);
-                                                    setGraphic(manSampleButton);
-                                                }
+                                                addEventManSampleAction(new VirtualSample(new DateTime(), att.getObject().getID() + ":" + att.getName()), manSampleButton, registerTableRow.getName());
+                                                setGraphic(manSampleButton);
                                             } catch (Exception e) {
                                                 setText(null);
+                                                setGraphic(null);
                                                 e.printStackTrace();
                                             }
                                         }
@@ -138,7 +133,58 @@ public class BaseDataPlugin extends TablePlugin {
                         }
                     });
 
-                    tableView.getColumns().add(lastValueColumn);
+                    TableColumn<RegisterTableRow, String> lastValueColumn = new TableColumn<>(I18nWS.getInstance().getTypeName(baseDataClass.getName(), type.getName()));
+                    lastValueColumn.setStyle("-fx-alignment: CENTER;");
+                    lastValueColumn.setMinWidth(250);
+                    lastValueColumn.setCellValueFactory(param -> {
+                        RegisterTableRow registerTableRow = param.getValue();
+                        JEVisAttribute att = registerTableRow.getAttributeMap().get(type);
+                        if (att != null) {
+                            try {
+                                if (att.hasSample()) {
+                                    JEVisSample latestSample = att.getLatestSample();
+                                    JEVisUnit displayUnit = att.getDisplayUnit();
+                                    String unitString = UnitManager.getInstance().format(displayUnit);
+
+                                    return new ReadOnlyObjectWrapper<>(numberFormat.format(latestSample.getValueAsDouble()) + " " + unitString);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        return new ReadOnlyObjectWrapper<>();
+                    });
+
+                    TableColumn<RegisterTableRow, String> lastValueTSColumn = new TableColumn<>(I18n.getInstance().getString("status.table.captions.lastrawvaluets"));
+                    lastValueTSColumn.setStyle("-fx-alignment: CENTER;");
+                    lastValueTSColumn.setMinWidth(250);
+                    lastValueTSColumn.setCellValueFactory(param -> {
+                        RegisterTableRow registerTableRow = param.getValue();
+                        JEVisAttribute att = registerTableRow.getAttributeMap().get(type);
+
+                        if (att != null) {
+                            try {
+                                JEVisAttribute periodAtt = param.getValue().getObject().getAttribute("Period");
+
+                                if (att.hasSample() && periodAtt != null) {
+                                    JEVisSample latestSample = att.getLatestSample();
+                                    JEVisSample periodSample = periodAtt.getLatestSample();
+                                    Period period = new Period(periodSample.getValueAsString());
+                                    boolean isCounter = CleanDataObject.isCounter(att.getObject(), latestSample);
+                                    String normalPattern = PeriodHelper.getFormatString(period, isCounter);
+
+                                    String timeString = latestSample.getTimestamp().toString(normalPattern);
+
+                                    return new ReadOnlyObjectWrapper<>(timeString);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        return new ReadOnlyObjectWrapper<>();
+                    });
+
+                    tableView.getColumns().addAll(lastValueEnterDataColumn, lastValueColumn, lastValueTSColumn);
                 }
             }
         } catch (JEVisException e) {
