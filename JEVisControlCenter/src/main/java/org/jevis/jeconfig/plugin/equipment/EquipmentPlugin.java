@@ -387,7 +387,7 @@ public class EquipmentPlugin extends TablePlugin {
                     if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
                         try {
                             if (ds.getCurrentUser().canDelete(object.getID())) {
-                                ds.deleteObject(object.getID());
+                                ds.deleteObject(object.getID(), false);
                                 handleRequest(Constants.Plugin.Command.RELOAD);
                             } else {
                                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.meters.dialog.delete.error"), cancel);

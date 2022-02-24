@@ -1263,7 +1263,7 @@ public class ChartPlugin implements Plugin {
                             Long id = newObject.getID();
                             JEConfig.getStage().setOnCloseRequest(event -> {
                                 try {
-                                    ds.deleteObject(id);
+                                    ds.deleteObject(id, true);
                                 } catch (JEVisException e) {
                                     logger.error("Could not delete temporary analysis", e);
                                 }

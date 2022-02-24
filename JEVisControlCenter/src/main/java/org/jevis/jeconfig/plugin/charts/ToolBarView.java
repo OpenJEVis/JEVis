@@ -887,7 +887,10 @@ public class ToolBarView {
             JEVisHelp.getInstance().deactivatePluginModule();
         });
 
+
         dia.show();
+
+
     }
 
 

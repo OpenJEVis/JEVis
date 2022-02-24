@@ -459,7 +459,7 @@ public class MeterPlugin extends TablePlugin {
                     if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
                         try {
                             if (getDataSource().getCurrentUser().canDelete(object.getID())) {
-                                getDataSource().deleteObject(object.getID());
+                                getDataSource().deleteObject(object.getID(), false);
                                 handleRequest(Constants.Plugin.Command.RELOAD);
                             } else {
                                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.meters.dialog.delete.error"), cancel);

@@ -161,7 +161,8 @@ public class ObjectTable {
     public JsonObject getObject(Long id) throws JEVisException {
         logger.trace("getObject: {} ", id);
 
-        String sql = String.format("select o.* from %s o where  o.%s=? and o.%s is null limit 1 ", TABLE, COLUMN_ID, COLUMN_DELETE);
+        //String sql = String.format("select o.* from %s o where  o.%s=? and o.%s is null limit 1 ", TABLE, COLUMN_ID, COLUMN_DELETE);
+        String sql = String.format("select o.* from %s o where  o.%s=? limit 1 ", TABLE, COLUMN_ID);
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, id);
@@ -193,7 +194,8 @@ public class ObjectTable {
     public List<JsonObject> getAllPublicObjects() throws JEVisException {
         logger.trace("getPublicObjects");
 
-        String sql = String.format("select * from %s where %s is null and %s=1", TABLE, COLUMN_DELETE, COLUMN_PUBLIC);
+        //String sql = String.format("select * from %s where %s is null and %s=1", TABLE, COLUMN_DELETE, COLUMN_PUBLIC);
+        String sql = String.format("select * from %s where %s=1", TABLE, COLUMN_PUBLIC);
 
 
         List<JsonObject> objects = new ArrayList<>();
@@ -217,7 +219,8 @@ public class ObjectTable {
 
     public List<JsonObject> getAllObjects() throws JEVisException {
 
-        String sql = String.format("select * from %s where %s is null", TABLE, COLUMN_DELETE);
+        //String sql = String.format("select * from %s where %s is null", TABLE, COLUMN_DELETE);
+        String sql = String.format("select * from %s", TABLE);
 
         List<JsonObject> objects = new ArrayList<>();
 
@@ -237,6 +240,30 @@ public class ObjectTable {
 
         return objects;
     }
+
+    public List<JsonObject> getAllDeletedObjects() throws JEVisException {
+
+        String sql = String.format("select * from %s where %s is not null", TABLE, COLUMN_DELETE);
+
+        List<JsonObject> objects = new ArrayList<>();
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                try {
+                    objects.add(SQLtoJsonFactory.buildObject(rs));
+                } catch (Exception ex) {
+                    logger.error("Could not load Object: " + ex.getMessage());
+                }
+            }
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return objects;
+    }
+
 
     public Map<Long, JsonObject> getGroupObjects() throws JEVisException {
 
@@ -286,7 +313,55 @@ public class ObjectTable {
 
     }
 
-    public boolean deleteObject(JsonObject obj) {
+    public boolean deleteObjectFromDB(JsonObject obj) {
+        logger.debug("deleteObjectFromDB: " + obj);
+        String sql = String.format("delete from %s where %s IN(", TABLE, COLUMN_ID);
+        List<JsonObject> children = new ArrayList<>();
+        children.add(obj);
+        getAllChildren(children, obj);
+
+        boolean first = true;
+        for (JsonObject ch : children) {
+            logger.trace("JsonObject: " + ch);
+            if (first) {
+                sql += "?";
+                first = false;
+            } else {
+                sql += ",?";
+            }
+
+        }
+
+        sql += ")";
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            int raw = 1;
+            for (JsonObject ch : children) {
+                ps.setLong(raw, ch.getId());
+                raw++;
+            }
+
+            logger.debug("SQL: {}", ps);
+            int count = ps.executeUpdate();
+            if (count > 0) {
+                List<Long> ids = new ArrayList<>();
+                for (JsonObject o : children) {
+                    ids.add(o.getId());
+                }
+                _connection.getRelationshipTable().deleteAll(ids);
+                _connection.getSampleTable().deleteAllSamples(ids);
+                return true;
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return false;
+    }
+
+    public boolean markObjectAsDeleted(JsonObject obj) {
+
         String sql = String.format("update %s set %s=? where %s IN(", TABLE, COLUMN_DELETE, COLUMN_ID);
 
         List<JsonObject> children = new ArrayList<>();
@@ -320,11 +395,56 @@ public class ObjectTable {
             logger.trace("SQL: {}", ps);
             int count = ps.executeUpdate();
             if (count > 0) {
-                List<Long> ids = new ArrayList<>();
-                for (JsonObject o : children) {
-                    ids.add(o.getId());
-                }
-                _connection.getRelationshipTable().deleteAll(ids);
+                /* remove parent relationship and add delete relationship*/
+                //List<JsonRelationship> rels = _connection.getRelationshipTable().getAllForObject(obj.getId(), JEVisConstants.ObjectRelationship.DELETED_PARENT);
+                _connection.getRelationshipTable().changeType(obj.getId(), JEVisConstants.ObjectRelationship.PARENT, JEVisConstants.ObjectRelationship.DELETED_PARENT);
+
+                return true;
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return false;
+
+    }
+
+    public boolean restoreObjectAsDeleted(JsonObject obj) {
+
+        String sql = String.format("update %s set %s=? where %s IN(", TABLE, COLUMN_DELETE, COLUMN_ID);
+
+        List<JsonObject> children = new ArrayList<>();
+        children.add(obj);
+        getAllChildren(children, obj);
+
+        boolean first = true;
+        for (JsonObject ch : children) {
+            if (first) {
+                sql += "?";
+                first = false;
+            } else {
+                sql += ",?";
+            }
+
+        }
+
+        sql += ")";
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ps.setNull(1, Types.TIMESTAMP);
+
+            int raw = 2;
+            for (JsonObject ch : children) {
+                ps.setLong(raw, ch.getId());
+                raw++;
+            }
+            logger.debug("SQL: {}", ps);
+            int count = ps.executeUpdate();
+            if (count > 0) {
+                /* remove parent relationship and add delete relationship*/
+                //List<JsonRelationship> rels = _connection.getRelationshipTable().getAllForObject(obj.getId(), JEVisConstants.ObjectRelationship.DELETED_PARENT);
+                //_connection.getRelationshipTable().changeType(obj.getId(), JEVisConstants.ObjectRelationship.PARENT, JEVisConstants.ObjectRelationship.DELETED_PARENT);
 
                 return true;
             }

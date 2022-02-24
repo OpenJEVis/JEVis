@@ -586,7 +586,7 @@ public class ObjectPlugin implements Plugin {
                     saveWithAnimation();
                     break;
                 case Constants.Plugin.Command.DELETE:
-                    TreeHelper.EventDelete(tree);
+                    TreeHelper.EventDelete(tree, false);
                     break;
                 case Constants.Plugin.Command.RENAME:
                     LocalNameDialog localNameDialog = new LocalNameDialog(selectedObj.getValue().getJEVisObject());

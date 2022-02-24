@@ -100,12 +100,13 @@ public class TreeHelper {
     private static long lastSearchIndex = 0L;
     private static String lastSearch = "";
 
+
     /**
      * TODO: make it like the other function where the object is an parameter
      *
      * @param tree
      */
-    public static void EventDelete(JEVisTree tree) {
+    public static void EventDelete(JEVisTree tree, boolean deleteforever) {
         logger.debug("EventDelete");
         if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
             String question = I18n.getInstance().getString("jevistree.dialog.delete.message") + "\n\n";
@@ -113,7 +114,6 @@ public class TreeHelper {
             for (TreeItem<JEVisTreeRow> item : items) {
                 question += item.getValue().getJEVisObject().getName() + "\n";
             }
-            //question += "?";
 
             try {
 
@@ -148,8 +148,13 @@ public class TreeHelper {
                                                     deletedObj.add(treeItem);
                                                 }
                                             }
-                                            object.getDataSource().deleteObject(id);
 
+                                            if (deleteforever) {
+                                                object.getDataSource().deleteObject(id, true);
+                                            } else {
+                                                object.getDataSource().deleteObject(id, false);
+                                            }
+                                            
 
                                         } else {
                                             Platform.runLater(() -> {
@@ -162,10 +167,7 @@ public class TreeHelper {
                                         }
                                     }
 
-                                    deletedObj.forEach(aLong -> {
-                                        System.out.println("ID: " + aLong);
-                                    });
-
+                                    /*
                                     for (TreeItem<JEVisTreeRow> treeItem : deletedObj) {
                                         try {
                                             if (treeItem.getParent() != null) {
@@ -175,7 +177,7 @@ public class TreeHelper {
                                             ex.printStackTrace();
                                         }
                                     }
-
+                                    */
 
                                 } catch (Exception ex) {
                                     logger.catching(ex);
@@ -185,7 +187,15 @@ public class TreeHelper {
                                 return null;
                             }
                         };
-                        delete.setOnSucceeded(event -> pForm.getDialogStage().close());
+                        delete.setOnSucceeded(event -> {
+                                    pForm.getDialogStage().close();
+
+                                    // tree.getSelectionModel().clearSelection();
+                                    //tree.getSelectionModel().select(1);
+                                    //
+
+                                }
+                        );
 
                         delete.setOnCancelled(event -> {
                             logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
@@ -195,6 +205,9 @@ public class TreeHelper {
                         delete.setOnFailed(event -> {
                             logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
                             pForm.getDialogStage().hide();
+
+
+                            //tree.getSelectionModel().focus(1);
                         });
 
                         pForm.activateProgressBar(delete);
@@ -1331,13 +1344,41 @@ public class TreeHelper {
                 // remove other parent relationships
                 try {
                     //From Child to Parent
-                    for (JEVisRelationship rel : obj.getRelationships(JEVisConstants.ObjectRelationship.PARENT)) {
-                        if (rel.getStartObject().equals(obj)) {
+                    for (JEVisRelationship rel : obj.getRelationships()) {
+                        if (rel.isType(JEVisConstants.ObjectRelationship.PARENT) && rel.getStartObject().equals(obj)) {
+                            obj.deleteRelationship(rel);
+                        }
+                        if (rel.isType(JEVisConstants.ObjectRelationship.DELETED_PARENT) && rel.getStartObject().equals(obj)) {
                             obj.deleteRelationship(rel);
                         }
                     }
+
+
                 } catch (Exception ex) {
                     logger.error("Error while deleting old parentship", ex, ex);
+                }
+
+                try {
+                    if (obj.getDeleteTS() != null) {
+                        System.out.println("Set Delete TS");
+                        obj.setDeleteTS(null);
+                        obj.commit();
+
+                        /* the server will also set die children delete_ts to null.
+                         *   We could reload the but simply set this info is faster
+                         */
+                        List<JEVisObject> children = org.jevis.commons.utils.CommonMethods.getChildrenRecursive(obj);
+                        children.forEach(jeVisObject -> {
+                            try {
+                                jeVisObject.setDeleteTS(null);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+
+                    }
+                } catch (Exception ex) {
+                    logger.error("Error while restoring object", ex, ex);
                 }
 
                 try {

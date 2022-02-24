@@ -891,7 +891,7 @@ public class AccountingPlugin extends TablePlugin {
                     ok.setOnAction(event -> {
                         try {
                             if (finalObjectToDelete != null) {
-                                ds.deleteObject(finalObjectToDelete.getID());
+                                ds.deleteObject(finalObjectToDelete.getID(), false);
                                 updateGUI();
                             }
                         } catch (JEVisException e) {

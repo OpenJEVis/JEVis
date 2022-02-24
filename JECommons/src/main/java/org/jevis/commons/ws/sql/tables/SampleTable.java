@@ -331,6 +331,29 @@ public class SampleTable {
 
     }
 
+    public boolean deleteAllSamples(List<Long> object) {
+        String sql = String.format("delete from %s where %s=?", TABLE, COLUMN_OBJECT);
+
+        object.forEach(aLong -> {
+            try {
+                try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+                    ps.setLong(1, aLong);
+                    logger.debug("SQL: {}", ps);
+
+                    ps.executeUpdate();
+                } catch (SQLException ex) {
+                    logger.error(ex);
+                }
+            } catch (Exception ex) {
+                logger.error("Error while deleting Sample for {}", aLong, ex, ex);
+            }
+        });
+
+        return true;
+
+
+    }
+
     public boolean deleteSamples(long object, String att, DateTime from, DateTime until) {
         String sql = String.format("delete from %s where %s=? and %s=?", TABLE, COLUMN_ATTRIBUTE, COLUMN_OBJECT);
 
