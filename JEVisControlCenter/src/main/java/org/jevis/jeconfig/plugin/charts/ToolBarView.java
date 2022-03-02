@@ -260,9 +260,6 @@ public class ToolBarView {
 
         LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin.getDialogContainer(), ds, model);
 
-        dialog.show();
-        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
-
         dialog.setOnDialogClosed(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();
             if (dialog.getResponse() == Response.NEW) {
@@ -276,6 +273,9 @@ public class ToolBarView {
                 }
             }
         });
+
+        dialog.show();
+        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
     }
 
     private void hideShowIconsInGraph() {

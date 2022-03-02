@@ -10,6 +10,7 @@ import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.classes.ClassHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.CalcMethods;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.application.I18nWS;
 
 import java.util.ArrayList;
@@ -134,6 +135,11 @@ public class TableData {
 
                 this.sourceString = resultString.toString();
                 this.sourceDetailed = sourceDetails.toString();
+            } else if (jeVisClassName.equals("Clean Data")) {
+                JEVisObject firstParentalDataObject = CommonMethods.getFirstParentalDataObject(object);
+                if (firstParentalDataObject != null) {
+                    this.sourceString = firstParentalDataObject.getName();
+                }
             }
         } catch (Exception ex) {
             logger.error(ex);

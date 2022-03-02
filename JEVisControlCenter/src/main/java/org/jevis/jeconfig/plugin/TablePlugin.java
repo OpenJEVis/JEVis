@@ -107,7 +107,17 @@ public class TablePlugin implements Plugin {
                 JEVisClassTab selectedItem = (JEVisClassTab) this.tabPane.getSelectionModel().getSelectedItem();
                 String filter = filterInput.getText();
                 if (selectedItem != null) {
-                    setFilterForTab(filter, selectedItem);
+                    if (!isMultiSite()) {
+                        setFilterForTab(filter, selectedItem);
+                    } else {
+                        TabPane content = (TabPane) selectedItem.getContent();
+
+                        JEVisClassTab selectedItem1 = (JEVisClassTab) content.getSelectionModel().getSelectedItem();
+
+                        if (selectedItem1 != null) {
+                            setFilterForTab(filter, selectedItem1);
+                        }
+                    }
                 }
             }
         });
@@ -130,7 +140,18 @@ public class TablePlugin implements Plugin {
         filterInput.textProperty().addListener(obs -> {
             String filter = filterInput.getText();
             JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
-            setFilterForTab(filter, selectedItem);
+
+            if (!isMultiSite())
+                setFilterForTab(filter, selectedItem);
+            else {
+                TabPane content = (TabPane) selectedItem.getContent();
+
+                JEVisClassTab selectedItem1 = (JEVisClassTab) content.getSelectionModel().getSelectedItem();
+
+                if (selectedItem1 != null) {
+                    setFilterForTab(filter, selectedItem1);
+                }
+            }
         });
     }
 
@@ -273,16 +294,18 @@ public class TablePlugin implements Plugin {
                             }
 
                             try {
-                                TargetHelper th = new TargetHelper(getDataSource(), item.getLatestSample().getValueAsString());
-                                if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+                                if (item.getLatestSample() != null) {
+                                    TargetHelper th = new TargetHelper(getDataSource(), item.getLatestSample().getValueAsString());
+                                    if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
 
-                                    JEVisObject firstCleanObject = CommonMethods.getFirstCleanObject(th.getObject().get(0));
-                                    if (firstCleanObject != null) {
+                                        JEVisObject firstCleanObject = CommonMethods.getFirstCleanObject(th.getObject().get(0));
+                                        if (firstCleanObject != null) {
 
-                                        JEVisAttribute valueAttribute = firstCleanObject.getAttribute("Value");
+                                            JEVisAttribute valueAttribute = firstCleanObject.getAttribute("Value");
 
-                                        if (valueAttribute != null) {
-                                            analysisLinkButton = new AnalysisLinkButton(valueAttribute);
+                                            if (valueAttribute != null) {
+                                                analysisLinkButton = new AnalysisLinkButton(valueAttribute);
+                                            }
                                         }
                                     }
                                 }

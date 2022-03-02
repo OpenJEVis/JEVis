@@ -5,6 +5,7 @@ import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
 import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.renderer.LineStyle;
+import de.gsi.chart.renderer.Renderer;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import de.gsi.chart.ui.geometry.Side;
 import de.gsi.dataset.DataSet;
@@ -554,19 +555,37 @@ public class XYChart implements Chart {
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY1, rendererLogicalY1, rendererColumnY1, rendererBarY1, rendererScatterY1, rendererLineY1));
+
+        List<Renderer> allRenderer = new ArrayList<>();
+
+        allRenderer.add(rendererAreaY1);
+        allRenderer.add(rendererLogicalY1);
+        allRenderer.add(rendererColumnY1);
+        allRenderer.add(rendererBarY1);
+        allRenderer.add(rendererScatterY1);
+        allRenderer.add(rendererLineY1);
+
         if (hasSecondAxis) {
-            Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY2, rendererLogicalY2, rendererColumnY2, rendererBarY2, rendererScatterY2, rendererLineY2));
+            allRenderer.add(rendererAreaY2);
+            allRenderer.add(rendererLogicalY2);
+            allRenderer.add(rendererColumnY2);
+            allRenderer.add(rendererBarY2);
+            allRenderer.add(rendererScatterY2);
+            allRenderer.add(rendererLineY2);
         }
 
         if (calcRegression && showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
-            Platform.runLater(() -> chart.getRenderers().addAll(trendLineRenderer, labelledMarkerRenderer, columnChartLabelRenderer));
+            allRenderer.add(trendLineRenderer);
+            allRenderer.add(labelledMarkerRenderer);
+            allRenderer.add(columnChartLabelRenderer);
         } else if (chartType != null && chartType.equals(ChartType.COLUMN) && showIcons) {
-            Platform.runLater(() -> chart.getRenderers().addAll(labelledMarkerRenderer, columnChartLabelRenderer));
+            allRenderer.add(labelledMarkerRenderer);
+            allRenderer.add(columnChartLabelRenderer);
         } else if (showIcons) {
-            Platform.runLater(() -> chart.getRenderers().addAll(labelledMarkerRenderer));
+            allRenderer.add(labelledMarkerRenderer);
         }
 
+        Platform.runLater(() -> chart.getRenderers().addAll(allRenderer));
         Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
     }
 

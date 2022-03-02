@@ -426,7 +426,7 @@ public class EquipmentPlugin extends TablePlugin {
                     @Override
                     protected Object call() throws Exception {
                         try {
-                            this.updateTitle(I18n.getInstance().getString("Clear Cache"));
+                            this.updateTitle(I18n.getInstance().getString("plugin.equipment.load"));
                             if (initialized) {
                                 ds.clearCache();
                                 ds.preload();
