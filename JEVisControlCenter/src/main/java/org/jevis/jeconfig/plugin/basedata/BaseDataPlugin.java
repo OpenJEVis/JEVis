@@ -23,6 +23,7 @@ import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -322,7 +323,7 @@ public class BaseDataPlugin extends TablePlugin {
                     @Override
                     protected Object call() throws Exception {
                         try {
-                            this.updateTitle(I18n.getInstance().getString("Clear Cache"));
+                            this.updateTitle(I18n.getInstance().getString("plugin.meters.load"));
                             if (initialized) {
                                 ds.clearCache();
                                 ds.preload();
@@ -361,7 +362,7 @@ public class BaseDataPlugin extends TablePlugin {
         }
     }
 
-    private void loadTabs(Map<String, List<JEVisObject>> allBaseData, List<String> typesOfBaseData) throws InterruptedException {
+    private void loadTabs(Map<String, List<JEVisObject>> allBaseData, List<String> typesOfBaseData, TabPane tabPane) throws InterruptedException {
         AtomicBoolean hasActiveLoadTask = new AtomicBoolean(false);
         for (Map.Entry<Task, String> entry : JEConfig.getStatusBar().getTaskList().entrySet()) {
             Task task = entry.getKey();
@@ -449,7 +450,7 @@ public class BaseDataPlugin extends TablePlugin {
             });
         } else {
             Thread.sleep(500);
-            loadTabs(allBaseData, typesOfBaseData);
+            loadTabs(allBaseData, typesOfBaseData, tabPane);
         }
     }
 
@@ -474,19 +475,88 @@ public class BaseDataPlugin extends TablePlugin {
 
         JEConfig.getStatusBar().addTask(BaseDataPlugin.class.getName() + "Load", load, taskImage, true);
 
-        Task loadTabs = new Task() {
-            @Override
-            protected Object call() throws Exception {
-                try {
-                    loadTabs(allBaseData, typesOfBaseData);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        if (!isMultiSite()) {
+            Task loadTabs = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    try {
+                        loadTabs(allBaseData, typesOfBaseData, tabPane);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
                 }
-                return null;
-            }
-        };
+            };
 
-        JEConfig.getStatusBar().addTask(BaseDataPlugin.class.getName(), loadTabs, taskImage, true);
+            JEConfig.getStatusBar().addTask(BaseDataPlugin.class.getName(), loadTabs, taskImage, true);
+        } else {
+
+            List<JEVisObject> sites = new ArrayList<>();
+            try {
+                JEVisClass baseDataClass = ds.getJEVisClass(BASE_DATA_CLASS);
+                JEVisClass baseDataDirClass = ds.getJEVisClass(BASE_DATA_DIRECTORY_CLASS);
+                List<JEVisObject> allObjects = ds.getObjects(baseDataClass, false);
+                for (JEVisObject object : allObjects) {
+                    JEVisObject building = CommonMethods.getFirstParentalObjectOfClass(object, "Building");
+
+                    if (building != null && !sites.contains(building)) {
+                        sites.add(building);
+                    }
+                }
+
+                for (JEVisObject site : sites) {
+                    List<JEVisObject> baseDataDirs = site.getChildren(baseDataDirClass, false);
+                    if (!baseDataDirs.isEmpty()) {
+                        TabPane buildingTabPane = new TabPane();
+                        JEVisClassTab buildingTab = new JEVisClassTab(site.getName(), buildingTabPane);
+                        buildingTab.setClosable(false);
+                        Platform.runLater(() -> this.tabPane.getTabs().add(buildingTab));
+
+                        Task loadTabs = new Task() {
+                            @Override
+                            protected Object call() throws Exception {
+                                try {
+                                    Map<String, List<JEVisObject>> filteredMap = new HashMap<>();
+
+                                    for (Map.Entry<String, List<JEVisObject>> entry : allBaseData.entrySet()) {
+                                        String s = entry.getKey();
+                                        List<JEVisObject> jeVisObjects = entry.getValue();
+                                        for (JEVisObject obj : jeVisObjects) {
+                                            JEVisObject building = CommonMethods.getFirstParentalObjectOfClass(obj, "Building");
+                                            if (building.equals(site)) {
+                                                JEVisObject parent = obj.getParents().get(0);
+                                                if (!filteredMap.containsKey(parent.getName())) {
+                                                    List<JEVisObject> objectArrayList = new ArrayList<>();
+                                                    objectArrayList.add(obj);
+                                                    filteredMap.put(parent.getName(), objectArrayList);
+                                                } else {
+                                                    filteredMap.get(parent.getName()).add(obj);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    List<String> filteredTypesOfBaseData = new ArrayList<>();
+                                    filteredMap.forEach((key, list) -> filteredTypesOfBaseData.add(key));
+                                    AlphanumComparator ac = new AlphanumComparator();
+                                    filteredTypesOfBaseData.sort(ac);
+
+                                    loadTabs(filteredMap, filteredTypesOfBaseData, buildingTabPane);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                return null;
+                            }
+                        };
+
+                        JEConfig.getStatusBar().addTask(BaseDataPlugin.class.getName(), loadTabs, taskImage, true);
+                    }
+                }
+
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
     }
 
     private Map<String, List<JEVisObject>> getAllBaseData() {

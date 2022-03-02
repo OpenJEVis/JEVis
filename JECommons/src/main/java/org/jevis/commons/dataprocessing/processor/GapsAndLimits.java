@@ -18,6 +18,7 @@ import org.jevis.commons.json.JsonGapFillingConfig;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -273,7 +274,7 @@ public class GapsAndLimits {
         BigDecimal rawValueDec = new BigDecimal(inputValue.toString());
         BigDecimal divDec = new BigDecimal(0);
         divDec = divDec.add(rawValueDec);
-        divDec = divDec.divide(currentMulti);
+        divDec = divDec.divide(currentMulti, RoundingMode.HALF_EVEN);
         divDec = divDec.add(offset);
         return divDec.doubleValue();
     }

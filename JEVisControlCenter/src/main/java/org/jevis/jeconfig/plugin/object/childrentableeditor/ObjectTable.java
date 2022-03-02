@@ -55,10 +55,11 @@ public class ObjectTable {
     private final FilteredList<TableData> filteredData;
     private Map<Long, List<Long>> calcMap = new HashMap<>();
     private JEVisDataSource ds;
+    private final Map<JEVisAttribute, List<JEVisSample>> sampleMap = new HashMap<>();
 
     public ObjectTable(JEVisObject parentObject, JFXDatePicker startDatePicker, JFXDatePicker endDatePicker, ToggleButton reloadButton, ToggleButton xlsxButton, JFXTextField filterInclude, JFXTextField filterExclude, JFXComboBox<String> columnBox, JFXCheckBox sourceDetails) {
 
-        reloadButton.setOnAction(event -> tableView.refresh());
+        reloadButton.setOnAction(event -> reload());
         LocalDate startLocalDate = startDatePicker.getValue();
         LocalDate endLocalDate = endDatePicker.getValue();
         start = new DateTime(startLocalDate.getYear(), startLocalDate.getMonthValue(), startLocalDate.getDayOfMonth(), 0, 0, 0, 0);
@@ -155,14 +156,17 @@ public class ObjectTable {
 
             sourceDetails.selectedProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue.equals(oldValue)) {
-                    tableView.refresh();
+                    reload();
                 }
             });
 
-            TableColumn<TableData, String> minTSColumn = buildMinMaxTSColumn(false);
-            TableColumn<TableData, String> maxTSColumn = buildMinMaxTSColumn(true);
+            TableColumn<TableData, String> minTSColumn = buildMinMaxTSColumn(false, true);
+            TableColumn<TableData, String> maxTSColumn = buildMinMaxTSColumn(true, true);
 
-            this.tableView.getColumns().addAll(nameColumn, classColumn, sourceColumn, minTSColumn, maxTSColumn);
+            TableColumn<TableData, String> minTSRequestColumn = buildMinMaxTSColumn(false, false);
+            TableColumn<TableData, String> maxTSRequestColumn = buildMinMaxTSColumn(true, false);
+
+            this.tableView.getColumns().addAll(nameColumn, classColumn, sourceColumn, minTSColumn, minTSRequestColumn, maxTSColumn, maxTSRequestColumn);
 
             addChildren(tableData, attributes, parentObject);
 
@@ -173,21 +177,17 @@ public class ObjectTable {
 //                tableData.add(new TableData(child));
 //            }
 
-            for (JEVisAttribute attribute : attributes) {
-                if (attribute.hasSample() && attribute.getName().equals("Value")) {
-                    if (attribute.getTimestampFromLastSample().isBefore(start)) {
-                        end = attribute.getTimestampFromLastSample();
-                        start = end.minusDays(1);
-                    }
-                }
-            }
             Platform.runLater(() -> {
                 startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
                 endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
             });
 
+            boolean hasValueColumn = false;
             for (JEVisAttribute attribute : attributes) {
                 String attributeName = attribute.getName();
+                if (attributeName.equals("Value")) {
+                    hasValueColumn = true;
+                }
                 try {
                     attributeName = I18nWS.getInstance().getAttributeName(attribute);
                 } catch (Exception e) {
@@ -200,22 +200,20 @@ public class ObjectTable {
                     for (JEVisAttribute att : param.getValue().getAttributeList()) {
                         if (att.getName().equals(column.getId())) {
                             try {
-                                if (att.hasSample() && att.getName().equals("Value")) {
-                                    List<JEVisSample> samples = att.getSamples(start, end);
-
-                                    String resultString = "";
-                                    if (!samples.isEmpty()) {
-                                        JEVisSample sample = samples.get(samples.size() - 1);
-                                        resultString += sample.getValueAsString() + "@" + sample.getTimestamp().toString(PATTERN)
-                                                + " (" + I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount") + ": " + samples.size() + ")";
-                                    } else {
-                                        resultString += "(" + I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount") + ": 0)";
+                                List<JEVisSample> samples = sampleMap.get(att);
+                                if (samples != null && att.getName().equals("Value")) {
+                                    return new ReadOnlyObjectWrapper<>(samples.get(samples.size() - 1).getValueAsString() + "@" + samples.get(samples.size() - 1).getTimestamp().toString(PATTERN));
+                                } else if (samples != null && att.hasSample()) {
+                                    return new ReadOnlyObjectWrapper<>(samples.get(samples.size() - 1).getValueAsString());
+                                } else {
+                                    List<JEVisSample> newSamples = att.getSamples(start, end);
+                                    if (newSamples != null && !newSamples.isEmpty() && att.getName().equals("Value")) {
+                                        sampleMap.put(att, newSamples);
+                                        return new ReadOnlyObjectWrapper<>(newSamples.get(newSamples.size() - 1).getValueAsString() + "@" + newSamples.get(newSamples.size() - 1).getTimestamp().toString(PATTERN));
+                                    } else if (newSamples != null && !newSamples.isEmpty() && att.hasSample()) {
+                                        sampleMap.put(att, newSamples);
+                                        return new ReadOnlyObjectWrapper<>(newSamples.get(newSamples.size() - 1).getValueAsString());
                                     }
-
-                                    return new ReadOnlyObjectWrapper<>(resultString);
-                                } else if (att.hasSample()) {
-                                    JEVisSample latestSample = att.getLatestSample();
-                                    return new ReadOnlyObjectWrapper<>(latestSample.getValueAsString());
                                 }
                             } catch (Exception ex) {
                                 logger.error(ex);
@@ -228,6 +226,35 @@ public class ObjectTable {
 
 
                 this.tableView.getColumns().add(column);
+            }
+
+            if (hasValueColumn) {
+                String columnName = I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount");
+                TableColumn<TableData, String> sampleCountColumn = new TableColumn<>(columnName);
+                sampleCountColumn.setId(columnName);
+
+                sampleCountColumn.setCellValueFactory(param -> {
+                    try {
+                        JEVisAttribute valueAttribute = param.getValue().getObject().getAttribute("Value");
+                        List<JEVisSample> samples = sampleMap.get(valueAttribute);
+
+                        if (valueAttribute != null) {
+                            if (samples != null) {
+                                return new ReadOnlyObjectWrapper<>(String.valueOf(samples.size()));
+                            } else {
+                                List<JEVisSample> newSamples = valueAttribute.getSamples(start, end);
+                                if (!newSamples.isEmpty()) {
+                                    sampleMap.put(valueAttribute, newSamples);
+                                    return new ReadOnlyObjectWrapper<>(String.valueOf(newSamples.size()));
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
+                    return new ReadOnlyObjectWrapper<>();
+                });
+                this.tableView.getColumns().add(sampleCountColumn);
             }
 
             /**
@@ -345,6 +372,11 @@ public class ObjectTable {
 
     public TableView getTableView() {
         return this.tableView;
+    }
+
+    private void reload() {
+        sampleMap.clear();
+        tableView.refresh();
     }
 
     /**
@@ -578,9 +610,13 @@ public class ObjectTable {
         }
     }
 
-    private TableColumn<TableData, String> buildMinMaxTSColumn(boolean max) {
+    private TableColumn<TableData, String> buildMinMaxTSColumn(boolean max, boolean overall) {
         String columnName;
-        if (max) {
+        if (max && overall) {
+            columnName = I18n.getInstance().getString("jevistree.column.maxts") + " " + I18n.getInstance().getString("jevistree.column.overall");
+        } else if (!max && overall) {
+            columnName = I18n.getInstance().getString("jevistree.column.mints") + " " + I18n.getInstance().getString("jevistree.column.overall");
+        } else if (max) {
             columnName = I18n.getInstance().getString("jevistree.column.maxts");
         } else {
             columnName = I18n.getInstance().getString("jevistree.column.mints");
@@ -599,10 +635,32 @@ public class ObjectTable {
 
                 if (valueAttribute != null) {
                     if (valueAttribute.hasSample()) {
-                        if (max) {
+                        if (max && overall) {
                             return new ReadOnlyObjectWrapper<>(valueAttribute.getTimestampFromLastSample().toString(DATE_FORMAT));
-                        } else {
+                        } else if (!max && overall) {
                             return new ReadOnlyObjectWrapper<>(valueAttribute.getTimestampFromFirstSample().toString(DATE_FORMAT));
+                        } else if (max) {
+                            List<JEVisSample> samples = sampleMap.get(valueAttribute);
+                            if (samples != null && !samples.isEmpty()) {
+                                return new ReadOnlyObjectWrapper<>(samples.get(samples.size() - 1).getTimestamp().toString(DATE_FORMAT));
+                            } else {
+                                List<JEVisSample> newSamples = valueAttribute.getSamples(start, end);
+                                if (!newSamples.isEmpty()) {
+                                    sampleMap.put(valueAttribute, newSamples);
+                                    return new ReadOnlyObjectWrapper<>(newSamples.get(newSamples.size() - 1).getTimestamp().toString(DATE_FORMAT));
+                                }
+                            }
+                        } else {
+                            List<JEVisSample> samples = sampleMap.get(valueAttribute);
+                            if (samples != null && !samples.isEmpty()) {
+                                return new ReadOnlyObjectWrapper<>(samples.get(0).getTimestamp().toString(DATE_FORMAT));
+                            } else {
+                                List<JEVisSample> newSamples = valueAttribute.getSamples(start, end);
+                                if (!newSamples.isEmpty()) {
+                                    sampleMap.put(valueAttribute, newSamples);
+                                    return new ReadOnlyObjectWrapper<>(newSamples.get(0).getTimestamp().toString(DATE_FORMAT));
+                                }
+                            }
                         }
                     } else {
                         return new ReadOnlyObjectWrapper<>("");

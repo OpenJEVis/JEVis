@@ -244,7 +244,7 @@ public class ChartPlugin implements Plugin {
             loadAnalysis.setStyle(style);
             loadAnalysis.setAlignment(Pos.CENTER);
 
-            newAnalysis.setOnAction(event -> newAnalysis());
+            newAnalysis.setOnAction(event -> handleRequest(Constants.Plugin.Command.NEW));
 
             loadAnalysis.setOnAction(event -> openDialog());
 
@@ -261,34 +261,33 @@ public class ChartPlugin implements Plugin {
     private void openDialog() {
 
         LoadAnalysisDialog dialog = new LoadAnalysisDialog(dialogContainer, ds, dataModel);
-        dialog.show();
-        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
-
-        JEVisHelp.getInstance().registerHotKey((Stage) dialog.getScene().getWindow());
-        JEVisHelp.getInstance().setActiveSubModule(LoadAnalysisDialog.class.getSimpleName());
-
-        toolBarView.setDisableToolBarIcons(false);
-
-        dialog.show();
 
         dialog.setOnDialogClosed(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();
             if (dialog.getResponse() == Response.NEW) {
 
-                newAnalysis();
+                handleRequest(Constants.Plugin.Command.NEW);
 
             } else if (dialog.getResponse() == Response.LOAD) {
                 final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
                 if (!previewPref.getBoolean("enabled", true)) {
                     dataModel.setAnalysisTimeFrameForAllModels(dataModel.getGlobalAnalysisTimeFrame());
                 }
-
+                Platform.runLater(() -> toolBarView.setDisableToolBarIcons(false));
 //            dataModel.setGlobalAnalysisTimeFrame(dataModel.getGlobalAnalysisTimeFrame());
 //            dataModel.updateSamples();
 //            dataModel.setCharts(dataModel.getCharts());
 //            dataModel.setSelectedData(dataModel.getSelectedData());
             }
         });
+
+        dialog.show();
+        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
+
+        JEVisHelp.getInstance().registerHotKey((Stage) dialog.getScene().getWindow());
+        JEVisHelp.getInstance().setActiveSubModule(LoadAnalysisDialog.class.getSimpleName());
+
+        Platform.runLater(() -> toolBarView.setDisableToolBarIcons(true));
     }
 
     @Override
@@ -326,28 +325,6 @@ public class ChartPlugin implements Plugin {
         return id;
     }
 
-    private void newAnalysis() {
-
-        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(dialogContainer, ds, dataModel);
-
-//        AnalysisTimeFrame atf = new AnalysisTimeFrame();
-//        atf.setActiveTimeFrame(TimeFrame.CUSTOM);
-//
-//        dataModel.setAnalysisTimeFrame(atf);
-
-        selectionDialog.setOnDialogClosed(event -> {
-            if (selectionDialog.getResponse() == Response.OK) {
-                toolBarView.setDisableToolBarIcons(false);
-
-                dataModel.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
-                dataModel.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
-            }
-            JEVisHelp.getInstance().deactivatePluginModule();
-        });
-
-        selectionDialog.show();
-
-    }
 
     @Override
     public Node getMenu() {
@@ -1297,7 +1274,7 @@ public class ChartPlugin implements Plugin {
 
                 }
 
-                toolBarView.setDisableToolBarIcons(false);
+                Platform.runLater(() -> toolBarView.setDisableToolBarIcons(false));
             }
 
 
@@ -1516,5 +1493,9 @@ public class ChartPlugin implements Plugin {
 
     public StackPane getDialogContainer() {
         return dialogContainer;
+    }
+
+    public ToolBarView getToolBarView() {
+        return toolBarView;
     }
 }

@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.meters;
 
 import javafx.collections.transformation.FilteredList;
+import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import org.jevis.api.JEVisClass;
@@ -12,6 +13,10 @@ public class JEVisClassTab extends Tab {
 
     public JEVisClassTab() {
         super();
+    }
+
+    public JEVisClassTab(String s, Node node) {
+        super(s, node);
     }
 
     public JEVisClassTab(JEVisClass jeVisClass) {
