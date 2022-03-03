@@ -279,6 +279,12 @@ public class ChartPlugin implements Plugin {
 //            dataModel.setCharts(dataModel.getCharts());
 //            dataModel.setSelectedData(dataModel.getSelectedData());
             }
+
+            if (dataModel.getCurrentAnalysis() != null) {
+                Platform.runLater(() -> toolBarView.setDisableToolBarIcons(false));
+            } else {
+                Platform.runLater(() -> toolBarView.setDisableToolBarIcons(true));
+            }
         });
 
         dialog.show();
@@ -287,7 +293,6 @@ public class ChartPlugin implements Plugin {
         JEVisHelp.getInstance().registerHotKey((Stage) dialog.getScene().getWindow());
         JEVisHelp.getInstance().setActiveSubModule(LoadAnalysisDialog.class.getSimpleName());
 
-        Platform.runLater(() -> toolBarView.setDisableToolBarIcons(true));
     }
 
     @Override

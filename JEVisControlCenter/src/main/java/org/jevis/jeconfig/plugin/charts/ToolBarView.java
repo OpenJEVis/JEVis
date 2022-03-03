@@ -272,6 +272,12 @@ public class ToolBarView {
                     model.setAnalysisTimeFrameForAllModels(model.getGlobalAnalysisTimeFrame());
                 }
             }
+
+            if (model.getCurrentAnalysis() != null) {
+                Platform.runLater(() -> setDisableToolBarIcons(false));
+            } else {
+                Platform.runLater(() -> setDisableToolBarIcons(true));
+            }
         });
 
         dialog.show();
