@@ -6,6 +6,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
@@ -28,6 +29,7 @@ public class WorkDays {
     private JEVisObject nextSiteParent;
     private JsonObject nextJsonSiteParent;
     private JEVisClass siteClass;
+    private JEVisClass organisationClass;
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private boolean enabled = true;
@@ -38,6 +40,7 @@ public class WorkDays {
         if (currentObject != null) {
             try {
                 siteClass = currentObject.getDataSource().getJEVisClass("Building");
+                organisationClass = currentObject.getDataSource().getJEVisClass("Organisation");
             } catch (Exception e) {
                 logger.fatal("Could not get JEVisClass for Building");
             }
@@ -57,41 +60,60 @@ public class WorkDays {
         if (currentObject != null) {
             try {
                 JEVisObject site = getNextSiteRecursive(currentObject);
-                LocalTime start = null;
-                LocalTime end = null;
-                if (site != null) {
-                    try {
-                        JEVisAttribute attStart = site.getAttribute("Workday Beginning");
-                        JEVisAttribute attEnd = site.getAttribute("Workday End");
-                        JEVisAttribute zoneAtt = site.getAttribute("Timezone");
-                        if (attStart.hasSample()) {
-                            String startStr = attStart.getLatestSample().getValueAsString();
-                            DateTime dtStart = DateTime.parse(startStr);
-                            start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
-                        }
-                        if (attEnd.hasSample()) {
-                            String endStr = attEnd.getLatestSample().getValueAsString();
-                            DateTime dtEnd = DateTime.parse(endStr);
-                            end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
-                        }
-                        if (zoneAtt.hasSample()) {
-                            String zoneStr = zoneAtt.getLatestSample().getValueAsString();
-                            dateTimeZone = DateTimeZone.forID(zoneStr);
-                        }
-                    } catch (Exception e) {
-                        logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getID(), e);
-                    }
-                } else {
-                    logger.warn("Could not get site object for object {}:{}.", currentObject.getName(), currentObject.getID());
-                }
 
-                if (start != null && end != null) {
-                    workdayStart = start;
-                    workdayEnd = end;
+                if (site != null) {
+                    setStartAndEndForSite(site);
+                } else {
+                    logger.warn("Could not get site object parent for object {}:{}. Trying to get next child site", currentObject.getName(), currentObject.getID());
+
+                    JEVisObject organisation = CommonMethods.getFirstParentalObjectOfClass(currentObject, "Organisation");
+
+                    if (organisation != null) {
+                        site = getNextChildSiteRecursive(organisation);
+                        if (site != null) {
+                            setStartAndEndForSite(site);
+                        } else {
+                            logger.warn("Could not get site object parent for object {}:{}.", currentObject.getName(), currentObject.getID());
+                        }
+                    } else {
+                        logger.warn("Could not get site object parent for object {}:{}.", currentObject.getName(), currentObject.getID());
+                    }
                 }
             } catch (Exception e) {
                 logger.error("Could not get site for current object {}:{}", currentObject.getName(), currentObject.getID(), e);
             }
+        }
+    }
+
+    private void setStartAndEndForSite(JEVisObject site) {
+        try {
+            JEVisAttribute attStart = site.getAttribute("Workday Beginning");
+            JEVisAttribute attEnd = site.getAttribute("Workday End");
+            JEVisAttribute zoneAtt = site.getAttribute("Timezone");
+            LocalTime start = null;
+            LocalTime end = null;
+
+            if (attStart.hasSample()) {
+                String startStr = attStart.getLatestSample().getValueAsString();
+                DateTime dtStart = DateTime.parse(startStr);
+                start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
+            }
+            if (attEnd.hasSample()) {
+                String endStr = attEnd.getLatestSample().getValueAsString();
+                DateTime dtEnd = DateTime.parse(endStr);
+                end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
+            }
+            if (zoneAtt.hasSample()) {
+                String zoneStr = zoneAtt.getLatestSample().getValueAsString();
+                dateTimeZone = DateTimeZone.forID(zoneStr);
+            }
+
+            if (start != null && end != null) {
+                workdayStart = start;
+                workdayEnd = end;
+            }
+        } catch (Exception e) {
+            logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getID(), e);
         }
     }
 
@@ -147,6 +169,22 @@ public class WorkDays {
                 break;
             } else {
                 getNextSiteRecursive(parent);
+            }
+        }
+
+        return nextSiteParent;
+    }
+
+    private JEVisObject getNextChildSiteRecursive(JEVisObject object) throws JEVisException {
+
+        for (JEVisObject child : object.getChildren()) {
+            if (child.getJEVisClass().equals(siteClass)) {
+                nextSiteParent = child;
+                break;
+            } else if (nextSiteParent != null) {
+                break;
+            } else {
+                getNextChildSiteRecursive(child);
             }
         }
 

@@ -55,7 +55,6 @@ public class ObjectTable {
     private final FilteredList<TableData> filteredData;
     private Map<Long, List<Long>> calcMap = new HashMap<>();
     private JEVisDataSource ds;
-    private final Map<JEVisAttribute, List<JEVisSample>> sampleMap = new HashMap<>();
 
     public ObjectTable(JEVisObject parentObject, JFXDatePicker startDatePicker, JFXDatePicker endDatePicker, ToggleButton reloadButton, ToggleButton xlsxButton, JFXTextField filterInclude, JFXTextField filterExclude, JFXComboBox<String> columnBox, JFXCheckBox sourceDetails) {
 
@@ -200,20 +199,11 @@ public class ObjectTable {
                     for (JEVisAttribute att : param.getValue().getAttributeList()) {
                         if (att.getName().equals(column.getId())) {
                             try {
-                                List<JEVisSample> samples = sampleMap.get(att);
-                                if (samples != null && att.getName().equals("Value")) {
-                                    return new ReadOnlyObjectWrapper<>(samples.get(samples.size() - 1).getValueAsString() + "@" + samples.get(samples.size() - 1).getTimestamp().toString(PATTERN));
-                                } else if (samples != null && att.hasSample()) {
-                                    return new ReadOnlyObjectWrapper<>(samples.get(samples.size() - 1).getValueAsString());
-                                } else {
-                                    List<JEVisSample> newSamples = att.getSamples(start, end);
-                                    if (newSamples != null && !newSamples.isEmpty() && att.getName().equals("Value")) {
-                                        sampleMap.put(att, newSamples);
-                                        return new ReadOnlyObjectWrapper<>(newSamples.get(newSamples.size() - 1).getValueAsString() + "@" + newSamples.get(newSamples.size() - 1).getTimestamp().toString(PATTERN));
-                                    } else if (newSamples != null && !newSamples.isEmpty() && att.hasSample()) {
-                                        sampleMap.put(att, newSamples);
-                                        return new ReadOnlyObjectWrapper<>(newSamples.get(newSamples.size() - 1).getValueAsString());
-                                    }
+                                List<JEVisSample> newSamples = att.getSamples(start, end);
+                                if (newSamples != null && !newSamples.isEmpty() && att.getName().equals("Value")) {
+                                    return new ReadOnlyObjectWrapper<>(newSamples.get(newSamples.size() - 1).getValueAsString() + "@" + newSamples.get(newSamples.size() - 1).getTimestamp().toString(PATTERN));
+                                } else if (newSamples != null && !newSamples.isEmpty() && att.hasSample()) {
+                                    return new ReadOnlyObjectWrapper<>(newSamples.get(newSamples.size() - 1).getValueAsString());
                                 }
                             } catch (Exception ex) {
                                 logger.error(ex);
@@ -233,27 +223,7 @@ public class ObjectTable {
                 TableColumn<TableData, String> sampleCountColumn = new TableColumn<>(columnName);
                 sampleCountColumn.setId(columnName);
 
-                sampleCountColumn.setCellValueFactory(param -> {
-                    try {
-                        JEVisAttribute valueAttribute = param.getValue().getObject().getAttribute("Value");
-                        List<JEVisSample> samples = sampleMap.get(valueAttribute);
-
-                        if (valueAttribute != null) {
-                            if (samples != null) {
-                                return new ReadOnlyObjectWrapper<>(String.valueOf(samples.size()));
-                            } else {
-                                List<JEVisSample> newSamples = valueAttribute.getSamples(start, end);
-                                if (!newSamples.isEmpty()) {
-                                    sampleMap.put(valueAttribute, newSamples);
-                                    return new ReadOnlyObjectWrapper<>(String.valueOf(newSamples.size()));
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        logger.error(e);
-                    }
-                    return new ReadOnlyObjectWrapper<>();
-                });
+                sampleCountColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(String.valueOf(param.getValue().getSampleCount())));
                 this.tableView.getColumns().add(sampleCountColumn);
             }
 
@@ -355,8 +325,7 @@ public class ObjectTable {
 
     }
 
-    private void addChildren
-            (ObservableList<TableData> tableData, List<JEVisAttribute> attributes, JEVisObject parent) {
+    private void addChildren(ObservableList<TableData> tableData, List<JEVisAttribute> attributes, JEVisObject parent) {
         try {
             for (JEVisObject child : parent.getChildren()) {
                 for (JEVisAttribute attribute : child.getAttributes()) {
@@ -375,7 +344,24 @@ public class ObjectTable {
     }
 
     private void reload() {
-        sampleMap.clear();
+        for (TableData tableData : tableView.getItems()) {
+            try {
+                JEVisAttribute valueAttribute = tableData.getObject().getAttribute("Value");
+                if (valueAttribute != null && valueAttribute.hasSample()) {
+                    List<JEVisSample> newSamples = valueAttribute.getSamples(start, end);
+                    if (!newSamples.isEmpty()) {
+                        tableData.setSampleCount(newSamples.size());
+                        tableData.setMinTs(newSamples.get(0).getTimestamp());
+                        tableData.setMaxTs(newSamples.get(newSamples.size() - 1).getTimestamp());
+                    }
+                    tableData.setMinTsOverall(valueAttribute.getTimestampFromFirstSample());
+                    tableData.setMaxTsOverall(valueAttribute.getTimestampFromLastSample());
+                }
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
+
         tableView.refresh();
     }
 
@@ -627,53 +613,22 @@ public class ObjectTable {
         column.setPrefWidth(135);
 
         column.setCellValueFactory(param -> {
-            try {
-                JEVisAttribute valueAttribute = null;
-                for (JEVisAttribute att : param.getValue().getAttributeList()) {
-                    if (att.getName().equals("Value")) valueAttribute = att;
-                }
-
-                if (valueAttribute != null) {
-                    if (valueAttribute.hasSample()) {
-                        if (max && overall) {
-                            return new ReadOnlyObjectWrapper<>(valueAttribute.getTimestampFromLastSample().toString(DATE_FORMAT));
-                        } else if (!max && overall) {
-                            return new ReadOnlyObjectWrapper<>(valueAttribute.getTimestampFromFirstSample().toString(DATE_FORMAT));
-                        } else if (max) {
-                            List<JEVisSample> samples = sampleMap.get(valueAttribute);
-                            if (samples != null && !samples.isEmpty()) {
-                                return new ReadOnlyObjectWrapper<>(samples.get(samples.size() - 1).getTimestamp().toString(DATE_FORMAT));
-                            } else {
-                                List<JEVisSample> newSamples = valueAttribute.getSamples(start, end);
-                                if (!newSamples.isEmpty()) {
-                                    sampleMap.put(valueAttribute, newSamples);
-                                    return new ReadOnlyObjectWrapper<>(newSamples.get(newSamples.size() - 1).getTimestamp().toString(DATE_FORMAT));
-                                }
-                            }
-                        } else {
-                            List<JEVisSample> samples = sampleMap.get(valueAttribute);
-                            if (samples != null && !samples.isEmpty()) {
-                                return new ReadOnlyObjectWrapper<>(samples.get(0).getTimestamp().toString(DATE_FORMAT));
-                            } else {
-                                List<JEVisSample> newSamples = valueAttribute.getSamples(start, end);
-                                if (!newSamples.isEmpty()) {
-                                    sampleMap.put(valueAttribute, newSamples);
-                                    return new ReadOnlyObjectWrapper<>(newSamples.get(0).getTimestamp().toString(DATE_FORMAT));
-                                }
-                            }
-                        }
-                    } else {
-                        return new ReadOnlyObjectWrapper<>("");
-                    }
-
-                } else {
-                    return new ReadOnlyObjectWrapper<>("");
-                }
-
-            } catch (Exception ex) {
-                logger.error(ex);
+            DateTime result = null;
+            if (max && overall) {
+                result = param.getValue().getMaxTsOverall();
+            } else if (!max && overall) {
+                result = param.getValue().getMinTsOverall();
+            } else if (max) {
+                result = param.getValue().getMaxTs();
+            } else {
+                result = param.getValue().getMinTs();
             }
-            return new ReadOnlyObjectWrapper<>("");
+
+            if (result != null) {
+                return new ReadOnlyObjectWrapper<>(result.toString(DATE_FORMAT));
+            } else {
+                return new ReadOnlyObjectWrapper<>();
+            }
         });
 
         return column;
