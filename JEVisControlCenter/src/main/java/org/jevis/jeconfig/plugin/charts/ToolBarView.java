@@ -9,6 +9,7 @@ import com.jfoenix.controls.*;
 import com.jfoenix.skins.JFXComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -81,7 +82,7 @@ public class ToolBarView {
     private final ObjectRelations objectRelations;
     private AnalysisDataModel model;
     private final JFXComboBox<JEVisObject> listAnalysesComboBox;
-    private Boolean _initialized = false;
+    private final SimpleBooleanProperty disabledIcons = new SimpleBooleanProperty(true);
     private ToggleButton save;
     private ToggleButton loadNew;
     private ToggleButton exportCSV;
@@ -161,6 +162,10 @@ public class ToolBarView {
         listAnalysesComboBox = new JFXComboBox<>(model.getObservableListAnalyses());
         listAnalysesComboBox.setPrefWidth(300);
         setCellFactoryForComboBox();
+
+        createToolbarIcons();
+
+        Platform.runLater(() -> setDisableToolBarIcons(true));
     }
 
     public ToolBar getToolbar(JEVisDataSource ds) {
@@ -280,6 +285,7 @@ public class ToolBarView {
             }
         });
 
+        Platform.runLater(() -> setDisableToolBarIcons(true));
         dialog.show();
         Platform.runLater(() -> dialog.getFilterInput().requestFocus());
     }
@@ -896,19 +902,13 @@ public class ToolBarView {
         dia.show();
     }
 
-
-    public void selectFirst() {
-        if (!_initialized) {
-            model.updateListAnalyses();
-        }
-        listAnalysesComboBox.getSelectionModel().selectFirst();
-    }
-
     public void select(JEVisObject obj) {
         getListAnalysesComboBox().getSelectionModel().select(obj);
     }
 
     public void setDisableToolBarIcons(boolean bool) {
+        disabledIcons.set(bool);
+
         listAnalysesComboBox.setDisable(bool);
         save.setDisable(bool);
         loadNew.setDisable(bool);
@@ -944,6 +944,7 @@ public class ToolBarView {
     }
 
     public void updateLayout() {
+
         Platform.runLater(() -> {
 
             removeAnalysisComboBoxListener();
@@ -967,8 +968,6 @@ public class ToolBarView {
             pickerTimeEnd = pickerCombo.getEndTimePicker();
 
             JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, presetDateBox, pickerDateStart, pickerTimeStart);
-
-            createToolbarIcons();
 
             Separator sep1 = new Separator();
             Separator sep2 = new Separator();
@@ -1034,7 +1033,7 @@ public class ToolBarView {
             addAnalysisComboBoxListener();
             pickerCombo.addListener();
             startToolbarIconListener();
-
+            setDisableToolBarIcons(disabledIcons.get());
         });
     }
 
@@ -1357,16 +1356,6 @@ public class ToolBarView {
 
         helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
         infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-
-
-        if (!_initialized) {
-            save.setDisable(false);
-            delete.setDisable(false);
-
-            setDisableToolBarIcons(true);
-
-            _initialized = true;
-        }
     }
 
     public Boolean getChanged() {

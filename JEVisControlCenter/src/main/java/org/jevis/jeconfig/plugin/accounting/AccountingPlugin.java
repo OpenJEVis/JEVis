@@ -264,7 +264,18 @@ public class AccountingPlugin extends TablePlugin {
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.new.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.tooltip.print")));
 
-        motherTabPane.getTabs().addAll(viewTab, contractsTab, enterDataTab);
+        boolean canWriteToContracts = false;
+        try {
+            canWriteToContracts = ds.getCurrentUser().canWrite(accountingDirectories.getEnergyContractingDir().getID());
+        } catch (JEVisException e) {
+            logger.error("Failed to check user permissions to write to contracts directory", e);
+        }
+
+        if (canWriteToContracts) {
+            motherTabPane.getTabs().addAll(viewTab, contractsTab, enterDataTab);
+        } else {
+            motherTabPane.getTabs().addAll(viewTab);
+        }
 
         motherTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.equals(enterDataTab)) {

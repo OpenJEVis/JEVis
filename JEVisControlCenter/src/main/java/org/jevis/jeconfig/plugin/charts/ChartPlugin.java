@@ -287,6 +287,7 @@ public class ChartPlugin implements Plugin {
             }
         });
 
+        Platform.runLater(() -> toolBarView.setDisableToolBarIcons(true));
         dialog.show();
         Platform.runLater(() -> dialog.getFilterInput().requestFocus());
 
