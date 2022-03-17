@@ -30,6 +30,8 @@ import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.OPCUAServer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class OPCBrowser {
@@ -41,6 +43,7 @@ public class OPCBrowser {
     public final JEVisObject opcServerObj;
     public static final String DEFAULT_OPC_PORT = "4840";
     public static final String ROOT_FOLDER_TREND = "/Objects/Loytec ROOT/Trend";
+    public static final String ROOT_FOLDER_TREND_BACNET = "/Objects/Loytec ROOT/BACnet Port/Trend";
 
     JFXTextField port = new JFXTextField();
     JFXButton connect = new JFXButton();
@@ -164,7 +167,7 @@ public class OPCBrowser {
                     opcClient.connect();
 
 
-                    NodeTreeTable nodeTable = new NodeTreeTable(opcClient, opcServerObj, comboRootFolder.getValue(), dialogContainer, comboMode.getValue());
+                    NodeTreeTable nodeTable = new NodeTreeTable(opcClient, opcServerObj, comboRootFolder.getValue(),ROOT_FOLDER_TREND_BACNET, dialogContainer, comboMode.getValue());
                     if (vBox.getChildren().size() > 2) {
                         vBox.getChildren().set(2, nodeTable.getView());
                         VBox.setVgrow(nodeTable.getView(), Priority.ALWAYS);
@@ -199,7 +202,7 @@ public class OPCBrowser {
                     comboRootFolder.setValue(comboRootFolder.getItems().get(0));
                 } else if (comboMode.getValue().equals(NodeTreeTable.SETUP_MODE)) {
                     comboRootFolder.setVisible(false);
-                    comboRootFolder.setValue(ROOT_FOLDER_TREND);
+                    comboRootFolder.setValue("/Objects/Loytec ROOT/Trend");
                 }
 
             });
