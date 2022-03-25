@@ -82,6 +82,8 @@ public class InputFunction implements ProcessFunction {
             _jsonResult = new ArrayList<>();
 
             JsonObject object = null;
+            JsonAttribute att = null;
+
             SQLDataSource sql = task.getSqlDataSource();
             if (ProcessOptions.ContainsOption(task, OBJECT_ID)) {
                 long oid = Long.parseLong((ProcessOptions.GetLatestOption(task, OBJECT_ID, new BasicProcessOption(OBJECT_ID, "")).getValue()));
@@ -109,7 +111,6 @@ public class InputFunction implements ProcessFunction {
 //                    long oid = Long.valueOf(task.getOptions().get(OBJECT_ID));
 //                    JEVisObject object = task.getJEVisDataSource().getObject(oid);
 
-                    JsonAttribute att = null;
                     for (JsonAttribute attribute : sql.getAttributes(object.getId())) {
                         if (attribute.getType().equals(ProcessOptions.GetLatestOption(task, ATTRIBUTE_ID, new BasicProcessOption(ATTRIBUTE_ID, "")).getValue())) {
                             att = attribute;
@@ -119,13 +120,15 @@ public class InputFunction implements ProcessFunction {
                     JsonObject correspondingUserDataObject = null;
                     boolean foundUserDataObject = false;
 
-                    for (JsonRelationship rel : sql.getRelationships(object.getId())) {
-                        if (rel.getType() == 1) {
+                    List<JsonRelationship> relationships = sql.getRelationships(object.getId());
+                    for (JsonRelationship rel : relationships) {
+                        if (rel.getType() == 1 && rel.getFrom() == object.getId()) {
                             JsonObject parent = sql.getObject(rel.getTo());
-                            for (JsonRelationship pRel : sql.getRelationships(parent.getId())) {
-                                if (rel.getType() == 1) {
+                            List<JsonRelationship> parentRelationships = sql.getRelationships(parent.getId());
+                            for (JsonRelationship pRel : parentRelationships) {
+                                if (rel.getType() == 1 && rel.getTo() == parent.getId()) {
                                     JsonObject child = sql.getObject(pRel.getFrom());
-                                    if (child.getJevisClass().equals("User Data")) {
+                                    if (child.getJevisClass().equals("User Data") && child.getName().contains(object.getName())) {
                                         correspondingUserDataObject = child;
                                         foundUserDataObject = true;
                                         break;
@@ -149,14 +152,20 @@ public class InputFunction implements ProcessFunction {
                         List<JsonSample> userValues = sql.getSamples(correspondingUserDataObject.getId(), "Value", startEnd[0], startEnd[1], LIMIT);
 
                         for (JsonSample userValue : userValues) {
-                            String note = map.get(new DateTime(userValue.getTs())).getNote();
+                            DateTime ts = new DateTime(userValue.getTs());
+                            JsonSample originalSample = map.get(ts);
+                            String note = "";
+                            if (originalSample != null) {
+                                note += originalSample.getNote();
+                            }
+
                             JsonSample jsonSample = new JsonSample();
                             jsonSample.setTs(userValue.getTs());
                             jsonSample.setValue(userValue.getValue());
                             jsonSample.setNote(note + "," + USER_VALUE);
 
-                            map.remove(new DateTime(userValue.getTs()));
-                            map.put(new DateTime(jsonSample.getTs()), jsonSample);
+                            map.remove(ts);
+                            map.put(ts, jsonSample);
                         }
 
                         _jsonResult = new ArrayList<>(map.values());
@@ -166,7 +175,7 @@ public class InputFunction implements ProcessFunction {
 
                     logger.info("Input result: {}", _jsonResult.size());
                 } catch (Exception ex) {
-                    logger.fatal(ex);
+                    logger.error("Error when creating sample list for object {}:{} and attribute {}", object.getName(), object.getId(), att.getType(), ex);
                 }
             } else {
                 logger.warn("Missing options {} and {}", OBJECT_ID, ATTRIBUTE_ID);

@@ -103,7 +103,7 @@ public class PickerCombo {
 
             }
         } else {
-            if (analysisDataModel.isglobalAnalysisTimeFrame()) {
+            if (analysisDataModel.isGlobalAnalysisTimeFrame()) {
                 presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == analysisDataModel.getGlobalAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
 
                 DateTime start = analysisDataModel.getGlobalAnalysisTimeFrame().getStart();

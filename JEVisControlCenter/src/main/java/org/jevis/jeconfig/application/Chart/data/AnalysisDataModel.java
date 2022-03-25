@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
@@ -92,7 +91,7 @@ public class AnalysisDataModel {
     private Long horizontalTables = 3L;
     private Boolean isGlobalAnalysisTimeFrame = true;
     private AnalysisTimeFrame globalAnalysisTimeFrame;
-    private final SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
+    //    private final SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
     private Boolean showRawData = false;
     private Boolean showSum = false;
     private Boolean calcRegression = false;
@@ -144,17 +143,17 @@ public class AnalysisDataModel {
         this.globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
         this.globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
 
-        changed.addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue && newValue) {
-                changed.set(false);
-
-                selectedData = new HashSet<>();
-                charts = new ChartSettings();
-                updateSelectedData();
-
-                update();
-            }
-        });
+//        changed.addListener((observable, oldValue, newValue) -> {
+//            if (newValue != oldValue && newValue) {
+//                changed.set(false);
+//
+//                selectedData.clear();
+//                charts.clear();
+//                updateSelectedData();
+//
+//                update();
+//            }
+//        });
     }
 
     public Set<ChartDataRow> getSelectedData() {
@@ -187,13 +186,6 @@ public class AnalysisDataModel {
     }
 
     private AggregationPeriod globalAggregationPeriod = AggregationPeriod.NONE;
-
-    public void updateSamples() {
-        selectedData.forEach(chartDataModel -> {
-            chartDataModel.setSomethingChanged(true);
-            chartDataModel.getSamples();
-        });
-    }
 
     public ChartSettings getCharts() {
         if (charts == null || charts.getListSettings().isEmpty()) updateCharts();
@@ -455,6 +447,10 @@ public class AnalysisDataModel {
 //        pd.getDialogPane().setContent(cancelButton);
 //
 //        service.start();
+        selectedData.clear();
+        charts.clear();
+        updateSelectedData();
+
         chartPlugin.update();
     }
 
@@ -664,7 +660,7 @@ public class AnalysisDataModel {
 
         globalAnalysisTimeFrame = analysisTimeFrame;
         isGlobalAnalysisTimeFrame(true);
-        changed.set(true);
+        update();
     }
 
     public void setAnalysisTimeFrameForAllModelsNO_EVENT(AnalysisTimeFrame analysisTimeFrame) {
@@ -1029,7 +1025,6 @@ public class AnalysisDataModel {
             }
             if (!getTemporary()) {
                 getAnalysisModel();
-                updateSelectedData();
             }
         }
     }
@@ -1076,11 +1071,11 @@ public class AnalysisDataModel {
     private ManipulationMode globalManipulationMode = ManipulationMode.NONE;
 
     /**
-     * NOTE fs: this one will be called twice after user select an chart....
+     * NOTE fs: this one will be called twice after user select a chart....
      */
     public void updateSelectedData() {
 
-        Set<ChartDataRow> selectedData = new HashSet<>();
+        selectedData.clear();
 
         JsonChartDataModel jsonChartDataModel = getAnalysisModel();
 
@@ -1157,11 +1152,9 @@ public class AnalysisDataModel {
             }
         }
 
-        if (isglobalAnalysisTimeFrame()) {
+        if (isGlobalAnalysisTimeFrame()) {
             setGlobalAnalysisTimeFrame(selectedData);
         }
-
-        this.selectedData = selectedData;
     }
 
     public void setGlobalAnalysisTimeFrame(Set<ChartDataRow> selectedData) {
@@ -1351,12 +1344,12 @@ public class AnalysisDataModel {
         this.horizontalPies = horizontalPies;
     }
 
-    public Boolean isglobalAnalysisTimeFrame() {
+    public Boolean isGlobalAnalysisTimeFrame() {
         return isGlobalAnalysisTimeFrame;
     }
 
-    public void isGlobalAnalysisTimeFrame(Boolean isglobalAnalysisTimeFrame) {
-        this.isGlobalAnalysisTimeFrame = isglobalAnalysisTimeFrame;
+    public void isGlobalAnalysisTimeFrame(Boolean isGlobalAnalysisTimeFrame) {
+        this.isGlobalAnalysisTimeFrame = isGlobalAnalysisTimeFrame;
     }
 
     public AnalysisTimeFrame getGlobalAnalysisTimeFrame() {
@@ -1365,24 +1358,13 @@ public class AnalysisDataModel {
 
     public void setGlobalAnalysisTimeFrame(AnalysisTimeFrame globalAnalysisTimeFrame) {
         this.globalAnalysisTimeFrame = globalAnalysisTimeFrame;
-        changed.set(true);
+
+        update();
     }
 
     public void setGlobalAnalysisTimeFrameNOEVENT(AnalysisTimeFrame globalAnalysisTimeFrame) {
         this.globalAnalysisTimeFrame = globalAnalysisTimeFrame;
         setGlobalAnalysisTimeFrame(getSelectedData());
-    }
-
-    public boolean isChanged() {
-        return changed.get();
-    }
-
-    public void setChanged(boolean changed) {
-        this.changed.set(changed);
-    }
-
-    public SimpleBooleanProperty changedProperty() {
-        return changed;
     }
 
     public int getPolyRegressionDegree() {
