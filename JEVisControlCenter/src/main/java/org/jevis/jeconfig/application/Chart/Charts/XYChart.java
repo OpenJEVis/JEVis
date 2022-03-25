@@ -147,8 +147,11 @@ public class XYChart implements Chart {
 
         CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());
         CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());
-        y1Axis.setTickLabelFormatter(tickLabelFormatter1);
-        y2Axis.setTickLabelFormatter(tickLabelFormatter2);
+        Platform.runLater(() -> {
+            y1Axis.setTickLabelFormatter(tickLabelFormatter1);
+
+            y2Axis.setTickLabelFormatter(tickLabelFormatter2);
+        });
 
         this.nf.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
         this.nf.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
@@ -309,10 +312,19 @@ public class XYChart implements Chart {
 
     private void createSumModels(AnalysisDataModel dataModel, List<ChartDataRow> sumModels) {
         try {
+            long sumId = 9999999999L;
+            List<ChartDataRow> oldModels = new ArrayList<>();
+            dataModel.getSelectedData().forEach(chartDataRow -> {
+                if (chartDataRow.getObject().getID() == sumId) {
+                    oldModels.add(chartDataRow);
+                }
+            });
+            dataModel.getSelectedData().removeAll(oldModels);
+
             for (ChartDataRow sumModel : sumModels) {
                 int index = sumModels.indexOf(sumModel);
                 JsonObject json = new JsonObject();
-                json.setId(9999999999L);
+                json.setId(sumId);
                 json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
                 if (index == 0) {
                     json.setName(json.getName() + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1"));
@@ -1232,6 +1244,10 @@ public class XYChart implements Chart {
 
     @Override
     public de.gsi.chart.Chart getChart() {
+        if (chart == null) {
+            initializeChart();
+        }
+
         return chart;
     }
 

@@ -419,7 +419,6 @@ public class ChartPlugin implements Plugin {
                     dataModel.updateListAnalyses();
                     dataModel.setCurrentAnalysis(currentAnalysis);
                     dataModel.setCharts(new ChartSettings());
-                    dataModel.updateSelectedData();
 
                     dataModel.setManipulationMode(currentManipulationMode);
                     dataModel.setAggregationPeriod(currentAggregationPeriod);
@@ -479,7 +478,6 @@ public class ChartPlugin implements Plugin {
             }
         });
 
-        allCharts.clear();
         zoomed = false;
         setxAxisLowerBound(null);
         setxAxisUpperBound(null);
@@ -492,6 +490,31 @@ public class ChartPlugin implements Plugin {
             } catch (Exception ignored) {
             }
         });
+
+        allCharts.forEach((integer, chart) -> {
+            try {
+                if (chart.getChart() instanceof de.gsi.chart.XYChart) {
+                    chart.getChart().getAllDatasets().clear();
+                    chart.getChart().getRenderers().clear();
+                    chart.getChart().getPlugins().clear();
+                }
+
+                if (chart instanceof XYChart) {
+                    XYChart xyChart = (XYChart) chart;
+                    xyChart.setChart(null);
+                }
+
+                chart.getTableData().clear();
+                chart.setRegion(null);
+                if (chart.getChartDataRows() != null) {
+                    chart.getChartDataRows().clear();
+                }
+            } catch (Exception e) {
+                logger.error("Error while clearing old charts", e);
+            }
+        });
+
+        allCharts.clear();
 
         Long horizontalPies = dataModel.getHorizontalPies();
         Long horizontalTables = dataModel.getHorizontalTables();
@@ -1140,7 +1163,6 @@ public class ChartPlugin implements Plugin {
 
                     dataModel.setCurrentAnalysis(analysisRequest.getObject());
                     dataModel.setCharts(new ChartSettings());
-                    dataModel.updateSelectedData();
 
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
@@ -1151,10 +1173,7 @@ public class ChartPlugin implements Plugin {
                     dataModel.isGlobalAnalysisTimeFrame(true);
                     dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
-                    Platform.runLater(() -> {
-                        toolBarView.setChanged(false);
-                        dataModel.setChanged(false);
-                    });
+                    Platform.runLater(() -> toolBarView.setChanged(false));
 
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")
                         || jeVisObject.getJEVisClassName().equals("Math Data") || jeVisObject.getJEVisClassName().equals("Forecast Data")) {
@@ -1269,10 +1288,7 @@ public class ChartPlugin implements Plugin {
                     if (analysisDir == null) {
                         dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
-                        Platform.runLater(() -> {
-                            toolBarView.setChanged(false);
-                            dataModel.setChanged(false);
-                        });
+                        Platform.runLater(() -> toolBarView.setChanged(false));
                     } else {
                         dataModel.updateListAnalyses();
                         update();
