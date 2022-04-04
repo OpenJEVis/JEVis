@@ -329,6 +329,7 @@ public class AggregatorFunction implements ProcessFunction {
 
                 QuantityUnits qu = new QuantityUnits();
                 boolean isQuantity = qu.isQuantityUnit(unit);
+                isQuantity = qu.isQuantityIfCleanData(attribute, isQuantity);
 
                 if (hasSamples && !isQuantity) {
                     sum = sum / samplesInPeriod.size();
