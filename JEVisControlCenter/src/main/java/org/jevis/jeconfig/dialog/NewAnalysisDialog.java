@@ -13,7 +13,7 @@ public class NewAnalysisDialog {
     private final JEVisDataSource ds;
     private final AnalysisDataModel model;
     private final ChartPlugin chartPlugin;
-    private Boolean changed;
+    private final Boolean changed;
 
     public NewAnalysisDialog(StackPane DialogContainer, JEVisDataSource ds, AnalysisDataModel model, ChartPlugin chartPlugin, Boolean changed) {
         dialogContainer = DialogContainer;
@@ -37,7 +37,6 @@ public class NewAnalysisDialog {
                 model.setCurrentAnalysis(null);
                 model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
                 model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
-                changed = true;
                 chartPlugin.handleRequest(Constants.Plugin.Command.SAVE);
                 Platform.runLater(() -> chartPlugin.getToolBarView().setDisableToolBarIcons(false));
             }

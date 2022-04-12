@@ -1,24 +1,20 @@
 package org.jevis.jeconfig.plugin.dtrc;
 
 import com.ibm.icu.text.NumberFormat;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXListCell;
-import com.jfoenix.controls.JFXTimePicker;
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
@@ -26,15 +22,17 @@ import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.dialog.EnterDataDialog;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.accounting.SelectionTemplate;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -54,6 +52,8 @@ public class OutputView extends Tab {
     private static final Logger logger = LogManager.getLogger(OutputView.class);
     private static final String NO_RESULT = I18n.getInstance().getString("plugin.dtrc.noresult");
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
+    private StackPane contractsDialogContainer;
+    private StackPane viewDialogContainer;
     private final JEVisDataSource ds;
     private final JFXDatePicker startDate = new JFXDatePicker(LocalDate.now());
     private final JFXDatePicker endDate = new JFXDatePicker(LocalDate.now());
@@ -79,6 +79,8 @@ public class OutputView extends Tab {
 
     public OutputView(String title, JEVisDataSource ds, TemplateHandler templateHandler) {
         super(title);
+        this.contractsDialogContainer = new StackPane();
+        setContent(contractsDialogContainer);
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.templateHandler = templateHandler;
@@ -167,7 +169,7 @@ public class OutputView extends Tab {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        setContent(scrollPane);
+        contractsDialogContainer.getChildren().add(scrollPane);
 
         showDatePicker.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -183,7 +185,9 @@ public class OutputView extends Tab {
                         dateBox, separator1,
                         inputsLabel, viewInputs, separator2,
                         outputsLabel, gridPane);
-                setContent(viewVBox);
+                if (!contractsDialogContainer.getChildren().contains(viewVBox)) {
+                    contractsDialogContainer.getChildren().add(viewVBox);
+                }
             } else {
                 viewVBox.getChildren().setAll(headerGP, billLabel, gridPane);
             }
@@ -331,7 +335,36 @@ public class OutputView extends Tab {
                             if (templateOutput.getResultBold()) {
                                 result.setFont(Font.font(result.getFont().getFamily(), FontWeight.BOLD, result.getFont().getSize()));
                             }
+
                             HBox hBox = new HBox(label, result);
+
+                            if (templateOutput.getLink()) {
+                                JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", 12, 12));
+                                manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
+
+                                if (templateOutput.getTarget() != null) {
+                                    try {
+                                        TargetHelper th = new TargetHelper(ds, templateOutput.getTarget());
+
+                                        manSampleButton.setOnAction(event -> {
+                                            if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+                                                JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
+
+                                                EnterDataDialog enterDataDialog = new EnterDataDialog(viewDialogContainer, ds);
+                                                enterDataDialog.setTarget(false, th.getAttribute().get(0));
+                                                enterDataDialog.setSample(lastValue);
+                                                enterDataDialog.setShowValuePrompt(true);
+
+                                                enterDataDialog.show();
+                                            }
+                                        });
+
+                                        hBox.getChildren().add(manSampleButton);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
 
                             if (templateOutput.getName() == null || templateOutput.getName().equals("")) {
                                 hBox.setAlignment(Pos.CENTER_RIGHT);
@@ -432,7 +465,7 @@ public class OutputView extends Tab {
         if (selectionTemplate == null) {
             selectionTemplate = new SelectionTemplate();
         }
-        createTranslationMap(translationMap);
+        linkConfiguredToTemplate(translationMap);
 
         Map<JEVisClass, List<TemplateInput>> groupedInputsMap = new HashMap<>();
         List<TemplateInput> ungroupedInputs = new ArrayList<>();
@@ -670,15 +703,188 @@ public class OutputView extends Tab {
             }
             column += 3;
         }
+
+        for (TemplateOutput templateOutput : templateHandler.getRcTemplate().getTemplateOutputs()) {
+            if (templateOutput.getLink()) {
+                if (column == 6) {
+                    column = 0;
+                    row++;
+                }
+
+                Label label = new Label(templateOutput.getVariableName());
+
+                JFXButton targetButton = new JFXButton(I18n
+                        .getInstance().getString("plugin.object.attribute.target.button"),
+                        JEConfig.getImage("folders_explorer.png", 18, 18));
+                targetButton.wrapTextProperty().setValue(true);
+                targetButton.setOnAction(getTargetButtonActionEventEventHandler(templateOutput, targetButton));
+                setButtonText(templateOutput, targetButton);
+
+                int finalColumn1 = column;
+                int finalRow1 = row;
+                if (contractsGP == null) {
+                    Region region = new Region();
+                    region.setMinWidth(25);
+                    Platform.runLater(() -> {
+                        removeNode(finalRow1, finalColumn1, viewInputs);
+                        removeNode(finalRow1, finalColumn1 + 1, viewInputs);
+                        removeNode(finalRow1, finalColumn1 + 2, viewInputs);
+                        viewInputs.add(label, finalColumn1, finalRow1);
+                        viewInputs.add(targetButton, finalColumn1 + 1, finalRow1);
+                        viewInputs.add(region, finalColumn1 + 2, finalRow1);
+                    });
+                } else {
+                    Region region = new Region();
+                    region.setMinWidth(25);
+
+                    Platform.runLater(() -> {
+                        removeNode(finalRow1, finalColumn1, contractsGP);
+                        removeNode(finalRow1, finalColumn1 + 1, contractsGP);
+                        removeNode(finalRow1, finalColumn1 + 2, contractsGP);
+                        contractsGP.add(label, finalColumn1, finalRow1);
+                        contractsGP.add(targetButton, finalColumn1 + 1, finalRow1);
+                        contractsGP.add(region, finalColumn1 + 2, finalRow1);
+                    });
+                }
+
+                column += 3;
+            }
+        }
     }
 
-    private void createTranslationMap(Map<TemplateInput, TemplateInput> translationMap) {
+    public EventHandler<ActionEvent> getTargetButtonActionEventEventHandler(TemplateOutput templateOutput, JFXButton targetButton) {
+        return t -> {
+            try {
+                SelectTargetDialog selectTargetDialog = null;
+
+                TargetHelper th = null;
+                if (templateOutput.getTarget() != null) {
+                    th = new TargetHelper(ds, templateOutput.getTarget());
+                    if (th.isValid() && th.targetAccessible()) {
+                        logger.info("Target Is valid");
+                        setButtonText(templateOutput, targetButton);
+                    }
+                }
+
+                List<JEVisTreeFilter> allFilter = new ArrayList<>();
+                JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
+                JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
+                allFilter.add(allDataFilter);
+                allFilter.add(allAttributesFilter);
+
+                List<UserSelection> openList = new ArrayList<>();
+                if (th != null && !th.getAttribute().isEmpty()) {
+                    for (JEVisAttribute att : th.getAttribute())
+                        openList.add(new UserSelection(UserSelection.SelectionType.Attribute, att, null, null));
+                } else if (th != null && !th.getObject().isEmpty()) {
+                    for (JEVisObject obj : th.getObject())
+                        openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
+                }
+
+                selectTargetDialog = new SelectTargetDialog(contractsDialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, ds, openList);
+
+                SelectTargetDialog finalSelectTargetDialog = selectTargetDialog;
+                selectTargetDialog.setOnDialogClosed(event -> {
+                    try {
+                        if (finalSelectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                            logger.trace("Selection Done");
+
+                            String newTarget = "";
+                            List<UserSelection> selections = finalSelectTargetDialog.getUserSelection();
+                            for (UserSelection us : selections) {
+                                int index = selections.indexOf(us);
+                                if (index > 0) newTarget += ";";
+
+                                newTarget += us.getSelectedObject().getID();
+                                if (us.getSelectedAttribute() != null) {
+                                    newTarget += ":" + us.getSelectedAttribute().getName();
+                                } else {
+                                    newTarget += ":Value";
+                                }
+                            }
+                            templateOutput.setTarget(newTarget);
+                            setButtonText(templateOutput, targetButton);
+                        }
+                    } catch (Exception ex) {
+                        logger.catching(ex);
+                    }
+                });
+                selectTargetDialog.show();
+
+            } catch (Exception ex) {
+                logger.catching(ex);
+            }
+        };
+    }
+
+    void setButtonText(TemplateOutput templateOutput, JFXButton targetButton) {
+        TargetHelper th = null;
+        try {
+            if (templateOutput.getTarget() != null) {
+                th = new TargetHelper(ds, templateOutput.getTarget());
+            }
+
+            if (th != null && th.isValid() && th.targetAccessible()) {
+
+                StringBuilder bText = new StringBuilder();
+
+                JEVisClass cleanData = ds.getJEVisClass("Clean Data");
+
+                for (JEVisObject obj : th.getObject()) {
+                    int index = th.getObject().indexOf(obj);
+                    if (index > 0) bText.append("; ");
+
+                    if (obj.getJEVisClass().equals(cleanData)) {
+                        List<JEVisObject> parents = obj.getParents();
+                        if (!parents.isEmpty()) {
+                            for (JEVisObject parent : parents) {
+                                bText.append("[");
+                                bText.append(parent.getID());
+                                bText.append("] ");
+                                bText.append(parent.getName());
+                                bText.append(" / ");
+                            }
+                        }
+                    }
+
+                    bText.append("[");
+                    bText.append(obj.getID());
+                    bText.append("] ");
+                    bText.append(obj.getName());
+
+                    if (th.hasAttribute()) {
+
+                        bText.append(" - ");
+                        bText.append(th.getAttribute().get(index).getName());
+
+                    }
+                }
+
+                Platform.runLater(() -> targetButton.setText(bText.toString()));
+            }
+
+        } catch (Exception ex) {
+            logger.catching(ex);
+        }
+    }
+
+    private void linkConfiguredToTemplate(Map<TemplateInput, TemplateInput> translationMap) {
         templateHandler.getRcTemplate().getTemplateInputs().stream().filter(templateInput -> !selectionTemplate.getSelectedInputs().contains(templateInput)).forEach(templateInput -> selectionTemplate.getSelectedInputs().add(templateInput));
         for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
             for (TemplateInput input : selectionTemplate.getSelectedInputs()) {
                 if (templateInput.equals(input)) {
                     translationMap.put(templateInput, input);
                     templateInput.setObjectID(input.getObjectID());
+                    break;
+                }
+            }
+        }
+
+        templateHandler.getRcTemplate().getTemplateOutputs().stream().filter(templateOutput -> !selectionTemplate.getLinkedOutputs().contains(templateOutput)).forEach(templateOutput -> selectionTemplate.getLinkedOutputs().add(templateOutput));
+        for (TemplateOutput templateOutput : templateHandler.getRcTemplate().getTemplateOutputs()) {
+            for (TemplateOutput output : selectionTemplate.getLinkedOutputs()) {
+                if (templateOutput.equals(output)) {
+                    templateOutput.setTarget(output.getTarget());
                     break;
                 }
             }
@@ -835,5 +1041,13 @@ public class OutputView extends Tab {
 
     public GridPane getHeaderGP() {
         return headerGP;
+    }
+
+    public void setContractsDialogContainer(StackPane contractsTabDialogContainer) {
+        this.contractsDialogContainer = contractsTabDialogContainer;
+    }
+
+    public void setViewDialogContainer(StackPane viewDialogContainer) {
+        this.viewDialogContainer = viewDialogContainer;
     }
 }

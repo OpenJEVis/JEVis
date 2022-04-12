@@ -17,6 +17,8 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
@@ -41,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
+    private static final Logger logger = LogManager.getLogger(DataPointTableViewPointer.class);
     private final org.jevis.jeconfig.application.Chart.Charts.XYChart currentChart;
     private final List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActiveCharts;
     private DateTime timestampFromFirstSample = null;
@@ -66,13 +69,22 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
         EventHandler<MouseEvent> mouseMoveHandler = event -> {
-            plotArea = true;
-            updateTable(event);
+            try {
+                plotArea = true;
+                updateTable(event);
+            } catch (Exception e) {
+                logger.error("Error on mouse move handler", e);
+            }
         };
         registerInputEventHandler(MouseEvent.MOUSE_MOVED, mouseMoveHandler);
+
         this.currentChart.getChart().setOnMouseMoved(event -> {
-            plotArea = false;
-            updateTable(event);
+            try {
+                plotArea = false;
+                updateTable(event);
+            } catch (Exception e) {
+                logger.error("Error on mouse moved handler", e);
+            }
         });
     }
 

@@ -387,7 +387,9 @@ public class SampleTableExtension implements SampleEditorExtension {
         userBox.setPadding(new Insets(10, 0, 10, 0));
 
         try {
-            if (att.getObject().getJEVisClassName().equals("Data") || att.getObject().getJEVisClassName().equals("Clean Data")) {
+            if (att.getObject().getJEVisClassName().equals("Data") || att.getObject().getJEVisClassName().equals("Clean Data")
+                    || att.getObject().getJEVisClassName().equals("Base Data") || att.getObject().getJEVisClassName().equals("Math Data")
+                    || att.getObject().getJEVisClassName().equals("User Data") || att.getObject().getJEVisClassName().equals("Data Notes")) {
                 motherBox.getChildren().setAll(deleteBox, userBox);
             } else {
                 motherBox.getChildren().setAll(deleteBox);

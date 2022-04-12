@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -38,7 +39,6 @@ import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +62,39 @@ public class BaseDataPlugin extends TablePlugin {
     public BaseDataPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
         this.borderPane.setCenter(tabPane);
+
+        int minDec = pref.getInt("minimumFractionDigits", 2);
+        int maxDec = pref.getInt("maxFractionDigits", 2);
+
+        numberFormat.setMinimumFractionDigits(minDec);
+        numberFormat.setMaximumFractionDigits(maxDec);
+
+        reduceFractionDigitsButton.setOnAction(actionEvent -> {
+            int currentFractionDigits = numberFormat.getMinimumFractionDigits();
+            if (currentFractionDigits > 0) {
+                currentFractionDigits -= 1;
+                numberFormat.setMinimumFractionDigits(currentFractionDigits);
+                numberFormat.setMaximumFractionDigits(currentFractionDigits);
+                pref.putInt("minimumFractionDigits", currentFractionDigits);
+                pref.putInt("maxFractionDigits", currentFractionDigits);
+
+            }
+        });
+
+        increaseFractionDigitsButton.setOnAction(actionEvent -> {
+            int currentFractionDigits = numberFormat.getMinimumFractionDigits();
+
+            currentFractionDigits += 1;
+            numberFormat.setMinimumFractionDigits(currentFractionDigits);
+            numberFormat.setMaximumFractionDigits(currentFractionDigits);
+            pref.putInt("minimumFractionDigits", currentFractionDigits);
+            pref.putInt("maxFractionDigits", currentFractionDigits);
+        });
+
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reduceFractionDigitsButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(increaseFractionDigitsButton);
+        reduceFractionDigitsButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.table.toolbar.reducefractiondigits.tooltip")));
+        increaseFractionDigitsButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.table.toolbar.increasefractiondigits.tooltip")));
 
         initToolBar();
 
@@ -94,9 +127,6 @@ public class BaseDataPlugin extends TablePlugin {
             for (JEVisType type : baseDataClass.getTypes()) {
 
                 if (type.getName().equals("Value")) {
-                    NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-                    numberFormat.setMinimumFractionDigits(2);
-                    numberFormat.setMaximumFractionDigits(2);
                     TableColumn<RegisterTableRow, JEVisObject> lastValueEnterDataColumn = new TableColumn<>(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
                     lastValueEnterDataColumn.setStyle("-fx-alignment: CENTER;");
                     lastValueEnterDataColumn.setMinWidth(250);
@@ -204,8 +234,30 @@ public class BaseDataPlugin extends TablePlugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(20, 20);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(20, 20);
 
-        toolBar.getItems().setAll(filterInput, reload, JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        Separator sep1 = new Separator(Orientation.VERTICAL);
+
+        reduceFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
+        increaseFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
+
+        toolBar.getItems().setAll(filterInput, reload, sep1, reduceFractionDigitsButton, increaseFractionDigitsButton, JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(BaseDataPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+    }
+
+    private void updateSelectedTable() {
+        JEVisClassTab selectedItem = (JEVisClassTab) this.tabPane.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            if (selectedItem.getContent() instanceof TableView) {
+                ((TableView<?>) selectedItem.getContent()).refresh();
+            } else {
+                TabPane content = (TabPane) selectedItem.getContent();
+
+                JEVisClassTab selectedItem1 = (JEVisClassTab) content.getSelectionModel().getSelectedItem();
+
+                if (selectedItem1 != null && selectedItem1.getContent() instanceof TableView) {
+                    ((TableView<?>) selectedItem1.getContent()).refresh();
+                }
+            }
+        }
     }
 
     @Override

@@ -9,6 +9,10 @@ public class TemplateOutput {
     private String variableName;
     private String unit;
     private Boolean showLabel;
+
+    private Boolean link = false;
+    private String target;
+
     private Integer column;
     private Integer row;
     private Integer colSpan = 1;
@@ -59,6 +63,22 @@ public class TemplateOutput {
 
     public void setShowLabel(Boolean showLabel) {
         this.showLabel = showLabel;
+    }
+
+    public Boolean getLink() {
+        return link;
+    }
+
+    public void setLink(Boolean link) {
+        this.link = link;
+    }
+
+    public String getTarget() {
+        return this.target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     public Integer getColumn() {

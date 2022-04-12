@@ -157,6 +157,17 @@
       }
     },
     {
+      "type": "Verified Date",
+      "descriptions": {
+        "de": "Das Geprüft-Datum gibt an, wann das Messgerät das letzte mal kontrolliert oder ggf. kalibriert wurde, um die Messgenauigkeit sicherzustelen.",
+        "en": "The verified date indicates when the meter was checked or, if necessary, was calibrated to ensure measurement accuracy."
+      },
+      "names": {
+        "de": "Geprüft",
+        "en": "Verified"
+      }
+    },
+    {
       "type": "Verification Date",
       "descriptions": {
         "de": "Das Überprüfungsdatum gibt an, wann das Messgerät das nächste mal kontrolliert und ggf. kalibriert werden muss, um die Messgenauigkeit sicherzustelen.",

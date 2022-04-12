@@ -5,4 +5,5 @@ public class ScatterChart extends XYChart {
     public ScatterChart() {
         super();
     }
+
 }

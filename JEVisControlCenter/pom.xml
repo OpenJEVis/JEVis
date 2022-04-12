@@ -162,6 +162,11 @@
             <artifactId>netty-codec</artifactId>
             <version>4.1.45.Final</version>
         </dependency>
+        <dependency>
+            <groupId>org.mustangproject</groupId>
+            <artifactId>library</artifactId>
+            <version>2.4.0</version>
+        </dependency>
         <!-- nice javafx stuff
         <dependency>
             <groupId>no.tornado</groupId>
