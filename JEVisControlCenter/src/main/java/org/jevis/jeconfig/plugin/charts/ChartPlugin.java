@@ -340,7 +340,7 @@ public class ChartPlugin implements Plugin {
     @Override
     public Node getToolbar() {
         if (toolBar == null) {
-            toolBar = toolBarView.getToolbar(getDataSource());
+            toolBar = toolBarView.getToolbar();
         }
         return toolBar;
     }
@@ -400,6 +400,12 @@ public class ChartPlugin implements Plugin {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
                     SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(dialogContainer, ds, dataModel, toolBarView);
+                    saveAnalysisDialog.setOnDialogClosed(jfxDialogEvent -> {
+                        if (saveAnalysisDialog.getResponse() == Response.OK) {
+                            dataModel.update();
+                        }
+                    });
+
                     saveAnalysisDialog.show();
                     break;
                 case Constants.Plugin.Command.DELETE:
@@ -492,25 +498,12 @@ public class ChartPlugin implements Plugin {
         });
 
         allCharts.forEach((integer, chart) -> {
-            try {
-                if (chart.getChart() instanceof de.gsi.chart.XYChart) {
-                    chart.getChart().getAllDatasets().clear();
-                    chart.getChart().getRenderers().clear();
-                    chart.getChart().getPlugins().clear();
-                }
-
-                if (chart instanceof XYChart) {
-                    XYChart xyChart = (XYChart) chart;
-                    xyChart.setChart(null);
-                }
-
-                chart.getTableData().clear();
+            if (chart.getChart() != null) {
+                chart.getChart().getPlugins().clear();
+                chart.getChart().getRenderers().clear();
+                chart.getChart().getAllDatasets().clear();
+                chart.setChart(null);
                 chart.setRegion(null);
-                if (chart.getChartDataRows() != null) {
-                    chart.getChartDataRows().clear();
-                }
-            } catch (Exception e) {
-                logger.error("Error while clearing old charts", e);
             }
         });
 
@@ -674,10 +667,9 @@ public class ChartPlugin implements Plugin {
 
                     if (noOfPie == horizontalPies || noOfPie == countOfPies) {
                         int finalCurrentPieFrame = currentPieFrame;
-                        Platform.runLater(() -> {
-                            vBox.getChildren().add(pieFrames.get(finalCurrentPieFrame));
-                            vBox.getChildren().add(sep);
-                        });
+                        Platform.runLater(() -> vBox.getChildren().addAll(
+                                pieFrames.get(finalCurrentPieFrame),
+                                sep));
                         currentPieFrame++;
                     }
                 } else if (chartSetting.getChartType() == ChartType.TABLE) {
@@ -702,18 +694,16 @@ public class ChartPlugin implements Plugin {
 
                     if (noOfTable == horizontalTables || noOfTable == countOfTables) {
                         int finalCurrentTableFrame = currentTableFrame;
-                        Platform.runLater(() -> {
-                            vBox.getChildren().add(tableFrames.get(finalCurrentTableFrame));
-                            vBox.getChildren().add(sep);
-                        });
+                        Platform.runLater(() -> vBox.getChildren().addAll(
+                                tableFrames.get(finalCurrentTableFrame),
+                                sep));
 
                         currentTableFrame++;
                     }
                 } else {
-                    Platform.runLater(() -> {
-                        vBox.getChildren().add(bp);
-                        vBox.getChildren().add(sep);
-                    });
+                    Platform.runLater(() -> vBox.getChildren().addAll(
+                            bp,
+                            sep));
                 }
 
                 JEConfig.getStatusBar().progressProgressJob(ChartPlugin.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.finishedchart") + " ");
@@ -803,8 +793,10 @@ public class ChartPlugin implements Plugin {
                     infoBox.show();
                 }
 
-                Platform.runLater(() -> JEConfig.getStatusBar().finishProgressJob(ChartPlugin.class.getName(), ""));
-                Platform.runLater(() -> JEConfig.getStatusBar().getPopup().hide());
+                Platform.runLater(() -> {
+                    JEConfig.getStatusBar().finishProgressJob(ChartPlugin.class.getName(), "");
+                    JEConfig.getStatusBar().getPopup().hide();
+                });
             });
         } else {
             Thread.sleep(500);
@@ -1026,7 +1018,7 @@ public class ChartPlugin implements Plugin {
                                             }
                                         }
                                     } else if (tp.isShowing()) {
-                                        Platform.runLater(() -> tp.hide());
+                                        Platform.runLater(tp::hide);
                                     }
                                 }
                             }
@@ -1042,6 +1034,9 @@ public class ChartPlugin implements Plugin {
          * If auto size is on or if its only one chart scale the chart to maximize screen size
          */
         int noOfCharts = dataModel.getCharts().getListSettings().size();
+
+        Map<Node, Double> maxHeightMap = new HashMap<>();
+        Map<Node, Double> prefHeightMap = new HashMap<>();
 
         if (noOfCharts == 1 || dataModel.getAutoResize()) {
             /**
@@ -1068,7 +1063,8 @@ public class ChartPlugin implements Plugin {
 
                                 for (Node node2 : ((VBox) node1).getChildren()) {
                                     if (node2 instanceof de.gsi.chart.XYChart) {
-                                        Platform.runLater(() -> ((de.gsi.chart.XYChart) node2).setMaxHeight((height) / (chartsPerScreen * 3)));
+//                                        Platform.runLater(() -> ((de.gsi.chart.XYChart) node2).setMaxHeight((height) / (chartsPerScreen * 3)));
+                                        maxHeightMap.put(node2, height / (chartsPerScreen * 3));
                                     } else if (node2 instanceof HBox) {
                                         isLogical = false;
                                         isTableV = true;
@@ -1094,7 +1090,8 @@ public class ChartPlugin implements Plugin {
                                 if (child instanceof de.gsi.chart.XYChart) {
                                     de.gsi.chart.XYChart xyChart = (de.gsi.chart.XYChart) child;
                                     double v = (height / chartsPerScreen) - heightTop;
-                                    Platform.runLater(() -> xyChart.setPrefHeight(v));
+//                                    Platform.runLater(() -> xyChart.setPrefHeight(v));
+                                    prefHeightMap.put(xyChart, v);
                                 }
                             }
                         } else if (isTableV) {
@@ -1102,21 +1099,25 @@ public class ChartPlugin implements Plugin {
                             for (Node node1 : borderChildren) {
                                 if (node1 instanceof VBox) {
                                     VBox vBox1 = (VBox) node1;
-                                    Platform.runLater(() -> vBox1.setPrefHeight(v));
+//                                    Platform.runLater(() -> vBox1.setPrefHeight(v));
+                                    prefHeightMap.put(vBox1, v);
                                 }
                             }
                         }
                     } else if (node instanceof HBox) {
-                        Platform.runLater(() -> ((HBox) node).setPrefHeight(height / chartsPerScreen));
+//                        Platform.runLater(() -> ((HBox) node).setPrefHeight(height / chartsPerScreen));
+                        prefHeightMap.put(node, height / chartsPerScreen);
                     }
                 }
             } else {
                 if (totalPrefHeight > maxHeight) {
                     for (Node node : vBox.getChildren()) {
                         if (node instanceof BorderPane) {
-                            Platform.runLater(() -> ((BorderPane) node).setPrefHeight(autoMinSize));
+//                            Platform.runLater(() -> ((BorderPane) node).setPrefHeight(autoMinSize));
+                            prefHeightMap.put(node, autoMinSize);
                         } else if (node instanceof HBox) {
-                            Platform.runLater(() -> ((HBox) node).setPrefHeight(autoMinSize));
+//                            Platform.runLater(() -> ((HBox) node).setPrefHeight(autoMinSize));
+                            prefHeightMap.put(node, autoMinSize);
                         }
                     }
                 }
@@ -1130,11 +1131,12 @@ public class ChartPlugin implements Plugin {
                  * Reallocate free space equal to all children
                  */
                 if (totalPrefHeight < maxHeight) {
-                    /** size/2 because there is an separator for every chart **/
+                    /** size/2 because there is a separator for every chart **/
                     final double freeSpacePart = (maxHeight - totalPrefHeight) / (vBox.getChildren().size() / 2);
                     for (Node node : vBox.getChildren()) {
                         if (node instanceof Pane) {
-                            Platform.runLater(() -> ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart));
+//                            Platform.runLater(() -> ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart));
+                            prefHeightMap.put(node, ((Pane) node).getPrefHeight() + freeSpacePart);
                         }
                     }
                 }
@@ -1142,7 +1144,37 @@ public class ChartPlugin implements Plugin {
         }
 //        }
 
-        Platform.runLater(vBox::toFront);
+        Platform.runLater(() -> {
+            try {
+                maxHeightMap.forEach((node, aDouble) -> {
+                    if (node instanceof de.gsi.chart.XYChart) {
+                        de.gsi.chart.XYChart xyChart = (de.gsi.chart.XYChart) node;
+                        xyChart.setMaxHeight(aDouble);
+                    }
+                });
+                prefHeightMap.forEach((node, aDouble) -> {
+                    if (node instanceof HBox) {
+                        HBox hBox = (HBox) node;
+                        hBox.setPrefHeight(aDouble);
+                    } else if (node instanceof VBox) {
+                        VBox vBox1 = (VBox) node;
+                        vBox1.setPrefHeight(aDouble);
+                    } else if (node instanceof BorderPane) {
+                        BorderPane borderPane = (BorderPane) node;
+                        borderPane.setPrefHeight(aDouble);
+                    } else if (node instanceof Pane) {
+                        Pane pane = (Pane) node;
+                        pane.setPrefHeight(aDouble);
+                    } else if (node instanceof de.gsi.chart.XYChart) {
+                        de.gsi.chart.XYChart xyChart = (de.gsi.chart.XYChart) node;
+                        xyChart.setPrefHeight(aDouble);
+                    }
+                });
+                vBox.toFront();
+            } catch (Exception e) {
+                logger.error("Could not auto size", e);
+            }
+        });
     }
 
     @Override

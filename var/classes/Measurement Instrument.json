@@ -132,7 +132,7 @@
       "jevisClass": "Measurement Instrument"
     },
     {
-      "name": "Verification Date",
+      "name": "Verified Date",
       "primitiveType": 0,
       "guiType": "Date",
       "guiposition": 13,
@@ -141,10 +141,19 @@
       "jevisClass": "Measurement Instrument"
     },
     {
+      "name": "Verification Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "guiposition": 14,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
       "name": "Online ID",
       "primitiveType": 0,
       "guiType": "Object Target",
-      "guiposition": 14,
+      "guiposition": 15,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -153,7 +162,7 @@
       "name": "Device IP",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 15,
+      "guiposition": 16,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -162,7 +171,7 @@
       "name": "Device Number",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 16,
+      "guiposition": 17,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -171,7 +180,7 @@
       "name": "Connection",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 17,
+      "guiposition": 18,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -180,7 +189,7 @@
       "name": "Remarks",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "guiposition": 18,
+      "guiposition": 19,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"

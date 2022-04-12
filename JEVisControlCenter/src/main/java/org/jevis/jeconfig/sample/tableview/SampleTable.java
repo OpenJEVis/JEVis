@@ -150,7 +150,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
         selectionColumn.setPrefWidth(70);
         timeStampColumn.setPrefWidth(155);
-        noteColumn.setPrefWidth(200);
+        noteColumn.setPrefWidth(400);
         valueCol.setPrefWidth(310);
 
         getColumns().addAll(selectionColumn, timeStampColumn, valueCol, noteColumn);
@@ -648,13 +648,12 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);
-                                    logger.error("Error in double text", ex, ex);
+                                    logger.error("Error in double text", ex);
                                 }
                             });
                             textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
                                 if (!newValue) {
                                     try {
-                                        System.out.println("focus lost");
                                         textField.setText(nf.format(tableSample.getValue()));
                                     } catch (Exception e) {
                                         e.printStackTrace();

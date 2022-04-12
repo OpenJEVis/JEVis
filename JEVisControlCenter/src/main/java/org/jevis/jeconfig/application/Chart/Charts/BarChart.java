@@ -193,6 +193,13 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public void setChart(de.gsi.chart.Chart chart) {
+        if (chart == null) {
+            this.barChart = null;
+        }
+    }
+
+    @Override
     public ChartType getChartType() {
         return ChartType.BAR;
     }

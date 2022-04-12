@@ -347,6 +347,13 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
+    public void setChart(de.gsi.chart.Chart chart) {
+        if (chart == null) {
+            chartRegion = null;
+        }
+    }
+
+    @Override
     public org.jevis.jeconfig.application.Chart.ChartType getChartType() {
         return chartType;
     }

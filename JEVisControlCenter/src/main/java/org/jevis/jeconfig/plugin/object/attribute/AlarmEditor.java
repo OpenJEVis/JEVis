@@ -167,11 +167,13 @@ public class AlarmEditor implements AttributeEditor {
 
         newConfig1.setName(I18n.getInstance().getString("newobject.alarmconfig1"));
         newConfig1.setId("0");
+        newConfig1.setOperator(AlarmConstants.Operator.SMALLER.toString());
 
         JsonAlarmConfig newConfig2 = new JsonAlarmConfig();
         newConfig2.setId("1");
 
         newConfig2.setName(I18n.getInstance().getString("newobject.alarmconfig2"));
+        newConfig2.setOperator(AlarmConstants.Operator.SMALLER.toString());
 
         list.add(newConfig1);
         list.add(newConfig2);
@@ -217,6 +219,7 @@ public class AlarmEditor implements AttributeEditor {
 
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        tabPane.setMinWidth(800);
         tabPane.setPrefWidth(480);
         tabPane.setPrefHeight(350);
 

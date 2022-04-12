@@ -19,6 +19,7 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -65,10 +66,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 /**
@@ -97,12 +95,12 @@ public class ToolBarView {
     private ToggleButton zoomOut;
     private ToggleButton infoButton;
     private ToggleButton helpButton;
-    private PickerCombo pickerCombo;
-    private PresetDateBox presetDateBox;
-    private JFXDatePicker pickerDateStart;
-    private JFXTimePicker pickerTimeStart;
-    private JFXDatePicker pickerDateEnd;
-    private JFXTimePicker pickerTimeEnd;
+    private final PickerCombo pickerCombo;
+    private final PresetDateBox presetDateBox;
+    private final JFXDatePicker pickerDateStart;
+    private final JFXTimePicker pickerTimeStart;
+    private final JFXDatePicker pickerDateEnd;
+    private final JFXTimePicker pickerTimeEnd;
 
     private final DateHelper dateHelper = new DateHelper();
     private ToolBar toolBar;
@@ -127,6 +125,29 @@ public class ToolBarView {
     private ToggleButton calcSumAboveBelow;
     private ToggleButton calcBaseLoad;
 
+    public ToolBarView(AnalysisDataModel model, JEVisDataSource ds, ChartPlugin chartPlugin) {
+        this.model = model;
+        this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
+        this.chartPlugin = chartPlugin;
+
+        listAnalysesComboBox = new JFXComboBox<>(model.getObservableListAnalyses());
+        listAnalysesComboBox.setPrefWidth(300);
+
+        pickerCombo = new PickerCombo(model, null, true);
+        presetDateBox = pickerCombo.getPresetDateBox();
+        pickerDateStart = pickerCombo.getStartDatePicker();
+        pickerTimeStart = pickerCombo.getStartTimePicker();
+        pickerDateEnd = pickerCombo.getEndDatePicker();
+        pickerTimeEnd = pickerCombo.getEndTimePicker();
+
+        setCellFactoryForComboBox();
+
+        createToolbarIcons();
+
+        Platform.runLater(() -> setDisableToolBarIcons(true));
+    }
+
     private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
@@ -140,7 +161,7 @@ public class ToolBarView {
                 alert.showAndWait().ifPresent(buttonType -> {
                     if (buttonType.equals(ButtonType.OK)) {
                         changed = false;
-                        getGraphPluginView().handleRequest(Constants.Plugin.Command.SAVE);
+                        getChartPluginView().handleRequest(Constants.Plugin.Command.SAVE);
                     }
                 });
             }
@@ -153,22 +174,7 @@ public class ToolBarView {
         }
     };
 
-    public ToolBarView(AnalysisDataModel model, JEVisDataSource ds, ChartPlugin chartPlugin) {
-        this.model = model;
-        this.ds = ds;
-        this.objectRelations = new ObjectRelations(ds);
-        this.chartPlugin = chartPlugin;
-
-        listAnalysesComboBox = new JFXComboBox<>(model.getObservableListAnalyses());
-        listAnalysesComboBox.setPrefWidth(300);
-        setCellFactoryForComboBox();
-
-        createToolbarIcons();
-
-        Platform.runLater(() -> setDisableToolBarIcons(true));
-    }
-
-    public ToolBar getToolbar(JEVisDataSource ds) {
+    public ToolBar getToolbar() {
         if (toolBar == null) {
             toolBar = new ToolBar();
             toolBar.setId("ObjectPlugin.Toolbar");
@@ -177,6 +183,35 @@ public class ToolBarView {
         }
 
         return toolBar;
+    }
+
+    private void loadNewDialog() {
+
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin.getDialogContainer(), ds, model);
+
+        dialog.setOnDialogClosed(event -> {
+            JEVisHelp.getInstance().deactivatePluginModule();
+            if (dialog.getResponse() == Response.NEW) {
+
+                getChartPluginView().handleRequest(Constants.Plugin.Command.NEW);
+            } else if (dialog.getResponse() == Response.LOAD) {
+
+                final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
+                if (!previewPref.getBoolean("enabled", true)) {
+                    model.setAnalysisTimeFrameForAllModels(model.getGlobalAnalysisTimeFrame());
+                }
+            }
+
+            if (model.getCurrentAnalysis() != null) {
+                Platform.runLater(() -> setDisableToolBarIcons(false));
+            } else {
+                Platform.runLater(() -> setDisableToolBarIcons(true));
+            }
+        });
+
+        Platform.runLater(() -> setDisableToolBarIcons(true));
+        dialog.show();
+        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
     }
 
 
@@ -261,33 +296,75 @@ public class ToolBarView {
         JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, listAnalysesComboBox);
     }
 
-    private void loadNewDialog() {
+    public void updateLayout() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin.getDialogContainer(), ds, model);
+        Platform.runLater(() -> {
 
-        dialog.setOnDialogClosed(event -> {
-            JEVisHelp.getInstance().deactivatePluginModule();
-            if (dialog.getResponse() == Response.NEW) {
+            removeAnalysisComboBoxListener();
 
-                getGraphPluginView().handleRequest(Constants.Plugin.Command.NEW);
-            } else if (dialog.getResponse() == Response.LOAD) {
+            if (model.getCurrentAnalysis() != null) {
+                listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+            }
 
-                final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
-                if (!previewPref.getBoolean("enabled", true)) {
-                    model.setAnalysisTimeFrameForAllModels(model.getGlobalAnalysisTimeFrame());
+            if (!listAnalysesComboBox.getItems().isEmpty()) {
+                dateHelper.setWorkDays(model.getWorkDays());
+            }
+
+            toolBar.getItems().clear();
+            pickerCombo.initialize(model, null, customWorkDay.isSelected());
+            pickerCombo.updateCellFactory();
+
+            Separator sep1 = new Separator();
+            Separator sep2 = new Separator();
+            Separator sep3 = new Separator();
+            Separator sep4 = new Separator();
+
+            boolean isRegressionPossible = false;
+            boolean isAdditionalCalcPossible = false;
+
+            for (ChartSetting chartSetting : model.getCharts().getListSettings()) {
+                if (chartSetting.getChartType() != ChartType.TABLE && chartSetting.getChartType() != ChartType.HEAT_MAP
+                        && chartSetting.getChartType() != ChartType.BAR && chartSetting.getChartType() != ChartType.PIE) {
+                    isRegressionPossible = true;
+                    break;
                 }
             }
 
-            if (model.getCurrentAnalysis() != null) {
-                Platform.runLater(() -> setDisableToolBarIcons(false));
-            } else {
-                Platform.runLater(() -> setDisableToolBarIcons(true));
+            QuantityUnits qu = new QuantityUnits();
+            for (ChartDataRow chartDataRow : model.getSelectedData()) {
+                if (qu.isSumCalculable(chartDataRow.getUnit())) {
+                    isAdditionalCalcPossible = true;
+                    break;
+                }
             }
-        });
 
-        Platform.runLater(() -> setDisableToolBarIcons(true));
-        dialog.show();
-        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
+            toolBar.getItems().addAll(listAnalysesComboBox,
+                    sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
+                    sep2, reload, zoomOut,
+                    sep3, loadNew, save, delete, select, exportCSV, exportImage, exportPDF, printButton,
+                    sep4);
+
+            if (isRegressionPossible) {
+                toolBar.getItems().add(calcRegression);
+            }
+
+            if (isAdditionalCalcPossible) {
+                toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad);
+            }
+
+            if (!JEConfig.getExpert()) {
+
+                toolBar.getItems().addAll(showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
+            } else {
+
+                toolBar.getItems().addAll(showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
+            }
+
+            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+
+            addAnalysisComboBoxListener();
+            setDisableToolBarIcons(disabledIcons.get());
+        });
     }
 
     private void hideShowIconsInGraph() {
@@ -943,100 +1020,6 @@ public class ToolBarView {
         return pickerCombo;
     }
 
-    public void updateLayout() {
-
-        Platform.runLater(() -> {
-
-            removeAnalysisComboBoxListener();
-
-            if (model.getCurrentAnalysis() != null) {
-                listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
-            }
-
-            if (!listAnalysesComboBox.getItems().isEmpty()) {
-
-                dateHelper.setWorkDays(model.getWorkDays());
-            }
-
-            toolBar.getItems().clear();
-            pickerCombo = new PickerCombo(model, null, true);
-            pickerCombo.updateCellFactory();
-            presetDateBox = pickerCombo.getPresetDateBox();
-            pickerDateStart = pickerCombo.getStartDatePicker();
-            pickerTimeStart = pickerCombo.getStartTimePicker();
-            pickerDateEnd = pickerCombo.getEndDatePicker();
-            pickerTimeEnd = pickerCombo.getEndTimePicker();
-
-            JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, presetDateBox, pickerDateStart, pickerTimeStart);
-
-            Separator sep1 = new Separator();
-            Separator sep2 = new Separator();
-            Separator sep3 = new Separator();
-            Separator sep4 = new Separator();
-
-            boolean isRegressionPossible = false;
-            boolean isAdditionalCalcPossible = false;
-
-            for (ChartSetting chartSetting : model.getCharts().getListSettings()) {
-                if (chartSetting.getChartType() != ChartType.TABLE && chartSetting.getChartType() != ChartType.HEAT_MAP
-                        && chartSetting.getChartType() != ChartType.BAR && chartSetting.getChartType() != ChartType.PIE)
-                    isRegressionPossible = true;
-            }
-
-            QuantityUnits qu = new QuantityUnits();
-            for (ChartDataRow chartDataRow : model.getSelectedData()) {
-                if (qu.isSumCalculable(chartDataRow.getUnit())) {
-                    isAdditionalCalcPossible = true;
-                    break;
-                }
-            }
-
-            if (!JEConfig.getExpert()) {
-                toolBar.getItems().addAll(listAnalysesComboBox,
-                        sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
-                        sep2, reload, zoomOut,
-                        sep3, loadNew, save, delete, select, exportCSV, exportImage, exportPDF, printButton,
-                        sep4);
-
-                if (isRegressionPossible) {
-                    toolBar.getItems().add(calcRegression);
-                }
-
-                if (isAdditionalCalcPossible) {
-                    toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad);
-                }
-
-                toolBar.getItems().addAll(showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
-            } else {
-                toolBar.getItems().addAll(listAnalysesComboBox,
-                        sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
-                        sep2, reload, zoomOut,
-                        sep3, loadNew, save, delete, select, exportCSV, exportImage, exportPDF, printButton,
-                        sep4);
-
-                if (isRegressionPossible) {
-                    toolBar.getItems().add(calcRegression);
-                }
-
-                if (isAdditionalCalcPossible) {
-                    toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad);
-                }
-
-                toolBar.getItems().addAll(showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
-            }
-
-            //TODO: the plugin name must be the same the the Plugin.getName() function
-
-            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-            JEVisHelp.getInstance().addHelpItems(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
-
-            addAnalysisComboBoxListener();
-            pickerCombo.addListener();
-            startToolbarIconListener();
-            setDisableToolBarIcons(disabledIcons.get());
-        });
-    }
-
     private void startToolbarIconListener() {
         reload.selectedProperty().addListener((observable, oldValue, newValue) -> chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD));
 
@@ -1117,7 +1100,7 @@ public class ToolBarView {
             changeSettings();
         });
 
-        delete.setOnAction(event -> getGraphPluginView().handleRequest(Constants.Plugin.Command.DELETE));
+        delete.setOnAction(event -> getChartPluginView().handleRequest(Constants.Plugin.Command.DELETE));
 
         showRawData.setOnAction(event -> showRawDataInGraph());
 
@@ -1143,10 +1126,6 @@ public class ToolBarView {
 
         autoResize.setOnAction(event -> autoResizeInGraph());
 
-    }
-
-    private void customWorkDay() {
-        model.setCustomWorkDay(!model.isCustomWorkDay());
     }
 
     private void createToolbarIcons() {
@@ -1356,6 +1335,26 @@ public class ToolBarView {
 
         helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
         infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+
+        List<Node> nodes = Arrays.asList(listAnalysesComboBox,
+                presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
+                reload, zoomOut,
+                loadNew, save, delete, select, exportCSV, exportImage, exportPDF, printButton,
+                calcRegression, calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad
+                , showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
+
+        pickerCombo.addListener();
+        startToolbarIconListener();
+
+        JEVisHelp.getInstance().addHelpItems(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, nodes);
+    }
+
+    private void customWorkDay() {
+        model.setCustomWorkDay(!model.isCustomWorkDay());
+    }
+
+    public ChartPlugin getChartPluginView() {
+        return chartPlugin;
     }
 
     public Boolean getChanged() {
@@ -1366,7 +1365,5 @@ public class ToolBarView {
         this.changed = changed;
     }
 
-    public ChartPlugin getGraphPluginView() {
-        return chartPlugin;
-    }
+
 }

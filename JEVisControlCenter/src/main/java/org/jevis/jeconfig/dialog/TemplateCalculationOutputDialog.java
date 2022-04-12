@@ -26,11 +26,17 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(TemplateCalculationOutputDialog.class);
     private final String ICON = "1404313956_evolution-tasks.png";
     private final AlphanumComparator ac = new AlphanumComparator();
+    private final StackPane dialogContainer;
+    private final JEVisDataSource ds;
+    private final TemplateOutput templateOutput;
     private FilteredList<JEVisObject> filteredList;
     private Response response = Response.CANCEL;
 
     public TemplateCalculationOutputDialog(StackPane dialogContainer, JEVisDataSource ds, TemplateOutput templateOutput) {
         super();
+        this.dialogContainer = dialogContainer;
+        this.ds = ds;
+        this.templateOutput = templateOutput;
 
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
@@ -62,6 +68,9 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         JFXTextField variableNameField = new JFXTextField(templateOutput.getVariableName());
         JFXTextField unitField = new JFXTextField(templateOutput.getUnit());
 
+        JFXCheckBox isLinkToggle = new JFXCheckBox(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
+        isLinkToggle.setSelected(templateOutput.getLink());
+
         Label columnLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.columnlabel"));
         NumberSpinner columnSpinner = new NumberSpinner(new BigDecimal(templateOutput.getColumn()), new BigDecimal(1));
 
@@ -90,6 +99,7 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         nameBold.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setNameBold(newValue));
         resultBold.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setResultBold(newValue));
         separatorToggle.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setSeparator(newValue));
+        isLinkToggle.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setLink(newValue));
 
         JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {
@@ -132,6 +142,14 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         gridPane.add(separator1, 0, row, 3, 1);
         row++;
 
+        gridPane.add(isLinkToggle, 0, row, 2, 1);
+        row++;
+
+        Separator separator2 = new Separator(Orientation.HORIZONTAL);
+        separator2.setPadding(new Insets(8, 0, 8, 0));
+        gridPane.add(separator2, 0, row, 3, 1);
+        row++;
+
         gridPane.add(columnLabel, 0, row);
         gridPane.add(columnSpinner, 1, row);
         row++;
@@ -151,9 +169,9 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         gridPane.add(new Label("UUID: " + templateOutput.getId()), 0, row);
         row++;
 
-        Separator separator2 = new Separator(Orientation.HORIZONTAL);
-        separator2.setPadding(new Insets(8, 0, 8, 0));
-        gridPane.add(separator2, 0, row, 3, 1);
+        Separator separator3 = new Separator(Orientation.HORIZONTAL);
+        separator3.setPadding(new Insets(8, 0, 8, 0));
+        gridPane.add(separator3, 0, row, 3, 1);
         row++;
 
         gridPane.add(buttonBar, 1, row, 3, 1);
@@ -164,4 +182,6 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
     public Response getResponse() {
         return response;
     }
+
+
 }

@@ -43,9 +43,33 @@ public class PickerCombo {
     private final DateHelper dateHelper;
     private LocalDate minDate;
     private LocalDate maxDate;
+    private boolean isUpdating = false;
 
     public PickerCombo(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, boolean withCustom) {
 
+        initialize(analysisDataModel, chartDataRows, withCustom);
+
+        this.dateHelper = new DateHelper();
+
+        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
+        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
+
+        startDatePicker.setPrefWidth(120d);
+        endDatePicker.setPrefWidth(120d);
+
+        startTimePicker.setPrefWidth(100d);
+        startTimePicker.setMaxWidth(100d);
+        startTimePicker.set24HourView(true);
+        startTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+        endTimePicker.setPrefWidth(100d);
+        endTimePicker.setMaxWidth(100d);
+        endTimePicker.set24HourView(true);
+        endTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+    }
+
+    public void initialize(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, boolean withCustom) {
+        isUpdating = true;
         this.analysisDataModel = analysisDataModel;
         JEVisObject obj = null;
         try {
@@ -67,24 +91,6 @@ public class PickerCombo {
         }
         this.chartDataRows = chartDataRows;
         this.presetDateBox.isWithCustom(obj, withCustom);
-
-        this.dateHelper = new DateHelper();
-
-        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
-        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
-
-        startDatePicker.setPrefWidth(120d);
-        endDatePicker.setPrefWidth(120d);
-
-        startTimePicker.setPrefWidth(100d);
-        startTimePicker.setMaxWidth(100d);
-        startTimePicker.set24HourView(true);
-        startTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        endTimePicker.setPrefWidth(100d);
-        endTimePicker.setMaxWidth(100d);
-        endTimePicker.set24HourView(true);
-        endTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         if (chartDataRows != null && !chartDataRows.isEmpty()) {
             if (analysisDataModel != null && !analysisDataModel.getCharts().getListSettings().isEmpty()) {
@@ -126,12 +132,13 @@ public class PickerCombo {
             }
         }
 
+        isUpdating = false;
     }
 
 
     public void addListener() {
         presetDateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue != oldValue) {
+            if (newValue != null && newValue != oldValue && !isUpdating) {
                 if (chartDataRows == null && analysisDataModel != null) {
                     if (newValue.getTimeFrame() != TimeFrame.CUSTOM) {
                         analysisDataModel.setAnalysisTimeFrameForAllModels(newValue);
@@ -145,7 +152,7 @@ public class PickerCombo {
         });
 
         startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue != oldValue) {
+            if (newValue != null && newValue != oldValue && !isUpdating) {
                 if (chartDataRows == null && analysisDataModel != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime startDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
@@ -169,7 +176,7 @@ public class PickerCombo {
         });
 
         endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue != oldValue) {
+            if (newValue != null && newValue != oldValue && !isUpdating) {
                 if (chartDataRows == null && analysisDataModel != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),

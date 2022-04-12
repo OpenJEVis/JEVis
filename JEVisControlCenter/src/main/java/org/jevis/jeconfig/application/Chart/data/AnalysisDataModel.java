@@ -174,7 +174,7 @@ public class AnalysisDataModel {
 
         this.selectedData = data;
 
-        update();
+        chartPlugin.update();
     }
 
     public void setData(Set<ChartDataRow> data) {

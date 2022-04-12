@@ -32,6 +32,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -43,6 +44,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ImageViewerDialog;
+import org.jevis.jeconfig.dialog.JsonViewerDialog;
 import org.jevis.jeconfig.dialog.PDFViewerDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.joda.time.DateTime;
@@ -118,6 +120,7 @@ public class FileEditor implements AttributeEditor {
 
         boolean isPDF = false;
         boolean isImage = false;
+        boolean isJson = false;
 
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
@@ -131,8 +134,8 @@ public class FileEditor implements AttributeEditor {
                 } else {
                     _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button_emty"));
                 }
-                String s = fileName.substring(fileName.length() - 3).toLowerCase();
-                switch (s) {
+                String extension = FilenameUtils.getExtension(fileName);
+                switch (extension) {
                     case "pdf":
                         isPDF = true;
                         break;
@@ -141,6 +144,9 @@ public class FileEditor implements AttributeEditor {
                     case "jpeg":
                     case "gif":
                         isImage = true;
+                        break;
+                    case "json":
+                        isJson = true;
                         break;
                 }
             } else {
@@ -180,6 +186,22 @@ public class FileEditor implements AttributeEditor {
                     JEVisSample latestSample = attribute.getLatestSample();
                     if (latestSample != null) {
                         imageViewerDialog.show(attribute, latestSample.getValueAsFile(), JEConfig.getStage());
+                    }
+                } catch (JEVisException e) {
+                    logger.error("Could not open pdf viewer", e);
+                }
+            });
+        }
+
+        if (isJson) {
+            JFXButton jsonButton = new JFXButton("", JEConfig.getImage("json_icon.png", 18, 18));
+            box.getChildren().add(2, jsonButton);
+            jsonButton.setOnAction(event -> {
+                JsonViewerDialog jsonViewerDialog = new JsonViewerDialog();
+                try {
+                    JEVisSample latestSample = attribute.getLatestSample();
+                    if (latestSample != null) {
+                        jsonViewerDialog.show(attribute, latestSample.getValueAsFile(), JEConfig.getStage());
                     }
                 } catch (JEVisException e) {
                     logger.error("Could not open pdf viewer", e);

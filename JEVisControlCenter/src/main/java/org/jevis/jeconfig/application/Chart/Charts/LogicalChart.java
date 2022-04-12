@@ -63,4 +63,5 @@ public class LogicalChart extends XYChart {
         y1Axis.setTickUnit(1d);
         y1Axis.setMinorTickVisible(false);
     }
+
 }

@@ -780,12 +780,11 @@ public class XYChart implements Chart {
 
     public void initializeChart() {
 
-        setChart(new de.gsi.chart.XYChart(dateAxis, y1Axis));
-
-        Platform.runLater(() -> chart.getRenderers().clear());
-        chart.setLegend(null);
-        chart.legendVisibleProperty().set(false);
-        chart.getToolBar().setVisible(false);
+        de.gsi.chart.XYChart xyChart = new de.gsi.chart.XYChart(dateAxis, y1Axis);
+        xyChart.getRenderers().clear();
+        xyChart.setLegend(null);
+        xyChart.legendVisibleProperty().set(false);
+        xyChart.getToolBar().setVisible(false);
 
         y1Axis.setForceZeroInRange(true);
         y1Axis.setAutoGrowRanging(true);
@@ -801,6 +800,8 @@ public class XYChart implements Chart {
         y2Axis.setAnimated(false);
         y2Axis.setSide(Side.RIGHT);
         y2Axis.setName("");
+
+        setChart(xyChart);
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
@@ -1221,7 +1222,7 @@ public class XYChart implements Chart {
                 long finalZeroCount = zeroCount;
                 double finalAvg = avg;
                 try {
-                    serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount);
+                    serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount, true);
                 } catch (JEVisException e) {
                     logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
                 }
@@ -1251,6 +1252,7 @@ public class XYChart implements Chart {
         return chart;
     }
 
+    @Override
     public void setChart(de.gsi.chart.Chart chart) {
         this.chart = chart;
     }

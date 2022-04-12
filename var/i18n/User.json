@@ -8,7 +8,6 @@
   },
   "descriptions": {
     "de": "Benutzer für den Zugang zum JEVis",
-    "ru": "User to access the JEVis",
     "en": "User to access the JEVis"
   },
   "types": [
@@ -16,12 +15,10 @@
       "type": "Activities",
       "descriptions": {
         "de": "Protokolliert die Aktivitäten eines Benutzers",
-        "ru": "Records the activities of a user",
         "en": "Records the activities of a user"
       },
       "names": {
         "de": "Aktivität",
-        "ru": "Activities",
         "en": "Activities"
       }
     },
@@ -29,12 +26,10 @@
       "type": "E-Mail",
       "descriptions": {
         "de": "E-Mail des Benutzers",
-        "ru": "E-Mail of the user",
         "en": "E-Mail of the user"
       },
       "names": {
         "de": "E-Mail",
-        "ru": "E-Mail",
         "en": "E-Mail"
       }
     },
@@ -42,25 +37,32 @@
       "type": "Enabled",
       "descriptions": {
         "de": "Aktiviert/Deaktiviert den Benutzer",
-        "ru": "Enables/Disables the user",
         "en": "Enables/Disables the user"
       },
       "names": {
         "de": "Aktiviert",
-        "ru": "Enabled",
         "en": "Enabled"
+      }
+    },
+    {
+      "type": "Analysis File",
+      "descriptions": {
+        "de": "Speicherort der temporären Analyse",
+        "en": "File destination of temporary analysis"
+      },
+      "names": {
+        "de": "Analysen Datei",
+        "en": "Analysis File"
       }
     },
     {
       "type": "First Name",
       "descriptions": {
         "de": "Vorname des Benutzers",
-        "ru": "User's first name",
         "en": "User's first name"
       },
       "names": {
         "de": "Vorname",
-        "ru": "First Name",
         "en": "First Name"
       }
     },
@@ -68,12 +70,10 @@
       "type": "Language",
       "descriptions": {
         "de": "Definiert die Sprache des Benutzers",
-        "ru": "Defines the user's language",
         "en": "Defines the user's language"
       },
       "names": {
         "de": "Sprache",
-        "ru": "Language",
         "en": "Language"
       }
     },
@@ -81,12 +81,10 @@
       "type": "Last Login",
       "descriptions": {
         "de": "Protokolliert die Logins des Benutzers",
-        "ru": "Records the logins of the user",
         "en": "Records the logins of the user"
       },
       "names": {
         "de": "Letzter Login",
-        "ru": "Last Login",
         "en": "Last Login"
       }
     },
@@ -94,12 +92,10 @@
       "type": "Last Name",
       "descriptions": {
         "de": "Nachname des Benutzers",
-        "ru": "Last Name description",
         "en": "Last Name description"
       },
       "names": {
         "de": "Nachname",
-        "ru": "User's last name",
         "en": "User's last name"
       }
     },
@@ -107,12 +103,10 @@
       "type": "Password",
       "descriptions": {
         "de": "Passwort des Benutzers",
-        "ru": "User's password",
         "en": "User's password"
       },
       "names": {
         "de": "Passwort",
-        "ru": "Password",
         "en": "Password"
       }
     },
@@ -120,12 +114,10 @@
       "type": "Phone",
       "descriptions": {
         "de": "Telefonnummer des Benutzers",
-        "ru": "User's phone number",
         "en": "User's phone number"
       },
       "names": {
         "de": "Telefon",
-        "ru": "Phone",
         "en": "Phone"
       }
     },
@@ -133,12 +125,10 @@
       "type": "Position",
       "descriptions": {
         "de": "Position/Funktion des Benutzers in der Organisation",
-        "ru": "Position/Function of the user within the organization",
         "en": "Position/Function of the user within the organization"
       },
       "names": {
         "de": "Position",
-        "ru": "Position",
         "en": "Position"
       }
     },
@@ -146,12 +136,10 @@
       "type": "Sys Admin",
       "descriptions": {
         "de": "Erteilt dem Benutzer uneingeschränkte Rechte als Systemadministrator",
-        "ru": "Grants all priveleges to the user as a system administrator",
         "en": "Grants all priveleges to the user as a system administrator"
       },
       "names": {
         "de": "Sys Admin",
-        "ru": "Sys Admin",
         "en": "Sys Admin"
       }
     },
@@ -159,12 +147,10 @@
       "type": "Timezone",
       "descriptions": {
         "de": "Zeitzone des Benutzers",
-        "ru": "User's time zone",
         "en": "User's time zone"
       },
       "names": {
         "de": "Zeitzone",
-        "ru": "Time Zone",
         "en": "Time Zone"
       }
     },
@@ -172,12 +158,10 @@
       "type": "Title",
       "descriptions": {
         "de": "Titel des Benutzers",
-        "ru": "User's title",
         "en": "User's title"
       },
       "names": {
         "de": "Titel",
-        "ru": "Title",
         "en": "Title"
       }
     }
