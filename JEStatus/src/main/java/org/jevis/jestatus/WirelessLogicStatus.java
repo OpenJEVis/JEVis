@@ -47,7 +47,7 @@ public class WirelessLogicStatus extends AlarmTable {
                 sb.append(headerCSS);
                 sb.append("\" >");
                 sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.tariff")).append("</th>");
-                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.dataicluded")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.dataincluded")).append("</th>");
                 sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.dataused")).append("</th>");
                 sb.append("  </tr>");
 
@@ -108,15 +108,12 @@ public class WirelessLogicStatus extends AlarmTable {
                 sb.append(headerCSS);
                 sb.append("\" >");
                 sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.iccid")).append("</th>");
-                sb.append("    <th>").append("Customer Filed 1").append("</th>");
-                sb.append("    <th>").append("Customer Filed 2").append("</th>");
-                sb.append("    <th>").append("Customer Filed 3").append("</th>");
-                sb.append("    <th>").append("Customer Filed 4").append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.cutomerfield1")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.cutomerfield2")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.cutomerfield3")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.cutomerfield4")).append("</th>");
                 sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lastseen")).append("</th>");
                 sb.append("  </tr>");
-                System.out.println("test");
-                System.out.println(offlineSims.size());
-                System.out.println("test end");
                 for (SimCardInfos simCardInfos : offlineSims) {
 
 
