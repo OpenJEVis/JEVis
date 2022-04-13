@@ -50,7 +50,43 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.61------\n" +
+            "------Version 3.9.62------\n" +
+                    "JECC - AccountingPlugin - added write check for visible tabs\n" +
+                    "JECC - ChartPlugin - bugfixes\n" +
+                    "JECC - ChartPlugin - disabled overlay close on load analysis dialog\n" +
+                    "JECC - ChartPlugin - fixed alarm map displaying too much information\n" +
+                    "JECC - ChartPlugin - fixed disabled quick selection box\n" +
+                    "JECC - ChartPlugin - fixed disabled toolbar working properly \n" +
+                    "JECC - ChartPlugin - fixed memory leak\n" +
+                    "JECC - ObjectPlugin - AlarmEditor - fixed null pointer\n" +
+                    "JECC - ObjectPlugin - FileEditor - added option for json files\n" +
+                    "JECC - ObjectPlugin - FileEditor - fixed extension recognition\n" +
+                    "JECC - ObjectPlugin - ObjectTable - improved memory performance on large data structures\n" +
+                    "JECC - ObjectPlugin - RenameDialog - added warning for missing user rights\n" +
+                    "JECC - ObjectPlugin - SampleTable - added expert tools for base and user data\n" +
+                    "JECC - ObjectPlugin - SampleTable - increased width of note column\n" +
+                    "JECC - ObjectPlugin - implemented basic json viewer\n" +
+                    "JECC - ProgressForm - increased size\n" +
+                    "JECC - TRCPlugin - added data input option for OutputView\n" +
+                    "JECC - TablePlugin - added fraction digits configuration\n" +
+                    "JECC - TablePlugin - added path column\n" +
+                    "JECC - TablePlugin - fixed autofit for multisite\n" +
+                    "JECC - TablePlugin - improved EnterDataDialog\n" +
+                    "\n" +
+                    "Classes - Measurement Instruments - fixed attribute inheritance and translation\n" +
+                    "Classes - added missing daily report setting\n" +
+                    "\n" +
+                    "JECommons - AggregatorFunction - fixed wrong quantity check for aggregation\n" +
+                    "JECommons - AlarmProcess - standby time working properly\n" +
+                    "JECommons - Calculation - fixed user data input \n" +
+                    "JECommons - DateHelper - added the year before last to calendar presets\n" +
+                    "JECommons - GapsAndLimits - fixed cache not working properly for median\n" +
+                    "JECommons - MathStep - added sum functionality \n" +
+                    "JECommons - WorkDays - added workaround for objects not in buildings\n" +
+                    "\n" +
+                    "JEStatus - WirelessLogicRequest - using httpurlconnection instead of curl for get request\n" +
+                    "JEStatus - improved logging\n\n" +
+                    "------Version 3.9.61------\n" +
                     "JECC - AccountingPlugin - added input fallback with zero\n" +
                     "JECC - AccountingPlugin - added plugin tooltip\n" +
                     "JECC - AccountingPlugin - fixed input labeling for ungrouped inputs\n" +

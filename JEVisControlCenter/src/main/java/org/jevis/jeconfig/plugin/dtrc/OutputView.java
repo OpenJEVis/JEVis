@@ -351,6 +351,7 @@ public class OutputView extends Tab {
                                                 JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
 
                                                 EnterDataDialog enterDataDialog = new EnterDataDialog(viewDialogContainer, ds);
+                                                enterDataDialog.setShowDetailedTarget(false);
                                                 enterDataDialog.setTarget(false, th.getAttribute().get(0));
                                                 enterDataDialog.setSample(lastValue);
                                                 enterDataDialog.setShowValuePrompt(true);
