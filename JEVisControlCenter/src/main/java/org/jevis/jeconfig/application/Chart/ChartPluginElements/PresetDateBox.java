@@ -66,6 +66,7 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
         final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
         final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
         final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
+        final String theYearBeforeLast = I18n.getInstance().getString("plugin.graph.changedate.buttontheyearbeforelast");
         final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
         final String preview = I18n.getInstance().getString("plugin.graph.changedate.preview");
 
@@ -150,6 +151,11 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
                                     break;
                                 case LAST_YEAR:
                                     text = lastYear;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
+                                    break;
+                                case THE_YEAR_BEFORE_LAST:
+                                    text = theYearBeforeLast;
                                     setTextFill(Color.BLACK);
                                     setDisable(false);
                                     break;
@@ -239,8 +245,14 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
                 endDate = dateHelper.getEndDate();
                 break;
             case LAST_YEAR:
-                //last Month
+                //last year
                 dateHelper.setType(DateHelper.TransformType.LASTYEAR);
+                startDate = dateHelper.getStartDate();
+                endDate = dateHelper.getEndDate();
+                break;
+            case THE_YEAR_BEFORE_LAST:
+                //the year before last
+                dateHelper.setType(DateHelper.TransformType.THEYEARBEFORELAST);
                 startDate = dateHelper.getStartDate();
                 endDate = dateHelper.getEndDate();
                 break;
