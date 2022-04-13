@@ -754,6 +754,13 @@ public class AnalysisDataModel {
                     analysisTimeFrame.setStart(dateHelper.getStartDate());
                     analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
+                case THE_YEAR_BEFORE_LAST:
+                    //last Month
+                    dateHelper.setType(DateHelper.TransformType.THEYEARBEFORELAST);
+                    updateStartEndToDataModel(chartDataRows, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
+                    break;
                 case CUSTOM_START_END:
                     if (analysisTimeFrame.getId() != 0L) {
                         try {

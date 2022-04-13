@@ -137,6 +137,11 @@ public class DateHelper {
                         .minusYears(1);
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
+            case THEYEARBEFORELAST:
+                startDate = new DateTime(now.getYear(), 1, 1, startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusYears(2);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
+                break;
             case CUSTOM_PERIOD:
                 if (Objects.nonNull(customPeriodObject)) {
                     if (customPeriodObject.getStartReferencePoint() != null) {
@@ -388,6 +393,13 @@ public class DateHelper {
                         endTime.getHour(), endTime.getMinute(), endTime.getSecond())
                         .minusDays(1);
                 break;
+            case THEYEARBEFORELAST:
+                now = DateTime.now();
+                endDate = new DateTime(now.getYear(), 1, 1,
+                        endTime.getHour(), endTime.getMinute(), endTime.getSecond())
+                        .minusYears(1)
+                        .minusDays(1);
+                break;
             case CUSTOM_PERIOD:
                 if (Objects.nonNull(customPeriodObject)) {
                     if (customPeriodObject.getEndReferencePoint() != null) {
@@ -524,7 +536,7 @@ public class DateHelper {
         }
     }
 
-    public enum TransformType {CUSTOM, CURRENT, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR, PREVIEW}
+    public enum TransformType {CUSTOM, CURRENT, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR, THEYEARBEFORELAST, PREVIEW}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 
