@@ -43,7 +43,7 @@ public class OPCBrowser {
     public final JEVisObject opcServerObj;
     public static final String DEFAULT_OPC_PORT = "4840";
     public static final String ROOT_FOLDER_TREND = "/Objects/Loytec ROOT/Trend";
-    public static final String ROOT_FOLDER_TREND_BACNET = "/Objects/Loytec ROOT/BACnet Port/Trend";
+    public static final String ROOT_FOLDER_TREND_BACNET = "/Objects/Loytec ROOT/BACnet Port";
 
     JFXTextField port = new JFXTextField();
     JFXButton connect = new JFXButton();
