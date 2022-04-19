@@ -249,7 +249,11 @@ public class DataDialog extends JFXDialog {
         VBox vBox = new VBox(8, toolBar, hBox, buttonBar);
         vBox.setPadding(new Insets(12));
 
-        setContent(vBox);
+        ScrollPane scrollPane = new ScrollPane(vBox);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        setContent(scrollPane);
 
         updateTable();
 
@@ -362,6 +366,7 @@ public class DataDialog extends JFXDialog {
 
     private TableColumn<DataSample, Boolean> buildCommitColumn(String columnName) {
         TableColumn<DataSample, Boolean> column = new TableColumn<>(columnName);
+        column.setStyle("-fx-alignment: CENTER;");
         column.setMinWidth(150);
         column.setCellValueFactory(new PropertyValueFactory<>("commit"));
         column.setCellFactory(CheckBoxTableCell.forTableColumn(column));
