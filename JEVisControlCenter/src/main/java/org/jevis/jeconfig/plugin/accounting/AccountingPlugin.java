@@ -238,7 +238,7 @@ public class AccountingPlugin extends TablePlugin {
             energyGridOperatorsTab.setText(I18nWS.getInstance().getClassName(accountingDirectories.getEnergyGridOperatorClass()));
             energyContractorTab.setText(I18nWS.getInstance().getClassName(accountingDirectories.getEnergyContractorClass()));
             governmentalDuesTab.setText(I18nWS.getInstance().getClassName(accountingDirectories.getGovernmentalDuesClass()));
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not get class name for tabs", e);
         }
 
@@ -270,8 +270,13 @@ public class AccountingPlugin extends TablePlugin {
         boolean canWriteToContracts = false;
         try {
             canWriteToContracts = ds.getCurrentUser().canWrite(accountingDirectories.getEnergyContractingDir().getID());
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Failed to check user permissions to write to contracts directory", e);
+            try {
+                canWriteToContracts = ds.getCurrentUser().isSysAdmin();
+            } catch (Exception ex) {
+                logger.error("Failed to check user is Sys Admin", e);
+            }
         }
 
         if (canWriteToContracts) {
