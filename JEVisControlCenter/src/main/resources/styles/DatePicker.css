@@ -82,7 +82,7 @@
 .calendar-navigation-button, .calendar-navigation-title, .calendar-today-button {
     -fx-background-color: null;
     -fx-cursor: hand;
-    -fx-text-fill: white;
+    -fx-text-fill: -fx-text-color;
 }
 
 /* don't make the title button transparent, when it is disabled in the decades view */
@@ -96,7 +96,7 @@
     -fx-padding: 4 3.5 4 3.5;
     -fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em; /* 2 3.5 2 3.5 */
     -fx-shape: "M 100 100 L 300 100 L 200 300 z";
-    -fx-background-color: #ffffff;
+    -fx-background-color: derive(-fx-base, 120%);
 }
 
 /* The cell which contain the week day names */
