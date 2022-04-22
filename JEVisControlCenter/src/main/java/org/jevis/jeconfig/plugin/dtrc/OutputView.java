@@ -76,6 +76,7 @@ public class OutputView extends Tab {
     private final DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
     private GridPane contractsGP;
     private Label timeframeField;
+    private double fontSize = 12d;
 
     public OutputView(String title, JEVisDataSource ds, TemplateHandler templateHandler) {
         super(title);
@@ -327,13 +328,17 @@ public class OutputView extends Tab {
 
                             Label label = new Label(templateOutput.getName());
                             if (templateOutput.getNameBold()) {
-                                label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, label.getFont().getSize()));
+                                label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, getFontSize()));
+                            } else {
+                                label.setFont(Font.font(label.getFont().getFamily(), FontWeight.NORMAL, getFontSize()));
                             }
                             Label result = new Label();
                             result.setTextAlignment(TextAlignment.RIGHT);
                             result.setAlignment(Pos.CENTER_RIGHT);
                             if (templateOutput.getResultBold()) {
-                                result.setFont(Font.font(result.getFont().getFamily(), FontWeight.BOLD, result.getFont().getSize()));
+                                result.setFont(Font.font(result.getFont().getFamily(), FontWeight.BOLD, getFontSize()));
+                            } else {
+                                result.setFont(Font.font(label.getFont().getFamily(), FontWeight.NORMAL, getFontSize()));
                             }
 
                             HBox hBox = new HBox(label, result);
@@ -1050,5 +1055,13 @@ public class OutputView extends Tab {
 
     public void setViewDialogContainer(StackPane viewDialogContainer) {
         this.viewDialogContainer = viewDialogContainer;
+    }
+
+    public double getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(double fontSize) {
+        this.fontSize = fontSize;
     }
 }

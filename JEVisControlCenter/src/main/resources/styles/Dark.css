@@ -2,11 +2,17 @@
     -fx-accent: #1e74c6;
     -fx-focus-color: -fx-accent;
     -fx-base: #373e43;
+    -fx-text-color: white;
     -fx-control-inner-background: derive(-fx-base, 35%);
     -fx-control-inner-background-alt: -fx-control-inner-background ;
     -tab-text-color: white;
     -fx-box-border: derive(-fx-base, 75%);
     -fx-border: white;
+
+    -fx-default-button-background: #373e43;
+    -fx-default-button-text-fill: white;
+
+    -fx-tree-background: transparent;
 }
 
 .label{
