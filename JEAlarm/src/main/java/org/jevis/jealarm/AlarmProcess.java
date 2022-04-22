@@ -487,13 +487,15 @@ public class AlarmProcess {
                                 int logVal = 0;
 
                                 logVal = ScheduleService.getValueForLog(ts, usageSchedules);
-                                JEVisSample alarmSample = new VirtualSample(ts, (long) logVal);
-                                alarmLogs.add(alarmSample);
+                                if (logVal != 4) {
+                                    JEVisSample alarmSample = new VirtualSample(ts, (long) logVal);
+                                    alarmLogs.add(alarmSample);
 
-                                if (upper) {
-                                    activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, operator, upperValue, sampleAlarmType, logVal));
-                                } else {
-                                    activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, operator, lowerValue, sampleAlarmType, logVal));
+                                    if (upper) {
+                                        activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, operator, upperValue, sampleAlarmType, logVal));
+                                    } else {
+                                        activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, operator, lowerValue, sampleAlarmType, logVal));
+                                    }
                                 }
                             }
                         }

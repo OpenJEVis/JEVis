@@ -1,0 +1,23 @@
+{
+  "name": "Energy Invoices Directory",
+  "description": "The class Energy Invoices Directory represents a specific directory for the energy invoices.\n\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Invoices Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Energy Invoices Directory",
+      "end": "Energy Contracting Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Invoices Directory",
+      "end": "Energy Invoices Directory",
+      "type": 3
+    }
+  ]
+}
+

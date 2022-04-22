@@ -291,6 +291,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         setGraphic(dialogContainer);
 
         enterDataDialog = new EnterDataDialog(dialogContainer, getDataSource());
+        enterDataDialog.setShowDetailedTarget(false);
         enterDataDialog.getNewSampleProperty().addListener((observable, oldValue, newValue) -> {
             this.updateData(lastInterval);
         });

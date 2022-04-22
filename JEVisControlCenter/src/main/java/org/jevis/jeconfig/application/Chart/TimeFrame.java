@@ -15,6 +15,7 @@ public enum TimeFrame {
     LAST_MONTH,
     THIS_YEAR,
     LAST_YEAR,
+    THE_YEAR_BEFORE_LAST,
     CUSTOM_START_END,
     PREVIEW;
 
@@ -44,6 +45,8 @@ public enum TimeFrame {
                 return DateHelper.TransformType.THISYEAR;
             case LAST_YEAR:
                 return DateHelper.TransformType.LASTYEAR;
+            case THE_YEAR_BEFORE_LAST:
+                return DateHelper.TransformType.THEYEARBEFORELAST;
             case CUSTOM_START_END:
                 return DateHelper.TransformType.CUSTOM_PERIOD;
             case PREVIEW:

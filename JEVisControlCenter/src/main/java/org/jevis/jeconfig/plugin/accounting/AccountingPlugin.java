@@ -187,7 +187,8 @@ public class AccountingPlugin extends TablePlugin {
     private boolean guiUpdate = false;
     private final TemplateHandler templateHandler = new TemplateHandler();
     private final OutputView viewTab;
-    private final Tab contractsTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"));
+    private final StackPane contractsTabDialogContainer = new StackPane();
+    private final Tab contractsTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"), contractsTabDialogContainer);
     private final JFXTextField contractNumberField = new JFXTextField();
     private final JFXComboBox<ContractType> contractTypeBox = new JFXComboBox<>();
     private final JFXTextField marketLocationNumberField = new JFXTextField();
@@ -214,6 +215,8 @@ public class AccountingPlugin extends TablePlugin {
         viewTab = new OutputView(I18n.getInstance().getString("plugin.accounting.tab.view"), ds, templateHandler);
         viewTab.showDatePicker(false);
         viewTab.showInputs(false);
+        viewTab.setContractsDialogContainer(contractsTabDialogContainer);
+        viewTab.setViewDialogContainer(dialogPane);
 
         enterDataTab.setContent(enterDataStackPane);
 
@@ -264,7 +267,18 @@ public class AccountingPlugin extends TablePlugin {
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.new.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.tooltip.print")));
 
-        motherTabPane.getTabs().addAll(viewTab, contractsTab, enterDataTab);
+        boolean canWriteToContracts = false;
+        try {
+            canWriteToContracts = ds.getCurrentUser().canWrite(accountingDirectories.getEnergyContractingDir().getID());
+        } catch (JEVisException e) {
+            logger.error("Failed to check user permissions to write to contracts directory", e);
+        }
+
+        if (canWriteToContracts) {
+            motherTabPane.getTabs().addAll(viewTab, contractsTab, enterDataTab);
+        } else {
+            motherTabPane.getTabs().addAll(viewTab);
+        }
 
         motherTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.equals(enterDataTab)) {
@@ -283,6 +297,7 @@ public class AccountingPlugin extends TablePlugin {
         this.borderPane.setCenter(motherTabPane);
 
         initToolBar();
+
     }
 
     private void createContractsTab() {
@@ -426,7 +441,7 @@ public class AccountingPlugin extends TablePlugin {
         contractsGP.add(trcs, 1, contractsRow);
         contractsRow++;
 
-        contractsTab.setContent(new VBox(4, contractsGP));
+        contractsTabDialogContainer.getChildren().add(new VBox(4, contractsGP));
         viewTab.setContractsGP(contractsGP);
         viewTab.setTimeframeField(timeframeField);
 

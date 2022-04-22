@@ -42,7 +42,6 @@ import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +66,39 @@ public class MeterPlugin extends TablePlugin {
     public MeterPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
         this.borderPane.setCenter(tabPane);
+
+        int minDec = pref.getInt("minimumFractionDigits", 2);
+        int maxDec = pref.getInt("maxFractionDigits", 2);
+
+        numberFormat.setMinimumFractionDigits(minDec);
+        numberFormat.setMaximumFractionDigits(maxDec);
+
+        reduceFractionDigitsButton.setOnAction(actionEvent -> {
+            int currentFractionDigits = numberFormat.getMinimumFractionDigits();
+            if (currentFractionDigits > 0) {
+                currentFractionDigits -= 1;
+                numberFormat.setMinimumFractionDigits(currentFractionDigits);
+                numberFormat.setMaximumFractionDigits(currentFractionDigits);
+                pref.putInt("minimumFractionDigits", currentFractionDigits);
+                pref.putInt("maxFractionDigits", currentFractionDigits);
+
+            }
+        });
+
+        increaseFractionDigitsButton.setOnAction(actionEvent -> {
+            int currentFractionDigits = numberFormat.getMinimumFractionDigits();
+
+            currentFractionDigits += 1;
+            numberFormat.setMinimumFractionDigits(currentFractionDigits);
+            numberFormat.setMaximumFractionDigits(currentFractionDigits);
+            pref.putInt("minimumFractionDigits", currentFractionDigits);
+            pref.putInt("maxFractionDigits", currentFractionDigits);
+        });
+
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reduceFractionDigitsButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(increaseFractionDigitsButton);
+        reduceFractionDigitsButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.table.toolbar.reducefractiondigits.tooltip")));
+        increaseFractionDigitsButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.table.toolbar.increasefractiondigits.tooltip")));
 
         borderPane.setOnKeyPressed(this::handleRename);
 
@@ -160,9 +192,6 @@ public class MeterPlugin extends TablePlugin {
                 tableView.getColumns().add(column);
 
                 if (type.equals(onlineIdType)) {
-                    NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-                    numberFormat.setMinimumFractionDigits(2);
-                    numberFormat.setMaximumFractionDigits(2);
                     TableColumn<RegisterTableRow, Object> lastValueColumn = new TableColumn<>(I18n.getInstance().getString("status.table.captions.lastrawvalue"));
                     lastValueColumn.setStyle("-fx-alignment: CENTER;");
                     lastValueColumn.setMinWidth(250);
@@ -341,10 +370,25 @@ public class MeterPlugin extends TablePlugin {
         replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.replace.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
 
-        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, renameButton, sep3, printButton);
+        Separator sep4 = new Separator(Orientation.VERTICAL);
+
+        reduceFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
+        increaseFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
+
+        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, renameButton, sep3, printButton, sep4, reduceFractionDigitsButton, increaseFractionDigitsButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
         JEVisHelp.getInstance().addHelpItems(MeterPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+    }
+
+    private void updateSelectedTable() {
+        Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
+            if (tableView != null) {
+                tableView.refresh();
+            }
+        }
     }
 
     @Override

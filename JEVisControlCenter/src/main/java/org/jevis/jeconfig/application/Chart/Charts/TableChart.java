@@ -132,4 +132,5 @@ public class TableChart extends XYChart {
     public void setTableHeader(TableHeaderTable tableHeader) {
         this.tableHeader = tableHeader;
     }
+
 }

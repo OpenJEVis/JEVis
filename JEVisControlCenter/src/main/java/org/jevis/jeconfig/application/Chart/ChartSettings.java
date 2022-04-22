@@ -26,4 +26,8 @@ public class ChartSettings {
     public void setAutoSize(Boolean autoSize) {
         isAutoSize = autoSize;
     }
+
+    public void clear() {
+        listSettings.clear();
+    }
 }

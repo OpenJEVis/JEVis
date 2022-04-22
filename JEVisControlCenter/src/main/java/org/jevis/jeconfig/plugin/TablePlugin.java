@@ -74,6 +74,11 @@ public class TablePlugin implements Plugin {
     private static Method columnToFitMethod;
     protected final TabPane tabPane = new TabPane();
     private Boolean multiSite;
+    protected final int toolBarIconSize = 20;
+    protected final int tableIconSize = 18;
+    protected final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+    protected final ToggleButton reduceFractionDigitsButton = new ToggleButton("", JEConfig.getImage("9069778_reduce_decimal_places_icon.png", toolBarIconSize, toolBarIconSize));
+    protected final ToggleButton increaseFractionDigitsButton = new ToggleButton("", JEConfig.getImage("9069778_increase_decimal_places_icon.png", toolBarIconSize, toolBarIconSize));
 
     static {
         try {
@@ -85,8 +90,6 @@ public class TablePlugin implements Plugin {
     }
 
     protected final JEVisDataSource ds;
-    protected final int toolBarIconSize = 20;
-    protected final int tableIconSize = 18;
     protected final Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
     protected final ObjectRelations objectRelations;
     protected final String title;
@@ -100,6 +103,8 @@ public class TablePlugin implements Plugin {
         this.objectRelations = new ObjectRelations(ds);
         this.title = title;
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
+
+
         addListener();
 
         this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -107,7 +112,7 @@ public class TablePlugin implements Plugin {
                 JEVisClassTab selectedItem = (JEVisClassTab) this.tabPane.getSelectionModel().getSelectedItem();
                 String filter = filterInput.getText();
                 if (selectedItem != null) {
-                    if (!isMultiSite()) {
+                    if (selectedItem.getContent() instanceof TableView) {
                         setFilterForTab(filter, selectedItem);
                     } else {
                         TabPane content = (TabPane) selectedItem.getContent();
@@ -426,6 +431,7 @@ public class TablePlugin implements Plugin {
                         JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
 
                         EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, getDataSource());
+                        enterDataDialog.setShowDetailedTarget(false);
                         enterDataDialog.setTarget(false, th.getAttribute().get(0));
                         enterDataDialog.setSample(lastValue);
                         enterDataDialog.setShowValuePrompt(true);
@@ -760,7 +766,6 @@ public class TablePlugin implements Plugin {
                                 e.printStackTrace();
                             }
 
-                            NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
                             UnaryOperator<TextFormatter.Change> filter = t -> {
                                 if (t.getText().length() > 1) {/** Copy&paste case **/
                                     try {

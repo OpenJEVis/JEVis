@@ -114,6 +114,7 @@ public class TemplateHandler {
             outputNode.put("resultBold", templateOutput.getResultBold());
             outputNode.put("unit", templateOutput.getUnit());
             outputNode.put("showLabel", templateOutput.getShowLabel());
+            outputNode.put("link", templateOutput.getLink());
             outputNode.put("column", templateOutput.getColumn());
             outputNode.put("row", templateOutput.getRow());
             outputNode.put("colSpan", templateOutput.getColSpan());

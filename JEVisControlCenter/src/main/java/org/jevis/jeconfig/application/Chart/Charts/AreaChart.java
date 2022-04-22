@@ -10,4 +10,5 @@ public class AreaChart extends org.jevis.jeconfig.application.Chart.Charts.XYCha
     public AreaChart() {
         super();
     }
+
 }

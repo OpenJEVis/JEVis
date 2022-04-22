@@ -88,6 +88,17 @@
             "th": "ค่าเฉลี่ย"
           }
         },
+        "SUM": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Summe",
+            "en": "Sum",
+            "ru": "Всего",
+            "uk": "всього",
+            "th": "ทั้งหมด"
+          }
+        },
         "SORTED_MIN": {
           "enumID": null,
           "descriptions": null,

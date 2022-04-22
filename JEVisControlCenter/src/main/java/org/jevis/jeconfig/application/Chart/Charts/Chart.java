@@ -28,6 +28,8 @@ public interface Chart {
 
     de.gsi.chart.Chart getChart();
 
+    void setChart(de.gsi.chart.Chart chart);
+
     ChartType getChartType();
 
     Region getRegion();

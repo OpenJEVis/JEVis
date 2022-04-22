@@ -293,6 +293,14 @@ public class LoadAnalysisDialog extends JFXDialog {
                         analysisDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
                         updateGridLayout();
                         break;
+                    case THE_YEAR_BEFORE_LAST:
+                        //last Year
+                        dateHelper.setType(DateHelper.TransformType.THEYEARBEFORELAST);
+                        analysisDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.THE_YEAR_BEFORE_LAST));
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
+                        updateGridLayout();
+                        break;
                     case CUSTOM_START_END:
                         break;
                     default:

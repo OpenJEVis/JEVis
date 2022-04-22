@@ -12,6 +12,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.CalcMethods;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,11 @@ public class TableData {
     private List<JEVisAttribute> attributeList = new ArrayList<>();
     private JEVisDataSource ds;
     private boolean duplicate = false;
+    private long sampleCount = 0l;
+    private DateTime minTs;
+    private DateTime maxTs;
+    private DateTime minTsOverall;
+    private DateTime maxTsOverall;
 
     public TableData(JEVisObject object, Map<Long, List<Long>> calcMap, Map<Long, List<Long>> targetLoytecXML, Map<Long, List<Long>> targetOPCUA,
                      Map<Long, List<Long>> targetVIDA, Map<Long, List<Long>> targetCSV, Map<Long, List<Long>> targetXML,
@@ -198,5 +204,45 @@ public class TableData {
 
     public void setObject(JEVisObject object) {
         this.object = object;
+    }
+
+    public long getSampleCount() {
+        return sampleCount;
+    }
+
+    public void setSampleCount(long sampleCount) {
+        this.sampleCount = sampleCount;
+    }
+
+    public DateTime getMinTs() {
+        return minTs;
+    }
+
+    public void setMinTs(DateTime minTs) {
+        this.minTs = minTs;
+    }
+
+    public DateTime getMaxTs() {
+        return maxTs;
+    }
+
+    public void setMaxTs(DateTime maxTs) {
+        this.maxTs = maxTs;
+    }
+
+    public DateTime getMinTsOverall() {
+        return minTsOverall;
+    }
+
+    public void setMinTsOverall(DateTime minTsOverall) {
+        this.minTsOverall = minTsOverall;
+    }
+
+    public DateTime getMaxTsOverall() {
+        return maxTsOverall;
+    }
+
+    public void setMaxTsOverall(DateTime maxTsOverall) {
+        this.maxTsOverall = maxTsOverall;
     }
 }

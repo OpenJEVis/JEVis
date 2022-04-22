@@ -147,8 +147,11 @@ public class XYChart implements Chart {
 
         CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());
         CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());
-        y1Axis.setTickLabelFormatter(tickLabelFormatter1);
-        y2Axis.setTickLabelFormatter(tickLabelFormatter2);
+        Platform.runLater(() -> {
+            y1Axis.setTickLabelFormatter(tickLabelFormatter1);
+
+            y2Axis.setTickLabelFormatter(tickLabelFormatter2);
+        });
 
         this.nf.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
         this.nf.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
@@ -309,10 +312,19 @@ public class XYChart implements Chart {
 
     private void createSumModels(AnalysisDataModel dataModel, List<ChartDataRow> sumModels) {
         try {
+            long sumId = 9999999999L;
+            List<ChartDataRow> oldModels = new ArrayList<>();
+            dataModel.getSelectedData().forEach(chartDataRow -> {
+                if (chartDataRow.getObject().getID() == sumId) {
+                    oldModels.add(chartDataRow);
+                }
+            });
+            dataModel.getSelectedData().removeAll(oldModels);
+
             for (ChartDataRow sumModel : sumModels) {
                 int index = sumModels.indexOf(sumModel);
                 JsonObject json = new JsonObject();
-                json.setId(9999999999L);
+                json.setId(sumId);
                 json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
                 if (index == 0) {
                     json.setName(json.getName() + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1"));
@@ -768,12 +780,11 @@ public class XYChart implements Chart {
 
     public void initializeChart() {
 
-        setChart(new de.gsi.chart.XYChart(dateAxis, y1Axis));
-
-        Platform.runLater(() -> chart.getRenderers().clear());
-        chart.setLegend(null);
-        chart.legendVisibleProperty().set(false);
-        chart.getToolBar().setVisible(false);
+        de.gsi.chart.XYChart xyChart = new de.gsi.chart.XYChart(dateAxis, y1Axis);
+        xyChart.getRenderers().clear();
+        xyChart.setLegend(null);
+        xyChart.legendVisibleProperty().set(false);
+        xyChart.getToolBar().setVisible(false);
 
         y1Axis.setForceZeroInRange(true);
         y1Axis.setAutoGrowRanging(true);
@@ -789,6 +800,8 @@ public class XYChart implements Chart {
         y2Axis.setAnimated(false);
         y2Axis.setSide(Side.RIGHT);
         y2Axis.setName("");
+
+        setChart(xyChart);
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
@@ -1209,7 +1222,7 @@ public class XYChart implements Chart {
                 long finalZeroCount = zeroCount;
                 double finalAvg = avg;
                 try {
-                    serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount);
+                    serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount, true);
                 } catch (JEVisException e) {
                     logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
                 }
@@ -1232,9 +1245,14 @@ public class XYChart implements Chart {
 
     @Override
     public de.gsi.chart.Chart getChart() {
+        if (chart == null) {
+            initializeChart();
+        }
+
         return chart;
     }
 
+    @Override
     public void setChart(de.gsi.chart.Chart chart) {
         this.chart = chart;
     }
