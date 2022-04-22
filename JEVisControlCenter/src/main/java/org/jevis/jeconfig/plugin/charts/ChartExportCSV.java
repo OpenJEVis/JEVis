@@ -22,6 +22,7 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -167,8 +168,9 @@ public class ChartExportCSV {
                 }
 
                 String formattedName = "";
-                if (model.getCurrentAnalysis() != null)
-                    formattedName = model.getCurrentAnalysis().getName().replaceAll(SPACE, "_");
+                if (model.getCurrentAnalysis() != null) {
+                    formattedName = FileNames.fixName(model.getCurrentAnalysis().getName());
+                }
 
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("CSV File Destination");
