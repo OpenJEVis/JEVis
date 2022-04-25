@@ -12,7 +12,7 @@
 }
 
 .jfx-dialog{
-    -fx-background-color: derive(-fx-base, 70%);
+    /*-fx-background-color: derive(-fx-base, 70%);*/
     -fx-text-color: -fx-text-color;
 }
 
