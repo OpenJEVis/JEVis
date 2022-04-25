@@ -1,14 +1,16 @@
 .root {
     -tab-text-color: -fx-text-base-color ;
     -fx-base: #e2e2e2;
+    -fx-text-color: black;
     -fx-accent: #1a719c;
     -jfx-default-color: -fx-base;
     -fx-default-button-background: #4dadf7;
     -fx-default-button-text-fill: #FFFFFF;
+    -fx-tree-background: f4f4f4;
 }
 
 .jfx-tab-pane .tab-header-background {
-    -fx-background-color: linear-gradient(-fx-base, #eeeeee);
+    -fx-background-color: linear-gradient(-fx-base, #eeeeee) !important;
 }
 
 .button {
@@ -16,7 +18,7 @@
 }
 
 .main-split-pane, main-view-pane{
-    -fx-background-color: #f4f4f4;
+    -fx-background-color: #f4f4f4 !important;
 }
 
 .object-editor-side-node{
@@ -33,12 +35,6 @@
 
 .dialog-header{
     -fx-background-color: linear-gradient(-fx-base, #eeeeee);
-}
-
-#objecttree{
-    /*-fx-background-color: #E2E2E2;*/
-    -fx-background-color: f4f4f4;
-    /*-fx-background-color: white;*/
 }
 
 #attributelabel{

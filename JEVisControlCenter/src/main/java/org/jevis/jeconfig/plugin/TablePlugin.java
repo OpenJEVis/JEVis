@@ -35,6 +35,7 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -612,7 +613,7 @@ public class TablePlugin implements Plugin {
                                         JEVisFile file = item.getLatestSample().getValueAsFile();
                                         if (file != null) {
                                             FileChooser fileChooser = new FileChooser();
-                                            fileChooser.setInitialFileName(file.getFilename());
+                                            fileChooser.setInitialFileName(FileNames.fixName(file.getFilename()));
                                             fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
                                             fileChooser.getExtensionFilters().addAll(
                                                     new FileChooser.ExtensionFilter("All Files", "*.*"));

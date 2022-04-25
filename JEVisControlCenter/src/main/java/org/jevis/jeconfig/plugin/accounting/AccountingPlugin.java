@@ -104,6 +104,8 @@ public class AccountingPlugin extends TablePlugin {
     private final ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", toolBarIconSize, toolBarIconSize));
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
+    private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", toolBarIconSize, toolBarIconSize));
+    private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", toolBarIconSize, toolBarIconSize));
     private final BorderPane borderPane = new BorderPane();
     private final StackPane dialogPane = new StackPane(borderPane);
     private final TabPane motherTabPane = new TabPane();
@@ -203,9 +205,12 @@ public class AccountingPlugin extends TablePlugin {
     private Label contractNumberLabel;
     private Label contractTypeLabel;
     private Label marketLocationNumberLabel;
+    private double fontSize = 12;
 
     public AccountingPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
+
+        double fontSize = pref.getDouble("fontSize", 12d);
 
         accountingDirectories = new AccountingDirectories(ds);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -213,6 +218,7 @@ public class AccountingPlugin extends TablePlugin {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         viewTab = new OutputView(I18n.getInstance().getString("plugin.accounting.tab.view"), ds, templateHandler);
+        viewTab.setFontSize(fontSize);
         viewTab.showDatePicker(false);
         viewTab.showInputs(false);
         viewTab.setContractsDialogContainer(contractsTabDialogContainer);
@@ -238,7 +244,7 @@ public class AccountingPlugin extends TablePlugin {
             energyGridOperatorsTab.setText(I18nWS.getInstance().getClassName(accountingDirectories.getEnergyGridOperatorClass()));
             energyContractorTab.setText(I18nWS.getInstance().getClassName(accountingDirectories.getEnergyContractorClass()));
             governmentalDuesTab.setText(I18nWS.getInstance().getClassName(accountingDirectories.getGovernmentalDuesClass()));
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not get class name for tabs", e);
         }
 
@@ -270,8 +276,13 @@ public class AccountingPlugin extends TablePlugin {
         boolean canWriteToContracts = false;
         try {
             canWriteToContracts = ds.getCurrentUser().canWrite(accountingDirectories.getEnergyContractingDir().getID());
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Failed to check user permissions to write to contracts directory", e);
+            try {
+                canWriteToContracts = ds.getCurrentUser().isSysAdmin();
+            } catch (Exception ex) {
+                logger.error("Failed to check user is Sys Admin", e);
+            }
         }
 
         if (canWriteToContracts) {
@@ -603,8 +614,36 @@ public class AccountingPlugin extends TablePlugin {
             }
         });
 
-        toolBar.getItems().setAll(configComboBox, sep0, viewTab.getDateBox(), sep1, reload, sep2, save, newButton, delete, sep3, xlsxButton, printButton);
-        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        Separator sep4 = new Separator(Orientation.VERTICAL);
+
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomIn);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
+        zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
+        zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
+
+        zoomIn.setOnAction(event -> {
+            fontSize += 1;
+            viewTab.setFontSize(fontSize);
+            pref.putDouble("fontSize", fontSize);
+            viewTab.requestUpdate();
+        });
+
+        zoomOut.setOnAction(event -> {
+            if (fontSize > 8d) {
+                fontSize -= 1;
+                viewTab.setFontSize(fontSize);
+                pref.putDouble("fontSize", fontSize);
+                viewTab.requestUpdate();
+            }
+        });
+
+        toolBar.getItems().setAll(configComboBox,
+                sep0, viewTab.getDateBox(),
+                sep1, reload,
+                sep2, save, newButton, delete,
+                sep3, xlsxButton, printButton,
+                sep4, zoomIn, zoomOut,
+                JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(AccountingPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
 
