@@ -14,10 +14,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -353,8 +355,19 @@ public class CommonMethods {
         if (object.getJEVisClassName().equals("Math Data") && cleanData) {
             try {
                 JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
-                if (lastRunAttribute != null) {
+                JEVisAttribute periodOffsetAttribute = object.getAttribute("Period Offset");
+                JEVisAttribute periodAttribute = object.getAttribute("Period");
+                if (lastRunAttribute != null && periodOffsetAttribute != null && periodAttribute != null) {
                     List<JEVisSample> allSamples = lastRunAttribute.getAllSamples();
+                    Long periodOffset = periodOffsetAttribute.getLatestSample().getValueAsLong();
+                    Period period = new Period(periodAttribute.getLatestSample().getValueAsString());
+
+                    if (periodOffset > 0) {
+                        f = PeriodHelper.minusPeriodToDate(f, period);
+                    } else if (periodOffset < 0) {
+                        f = PeriodHelper.addPeriodToDate(f, period);
+                    }
+
                     if (allSamples.size() > 0) {
                         allSamples.remove(0);
                         DateTime finalTS = null;
