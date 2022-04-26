@@ -128,7 +128,7 @@ public class FileEditor implements AttributeEditor {
         try {
             JEVisSample lsample = attribute.getLatestSample();
             if (lsample != null) {
-                String fileName = lsample.getValueAsString();
+                String fileName = FileNames.fixName(lsample.getValueAsString());
                 if (_autoDownload) {
                     _downloadButton.setText(FileNames.fixName(fileName));
                 } else {

@@ -11,6 +11,11 @@
     -fx-background-color: -fx-tree-background;
 }
 
+.jfx-dialog{
+    /*-fx-background-color: derive(-fx-base, 70%);*/
+    -fx-text-color: -fx-text-color;
+}
+
 /* for pdf/image view */
 .pagination { -fx-rotate:180; }
 .pagination .pagination-control { -fx-rotate:180; }
@@ -296,10 +301,10 @@
     -fx-text-fill: -fx-default-button-text-fill;
 }
 
-/*.jfx-dialog-overlay-pane > StackPane{
+.jfx-dialog-overlay-pane > StackPane{
     -fx-effect: null;
 }
 
 .jfx-check-box{
     -fx-effect: null;
-}*/
+}

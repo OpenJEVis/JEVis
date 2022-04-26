@@ -29,6 +29,7 @@ import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.JEVisFileWithSample;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
@@ -133,7 +134,7 @@ public class PDFViewerDialog {
             fileChooser.getExtensionFilters().addAll(pdfFilter);
             fileChooser.setSelectedExtensionFilter(pdfFilter);
 
-            fileChooser.setInitialFileName(file.getFilename());
+            fileChooser.setInitialFileName(FileNames.fixName(file.getFilename()));
             File fileDestination = fileChooser.showSaveDialog(stage);
             if (fileDestination != null) {
                 File destinationFile = new File(fileDestination + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));

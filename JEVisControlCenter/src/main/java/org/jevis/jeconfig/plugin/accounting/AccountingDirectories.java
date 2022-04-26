@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 
 public class AccountingDirectories {
@@ -103,7 +102,7 @@ public class AccountingDirectories {
             energyGridOperationDir = ds.getObjects(energyGridOperationDirectoryClass, false).stream().findFirst().orElse(null);
             energyContractorDir = ds.getObjects(energyContractorDirectory, false).stream().findFirst().orElse(null);
             energyGovernmentalDuesDir = ds.getObjects(energyGovernmentalDuesDirectory, false).stream().findFirst().orElse(null);
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not get jevisClasses", e);
         }
     }

@@ -21,6 +21,7 @@ import org.controlsfx.control.CheckComboBox;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
@@ -78,7 +79,7 @@ public class ObjectTable {
             fileChooser.setSelectedExtensionFilter(pdfFilter);
 
             try {
-                JEVisFile xlsxFile = CommonMethods.createXLSXFile(parentObject.getName(), tableView);
+                JEVisFile xlsxFile = CommonMethods.createXLSXFile(FileNames.fixName(parentObject.getName()), tableView);
                 fileChooser.setInitialFileName(xlsxFile.getFilename());
                 File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
                 if (selectedFile != null) {

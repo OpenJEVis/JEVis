@@ -38,6 +38,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.report.JEVisFileWithSample;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -227,7 +228,7 @@ public class ReportPlugin implements Plugin {
             fileChooser.setSelectedExtensionFilter(pdfFilter);
 
             JEVisFile pdfFile = sampleMap.get(fileComboBox.getSelectionModel().getSelectedItem()).getPdfFile();
-            fileChooser.setInitialFileName(pdfFile.getFilename());
+            fileChooser.setInitialFileName(FileNames.fixName(pdfFile.getFilename()));
             File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
             if (selectedFile != null) {
                 JEConfig.setLastPath(selectedFile);

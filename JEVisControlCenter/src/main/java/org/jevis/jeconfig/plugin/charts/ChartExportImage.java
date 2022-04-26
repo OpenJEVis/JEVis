@@ -11,6 +11,7 @@ import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
@@ -36,7 +37,7 @@ public class ChartExportImage {
         this.model = model;
         this.setDates();
 
-        String formattedName = model.getCurrentAnalysis().getName().replaceAll(" ", "_");
+        String formattedName = FileNames.fixName(model.getCurrentAnalysis().getName());
         fileChooser = new FileChooser();
         fileChooser.setTitle("Image File Destination");
         DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
