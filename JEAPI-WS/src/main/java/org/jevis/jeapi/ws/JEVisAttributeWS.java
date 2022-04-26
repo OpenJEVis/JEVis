@@ -111,6 +111,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public int addSamples(List<JEVisSample> samples) throws JEVisException {
+        logger.debug("addSamples toWS: O|a: {}|{} samples: {}",getObjectID(),getName(),samples.size());
         List<JsonSample> jsonSamples = new ArrayList<>();
         int imported = 0;
 

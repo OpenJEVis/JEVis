@@ -1,21 +1,18 @@
 package org.jevis.httpdatasource;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.impl.auth.DigestScheme;
+import org.apache.http.impl.client.*;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,28 +20,167 @@ import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSourceHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.jsoup.Jsoup;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author bf
+ * @author bf, FS
  */
 public class HTTPDataSource {
     private static final Logger logger = LogManager.getLogger(HTTPDataSource.class);
 
-    // member variables
+    private String serverURL;
+    private Integer port;
+    private Integer connectionTimeout;
+    private Integer readTimeout;
+    private String userName;
+    private String password;
+    private DateTimeZone timeZone;
+    private Boolean ssl = false;
+    public enum AUTH_SCHEME {
+        BASIC, DIGEST, NONE
+    }
+    private AUTH_SCHEME authScheme;
     private Long id;
+    private String name;
+
+
+    /**
+     * @param channel
+     * @return
+     */
+    public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
+        logger.info("sendSampleRequest to http channel: {}", channel.getChannelObject());
+        List<InputStream> answer = new ArrayList<InputStream>();
+
+        String path = channel.getPath();
+        DateTime lastReadout = channel.getLastReadout();
+
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+
+        logger.info("Connection Setting: Server: {} User: {} PW: {}", serverURL, userName, password);
+        PathFollower pathFollower = new PathFollower(channel.getChannelObject());
+
+        /* Workaround if the protocol is not in the url**/
+        if (ssl) {
+            if (!serverURL.startsWith("https")) {
+                serverURL = "https://" + serverURL;
+            }
+            /* We trust self signed certificates for now, this way is not save **/
+            DataSourceHelper.doTrustToCertificates();
+        } else {
+            if (!serverURL.startsWith("http")) {
+                serverURL = "http://" + serverURL;
+            }
+        }
+
+        if (serverURL.endsWith("/")) {
+
+        } else {
+            serverURL += "/";
+        }
+
+        String contentURL = serverURL + path;
+
+        contentURL = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), contentURL, timeZone);
+
+        contentURL=HTTPDataSource.FixURL(contentURL);
+        logger.debug("Channel URL: {}", contentURL);
+
+
+        URL url = new URL(serverURL);
+        if(url.getPort()>-1 && port==null){
+            logger.info("Port not set in Attribute, using port from URL: {}",port);
+            setPort(url.getPort());
+        }
+        HttpHost targetHost = new HttpHost(url.getHost(), port, url.getProtocol());
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpClientContext context = HttpClientContext.create();
+
+        if (getAuthScheme() != null) {
+            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            credsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, password));
+
+            AuthCache authCache = new BasicAuthCache();
+            context.setAuthCache(authCache);
+
+            setAuthScheme(AUTH_SCHEME.DIGEST);
+            if (getAuthScheme() == AUTH_SCHEME.BASIC) {
+                BasicScheme basicScheme = new BasicScheme();
+                authCache.put(targetHost, basicScheme);
+            } else if (getAuthScheme() == AUTH_SCHEME.DIGEST) {
+                DigestScheme digestScheme = new DigestScheme();
+                authCache.put(targetHost, digestScheme);
+            }
+
+            context.setCredentialsProvider(credsProvider);
+        }
+
+
+        if (pathFollower.isActive()) {
+            logger.info("Using Dynamic Link");
+            pathFollower.setConnection(httpClient, context);
+            contentURL = pathFollower.startFetching(serverURL, contentURL);
+            logger.info("Final target url after following links: {}", contentURL);
+        }
+        logger.info("Content URL: {}", contentURL);
+
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(connectionTimeout)
+                .setSocketTimeout(readTimeout)
+                .build();
+        HttpGet get = new HttpGet(contentURL);
+        get.setConfig(requestConfig);
+
+        HttpResponse oResponse = httpClient.execute(get, context);
+
+        HttpEntity oEntity = oResponse.getEntity();
+        String oXmlString = EntityUtils.toString(oEntity);
+        logger.info("Content length to parse: {}",oXmlString.length());
+        logger.debug("Content to parse: {}",oXmlString);
+        EntityUtils.consume(oEntity);
+        InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
+        answer.add(stream);
+
+
+        return answer;
+    }
+
+    public static String FixURL(String url) {
+        url = url.replaceAll("(?<!(http:|https:))/+", "/");
+        url = url.replaceAll(" ", "%20");
+        return url;
+    }
+
 
     public void setDateTimeZone(DateTimeZone timeZone) {
         logger.info("TIMEZONE: {}", timeZone);
-        _timeZone = timeZone;
+        this.timeZone = timeZone;
+    }
+
+    public AUTH_SCHEME getAuthScheme() {
+        logger.debug("getAuthScheme()");
+
+        /* Fallback for older Configuration were we only had BASIC auth*/
+        if (authScheme == null) {
+            if (userName != null || userName.isEmpty()) {
+                return AUTH_SCHEME.BASIC;
+            }
+        }
+
+
+        return authScheme;
+    }
+
+    public void setAuthScheme(AUTH_SCHEME authScheme) {
+        this.authScheme = authScheme;
     }
 
     // interfaces
@@ -56,125 +192,7 @@ public class HTTPDataSource {
         String USER = "User";
     }
 
-    private String name;
 
-    /**
-     * komplett überarbeiten!!!!!
-     *
-     * @param channel
-     * @return
-     */
-    public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
-        List<InputStream> answer = new ArrayList<InputStream>();
-
-        String path = channel.getPath();
-        DateTime lastReadout = channel.getLastReadout();
-
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-
-        URL requestUrl;
-        PathFollower pathFollower = new PathFollower(channel.getChannelObject());
-        if (pathFollower.isActive()) {
-
-            _serverURL = pathFollower.followLinks(_serverURL, _userName, _password);
-            org.jsoup.Connection.Response result = Jsoup.connect(_serverURL)
-                    .ignoreContentType(true).execute();
-
-            InputStream stream = new ByteArrayInputStream(result.bodyAsBytes());
-            answer.add(stream);
-
-        } else if (_userName == null || _password == null || _userName.equals("") || _password.equals("")) {
-
-            path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
-            HttpURLConnection request = null;
-            if (!_serverURL.contains("://")) {
-                _serverURL = "http://" + _serverURL;
-            }
-
-            if (_ssl) {
-                _serverURL = _serverURL.replace("http", "https");
-            }
-
-            if (_port != null) {
-                requestUrl = new URL(_serverURL + ":" + _port + "/" + path);
-            } else {
-                requestUrl = new URL(_serverURL + "/" + path);
-            }
-            if (_ssl) {
-                DataSourceHelper.doTrustToCertificates();
-            }
-            logger.info("Connection URL: {}", requestUrl);
-            request = (HttpURLConnection) requestUrl.openConnection();
-
-//                    if (_connectionTimeout == null) {
-            int connTimeoutInMSec = _connectionTimeout * 1000;
-//                    }
-            //  logger.info("Connect timeout: " + _connectionTimeout+ " s");
-            request.setConnectTimeout(connTimeoutInMSec);
-
-//                    if (_readTimeout == null) {
-            int readTimeoutInMSec = _readTimeout * 1000;
-//                    }
-            //   logger.info("read timeout: " + _readTimeout + " s");
-            request.setReadTimeout(readTimeoutInMSec);
-            answer.add(request.getInputStream());
-        } else {
-            DefaultHttpClient _httpClient;
-            HttpHost _targetHost;
-            HttpGet _httpGet;
-            BasicHttpContext _localContext = new BasicHttpContext();
-            _httpClient = new DefaultHttpClient();
-
-            path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
-            if (_ssl) {
-                DataSourceHelper.doTrustToCertificates();
-                _targetHost = new HttpHost(_serverURL, ((int) (long) _port), "https");
-            } else {
-                _targetHost = new HttpHost(_serverURL, ((int) (long) _port), "http");
-            }
-            /*
-             * set the sope for the authentification
-             */
-            _httpClient.getCredentialsProvider().setCredentials(
-                    new AuthScope(_targetHost.getHostName(), _targetHost.getPort()),
-                    new UsernamePasswordCredentials(_userName, _password));
-
-            // Create AuthCache instance
-            AuthCache authCache = new BasicAuthCache();
-
-            //set Authenticication scheme
-            BasicScheme basicAuth = new BasicScheme();
-            authCache.put(_targetHost, basicAuth);
-
-            path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
-
-            _httpGet = new HttpGet(path);
-            //TODO: Connection timeouts and error handling
-
-            HttpResponse oResponse = _httpClient.execute(_targetHost, _httpGet, _localContext);
-
-            HttpEntity oEntity = oResponse.getEntity();
-            String oXmlString = EntityUtils.toString(oEntity);
-            EntityUtils.consume(oEntity);
-            InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
-            answer.add(stream);
-        }
-//        List<InputHandler> answerList = new ArrayList<InputHandler>();
-//        answerList.add(InputHandlerFactory.getInputConverter(answer));
-
-        return answer;
-    }
-
-    private String _serverURL;
-    private Integer _port;
-    private Integer _connectionTimeout;
-    private Integer _readTimeout;
-    private String _userName;
-    private String _password;
-    private DateTimeZone _timeZone;
-    private Boolean _ssl = false;
 
     interface HTTPChannelDirectory extends DataCollectorTypes.ChannelDirectory {
 
@@ -186,31 +204,31 @@ public class HTTPDataSource {
     }
 
     public void setServerURL(String _serverURL) {
-        this._serverURL = _serverURL;
+        this.serverURL = _serverURL;
     }
 
     public void setPort(Integer _port) {
-        this._port = _port;
+        this.port = _port;
     }
 
     public void setConnectionTimeout(Integer _connectionTimeout) {
-        this._connectionTimeout = _connectionTimeout;
+        this.connectionTimeout = _connectionTimeout;
     }
 
     public void setReadTimeout(Integer _readTimeout) {
-        this._readTimeout = _readTimeout;
+        this.readTimeout = _readTimeout;
     }
 
     public void setUserName(String _userName) {
-        this._userName = _userName;
+        this.userName = _userName;
     }
 
     public void setPassword(String _password) {
-        this._password = _password;
+        this.password = _password;
     }
 
     public void setSsl(Boolean _ssl) {
-        this._ssl = _ssl;
+        this.ssl = _ssl;
     }
 
     public void setId(Long id) {
@@ -232,6 +250,6 @@ public class HTTPDataSource {
     }
 
     public DateTimeZone getDateTimeZone() {
-        return _timeZone;
+        return timeZone;
     }
 }

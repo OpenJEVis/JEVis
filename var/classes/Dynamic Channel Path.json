@@ -1,0 +1,34 @@
+{
+  "name": "Dynamic Channel Path",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Dynamic Channel Path",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "Dynamic Channel Path",
+      "end": "Dynamic Channel Path",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Match",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Dynamic Channel Path"
+    },
+    {
+      "name": "Element",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Dynamic Channel Path"
+    }
+  ]
+}
