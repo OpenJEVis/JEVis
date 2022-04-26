@@ -40,6 +40,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -398,32 +399,47 @@ public class DataSourceHelper {
                 //                }
 //                Vector ls = _channel.ls(folder);
                 for (Object fileName : _channel.ls(folder)) {
+                    logger.debug("Check file: {}",fileName);
                     LsEntry currentFile = (LsEntry) fileName;
+
                     String currentFileName = currentFile.getFilename();
                     currentFileName = removeFoler(currentFileName, folder);
                     boolean match = false;
+                    /*
+                    Note: this if seems false we cannot use variables and matcing filename at the same time?!
+                     */
                     if (DataSourceHelper.containsTokens(fileNameScheme)) {
                         boolean matchDate = matchDateString(currentFileName, fileNameScheme);
                         DateTime folderTime = getFileTime(folder + currentFileName, pathStream);
                         boolean isLater = folderTime.isAfter(lastReadout);
                         if (matchDate && isLater) {
+                            logger.debug("-File is later the lastedout");
                             match = true;
                         }
                     } else {
                         Pattern p = Pattern.compile(fileNameScheme);
                         Matcher m = p.matcher(currentFileName);
-                        match = m.matches();
+                        Date dateModify = new Date( currentFile.getAttrs().getMTime() * 1000L);
+                        DateTime dateTime = new DateTime(dateModify);
+                        logger.trace("d1: {} , d2: {} = {}",dateTime,lastReadout, dateTime.isAfter(lastReadout));
+
+                        boolean isLater = dateTime.isAfter(lastReadout);
+                        if (m.matches() && isLater) {
+                            logger.debug("-File is later the lastedout");
+                            match = true;
+                        }
+
                     }
                     if (match) {
+                        logger.debug("- File does not match");
                         fileNames.add(folder + currentFileName);
                     }
                 }
             }
         } catch (Exception ex) {
-            logger.error("Error while searching a matching file");
+            logger.error("Error while searching a matching file",ex,ex);
             logger.error("Folder: " + currentfolder);
             logger.error("FileName: " + fileNameScheme);
-            logger.error(ex.getMessage());
         }
         if (folderPathes.isEmpty()) {
             logger.error("Cant find suitable files on the device");

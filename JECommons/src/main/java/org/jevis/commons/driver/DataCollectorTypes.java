@@ -162,6 +162,10 @@ public interface DataCollectorTypes {
                 String PROTOCOL = "Protocol";
             }
 
+            interface HTTP extends DataServer{
+                String AUTHENTICATION = "Authentication";
+            }
+
         }
     }
 
