@@ -33,7 +33,7 @@ public class MathStep implements ProcessStep {
         List<CleanInterval> intervals = resourceManager.getIntervals();
         workDays = new WorkDays(mathDataObject.getMathDataObject());
 
-        if (mathDataObject.getTypeAttribute().hasSample()) {
+        if (mathDataObject.getManipulationAttribute().hasSample()) {
             DateTime start = null, end = null;
             DateTime beginning = mathDataObject.getBeginning();
             DateTime ending = mathDataObject.getEnding();
@@ -162,6 +162,11 @@ public class MathStep implements ProcessStep {
                             calcAvg(cleanInterval, samples);
                         }
                         break;
+                    case SUM:
+                        for (CleanInterval cleanInterval : intervals) {
+                            calcSum(cleanInterval, samples);
+                        }
+                        break;
                     case MIN:
                         for (CleanInterval cleanInterval : intervals) {
                             calcMin(cleanInterval, samples);
@@ -262,6 +267,25 @@ public class MathStep implements ProcessStep {
                     + samples.get(0).getTimestamp().toString("YYYYMMdd") + "-" + samples.get(samples.size() - 1).getTimestamp().toString("YYYYMMdd")
                     + ")");
         else cleanInterval.getResult().setNote("math(avg,0)");
+    }
+
+    private void calcSum(CleanInterval cleanInterval, List<JEVisSample> samples) throws JEVisException {
+
+        double result = 0d;
+
+        for (JEVisSample sample : samples) {
+            if (samples.indexOf(sample) == 0) result = sample.getValueAsDouble();
+            else result += sample.getValueAsDouble();
+        }
+
+        cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
+        cleanInterval.getResult().setValue(result);
+        if (samples.size() > 0)
+            cleanInterval.getResult().setNote("math(sum,"
+                    + samples.size() + ","
+                    + samples.get(0).getTimestamp().toString("YYYYMMdd") + "-" + samples.get(samples.size() - 1).getTimestamp().toString("YYYYMMdd")
+                    + ")");
+        else cleanInterval.getResult().setNote("math(sum,0)");
     }
 
     private void calcMin(CleanInterval cleanInterval, List<JEVisSample> samples) throws JEVisException {

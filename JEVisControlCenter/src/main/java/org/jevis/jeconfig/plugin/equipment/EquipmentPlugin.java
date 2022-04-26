@@ -71,15 +71,24 @@ public class EquipmentPlugin extends TablePlugin {
     private void createColumns(TableView<RegisterTableRow> tableView, JEVisClass jeVisClass) {
 
         try {
+            TableColumn<RegisterTableRow, String> pathColumn = new TableColumn<>(I18n.getInstance().getString("plugin.basedata.table.path.columnname"));
+            pathColumn.setCellValueFactory(param -> {
+                if (param.getValue().isMultiSite()) {
+                    return new ReadOnlyObjectWrapper<>(objectRelations.getObjectPath(param.getValue().getObject()));
+                } else return new ReadOnlyObjectWrapper<>("");
+            });
+            pathColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+            pathColumn.setSortable(true);
+            pathColumn.setSortType(TableColumn.SortType.ASCENDING);
+
             TableColumn<RegisterTableRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
             nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
             nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
             nameColumn.setSortable(true);
             nameColumn.setSortType(TableColumn.SortType.ASCENDING);
 
-            tableView.getColumns().add(nameColumn);
-            tableView.getSortOrder().addAll(nameColumn);
-
+            tableView.getColumns().addAll(pathColumn, nameColumn);
+            tableView.getSortOrder().addAll(pathColumn, nameColumn);
 
             for (JEVisType type : jeVisClass.getTypes()) {
                 TableColumn<RegisterTableRow, JEVisAttribute> column = new TableColumn<>(I18nWS.getInstance().getTypeName(jeVisClass.getName(), type.getName()));
@@ -124,7 +133,7 @@ public class EquipmentPlugin extends TablePlugin {
                             column.setCellFactory(valueCellStringPassword());
                         } else if (type.getGUIDisplayType().equals(GUIConstants.TARGET_OBJECT.getId()) || type.getGUIDisplayType().equals(GUIConstants.TARGET_ATTRIBUTE.getId())) {
                             column.setCellFactory(valueCellTargetSelection());
-                            column.setMinWidth(120);
+                            column.setMinWidth(150);
                         } else if (type.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || type.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                             column.setCellFactory(valueCellDateTime());
                             column.setMinWidth(110);
@@ -387,7 +396,7 @@ public class EquipmentPlugin extends TablePlugin {
                     if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
                         try {
                             if (ds.getCurrentUser().canDelete(object.getID())) {
-                                ds.deleteObject(object.getID());
+                                ds.deleteObject(object.getID(), false);
                                 handleRequest(Constants.Plugin.Command.RELOAD);
                             } else {
                                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.meters.dialog.delete.error"), cancel);
@@ -417,7 +426,7 @@ public class EquipmentPlugin extends TablePlugin {
                     @Override
                     protected Object call() throws Exception {
                         try {
-                            this.updateTitle(I18n.getInstance().getString("Clear Cache"));
+                            this.updateTitle(I18n.getInstance().getString("plugin.equipment.load"));
                             if (initialized) {
                                 ds.clearCache();
                                 ds.preload();

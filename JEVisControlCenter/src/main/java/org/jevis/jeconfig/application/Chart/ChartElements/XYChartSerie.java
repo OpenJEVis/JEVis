@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
+import com.ibm.icu.text.NumberFormat;
 import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -20,6 +21,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -27,7 +29,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -36,6 +37,7 @@ public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
     final boolean forecast;
     public final String FINISHED_SERIE;
+    final NumberFormat nf = NumberFormat.getNumberInstance();
     Integer yAxis;
     DoubleDataSet valueDataSet;
     DoubleDataSet noteDataSet;
@@ -48,8 +50,10 @@ public class XYChartSerie {
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
     private double sortCriteria;
+    ChartSetting chartSetting;
 
-    public XYChartSerie(ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
+    public XYChartSerie(ChartSetting chartSetting, ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
+        this.chartSetting = chartSetting;
         this.singleRow = singleRow;
         this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " " + singleRow.getTitle();
         this.yAxis = singleRow.getAxis();
@@ -57,6 +61,8 @@ public class XYChartSerie {
         this.valueDataSet = new DoubleDataSet(singleRow.getTitle());
         this.noteDataSet = new DoubleDataSet(singleRow.getTitle());
         this.forecast = forecast;
+        this.nf.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
 
         generateSeriesFromSamples();
     }
@@ -109,12 +115,11 @@ public class XYChartSerie {
         double min = Double.MAX_VALUE;
         double max = -Double.MAX_VALUE;
         double avg = 0.0;
-        Double sum = 0.0;
+        double sum = 0.0;
         long zeroCount = 0;
 
         int noteIndex = 0;
-        for (int i = 0, size = samples.size(); i < size; i++) {
-            JEVisSample sample = samples.get(i);
+        for (JEVisSample sample : samples) {
             try {
 
                 DateTime dateTime = sample.getTimestamp();
@@ -124,7 +129,7 @@ public class XYChartSerie {
                 max = Math.max(max, currentValue);
                 sum += currentValue;
 
-                Double timestamp = dateTime.getMillis() / 1000d;
+                double timestamp = dateTime.getMillis() / 1000d;
 
                 valueDataSet.add(timestamp, currentValue);
 
@@ -152,12 +157,18 @@ public class XYChartSerie {
             sum = max;
         }
 
-        updateTableEntry(samples, unit, min, max, avg, sum, zeroCount);
+        updateTableEntry(samples, unit, min, max, avg, sum, zeroCount, false);
 
         JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
 
-    public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, double min, double max, double avg, Double sum, long zeroCount) throws JEVisException {
+    public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, double min, double max, double avg, Double sum, long zeroCount, boolean later) throws JEVisException {
+
+        StringBuilder finalMin = new StringBuilder();
+        StringBuilder finalMax = new StringBuilder();
+        StringBuilder finalAvg = new StringBuilder();
+        StringBuilder finalSum = new StringBuilder();
+        StringBuilder finalPeriod = new StringBuilder();
 
         DateTime firstTS = null;
         DateTime secondTS = null;
@@ -171,8 +182,6 @@ public class XYChartSerie {
         }
 
         if (firstTS != null && secondTS != null) {
-            DateTime finalFirstTS = firstTS;
-            DateTime finalSecondTS = secondTS;
             try {
                 String s = "";
                 try {
@@ -213,23 +222,22 @@ public class XYChartSerie {
                             JEVisAttribute attribute = samples.get(0).getAttribute();
 
                             if (attribute != null && attribute.getObject().getAttribute("Period") != null) {
-                                Period periodForDate = CleanDataObject.getPeriodForDate(attribute.getObject(), finalFirstTS);
+                                Period periodForDate = CleanDataObject.getPeriodForDate(attribute.getObject(), firstTS);
 
                                 if (!periodForDate.equals(Period.ZERO)) {
-                                    s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                                    s = new Period(firstTS, secondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
                                 } else if (periodForDate.equals(Period.ZERO)) {
                                     s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
                                 }
                             } else if (attribute == null) {
-                                s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                                s = new Period(firstTS, secondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
                             }
                             break;
                     }
                 } catch (Exception e) {
                     s = "-";
                 }
-                String finalS = s;
-                Platform.runLater(() -> tableEntry.setPeriod(finalS));
+                finalPeriod.append(s);
             } catch (Exception e) {
                 logger.error("Couldn't calculate period word-based");
             }
@@ -243,33 +251,30 @@ public class XYChartSerie {
             sortCriteria = avg;
         }
 
-        NumberFormat nf_out = NumberFormat.getNumberInstance();
-        nf_out.setMaximumFractionDigits(2);
-        nf_out.setMinimumFractionDigits(2);
 
         if (min == Double.MAX_VALUE || samples.size() == 0) {
-            Platform.runLater(() -> tableEntry.setMin("- " + getUnit()));
+            finalMin.append("- ").append(getUnit());
         } else {
-            Platform.runLater(() -> tableEntry.setMin(nf_out.format(min) + " " + getUnit()));
+            finalMin.append(nf.format(min)).append(" ").append(getUnit());
         }
 
+
         if (max == -Double.MAX_VALUE || samples.size() == 0) {
-            Platform.runLater(() -> tableEntry.setMax("- " + getUnit()));
+            finalMax.append("- ").append(getUnit());
         } else {
-            Platform.runLater(() -> tableEntry.setMax(nf_out.format(max) + " " + getUnit()));
+            finalMax.append(nf.format(max)).append(" ").append(getUnit());
         }
 
         if (samples.size() == 0) {
-            Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
-            Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
+            finalAvg.append("- ").append(getUnit());
+            finalSum.append("- ").append(getUnit());
         } else {
             if (!singleRow.getEnPI()) {
-                double finalAvg = avg;
-                Platform.runLater(() -> tableEntry.setAvg(nf_out.format(finalAvg) + " " + getUnit()));
+                finalAvg.append(nf.format(avg)).append(" ").append(getUnit());
             } else {
                 DateTime finalFirstTS1 = firstTS;
                 DateTime finalLastTS = lastTS;
-                double finalAvg = avg;
+                double finalAvg1 = avg;
                 Task task = new Task() {
                     @Override
                     protected Object call() throws Exception {
@@ -280,18 +285,28 @@ public class XYChartSerie {
                                     finalFirstTS1, finalLastTS, true);
                             List<JEVisSample> results = calcJob.getResults();
 
+                            StringBuilder teAvg = new StringBuilder();
+
                             if (results.size() == 1) {
+                                try {
+                                    teAvg.append(nf.format(results.get(0).getValueAsDouble())).append(" ").append(getUnit());
+                                } catch (Exception e) {
+                                    logger.error("Couldn't get calculation result");
+                                }
+                            } else {
+                                teAvg.append("- ").append(getUnit());
+                            }
+                            String teEnPI = nf.format(finalAvg1) + " " + getUnit();
+
+                            if (later) {
                                 Platform.runLater(() -> {
-                                    try {
-                                        tableEntry.setAvg(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
-                                    } catch (JEVisException e) {
-                                        logger.error("Couldn't get calculation result");
-                                    }
+                                    tableEntry.setAvg(teAvg.toString());
+                                    tableEntry.setEnpi(teEnPI);
                                 });
                             } else {
-                                Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
+                                tableEntry.setAvg(teAvg.toString());
+                                tableEntry.setEnpi(teEnPI);
                             }
-                            Platform.runLater(() -> tableEntry.setEnpi(nf_out.format(finalAvg) + " " + getUnit()));
                         } catch (Exception e) {
                             failed();
                         } finally {
@@ -303,8 +318,7 @@ public class XYChartSerie {
                 JEConfig.getStatusBar().addTask(XYChart.class.getName(), task, XYChart.taskImage, true);
             }
             if (isQuantity) {
-                Double finalSum = sum;
-                Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum) + " " + getUnit()));
+                finalSum.append(nf.format(sum)).append(" ").append(getUnit());
             } else {
                 if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                     try {
@@ -321,15 +335,31 @@ public class XYChartSerie {
                         }
 
                         Double finalSum1 = sum;
-                        Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum1) + " " + sumUnit));
+                        finalSum.append(nf.format(finalSum1)).append(" ").append(sumUnit);
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");
-                        Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
+                        finalSum.append("- ").append(getUnit());
                     }
                 } else {
-                    Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
+                    finalSum.append("- ").append(getUnit());
                 }
             }
+        }
+
+        if (later) {
+            Platform.runLater(() -> {
+                tableEntry.setPeriod(finalPeriod.toString());
+                tableEntry.setMin(finalMin.toString());
+                tableEntry.setMax(finalMax.toString());
+                tableEntry.setAvg(finalAvg.toString());
+                tableEntry.setSum(finalSum.toString());
+            });
+        } else {
+            tableEntry.setPeriod(finalPeriod.toString());
+            tableEntry.setMin(finalMin.toString());
+            tableEntry.setMax(finalMax.toString());
+            tableEntry.setAvg(finalAvg.toString());
+            tableEntry.setSum(finalSum.toString());
         }
 
         singleRow.setMin(min);
@@ -342,13 +372,6 @@ public class XYChartSerie {
         Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()), singleRow.getAlarms(false).get(sample.getTimestamp()));
 
         return note.getNoteAsString();
-//        if (note.getNote() != null && hideShowIcons) {
-//            if (sample.getNote().contains("Zeros")) {
-//                return null;
-//            }
-//            note.getNote().setVisible(true);
-//            return note.getNoteAsString();
-//        } else return null;
     }
 
     public DoubleDataSet getValueDataSet() {
@@ -401,7 +424,6 @@ public class XYChartSerie {
         String unit = "" + singleRow.getUnit();
 
         if (unit.equals("")) unit = singleRow.getUnit().getLabel();
-//        if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
 
         return unit;
     }

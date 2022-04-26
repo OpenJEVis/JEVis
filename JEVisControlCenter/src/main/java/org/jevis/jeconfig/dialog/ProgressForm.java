@@ -39,7 +39,7 @@ public class ProgressForm {
         dialogStage.initModality(Modality.APPLICATION_MODAL);
 
         // PROGRESS BAR
-        pb.setMinWidth(250);
+        pb.setMinWidth(450);
         final Label label = new Label();
         label.setText(text);
 
@@ -93,8 +93,8 @@ public class ProgressForm {
         if (!textArea.isVisible()) {
             Platform.runLater(() -> {
                 textArea.setVisible(true);
-                textArea.setMinHeight(150);
-                textArea.setPrefHeight(150);
+                textArea.setMinHeight(250);
+                textArea.setPrefHeight(250);
             });
         }
         if (stringBuilder.toString().length() > 0) {

@@ -44,9 +44,9 @@ import java.util.Objects;
 public class ScheduleEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(ScheduleEditor.class);
     public JEVisAttribute _attribute;
-    private VBox box = new VBox();
-    private BooleanProperty hasChangedProperty = new SimpleBooleanProperty(false);
-    private SimpleStringProperty _newValue = new SimpleStringProperty("");
+    private final VBox box = new VBox();
+    private final BooleanProperty hasChangedProperty = new SimpleBooleanProperty(false);
+    private final SimpleStringProperty _newValue = new SimpleStringProperty("");
     private JsonScheduler inputValue;
 
     public ScheduleEditor(JEVisAttribute att) {
@@ -609,6 +609,7 @@ public class ScheduleEditor implements AttributeEditor {
         HBox addDeleteBox = new HBox();
         addDeleteBox.getChildren().setAll(jfxButtonAddRule, jfxButtonDeleteRule);
 
+        box.setSpacing(8);
         box.getChildren().setAll(jfxComboBoxTimeZone, addDeleteBox, tabPane);
     }
 

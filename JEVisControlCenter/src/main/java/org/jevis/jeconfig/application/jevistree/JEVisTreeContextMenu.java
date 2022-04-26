@@ -48,6 +48,7 @@ import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
 import org.jevis.jeconfig.tool.AttributeCopy;
 import org.jevis.jeconfig.tool.Calculations;
 import org.jevis.jeconfig.tool.CleanDatas;
+import org.jevis.jeconfig.tool.CreateAlarms;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -74,45 +75,59 @@ public class JEVisTreeContextMenu extends ContextMenu {
         tree.setOnMouseClicked(event -> {
             try {
                 obj = getObject();
-                getItems().setAll(
-                        buildNew2(),
-                        buildReload(),
-                        new SeparatorMenuItem(),
-                        buildDelete(),
-                        //buildRename(),
-                        buildMenuLocalize(),
-                        buildCopy(),
-                        buildCut(),
-                        buildPaste(),
-                        new SeparatorMenuItem(),
-                        buildCopyFormat(),
-                        buildParsedFormat(),
-                        new SeparatorMenuItem(),
-                        buildExport(),
-                        buildImport()
-                );
+                if (obj.getDeleteTS() != null) {
+                    getItems().setAll(
+                            buildDelete(true),
+                            //buildCopy(), // need additional checks
+                            buildCut(),
+                            new SeparatorMenuItem(),
+                            buildCopyFormat(),
+                            buildParsedFormat(),
+                            new SeparatorMenuItem(),
+                            buildExport(),
+                            buildImport());
+                } else {
+                    getItems().setAll(
+                            buildNew2(),
+                            buildReload(),
+                            new SeparatorMenuItem(),
+                            buildDelete(false),
+                            //buildRename(),
+                            buildMenuLocalize(),
+                            buildCopy(),
+                            buildCut(),
+                            buildPaste(),
+                            new SeparatorMenuItem(),
+                            buildCopyFormat(),
+                            buildParsedFormat(),
+                            new SeparatorMenuItem(),
+                            buildExport(),
+                            buildImport()
+                    );
 
+                    if (obj.getJEVisClassName().equals("Calculation")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildMenuAddInput());
+                        getItems().add(buildRecalculate());
+                    } else if (obj.getJEVisClassName().equals("Loytec XML-DL Server")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildOCP());
+                    } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
+                        getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
+                        getItems().add(buildCreateAlarms());
+                    } else if (obj.getJEVisClassName().equals("Data")) {
+                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
+                        getItems().add(buildReCalcClean());
+                    } else if (obj.getJEVisClassName().equals("Clean Data")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildReCalcClean());
+                    }
 
-                if (obj.getJEVisClassName().equals("Calculation")) {
-                    getItems().add(new SeparatorMenuItem());
-                    getItems().add(buildMenuAddInput());
-                    getItems().add(buildRecalculate());
-                } else if (obj.getJEVisClassName().equals("OPC UA Server")) {
-                    getItems().add(new SeparatorMenuItem());
-                    getItems().add(buildOCP());
-                } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
-                    getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
-                } else if (obj.getJEVisClassName().equals("Data")) {
-                    getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
-                    getItems().add(buildReCalcClean());
-                } else if (obj.getJEVisClassName().equals("Clean Data")) {
-                    getItems().add(new SeparatorMenuItem());
-                    getItems().add(buildReCalcClean());
+                    if (obj.getAttribute("Value") != null) {
+                        getItems().add(buildManualSample());
+                    }
                 }
 
-                if (obj.getAttribute("Value") != null) {
-                    getItems().add(buildManualSample());
-                }
 
             } catch (Exception ex) {
                 logger.fatal(ex);
@@ -168,7 +183,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     ex.printStackTrace();
                 }
             } else {
-                logger.error("target is no a calculation");
+                logger.error("target is not a calculation");
                 try {
                     JEVisClass loytecOutput = ds.getJEVisClass("Loytec XML-DL Channel");
                     JEVisClass vida350Target = ds.getJEVisClass("VIDA350 Channel");
@@ -242,6 +257,15 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
         menu.setOnAction(t -> {
             CleanDatas.createTask(tree);
+        });
+        return menu;
+    }
+
+    private MenuItem buildCreateAlarms() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.createalarms"), ResourceLoader.getImage("alarm_icon.png", 20, 20));
+
+        menu.setOnAction(t -> {
+            CreateAlarms.createTask(tree);
         });
         return menu;
     }
@@ -506,7 +530,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
             public void handle(ActionEvent t) {
                 Object obj2 = getUserData();
                 logger.debug("userdate: " + obj2);
-                logger.debug("new event");
                 TreeHelper.EventNew(tree, obj);
 
             }
@@ -538,13 +561,18 @@ public class JEVisTreeContextMenu extends ContextMenu {
         return menu;
     }
 
-    private MenuItem buildDelete() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.delete"), ResourceLoader.getImage("list-remove.png", 20, 20));
+    private MenuItem buildDelete(boolean deleteForever) {
+        MenuItem menu;
+        if (deleteForever) {
+            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.deleteforever"), ResourceLoader.getImage("list-remove.png", 20, 20));
+        } else {
+            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.delete"), ResourceLoader.getImage("list-remove.png", 20, 20));
+        }
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent t) {
-                TreeHelper.EventDelete(tree);
+                TreeHelper.EventDelete(tree, deleteForever);
             }
         });
         return menu;

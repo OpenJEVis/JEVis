@@ -7,13 +7,9 @@ package org.jevis.commons.ws.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisRelationship;
+import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
@@ -55,12 +51,13 @@ public class SQLDataSource {
 
     private List<JsonRelationship> allRelationships = Collections.synchronizedList(new LinkedList<>());
     private List<JsonObject> allObjects = Collections.synchronizedList(new LinkedList<>());
+    private List<JsonObject> allDeletedObjects = Collections.synchronizedList(new LinkedList<>());
     private UserRightManagerForWS um;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public enum LOG_EVENT {
         USER_LOGIN,
-        DELETE_OBJECT, DELETE_SAMPLE, DELETE_RELATIONSHIP,
+        DELETE_OBJECT, MARK_AS_DELETE_OBJECT, DELETE_SAMPLE, DELETE_RELATIONSHIP,
         CREATE_OBJECT, CREATE_SAMPLE, CREATE_RELATIONSHIP,
         UPDATE_OBJECT, UPDATE_ATTRIBUTE
 
@@ -75,11 +72,12 @@ public class SQLDataSource {
 
             if (this.dbConn.isValid(2000)) {
                 this.lTable = new LoginTable(this);
+                this.rTable = new RelationshipTable(this);
                 jevisLogin(httpHeaders);
                 this.oTable = new ObjectTable(this);
-                this.aTable = new AttributeTable(this);
+                this.aTable = new AttributeTable(this);//back
                 this.sTable = new SampleTable(this);
-                this.rTable = new RelationshipTable(this);
+                //this.rTable = new RelationshipTable(this);
                 this.um = new UserRightManagerForWS(this);
 
             }
@@ -221,6 +219,9 @@ public class SQLDataSource {
     }
 
     public ObjectTable getObjectTable() {
+        if (oTable == null) {
+            this.oTable = new ObjectTable(this);
+        }
         return this.oTable;
     }
 
@@ -260,7 +261,15 @@ public class SQLDataSource {
         if (auth != null && !auth.isEmpty()) {
 
             auth = auth.replaceFirst("[Bb]asic ", "");
-            byte[] decoded = Base64.decodeBase64(auth);
+            try {
+                //byte[] decoded = Base64.decodeBase64(auth);
+                //System.out.println(decoded);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            byte[] decoded = Base64.getDecoder().decode(auth);
+            //byte[] decoded = Base64.decodeBase64(auth);
 
             try {
                 String decodeS = (new String(decoded, StandardCharsets.UTF_8));
@@ -270,10 +279,20 @@ public class SQLDataSource {
                     String username = dauth[0];
                     String password = dauth[1];
                     try {
-                        this.user = this.lTable.loginUser(username, password);
+                        logger.debug("User: {}  PW: {}", username, password);
+                        //this.user = this.lTable.loginUser(username, password);
+                        CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this);
+                        this.user = fastUserManager.getUser(username);
+                        //this.user.setDataSource(this);
 
-                    } catch (JEVisException ex) {
-                        ex.printStackTrace();
+                        logger.debug("FastUserManager PW Check: {} User: {}", fastUserManager.validLogin(username, password), this.user);
+                        if (!fastUserManager.validLogin(username, password)) {
+                            throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
+                        }
+
+
+                    } catch (Exception ex) {
+                        logger.error(ex, ex);
                         throw new AuthenticationException("Username/Password is not correct.");
                     }
                 } else {
@@ -285,11 +304,8 @@ public class SQLDataSource {
         } else {
             throw new AuthenticationException("Authorization header is missing");
         }
-//        }
-//        catch (Exception ex) {
-//            ex.printStackTrace();
-//            throw new AuthenticationException("Authorization header incorrect", ex);
-//        }
+
+
     }
 
 
@@ -335,7 +351,7 @@ public class SQLDataSource {
 
             if (children) {
                 ob.setObjects(new ArrayList<>());
-                getRelationshipTable().getAllForObject(ob.getId()).forEach(rel -> {
+                getRelationshipTable().getAllForObject(ob.getId(), JEVisConstants.ObjectRelationship.PARENT).forEach(rel -> {
                     if (rel.getTo() == ob.getId() && rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
                         try {
                             JsonObject child = getObject(rel.getFrom(), false);
@@ -368,7 +384,7 @@ public class SQLDataSource {
             }
         }
         logger.debug("getObject- NON cache");
-        JsonObject ob = this.oTable.getObject(id);
+        JsonObject ob = this.getObjectTable().getObject(id);
         if (ob != null) {
             this.allObjects.add(ob);
         }
@@ -404,7 +420,7 @@ public class SQLDataSource {
     }
 
     public List<JsonObject> getObjects() throws JEVisException {
-        logger.debug("getObjectS");
+        logger.debug("getObjects");
         if (!this.allObjects.isEmpty()) {
             logger.debug("Cache");
             return this.allObjects;
@@ -414,6 +430,19 @@ public class SQLDataSource {
         logger.debug("NONE-Cache");
         return this.allObjects;
     }
+
+    public List<JsonObject> getDeletedObjects() throws JEVisException {
+        logger.debug("getDeletedObjects");
+        if (!this.allDeletedObjects.isEmpty()) {
+            logger.debug("Cache");
+            return this.allDeletedObjects;
+        }
+
+        this.allDeletedObjects = this.oTable.getAllDeletedObjects();
+        logger.debug("NONE-Cache");
+        return this.allDeletedObjects;
+    }
+
 
     public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) {
         List<JsonRelationship> newRels = new ArrayList<>();
@@ -454,6 +483,63 @@ public class SQLDataSource {
         return getSampleTable().getLatest(obj, attribute);
     }
 
+    public List<JsonRelationship> getParentRelationships(long object) {
+
+        if (!this.allRelationships.isEmpty()) {
+
+            List<JsonRelationship> list = Collections.synchronizedList(new LinkedList<>());
+            this.allRelationships.parallelStream().forEach(rel -> {
+                if (rel.getTo() == object || rel.getFrom() == object) {
+                    if (!list.contains(rel)) {
+                        list.add(rel);
+                    }
+
+                }
+            });
+            return list;
+        }
+
+        return getRelationshipTable().getParentObject(object);
+
+    }
+
+    public List<JsonRelationship> getGroupOwnerRelationships(long object) {
+
+        if (!this.allRelationships.isEmpty()) {
+            List<JsonRelationship> list = Collections.synchronizedList(new LinkedList<>());
+            this.allRelationships.parallelStream().forEach(rel -> {
+                if (rel.getTo() == object || rel.getFrom() == object) {
+                    if (!list.contains(rel)) {
+                        list.add(rel);
+                    }
+
+                }
+            });
+            return list;
+        }
+
+        return getRelationshipTable().getGroupOwnerObject(object);
+
+    }
+
+
+    public List<JsonRelationship> getRelationships(long object, int type) {
+        if (!this.allRelationships.isEmpty()) {
+
+            List<JsonRelationship> list = Collections.synchronizedList(new LinkedList<>());
+            this.allRelationships.parallelStream().forEach(rel -> {
+                if ((rel.getTo() == object || rel.getFrom() == object) && type == rel.getType()) {
+                    if (!list.contains(rel)) {
+                        list.add(rel);
+                    }
+
+                }
+            });
+            return list;
+        }
+        return getRelationshipTable().getAllForObject(object, type);
+    }
+
     public List<JsonRelationship> getRelationships(long object) {
         if (!this.allRelationships.isEmpty()) {
 
@@ -469,7 +555,6 @@ public class SQLDataSource {
             return list;
         }
         return getRelationshipTable().getAllForObject(object);
-
     }
 
     public List<JsonRelationship> getRelationships(int type) {
@@ -508,15 +593,6 @@ public class SQLDataSource {
             }
         }
         return false;
-    }
-
-    public JsonAttribute getAttribute(long objectID, String name) {
-        for (JsonAttribute att : getAttributes(objectID)) {
-            if (att.getType().equals(name)) {
-                return att;
-            }
-        }
-        return null;
     }
 
     public boolean deleteAllSample(long object, String attribute) {
@@ -561,6 +637,65 @@ public class SQLDataSource {
         return new ArrayList<>();
     }
 
+    /*
+    public JsonAttribute getAttribute(long objectID, String name) {
+        for (JsonAttribute att : getAttributes(objectID)) {
+            if (att.getType().equals(name)) {
+                return att;
+            }
+        }
+        return null;
+    }
+    */
+
+
+    public JsonAttribute getAttribute(long objectID, String name) {
+        try {
+            JsonObject ob = getObject(objectID);
+            JsonJEVisClass jc = Config.getClassCache().get(ob.getJevisClass());
+            JsonAttribute attribute = getAttributeTable().getAttribute(objectID, name);
+
+            if (attribute != null) {
+                return attribute;
+            } else {
+                if (jc.getTypes() != null) {
+                    for (JsonType type : jc.getTypes()) {
+                        boolean exists = false;
+
+                        if (type.getName().equals(name)) {
+                            JsonAttribute newAtt = new JsonAttribute();
+                            newAtt.setObjectID(objectID);
+                            newAtt.setType(type.getName());
+                            newAtt.setBegins("");
+                            newAtt.setEnds("");
+                            newAtt.setDisplaySampleRate(Period.ZERO.toString());
+                            newAtt.setInputSampleRate("");
+                            newAtt.setSampleCount(0);
+                            newAtt.setPrimitiveType(type.getPrimitiveType());
+
+                            JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+
+                            newAtt.setDisplayUnit(unit);
+                            newAtt.setInputUnit(unit);
+                            return newAtt;
+                        }
+
+                    }
+                }
+            }
+
+            // because jevis will not create default attributes or manage the update of types
+            // we check that all and only all types are there
+
+            logger.info("Empty Type list for class: " + jc.getName());
+            return null;
+        } catch (Exception ex) {
+            logger.info("================= Error in attribute: " + objectID);
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
     public List<JsonAttribute> getAttributes(long objectID) {
         try {
             JsonObject ob = getObject(objectID);
@@ -591,10 +726,15 @@ public class SQLDataSource {
                         newAtt.setSampleCount(0);
                         newAtt.setPrimitiveType(type.getPrimitiveType());
 
-                        JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+                        try {
+                            JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+                            newAtt.setDisplayUnit(unit);
+                            newAtt.setInputUnit(unit);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
 
-                        newAtt.setDisplayUnit(unit);
-                        newAtt.setInputUnit(unit);
+
                         result.add(newAtt);
                     }
                 }
@@ -602,7 +742,7 @@ public class SQLDataSource {
                 return result;
 
             }
-            logger.info("Emty Type list for class: " + jc.getName());
+            logger.info("Empty Type list for class: " + jc.getName());
             return new ArrayList<>();
         } catch (Exception ex) {
             logger.info("================= Error in attribute: " + objectID);
@@ -700,8 +840,12 @@ public class SQLDataSource {
         }
     }
 
+    public boolean markAsDeletedObject(JsonObject objectID) {
+        return getObjectTable().markObjectAsDeleted(objectID);
+    }
+
     public boolean deleteObject(JsonObject objectID) {
-        return getObjectTable().deleteObject(objectID);
+        return getObjectTable().deleteObjectFromDB(objectID);
     }
 
     public boolean deleteRelationship(Long fromObject, Long toObject, int type) {

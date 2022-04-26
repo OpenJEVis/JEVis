@@ -31,10 +31,7 @@ import org.jevis.jenotifier.notifier.Email.EmailServiceProperty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This Class handles the logic and the sending of the alarms.
@@ -114,8 +111,15 @@ public class AlarmHandler {
 //        sb.append("<br>");
 //        sb.append(alarm.getMessage());
 
+        AutoMySQLBackupTable autoMySQLBackupTable = new AutoMySQLBackupTable(_ds, getLatestReported());
+        sb.append(autoMySQLBackupTable.getTableString());
+
+
         ServiceStatus serviceStatus = new ServiceStatus(_ds);
         sb.append(serviceStatus.getTableString());
+
+        WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
+        sb.append(wirelessLogicStatus.getTableString());
 
         DataServerTable dataServerTable = new DataServerTable(_ds, getLatestReported());
         sb.append(dataServerTable.getTableString());
@@ -125,6 +129,8 @@ public class AlarmHandler {
 
         CleanDataTable cleanDataTable = new CleanDataTable(_ds, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
         sb.append(cleanDataTable.getTableString());
+        WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
+        sb.append(wirelessLogicStatus.getTableString());
 
         sb.append("</html>");
 
@@ -134,7 +140,7 @@ public class AlarmHandler {
 
             initializeNotification();
 
-            logger.info("Initialized Notifictation. Sending...");
+            logger.info("Initialized Notification. Sending...");
 
             sendNotification(notificationObject, sb.toString());
 
@@ -356,6 +362,54 @@ public class AlarmHandler {
 
     private DateTime getLatestReported() {
         return now.minus(Period.hours(latestReported.intValue()));
+    }
+
+    private List<String> getTariff() {
+        try {
+            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
+            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
+            if (jEStatusObjects.size() > 0) {
+                String tariff = jEStatusObjects.get(0).getAttribute("Tariffs").getLatestSample().getValueAsString();
+                if (tariff.equals("")) {
+                    return null;
+                } else {
+                    return Arrays.asList(tariff.split(";"));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not get tariffs from JEStatus", e);
+        }
+        return null;
+    }
+
+    private String getUsername() {
+        try {
+            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
+            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
+            if (jEStatusObjects.size() > 0) {
+                return jEStatusObjects.get(0).getAttribute("User").getLatestSample().getValueAsString();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Could not get username for tariff check from JEStatus", e);
+        }
+        return null;
+    }
+
+    private String getPassword() {
+        try {
+            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
+            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
+            if (jEStatusObjects.size() > 0) {
+                return jEStatusObjects.get(0).getAttribute("Password").getLatestSample().getValueAsString();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Could not get password for tariff check from JEStatus", e);
+        }
+        return null;
     }
 
 

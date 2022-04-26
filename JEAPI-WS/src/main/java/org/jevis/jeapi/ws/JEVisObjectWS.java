@@ -29,6 +29,9 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.ws.json.JsonI18n;
 import org.jevis.commons.ws.json.JsonObject;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import javax.swing.event.EventListenerList;
 import java.io.IOException;
@@ -43,11 +46,18 @@ public class JEVisObjectWS implements JEVisObject {
     private final EventListenerList listeners = new EventListenerList();
     private final JEVisDataSourceWS ds;
     private JsonObject json;
+    private DateTime tsObj = null;
+    public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.date();
 
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
         this.ds = ds;
         this.json = json;
+
+        if (json.getDeleteTS() != null && !json.getDeleteTS().isEmpty()) {
+            tsObj = sampleDTF.parseDateTime(json.getDeleteTS());
+        }
+
     }
 
     public void update(JsonObject json) {
@@ -57,6 +67,11 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public void addEventListener(JEVisEventListener listener) {
+        if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
+            logger.debug("Duplicate Listener: {}", json.getId());
+            System.out.println();
+        }
+
         this.listeners.add(JEVisEventListener.class, listener);
     }
 
@@ -66,11 +81,32 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
+    public JEVisEventListener[] getEventListener() {
+        return this.listeners.getListeners(JEVisEventListener.class);
+    }
+
+    @Override
     public synchronized void notifyListeners(JEVisEvent event) {
         logger.trace("Object event[{}] listeners: {} event:", getID(), this.listeners.getListenerCount(), event.getType());
         for (JEVisEventListener l : this.listeners.getListeners(JEVisEventListener.class)) {
             l.fireEvent(event);
         }
+    }
+
+    @Override
+    public DateTime getDeleteTS() {
+        return tsObj;
+    }
+
+    @Override
+    public void setDeleteTS(DateTime ts) throws JEVisException {
+        tsObj = ts;
+        if (ts != null) {
+            json.setDeleteTS(sampleDTF.print(ts));
+        } else {
+            json.setDeleteTS(null);
+        }
+
     }
 
     @Override
@@ -89,7 +125,7 @@ public class JEVisObjectWS implements JEVisObject {
             return this.json.getName();
         }
 
-        if(!json.getI18n().isEmpty()){
+        if (!json.getI18n().isEmpty()) {
             for (JsonI18n jsonI18n : json.getI18n()) {
                 if (jsonI18n.getKey().equals(key)) {
                     return jsonI18n.getValue();
@@ -102,9 +138,9 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public Map<String, String> getLocalNameList() {
-        Map<String,String> names = new HashedMap();
+        Map<String, String> names = new HashedMap();
         json.getI18n().forEach(jsonI18n -> {
-            names.put(jsonI18n.getKey(),jsonI18n.getValue());
+            names.put(jsonI18n.getKey(), jsonI18n.getValue());
         });
 
         return names;
@@ -113,13 +149,13 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public void setLocalName(String key, String name) {
 
-        if(!json.getI18n().isEmpty()){
+        if (!json.getI18n().isEmpty()) {
             for (JsonI18n jsonI18n : json.getI18n()) {
                 if (jsonI18n.getKey().equals(key)) {
                     jsonI18n.setValue(name);
                 }
             }
-        }else{
+        } else {
             JsonI18n newI18n = new JsonI18n();
             newI18n.setKey(key);
             newI18n.setValue(name);
@@ -135,7 +171,7 @@ public class JEVisObjectWS implements JEVisObject {
             JsonI18n jsonI18n = new JsonI18n();
             jsonI18n.setKey(s);
             jsonI18n.setValue(s2);
-            json.getI18n().add(jsonI18n );
+            json.getI18n().add(jsonI18n);
         });
 
     }
@@ -290,8 +326,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public boolean delete() {
-
-        return this.ds.deleteObject(getID());
+        return this.ds.deleteObject(getID(), false);
     }
 
 
@@ -458,10 +493,6 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public void commit() throws JEVisException {
         try {
-            System.out.println("Object.commit()");
-//            Gson gson = new Gson();
-//            logger.trace("Commit: {}", gson.toJson(this.json));
-//            Benchmark benchmark = new Benchmark();
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH;
 
@@ -474,17 +505,12 @@ public class JEVisObjectWS implements JEVisObject {
                 update = true;
             }
 
-//            StringBuffer response = ;
-//            //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
 
             JsonObject newJson = this.ds.getObjectMapper().readValue(this.ds.getHTTPConnection().postRequest(resource, this.ds.getObjectMapper().writeValueAsString(this.json)).toString(), JsonObject.class);
-//            JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
+//
             logger.debug("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
-//            benchmark.printBenchmarkDetail("After ws call");
-//            this.ds.reloadRelationships();
             this.ds.reloadRelationships(this.json.getId());
-//            benchmark.printBenchmarkDetail("After reloadRel");
             /** reload object to be sure all events will be handled and the cache is working correctly **/
             this.ds.addToObjectCache(this);
             if (update) {
@@ -570,6 +596,9 @@ public class JEVisObjectWS implements JEVisObject {
         this.json.setisPublic(ispublic);
     }
 
+    public JsonObject toJSON() {
+        return json;
+    }
 
     @Override
     public String toString() {

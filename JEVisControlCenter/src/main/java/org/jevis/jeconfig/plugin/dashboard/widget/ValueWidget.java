@@ -35,6 +35,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.utils.CalcMethods;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
@@ -182,7 +183,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
         StringProperty valueText = new SimpleStringProperty();
         if (displayedSample.getValue().isNaN()) {
-
+            valueText.setValue("");
         } else {
             if (getConfig().getShowValue()) {
                 valueText.setValue(this.nf.format(displayedSample.getValue()) + " " + displayedUnit.getValue());
@@ -341,6 +342,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
         Double result = value / reference * 100;
         if (!result.isNaN()) {
             if (result >= 0.01) {
+                ValueWidget.this.nfPercent.setMinimumFractionDigits(percent.getMinFracDigits());
+                ValueWidget.this.nfPercent.setMaximumFractionDigits(percent.getMaxFracDigits());
                 percentText = ValueWidget.this.nfPercent.format(result) + "%";
             } else {
                 percentText = " < 0.01 %";
@@ -407,11 +410,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
         this.sampleHandler.setMultiSelect(false);
-
-        nfPercent.setMaximumFractionDigits(0);
-        nfPercent.setRoundingMode(RoundingMode.CEILING);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));
         try {
@@ -427,6 +427,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
         try {
             this.percent = new Percent(this.control, this.config.getConfigNode(PERCENT_NODE_NAME));
+            nfPercent.setMinimumFractionDigits(percent.getMinFracDigits());
+            nfPercent.setMaximumFractionDigits(percent.getMaxFracDigits());
+            nfPercent.setRoundingMode(RoundingMode.HALF_UP);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -452,11 +455,12 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
                     if (chartDataRow.getEnPI()) {
                         try {
+                            alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));
+
                             CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
                                     this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
-                            alert.setHeaderText(getTranslatedFormula(calcJob.getCalcInputObjects(), calcJob.getExpression()));
 
                             for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 
@@ -511,33 +515,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     }
 
-    public String getTranslatedFormula(List<CalcInputObject> calcInputObjects, String expression) {
-        try {
-            for (CalcInputObject calcInputObject : calcInputObjects) {
-                String name = "";
-                if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Clean Data")) {
-                    JEVisObject parent = CommonMethods.getFirstParentalDataObject(calcInputObject.getValueAttribute().getObject());
-                    if (parent != null) {
-                        name = parent.getName();
-                    }
-                } else if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Data")) {
-                    name = calcInputObject.getValueAttribute().getObject().getName();
-                }
-
-                if (!name.equals("")) {
-                    expression = expression.replace(calcInputObject.getIdentifier(), name);
-                }
-            }
-
-            expression = expression.replace("#", "");
-            expression = expression.replace("{", "");
-            expression = expression.replace("}", "");
-        } catch (Exception e) {
-
-        }
-
-        return expression;
-    }
 
 
     @Override

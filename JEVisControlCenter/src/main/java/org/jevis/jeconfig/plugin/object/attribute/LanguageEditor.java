@@ -71,7 +71,9 @@ public class LanguageEditor implements AttributeEditor {
         });
     }
 
-    /** Move to an common placed because is also used elsewhere **/
+    /**
+     * Move to a common placed because is also used elsewhere
+     **/
     public static  ObservableList<Locale> getEnumList() {
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
         try {

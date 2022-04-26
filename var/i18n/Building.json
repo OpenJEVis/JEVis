@@ -118,6 +118,23 @@
       }
     },
     {
+      "type": "Timezone",
+      "descriptions": {
+        "de": "Bestimmt die Zeitzone des Datenservers",
+        "ru": "Определяет часовой пояс сервера данных",
+        "uk": "Визначає часовий пояс сервера даних",
+        "th": "กำหนดเขตเวลาของเซิร์ฟเวอร์ข้อมูล",
+        "en": "Defines the timezone of the Data Server"
+      },
+      "names": {
+        "de": "Zeitzone",
+        "ru": "часовой пояс",
+        "uk": "часовий пояс",
+        "th": "โซนเวลา",
+        "en": "Timezone"
+      }
+    },
+    {
       "type": "Holidays",
       "descriptions": {
         "de": "Kalender für Ferien- und Feiertage",

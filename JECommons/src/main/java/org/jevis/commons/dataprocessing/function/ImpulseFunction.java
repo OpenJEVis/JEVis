@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 import org.joda.time.DateTime;
@@ -65,7 +66,8 @@ public class ImpulseFunction implements ProcessFunction {
         for (List<JEVisSample> samples : allSamples) {
 
             try {
-                _durations = ProcessOptions.buildIntervals(Period.minutes(15), _offset, samples.get(0).getTimestamp(), samples.get(samples.size() - 1).getTimestamp(), DateTimeZone.UTC);
+                WorkDays wd = new WorkDays(samples.get(0).getAttribute().getObject());
+                _durations = ProcessOptions.buildIntervals(Period.minutes(15), _offset, samples.get(0).getTimestamp(), samples.get(samples.size() - 1).getTimestamp(), DateTimeZone.UTC, wd);
             } catch (JEVisException ex) {
                 logger.fatal(ex);
             }

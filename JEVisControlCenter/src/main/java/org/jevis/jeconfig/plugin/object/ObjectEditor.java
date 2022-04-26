@@ -45,6 +45,7 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.plugin.object.extension.*;
 import org.jevis.jeconfig.tool.ImageConverter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -183,7 +184,7 @@ public class ObjectEditor {
                     installedExtensions.add(new GenericAttributeExtension(obj, this.tree));
                     if (JEConfig.getExpert()) {
                         installedExtensions.add(new StatisticExtension(obj));
-                        installedExtensions.add(new ChildrenEditorPlugin(obj));
+                        installedExtensions.add(new ChildrenEditorExtension(obj));
                     }
                     installedExtensions.add(new MemberExtension(obj));
                     installedExtensions.add(new PermissionExtension(obj));
@@ -299,7 +300,9 @@ public class ObjectEditor {
                         Label className = new Label(I18nWS.getInstance().getClassName(obj.getJEVisClassName()));
 
                         Label idlabel = new Label(I18n.getInstance().getString("plugin.object.editor.id"));
-                        Label idField = new Label(obj.getID() + "");
+                        Label idField = new Label(obj.getID() > 0 ? obj.getID().toString() : "");
+                        Label deleteLabel = new Label(I18n.getInstance().getString("plugin.object.editor.deletets"));
+                        Label deleteField = new Label(obj.getDeleteTS() != null ? ISODateTimeFormat.date().print(obj.getDeleteTS()) : "");
 
                         //TODO: would be nice if the user can copy the ID and name but the layout is broken if i use this textfield code
 
@@ -311,10 +314,16 @@ public class ObjectEditor {
                         header.add(nameLabel, 1, 0, 1, 1);
                         header.add(classlabel, 1, 1, 1, 1);
                         header.add(idlabel, 1, 2, 1, 1);
+                        if (obj.getDeleteTS() != null) {
+                            header.add(deleteLabel, 1, 3, 1, 1);
+                        }
 
                         header.add(objectName, 2, 0, 1, 1);
                         header.add(className, 2, 1, 1, 1);
                         header.add(idField, 2, 2, 1, 1);
+                        if (obj.getDeleteTS() != null) {
+                            header.add(deleteField, 2, 3, 1, 1);
+                        }
 
                         header.add(spacer, 3, 0, 1, 4);
                         //header.add(helpButton, 4, 1, 1, 2);
@@ -326,9 +335,11 @@ public class ObjectEditor {
                         GridPane.setVgrow(nameLabel, Priority.NEVER);
                         GridPane.setVgrow(classlabel, Priority.NEVER);
                         GridPane.setVgrow(idlabel, Priority.NEVER);
+                        GridPane.setVgrow(deleteLabel, Priority.NEVER);
                         GridPane.setVgrow(objectName, Priority.NEVER);
                         GridPane.setVgrow(className, Priority.NEVER);
                         GridPane.setVgrow(idField, Priority.NEVER);
+                        GridPane.setVgrow(deleteField, Priority.NEVER);
                         GridPane.setVgrow(helpButton, Priority.NEVER);
                         GridPane.setHgrow(helpButton, Priority.NEVER);
 
@@ -370,6 +381,7 @@ public class ObjectEditor {
                                 sb.toString(),
                                 Side.RIGHT, _view);
 
+                        _view.setTriggerDistance(0);
                         _view.setRight(help);
 
                         if (showWebHelp.getValue()) {

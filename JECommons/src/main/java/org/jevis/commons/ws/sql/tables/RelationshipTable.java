@@ -21,6 +21,7 @@ package org.jevis.commons.ws.sql.tables;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.sql.SQLDataSource;
@@ -56,7 +57,7 @@ public class RelationshipTable {
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setInt(1, type);
 
-            logger.trace("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -86,7 +87,7 @@ public class RelationshipTable {
             ps.setLong(1, id);
             ps.setLong(2, id);
 
-            logger.trace("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -141,6 +142,25 @@ public class RelationshipTable {
     }
 
 
+    public boolean changeType(long start, int oldType, int newType) {
+        String sql = String.format("update %s set %s=? where %s=? and %s=?", TABLE, COLUMN_TYPE, COLUMN_START, COLUMN_TYPE);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, newType);
+            ps.setLong(2, start);
+            ps.setInt(3, oldType);
+            logger.debug("SQL: {}", ps);
+            int count = ps.executeUpdate();
+            if (count == 1) {
+                return true;
+            } else {
+                return true;
+            }
+        } catch (SQLException ex) {
+            logger.error(ex);
+            return false;
+        }
+    }
+
     public boolean delete(long start, long end, int type) {
 
         String sql = String.format("delete from %s where %s=? and %s=? and %s=?", TABLE, COLUMN_START, COLUMN_END, COLUMN_TYPE);
@@ -150,7 +170,7 @@ public class RelationshipTable {
             ps.setLong(1, start);
             ps.setLong(2, end);
             ps.setInt(3, type);
-            logger.trace("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             int count = ps.executeUpdate();
             if (count == 1) {
                 return true;
@@ -178,7 +198,7 @@ public class RelationshipTable {
 
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            logger.trace("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
 
             int count = ps.executeUpdate();
 
@@ -192,6 +212,84 @@ public class RelationshipTable {
 
     }
 
+    public List<JsonRelationship> getGroupOwnerObject(long object) {
+        List<JsonRelationship> relations = new LinkedList<>();
+
+        //if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && this.readGIDS.contains(rel.getTo())) {
+        String sql = String.format("select * from %s where %s=? and %s=?", TABLE, COLUMN_START, COLUMN_TYPE);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, object);
+            ps.setInt(2, JEVisConstants.ObjectRelationship.OWNER);
+            logger.debug("SQL: {}", ps);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                try {
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return relations;
+    }
+
+    public List<JsonRelationship> getParentObject(long object) {
+        List<JsonRelationship> relations = new LinkedList<>();
+
+        String sql = String.format("select * from %s where %s=? and %s=?", TABLE, COLUMN_START, COLUMN_TYPE);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, object);
+            ps.setInt(2, JEVisConstants.ObjectRelationship.PARENT);
+            logger.debug("SQL: {}", ps);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                try {
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return relations;
+    }
+
+    public List<JsonRelationship> getAllForObject(long object, int type) {
+        List<JsonRelationship> relations = new LinkedList<>();
+
+
+        String sql = String.format("select * from %s where  ( %s=? or %s=?) and %s=?", TABLE, COLUMN_END, COLUMN_START, COLUMN_TYPE);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, object);
+            ps.setLong(2, object);
+            ps.setLong(3, type);
+            logger.debug("SQL: {}", ps);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                try {
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return relations;
+    }
+
     public List<JsonRelationship> getAllForObject(long object) {
         List<JsonRelationship> relations = new LinkedList<>();
 
@@ -201,7 +299,7 @@ public class RelationshipTable {
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
             ps.setLong(2, object);
-            logger.trace("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
@@ -225,6 +323,33 @@ public class RelationshipTable {
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             logger.trace("SQL: {}", ps);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                try {
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return relations;
+    }
+
+    public List<JsonRelationship> getAllMemberships() {
+        List<JsonRelationship> relations = new LinkedList<>();
+        String memberTypes = JEVisConstants.ObjectRelationship.MEMBER_READ + "," +
+                JEVisConstants.ObjectRelationship.MEMBER_WRITE + "," +
+                JEVisConstants.ObjectRelationship.MEMBER_DELETE + "," +
+                JEVisConstants.ObjectRelationship.MEMBER_EXECUTE + "," +
+                JEVisConstants.ObjectRelationship.MEMBER_CREATE;
+
+        String sql = String.format("select * from %s where %s in(%s)", TABLE, COLUMN_TYPE, memberTypes);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            logger.debug("SQL: {}", ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
@@ -265,7 +390,7 @@ public class RelationshipTable {
             for (int type : types) {
                 ps.setInt(++pos, type);
             }
-            logger.trace("SQL: {}", ps);
+            logger.error("SQL: {}", ps);
 
             ResultSet rs = ps.executeQuery();
 

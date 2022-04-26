@@ -943,9 +943,14 @@ public class WidgetTreePlugin implements TreePlugin {
     public List<DataPointNode> getUserSelection() {
         final List<DataPointNode> data = new ArrayList<>();
         selectedTreeItems.forEach(jeVisTreeItem -> {
-            DataPointNode node = (DataPointNode) jeVisTreeItem.getValue().getDataObject(DATA_MODEL_NODE, null);
-            if (node != null) {
-                data.add(node);
+            try {
+                logger.error("TreeItem to export: ", jeVisTreeItem.getValue().getJEVisObject());
+                DataPointNode node = (DataPointNode) jeVisTreeItem.getValue().getDataObject(DATA_MODEL_NODE, null);
+                if (node != null) {
+                    data.add(node);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
         return data;

@@ -21,7 +21,6 @@
 package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.*;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -31,11 +30,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ColorMappingBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.OrientationBox;
@@ -50,7 +50,6 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
-import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.tool.NumberSpinner;
@@ -59,7 +58,9 @@ import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -69,6 +70,7 @@ public class ChartSelectionDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(ChartSelectionDialog.class);
     private final JEVisDataSource _ds;
     private final TabPane tabPaneCharts;
+    private Map<Long, Long> calcMap = new HashMap<>();
     private AnalysisDataModel data;
     private final boolean init = true;
     private JEVisTree tree;
@@ -91,6 +93,11 @@ public class ChartSelectionDialog extends JFXDialog {
         this.data = data;
 
         this.tree = JEVisTreeFactory.buildDefaultGraphTree(ds, data);
+        try {
+            this.calcMap = tree.getENPICalcMap();
+        } catch (Exception e) {
+            logger.error("Could not create calculation id map", e);
+        }
 
         response = Response.CANCEL;
 
@@ -300,8 +307,8 @@ public class ChartSelectionDialog extends JFXDialog {
         if (!listUS.isEmpty()) tree.openUserSelection(listUS);
     }
 
-    private Tab createChartTab(ChartSetting cset) {
-        Tab newTab = new Tab(I18n.getInstance().getString("graph.table.selectchart") + cset.getId() + 1);
+    private Tab createChartTab(ChartSetting chartSetting) {
+        Tab newTab = new Tab(chartSetting.getName());
         newTab.setClosable(false);
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -314,7 +321,8 @@ public class ChartSelectionDialog extends JFXDialog {
 
         List<ChartDataRow> correspondingDataModels = new ArrayList<>();
         data.getSelectedData().forEach(chartDataModel -> {
-            if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
+            if (chartDataModel.getSelectedcharts().contains(chartSetting.getId()))
+                correspondingDataModels.add(chartDataModel);
         });
 
         PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels, false);
@@ -325,40 +333,64 @@ public class ChartSelectionDialog extends JFXDialog {
         final JFXTimePicker pickerTimeEnd = pickerCombo.getEndTimePicker();
 
         final Label labelName = new Label(I18n.getInstance().getString("graph.tabs.tab.name"));
-        final ChartNameTextField chartNameTextField = new ChartNameTextField(cset);
+        final ChartNameTextField chartNameTextField = new ChartNameTextField(chartSetting);
 
         final Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
-        final ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
+        final ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(chartSetting);
 
         final Label labelGroupingInterval = new Label(I18n.getInstance().getString("graph.tabs.tab.groupinginterval"));
-        Long gi = cset.getGroupingInterval();
+        Double gi = chartSetting.getGroupingInterval();
         if (gi == null) {
-            gi = 30L;
+            gi = 30d;
         }
-        final NumberSpinner groupingInterval = new NumberSpinner(new BigDecimal(gi), new BigDecimal(1));
+        final NumberSpinner groupingInterval = new NumberSpinner(new BigDecimal(gi), new BigDecimal(0.1));
         groupingInterval.numberProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                cset.setGroupingInterval(newValue.longValue());
+                chartSetting.setGroupingInterval(newValue.doubleValue());
             }
         });
 
         Label labelColorMapping = null;
         ColorMappingBox colorMappingBox = null;
-        if (cset.getChartType() == ChartType.HEAT_MAP) {
+        if (chartSetting.getChartType() == ChartType.HEAT_MAP) {
             labelColorMapping = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.colormapping"));
-            colorMappingBox = new ColorMappingBox(cset);
+            colorMappingBox = new ColorMappingBox(chartSetting);
         }
 
         Label orientationLabel = null;
         OrientationBox orientationBox = null;
-        if (cset.getChartType() == ChartType.TABLE) {
+        if (chartSetting.getChartType() == ChartType.TABLE) {
             orientationLabel = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.orientation"));
-            orientationBox = new OrientationBox(cset);
+            orientationBox = new OrientationBox(chartSetting);
         }
 
         final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
         final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         final Label presetDateBoxLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
+        final Label minFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.minfractiondigits"));
+        final Label maxFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.maxfractiondigits"));
+
+        Integer minFracs = chartSetting.getMinFractionDigits();
+        if (minFracs == null) {
+            minFracs = 2;
+        }
+        final NumberSpinner minFractionDigits = new NumberSpinner(new BigDecimal(minFracs), new BigDecimal(1));
+        minFractionDigits.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                chartSetting.setMinFractionDigits(newValue.intValue());
+            }
+        });
+
+        Integer maxFracs = chartSetting.getMaxFractionDigits();
+        if (maxFracs == null) {
+            maxFracs = 2;
+        }
+        final NumberSpinner maxFractionDigits = new NumberSpinner(new BigDecimal(maxFracs), new BigDecimal(1));
+        maxFractionDigits.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                chartSetting.setMaxFractionDigits(newValue.intValue());
+            }
+        });
 
         FlowPane flowPane = new FlowPane();
         flowPane.setPadding(new Insets(4, 4, 4, 4));
@@ -370,7 +402,6 @@ public class ChartSelectionDialog extends JFXDialog {
             gp.setPadding(new Insets(4, 0, 4, 0));
             final Label modelLabel = new Label(model.getObject().getName());
             final Label isEnPILabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.usecalc"));
-            final Label calculationLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.calculation"));
             final Label bubbleTypeLabel = new Label("Bubble Type");
 
             final JFXComboBox<BubbleType> bubbleTypeComboBox = new JFXComboBox<>(FXCollections.observableArrayList(BubbleType.X, BubbleType.Y));
@@ -381,16 +412,17 @@ public class ChartSelectionDialog extends JFXDialog {
                 model.setBubbleType(newValue);
             });
 
-            SimpleStringProperty targetProperty = new SimpleStringProperty();
+            Label targetLabel = new Label();
 
-            if (model.getCalculationObject() != null) {
-                targetProperty.set(model.getCalculationObject().getID().toString());
-            }
+            updateTargetLabel(model, targetLabel);
 
             final ToggleSwitchPlus isEnPI = new ToggleSwitchPlus();
             isEnPI.selectedProperty().setValue(model.getEnPI());
-            isEnPI.selectedProperty().addListener((observable, oldValue, newValue) -> model.setEnPI(isEnPI.isSelected()));
-            HBox targetSelector = getTargetSelector(targetProperty.get(), model);
+            isEnPI.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                model.setEnPI(isEnPI.isSelected());
+                model.setCalculationObject(calcMap.get(model.getObject().getID()).toString());
+                updateTargetLabel(model, targetLabel);
+            });
 
             int row = 0;
             gp.add(modelLabel, 0, row);
@@ -400,13 +432,12 @@ public class ChartSelectionDialog extends JFXDialog {
             gp.add(isEnPI, 1, row);
             row++;
 
-            gp.add(calculationLabel, 0, row);
-            gp.add(targetSelector, 1, row);
+            gp.add(new HBox(), 0, row);
+            gp.add(targetLabel, 1, row);
             row++;
 
             gp.add(bubbleTypeLabel, 0, row);
             gp.add(bubbleTypeComboBox, 1, row);
-
 
             flowPane.getChildren().add(gp);
         }
@@ -421,19 +452,27 @@ public class ChartSelectionDialog extends JFXDialog {
         gridPane.add(chartTypeComboBox, 1, row);
         row++;
 
-        if (cset.getChartType() == ChartType.HEAT_MAP) {
+        gridPane.add(minFractionDigitsLabel, 0, row);
+        gridPane.add(minFractionDigits, 1, row);
+        row++;
+
+        gridPane.add(maxFractionDigitsLabel, 0, row);
+        gridPane.add(maxFractionDigits, 1, row);
+        row++;
+
+        if (chartSetting.getChartType() == ChartType.HEAT_MAP) {
             gridPane.add(labelColorMapping, 0, row);
             gridPane.add(colorMappingBox, 1, row);
             row++;
         }
 
-        if (cset.getChartType() == ChartType.TABLE) {
+        if (chartSetting.getChartType() == ChartType.TABLE) {
             gridPane.add(orientationLabel, 0, row);
             gridPane.add(orientationBox, 1, row);
             row++;
         }
 
-        if (cset.getChartType() == ChartType.BUBBLE) {
+        if (chartSetting.getChartType() == ChartType.BUBBLE) {
             gridPane.add(labelGroupingInterval, 0, row);
             gridPane.add(groupingInterval, 1, row);
             row++;
@@ -462,6 +501,12 @@ public class ChartSelectionDialog extends JFXDialog {
         return newTab;
     }
 
+    private void updateTargetLabel(ChartDataRow model, Label targetLabel) {
+        if (model.getCalculationObject() != null) {
+            targetLabel.setText(model.getCalculationObject().getName() + " - Id: " + model.getCalculationObject().getID().toString());
+        }
+    }
+
 
     public AnalysisDataModel getSelectedData() {
         return data;
@@ -473,99 +518,6 @@ public class ChartSelectionDialog extends JFXDialog {
 
     public ChartPluginTree getChartPlugin() {
         return chartPlugin;
-    }
-
-    private HBox getTargetSelector(String value, ChartDataRow model) {
-        HBox limitDataBox = new HBox();
-        JFXButton treeButton = new JFXButton(I18n
-                .getInstance().getString("plugin.object.attribute.target.button"),
-                JEConfig.getImage("folders_explorer.png", 18, 18));
-
-        JFXButton gotoButton = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
-                JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
-        gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
-
-        Region rightSpacer = new Region();
-        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
-
-        limitDataBox.setSpacing(10);
-        limitDataBox.getChildren().setAll(treeButton, gotoButton, rightSpacer);
-
-        if (value != null && !value.equals("")) {
-            try {
-
-                TargetHelper th = new TargetHelper(_ds, value);
-
-                if (th.isValid() && th.targetAccessible()) {
-
-                    StringBuilder bText = new StringBuilder();
-
-                    for (JEVisObject obj : th.getObject()) {
-                        int index = th.getObject().indexOf(obj);
-                        if (index > 0) bText.append("; ");
-
-                        bText.append("[");
-                        bText.append(obj.getID());
-                        bText.append("] ");
-                        bText.append(obj.getName());
-
-                        if (th.hasAttribute()) {
-
-                            bText.append(" - ");
-                            bText.append(th.getAttribute().get(index).getName());
-
-                        }
-                    }
-
-                    treeButton.setText(bText.toString());
-                }
-
-            } catch (Exception ex) {
-                logger.catching(ex);
-            }
-        }
-
-        treeButton.setOnAction(event -> {
-            TargetHelper th = null;
-            if (value != null && !value.equals("")) {
-                th = new TargetHelper(_ds, value);
-            }
-
-            List<JEVisTreeFilter> allFilter = new ArrayList<>();
-            JEVisTreeFilter allDataFilter = SelectTargetDialog.buildClassFilter(_ds, "Calculation");
-            allFilter.add(allDataFilter);
-
-            List<UserSelection> openList = new ArrayList<>();
-            if (th != null && !th.getAttribute().isEmpty()) {
-                for (JEVisAttribute att : th.getAttribute())
-                    openList.add(new UserSelection(UserSelection.SelectionType.Attribute, att, null, null));
-            } else if (th != null && !th.getObject().isEmpty()) {
-                for (JEVisObject obj : th.getObject())
-                    openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
-            }
-
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(getDialogContainer(), allFilter, allDataFilter, null, SelectionMode.SINGLE, _ds, openList);
-
-            selectTargetDialog.setOnDialogClosed(event1 -> {
-                if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
-                    logger.trace("Selection Done");
-
-                    StringBuilder newTarget = new StringBuilder();
-                    List<UserSelection> selections = selectTargetDialog.getUserSelection();
-                    for (UserSelection us : selections) {
-                        int index = selections.indexOf(us);
-                        if (index > 0) newTarget.append(";");
-
-                        newTarget.append(us.getSelectedObject().getID());
-                    }
-
-                    treeButton.setText(newTarget.toString());
-                    model.setCalculationObject(newTarget.toString());
-                }
-            });
-            selectTargetDialog.show();
-        });
-        return limitDataBox;
     }
 
     public Response getResponse() {

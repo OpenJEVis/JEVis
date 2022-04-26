@@ -6,6 +6,7 @@ import org.jevis.api.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -43,7 +44,7 @@ public class CommonMethods {
 
     public static JEVisObject getFirstCleanObject(JEVisObject jeVisObject) throws JEVisException {
         for (JEVisObject object : jeVisObject.getChildren()) {
-            if (object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("Clean data")) {
+            if (object.getJEVisClassName().equals("Clean data")) {
                 return object;
             } else {
                 return getFirstCleanObject(object);
@@ -205,8 +206,19 @@ public class CommonMethods {
         if (object.getJEVisClassName().equals("Math Data") && cleanData) {
             try {
                 JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
-                if (lastRunAttribute != null) {
+                JEVisAttribute periodOffsetAttribute = object.getAttribute("Period Offset");
+                JEVisAttribute periodAttribute = object.getAttribute("Period");
+                if (lastRunAttribute != null && periodOffsetAttribute != null && periodAttribute != null) {
                     List<JEVisSample> allSamples = lastRunAttribute.getAllSamples();
+                    Long periodOffset = periodOffsetAttribute.getLatestSample().getValueAsLong();
+                    Period period = new Period(periodAttribute.getLatestSample().getValueAsString());
+
+                    if (periodOffset > 0) {
+                        f = PeriodHelper.minusPeriodToDate(f, period);
+                    } else if (periodOffset < 0) {
+                        f = PeriodHelper.addPeriodToDate(f, period);
+                    }
+
                     if (allSamples.size() > 0) {
                         allSamples.remove(0);
                         DateTime finalTS = null;
@@ -266,10 +278,10 @@ public class CommonMethods {
         return DateTime.now().minusHours(12);
     }
 
-    public static void processCleanData(JEVisObject cleanDataObject) throws Exception {
+    public static void processCleanData(JEVisObject cleanDataObject, DateTime from, DateTime to) throws Exception {
         cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
 
-        deleteAllSamples(cleanDataObject, false, true);
+        deleteAllSamples(cleanDataObject, from, to, false, true);
 
         ProcessManager processManager = new ProcessManager(
                 cleanDataObject,
@@ -281,11 +293,32 @@ public class CommonMethods {
         logger.info("cleaning done for: {}:{}", cleanDataObject.getName(), cleanDataObject.getID());
     }
 
-    public static void processAllCleanData(JEVisObject cleanDataObject) throws Exception {
+    public static void processAllCleanData(JEVisObject cleanDataObject, DateTime from, DateTime to) throws Exception {
+        processCleanData(cleanDataObject, from, to);
+
+        for (JEVisObject jeVisObject : cleanDataObject.getChildren()) {
+            processAllCleanData(jeVisObject, from, to);
+        }
+    }
+
+    public static void processCleanData(JEVisObject cleanDataObject) throws Exception {
+        cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
+
+        ProcessManager processManager = new ProcessManager(
+                cleanDataObject,
+                new ObjectHandler(cleanDataObject.getDataSource()), getProcessingSizeFromService(cleanDataObject.getDataSource(), "JEDataProcessor")
+        );
+        processManager.start();
+
+        cleanDataObject.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
+        logger.info("cleaning done for: {}:{}", cleanDataObject.getName(), cleanDataObject.getID());
+    }
+
+    public static void processAllCleanDataNoDelete(JEVisObject cleanDataObject) throws Exception {
         processCleanData(cleanDataObject);
 
         for (JEVisObject jeVisObject : cleanDataObject.getChildren()) {
-            processAllCleanData(jeVisObject);
+            processAllCleanDataNoDelete(jeVisObject);
         }
     }
 
@@ -313,6 +346,19 @@ public class CommonMethods {
 
             for (JEVisObject secondChild : child.getChildren()) {
                 list.addAll(getChildrenRecursive(secondChild, jeVisClass));
+            }
+        }
+
+        return list;
+    }
+
+    public static List<JEVisObject> getChildrenRecursive(JEVisObject firstObject) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+        for (JEVisObject child : firstObject.getChildren()) {
+            list.add(child);
+
+            for (JEVisObject secondChild : child.getChildren()) {
+                list.addAll(getChildrenRecursive(secondChild));
             }
         }
 

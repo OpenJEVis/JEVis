@@ -1,0 +1,52 @@
+{
+  "name": "JEOPCUAWriter",
+  "description": " ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JEOPCUAWriter",
+      "end": "Service",
+      "type": 0
+    },
+    {
+      "start": "JEOPCUAWriter",
+      "end": "Service Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enable",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEOPCUAWriter"
+    },
+    {
+      "name": "Max Number Threads",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEOPCUAWriter"
+    },
+    {
+      "name": "Cycle Time",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEOPCUAWriter"
+    },
+    {
+      "name": "Status",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEOPCUAWriter"
+    }
+  ]
+}

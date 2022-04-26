@@ -36,7 +36,8 @@ public class ConnectionFactory {
             }
 
             ds = new BasicDataSource();
-            ds.setDriverClassName("com.mysql.jdbc.Driver");
+//            this is deprecated
+//            ds.setDriverClassName("com.mysql.jdbc.Driver");
             ds.setUrl(conString);
             ds.setUsername(dbUser);
             ds.setPassword(dbPW);

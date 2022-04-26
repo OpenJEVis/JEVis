@@ -5,7 +5,6 @@ import org.jevis.api.*;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.constants.NoteConstants;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
@@ -250,7 +249,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         DateTime dt = currentAlarm.getAlarmSample().getTimestamp();
         List<JEVisSample> values = currentAlarm.getAttribute().getSamples(dt.minusMillis(1), dt.plusMillis(1));
 
-        CleanDataObject clean = new CleanDataObject(currentAlarm.getObject(), new ObjectHandler(ds));
+        CleanDataObject clean = new CleanDataObject(currentAlarm.getObject());
         List<JsonLimitsConfig> configList = clean.getLimitsConfig();
 
         if (values.size() == 1) {

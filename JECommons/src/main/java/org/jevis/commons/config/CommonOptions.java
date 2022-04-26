@@ -31,43 +31,44 @@ public interface CommonOptions {
     /**
      * JEVisOptions related to the JEVisDataSource
      */
-    public interface DataSource {
+    interface DataSource {
 
         /**
          * Group of all datasource options. Will also be used as prefix for
          * parameters
          */
 //        public final String GROUP = "datasource";
-        public final JEVisOption DataSource = OptionFactory.BuildOption(null, "datasource", "", "JEVis datasource option group");
+        JEVisOption DataSource = OptionFactory.BuildOption(null, "datasource", "", "JEVis datasource option group");
 
-        static final JEVisOption HOST = OptionFactory.BuildOption(DataSource, "host", "openjevis.org", "Hostname URL of the data source");
-        static final JEVisOption PORT = OptionFactory.BuildOption(DataSource, "port", "3306", "Port of the data source");
-        static final JEVisOption CLASS = OptionFactory.BuildOption(DataSource, "class", "org.jevis.api.sql.JEVisDataSourceSQL", "Classname of the data source. e.g. 'org.jevis.api.sql.JEVisDataSourceSQL'");
-        static final JEVisOption SCHEMA = OptionFactory.BuildOption(DataSource, "schema", "jevis", "MySQL Schema of the data source");
-        static final JEVisOption USERNAME = OptionFactory.BuildOption(DataSource, "username", "jevis", "Username to the data source.");
-        static final JEVisOption PASSWORD = OptionFactory.BuildOption(DataSource, "password", "jevistest", "Password to the data source");
-        static final JEVisOption SSLTRUST = OptionFactory.BuildOption(DataSource, "ssltrust", "system", "SSL certificates trust mode. ALLWAY if you wish to trust signed ssl certificates");
-        static final JEVisOption CONNECTION = OptionFactory.BuildOption(DataSource, "connection", "jevistest", "Password to the data source");
+        JEVisOption HOST = OptionFactory.BuildOption(DataSource, "host", "openjevis.org", "Hostname URL of the data source");
+        JEVisOption PORT = OptionFactory.BuildOption(DataSource, "port", "3306", "Port of the data source");
+        JEVisOption CLASS = OptionFactory.BuildOption(DataSource, "class", "org.jevis.api.sql.JEVisDataSourceSQL", "Classname of the data source. e.g. 'org.jevis.api.sql.JEVisDataSourceSQL'");
+        JEVisOption SCHEMA = OptionFactory.BuildOption(DataSource, "schema", "jevis", "MySQL Schema of the data source");
+        JEVisOption USERNAME = OptionFactory.BuildOption(DataSource, "username", "jevis", "Username to the data source.");
+        JEVisOption PASSWORD = OptionFactory.BuildOption(DataSource, "password", "jevistest", "Password to the data source");
+        JEVisOption LOCALE = OptionFactory.BuildOption(DataSource, "locale", "en", "Locale for i18n");
+        JEVisOption SSLTRUST = OptionFactory.BuildOption(DataSource, "ssltrust", "system", "SSL certificates trust mode. ALLWAY if you wish to trust signed ssl certificates");
+        JEVisOption CONNECTION = OptionFactory.BuildOption(DataSource, "connection", "jevistest", "Password to the data source");
 
     }
 
     /**
      * JEVisOptions related to the JavaFX bases login GUI.
      */
-    public interface FXLogin {
+    interface FXLogin {
 
         /**
          * Group of all avaFX bases login GUI options. Will also be used as
          * prefix for parameters
          */
-        public final JEVisOption FXLogin = OptionFactory.BuildOption(null, "fxlogin", "", "FXLogin option group");
+        JEVisOption FXLogin = OptionFactory.BuildOption(null, "fxlogin", "", "FXLogin option group");
 
         /**
          * Logo displayed into login form.
          */
-        static final JEVisOption URL_LOGO = OptionFactory.BuildOption(FXLogin, "logo", "", "URL for the Logo fof the FXLogin");
-        static final JEVisOption URL_CSS = OptionFactory.BuildOption(FXLogin, "css", "", "URL for the CSS customisaion of the FXLogin");
-        static final JEVisOption URL_REGISTER = OptionFactory.BuildOption(FXLogin, "register", "", "URL ofthe Reegister link, set 'off' if it should be hinde ");
+        JEVisOption URL_LOGO = OptionFactory.BuildOption(FXLogin, "logo", "", "URL for the Logo fof the FXLogin");
+        JEVisOption URL_CSS = OptionFactory.BuildOption(FXLogin, "css", "", "URL for the CSS customisaion of the FXLogin");
+        JEVisOption URL_REGISTER = OptionFactory.BuildOption(FXLogin, "register", "", "URL ofthe Reegister link, set 'off' if it should be hinde ");
 
     }
 

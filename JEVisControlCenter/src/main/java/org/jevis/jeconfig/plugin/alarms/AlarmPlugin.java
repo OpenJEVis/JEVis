@@ -20,6 +20,7 @@ import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -35,6 +36,7 @@ import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmConfiguration;
+import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
@@ -50,12 +52,14 @@ import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.application.tools.NumberSpinner;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -66,6 +70,7 @@ import java.util.concurrent.Future;
 
 public class AlarmPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(AlarmPlugin.class);
+    private static int ROWS_PER_PAGE = 25;
     public static String PLUGIN_NAME = "Alarm Plugin";
     public static String ALARM_CONFIG_CLASS = "Alarm Configuration";
     private final JEVisDataSource ds;
@@ -79,6 +84,7 @@ public class AlarmPlugin implements Plugin {
     private final SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private final ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
     private final List<Task<List<AlarmRow>>> runningUpdateTaskList = new ArrayList<>();
+    private final Pagination pagination = new Pagination();
     int showCheckedAlarms = 0;
     private boolean init = false;
     private final List<Future<?>> futures = new ArrayList<>();
@@ -100,6 +106,7 @@ public class AlarmPlugin implements Plugin {
         }
     }
 
+    private final List<AlarmRow> data = new ArrayList<>();
     private final TableView<AlarmRow> tableView = new TableView<>();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
     private DateTime start;
@@ -132,7 +139,7 @@ public class AlarmPlugin implements Plugin {
         this.ds = ds;
         this.title = title;
 
-        this.borderPane.setCenter(this.tableView);
+
         Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
         label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         this.tableView.setPlaceholder(label);
@@ -153,6 +160,33 @@ public class AlarmPlugin implements Plugin {
         this.activeAlarms.addListener((MapChangeListener<? super DateTime, ? super Boolean>) change -> {
             this.hasAlarms.set(!this.activeAlarms.isEmpty());
         });
+
+        pagination.setPageFactory(new Callback<Integer, Node>() {
+            @Override
+            public Node call(Integer pageIndex) {
+                if (pageIndex > data.size() / ROWS_PER_PAGE + 1) {
+                    return null;
+                } else {
+                    return createPage(pageIndex);
+                }
+            }
+        });
+        this.borderPane.setCenter(pagination);
+    }
+
+    private Node createPage(int pageIndex) {
+        int numOfPages = 1;
+        if (data.size() % ROWS_PER_PAGE == 0) {
+            numOfPages = data.size() / ROWS_PER_PAGE;
+        } else if (data.size() > ROWS_PER_PAGE) {
+            numOfPages = data.size() / ROWS_PER_PAGE + 1;
+        }
+        pagination.setPageCount(numOfPages);
+        int fromIndex = pageIndex * ROWS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, data.size());
+        tableView.setItems(FXCollections.observableArrayList(data.subList(fromIndex, toIndex)));
+
+        return tableView;
     }
 
     public static void autoFitTable(TableView<AlarmRow> tableView) {
@@ -418,6 +452,8 @@ public class AlarmPlugin implements Plugin {
                                 case "<=":
                                     setText("\u2264");
                                     break;
+                                default:
+                                    setText(item);
                             }
                         }
                     }
@@ -453,8 +489,13 @@ public class AlarmPlugin implements Plugin {
                             text += numberFormat.format(item);
                             if (getTableRow() != null && getTableRow().getItem() != null) {
                                 AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+
                                 try {
-                                    text += " " + UnitManager.getInstance().format(alarmRow.getAlarm().getAttribute().getDisplayUnit());
+                                    text += " ";
+                                    if (alarmRow.getAlarm().getAlarmType() != AlarmType.D1 && alarmRow.getAlarm().getAlarmType() != AlarmType.D2) {
+                                        text += UnitManager.getInstance().format(alarmRow.getAlarm().getAttribute().getDisplayUnit());
+                                    }
+
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -618,7 +659,7 @@ public class AlarmPlugin implements Plugin {
                                     AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
                                     alarmRow.getAlarmConfiguration().setChecked(false);
                                 }
-                                Platform.runLater(() -> tableView.refresh());
+                                Platform.runLater(() -> createPage(0));
                             });
 
                             setGraphic(checkedButton);
@@ -742,7 +783,6 @@ public class AlarmPlugin implements Plugin {
 
         Separator sep4 = new Separator(Orientation.VERTICAL);
 
-
         ToggleButton checkAll = new ToggleButton(I18n.getInstance().getString("plugin.alarm.checkall"), JEConfig.getImage("jetxee-check-sign-and-cross-sign-3.png", iconSize, iconSize));
         checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkAll);
@@ -760,7 +800,24 @@ public class AlarmPlugin implements Plugin {
         filterBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.filter.tooltip")));
         checkAll.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.checkall.tooltip")));
 
-        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, filterBox, sep4, checkAll);
+        Separator sep5 = new Separator(Orientation.VERTICAL);
+
+        Label labelNORPP = new Label(I18n.getInstance().getString("plugin.alarm.label.alarmsperpage"));
+        VBox norppVBox = new VBox(labelNORPP);
+        norppVBox.setAlignment(Pos.CENTER);
+
+        NumberSpinner spinnerNORPP = new NumberSpinner(new BigDecimal(35), new BigDecimal(1));
+        VBox vBoxSpinner = new VBox(spinnerNORPP);
+        vBoxSpinner.setAlignment(Pos.CENTER);
+
+        spinnerNORPP.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                ROWS_PER_PAGE = newValue.intValue();
+                createPage(pagination.getCurrentPageIndex());
+            }
+        });
+
+        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, filterBox, sep4, checkAll, sep5, norppVBox, vBoxSpinner);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
         JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
@@ -988,7 +1045,7 @@ public class AlarmPlugin implements Plugin {
             init = true;
         }
 
-        tableView.getItems().clear();
+        data.clear();
 
         List<AlarmConfiguration> alarms = getAllAlarmConfigs();
         JEConfig.getStatusBar().startProgressJob("AlarmConfigs", alarms.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
@@ -1009,14 +1066,7 @@ public class AlarmPlugin implements Plugin {
                         this.failed();
                     } finally {
                         this.done();
-                        Platform.runLater(() -> tableView.getItems().addAll(list));
-                        //Platform.runLater(() -> tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed()));
-                        Platform.runLater(() -> autoFitTable(tableView));
-
-                        if (alarms.indexOf(alarmConfiguration) % 5 == 0
-                                || alarms.indexOf(alarmConfiguration) == alarms.size() - 1) {
-                            Platform.runLater(() -> tableView.sort());
-                        }
+                        data.addAll(list);
 
                         JEConfig.getStatusBar().progressProgressJob(
                                 "AlarmConfigs",
@@ -1035,7 +1085,8 @@ public class AlarmPlugin implements Plugin {
             EventHandler<WorkerStateEvent> doneEvent = event -> {
                 if (allJobsDone(futures)) {
                     JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
-                    Platform.runLater(() -> tableView.sort());
+                    data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+                    createPage(0);
                     Platform.runLater(() -> autoFitTable(tableView));
                 }
             };
@@ -1095,13 +1146,11 @@ public class AlarmPlugin implements Plugin {
 
     private List<AlarmConfiguration> getAllAlarmConfigs() {
         List<AlarmConfiguration> list = new ArrayList<>();
-        JEVisClass alarmConfigClass = null;
         try {
-            alarmConfigClass = ds.getJEVisClass(ALARM_CONFIG_CLASS);
+            JEVisClass alarmConfigClass = ds.getJEVisClass(ALARM_CONFIG_CLASS);
             List<JEVisObject> allObjects = ds.getObjects(alarmConfigClass, true);
             for (JEVisObject object : allObjects) {
                 AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, object);
-                Boolean linkEnabled = alarmConfiguration.isLinkDisabled();
 
                 if (alarmConfiguration.isEnabled()) {
                     if (showCheckedAlarms == 0 && !alarmConfiguration.isChecked()) {

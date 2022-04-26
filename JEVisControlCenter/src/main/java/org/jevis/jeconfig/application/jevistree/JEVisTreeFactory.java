@@ -112,7 +112,7 @@ public class JEVisTreeFactory {
                     TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
                     t.consume();
                 } else if (delete.match(t)) {
-                    TreeHelper.EventDelete(tree);
+                    TreeHelper.EventDelete(tree, false);
                     t.consume();
                 } else if (deleteAllCleanAndRaw.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventDeleteAllCleanAndRaw(tree);

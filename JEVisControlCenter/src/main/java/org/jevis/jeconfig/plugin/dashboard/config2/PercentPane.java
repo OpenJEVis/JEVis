@@ -13,7 +13,9 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.dashboard.widget.ValueWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
+import org.jevis.jeconfig.tool.NumberSpinner;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public class PercentPane extends GridPane {
@@ -36,6 +38,30 @@ public class PercentPane extends GridPane {
         setHgap(8);
 
         addRow(0, sourceLabel, widgetBox);
+
+        final Label minFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.minfractiondigits"));
+        final Label maxFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.maxfractiondigits"));
+
+        int minFracs = percent.getMinFracDigits();
+
+        final NumberSpinner minFractionDigits = new NumberSpinner(new BigDecimal(minFracs), new BigDecimal(1));
+        minFractionDigits.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                percent.setMinFracDigits(newValue.intValue());
+            }
+        });
+
+        int maxFracs = percent.getMaxFracDigits();
+
+        final NumberSpinner maxFractionDigits = new NumberSpinner(new BigDecimal(maxFracs), new BigDecimal(1));
+        maxFractionDigits.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                percent.setMaxFracDigits(newValue.intValue());
+            }
+        });
+
+        addRow(1, minFractionDigitsLabel, minFractionDigits);
+        addRow(2, maxFractionDigitsLabel, maxFractionDigits);
     }
 
     private void initControls() {

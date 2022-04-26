@@ -69,7 +69,18 @@ public class SampleEditor {
     Node header;//new Separator(Orientation.HORIZONTAL_TOP_LEFT),
 
     private SampleEditorExtension activExtensions;
+    boolean startWithDates = false;
+    private ControlPane controlPane;
+    private DateTime start;
+    private DateTime end;
 
+    public void show(Window owner, final JEVisAttribute attribute, DateTime start, DateTime end) {
+        this.start = start;
+        this.end = end;
+        startWithDates = true;
+
+        show(owner, attribute);
+    }
 
     /**
      * @param owner
@@ -165,7 +176,7 @@ public class SampleEditor {
         });
 
 
-        ControlPane controlPane = new ControlPane(_attribute);
+        controlPane = new ControlPane(_attribute);
 
         final TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -222,12 +233,14 @@ public class SampleEditor {
 
         if (attribute.hasSample()) {
 
-            DateTime end = attribute.getTimestampFromLastSample();
+            if (!startWithDates) {
+                end = attribute.getTimestampFromLastSample();
 
-            DateTime start = end.minusDays(1);
+                start = end.minusDays(1);
 
-            if (data) {
-                start = CommonMethods.getStartDateFromSampleRate(attribute);
+                if (data) {
+                    start = CommonMethods.getStartDateFromSampleRate(attribute);
+                }
             }
 
             controlPane.initTimeRange(start, end);

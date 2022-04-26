@@ -16,7 +16,10 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jeconfig.plugin.dtrc.*;
+import org.jevis.jeconfig.plugin.dtrc.RCTemplate;
+import org.jevis.jeconfig.plugin.dtrc.TemplateFormula;
+import org.jevis.jeconfig.plugin.dtrc.TemplateInput;
+import org.jevis.jeconfig.plugin.dtrc.TemplateOutput;
 
 public class TemplateCalculationFormulaDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(TemplateCalculationFormulaDialog.class);
@@ -48,11 +51,27 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         Label inputsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
         FlowPane inputsFlowPane = new FlowPane(4, 4);
 
+        for (TemplateInput templateInput : rcTemplate.getTemplateFormulaInputs()) {
+            JFXCheckBox jfxCheckBox = new JFXCheckBox(templateInput.getVariableName());
+            jfxCheckBox.setStyle("-fx-text-fill: red !important;");
+            jfxCheckBox.setMnemonicParsing(false);
+
+            if (templateFormula.getInputIds().contains(templateInput.getTemplateFormula())) {
+                jfxCheckBox.setSelected(true);
+            }
+
+            jfxCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue && !templateFormula.getInputIds().contains(templateInput.getTemplateFormula())) {
+                    templateFormula.getInputIds().add(templateInput.getTemplateFormula());
+                    jfxTextArea.setText(jfxTextArea.getText() + templateInput.getVariableName());
+                } else templateFormula.getInputIds().remove(templateInput.getTemplateFormula());
+            });
+
+            inputsFlowPane.getChildren().add(jfxCheckBox);
+        }
+
         for (TemplateInput templateInput : rcTemplate.getTemplateInputs()) {
             JFXCheckBox jfxCheckBox = new JFXCheckBox(templateInput.getVariableName());
-            if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-                jfxCheckBox.setStyle("-fx-text-fill: red !important;");
-            }
             jfxCheckBox.setMnemonicParsing(false);
 
             if (templateFormula.getInputIds().contains(templateInput.getId())) {

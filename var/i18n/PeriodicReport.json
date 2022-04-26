@@ -127,10 +127,10 @@
         "uk": "хвороба",
         "th": "เงื่อนไข"
       },
-      "enums" : {
-        "<" : {
-          "descriptions" : null,
-          "names" : {
+      "enums": {
+        "<": {
+          "descriptions": null,
+          "names": {
             "de": "Kleiner (Wert<Vergleichswert)",
             "en": "Less (Value<comparison value)",
             "ru": "Меньше (значение <значение для сравнения)",
@@ -138,9 +138,9 @@
             "th": "เล็กกว่า (ค่า <ค่าเปรียบเทียบ)"
           }
         },
-        "<=" : {
-          "descriptions" : null,
-          "names" : {
+        "<=": {
+          "descriptions": null,
+          "names": {
             "de": "Kleiner-Gleich (Wert<=Vergleichswert)",
             "en": "Less than or equal (value<=comparison value)",
             "ru": "Меньше или равно (значение <= значение для сравнения)",
@@ -148,9 +148,9 @@
             "th": "น้อยกว่าหรือเท่ากับ (ค่า <= ค่าเปรียบเทียบ)"
           }
         },
-        ">" : {
-          "descriptions" : null,
-          "names" : {
+        ">": {
+          "descriptions": null,
+          "names": {
             "de": "Größer (Wert>Vergleichswert)",
             "en": "Greater (value>comparison value)",
             "ru": "Больше чем (значение> значение для сравнения)",
@@ -158,9 +158,9 @@
             "th": "มากกว่า (ค่า> ค่าเปรียบเทียบ)"
           }
         },
-        ">=" : {
-          "descriptions" : null,
-          "names" : {
+        ">=": {
+          "descriptions": null,
+          "names": {
             "de": "Größer-Gleich (Wert>=Vergleichswert)",
             "en": "Greater or equal (value>=comparison value)",
             "ru": "Больше или равно (значение> = значение для сравнения)",
@@ -168,9 +168,9 @@
             "th": "มากกว่าหรือเท่ากับ (value> = ค่าเปรียบเทียบ)"
           }
         },
-        "=" : {
-          "descriptions" : null,
-          "names" : {
+        "=": {
+          "descriptions": null,
+          "names": {
             "de": "Gleich (Wert=Vergleichswert)",
             "en": "Equal (value=comparison value)",
             "ru": "Равно (значение = значение для сравнения)",
@@ -178,9 +178,9 @@
             "th": "เท่ากัน (มูลค่า = ค่าเปรียบเทียบ)"
           }
         },
-        "!=" : {
-          "descriptions" : null,
-          "names" : {
+        "!=": {
+          "descriptions": null,
+          "names": {
             "de": "Ungleich (Wert≠Vergleichswert)",
             "en": "Unequal (value≠comparison value)",
             "ru": "Не равно (значение ≠ значение для сравнения)",
@@ -240,10 +240,10 @@
         "uk": "Графік",
         "th": "ตารางเวลา"
       },
-      "enums" : {
-        "MINUTELY" : {
-          "descriptions" : null,
-          "names" : {
+      "enums": {
+        "MINUTELY": {
+          "descriptions": null,
+          "names": {
             "de": "Minütlich",
             "ru": "Каждую минуту",
             "en": "Minutely",
@@ -251,9 +251,9 @@
             "th": "ทุกๆนาที"
           }
         },
-        "QUARTER_HOURLY" : {
-          "descriptions" : null,
-          "names" : {
+        "QUARTER_HOURLY": {
+          "descriptions": null,
+          "names": {
             "de": "Viertelstündlich",
             "ru": "Каждые четверть часа",
             "en": "Quarter-hourly",
@@ -261,9 +261,9 @@
             "th": "ทุก ๆ ไตรมาสของหนึ่งชั่วโมง"
           }
         },
-        "HOURLY" : {
-          "descriptions" : null,
-          "names" : {
+        "HOURLY": {
+          "descriptions": null,
+          "names": {
             "de": "Stündlich",
             "ru": "Ежечасно",
             "en": "Hourly",
@@ -271,18 +271,29 @@
             "th": "ทุกชั่วโมง"
           }
         },
-        "WEEKLY" : {
-          "descriptions" : null,
-          "names" : {
+        "DAILY": {
+          "descriptions": null,
+          "names": {
+            "de": "Täglich",
+            "ru": "Ежедневно",
+            "en": "Daily",
+            "th": "รายวัน",
+            "uk": "Щодня"
+          }
+        },
+        "WEEKLY": {
+          "descriptions": null,
+          "names": {
             "de": "Wöchentlich",
             "ru": "Eженедельно",
             "en": "Weekly",
             "uk": "Щотижня",
             "th": "รายสัปดาห์"
           }
-        },"MONTHLY" : {
-          "descriptions" : null,
-          "names" : {
+        },
+        "MONTHLY": {
+          "descriptions": null,
+          "names": {
             "de": "Monatlich",
             "ru": "В месяц",
             "en": "Monthly",
@@ -290,27 +301,29 @@
             "th": "ต่อเดือน"
           }
         },
-        "QUARTERLY" : {
-          "descriptions" : null,
-          "names" : {
+        "QUARTERLY": {
+          "descriptions": null,
+          "names": {
             "de": "Vierteljährlich",
             "ru": "Ежеквартальный",
             "en": "Quarterly",
             "uk": "Щоквартально",
             "th": "รายไตรมาส"
           }
-        },"YEARLY" : {
-          "descriptions" : null,
-          "names" : {
+        },
+        "YEARLY": {
+          "descriptions": null,
+          "names": {
             "de": "Jährlich",
             "ru": "Ежегодно",
             "en": "Yearly",
             "uk": "Щорічно",
             "th": "ทุกปี"
           }
-        },"CUSTOM" : {
-          "descriptions" : null,
-          "names" : {
+        },
+        "CUSTOM": {
+          "descriptions": null,
+          "names": {
             "de": "Benutzerdefiniert",
             "ru": "На заказ",
             "en": "Custom",

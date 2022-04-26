@@ -28,6 +28,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
+import org.jevis.commons.ws.sql.CachedAccessControl;
 import org.jevis.commons.ws.sql.Config;
 import org.jevis.commons.ws.sql.SQLDataSource;
 
@@ -87,12 +88,13 @@ public class ResourceObject {
             @DefaultValue("") @QueryParam("name") String name,
             @DefaultValue("false") @QueryParam("detail") boolean detailed,
             @DefaultValue("true") @QueryParam("rel") boolean rel,
+            @DefaultValue("false") @QueryParam("deleted") boolean deleteObjects,
             @QueryParam("parent") long parent,
             @QueryParam("child") long child) {
 
         try {
             this.ds = new SQLDataSource(httpHeaders, request, url);
-            this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
+            if (!deleteObjects) this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
             this.ds.preload(SQLDataSource.PRELOAD.ALL_REL);
 
 
@@ -101,6 +103,22 @@ public class ResourceObject {
             } else {
                 this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
             }
+
+            /*
+            if (deleteObjects) {
+                System.out.println("Deleted Objects");
+                //System.out.println(Arrays.asList(this.ds.getDeletedObjects()));
+                this.returnList = this.ds.getUserManager().filterList(this.ds.getDeletedObjects());
+            } else {
+                if (root) {
+                    this.returnList = this.ds.getRootObjects();
+                } else {
+                    this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
+                }
+            }
+
+             */
+
 
             if (!jclass.isEmpty()) {
                 this.returnList = this.ds.filterObjectByClass(this.returnList, jclass);
@@ -172,6 +190,7 @@ public class ResourceObject {
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url,
+            @DefaultValue("false") @QueryParam("deleteForever") boolean deleteForever,
             @PathParam("id") long id) {
 
         try {
@@ -180,8 +199,23 @@ public class ResourceObject {
 
             JsonObject obj = this.ds.getObject(id);
             if (this.ds.getUserManager().canDelete(obj)) {
-                ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_OBJECT, String.format("%s:%s", id, obj.getName()));
-                this.ds.deleteObject(obj);
+
+                if (deleteForever) {
+                    ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_OBJECT, String.format("%s:%s", id, obj.getName()));
+                    logger.error("Delete forever: " + id);
+                    this.ds.deleteObject(obj);
+                } else {
+                    ds.logUserAction(SQLDataSource.LOG_EVENT.MARK_AS_DELETE_OBJECT, String.format("%s:%s", id, obj.getName()));
+                    System.out.println("Mark as delete: " + id);
+                    this.ds.markAsDeletedObject(obj);
+                }
+
+            }
+
+            try {
+                CachedAccessControl.getInstance(ds).checkForChanges(obj, CachedAccessControl.Change.DELETE);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
             }
 
             return Response.status(Response.Status.OK).build();
@@ -229,7 +263,7 @@ public class ResourceObject {
                 }
 
                 JsonObject parentObj = this.ds.getObject(json.getParent());
-                boolean canCreate = this.ds.getUserManager().canCreateWOE(parentObj,json.getJevisClass());
+                boolean canCreate = this.ds.getUserManager().canCreateWOE(parentObj, json.getJevisClass());
 
                 if (parentObj != null && canCreate) {
 
@@ -245,13 +279,19 @@ public class ResourceObject {
                         }
                     } else {
 
-                        String jsonString=null;
-                        if(json.getI18n()!=null && !json.getI18n().isEmpty()){
-                           jsonString = objectMapper.writeValueAsString(json.getI18n());
+                        String jsonString = null;
+                        if (json.getI18n() != null && !json.getI18n().isEmpty()) {
+                            jsonString = objectMapper.writeValueAsString(json.getI18n());
                         }
 
-                        JsonObject newObj = this.ds.buildObject(json, parentObj.getId(),jsonString);
+                        JsonObject newObj = this.ds.buildObject(json, parentObj.getId(), jsonString);
                         ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_OBJECT, String.format("%s:%s", newObj.getId(), newObj.getName()));
+                        try {
+                            CachedAccessControl.getInstance(ds).checkForChanges(json, CachedAccessControl.Change.DELETE);
+                        } catch (Exception ex) {
+                            logger.error(ex, ex);
+                        }
+
                         return Response.ok(newObj).build();
                     }
 
@@ -284,6 +324,7 @@ public class ResourceObject {
 
     }
 
+
     @POST
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
@@ -297,27 +338,40 @@ public class ResourceObject {
             String object) {
 
         try {
+            System.out.println("post Object: " + object);
             this.ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject json = objectMapper.readValue(object, JsonObject.class);
             JsonObject existingObj = this.ds.getObject(id);
             if (existingObj != null && this.ds.getUserManager().canWrite(json)) {
-                String jsonstring=null;
-                if(json.getI18n()!=null && !json.getI18n().isEmpty()){
+                String jsonstring = null;
+                if (json.getI18n() != null && !json.getI18n().isEmpty()) {
                     jsonstring = objectMapper.writeValueAsString(json.getI18n());
                 }
+
+                try {
+                    CachedAccessControl.getInstance(ds).checkForChanges(json, CachedAccessControl.Change.CHANGE);
+                } catch (Exception ex) {
+                    logger.error(ex, ex);
+                }
+
+                if (existingObj.getDeleteTS() != null && json.getDeleteTS() == null) {
+                    ds.getObjectTable().restoreObjectAsDeleted(json);
+                }
+
 
                 /** TODO: note to self, why did i do an if and no the boolean as var? **/
                 if (existingObj.getisPublic() != json.getisPublic()) {
                     ds.logUserAction(SQLDataSource.LOG_EVENT.UPDATE_OBJECT, String.format("%s:%s", existingObj.getId(), existingObj.getName()));
 
+
                     if (this.ds.getUserManager().isSysAdmin()) {
-                        return Response.ok(this.ds.updateObject(id, json.getName(), json.getisPublic(),jsonstring)).build();
+                        return Response.ok(this.ds.updateObject(id, json.getName(), json.getisPublic(), jsonstring)).build();
                     } else {
-                        return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(),jsonstring)).build();
+                        return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(), jsonstring)).build();
                     }
                 } else {
-                    return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(),jsonstring)).build();
+                    return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(), jsonstring)).build();
                 }
             } else {
                 return Response.notModified().build();

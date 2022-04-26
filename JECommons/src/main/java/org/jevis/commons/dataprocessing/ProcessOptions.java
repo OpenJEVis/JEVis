@@ -29,10 +29,7 @@ import org.jevis.commons.config.Options;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.commons.ws.json.JsonSample;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Interval;
-import org.joda.time.Period;
+import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
@@ -168,7 +165,8 @@ public class ProcessOptions {
         }
 
         WorkDays wd = task.getJsonSampleGenerator().getWorkDays();
-        if (result[0] != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) result[0] = result[0].minusDays(1);
+        if (result[0] != null && wd.getWorkdayEnd(result[0]).isBefore(wd.getWorkdayStart(result[0])))
+            result[0] = result[0].minusDays(1);
 
         Period period = Period.ZERO;
         for (ProcessOption option : task.getOptions()) {
@@ -263,13 +261,20 @@ public class ProcessOptions {
      * @param offset
      * @param firstSample
      * @param lastSample
+     * @param wd
      * @return
      */
-    public static List<Interval> buildIntervals(Period period, DateTime offset, DateTime firstSample, DateTime lastSample, DateTimeZone timeZone) {
+    public static List<Interval> buildIntervals(Period period, DateTime offset, DateTime firstSample, DateTime lastSample, DateTimeZone timeZone, WorkDays wd) {
         DateTime benchMarkStart = new DateTime();
         List<Interval> result = new ArrayList<>();
 
         DateTime startDate = findFirstDuration(firstSample, period, offset, timeZone);
+
+        if (wd != null && wd.isEnabled()) {
+            LocalTime start = new LocalTime(wd.getWorkdayStart().getHour(), wd.getWorkdayStart().getMinute(), wd.getWorkdayStart().getSecond(), 0);
+            startDate = startDate.withTime(start);
+        }
+
         result.add(new Interval(startDate, period));
 
         boolean run = true;
@@ -372,6 +377,13 @@ public class ProcessOptions {
         Period period = Period.days(1);
         DateTime offset = new DateTime(1990, 1, 1, 0, 0, 0);
         DateTimeZone timeZone = DateTimeZone.UTC;
+        WorkDays wd = null;
+        AggregationPeriod aggregationPeriod = null;
+        if (task instanceof BasicProcess) {
+            BasicProcess basicProcess = (BasicProcess) task;
+            wd = basicProcess.getJsonSampleGenerator().getWorkDays();
+            aggregationPeriod = basicProcess.getJsonSampleGenerator().getAggregationPeriod();
+        }
 
         if (!ContainsOption(task, PERIOD)) {
             logger.warn("Error missing period option");
@@ -406,10 +418,23 @@ public class ProcessOptions {
                         timeZone = DateTimeZone.forID(value);
                     } catch (Exception e) {
                     }
+                case CUSTOM:
+                    if (wd != null && aggregationPeriod != null) {
+                        switch (aggregationPeriod) {
+                            case DAILY:
+                            case WEEKLY:
+                            case MONTHLY:
+                            case QUARTERLY:
+                            case YEARLY:
+                                wd.setEnabled(Boolean.parseBoolean(value));
+                                break;
+                        }
+                    }
+                    break;
             }
         }
 
-        return buildIntervals(period, offset, from, until, timeZone);
+        return buildIntervals(period, offset, from, until, timeZone, wd);
 
     }
 
@@ -519,6 +544,6 @@ public class ProcessOptions {
         WorkDays workDays = new WorkDays(task.getSqlDataSource(), task.getJsonObject());
         workDays.setEnabled(isCustomWorkDay);
 
-        return workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart());
+        return workDays.getWorkdayEnd(new DateTime()).isBefore(workDays.getWorkdayStart(new DateTime()));
     }
 }

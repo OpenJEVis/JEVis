@@ -1,0 +1,12 @@
+{
+  "name": "Recycle Bin",
+  "description": "Recycle Bin where deleted Objects are stored until they are deleted forever",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Recycle Bin",
+      "end": "User",
+      "type": 3
+    }
+  ]
+}

@@ -165,7 +165,22 @@ public class EmailNotificationDriver implements NotificationDriver {
                 setTransportSecurity("STARTTLS");
                 logger.info(ex);
             }
-            setDefaultAuthenticator();
+
+            try {
+
+                String authString = String.valueOf(getAttribute(notiObj, AUTHENTICATOR));
+                /* As an fallback we use "NO" for no Authentication, and all non set as default */
+                if (authString.equalsIgnoreCase("NO")) {
+                    _authentication = null;
+                    logger.error("using no Authentication");
+                } else {
+                    logger.error("using default Authentication");
+                    setDefaultAuthenticator();
+                }
+            } catch (Exception ex) {
+                logger.info("error in Authenticator", ex);
+            }
+
 
         } else {
             logger.info(notiObj + "is not suitable for the Driver(Email)");
@@ -253,7 +268,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @param ts
      */
     public void setTransportSecurity(String ts) {
-        if (ts.equalsIgnoreCase("No")) {
+        if (ts.equalsIgnoreCase("<<No>>")) {
             _transportSecurity = TansportSecurity.NO;
         } else if (ts.equalsIgnoreCase("STARTTLS")) {
             _transportSecurity = TansportSecurity.STARTTLS;
@@ -273,25 +288,23 @@ public class EmailNotificationDriver implements NotificationDriver {
         Properties properties = System.getProperties();
         Session session = null;
         properties.setProperty(PROPERTY_SMTP_HOST, driver.getSMTPServer());
-
+        properties.setProperty(PROPERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
         properties.setProperty("mail.transport.protocol", "smtp");
 
         if (driver.getTransportSecurity().equals(TansportSecurity.NO)) {
-            Session.getInstance(properties, null);
+            //Session.getInstance(properties, null);
+
         } else if (driver.getTransportSecurity().equals(TansportSecurity.STARTTLS)) { //set the transport security as STARTTLS
-            properties.setProperty(PROPERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
-            properties.setProperty(PROPERTY_SMTP_AUTH, "true");// must set with true
             properties.put(PROPERTY_SMTP_STARTTLS, "true");
-            session = Session.getInstance(properties, this.getAuthenticator()); //get the Instance of Session
         } else if (driver.getTransportSecurity().equals(TansportSecurity.SSL)) {
             properties.put("mail.smtp.socketFactory.port", String.valueOf(driver.getPort())); //SSL Port
-            properties.put("mail.smtp.socketFactory.class",
-                    "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
-
-            properties.setProperty(PROPERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
-            properties.setProperty(PROPERTY_SMTP_AUTH, "true");// must set with true
+            properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
             properties.setProperty(PROPERTY_SMTP_SSL, "true"); //set the transport security as SSL
-            session = Session.getDefaultInstance(properties, this.getAuthenticator()); //get the Instance of Session
+        }
+
+        if (this.getAuthenticator() != null) {
+            properties.setProperty(PROPERTY_SMTP_AUTH, "true");// must set with true
+            session = Session.getInstance(properties, this.getAuthenticator()); //get the Instance of Session
         }
 
         return session;

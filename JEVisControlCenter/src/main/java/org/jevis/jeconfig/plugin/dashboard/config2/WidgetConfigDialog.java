@@ -6,6 +6,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
@@ -17,6 +19,7 @@ import org.jevis.jeconfig.tool.ScreenSize;
 
 public class WidgetConfigDialog extends Alert {
 
+    private static final Logger logger = LogManager.getLogger(WidgetConfigDialog.class);
     private final TabPane tabPane = new TabPane();
     private DataModelDataHandler dataModelDataHandler;
     //private WidgetTreePlugin widgetTreePlugin;
@@ -85,7 +88,7 @@ public class WidgetConfigDialog extends Alert {
 
             tab.setContent(TreeManager.getInstance().getTree());
             widgetTreePlugin.setUserSelection(dataModelDataHandler.getDateNode().getData());
-           
+
 
             addTab(tab);
         }
@@ -110,6 +113,7 @@ public class WidgetConfigDialog extends Alert {
                 ex.printStackTrace();
             }
         });
+        logger.debug("done wigetconfig commit for: {}", getTitle());
     }
 
     private class DataModelTab extends Tab implements ConfigTab {
@@ -124,6 +128,7 @@ public class WidgetConfigDialog extends Alert {
 
         @Override
         public void commitChanges() {
+            logger.debug("CommitChanges: {}", getTitle());
             dataModelDataHandler.setData(this.widgetTreePlugin.getUserSelection());
         }
     }

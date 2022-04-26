@@ -91,7 +91,8 @@ public class EMailManager {
         try {
             Message[] messages = folder.search(term);
             logger.debug("Found {} messages in folder corresponding to search term", messages.length);
-            messages = filterMessagesByDate(messages, chanParam.getLastReadout());
+            /* not needed because of SearchTerm */
+            //messages = filterMessagesByDate(messages, chanParam.getLastReadout());
             messageList = Arrays.asList(messages);
         } catch (MessagingException ex) {
             logger.error("Unable to search messages", ex);
@@ -174,6 +175,7 @@ public class EMailManager {
      * @return List of InputStream
      */
     private static List<InputStream> prepareAnswer(Message message, String filename) throws IOException, MessagingException {
+        logger.debug("prepareAnswer message: '{}', filename: {}", message.getSubject(), filename);
         Multipart multiPart = (Multipart) message.getContent();
         List<InputStream> input = new ArrayList<>();
         // For all multipart contents
@@ -183,7 +185,7 @@ public class EMailManager {
             String disp = part.getDisposition();
             String partName = part.getFileName();
 
-            logger.info("is Multipart");
+            //logger.info("is Multipart");
             // If multipart content is attachment
             if (!Part.ATTACHMENT.equalsIgnoreCase(disp)
                     && !StringUtils.isNotBlank(partName)) {
@@ -215,10 +217,12 @@ public class EMailManager {
                 }
             }
         } //for multipart check
+        logger.debug("prepareAnswer message done");
         return input;
     }
 
     private static Message[] filterMessagesByDate(Message[] messages, DateTime datetime) {
+        logger.debug("messages to filter: {}", messages.length);
         Date date = datetime.toDate();
         List<Message> msg = new ArrayList<>();
         for (Message message : messages) {
@@ -230,6 +234,7 @@ public class EMailManager {
                 logger.error("Failed to filter messages by date.", ex);
             }
         }
+        logger.debug("Messages after filter: {}", msg.size());
         int size = msg.size();
         logger.info("Messages after filtering by date: {}", size);
         Message[] msgArray = new Message[size];
@@ -251,40 +256,63 @@ public class EMailManager {
     }
 
     private static List<InputStream> getAnswerListFromAttach(List<Message> messages, String filename) {
-        List<InputStream> input = new ArrayList<>();
-
+        logger.debug("getAnswerListFromAttach: messages: {} file: {}" + messages.size(), filename);
+        List<InputStream> input = Collections.synchronizedList(new ArrayList<>());
+        Date start = new Date();
         if (messages != null) {
-            for (Message message : messages) {
+
+            messages.parallelStream().forEach(message -> {
                 try {
-                    logger.info("Content type: " + message.getContentType());
+                    logger.debug("Message: Subj: '{}' Date: {}", message.getSubject(), message.getReceivedDate());
+                    //logger.info("Content type: {}", message.getContentType());
 
                     if (message.isMimeType("multipart/*") && !message.isMimeType("multipart/encrypted")) {
-                        logger.info("Message content type {}", message.getContentType());
-                        //Message msg = (MimeMessage)message;
+                        logger.debug("Message content type {}", message.getContentType());
                         Object obj = message.getContent();
                         if (obj instanceof Multipart) {
                             input.addAll(prepareAnswer(message, filename));
-
-                        } //instanceof
-
+                        }
                     } else {
-                        logger.info("Mimetype of message is not a multipart/*");
-
+                        logger.debug("Mimetype of message is not a multipart/*: {}", message.getContentType());
                     }
-                } catch (MessagingException | IOException ex) {
+                } catch (Exception ex) {
+                    logger.error("Could not process the attachment!", ex);
+                }
+            });
+        /*
+            for (Message message : messages) {
+                try {
+                    logger.info("Message: Subj: '{}' Date: {}", message.getSubject(), message.getReceivedDate());
+                    //logger.info("Content type: {}", message.getContentType());
+
+                    if (message.isMimeType("multipart/*") && !message.isMimeType("multipart/encrypted")) {
+                        logger.info("Message content type {}", message.getContentType());
+                        Object obj = message.getContent();
+                        if (obj instanceof Multipart) {
+                            input.addAll(prepareAnswer(message, filename));
+                        }
+                    } else {
+                        logger.error("Mimetype of message is not a multipart/*: {}", message.getContentType());
+                    }
+                } catch (Exception ex) {
                     logger.error("Could not process the attachment!", ex);
                 }
             }
+            */
         }
+        Date end = new Date();
+        logger.debug("{}ms to read all Mails", (end.getTime() - start.getTime()));
+        logger.debug("getAnswerListFromAttach found inputs: {}", input.size());
+
         return input;
     }
 
     private static List<InputStream> getAnswerListFromBody(List<Message> messages) {
+        logger.debug("getAnswerListFromBody: {}", messages.size());
         List<InputStream> input = new ArrayList<>();
 
         if (messages != null) {
             for (Message message : messages) {
-
                 try {
                     logger.info("Content type: {}", message.getContentType());
 

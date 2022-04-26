@@ -150,7 +150,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
         selectionColumn.setPrefWidth(70);
         timeStampColumn.setPrefWidth(155);
-        noteColumn.setPrefWidth(200);
+        noteColumn.setPrefWidth(400);
         valueCol.setPrefWidth(310);
 
         getColumns().addAll(selectionColumn, timeStampColumn, valueCol, noteColumn);
@@ -451,8 +451,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     DateTime newDate = dateViewFormat.parseDateTime(textField.getText());
-
-
                                     List<JEVisSample> exitingSample = attribute.getSamples(newDate, newDate);
                                     if (!exitingSample.isEmpty()) {
                                         setErrorCellStyle(this, new Exception(I18n.getInstance().getString("sampleeditor.confirmationdialog.error.exists")));
@@ -467,6 +465,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             });
 
                             HBox box = new HBox(textField);
+                            HBox.setHgrow(textField, Priority.ALWAYS);
                             box.setFillHeight(true);
                             box.setAlignment(Pos.CENTER_LEFT);
                             setGraphic(box);
@@ -513,7 +512,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                 setDefaultCellStyle(this);
 
                                 HBox box = new HBox(checkBox);
-                                box.setAlignment(Pos.CENTER_LEFT);
+                                HBox.setHgrow(checkBox, Priority.ALWAYS);
+                                box.setAlignment(Pos.CENTER);
                                 setGraphic(box);
                             } catch (Exception ex) {
                                 logger.error(ex);
@@ -648,13 +648,12 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);
-                                    logger.error("Error in double text", ex, ex);
+                                    logger.error("Error in double text", ex);
                                 }
                             });
                             textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
                                 if (!newValue) {
                                     try {
-                                        System.out.println("focus lost");
                                         textField.setText(nf.format(tableSample.getValue()));
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -1173,6 +1172,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             });
 
                             HBox box = new HBox(textField);
+                            HBox.setHgrow(textField, Priority.ALWAYS);
                             box.setFillHeight(true);
                             box.setAlignment(Pos.CENTER_LEFT);
                             setGraphic(box);

@@ -8,14 +8,15 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.alarm.*;
 import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.constants.NoteConstants;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.json.JsonAlarm;
+import org.jevis.commons.json.JsonDeltaConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.json.JsonTools;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
@@ -86,7 +87,7 @@ public class AlarmProcess {
 
             boolean hasData = true;
             for (JEVisObject obj : allCleanDataObjects) {
-                CleanDataObject cleanDataObject = new CleanDataObject(obj, new ObjectHandler(ds));
+                CleanDataObject cleanDataObject = new CleanDataObject(obj);
                 boolean alarmEnabled = false;
                 JEVisAttribute alarmEnabledAttribute = cleanDataObject.getAlarmEnabledAttribute();
                 if (alarmEnabledAttribute != null) {
@@ -109,13 +110,7 @@ public class AlarmProcess {
             }
 
             if (hasData) {
-                List<Alarm> activeAlarms = new ArrayList<>();
-                try {
-                    activeAlarms = getActiveAlarms(allCleanDataObjects);
-
-                } catch (JEVisException e) {
-                    logger.error("Could not get list of all active alarms.");
-                }
+                List<Alarm> activeAlarms = getActiveAlarms(allCleanDataObjects);
 
                 if (!activeAlarms.isEmpty()) {
                     AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
@@ -265,184 +260,257 @@ public class AlarmProcess {
     }
 
 
-    private List<Alarm> getActiveAlarms(List<JEVisObject> allCleanDataObjects) throws JEVisException {
+    private List<Alarm> getActiveAlarms(List<JEVisObject> allCleanDataObjects) {
         List<Alarm> activeAlarms = new ArrayList<>();
 
         for (JEVisObject cleanData : allCleanDataObjects) {
+            try {
 
-            JEVisAttribute valueAtt = cleanData.getAttribute(VALUE_ATTRIBUTE);
-            JEVisAttribute alarmLogAttribute = cleanData.getAttribute(ALARM_LOG_ATTRIBUTE);
+                JEVisAttribute valueAtt = cleanData.getAttribute(VALUE_ATTRIBUTE);
+                JEVisAttribute alarmLogAttribute = cleanData.getAttribute(ALARM_LOG_ATTRIBUTE);
 
-            List<JEVisSample> valueSamples = valueAtt.getSamples(start, end);
+                List<JEVisSample> valueSamples = valueAtt.getSamples(start, end);
 
-            CleanDataObject cleanDataObject = new CleanDataObject(cleanData, new ObjectHandler(ds));
-            List<JsonLimitsConfig> cleanDataObjectLimitsConfig = cleanDataObject.getLimitsConfig();
-            double shouldBeValue1Min = 0d;
-            double shouldBeValue2Min = 0d;
-            double shouldBeValue1Max = 0d;
-            double shouldBeValue2Max = 0d;
-            for (JsonLimitsConfig jsonLimitsConfig : cleanDataObjectLimitsConfig) {
-                int index = cleanDataObjectLimitsConfig.indexOf(jsonLimitsConfig);
-                if (index == 0) {
-                    shouldBeValue1Min = Double.parseDouble(jsonLimitsConfig.getMin());
-                    shouldBeValue1Max = Double.parseDouble(jsonLimitsConfig.getMax());
-                } else if (index == 1) {
-                    shouldBeValue2Min = Double.parseDouble(jsonLimitsConfig.getMin());
-                    shouldBeValue2Max = Double.parseDouble(jsonLimitsConfig.getMax());
-                }
-            }
-
-            for (JEVisSample sample : valueSamples) {
-                String note = sample.getNote();
-
-                if (note.contains(NoteConstants.Limits.LIMIT_STEP1) && (note.contains(NoteConstants.Limits.LIMIT_DEFAULT)
-                        || note.contains(NoteConstants.Limits.LIMIT_STATIC) || note.contains(NoteConstants.Limits.LIMIT_AVERAGE)
-                        || note.contains(NoteConstants.Limits.LIMIT_MEDIAN) || note.contains(NoteConstants.Limits.LIMIT_INTERPOLATION)
-                        || note.contains(NoteConstants.Limits.LIMIT_MIN) || note.contains(NoteConstants.Limits.LIMIT_MAX))) {
-                    if (sample.getValueAsDouble() < shouldBeValue2Min) {
-                        activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue2Min, AlarmType.L2, 0));
-                    } else if (sample.getValueAsDouble() > shouldBeValue2Max) {
-                        activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue2Max, AlarmType.L2, 0));
-                    }
-                } else if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
-                    if (sample.getValueAsDouble() < shouldBeValue1Min) {
-                        activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue1Min, AlarmType.L1, 0));
-                    } else if (sample.getValueAsDouble() > shouldBeValue1Max) {
-                        activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue1Max, AlarmType.L1, 0));
+                CleanDataObject cleanDataObject = new CleanDataObject(cleanData);
+                List<JsonLimitsConfig> cleanDataObjectLimitsConfig = cleanDataObject.getLimitsConfig();
+                Double shouldBeValue1Min = null;
+                Double shouldBeValue2Min = null;
+                Double shouldBeValue1Max = null;
+                Double shouldBeValue2Max = null;
+                for (JsonLimitsConfig jsonLimitsConfig : cleanDataObjectLimitsConfig) {
+                    int index = cleanDataObjectLimitsConfig.indexOf(jsonLimitsConfig);
+                    if (index == 0) {
+                        try {
+                            shouldBeValue1Min = Double.parseDouble(jsonLimitsConfig.getMin());
+                            shouldBeValue1Max = Double.parseDouble(jsonLimitsConfig.getMax());
+                        } catch (Exception e) {
+                            logger.error("Could not parse limit step 1 configuration from object {}:{}", cleanData.getName(), cleanData.getID(), e);
+                        }
+                    } else if (index == 1) {
+                        try {
+                            shouldBeValue2Min = Double.parseDouble(jsonLimitsConfig.getMin());
+                            shouldBeValue2Max = Double.parseDouble(jsonLimitsConfig.getMax());
+                        } catch (Exception e) {
+                            logger.error("Could not parse limit step 2 configuration from object {}:{}", cleanData.getName(), cleanData.getID(), e);
+                        }
                     }
                 }
-            }
 
+                JsonDeltaConfig deltaConfig = cleanDataObject.getDeltaConfig();
+                Double deltaLevel1 = null;
+                Double deltaLevel2 = null;
+                try {
+                    deltaLevel1 = Double.parseDouble(deltaConfig.getMin());
+                } catch (Exception e) {
+                    logger.error("Could not parse delta step 1 setting from object {}:{}", cleanData.getName(), cleanData.getID(), e);
+                }
+                try {
+                    deltaLevel2 = Double.parseDouble(deltaConfig.getMax());
+                } catch (Exception e) {
+                    logger.error("Could not parse delta step 2 setting from object {}:{}", cleanData.getName(), cleanData.getID(), e);
+                }
 
-            CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(cleanData);
-            if (cleanDataAlarm.isValidAlarmConfiguration()) {
-                Double tolerance = cleanDataAlarm.getTolerance();
-                AlarmType alarmType = cleanDataAlarm.getAlarmType();
-                Double limit = null;
-                List<UsageSchedule> usageSchedules = cleanDataAlarm.getUsageSchedules();
-                List<JEVisSample> comparisonSamples;
-                Map<DateTime, JEVisSample> compareMap = new HashMap<>();
+                for (JEVisSample sample : valueSamples) {
+                    String note = sample.getNote();
 
-                boolean dynamicAlarm = alarmType.equals(AlarmType.DYNAMIC);
-
-                DateTime firstTimeStamp = end;
-                if (dynamicAlarm) {
-                    comparisonSamples = cleanDataAlarm.getSamples(start, end);
-                    for (JEVisSample sample : comparisonSamples) {
-                        if (sample.getTimestamp().isBefore(firstTimeStamp)) firstTimeStamp = sample.getTimestamp();
-                        compareMap.put(sample.getTimestamp(), sample);
+                    if (note.contains(NoteConstants.Limits.LIMIT_STEP1) && (note.contains(NoteConstants.Limits.LIMIT_DEFAULT)
+                            || note.contains(NoteConstants.Limits.LIMIT_STATIC) || note.contains(NoteConstants.Limits.LIMIT_AVERAGE)
+                            || note.contains(NoteConstants.Limits.LIMIT_MEDIAN) || note.contains(NoteConstants.Limits.LIMIT_INTERPOLATION)
+                            || note.contains(NoteConstants.Limits.LIMIT_MIN) || note.contains(NoteConstants.Limits.LIMIT_MAX))) {
+                        if (shouldBeValue2Min != null && sample.getValueAsDouble() < shouldBeValue2Min) {
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue2Min, AlarmType.L2, 0));
+                        } else if (shouldBeValue2Max != null && sample.getValueAsDouble() > shouldBeValue2Max) {
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue2Max, AlarmType.L2, 0));
+                        }
+                    } else if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
+                        if (shouldBeValue1Min != null && sample.getValueAsDouble() < shouldBeValue1Min) {
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue1Min, AlarmType.L1, 0));
+                        } else if (shouldBeValue1Max != null && sample.getValueAsDouble() > shouldBeValue1Max) {
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue1Max, AlarmType.L1, 0));
+                        }
                     }
-                } else limit = cleanDataAlarm.getLimit();
+
+                    if (note.contains(NoteConstants.Deltas.DELTA_STEP1) && (note.contains(NoteConstants.Deltas.DELTA_DEFAULT)
+                            || note.contains(NoteConstants.Deltas.DELTA_STATIC) || note.contains(NoteConstants.Deltas.DELTA_AVERAGE)
+                            || note.contains(NoteConstants.Deltas.DELTA_MEDIAN) || note.contains(NoteConstants.Deltas.DELTA_INTERPOLATION)
+                            || note.contains(NoteConstants.Deltas.DELTA_MIN) || note.contains(NoteConstants.Deltas.DELTA_MAX))) {
+                        if (deltaLevel2 != null) {
+                            try {
+                                String subtext = note.substring(note.lastIndexOf(NoteConstants.Deltas.DELTA_STEP1));
+                                subtext = subtext.replace(NoteConstants.Deltas.DELTA_STEP1 + ",(", "");
+                                subtext = subtext.replace(")", "");
+                                String dValueString = subtext.substring(0, subtext.indexOf(","));
+                                Double dValue = Double.parseDouble(dValueString);
+                                int length = subtext.length();
+                                String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
+                                Double deltaValue = Double.parseDouble(deltaValueString);
+
+                                activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D2, 0));
+                            } catch (Exception e) {
+                                logger.error("Could not parse delta step 2 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
+                            }
+
+                        }
+                    } else if (note.contains(NoteConstants.Deltas.DELTA_STEP1)) {
+                        if (deltaLevel1 != null) {
+                            try {
+                                String subtext = note.substring(note.lastIndexOf(NoteConstants.Deltas.DELTA_STEP1));
+                                subtext = subtext.replace(NoteConstants.Deltas.DELTA_STEP1 + ",(", "");
+                                subtext = subtext.replace(")", "");
+                                String dValueString = subtext.substring(0, subtext.indexOf(","));
+                                Double dValue = Double.parseDouble(dValueString);
+                                int length = subtext.length();
+                                String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
+                                Double deltaValue = Double.parseDouble(deltaValueString);
+
+                                activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D1, 0));
+                            } catch (Exception e) {
+                                logger.error("Could not parse delta step 1 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
+                            }
+                        }
+                    }
+                }
+
+                CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(cleanData);
+                if (cleanDataAlarm.isValidAlarmConfiguration()) {
+                    Double tolerance = cleanDataAlarm.getTolerance();
+                    AlarmType alarmType = cleanDataAlarm.getAlarmType();
+                    Double limit = null;
+                    List<UsageSchedule> usageSchedules = cleanDataAlarm.getUsageSchedules();
+                    List<JEVisSample> comparisonSamples;
+                    Map<DateTime, JEVisSample> compareMap = new HashMap<>();
+
+                    boolean dynamicAlarm = alarmType.equals(AlarmType.DYNAMIC);
+
+                    DateTime firstTimeStamp = end;
+                    if (dynamicAlarm) {
+                        comparisonSamples = cleanDataAlarm.getSamples(start, end);
+                        for (JEVisSample sample : comparisonSamples) {
+                            if (sample.getTimestamp().isBefore(firstTimeStamp)) firstTimeStamp = sample.getTimestamp();
+                            compareMap.put(sample.getTimestamp(), sample);
+                        }
+                    } else limit = cleanDataAlarm.getLimit();
 
 
-                if (!valueSamples.isEmpty()) {
-                    List<JEVisSample> alarmLogs = new ArrayList<>();
-                    for (JEVisSample valueSample : valueSamples) {
-                        DateTime ts = valueSample.getTimestamp();
-                        JEVisSample compareSample = null;
-                        Double value = valueSample.getValueAsDouble();
-                        AlarmType sampleAlarmType;
+                    if (!valueSamples.isEmpty()) {
+                        List<JEVisSample> alarmLogs = new ArrayList<>();
+                        for (JEVisSample valueSample : valueSamples) {
+                            DateTime ts = valueSample.getTimestamp();
+                            JEVisSample compareSample = null;
+                            Double value = valueSample.getValueAsDouble();
+                            AlarmType sampleAlarmType;
 
-                        Double diff = null;
-                        Double lowerValue = null;
-                        Double upperValue = null;
-                        if (dynamicAlarm) {
-                            compareSample = compareMap.get(ts);
-
-                            if (compareSample == null) {
-
-                                DateTime dt = ts.minusSeconds(1);
-                                while (compareSample == null && (dt.equals(firstTimeStamp) || dt.isAfter(firstTimeStamp))) {
-                                    compareSample = compareMap.get(dt);
-                                    dt = dt.minusSeconds(1);
-                                }
+                            Double diff = null;
+                            Double lowerValue = null;
+                            Double upperValue = null;
+                            if (dynamicAlarm) {
+                                compareSample = compareMap.get(ts);
 
                                 if (compareSample == null) {
-                                    logger.error("Could not find sample to compare with value: {}", ts);
-                                    continue;
+
+                                    DateTime dt = ts.minusSeconds(1);
+                                    while (compareSample == null && (dt.equals(firstTimeStamp) || dt.isAfter(firstTimeStamp))) {
+                                        compareSample = compareMap.get(dt);
+                                        dt = dt.minusSeconds(1);
+                                    }
+
+                                    if (compareSample == null) {
+                                        logger.error("Could not find sample to compare with value: {}", ts);
+                                        continue;
+                                    }
                                 }
+
+                                if (tolerance != 0d) {
+                                    diff = compareSample.getValueAsDouble() * (tolerance / 100);
+                                } else {
+                                    diff = 0d;
+                                }
+                                lowerValue = compareSample.getValueAsDouble() - diff;
+                                upperValue = compareSample.getValueAsDouble() + diff;
+                                sampleAlarmType = AlarmType.DYNAMIC;
+                            } else {
+                                if (tolerance != 0d) {
+                                    diff = limit * (tolerance / 100);
+                                } else {
+                                    diff = 0d;
+                                }
+                                lowerValue = limit - diff;
+                                upperValue = limit + diff;
+                                sampleAlarmType = AlarmType.STATIC;
                             }
 
-                            if (tolerance != 0d) {
-                                diff = compareSample.getValueAsDouble() * (tolerance / 100);
-                            } else {
-                                diff = 0d;
+                            boolean isAlarm = false;
+                            boolean upper = true;
+                            String operator = "";
+                            switch (cleanDataAlarm.getOperator()) {
+                                case BIGGER:
+                                    if (value > upperValue) {
+                                        isAlarm = true;
+                                        operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.BIGGER);
+                                    }
+                                    break;
+                                case BIGGER_EQUALS:
+                                    if (value >= upperValue) {
+                                        isAlarm = true;
+                                        operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.BIGGER_EQUALS);
+                                    }
+                                    break;
+                                case EQUALS:
+                                    if (value.equals(upperValue)) {
+                                        isAlarm = true;
+                                        operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.EQUALS);
+                                    }
+                                    break;
+                                case NOT_EQUALS:
+                                    if (!value.equals(upperValue)) {
+                                        isAlarm = true;
+                                        operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.NOT_EQUALS);
+                                    }
+                                    break;
+                                case SMALLER:
+                                    if (value < lowerValue) {
+                                        isAlarm = true;
+                                        operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.SMALLER);
+                                    }
+                                    upper = false;
+                                    break;
+                                case SMALLER_EQUALS:
+                                    if (value <= lowerValue) {
+                                        isAlarm = true;
+                                        operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.SMALLER_EQUALS);
+                                    }
+                                    upper = false;
+                                    break;
                             }
-                            lowerValue = compareSample.getValueAsDouble() - diff;
-                            upperValue = compareSample.getValueAsDouble() + diff;
-                            sampleAlarmType = AlarmType.DYNAMIC;
-                        } else {
-                            if (tolerance != 0d) {
-                                diff = limit * (tolerance / 100);
-                            } else {
-                                diff = 0d;
+
+                            if (isAlarm) {
+                                int logVal = 0;
+
+                                logVal = ScheduleService.getValueForLog(ts, usageSchedules);
+                                if (logVal != 4) {
+                                    JEVisSample alarmSample = new VirtualSample(ts, (long) logVal);
+                                    alarmLogs.add(alarmSample);
+
+                                    if (upper) {
+                                        activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, operator, upperValue, sampleAlarmType, logVal));
+                                    } else {
+                                        activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, operator, lowerValue, sampleAlarmType, logVal));
+                                    }
+                                }
                             }
-                            lowerValue = limit - diff;
-                            upperValue = limit + diff;
-                            sampleAlarmType = AlarmType.STATIC;
                         }
 
-                        boolean isAlarm = false;
-                        boolean upper = true;
-                        String operator = "";
-                        switch (cleanDataAlarm.getOperator()) {
-                            case BIGGER:
-                                if (value > upperValue) {
-                                    isAlarm = true;
-                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.BIGGER);
-                                }
-                                break;
-                            case BIGGER_EQUALS:
-                                if (value >= upperValue) {
-                                    isAlarm = true;
-                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.BIGGER_EQUALS);
-                                }
-                                break;
-                            case EQUALS:
-                                if (value.equals(upperValue)) {
-                                    isAlarm = true;
-                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.EQUALS);
-                                }
-                                break;
-                            case NOT_EQUALS:
-                                if (!value.equals(upperValue)) {
-                                    isAlarm = true;
-                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.NOT_EQUALS);
-                                }
-                                break;
-                            case SMALLER:
-                                if (value < lowerValue) {
-                                    isAlarm = true;
-                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.SMALLER);
-                                }
-                                upper = false;
-                                break;
-                            case SMALLER_EQUALS:
-                                if (value <= lowerValue) {
-                                    isAlarm = true;
-                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.SMALLER_EQUALS);
-                                }
-                                upper = false;
-                                break;
-                        }
-
-                        if (isAlarm) {
-                            int logVal = 0;
-
-                            logVal = ScheduleService.getValueForLog(ts, usageSchedules);
-                            JEVisSample alarmSample = new VirtualSample(ts, (long) logVal);
-                            alarmLogs.add(alarmSample);
-
-                            if (upper) {
-                                activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, operator, upperValue, sampleAlarmType, logVal));
-                            } else {
-                                activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, operator, lowerValue, sampleAlarmType, logVal));
-                            }
-                        }
+                        alarmLogAttribute.addSamples(alarmLogs);
                     }
-
-                    alarmLogAttribute.addSamples(alarmLogs);
                 }
+            } catch (Exception e) {
+                String parentName = "";
+                try {
+                    parentName = CommonMethods.getFirstParentalDataObject(cleanData).getName();
+                } catch (Exception ex) {
+                    logger.error("Could not get parental data object of object {}:{}", cleanData.getName(), cleanData.getID(), ex);
+                }
+                logger.error("Error while creating alarm for {} / {}:{}", parentName, cleanData.getName(), cleanData.getID(), e);
             }
         }
 

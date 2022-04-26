@@ -19,6 +19,8 @@ public class Percent {
     private static final Logger logger = LogManager.getLogger(Percent.class);
     final DashboardControl dashboardControl;
     int percentWidget = -1;
+    private int minFracDigits = 0;
+    private int maxFracDigits = 0;
 
     public Percent(DashboardControl control) {
         this(control, null);
@@ -29,6 +31,11 @@ public class Percent {
 
         if (jsonNode != null) {
             percentWidget = jsonNode.get("source").asInt(-1);
+            try {
+                minFracDigits = jsonNode.get("minFracDigits").asInt(0);
+                maxFracDigits = jsonNode.get("maxFracDigits").asInt(0);
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -71,9 +78,27 @@ public class Percent {
         this.percentWidget = limitWidget;
     }
 
+    public int getMinFracDigits() {
+        return minFracDigits;
+    }
+
+    public void setMinFracDigits(int minFracDigits) {
+        this.minFracDigits = minFracDigits;
+    }
+
+    public int getMaxFracDigits() {
+        return maxFracDigits;
+    }
+
+    public void setMaxFracDigits(int maxFracDigits) {
+        this.maxFracDigits = maxFracDigits;
+    }
+
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
         dataNode.put("source", percentWidget);
+        dataNode.put("minFracDigits", minFracDigits);
+        dataNode.put("maxFracDigits", maxFracDigits);
 
         return dataNode;
     }
@@ -82,6 +107,8 @@ public class Percent {
     public String toString() {
         return "Percent{" +
                 "percentWidget=" + percentWidget +
+                "; minFracDigits=" + minFracDigits +
+                "; maxFracDigits=" + maxFracDigits +
                 '}';
     }
 

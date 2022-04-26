@@ -5,10 +5,12 @@ import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.event.EventTarget;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -17,7 +19,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.constants.EnterDataTypes;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
@@ -78,16 +79,18 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     private final JFXButton treeButton = new JFXButton(I18n
             .getInstance().getString("plugin.object.attribute.target.button"),
             JEConfig.getImage("folders_explorer.png", 18, 18));
+    private final Label targetLabel = new Label();
     private final YearBox yearBox = new YearBox();
     private final DayBox dayBox = new DayBox();
     private final MonthBox monthBox = new MonthBox();
     private final Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
     private final JFXDatePicker datePicker = new JFXDatePicker(LocalDate.now());
     private final JFXTimePicker timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
-    private Object window;
     private boolean selectable = true;
     private DateTime lastTS;
     private List<JEVisSample> conversionDifferential;
+    private final GridPane gridPane = new GridPane();
+    private boolean showDetailedTarget = true;
 
     public EnterDataDialog(StackPane dialogContainer, JEVisDataSource dataSource) {
         super();
@@ -104,7 +107,6 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
     public void init() {
         GridPane gridPane = buildForm();
-        this.window = this;
 
         this.timePicker.set24HourView(true);
         this.timePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -161,12 +163,26 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
             selectTargetDialog.show();
         });
 
+        final JFXButton showMore = new JFXButton(I18n.getInstance().getString("plugin.object.dialog.data.history"));
+        showMore.setOnAction(actionEvent -> {
+            JEVisAttribute value = null;
+            try {
+                value = selectedObject.getAttribute("Value");
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+            if (value != null) {
+                DataDialog dataDialog = new DataDialog(dialogContainer, value);
+                dataDialog.show();
+            }
+        });
+
         final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
         ok.setDefaultButton(true);
         final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
         cancel.setCancelButton(true);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
+        HBox buttonBar = new HBox(6, showMore, cancel, ok);
         buttonBar.setAlignment(Pos.CENTER_RIGHT);
         buttonBar.setPadding(new Insets(12));
 
@@ -194,7 +210,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                                 valueAttribute = selectedObject.getAttribute("Value");
                                 for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
                                     diffAttribute = jeVisObject.getAttribute("Conversion to Differential");
-                                    CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject, new ObjectHandler(ds));
+                                    CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject);
                                     if (cleanDataObject.getLimitsConfig().size() > 0) {
                                         limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
                                     }
@@ -393,11 +409,34 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
         this.selectedObject = target.getObject();
 
         Platform.runLater(() -> {
+            removeNode(0, 0, gridPane);
+            removeNode(1, 0, gridPane);
+            removeNode(0, 1, gridPane);
 
-            treeButton.setText(selectedObject.getName());
-            searchIdField.setText(selectedObject.getID().toString());
+            if (showDetailedTarget) {
+                treeButton.setText(selectedObject.getName());
+                searchIdField.setText(selectedObject.getID().toString());
+
+                gridPane.add(idLabel, 0, 0, 1, 1);
+                gridPane.add(treeButton, 1, 0, 2, 1);
+                gridPane.add(searchIdField, 0, 1, 3, 1);
+            } else {
+                targetLabel.setText(selectedObject.getName());
+                gridPane.add(targetLabel, 0, 0, 3, 1);
+            }
+
             loadLastValue();
         });
+    }
+
+    private void removeNode(final int row, final int column, GridPane gridPane) {
+        ObservableList<Node> children = gridPane.getChildren();
+        for (Node node : children) {
+            if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column) {
+                gridPane.getChildren().remove(node);
+                break;
+            }
+        }
     }
 
     public void setShowValuePrompt(boolean showValuePrompt) {
@@ -406,7 +445,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
 
     private GridPane buildForm() {
-        GridPane gridPane = new GridPane();
+        gridPane.getChildren().clear();
 
         try {
             if (initSample != null && showValuePrompt) {
@@ -472,6 +511,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
         gridPane.add(searchIdField, 0, row, 3, 1);
         row++;
+
 
         gridPane.add(messageLabel, 0, row, 3, 1);
         row++;
@@ -636,7 +676,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                             Period p = null;
                             if (!selectedObject.getChildren().isEmpty()) {
                                 JEVisObject cleanDataObject = selectedObject.getChildren(cleanDataClass, true).get(0);
-                                CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(ds));
+                                CleanDataObject cdo = new CleanDataObject(cleanDataObject);
                                 isConversionToDifferential.set(CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), lastTS));
                                 p = CleanDataObject.getPeriodForDate(cdo.getCleanDataPeriodAlignment(), lastTS);
                             } else {
@@ -662,5 +702,13 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                     logger.error("Could not get last sample.", e);
                 }
         }
+    }
+
+    public boolean isShowDetailedTarget() {
+        return showDetailedTarget;
+    }
+
+    public void setShowDetailedTarget(boolean showDetailedTarget) {
+        this.showDetailedTarget = showDetailedTarget;
     }
 }

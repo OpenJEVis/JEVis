@@ -25,120 +25,12 @@
   ],
   "types": [
     {
-      "name": "Location",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Measuring Point ID",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 1,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Measuring Point Name",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 2,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Serial Number",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 3,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Type",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 4,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Datasheet",
-      "primitiveType": 3,
-      "guiType": "File Selector",
-      "guiposition": 5,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Accuracy",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 6,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
       "name": "Diameter",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 7,
+      "guiposition": 99,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Conversion Factor",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 8,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Installation Date",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "guiposition": 9,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Verification Date",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "guiposition": 10,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Online ID",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "guiposition": 11,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Nitrogen Measurement Instrument"
-    },
-    {
-      "name": "Remarks",
-      "primitiveType": 0,
-      "guiType": "Text Area",
-      "guiposition": 12,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Nitrogen Measurement Instrument"
     }
   ]

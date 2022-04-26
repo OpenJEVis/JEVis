@@ -84,6 +84,40 @@
       }
     },
     {
+      "type": "Delta Enabled",
+      "descriptions": {
+        "de": "Aktiviert/Deaktiviert die Begrenzung der Datenreihe auf Änderungsschwellen, definiert in der Konfiguration",
+        "ru": "Активирует / деактивирует ограничение серии данных на изменение пороговых значений, определенных в конфигурации.",
+        "uk": "Активує/деактивує обмеження ряду даних для зміни порогових значень, визначених у конфігурації",
+        "th": "เปิดใช้งาน/ปิดใช้งานข้อจำกัดของชุดข้อมูลเพื่อเปลี่ยนขีดจำกัดที่กำหนดไว้ในการกำหนดค่า",
+        "en": "Enables / disables the limitation of the data series to change thresholds, defined in the configuration"
+      },
+      "names": {
+        "de": "Änderungsschwellen aktiv",
+        "ru": "Изменить пороги активны",
+        "uk": "Змінити пороги активні",
+        "th": "เปลี่ยนเกณฑ์ที่ใช้งาน",
+        "en": "Change thresholds Enabled"
+      }
+    },
+    {
+      "type": "Delta Config",
+      "descriptions": {
+        "de": "Einstellmöglichkeiten für Methode zur Ersatzwertbildung bei Über-/Unterschreitung der Änderungsschwellen",
+        "ru": "Параметры настройки метода генерации замещающих значений при превышении или недостижении пороговых значений изменения",
+        "uk": "Налаштування параметрів методу генерування замінних значень при перевищенні або недосягненні порогових значень зміни",
+        "th": "การตั้งค่าตัวเลือกสำหรับวิธีการสร้างค่าทดแทนเมื่อเกินเกณฑ์การเปลี่ยนแปลงหรือไม่ถึง",
+        "en": "Setting options for the method for generating substitute values when the change thresholds are exceeded or not reached"
+      },
+      "names": {
+        "de": "Änderungsschwellen",
+        "ru": "Изменить пороги",
+        "uk": "Змінити пороги",
+        "th": "เปลี่ยนเกณฑ์",
+        "en": "Change thresholds"
+      }
+    },
+    {
       "type": "GapFilling Enabled",
       "descriptions": {
         "de": "Aktiviert/Deaktiviert die Ersatzwertbildung bei Lücken der Datenreihe, definiert in der Konfiguration",

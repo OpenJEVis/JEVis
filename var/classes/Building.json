@@ -105,6 +105,15 @@
       "jevisClass": "Building"
     },
     {
+      "name": "Timezone",
+      "primitiveType": 0,
+      "guiType": "Time Zone",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building"
+    },
+    {
       "name": "Holidays",
       "primitiveType": 0,
       "guiType": "Calendar",

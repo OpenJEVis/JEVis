@@ -19,6 +19,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.datetime.PeriodArithmetic;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.json.JsonDeltaConfig;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.task.LogTaskManager;
@@ -44,7 +45,7 @@ public class CleanDataObject {
     private static final Logger logger = LogManager.getLogger(CleanDataObject.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JEVisObject cleanObject;
-    private final JEVisObject rawDataObject;
+    private JEVisObject rawDataObject;
     //attributes
     private List<PeriodRule> periodCleanData;
     private List<PeriodRule> periodRawData;
@@ -64,8 +65,10 @@ public class CleanDataObject {
     private final SampleHandler sampleHandler;
 
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
+    private JsonDeltaConfig jsonDeltaConfig;
 
     private Boolean limitsEnabled;
+    private Boolean deltaEnabled;
     private Boolean gapFillingEnabled;
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private List<JEVisSample> counterOverflow;
@@ -81,6 +84,8 @@ public class CleanDataObject {
     private JEVisAttribute limitsConfigurationAttribute;
     private JEVisAttribute gapFillingEnabledAttribute;
     private JEVisAttribute gapFillingConfigAttribute;
+    private JEVisAttribute deltaEnabledAttribute;
+    private JEVisAttribute deltaConfigurationAttribute;
     private JEVisAttribute alarmEnabledAttribute;
     private JEVisAttribute alarmConfigAttribute;
     private JEVisAttribute alarmLogAttribute;
@@ -94,15 +99,27 @@ public class CleanDataObject {
     private DateTime lastRawDate;
     private int processingSize = 10000;
 
-    public CleanDataObject(JEVisObject calcObject, ObjectHandler objectHandler) {
-        cleanObject = calcObject;
-        rawDataObject = objectHandler.getFirstParent(calcObject);
+    public CleanDataObject(JEVisObject cleanObject) {
+        this.cleanObject = cleanObject;
+        try {
+            ObjectHandler objectHandler = new ObjectHandler(cleanObject.getDataSource());
+            rawDataObject = objectHandler.getFirstParent(cleanObject);
+        } catch (Exception e) {
+            logger.error("Could not initialize Object Handler", e);
+        }
+
+        sampleHandler = new SampleHandler();
+    }
+
+    public CleanDataObject(JEVisObject cleanObject, ObjectHandler objectHandler) {
+        this.cleanObject = cleanObject;
+        rawDataObject = objectHandler.getFirstParent(cleanObject);
         sampleHandler = new SampleHandler();
 
         try {
-            calcObject.getDataSource().reloadAttribute(rawDataObject);
-        } catch (JEVisException e) {
-            logger.error("Could not reload input data object for object {}:{}", calcObject.getName(), calcObject.getID(), e);
+            cleanObject.getDataSource().reloadAttribute(rawDataObject);
+        } catch (Exception e) {
+            logger.error("Could not reload input data object for object {}:{}", cleanObject.getName(), cleanObject.getID(), e);
         }
     }
 
@@ -143,12 +160,6 @@ public class CleanDataObject {
      * Check if the configuration is valid. Returns false if configuration is not valid.
      */
     public boolean checkConfig() {
-
-        try {
-            reloadAttributes();
-        } catch (JEVisException e) {
-            logger.error("Could not reload attributes. ", e);
-        }
 
         List<String> errors = new ArrayList<>();
         if (getLimitsEnabled() && getLimitsConfig().isEmpty()) {
@@ -217,6 +228,7 @@ public class CleanDataObject {
                 stringBuilder.append(s);
             });
             LogTaskManager.getInstance().getTask(getCleanObject().getID()).setException(new Exception(stringBuilder.toString()));
+            logger.info("Job of {}:{} stopped. Error: {}", getCleanObject().getName(), getCleanObject().getID(), errors.toString());
 
             return false;
         }
@@ -242,6 +254,12 @@ public class CleanDataObject {
         }
         if (gapFillingConfigAttribute == null) {
             gapFillingConfigAttribute = getCleanObject().getAttribute(GAP_FILLING_CONFIG.getAttributeName());
+        }
+        if (deltaEnabledAttribute == null) {
+            deltaEnabledAttribute = getCleanObject().getAttribute(DELTA_ENABLED.getAttributeName());
+        }
+        if (deltaConfigurationAttribute == null) {
+            deltaConfigurationAttribute = getCleanObject().getAttribute(DELTA_CONFIGURATION.getAttributeName());
         }
         if (alarmEnabledAttribute == null) {
             alarmEnabledAttribute = getCleanObject().getAttribute(ALARM_ENABLED.getAttributeName());
@@ -311,6 +329,21 @@ public class CleanDataObject {
         return Period.ZERO;
     }
 
+    public static DateTime getDateForPeriodForDate(List<PeriodRule> periodRules, DateTime dateTime) {
+        for (PeriodRule periodRule : periodRules) {
+            PeriodRule nextRule = null;
+            if (periodRules.size() > periodRules.indexOf(periodRule) + 1) {
+                nextRule = periodRules.get(periodRules.indexOf(periodRule) + 1);
+            }
+
+            DateTime ts = periodRule.getStartOfPeriod();
+            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
+                return periodRule.getStartOfPeriod();
+            }
+        }
+        return new DateTime(1990, 1, 1, 0, 0, 0, 0);
+    }
+
     public Boolean getEnabled() {
         if (enabled == null)
             enabled = sampleHandler.getLastSample(getCleanObject(), ENABLED.getAttributeName(), false);
@@ -376,10 +409,10 @@ public class CleanDataObject {
             JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
             if (object != null && object.getJEVisClass().equals(dataClass)) {
                 JEVisObject cleanDataObject = CommonMethods.getFirstCleanObject(object);
-                CleanDataObject cdo = new CleanDataObject(cleanDataObject, new ObjectHandler(object.getDataSource()));
+                CleanDataObject cdo = new CleanDataObject(cleanDataObject);
                 isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
             } else if (object != null && object.getJEVisClass().equals(cleanDataClass)) {
-                CleanDataObject cdo = new CleanDataObject(object, new ObjectHandler(object.getDataSource()));
+                CleanDataObject cdo = new CleanDataObject(object);
                 isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
             }
         } catch (Exception e) {
@@ -416,6 +449,14 @@ public class CleanDataObject {
         if (gapFillingConfigAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(gapFillingConfigAttribute);
             jsonGapFillingConfig = null;
+        }
+        if (deltaEnabledAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(deltaEnabledAttribute);
+            deltaEnabled = null;
+        }
+        if (deltaConfigurationAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(deltaConfigurationAttribute);
+            jsonDeltaConfig = null;
         }
         if (alarmEnabledAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(alarmEnabledAttribute);
@@ -551,6 +592,12 @@ public class CleanDataObject {
         return gapFillingEnabled;
     }
 
+    public Boolean getDeltaEnabled() {
+        if (deltaEnabled == null)
+            deltaEnabled = sampleHandler.getLastSample(getCleanObject(), DELTA_ENABLED.getAttributeName(), false);
+        return deltaEnabled;
+    }
+
     public JEVisObject getCleanObject() {
         return cleanObject;
     }
@@ -572,7 +619,7 @@ public class CleanDataObject {
             JEVisAttribute attribute = null;
             try {
                 attribute = getCleanObject().getAttribute(VALUE_ATTRIBUTE_NAME);
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get attribute {} of object {}:{}", VALUE_ATTRIBUTE_NAME, getCleanObject().getName(), getCleanObject().getID());
             }
             if (attribute != null) {
@@ -580,7 +627,7 @@ public class CleanDataObject {
                 if (lastSample != null) {
                     try {
                         timestampFromLastCleanSample = lastSample.getTimestamp();
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         logger.error("Could not get last sample of attribute {} of object {}:{}", attribute.getName(), getCleanObject().getName(), getCleanObject().getID());
                     }
                 }
@@ -661,6 +708,9 @@ public class CleanDataObject {
                 } catch (IOException e) {
                     logger.error("Could not parse gapFillingConfig because of IOException: {}", limitsConfiguration, e);
                     return new ArrayList<>();
+                } catch (Exception e) {
+                    logger.error("Could not parse gapFillingConfig because of Exception: {}", limitsConfiguration, e);
+                    return new ArrayList<>();
                 }
             } else {
                 return new ArrayList<>();
@@ -668,6 +718,33 @@ public class CleanDataObject {
 
         }
         return jsonLimitsConfig;
+    }
+
+    public JsonDeltaConfig getDeltaConfig() {
+        if (jsonDeltaConfig == null) {
+            String deltaConfiguration = sampleHandler.getLastSample(getCleanObject(), DELTA_CONFIGURATION.getAttributeName(), "");
+            if (deltaConfiguration != null && !deltaConfiguration.equals("")) {
+                try {
+                    jsonDeltaConfig = objectMapper.readValue(deltaConfiguration, JsonDeltaConfig.class);
+                } catch (JsonParseException e) {
+                    logger.error("Could not parse gapFillingConfig because of JsonParseException: {}", deltaConfiguration, e);
+                    return null;
+                } catch (JsonMappingException e) {
+                    logger.error("Could not parse gapFillingConfig because of JsonMappingException: {}", deltaConfiguration, e);
+                    return null;
+                } catch (IOException e) {
+                    logger.error("Could not parse gapFillingConfig because of IOException: {}", deltaConfiguration, e);
+                    return null;
+                } catch (Exception e) {
+                    logger.error("Could not parse gapFillingConfig because of Exception: {}", deltaConfiguration, e);
+                    return null;
+                }
+            } else {
+                return null;
+            }
+
+        }
+        return jsonDeltaConfig;
     }
 
     public List<DifferentialRule> getDifferentialRules() {
@@ -705,7 +782,7 @@ public class CleanDataObject {
                     lastDate = this.rawSamplesDown.get(indexLastRawSample).getTimestamp().plus(lastPeriod);
                 }
                 //lastDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(getCleanDataPeriodAlignment());
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get timestamp of last Raw sample.");
             }
         }
@@ -726,7 +803,8 @@ public class CleanDataObject {
                     }
                 }
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
+            logger.error("Could not get notes map for {}:{}", cleanObject.getName(), cleanObject.getID(), e);
         }
         return notesMap;
     }
@@ -750,7 +828,8 @@ public class CleanDataObject {
                     }
                 }
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
+            logger.error("Could not get user data map for {}:{}", cleanObject.getName(), cleanObject.getID(), e);
         }
         return userDataMap;
     }
@@ -758,8 +837,9 @@ public class CleanDataObject {
     public List<JEVisSample> getMultiplier() {
         if (multiplier == null) {
             multiplier = sampleHandler.getAllSamples(getCleanObject(), MULTIPLIER.getAttributeName());
-            if (multiplier.isEmpty())
+            if (multiplier.isEmpty()) {
                 multiplier.add(new VirtualSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), 1.0));
+            }
         }
         return multiplier;
     }
@@ -837,6 +917,14 @@ public class CleanDataObject {
         return gapFillingConfigAttribute;
     }
 
+    public JEVisAttribute getDeltaEnabledAttribute() {
+        return deltaEnabledAttribute;
+    }
+
+    public JEVisAttribute getDeltaConfigurationAttribute() {
+        return deltaConfigurationAttribute;
+    }
+
     public JEVisAttribute getAlarmEnabledAttribute() {
         return alarmEnabledAttribute;
     }
@@ -885,41 +973,12 @@ public class CleanDataObject {
         return processingSize;
     }
 
-    public enum AttributeName {
-
-        PERIOD_OFFSET("Period Offset"),
-        PERIOD_ALIGNMENT("Period Alignment"),
-        VALUE_QUANTITY("Value is a Quantity"),
-        CONVERSION_DIFFERENTIAL("Conversion to Differential"),
-        MULTIPLIER("Value Multiplier"),
-        COUNTEROVERFLOW("Counter Overflow"),
-        OFFSET("Value Offset"),
-        VALUE("Value"),
-        PERIOD("Period"),
-        GAP_FILLING("Gap Filling"),
-        ENABLED("Enabled"),
-        GAP_FILLING_CONFIG("Gap Filling Config"),
-        LIMITS_ENABLED("Limits Enabled"),
-        GAPFILLING_ENABLED("GapFilling Enabled"),
-        LIMITS_CONFIGURATION("Limits Configuration"),
-        ALARM_ENABLED("Alarm Enabled"),
-        ALARM_CONFIG("Alarm Config"),
-        ALARM_LOG("Alarm Log");
-
-        private final String attributeName;
-
-        AttributeName(String attributeName) {
-            this.attributeName = attributeName;
-        }
-
-        public String getAttributeName() {
-            return attributeName;
-        }
-    }
-
     public List<JEVisSample> getRawSamplesDown() {
         if (rawSamplesDown == null) {
-            Period maxPeriod = getMaxPeriod(getCleanDataPeriodAlignment());
+            List<PeriodRule> periods = new ArrayList<>();
+            periods.addAll(getCleanDataPeriodAlignment());
+            periods.addAll(getRawDataPeriodAlignment());
+            Period maxPeriod = getMaxPeriod(periods);
             DateTime firstDate = getFirstDate()
                     .minus(maxPeriod)
                     .minus(maxPeriod)
@@ -975,6 +1034,40 @@ public class CleanDataObject {
                     lastDate);
         }
         return rawSamplesDown;
+    }
+
+    public enum AttributeName {
+
+        PERIOD_OFFSET("Period Offset"),
+        PERIOD_ALIGNMENT("Period Alignment"),
+        VALUE_QUANTITY("Value is a Quantity"),
+        CONVERSION_DIFFERENTIAL("Conversion to Differential"),
+        MULTIPLIER("Value Multiplier"),
+        COUNTEROVERFLOW("Counter Overflow"),
+        OFFSET("Value Offset"),
+        VALUE("Value"),
+        PERIOD("Period"),
+        GAP_FILLING("Gap Filling"),
+        ENABLED("Enabled"),
+        GAPFILLING_ENABLED("GapFilling Enabled"),
+        GAP_FILLING_CONFIG("Gap Filling Config"),
+        LIMITS_ENABLED("Limits Enabled"),
+        LIMITS_CONFIGURATION("Limits Configuration"),
+        DELTA_ENABLED("Delta Enabled"),
+        DELTA_CONFIGURATION("Delta Config"),
+        ALARM_ENABLED("Alarm Enabled"),
+        ALARM_CONFIG("Alarm Config"),
+        ALARM_LOG("Alarm Log");
+
+        private final String attributeName;
+
+        AttributeName(String attributeName) {
+            this.attributeName = attributeName;
+        }
+
+        public String getAttributeName() {
+            return attributeName;
+        }
     }
 
     public DateTime getLastRawDate() {

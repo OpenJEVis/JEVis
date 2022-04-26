@@ -7,7 +7,6 @@ package org.jevis.rest;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +22,7 @@ import javax.ws.rs.ext.Provider;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
  * @author fs
@@ -111,8 +111,8 @@ public class RLF implements ContainerRequestFilter, ContainerResponseFilter {
 
         try {
             auth = auth.replaceFirst("[Bb]asic ", "");
-            byte[] decoded = Base64.decodeBase64(auth);
-
+            //byte[] decoded = Base64.decodeBase64(auth);
+            byte[] decoded = Base64.getDecoder().decode(auth);
             String decodeS = (new String(decoded, StandardCharsets.UTF_8));
             String[] dauth = decodeS.split(":");
 

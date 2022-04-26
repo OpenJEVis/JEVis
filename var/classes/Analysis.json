@@ -54,6 +54,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Analysis"
+    },
+    {
+      "name": "Analysis File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "User"
     }
   ]
 }

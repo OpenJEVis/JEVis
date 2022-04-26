@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class CalculationNameFormatter {
 
-    public final static String[] expressions = new String[]{"(", ")", "+", "-", "*", "/", "%", "=", "!", "<", ">", "&", "|", " ", ",", ".", ";", ":"};
+    public final static String[] expressions = new String[]{"(", ")", "+", "-", "*", "/", "%", "=", "!", "<", ">", "&", "|", " ", ",", ".", ";", ":", "'"};
     public final static String replacement = "_";
 
 
@@ -22,7 +22,6 @@ public class CalculationNameFormatter {
     public static String formatInputVariable(String name) {
         for (String exp : expressions) {
             name = name.replaceAll(Pattern.quote(exp), replacement);
-
         }
         name = replaceUmlaut(name);
         name = removeDuplicatedReplacements(name);

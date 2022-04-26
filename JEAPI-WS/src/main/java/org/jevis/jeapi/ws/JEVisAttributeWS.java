@@ -275,6 +275,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
         } catch (Exception nex) {
             return null;
         }
+        
     }
 
     @Override

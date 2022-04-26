@@ -40,6 +40,7 @@ public class GUIConstants {
     public static DisplayType SCHEDULE = new DisplayType("Schedule", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType TIME_ZONE = new DisplayType("Time Zone", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType GAP_FILLING_CONFIG = new DisplayType("Gap Filling Config", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType DELTA_CONFIG = new DisplayType("Delta Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LIMITS_CONFIG = new DisplayType("Limits Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType ALARM_CONFIG = new DisplayType("Alarm Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType CALENDAR = new DisplayType("Calendar", JEVisConstants.PrimitiveType.STRING);
@@ -73,6 +74,7 @@ public class GUIConstants {
             add(LOCALE);
             add(GAP_FILLING_CONFIG);
             add(LIMITS_CONFIG);
+            add(DELTA_CONFIG);
             add(ALARM_CONFIG);
             add(CALENDAR);
             add(WEB_VIEW);

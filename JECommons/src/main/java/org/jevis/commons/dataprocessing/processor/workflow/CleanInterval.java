@@ -93,4 +93,14 @@ public class CleanInterval {
     public void setCompare(Integer compare) {
         this.compare = compare;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof CleanInterval) {
+            CleanInterval cleanInterval = (CleanInterval) obj;
+            return this.getDate().equals(cleanInterval.getDate());
+        }
+
+        return false;
+    }
 }

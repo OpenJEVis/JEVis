@@ -27,6 +27,7 @@ public class DateHelper {
     private CustomPeriodObject customPeriodObject;
     private DateTime minStartDateTime;
     private DateTime maxEndDateTime;
+    private WorkDays workDays;
 
     public DateHelper(TransformType type) {
         this.type = type;
@@ -136,6 +137,11 @@ public class DateHelper {
                         .minusYears(1);
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
+            case THEYEARBEFORELAST:
+                startDate = new DateTime(now.getYear(), 1, 1, startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusYears(2);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
+                break;
             case CUSTOM_PERIOD:
                 if (Objects.nonNull(customPeriodObject)) {
                     if (customPeriodObject.getStartReferencePoint() != null) {
@@ -157,8 +163,7 @@ public class DateHelper {
                                     CustomPeriodObject cpo = new CustomPeriodObject(customPeriodObject.getStartReferenceObject(),
                                             new ObjectHandler(customPeriodObject.getObject().getDataSource()));
                                     DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
-                                    dh.setStartTime(startTime);
-                                    dh.setEndTime(endTime);
+                                    dh.setWorkDays(workDays);
                                     if (cpo.getStartReferencePoint().contains("DAY")) {
 
                                         Long startInterval = customPeriodObject.getStartInterval();
@@ -388,6 +393,13 @@ public class DateHelper {
                         endTime.getHour(), endTime.getMinute(), endTime.getSecond())
                         .minusDays(1);
                 break;
+            case THEYEARBEFORELAST:
+                now = DateTime.now();
+                endDate = new DateTime(now.getYear(), 1, 1,
+                        endTime.getHour(), endTime.getMinute(), endTime.getSecond())
+                        .minusYears(1)
+                        .minusDays(1);
+                break;
             case CUSTOM_PERIOD:
                 if (Objects.nonNull(customPeriodObject)) {
                     if (customPeriodObject.getEndReferencePoint() != null) {
@@ -409,8 +421,7 @@ public class DateHelper {
                                     CustomPeriodObject cpo = new CustomPeriodObject(customPeriodObject.getEndReferenceObject(),
                                             new ObjectHandler(customPeriodObject.getObject().getDataSource()));
                                     DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
-                                    dh.setStartTime(startTime);
-                                    dh.setEndTime(endTime);
+                                    dh.setWorkDays(workDays);
                                     if (cpo.getEndReferencePoint().contains("DAY")) {
 
                                         Long endInterval = customPeriodObject.getEndInterval();
@@ -516,15 +527,16 @@ public class DateHelper {
         return LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour(), start.getSecondOfMinute());
     }
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
+    public void setWorkDays(WorkDays workDays) {
+        this.workDays = workDays;
+
+        if (workDays != null) {
+            startTime = workDays.getWorkdayStart();
+            endTime = workDays.getWorkdayEnd();
+        }
     }
 
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public enum TransformType {CUSTOM, CURRENT, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR, PREVIEW}
+    public enum TransformType {CUSTOM, CURRENT, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR, THEYEARBEFORELAST, PREVIEW}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 
@@ -538,8 +550,7 @@ public class DateHelper {
             case STARTDATE:
                 for (TransformType tt : TransformType.values()) {
                     DateHelper dh = new DateHelper(tt);
-                    dh.setStartTime(startTime);
-                    dh.setEndTime(endTime);
+                    dh.setWorkDays(workDays);
                     dh.setStartDate(getStartDate());
                     dh.setEndDate(getEndDate());
                     dh.setCheckDate(checkDate);
@@ -553,8 +564,7 @@ public class DateHelper {
             case ENDDATE:
                 for (TransformType tt : TransformType.values()) {
                     DateHelper dh = new DateHelper(tt);
-                    dh.setStartTime(startTime);
-                    dh.setEndTime(endTime);
+                    dh.setWorkDays(workDays);
                     dh.setStartDate(getStartDate());
                     dh.setEndDate(getEndDate());
                     dh.setCheckDate(checkDate);

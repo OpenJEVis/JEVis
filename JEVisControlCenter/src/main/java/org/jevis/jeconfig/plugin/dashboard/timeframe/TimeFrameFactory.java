@@ -149,8 +149,7 @@ public class TimeFrameFactory {
                 dateHelper.setCustomPeriodObject(cpo);
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
                 if (wd != null) {
-                    dateHelper.setStartTime(wd.getWorkdayStart());
-                    dateHelper.setEndTime(wd.getWorkdayEnd());
+                    dateHelper.setWorkDays(wd);
                 }
 
                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();

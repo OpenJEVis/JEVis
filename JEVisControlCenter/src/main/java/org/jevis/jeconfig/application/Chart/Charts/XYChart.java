@@ -2,8 +2,10 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.renderer.LineStyle;
+import de.gsi.chart.renderer.Renderer;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import de.gsi.chart.ui.geometry.Side;
 import de.gsi.dataset.DataSet;
@@ -26,7 +28,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -53,7 +54,6 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -106,6 +106,7 @@ public class XYChart implements Chart {
     public static final Image taskImage = JEConfig.getImage("Analysis.png");
     public static String JOB_NAME = "Create series";
     ChartSetting chartSetting;
+    NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
     public XYChart() {
         init();
@@ -143,6 +144,17 @@ public class XYChart implements Chart {
         this.analysisDataModel = dataModel;
         this.chartDataRows = dataRows;
         this.chartSetting = chartSetting;
+
+        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());
+        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());
+        Platform.runLater(() -> {
+            y1Axis.setTickLabelFormatter(tickLabelFormatter1);
+
+            y2Axis.setTickLabelFormatter(tickLabelFormatter2);
+        });
+
+        this.nf.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
 
         double totalJob = chartDataRows.size();
 
@@ -209,7 +221,7 @@ public class XYChart implements Chart {
 
                         if (singleRow.hasForecastData()) {
                             try {
-                                XYChartSerie forecast = new XYChartSerie(singleRow, showIcons, true);
+                                XYChartSerie forecast = new XYChartSerie(chartSetting, singleRow, showIcons, true);
 
                                 hexColors.add(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
                                 xyChartSerieList.add(forecast);
@@ -300,10 +312,19 @@ public class XYChart implements Chart {
 
     private void createSumModels(AnalysisDataModel dataModel, List<ChartDataRow> sumModels) {
         try {
+            long sumId = 9999999999L;
+            List<ChartDataRow> oldModels = new ArrayList<>();
+            dataModel.getSelectedData().forEach(chartDataRow -> {
+                if (chartDataRow.getObject().getID() == sumId) {
+                    oldModels.add(chartDataRow);
+                }
+            });
+            dataModel.getSelectedData().removeAll(oldModels);
+
             for (ChartDataRow sumModel : sumModels) {
                 int index = sumModels.indexOf(sumModel);
                 JsonObject json = new JsonObject();
-                json.setId(9999999999L);
+                json.setId(sumId);
                 json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
                 if (index == 0) {
                     json.setName(json.getName() + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1"));
@@ -396,6 +417,7 @@ public class XYChart implements Chart {
     }
 
     public void init() {
+
         initializeChart();
 
         getChart().setStyle("-fx-font-size: " + 12 + "px;");
@@ -464,7 +486,7 @@ public class XYChart implements Chart {
 
         CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChartSerieList);
         labelledMarkerRenderer.getAxes().add(y1Axis);
-        ColumnChartLabelRenderer columnChartLabelRenderer = new ColumnChartLabelRenderer(xyChartSerieList);
+        ColumnChartLabelRenderer columnChartLabelRenderer = new ColumnChartLabelRenderer(chartSetting, xyChartSerieList);
 
         ErrorDataSetRenderer trendLineRenderer = new ErrorDataSetRenderer();
         trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
@@ -545,19 +567,37 @@ public class XYChart implements Chart {
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY1, rendererLogicalY1, rendererColumnY1, rendererBarY1, rendererScatterY1, rendererLineY1));
+
+        List<Renderer> allRenderer = new ArrayList<>();
+
+        allRenderer.add(rendererAreaY1);
+        allRenderer.add(rendererLogicalY1);
+        allRenderer.add(rendererColumnY1);
+        allRenderer.add(rendererBarY1);
+        allRenderer.add(rendererScatterY1);
+        allRenderer.add(rendererLineY1);
+
         if (hasSecondAxis) {
-            Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY2, rendererLogicalY2, rendererColumnY2, rendererBarY2, rendererScatterY2, rendererLineY2));
+            allRenderer.add(rendererAreaY2);
+            allRenderer.add(rendererLogicalY2);
+            allRenderer.add(rendererColumnY2);
+            allRenderer.add(rendererBarY2);
+            allRenderer.add(rendererScatterY2);
+            allRenderer.add(rendererLineY2);
         }
 
         if (calcRegression && showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
-            Platform.runLater(() -> chart.getRenderers().addAll(trendLineRenderer, labelledMarkerRenderer, columnChartLabelRenderer));
+            allRenderer.add(trendLineRenderer);
+            allRenderer.add(labelledMarkerRenderer);
+            allRenderer.add(columnChartLabelRenderer);
         } else if (chartType != null && chartType.equals(ChartType.COLUMN) && showIcons) {
-            Platform.runLater(() -> chart.getRenderers().addAll(labelledMarkerRenderer, columnChartLabelRenderer));
+            allRenderer.add(labelledMarkerRenderer);
+            allRenderer.add(columnChartLabelRenderer);
         } else if (showIcons) {
-            Platform.runLater(() -> chart.getRenderers().addAll(labelledMarkerRenderer));
+            allRenderer.add(labelledMarkerRenderer);
         }
 
+        Platform.runLater(() -> chart.getRenderers().addAll(allRenderer));
         Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
     }
 
@@ -701,7 +741,7 @@ public class XYChart implements Chart {
         List<DoubleDataSet> list = new ArrayList<>();
         try {
             if (showL1L2 && xyChartSerie.getSingleRow().getDataProcessor() != null) {
-                CleanDataObject cleanDataObject = new CleanDataObject(xyChartSerie.getSingleRow().getDataProcessor(), new ObjectHandler(xyChartSerie.getSingleRow().getObject().getDataSource()));
+                CleanDataObject cleanDataObject = new CleanDataObject(xyChartSerie.getSingleRow().getDataProcessor());
                 xyChartSerie.getSingleRow().updateScaleFactor();
                 Double scaleFactor = xyChartSerie.getSingleRow().getScaleFactor();
                 if (cleanDataObject.getLimitsEnabled()) {
@@ -740,16 +780,11 @@ public class XYChart implements Chart {
 
     public void initializeChart() {
 
-        setChart(new de.gsi.chart.XYChart(dateAxis, y1Axis));
-
-        Platform.runLater(() -> chart.getRenderers().clear());
-        chart.setLegend(null);
-        chart.legendVisibleProperty().set(false);
-        chart.getToolBar().setVisible(false);
-
-        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
-
-        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(2);
+        de.gsi.chart.XYChart xyChart = new de.gsi.chart.XYChart(dateAxis, y1Axis);
+        xyChart.getRenderers().clear();
+        xyChart.setLegend(null);
+        xyChart.legendVisibleProperty().set(false);
+        xyChart.getToolBar().setVisible(false);
 
         y1Axis.setForceZeroInRange(true);
         y1Axis.setAutoGrowRanging(true);
@@ -759,18 +794,18 @@ public class XYChart implements Chart {
         y2Axis.setAutoRanging(true);
         y2Axis.setAutoGrowRanging(true);
 
-        y1Axis.setTickLabelFormatter(tickLabelFormatter1);
         y1Axis.setAnimated(false);
         y1Axis.setName("");
 
-        y2Axis.setTickLabelFormatter(tickLabelFormatter2);
         y2Axis.setAnimated(false);
         y2Axis.setSide(Side.RIGHT);
         y2Axis.setName("");
+
+        setChart(xyChart);
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
-        XYChartSerie serie = new XYChartSerie(singleRow, showIcons, false);
+        XYChartSerie serie = new XYChartSerie(chartSetting, singleRow, showIcons, false);
 
         hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
@@ -808,7 +843,7 @@ public class XYChart implements Chart {
         if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
             ManipulationMode oldMode = singleRow.getManipulationMode();
             singleRow.setManipulationMode(addSeriesOfType);
-            XYChartSerie serie2 = new XYChartSerie(singleRow, showIcons, false);
+            XYChartSerie serie2 = new XYChartSerie(chartSetting, singleRow, showIcons, false);
 
             hexColors.add(ColorHelper.toColor(singleRow.getColor()).darker());
 
@@ -928,18 +963,6 @@ public class XYChart implements Chart {
                 dtfOutLegend.print(end));
 
         Platform.runLater(() -> dateAxis.setUnit(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall));
-    }
-
-    private Period removeWorkdayInterval(DateTime workStart, DateTime workEnd) {
-//        System.out.println("workStart.before÷ " + workStart + "|" + workEnd);
-        if (workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd())) {
-            workStart = workStart.plusDays(1);
-        }
-
-        workStart = workStart.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-        DateTime workEnd2 = workEnd.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-//        System.out.println("workStart.after÷ " + workStart + "|" + workEnd2);
-        return new Period(workStart, workEnd2);
     }
 
     @Override
@@ -1081,9 +1104,6 @@ public class XYChart implements Chart {
         }
         if (valueForDisplay != null) {
             DateTime finalValueForDisplay = valueForDisplay;
-            NumberFormat nf = NumberFormat.getInstance();
-            nf.setMinimumFractionDigits(2);
-            nf.setMaximumFractionDigits(2);
 
             xyChartSerieList.forEach(serie -> {
                 try {
@@ -1202,7 +1222,7 @@ public class XYChart implements Chart {
                 long finalZeroCount = zeroCount;
                 double finalAvg = avg;
                 try {
-                    serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount);
+                    serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount, true);
                 } catch (JEVisException e) {
                     logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
                 }
@@ -1225,9 +1245,14 @@ public class XYChart implements Chart {
 
     @Override
     public de.gsi.chart.Chart getChart() {
+        if (chart == null) {
+            initializeChart();
+        }
+
         return chart;
     }
 
+    @Override
     public void setChart(de.gsi.chart.Chart chart) {
         this.chart = chart;
     }
@@ -1245,6 +1270,11 @@ public class XYChart implements Chart {
     @Override
     public List<ChartDataRow> getChartDataRows() {
         return chartDataRows;
+    }
+
+    @Override
+    public ChartSetting getChartSetting() {
+        return chartSetting;
     }
 
     public Double getMinValue() {

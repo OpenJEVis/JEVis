@@ -34,16 +34,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BarChart implements Chart {
     private static final Logger logger = LogManager.getLogger(BarChart.class);
-    private final Integer chartId;
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(1990, 1, 1, 0, 0, 0));
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
-    private final String chartName;
     private String unit;
     private final AnalysisDataModel analysisDataModel;
     private final List<ChartDataRow> chartDataRows;
     private final Boolean hideShowIcons;
+    private final ChartSetting chartSetting;
     private final List<BarChartSerie> barChartSerieList = new ArrayList<>();
     private javafx.scene.chart.BarChart barChart;
     private final List<Color> hexColors = new ArrayList<>();
@@ -60,8 +59,7 @@ public class BarChart implements Chart {
         this.analysisDataModel = analysisDataModel;
         this.chartDataRows = chartDataRows;
         this.hideShowIcons = analysisDataModel.getShowIcons();
-        this.chartId = chartSetting.getId();
-        this.chartName = chartSetting.getName();
+        this.chartSetting = chartSetting;
 
         double totalJob = chartDataRows.size();
 
@@ -76,7 +74,7 @@ public class BarChart implements Chart {
         chartDataRows.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
-                    BarChartSerie serie = new BarChartSerie(singleRow, analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() == TimeFrame.CURRENT);
+                    BarChartSerie serie = new BarChartSerie(chartSetting, singleRow, analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() == TimeFrame.CURRENT);
                     barChartSerieList.add(serie);
                     hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
@@ -96,7 +94,7 @@ public class BarChart implements Chart {
 
         barChart = new javafx.scene.chart.BarChart<>(numberAxis, catAxis);
 
-        barChart.setTitle(chartName);
+        barChart.setTitle(chartSetting.getName());
         barChart.setAnimated(false);
         barChart.setLegendVisible(false);
         barChart.getXAxis().setAutoRanging(true);
@@ -146,8 +144,13 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public ChartSetting getChartSetting() {
+        return chartSetting;
+    }
+
+    @Override
     public String getChartName() {
-        return chartName;
+        return chartSetting.getName();
     }
 
     @Override
@@ -157,7 +160,7 @@ public class BarChart implements Chart {
 
     @Override
     public Integer getChartId() {
-        return chartId;
+        return chartSetting.getId();
     }
 
     @Override
@@ -187,6 +190,13 @@ public class BarChart implements Chart {
     @Override
     public de.gsi.chart.Chart getChart() {
         return null;
+    }
+
+    @Override
+    public void setChart(de.gsi.chart.Chart chart) {
+        if (chart == null) {
+            this.barChart = null;
+        }
     }
 
     @Override

@@ -41,6 +41,7 @@ public class SaveAnalysisDialog extends JFXDialog {
     private final JFXComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean changed;
     private JEVisObject currentAnalysisDirectory = null;
+    private Response response = Response.CANCEL;
 
     public SaveAnalysisDialog(StackPane dialogContainer, JEVisDataSource ds, AnalysisDataModel model, ToolBarView toolBarView) {
         setDialogContainer(dialogContainer);
@@ -188,6 +189,8 @@ public class SaveAnalysisDialog extends JFXDialog {
                     model.updateListAnalyses();
                     model.isGlobalAnalysisTimeFrame(true);
                     toolBarView.updateLayout();
+
+                    response = Response.OK;
                 }
             } else {
                 JFXAlert dialogOverwrite = new JFXAlert(this.getScene().getWindow());
@@ -217,6 +220,8 @@ public class SaveAnalysisDialog extends JFXDialog {
                         model.setCurrentAnalysisNOEVENT(currentAnalysis.get());
                         model.updateListAnalyses();
                         toolBarView.updateLayout();
+
+                        response = Response.OK;
                     }
                     dialogOverwrite.close();
                 });
@@ -242,6 +247,8 @@ public class SaveAnalysisDialog extends JFXDialog {
             if (cset.getColorMapping() != null) set.setColorMapping(cset.getColorMapping().toString());
             if (cset.getOrientation() != null) set.setOrientation(cset.getOrientation().toString());
             if (cset.getGroupingInterval() != null) set.setGroupingInterval(cset.getGroupingInterval().toString());
+            if (cset.getMinFractionDigits() != null) set.setMinFractionDigits(cset.getMinFractionDigits().toString());
+            if (cset.getMaxFractionDigits() != null) set.setMaxFractionDigits(cset.getMaxFractionDigits().toString());
             if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());
 
             JsonChartTimeFrame jctf = new JsonChartTimeFrame();
@@ -350,7 +357,7 @@ public class SaveAnalysisDialog extends JFXDialog {
 
                 if (this.model.getTemporary()) {
                     try {
-                        ds.deleteObject(this.model.getCurrentAnalysis().getID());
+                        ds.deleteObject(this.model.getCurrentAnalysis().getID(), true);
                         this.model.updateListAnalyses();
                     } catch (JEVisException e) {
                         logger.error("Could not delete temporary analysis", e);
@@ -367,5 +374,9 @@ public class SaveAnalysisDialog extends JFXDialog {
         } catch (JEVisException e) {
             logger.error("Error: could not save data model and chart settings", e);
         }
+    }
+
+    public Response getResponse() {
+        return response;
     }
 }

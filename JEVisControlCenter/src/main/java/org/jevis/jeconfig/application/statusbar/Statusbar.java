@@ -74,7 +74,7 @@ public class Statusbar extends ToolBar {
     private static final Logger logger = LogManager.getLogger(Statusbar.class);
 
     private final int ICON_SIZE = 20;
-    private final int WAIT_TIME = 3000;//60000;//MSEC
+    private final int WAIT_TIME = 30000;//MSEC
     private final int RETRY_COUNT = 720;//count
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
     private final Label userName = new Label("");
@@ -249,7 +249,7 @@ public class Statusbar extends ToolBar {
      * @param autoStart if ture the shared executor will start the task.
      */
     public void addTask(String owner, Task task, Image image, boolean autoStart) {
-        logger.debug("Starting new Task to statusbar: {}", task);
+        logger.debug("Starting new Task to status bar: {}", task);
         imageList.put(task.toString(), image);
         task.stateProperty().addListener((observable, oldValue, newValue) -> {
             try {
@@ -257,14 +257,13 @@ public class Statusbar extends ToolBar {
                 if (!newValue.equals(Worker.State.RUNNING) && !newValue.equals(Worker.State.SCHEDULED) && !newValue.equals(Worker.State.READY)) {
                     taskList.remove(task);
                     imageList.remove(task.toString());
+                    Platform.runLater(() -> taskProgressView.getTasks().remove(task));
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error(ex);
             }
         });
-        Platform.runLater(() -> {
-            taskProgressView.getTasks().add(task);
-        });
+        Platform.runLater(() -> taskProgressView.getTasks().add(task));
         taskList.put(task, owner);
 
         if (autoStart) executor.submit(task);
@@ -283,10 +282,10 @@ public class Statusbar extends ToolBar {
         taskList.forEach((task, s) -> {
             if (s.equals(owner)) {
                 try {
-                    logger.error("Cancel task: {}", task);
+                    logger.debug("Cancel task: {}", task);
                     task.cancel(true);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Could not stop task {} from {}", task, owner);
                 }
             }
         });

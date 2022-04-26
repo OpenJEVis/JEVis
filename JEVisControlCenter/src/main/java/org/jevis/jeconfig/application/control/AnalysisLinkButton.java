@@ -24,35 +24,39 @@ public class AnalysisLinkButton extends JFXButton {
 
         setStyle("-fx-background-color: transparent;");
 
-        try {
-            JEVisObject buildingObject = org.jevis.commons.utils.CommonMethods.getFirstParentalObjectOfClass(attribute.getObject(), "Building");
-            JEVisObject analysisDir = null;
-            if (buildingObject != null) {
-                for (JEVisObject child : buildingObject.getChildren()) {
-                    if (child.getJEVisClassName().equals("Analyses Directory")) {
-                        analysisDir = child;
-                        break;
+        if (attribute != null) {
+            try {
+                JEVisObject buildingObject = org.jevis.commons.utils.CommonMethods.getFirstParentalObjectOfClass(attribute.getObject(), "Building");
+                JEVisObject analysisDir = null;
+                if (buildingObject != null) {
+                    for (JEVisObject child : buildingObject.getChildren()) {
+                        if (child.getJEVisClassName().equals("Analyses Directory")) {
+                            analysisDir = child;
+                            break;
+                        }
                     }
                 }
+
+                JEVisUser currentUser = attribute.getDataSource().getCurrentUser();
+                if (analysisDir != null && (currentUser.canCreate(analysisDir.getID()) && currentUser.canDelete(analysisDir.getID()))) {
+                    DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
+
+                    DateTime startDateFromSampleRate = org.jevis.commons.utils.CommonMethods.getStartDateFromSampleRate(attribute);
+
+                    AnalysisRequest analysisRequest = new AnalysisRequest(attribute.getObject(),
+                            AggregationPeriod.NONE,
+                            ManipulationMode.NONE,
+                            new AnalysisTimeFrame(TimeFrame.CUSTOM),
+                            startDateFromSampleRate, timestampFromLastSample);
+                    analysisRequest.setAttribute(attribute);
+
+                    setOnAction(event -> JEConfig.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, analysisRequest));
+                } else setDisable(true);
+            } catch (Exception e) {
+                logger.error("Could not build analysis link button: ", e);
+                setDisable(true);
             }
-
-            JEVisUser currentUser = attribute.getDataSource().getCurrentUser();
-            if (analysisDir != null && (currentUser.canCreate(analysisDir.getID()) && currentUser.canDelete(analysisDir.getID()))) {
-                DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
-
-                DateTime startDateFromSampleRate = org.jevis.commons.utils.CommonMethods.getStartDateFromSampleRate(attribute);
-
-                AnalysisRequest analysisRequest = new AnalysisRequest(attribute.getObject(),
-                        AggregationPeriod.NONE,
-                        ManipulationMode.NONE,
-                        new AnalysisTimeFrame(TimeFrame.CUSTOM),
-                        startDateFromSampleRate, timestampFromLastSample);
-                analysisRequest.setAttribute(attribute);
-
-                setOnAction(event -> JEConfig.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, analysisRequest));
-            } else setDisable(true);
-        } catch (Exception e) {
-            logger.error("Could not build analysis link button: ", e);
+        } else {
             setDisable(true);
         }
     }

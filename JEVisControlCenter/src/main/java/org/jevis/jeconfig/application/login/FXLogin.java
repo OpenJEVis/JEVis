@@ -118,6 +118,7 @@ public class FXLogin extends AnchorPane {
     private ApplicationInfo app = new ApplicationInfo("FXLogin", "");
     private Locale selectedLocale = Locale.getDefault();
     private final NotificationPane notificationPane = new NotificationPane();
+    private JFXComboBox<Locale> langSelect;
 
 
     private FXLogin() {
@@ -151,8 +152,11 @@ public class FXLogin extends AnchorPane {
             }
         }
 
+        setStyleSheet();
+
         try {
             this._ds = loadDataSource(this.configuration);
+
 
         } catch (ClassNotFoundException ex) {
             logger.fatal(ex);
@@ -162,13 +166,44 @@ public class FXLogin extends AnchorPane {
             logger.fatal(ex);
         }
 
-        setStyleSheet();
+        if (hasLoginCredentials(this.configuration)) {
+            doLogin();
+        } else {
+            init();
 
-        init();
+            Platform.runLater(() -> {
+                this.userName.setEditable(true);
+                this.mainStage.setMaximized(false);
+                this.mainStage.setMaximized(true);
+            });
+        }
+    }
 
-        Platform.runLater(() -> {
-            this.userName.setEditable(true);
-        });
+    private boolean hasLoginCredentials(List<JEVisOption> configuration) {
+        String userName = null;
+        String password = null;
+        String locale = null;
+        for (JEVisOption opt : configuration) {
+            logger.trace("Option: {} {}", opt.getKey(), opt.getValue());
+            if (opt.getKey().equals(CommonOptions.DataSource.USERNAME.getKey())) {
+                userName = opt.getValue();
+            } else if (opt.getKey().equals(CommonOptions.DataSource.PASSWORD.getKey())) {
+                password = opt.getValue();
+            } else if (opt.getKey().equals(CommonOptions.DataSource.LOCALE.getKey())) {
+                locale = opt.getValue();
+            }
+        }
+        if (userName != null && password != null && locale != null) {
+            this.userName.setText(userName);
+            this.userPassword.setText(password);
+            this.selectedLocale = Locale.forLanguageTag(locale);
+            logger.debug("locale set to {} from {}", selectedLocale, locale);
+            return true;
+        } else if (userName != null && password != null) {
+            this.userName.setText(userName);
+            this.userPassword.setText(password);
+            return true;
+        } else return false;
     }
 
     /**
@@ -313,7 +348,7 @@ public class FXLogin extends AnchorPane {
      *
      * @return
      */
-    private JFXComboBox buildLanguageBox() {
+    private JFXComboBox<Locale> buildLanguageBox() {
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
@@ -480,7 +515,7 @@ public class FXLogin extends AnchorPane {
         Node buttonBox = buildButtonsbar();
 //        Node serverConfigBox = buildServerSelection();
         Region serverConfigBox = new Region();
-        JFXComboBox langSelect = buildLanguageBox();
+        this.langSelect = buildLanguageBox();
         loadPreference(true);
 
         Label userL = new Label("Username:");
@@ -495,7 +530,7 @@ public class FXLogin extends AnchorPane {
         this.loginButton.setDefaultButton(true);
         this.closeButton.setCancelButton(true);
 
-        langSelect.setId("fxlogin-form-language");
+        this.langSelect.setId("fxlogin-form-language");
         //this.loginButton.setId("fxlogin-form-login");
         //this.closeButton.setId("fxlogin-form-close");
         this.userName.setId("fxlogin-form-username");

@@ -38,6 +38,8 @@ public class JsonChartSetting {
     private String colorMapping;
     private String orientation;
     private String groupingInterval;
+    private String minFractionDigits;
+    private String maxFractionDigits;
     private JsonChartTimeFrame analysisTimeFrame;
 
     public JsonChartSetting() {
@@ -104,6 +106,24 @@ public class JsonChartSetting {
 
     public void setGroupingInterval(String groupingInterval) {
         this.groupingInterval = groupingInterval;
+    }
+
+    @XmlElement(name = "minFractionDigits")
+    public String getMinFractionDigits() {
+        return minFractionDigits;
+    }
+
+    public void setMinFractionDigits(String minFractionDigits) {
+        this.minFractionDigits = minFractionDigits;
+    }
+
+    @XmlElement(name = "maxFractionDigits")
+    public String getMaxFractionDigits() {
+        return maxFractionDigits;
+    }
+
+    public void setMaxFractionDigits(String maxFractionDigits) {
+        this.maxFractionDigits = maxFractionDigits;
     }
 
     @XmlElement(name = "analysisTimeFrame")

@@ -1,0 +1,18 @@
+{
+  "jevisclass": "Energy Invoices Directory",
+  "names": {
+    "de": "Energierechnungen",
+    "ru": "счета за энергию",
+    "uk": "рахунки за електроенергію",
+    "en": "Energy Invoices",
+    "th": "ค่าพลังงาน"
+  },
+  "descriptions": {
+    "de": "Unter Energierechnungen werden Energierechnungen abgelegt",
+    "ru": "Счета за электроэнергию регистрируются в разделе «Счета за электроэнергию».",
+    "en": "Energy invoicse are deployed in the Energy Invoices Directory",
+    "uk": "Рахунки за електроенергію подаються в розділі Рахунки за електроенергію",
+    "th": "บิลค่าพลังงานอยู่ภายใต้ บิลค่าพลังงาน"
+  },
+  "types": []
+}

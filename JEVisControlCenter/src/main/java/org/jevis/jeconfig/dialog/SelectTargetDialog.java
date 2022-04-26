@@ -71,7 +71,6 @@ public class SelectTargetDialog extends JFXDialog {
         super();
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
-        setMinWidth(450);
 
         this.dialogContainer = dialogContainer;
         this.ds = ds;
@@ -358,6 +357,8 @@ public class SelectTargetDialog extends JFXDialog {
 
 
         tree = JEVisTreeFactory.buildBasicDefault(dialogContainer, ds, basicFilter, false);
+        tree.setMinWidth(dialogContainer.getWidth() * 0.8d);
+        tree.setMinHeight(dialogContainer.getHeight() * 0.75d);
 
         tree.getPlugins().add(simpleTargetPlugin);
 

@@ -52,6 +52,8 @@ public class ServiceStatus extends AlarmTable {
 
         for (FileStore store : fs.getFileStores()) {
             try {
+                if (store.name().equals("none") || store.name().equals("tmpfs")) continue;
+
                 double totalSpace = store.getTotalSpace() / 1024d / 1024d / 1024d;
                 double usableSpace = store.getUsableSpace() / 1024d / 1024d / 1024d;
                 double percent = usableSpace / totalSpace * 100d;
@@ -119,15 +121,22 @@ public class ServiceStatus extends AlarmTable {
         sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.service")).append("</th>");
         sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lastcontact")).append("</th>");
         sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.status")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.runtime")).append("</th>");
         sb.append("  </tr>");
 
         DateTime contactAlarm = null;
         Long statusAlarm = null;
+        JEVisAttribute alarmStatusAttribute = null;
+        JEVisAttribute dataCollectorStatusAttribute = null;
+        JEVisAttribute dataProcessorStatusAttribute = null;
+        JEVisAttribute calcStatusAttribute = null;
+        JEVisAttribute reportStatusAttribute = null;
+        JEVisAttribute notifierStatusAttribute = null;
 
         if (!alarms.isEmpty()) {
-            JEVisAttribute statusAttribute = alarms.get(0).getAttribute("Status");
-            if (statusAttribute != null) {
-                JEVisSample latestSample = statusAttribute.getLatestSample();
+            alarmStatusAttribute = alarms.get(0).getAttribute("Status");
+            if (alarmStatusAttribute != null) {
+                JEVisSample latestSample = alarmStatusAttribute.getLatestSample();
                 if (latestSample != null) {
                     contactAlarm = latestSample.getTimestamp();
                     statusAlarm = latestSample.getValueAsLong();
@@ -164,15 +173,26 @@ public class ServiceStatus extends AlarmTable {
             sb.append(getStatus(statusAlarm));
         }
         sb.append("</td>");
+        /**
+         * average Runtime Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss);
+        sb.append("\">");
+        if (alarmStatusAttribute != null) {
+            ServiceRuntime serviceRuntime = new ServiceRuntime(alarmStatusAttribute);
+            sb.append(serviceRuntime.getResult());
+        }
+        sb.append("</td>");
         sb.append("</tr>");
 
         DateTime contactDataCollector = null;
         Long statusDataCollector = null;
 
         if (!dataCollectors.isEmpty()) {
-            JEVisAttribute statusAttribute = dataCollectors.get(0).getAttribute("Status");
-            if (statusAttribute != null) {
-                JEVisSample latestSample = statusAttribute.getLatestSample();
+            dataCollectorStatusAttribute = dataCollectors.get(0).getAttribute("Status");
+            if (dataCollectorStatusAttribute != null) {
+                JEVisSample latestSample = dataCollectorStatusAttribute.getLatestSample();
                 if (latestSample != null) {
                     contactDataCollector = latestSample.getTimestamp();
                     statusDataCollector = latestSample.getValueAsLong();
@@ -209,15 +229,26 @@ public class ServiceStatus extends AlarmTable {
             sb.append(getStatus(statusDataCollector));
         }
         sb.append("</td>");
+        /**
+         * average Runtime Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss + highlight);
+        sb.append("\">");
+        if (dataCollectorStatusAttribute != null) {
+            ServiceRuntime serviceRuntime = new ServiceRuntime(dataCollectorStatusAttribute);
+            sb.append(serviceRuntime.getResult());
+        }
+        sb.append("</td>");
         sb.append("</tr>");
 
         DateTime contactDataProcessor = null;
         Long statusDataProcessor = null;
 
         if (!dataProcessors.isEmpty()) {
-            JEVisAttribute statusAttribute = dataProcessors.get(0).getAttribute("Status");
-            if (statusAttribute != null) {
-                JEVisSample latestSample = statusAttribute.getLatestSample();
+            dataProcessorStatusAttribute = dataProcessors.get(0).getAttribute("Status");
+            if (dataProcessorStatusAttribute != null) {
+                JEVisSample latestSample = dataProcessorStatusAttribute.getLatestSample();
                 if (latestSample != null) {
                     contactDataProcessor = latestSample.getTimestamp();
                     statusDataProcessor = latestSample.getValueAsLong();
@@ -254,15 +285,26 @@ public class ServiceStatus extends AlarmTable {
             sb.append(getStatus(statusDataProcessor));
         }
         sb.append("</td>");
+        /**
+         * average Runtime Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss);
+        sb.append("\">");
+        if (dataProcessorStatusAttribute != null) {
+            ServiceRuntime serviceRuntime = new ServiceRuntime(dataProcessorStatusAttribute);
+            sb.append(serviceRuntime.getResult());
+        }
+        sb.append("</td>");
         sb.append("</tr>");
 
         DateTime contactCalc = null;
         Long statusCalc = null;
 
         if (!calcs.isEmpty()) {
-            JEVisAttribute statusAttribute = calcs.get(0).getAttribute("Status");
-            if (statusAttribute != null) {
-                JEVisSample latestSample = statusAttribute.getLatestSample();
+            calcStatusAttribute = calcs.get(0).getAttribute("Status");
+            if (calcStatusAttribute != null) {
+                JEVisSample latestSample = calcStatusAttribute.getLatestSample();
                 if (latestSample != null) {
                     contactCalc = latestSample.getTimestamp();
                     statusCalc = latestSample.getValueAsLong();
@@ -299,15 +341,26 @@ public class ServiceStatus extends AlarmTable {
             sb.append(getStatus(statusCalc));
         }
         sb.append("</td>");
+        /**
+         * average Runtime Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss + highlight);
+        sb.append("\">");
+        if (calcStatusAttribute != null) {
+            ServiceRuntime serviceRuntime = new ServiceRuntime(calcStatusAttribute);
+            sb.append(serviceRuntime.getResult());
+        }
+        sb.append("</td>");
         sb.append("</tr>");
 
         DateTime contactReport = null;
         Long statusReport = null;
 
         if (!reports.isEmpty()) {
-            JEVisAttribute statusAttribute = reports.get(0).getAttribute("Status");
-            if (statusAttribute != null) {
-                JEVisSample latestSample = statusAttribute.getLatestSample();
+            reportStatusAttribute = reports.get(0).getAttribute("Status");
+            if (reportStatusAttribute != null) {
+                JEVisSample latestSample = reportStatusAttribute.getLatestSample();
                 if (latestSample != null) {
                     contactReport = latestSample.getTimestamp();
                     statusReport = latestSample.getValueAsLong();
@@ -344,15 +397,26 @@ public class ServiceStatus extends AlarmTable {
             sb.append(getStatus(statusReport));
         }
         sb.append("</td>");
+        /**
+         * average Runtime Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss);
+        sb.append("\">");
+        if (reportStatusAttribute != null) {
+            ServiceRuntime serviceRuntime = new ServiceRuntime(reportStatusAttribute);
+            sb.append(serviceRuntime.getResult());
+        }
+        sb.append("</td>");
         sb.append("</tr>");
 
         DateTime contactNotifier = null;
         Long statusNotifier = null;
 
         if (!notifiers.isEmpty()) {
-            JEVisAttribute statusAttribute = notifiers.get(0).getAttribute("Status");
-            if (statusAttribute != null) {
-                JEVisSample latestSample = statusAttribute.getLatestSample();
+            notifierStatusAttribute = notifiers.get(0).getAttribute("Status");
+            if (notifierStatusAttribute != null) {
+                JEVisSample latestSample = notifierStatusAttribute.getLatestSample();
                 if (latestSample != null) {
                     contactNotifier = latestSample.getTimestamp();
                     statusNotifier = latestSample.getValueAsLong();
@@ -387,6 +451,17 @@ public class ServiceStatus extends AlarmTable {
         sb.append("\">");
         if (statusNotifier != null) {
             sb.append(getStatus(statusNotifier));
+        }
+        sb.append("</td>");
+        /**
+         * average Runtime Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss + highlight);
+        sb.append("\">");
+        if (notifierStatusAttribute != null) {
+            ServiceRuntime serviceRuntime = new ServiceRuntime(notifierStatusAttribute);
+            sb.append(serviceRuntime.getResult());
         }
         sb.append("</td>");
         sb.append("</tr>");

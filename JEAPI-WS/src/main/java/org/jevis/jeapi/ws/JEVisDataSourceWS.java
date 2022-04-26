@@ -71,22 +71,29 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String host = "http://localhost";
     private HTTPConnection con;
+    /*
+     * Connection to check if the connection is alive
+     */
+    private HttpURLConnection isAliveConnection = null;
     //    private Gson gson = new Gson();
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
     //    private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
     private final ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, JEVisObject> deltedObjectCache = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
     private boolean allAttributesPreloaded = false;
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
+    private boolean deletedObjectLoaded = false;
     private boolean orLoaded = false;
     /**
      * Amount of Samples in one request
      **/
     private final int SAMPLE_REQUEST_SIZE = 10000;
     private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
+
 
     /**
      * fallback because some old client will call preload but we now a days do per default
@@ -321,16 +328,31 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             this.objectLoaded = true;
         }
 
+        //return this.objectCache.values().stream().filter(jeVisObject -> jeVisObject.getDeleteTS() == null).collect(Collectors.toList());
         return new ArrayList<>(this.objectCache.values());
 
     }
 
-    private void updateObject(JsonObject jsonObj) {
-//        Long id = jsonObj.getId();
-//        this.objectCache.remove(id);
+    @Override
+    public List<JEVisObject> getDeletedObjects() throws JEVisException {
+        logger.debug("getDeletedObjects");
+        if (!this.deletedObjectLoaded) {
+            getDeletedObjectsWS();
+            this.deletedObjectLoaded = true;
+        }
 
+        return new ArrayList<>(this.deltedObjectCache.values());
+    }
+
+    private void updateObject(JsonObject jsonObj) {
         JEVisObjectWS newObject = new JEVisObjectWS(this, jsonObj);
         this.objectCache.put(newObject.getID(), newObject);
+
+    }
+
+    private void updateDeletedObject(JsonObject jsonObj) {
+        JEVisObjectWS newObject = new JEVisObjectWS(this, jsonObj);
+        this.deltedObjectCache.put(newObject.getID(), newObject);
 
     }
 
@@ -368,6 +390,42 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
         });
         benchmark.printBechmark("updating object cache done for " + jsonObjects.size() + " objects");
+    }
+
+    public void getDeletedObjectsWS() {
+        logger.trace("Get ALL DeletedObjectsWS");
+        //TODO: throw exception?! so the other function can handle it?
+        Benchmark benchmark = new Benchmark();
+        String resource = HTTPConnection.API_PATH_V1
+                + REQUEST.OBJECTS.PATH
+                + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS + "false"
+                + "&" + REQUEST.OBJECTS.OPTIONS.ONLY_ROOT + "false"
+                + "&" + REQUEST.OBJECTS.OPTIONS.DELETED + "true";
+        List<JsonObject> jsonObjects = new ArrayList<>();
+        try {
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            jsonObjects = Arrays.asList(this.objectMapper.readValue(inputStream, JsonObject[].class));
+            inputStream.close();
+        } catch (JsonParseException ex) {
+            logger.error("Json parse exception. Error getting all objects. ", ex);
+        } catch (JsonMappingException ex) {
+            logger.error("Json mapping exception. Error getting all objects. ", ex);
+        } catch (IOException ex) {
+            logger.error("IO exception. Error getting all objects. ", ex);
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception. Error getting all objects. ", e);
+        }
+
+        benchmark.printBechmark("reading deleted object input stream done");
+        logger.debug("JsonObject.count: {}", jsonObjects.size());
+        jsonObjects.forEach(jsonObject -> {
+            try {
+                updateDeletedObject(jsonObject);
+            } catch (Exception ex) {
+                logger.error("Error while parsing object: {}", ex.getMessage());
+            }
+        });
+        benchmark.printBechmark("updating deleted object cache done for " + jsonObjects.size() + " objects");
     }
 
     @Override
@@ -501,7 +559,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             getRelationships();
         }
 
-        return this.objectRelMapCache.get(objectID);
+        return this.objectRelMapCache.getOrDefault(objectID, new ArrayList<>());
 
     }
 
@@ -702,6 +760,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return getJEVisClass(className).getTypes();
     }
 
+
     private void removeObjectFromRelationshipsCache(long objectID) {
         for (Map.Entry<Long, List<JEVisRelationship>> entry : objectRelMapCache.entrySet()) {
             List<JEVisRelationship> jeVisRelationships = entry.getValue();
@@ -753,13 +812,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public boolean deleteObject(long objectID) {
+    public boolean deleteObject(long objectID, boolean deleteForever) {
         try {
-            logger.debug("Delete: {}", objectID);
+            logger.error("Delete: {}, {}", objectID, deleteForever);
 
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH
                     + objectID;
+
+            if (deleteForever) {
+                resource += "?" + REQUEST.OBJECTS.OPTIONS.DELETE_FOREVER + "true";
+            }
 
             JEVisObject object = getObject(objectID);
 
@@ -767,12 +830,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 HttpURLConnection response = getHTTPConnection().getDeleteConnection(resource);
                 if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
-                    // reloadRelationships();
-                    removeObjectFromCache(objectID);
-
                     object.getParents().forEach(parent -> {
                         parent.notifyListeners(new JEVisEvent(parent, JEVisEvent.TYPE.OBJECT_CHILD_DELETED, object));
                     });
+
+                    if (deleteForever) {
+                        object.notifyListeners(new JEVisEvent(object, JEVisEvent.TYPE.OBJECT_DELETE, object));
+                    } else {
+                        object.notifyListeners(new JEVisEvent(object, JEVisEvent.TYPE.OBJECT_DELETE_BIN, object));
+                    }
+                    /* reload should already have the delete ts but it seems to not work */
+                    object.setDeleteTS(new DateTime());
+                    reloadObject(object);
 
 
                     return true;
@@ -1162,7 +1231,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         List<JEVisObject> objs = new ArrayList<>();
 
         for (JEVisObject obj : this.objectCache.values()) {
-            if (filterClass.contains(obj.getJEVisClass())) {
+            if (filterClass.contains(obj.getJEVisClass()) && obj.getDeleteTS() == null) {
                 objs.add(obj);
             }
         }
@@ -1471,8 +1540,21 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     = REQUEST.API_PATH_V1
                     + REQUEST.JEVISUSER.PATH;
 
-            HttpURLConnection conn = getHTTPConnection().getGetConnection(resource);
-            logger.debug("Login Response: {}", conn.getResponseCode());
+
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            if (inputStream != null) {
+                JsonObject json = this.objectMapper.readValue(inputStream, JsonObject.class);
+                inputStream.close();
+                this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
+                return true;
+            } else {
+                return false;
+            }
+
+
+            //HttpURLConnection conn = getHTTPConnection().getGetConnection(resource);
+            //logger.debug("Login Response: {}", conn.getResponseCode());
+            /*
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
 //                logger.debug("Login response: {}", conn.getContent().toString());
@@ -1483,7 +1565,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 inputStream.close();
 
 
-                /** We will now always preload the JEVisDataSource **/
                 this.preload();
 
                 this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
@@ -1493,12 +1574,12 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 logger.error("Login failed: [{}] {}", conn.getResponseCode(), conn.getResponseMessage());
                 return false;
             }
+        */
 
         } catch (Exception ex) {
             logger.catching(ex);
             throw new JEVisException(ex.getMessage(), 402, ex);
         }
-
     }
 
     @Override
@@ -1520,20 +1601,23 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public boolean isConnectionAlive() {
 //        return true;
-        String resource = "api/rest/version";
+
         try {
-            URL url = new URL(this.host + "/" + resource);
+            if (isAliveConnection == null) {
+                String resource = "api/rest/version";
+                URL url = new URL(this.host + "/" + resource);
+                isAliveConnection = (HttpURLConnection) url.openConnection();
+                isAliveConnection.setConnectTimeout(25000);
+                isAliveConnection.setReadTimeout(5000);
+                isAliveConnection.setRequestMethod("GET");
+            }
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
-            conn.setRequestMethod("GET");
 
-            logger.debug("HTTP request {}", conn.getURL());
+            logger.debug("HTTP request {}", isAliveConnection.getURL());
 
-            conn.connect();
-            int responseCode = conn.getResponseCode();
-            conn.disconnect();
+            isAliveConnection.connect();
+            int responseCode = isAliveConnection.getResponseCode();
+            //isAliveConnection.disconnect();
 
             return responseCode == HttpURLConnection.HTTP_OK;
         } catch (ProtocolException e) {
@@ -1641,6 +1725,69 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         System.gc();
         Optimization.getInstance().clearCache();
     }
+
+    @Override
+    public void updateAccessControl() {
+        logger.debug("updateAccessControl");
+        String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_ACCESSCONTROL + "/update";
+        try {
+
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            this.objectMapper.readValue(inputStream, JsonObject.class);
+            /*
+            JsonObject json = null;
+            if (inputStream != null) {
+                json = this.objectMapper.readValue(inputStream, JsonObject.class);
+                inputStream.close();
+            }
+            */
+
+            /** TODO: implement error handling **/
+
+        } catch (JsonParseException ex) {
+            logger.error("Json parse exception. Error while fetching Object: {}", ex);
+        } catch (JsonMappingException ex) {
+            logger.error("Object is not accessible: {}", ex);
+        } catch (IOException ex) {
+            logger.error("IO exception. Error while fetching Object: {}", ex);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception while fetching Object: {}, reason: {}", ex.getMessage());
+        }
+    }
+
+    /* removed from WS because its not working wiht the dataprocessor workflow
+    public List<JEVisObject> getDataProcessorTask() {
+        logger.debug("updateAccessControl");
+        String resource = HTTPConnection.API_PATH_V1 + "/task/dataprocessor";
+        try {
+
+
+            List<JsonObject> jsonObjects = new ArrayList<>();
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            jsonObjects = Arrays.asList(this.objectMapper.readValue(inputStream, JsonObject[].class));
+            inputStream.close();
+
+            List<JEVisObject> objects = new ArrayList<>();
+            jsonObjects.forEach(jsonObject -> {
+                JEVisObjectWS newObject = new JEVisObjectWS(this, jsonObject);
+                objects.add(newObject);
+            });
+
+            return objects;
+
+
+        } catch (JsonParseException ex) {
+            logger.error("Json parse exception. Error while fetching Object: {}", ex);
+        } catch (JsonMappingException ex) {
+            logger.error("Object is not accessible: {}", ex);
+        } catch (IOException ex) {
+            logger.error("IO exception. Error while fetching Object: {}", ex);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception while fetching Object: {}, reason: {}", ex.getMessage());
+        }
+        return new ArrayList<>();
+    }
+    */
 
     public ObjectMapper getObjectMapper() {
         return this.objectMapper;

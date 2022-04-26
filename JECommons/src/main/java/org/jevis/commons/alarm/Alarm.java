@@ -85,6 +85,10 @@ public class Alarm {
                 return I18n.getInstance().getString("plugin.alarm.table.translation.l1");
             case ("L2"):
                 return I18n.getInstance().getString("plugin.alarm.table.translation.l2");
+            case ("D1"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.d1");
+            case ("D2"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.d2");
             case ("DYNAMIC"):
                 return I18n.getInstance().getString("plugin.alarm.table.translation.dynamic");
             case ("STATIC"):

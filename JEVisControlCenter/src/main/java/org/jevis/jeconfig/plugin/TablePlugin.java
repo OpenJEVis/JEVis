@@ -34,10 +34,13 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
@@ -72,6 +75,11 @@ public class TablePlugin implements Plugin {
     private static Method columnToFitMethod;
     protected final TabPane tabPane = new TabPane();
     private Boolean multiSite;
+    protected final int toolBarIconSize = 20;
+    protected final int tableIconSize = 18;
+    protected final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+    protected final ToggleButton reduceFractionDigitsButton = new ToggleButton("", JEConfig.getImage("9069778_reduce_decimal_places_icon.png", toolBarIconSize, toolBarIconSize));
+    protected final ToggleButton increaseFractionDigitsButton = new ToggleButton("", JEConfig.getImage("9069778_increase_decimal_places_icon.png", toolBarIconSize, toolBarIconSize));
 
     static {
         try {
@@ -83,8 +91,6 @@ public class TablePlugin implements Plugin {
     }
 
     protected final JEVisDataSource ds;
-    protected final int toolBarIconSize = 20;
-    protected final int tableIconSize = 18;
     protected final Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
     protected final ObjectRelations objectRelations;
     protected final String title;
@@ -98,6 +104,8 @@ public class TablePlugin implements Plugin {
         this.objectRelations = new ObjectRelations(ds);
         this.title = title;
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
+
+
         addListener();
 
         this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -105,7 +113,17 @@ public class TablePlugin implements Plugin {
                 JEVisClassTab selectedItem = (JEVisClassTab) this.tabPane.getSelectionModel().getSelectedItem();
                 String filter = filterInput.getText();
                 if (selectedItem != null) {
-                    setFilterForTab(filter, selectedItem);
+                    if (selectedItem.getContent() instanceof TableView) {
+                        setFilterForTab(filter, selectedItem);
+                    } else {
+                        TabPane content = (TabPane) selectedItem.getContent();
+
+                        JEVisClassTab selectedItem1 = (JEVisClassTab) content.getSelectionModel().getSelectedItem();
+
+                        if (selectedItem1 != null) {
+                            setFilterForTab(filter, selectedItem1);
+                        }
+                    }
                 }
             }
         });
@@ -128,7 +146,18 @@ public class TablePlugin implements Plugin {
         filterInput.textProperty().addListener(obs -> {
             String filter = filterInput.getText();
             JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
-            setFilterForTab(filter, selectedItem);
+
+            if (!isMultiSite())
+                setFilterForTab(filter, selectedItem);
+            else {
+                TabPane content = (TabPane) selectedItem.getContent();
+
+                JEVisClassTab selectedItem1 = (JEVisClassTab) content.getSelectionModel().getSelectedItem();
+
+                if (selectedItem1 != null) {
+                    setFilterForTab(filter, selectedItem1);
+                }
+            }
         });
     }
 
@@ -258,6 +287,8 @@ public class TablePlugin implements Plugin {
                                     JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
                             gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
+                            AnalysisLinkButton analysisLinkButton = null;
+
                             try {
                                 if (item.hasSample()) {
                                     addEventManSampleAction(item.getLatestSample(), manSampleButton, registerTableRow.getName());
@@ -265,7 +296,27 @@ public class TablePlugin implements Plugin {
                                 }
 
                             } catch (Exception ex) {
-                                logger.catching(ex);
+                                logger.error(ex);
+                            }
+
+                            try {
+                                if (item.getLatestSample() != null) {
+                                    TargetHelper th = new TargetHelper(getDataSource(), item.getLatestSample().getValueAsString());
+                                    if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+
+                                        JEVisObject firstCleanObject = CommonMethods.getFirstCleanObject(th.getObject().get(0));
+                                        if (firstCleanObject != null) {
+
+                                            JEVisAttribute valueAttribute = firstCleanObject.getAttribute("Value");
+
+                                            if (valueAttribute != null) {
+                                                analysisLinkButton = new AnalysisLinkButton(valueAttribute);
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                logger.error(ex);
                             }
 
                             gotoButton.setOnAction(event -> {
@@ -276,7 +327,7 @@ public class TablePlugin implements Plugin {
                                         JEConfig.openObjectInPlugin(ObjectPlugin.PLUGIN_NAME, findObj);
                                     }
                                 } catch (Exception ex) {
-                                    logger.catching(ex);
+                                    logger.error(ex);
                                 }
                             });
 
@@ -333,18 +384,18 @@ public class TablePlugin implements Plugin {
                                                     addEventManSampleAction(newTargetSample, manSampleButton, registerTableRow.getName());
                                                     manSampleButton.setDisable(false);
                                                 } catch (Exception ex) {
-                                                    ex.printStackTrace();
+                                                    logger.error(ex);
                                                 }
 
                                             }
                                             setToolTipText(treeButton, item);
                                         } catch (Exception ex) {
-                                            logger.catching(ex);
+                                            logger.error(ex);
                                         }
                                     });
                                     selectTargetDialog.show();
                                 } catch (Exception ex) {
-                                    logger.catching(ex);
+                                    logger.error(ex);
                                 }
                             });
 
@@ -354,6 +405,10 @@ public class TablePlugin implements Plugin {
 
                             hBox.getChildren().add(gotoButton);
                             gotoButton.setDisable(!setToolTipText(treeButton, item));
+
+                            if (analysisLinkButton != null) {
+                                hBox.getChildren().add(analysisLinkButton);
+                            }
 
                             VBox vBox = new VBox(hBox);
                             vBox.setAlignment(Pos.CENTER);
@@ -377,6 +432,7 @@ public class TablePlugin implements Plugin {
                         JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
 
                         EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, getDataSource());
+                        enterDataDialog.setShowDetailedTarget(false);
                         enterDataDialog.setTarget(false, th.getAttribute().get(0));
                         enterDataDialog.setSample(lastValue);
                         enterDataDialog.setShowValuePrompt(true);
@@ -557,7 +613,7 @@ public class TablePlugin implements Plugin {
                                         JEVisFile file = item.getLatestSample().getValueAsFile();
                                         if (file != null) {
                                             FileChooser fileChooser = new FileChooser();
-                                            fileChooser.setInitialFileName(file.getFilename());
+                                            fileChooser.setInitialFileName(FileNames.fixName(file.getFilename()));
                                             fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
                                             fileChooser.getExtensionFilters().addAll(
                                                     new FileChooser.ExtensionFilter("All Files", "*.*"));
@@ -711,7 +767,6 @@ public class TablePlugin implements Plugin {
                                 e.printStackTrace();
                             }
 
-                            NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
                             UnaryOperator<TextFormatter.Change> filter = t -> {
                                 if (t.getText().length() > 1) {/** Copy&paste case **/
                                     try {

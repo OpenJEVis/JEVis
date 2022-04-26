@@ -96,6 +96,7 @@ public class LoadAnalysisDialog extends JFXDialog {
 
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
+        setOverlayClose(false);
 
         filteredData = new FilteredList<>(analysisDataModel.getObservableListAnalyses(), s -> true);
 
@@ -163,8 +164,7 @@ public class LoadAnalysisDialog extends JFXDialog {
 
 
         if (!analysisListView.getItems().isEmpty()) {
-            dateHelper.setStartTime(analysisDataModel.getWorkdayStart());
-            dateHelper.setEndTime(analysisDataModel.getWorkdayEnd());
+            dateHelper.setWorkDays(analysisDataModel.getWorkDays());
         }
 
         if (analysisDataModel.getCurrentAnalysis() != null && analysisDataModel.getCurrentAnalysis().getName() != null
@@ -289,6 +289,14 @@ public class LoadAnalysisDialog extends JFXDialog {
                         //last Year
                         dateHelper.setType(DateHelper.TransformType.LASTYEAR);
                         analysisDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.LAST_YEAR));
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
+                        updateGridLayout();
+                        break;
+                    case THE_YEAR_BEFORE_LAST:
+                        //last Year
+                        dateHelper.setType(DateHelper.TransformType.THEYEARBEFORELAST);
+                        analysisDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.THE_YEAR_BEFORE_LAST));
                         analysisDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
                         analysisDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
                         updateGridLayout();
@@ -603,8 +611,7 @@ public class LoadAnalysisDialog extends JFXDialog {
                             if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
                                 dateHelper.setCustomPeriodObject(cpo);
                                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
-                                dateHelper.setStartTime(analysisDataModel.getWorkdayStart());
-                                dateHelper.setEndTime(analysisDataModel.getWorkdayEnd());
+                                dateHelper.setWorkDays(analysisDataModel.getWorkDays());
 
                                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
                                 newTimeFrame.setTimeFrame(TimeFrame.CUSTOM_START_END);
@@ -642,6 +649,7 @@ public class LoadAnalysisDialog extends JFXDialog {
             pickerDateEnd = pickerCombo.getEndDatePicker();
             pickerTimeEnd = pickerCombo.getEndTimePicker();
             filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
+            filterInput.setStyle("-fx-font-weight: bold;");
 
             Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
             Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
@@ -759,5 +767,7 @@ public class LoadAnalysisDialog extends JFXDialog {
         });
     }
 
-
+    public JFXTextField getFilterInput() {
+        return filterInput;
+    }
 }

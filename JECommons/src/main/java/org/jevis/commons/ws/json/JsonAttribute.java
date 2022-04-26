@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Attribute")
 public class JsonAttribute {
 
-    private String type;
+    private String type = "";
     private String begins;
     private String ends;
     private JsonUnit inputUnit;

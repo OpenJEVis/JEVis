@@ -18,7 +18,7 @@ public class LogicalChart extends XYChart {
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
-        XYLogicalChartSerie serie = new XYLogicalChartSerie(singleRow, showIcons);
+        XYLogicalChartSerie serie = new XYLogicalChartSerie(chartSetting, singleRow, showIcons);
         setMinValue(Math.min(minValue, serie.getMinValue()));
         setMaxValue(Math.max(maxValue, serie.getMaxValue()));
 
@@ -63,4 +63,5 @@ public class LogicalChart extends XYChart {
         y1Axis.setTickUnit(1d);
         y1Axis.setMinorTickVisible(false);
     }
+
 }

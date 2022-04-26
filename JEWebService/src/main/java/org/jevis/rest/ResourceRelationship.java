@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
+import org.jevis.commons.ws.sql.CachedAccessControl;
 import org.jevis.commons.ws.sql.Config;
 import org.jevis.commons.ws.sql.SQLDataSource;
 
@@ -97,8 +98,13 @@ public class ResourceRelationship {
             ds.getUserManager().canWrite(toObj);
 
             JsonRelationship newJSON = ds.setRelationships(json);
+            try {
+                CachedAccessControl.getInstance(ds).checkForChanges(newJSON);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+            }
 
-            ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_RELATIONSHIP,String.format("%s",newJSON));
+            ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_RELATIONSHIP, String.format("%s", newJSON));
             return Response.ok(newJSON).build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
@@ -140,7 +146,12 @@ public class ResourceRelationship {
 
             boolean delete = ds.deleteRelationship(from, to, type);
             if (delete) {
-                ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_RELATIONSHIP,String.format("%s-%s-%s",from,to,type));
+                try {
+                    CachedAccessControl.getInstance(ds).checkForChanges(type);
+                } catch (Exception ex) {
+                    logger.error(ex, ex);
+                }
+                ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_RELATIONSHIP, String.format("%s-%s-%s", from, to, type));
                 return Response.ok().build();
             } else {
                 return Response.notModified().build();

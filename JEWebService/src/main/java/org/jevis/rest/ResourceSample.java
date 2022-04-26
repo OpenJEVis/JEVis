@@ -23,13 +23,13 @@ package org.jevis.rest;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.utils.Samples;
 import org.jevis.commons.ws.json.*;
+import org.jevis.commons.ws.sql.CachedAccessControl;
 import org.jevis.commons.ws.sql.Config;
 import org.jevis.commons.ws.sql.JEVisClassHelper;
 import org.jevis.commons.ws.sql.SQLDataSource;
@@ -48,6 +48,7 @@ import javax.ws.rs.core.Response.Status;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,7 +68,9 @@ public class ResourceSample {
     /**
      * List of classes which can be updated with the execute permission
      **/
-    public final List<String> executeUpdateExceptions = Lists.newArrayList("Data Notes", "User Data", "Clean Data");
+    String[] executeClasses = new String[]{"Data Notes", "User Data", "Clean Data"};
+    public final List<String> executeUpdateExceptions = Arrays.asList(executeClasses);
+    //public final List<String> executeUpdateExceptions = Lists.newArrayList("Data Notes", "User Data", "Clean Data");
 
 
     //JEWebService/v1/files/8598/attributes/File/samples/files/20180604T141441?filename=nb-configuration.xml
@@ -133,6 +136,7 @@ public class ResourceSample {
             samples.add(sample);
 
             JsonType type = JEVisClassHelper.getType(obj.getJevisClass(), attribute);
+
 
             int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
             samples.clear();
@@ -215,9 +219,10 @@ public class ResourceSample {
                 String fileName = createFilePattern(id, attribute, sample.getValue(), dbTS);
                 File file = new File(fileName);
                 if (file.exists() && file.canRead()) {
-                    ResponseBuilder response = Response.ok(file, MediaType.APPLICATION_OCTET_STREAM);
-                    response.header("Content-Disposition",
-                            "attachment; filename=\"" + sample.getValue() + "\"");
+                    ResponseBuilder response = Response.ok(file, MediaType.APPLICATION_OCTET_STREAM)
+                            .header(HttpHeaders.CONTENT_DISPOSITION, file.getName())
+                            .header(HttpHeaders.CONTENT_LENGTH, file.length())
+                            .header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()));
                     return response.build();
                 } else {
                     Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -274,12 +279,13 @@ public class ResourceSample {
             JsonObject obj = ds.getObject(id);
             if (obj == null) {
                 return Response.status(Status.NOT_FOUND)
-                        .entity("Object is not accessible").build();
+                        .entity("Object not found").build();
             }
 
             if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
                 if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                    throw new JEVisException("permission denied", 3022);
+                    return Response.status(Status.FORBIDDEN)
+                            .entity("Object is not accessible").build();
                 }
             } else {
                 ds.getUserManager().canRead(obj);
@@ -287,7 +293,54 @@ public class ResourceSample {
 
             logger.trace("got Object: {}", obj);
 
-            List<JsonAttribute> attributes = ds.getAttributes(id);
+            JsonAttribute att = ds.getAttribute(id, attribute);
+            if (att == null) {
+                return Response.status(Status.NOT_FOUND)
+                        .entity("No such Attribute").build();
+            }
+
+            DateTime startDate = null;
+            DateTime endDate = null;
+            if (start != null) {
+                startDate = fmt.parseDateTime(start);
+                if (startDate.getYear() < 1980) {
+                    Response.ok(new ArrayList<JsonSample>()).build();
+                }
+            }
+            if (end != null) {
+                endDate = fmt.parseDateTime(end);
+                if (endDate.getYear() < 1980) {
+                    Response.ok(new ArrayList<JsonSample>()).build();
+                }
+            }
+
+            if (onlyLatest) {
+                logger.trace("Last sample mode");
+
+                JsonSample sample = ds.getLastSample(id, attribute);
+                if (sample != null) {
+                    return Response.ok(sample).build();
+                } else {
+                    return Response.status(Status.NOT_FOUND).entity("Has no samples").build();
+                }
+
+            }
+
+            if ((aggregationPeriod.equals("") && manipulationMode.equals(""))
+                    || (aggregationPeriod.equals("NONE") && manipulationMode.equals("NONE"))) {
+                list = ds.getSamples(id, attribute, startDate, endDate, limit);
+            } else {
+                AggregationPeriod ap = AggregationPeriod.parseAggregation(aggregationPeriod);
+                ManipulationMode mm = ManipulationMode.parseManipulation(manipulationMode);
+                DateTimeZone dateTimeZone = DateTimeZone.forID(timeZone);
+                JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap, dateTimeZone);
+
+                list = sg.getAggregatedSamples();
+            }
+
+            return Response.ok(list).build();
+
+            /*
             for (JsonAttribute att : attributes) {
                 if (att.getType().equals(attribute)) {
                     DateTime startDate = null;
@@ -334,9 +387,11 @@ public class ResourceSample {
 
                 }
             }
+
             return Response.status(Status.NOT_FOUND)
                     .entity("No such Attribute").build();
 
+            */
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception jex) {
@@ -376,10 +431,17 @@ public class ResourceSample {
                     }
                 }
 
+
                 if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
                     if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
                         throw new JEVisException("permission denied", 3022);
+                    } else if (attribute.equals("Password")) {
+                        canWrite = true;
+                    } else {
+                        canWrite = ds.getUserManager().canWriteWOE(object);
                     }
+
+
                 } else {
 
                     /**
@@ -401,50 +463,54 @@ public class ResourceSample {
                 }
 
 
-                List<JsonAttribute> attributes = ds.getAttributes(id);
-                for (JsonAttribute att : attributes) {
-                    if (att.getType().equals(attribute)) {
-                        List<JsonSample> samples = new ArrayList<>(Arrays.asList(objectMapper.readValue(input, JsonSample[].class)));
-                        JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
+                JsonAttribute att = ds.getAttribute(id, attribute);
+                if (att.getType().equals(attribute)) {
+                    List<JsonSample> samples = new ArrayList<>(Arrays.asList(objectMapper.readValue(input, JsonSample[].class)));
+                    JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
 
 
-                        // If user can write -> OK
-                        // If user can execute and only Note changed -> OK
-                        int result = 0;
-                        if (canWrite || (canExecute &&
-                                (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")))) {
-                            logger.debug("canWrite import");
-                            result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-                        } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(2))) {
-                            /** update notes but not samples **/
-                            logger.debug("canExecute Sample: {}-{} for: {}", id, att, ds.getCurrentUser().getAccountName());
-                            for (JsonSample jsonSample : samples) {
-                                logger.debug("jsonSample: {}", jsonSample);
-                                List<JsonSample> sampleList = new ArrayList<>();
-                                try {
-                                    List<JsonSample> onDB = ds.getSampleTable().getSamples(id, attribute, JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), 1);
-                                    for (JsonSample dbSample : onDB) {
-                                        if (dbSample.getValue().equals(jsonSample.getValue())) {
-                                            sampleList.add(jsonSample);
-                                            logger.debug("dbSample: {}", dbSample);
-                                        }
+                    // If user can write -> OK
+                    // If user can execute and only Note changed -> OK
+                    int result = 0;
+                    if (canWrite || (canExecute && (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")))) {
+                        logger.debug("canWrite import");
+                        result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+                    } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(2))) {
+                        /** update notes but not samples **/
+                        logger.debug("canExecute Sample: {}-{} for: {}", id, att, ds.getCurrentUser().getAccountName());
+                        for (JsonSample jsonSample : samples) {
+                            logger.debug("jsonSample: {}", jsonSample);
+                            List<JsonSample> sampleList = new ArrayList<>();
+                            try {
+                                List<JsonSample> onDB = ds.getSampleTable().getSamples(id, attribute, JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), 1);
+                                for (JsonSample dbSample : onDB) {
+                                    if (dbSample.getValue().equals(jsonSample.getValue())) {
+                                        sampleList.add(jsonSample);
+                                        logger.debug("dbSample: {}", dbSample);
                                     }
-
-                                } catch (JEVisException jex) {
-                                    logger.error(jex);
                                 }
-                                logger.debug("Add Notes: {}", sampleList);
-                                result += ds.setSamples(id, attribute, type.getPrimitiveType(), sampleList);
+
+                            } catch (JEVisException jex) {
+                                logger.error(jex);
                             }
+                            logger.debug("Add Notes: {}", sampleList);
+                            result += ds.setSamples(id, attribute, type.getPrimitiveType(), sampleList);
                         }
-
-                        ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE, String.format("%s:%s|%s|%s", id, attribute, result, Samples.getDuration(samples)));
-                        samples.clear();
-                        samples = null;
-
-                        return Response.status(Status.CREATED).build();
                     }
+
+                    ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE, String.format("%s:%s|%s|%s", id, attribute, result, Samples.getDuration(samples)));
+                    samples.clear();
+                    samples = null;
+
+                    try {
+                        CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.ADD);
+                    } catch (Exception ex) {
+                        logger.error(ex, ex);
+                    }
+
+                    return Response.status(Status.CREATED).build();
                 }
+
 
                 return Response.status(Status.NOT_MODIFIED).build();
 
@@ -519,6 +585,12 @@ public class ResourceSample {
             } else {
                 logger.debug("Delete Between");
                 ds.deleteSamplesBetween(object.getId(), attribute, startDate, endDate);
+            }
+
+            try {
+                CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.DELETE);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
             }
 
             ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE, String.format("%s:%s|%s -> %s", id, attribute, startDate, endDate));

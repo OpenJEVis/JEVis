@@ -4,6 +4,7 @@
 
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
+import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.JFXComboBox;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
@@ -16,10 +17,13 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
@@ -31,7 +35,6 @@ import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
+    private static final Logger logger = LogManager.getLogger(DataPointTableViewPointer.class);
     private final org.jevis.jeconfig.application.Chart.Charts.XYChart currentChart;
     private final List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActiveCharts;
     private DateTime timestampFromFirstSample = null;
@@ -47,6 +51,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
     boolean plotArea = true;
     private final List<XYChartSerie> xyChartSerieList;
     private WorkDays workDays;
+    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
     public DataPointTableViewPointer(org.jevis.jeconfig.application.Chart.Charts.Chart chart, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive) {
         this.currentChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) chart;
@@ -58,17 +63,28 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
             workDays = new WorkDays(chartDataRow.getObject());
             break;
         }
+        this.nf.setMinimumFractionDigits(chart.getChartSetting().getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(chart.getChartSetting().getMaxFractionDigits());
 
         this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
         EventHandler<MouseEvent> mouseMoveHandler = event -> {
-            plotArea = true;
-            updateTable(event);
+            try {
+                plotArea = true;
+                updateTable(event);
+            } catch (Exception e) {
+                logger.error("Error on mouse move handler", e);
+            }
         };
         registerInputEventHandler(MouseEvent.MOUSE_MOVED, mouseMoveHandler);
+
         this.currentChart.getChart().setOnMouseMoved(event -> {
-            plotArea = false;
-            updateTable(event);
+            try {
+                plotArea = false;
+                updateTable(event);
+            } catch (Exception e) {
+                logger.error("Error on mouse moved handler", e);
+            }
         });
     }
 
@@ -231,9 +247,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
     }
 
     public void updateTable(DateTime nearest) {
-        NumberFormat nf = NumberFormat.getInstance();
-        nf.setMinimumFractionDigits(2);
-        nf.setMaximumFractionDigits(2);
+
         Period period = this.currentChart.getPeriod();
 
         xyChartSerieList.forEach(xyChartSerie -> {
@@ -303,9 +317,6 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
     }
 
     public void updateTable(Double nearest) {
-        NumberFormat nf = NumberFormat.getInstance();
-        nf.setMinimumFractionDigits(2);
-        nf.setMaximumFractionDigits(2);
 
         try {
             BubbleChart currentChart = (BubbleChart) this.currentChart;

@@ -55,6 +55,33 @@
       "jevisClass": "JEStatus"
     },
     {
+      "name": "User",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEStatus"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEStatus"
+    },
+    {
+      "name": "Tariffs",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEStatus"
+    },
+    {
       "name": "Cycle Time",
       "primitiveType": 2,
       "guiposition": 0,

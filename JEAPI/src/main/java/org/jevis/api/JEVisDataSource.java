@@ -122,6 +122,8 @@ public interface JEVisDataSource {
 
     List<JEVisObject> getObjects() throws JEVisException;
 
+    List<JEVisObject> getDeletedObjects() throws JEVisException;
+
     /**
      * Get a JEVisClass by its name
      *
@@ -247,9 +249,10 @@ public interface JEVisDataSource {
      * Delete an Objects
      *
      * @param objectID
+     * @param deleteForever delete the object, if false move to recycle bin
      * @return
      */
-    boolean deleteObject(long objectID) throws JEVisException;
+    boolean deleteObject(long objectID, boolean deleteForever) throws JEVisException;
 
     /**
      * Delete an JEVisClass
@@ -299,7 +302,7 @@ public interface JEVisDataSource {
     void reloadAttributes() throws JEVisException;
 
     /**
-     * request the reload of an attribute
+     * request to reload of an attribute
      *
      * @throws JEVisException
      */
@@ -314,8 +317,16 @@ public interface JEVisDataSource {
 
     void reloadObject(JEVisObject object);
 
+
     /**
      * Clears the internal cache
      */
     void clearCache();
+
+    /**
+     * Request an Access Control update.
+     * This is needed after changing User,Group and there the membership Relationships.
+     */
+    void updateAccessControl();
+
 }

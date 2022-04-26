@@ -44,7 +44,7 @@ public class MathDataObject {
 
     private JEVisAttribute valueAttribute;
     private JEVisAttribute enabledAttribute;
-    private JEVisAttribute typeAttribute;
+    private JEVisAttribute manipulationAttribute;
     private JEVisAttribute formulaAttribute;
     private JEVisAttribute referencePeriodAttribute;
     private JEVisAttribute referencePeriodCountAttribute;
@@ -84,8 +84,8 @@ public class MathDataObject {
             valueAttribute = getMathDataObject().getAttribute(VALUE.getAttributeName());
         }
 
-        if (typeAttribute == null) {
-            typeAttribute = getMathDataObject().getAttribute(MANIPULATION.getAttributeName());
+        if (manipulationAttribute == null) {
+            manipulationAttribute = getMathDataObject().getAttribute(MANIPULATION.getAttributeName());
         }
 
         if (formulaAttribute == null) {
@@ -122,17 +122,49 @@ public class MathDataObject {
     }
 
     public void reloadAttributes() throws JEVisException {
-        getMathDataObject().getDataSource().reloadAttribute(enabledAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(valueAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(typeAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(formulaAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(referencePeriodAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(referencePeriodCountAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(periodOffsetAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(fillPeriodAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(beginningAttribute);
-        getMathDataObject().getDataSource().reloadAttribute(endingAttribute);
-        getParentDataObject().getDataSource().reloadAttribute(periodAttribute);
+        if (enabledAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(enabledAttribute);
+            enabled = null;
+        }
+        if (valueAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(valueAttribute);
+        }
+        if (manipulationAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(manipulationAttribute);
+            manipulationMode = null;
+        }
+        if (formulaAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(formulaAttribute);
+            formula = null;
+        }
+        if (referencePeriodAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(referencePeriodAttribute);
+            referencePeriod = null;
+        }
+        if (referencePeriodCountAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(referencePeriodCountAttribute);
+            referencePeriodCount = null;
+        }
+        if (periodOffsetAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(periodOffsetAttribute);
+            periodOffset = null;
+        }
+        if (fillPeriodAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(fillPeriodAttribute);
+            fillPeriod = null;
+        }
+        if (beginningAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(beginningAttribute);
+            beginning = null;
+        }
+        if (endingAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(endingAttribute);
+            ending = null;
+        }
+        if (periodAttribute != null) {
+            getParentDataObject().getDataSource().reloadAttribute(periodAttribute);
+            periodData = null;
+        }
     }
 
     public Boolean getEnabled() {
@@ -241,10 +273,10 @@ public class MathDataObject {
         this.valueAttribute = inputAttribute;
     }
 
-    public JEVisAttribute getTypeAttribute() throws JEVisException {
-        if (typeAttribute == null)
-            typeAttribute = getMathDataObject().getAttribute(MANIPULATION.getAttributeName());
-        return typeAttribute;
+    public JEVisAttribute getManipulationAttribute() throws JEVisException {
+        if (manipulationAttribute == null)
+            manipulationAttribute = getMathDataObject().getAttribute(MANIPULATION.getAttributeName());
+        return manipulationAttribute;
     }
 
     public JEVisAttribute getReferencePeriodAttribute() throws JEVisException {
@@ -397,7 +429,19 @@ public class MathDataObject {
     }
 
     public boolean isReady() {
+
         DateTime nextRun = getEndDate();
+
+        Period periodForDate = CleanDataObject.getPeriodForDate(getPeriodAlignment(), nextRun);
+
+        if (getReferencePeriod() == AggregationPeriod.CUSTOM2) {
+            for (int i = 0; i < Math.abs(getPeriodOffset()); i++)
+                if (getPeriodOffset() > 0) {
+                    nextRun = PeriodHelper.addPeriodToDate(nextRun, periodForDate);
+                } else if (getPeriodOffset() < 0) {
+                    nextRun = PeriodHelper.minusPeriodToDate(nextRun, periodForDate);
+                }
+        }
 
         try {
             JEVisSample latestSample = getInputAttribute().getLatestSample();
@@ -405,7 +449,8 @@ public class MathDataObject {
             if (latestSample != null) {
                 try {
                     DateTime latestSampleTS = latestSample.getTimestamp().withZone(getTimeZone(getMathDataObject()));
-                    return latestSampleTS.equals(getLastRun(this.getMathDataObject())) || latestSampleTS.isAfter(nextRun) || latestSampleTS.equals(nextRun);
+
+                    return latestSampleTS.isAfter(nextRun);
                 } catch (JEVisException e) {
                     logger.error("Could not check ready state", e);
                 }
@@ -417,11 +462,8 @@ public class MathDataObject {
         return false;
     }
 
-    public DateTime getNextRunWithOffset() {
-        AggregationPeriod aggregationPeriod = getReferencePeriod();
-        Long referencePeriodCount = getReferencePeriodCount();
-        DateTime start = getStartDate();
-        Long offset = getPeriodOffset();
+    public DateTime getNextRunWithOffset(AggregationPeriod aggregationPeriod, Long offset, Long referencePeriodCount, DateTime start) {
+
         for (int i = 0; i < referencePeriodCount; i++) {
             switch (aggregationPeriod) {
                 case NONE:
@@ -492,7 +534,7 @@ public class MathDataObject {
         Long referencePeriodCount = getReferencePeriodCount();
         DateTime lastRun = getLastRun(getMathDataObject());
 
-        return PeriodHelper.getNextPeriod(lastRun, org.jevis.commons.datetime.Period.valueOf(aggregationPeriod.toString()), referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
+        return PeriodHelper.getNextPeriod(lastRun, org.jevis.commons.datetime.Period.parsePeriod(aggregationPeriod.toString()), referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
     }
 
     private DateTimeZone getTimeZone(JEVisObject object) {
@@ -514,7 +556,7 @@ public class MathDataObject {
     }
 
     private DateTime getLastRun(JEVisObject object) {
-        DateTime dateTime = new DateTime(1990, 1, 1, 0, 0, 0).withZone(getTimeZone(object));
+        DateTime dateTime = new DateTime(1990, 1, 1, 0, 0, 0);
 
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
@@ -529,7 +571,7 @@ public class MathDataObject {
             logger.error("Could not get data source last run time: ", e);
         }
 
-        return dateTime;
+        return dateTime.withZone(getTimeZone(object));
     }
 
 

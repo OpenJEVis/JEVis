@@ -183,6 +183,7 @@ public class MathFunction implements ProcessFunction {
 
                     QuantityUnits qu = new QuantityUnits();
                     boolean isQuantity = qu.isQuantityUnit(unit);
+                     isQuantity = qu.isQuantityIfCleanData(mainTask.getSqlDataSource(), jsonAttribute, isQuantity);
 
                     if (hasSamples && !isQuantity) {
                         value = value / samplesInPeriod.size();
