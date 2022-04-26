@@ -129,8 +129,7 @@ public class AlarmHandler {
 
         CleanDataTable cleanDataTable = new CleanDataTable(_ds, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
         sb.append(cleanDataTable.getTableString());
-        WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
-        sb.append(wirelessLogicStatus.getTableString());
+       
 
         sb.append("</html>");
 
