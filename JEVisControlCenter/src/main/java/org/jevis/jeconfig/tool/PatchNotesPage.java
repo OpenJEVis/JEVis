@@ -50,7 +50,83 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.60------\n" +
+            "------Version 3.9.62------\n" +
+                    "JECC - AccountingPlugin - added write check for visible tabs\n" +
+                    "JECC - ChartPlugin - bugfixes\n" +
+                    "JECC - ChartPlugin - disabled overlay close on load analysis dialog\n" +
+                    "JECC - ChartPlugin - fixed alarm map displaying too much information\n" +
+                    "JECC - ChartPlugin - fixed disabled quick selection box\n" +
+                    "JECC - ChartPlugin - fixed disabled toolbar working properly \n" +
+                    "JECC - ChartPlugin - fixed memory leak\n" +
+                    "JECC - ObjectPlugin - AlarmEditor - fixed null pointer\n" +
+                    "JECC - ObjectPlugin - FileEditor - added option for json files\n" +
+                    "JECC - ObjectPlugin - FileEditor - fixed extension recognition\n" +
+                    "JECC - ObjectPlugin - ObjectTable - improved memory performance on large data structures\n" +
+                    "JECC - ObjectPlugin - RenameDialog - added warning for missing user rights\n" +
+                    "JECC - ObjectPlugin - SampleTable - added expert tools for base and user data\n" +
+                    "JECC - ObjectPlugin - SampleTable - increased width of note column\n" +
+                    "JECC - ObjectPlugin - implemented basic json viewer\n" +
+                    "JECC - ProgressForm - increased size\n" +
+                    "JECC - TRCPlugin - added data input option for OutputView\n" +
+                    "JECC - TablePlugin - added fraction digits configuration\n" +
+                    "JECC - TablePlugin - added path column\n" +
+                    "JECC - TablePlugin - fixed autofit for multisite\n" +
+                    "JECC - TablePlugin - improved EnterDataDialog\n" +
+                    "\n" +
+                    "Classes - Measurement Instruments - fixed attribute inheritance and translation\n" +
+                    "Classes - added missing daily report setting\n" +
+                    "\n" +
+                    "JECommons - AggregatorFunction - fixed wrong quantity check for aggregation\n" +
+                    "JECommons - AlarmProcess - standby time working properly\n" +
+                    "JECommons - Calculation - fixed user data input \n" +
+                    "JECommons - DateHelper - added the year before last to calendar presets\n" +
+                    "JECommons - GapsAndLimits - fixed cache not working properly for median\n" +
+                    "JECommons - MathStep - added sum functionality \n" +
+                    "JECommons - WorkDays - added workaround for objects not in buildings\n" +
+                    "\n" +
+                    "JEStatus - WirelessLogicRequest - using httpurlconnection instead of curl for get request\n" +
+                    "JEStatus - improved logging\n\n" +
+                    "------Version 3.9.61------\n" +
+                    "JECC - AccountingPlugin - added input fallback with zero\n" +
+                    "JECC - AccountingPlugin - added plugin tooltip\n" +
+                    "JECC - AccountingPlugin - fixed input labeling for ungrouped inputs\n" +
+                    "JECC - AccountingPlugin - fixed input template naming\n" +
+                    "JECC - AccountingPlugin - fixed xlsx output for null uni\n" +
+                    "JECC - AccountingPlugin - improved reload\n" +
+                    "JECC - AccountingPlugin - minor bugfixes\n" +
+                    "JECC - AccountingPlugin - sort contracts\n" +
+                    "JECC - BaseDataPlugin - added new function for multisite users seeing sites in tabbed view\n" +
+                    "JECC - BaseDataPlugin - split value column to enter data, value and timestamp\n" +
+                    "JECC - ChartPlugin - TableChartV - fixed null pointer for text data\n" +
+                    "JECC - ChartPlugin - forcing new analysis to save after creation\n" +
+                    "JECC - ChartPlugin - improved renderer loading\n" +
+                    "JECC - Config - added boot to plugin\n" +
+                    "JECC - DashboardPlugin - fixed auto aggregation for charts affecting other widget types\n" +
+                    "JECC - FXLogin - added language boot option\n" +
+                    "JECC - Loytec Assistant - 2 different modes Browser, Setup Assistant\n" +
+                    "JECC - Loytec Assistant - sample rate will be set\n" +
+                    "JECC - ObjectPlugin - ObjectTable - added clean data parent to source column\n" +
+                    "JECC - ObjectPlugin - ObjectTable - added columns for min/max ts \n" +
+                    "JECC - ObjectPlugin - ObjectTable - added two column for min/max ts of current request\n" +
+                    "JECC - ObjectPlugin - ObjectTable - improved attribute visuals\n" +
+                    "JECC - ObjectRelations - changed separator to \\\n" +
+                    "JECC - Statusbar - improved task logging\n" +
+                    "JECC - TRCPlugin - improved calculation input handling\n" +
+                    "JECC - TRCPlugin - minor bugfixes\n" +
+                    "JECC - TablePlugin - fixed filter input for new tab tabpanes\n" +
+                    "JECC - TablePlugin - improved performance with cell factory optimization\n" +
+                    "JECC - TablePlugin - split last value column to value and timestamp\n" +
+                    "JECC - TablePlugins - added reload translation title\n" +
+                    "\n" +
+                    "JEDataProcessor - GapsAndLimits - fixed division result for broken rational values resulting in exception\n" +
+                    "\n" +
+                    "JEStatus - Wireless Logic Status error handling for tariff does not exist\n" +
+                    "JEStatus - added Wireless Logic Status and Sims Offline\n" +
+                    "\n" +
+                    "JEWebService - added jecc distribution method\n" +
+                    "JEWebService - added runtime distribution method\n" +
+                    "JEWebService - get jecc version from compiled path\n\n" +
+                    "------Version 3.9.60------\n" +
                     "JECC - AlarmPlugin - added pagination to tableview\n" +
                     "JECC - ChartPlugin - LoadAnalysisDialog - highlighted and focused filter\n" +
                     "JECC - ChildrenEditorExtension - added duplicate check\n" +

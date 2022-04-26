@@ -3,142 +3,171 @@ package org.jevis.jestatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.i18n.I18n;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class WirelessLogicStatus extends AlarmTable {
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ServiceStatus.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(WirelessLogicStatus.class);
     private static final String timestampFormat = "yyyy-MM-dd HH:MM:ss";
 
     public WirelessLogicStatus(JEVisDataSource ds, List<String> tariffs, String username, String password) {
         super(ds);
 
-
         try {
-            if (tariffs.isEmpty() || username == null || password == null) {
-                logger.error("Missing Setting, abort");
-                setTableString("");
-            } else {
-                createTableString(tariffs, username, password);
-            }
-
+            createTableString(tariffs, username, password);
         } catch (Exception e) {
-            logger.error("Could not initialize.");
+            logger.error("Exception while creating Wireless Logic Status", e);
         }
     }
 
-    private void createTableString(List<String> tariffs, String username, String password) throws JEVisException {
-        try {
-            StringBuilder sb = new StringBuilder();
-            if (tariffs != null && username != null && password != null) {
-                if (!username.equals("") && !password.equals("")) {
+    private void createTableString(List<String> tariffs, String username, String password) throws Exception {
 
-                    NumberFormat nf = NumberFormat.getInstance();
-                    nf.setMinimumFractionDigits(2);
-                    nf.setMaximumFractionDigits(2);
+        StringBuilder sb = new StringBuilder();
+        if (tariffs != null && username != null && password != null) {
+            if (!username.equals("") && !password.equals("")) {
 
-
-                    sb.append("<br>");
-                    sb.append("<br>");
-
-                    sb.append("<h2>").append(I18n.getInstance().getString("status.table.title.wirelesslogic")).append("</h2>");
-                    sb.append("<table style=\"");
-                    sb.append(tableCSS);
-                    sb.append("\" border=\"1\" >");
-                    sb.append("<tr style=\"");
-                    sb.append(headerCSS);
-                    sb.append("\" >");
-                    sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.tariff")).append("</th>");
-                    sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.dataicluded")).append("</th>");
-                    sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.dataused")).append("</th>");
-                    sb.append("  </tr>");
-
-                    List<JsonNode> offlineSims = new ArrayList<>();
-                    WirelessLogicRequest wirelessLogicRequest = new WirelessLogicRequest(username, password);
-                    for (String tariff : tariffs) {
-                        List<JsonNode> sims = wirelessLogicRequest.getSims(tariff, WirelessLogicRequest.STATUS_ACTIVE);
-                        JsonNode tariffDetails = wirelessLogicRequest.getTariffDetails(tariff);
-                        if (tariffDetails.has("error")) {
-                            continue;
-                        }
-                        double dataIncluded = wirelessLogicRequest.getDataIncluded(tariffDetails, sims);
-                        double totalDataUsed = wirelessLogicRequest.getTotalDataUsed(wirelessLogicRequest.getSimUsage(sims));
-                        offlineSims.addAll(wirelessLogicRequest.getOfflineSim(wirelessLogicRequest.getSimUsage(sims), 1));
+                NumberFormat nf = NumberFormat.getInstance();
+                nf.setMinimumFractionDigits(2);
+                nf.setMaximumFractionDigits(2);
 
 
-                        sb.append("<tr>");
-                        sb.append("<td style=\"");
-                        sb.append(rowCss);
-                        sb.append("\">");
-                        sb.append(tariff);
-                        sb.append("</td>");
+                sb.append("<br>");
+                sb.append("<br>");
 
-                        sb.append("<td style=\"");
-                        sb.append(rowCss);
-                        sb.append("\">");
+                sb.append("<h2>").append(I18n.getInstance().getString("status.table.title.wirelesslogic")).append("</h2>");
+                sb.append("<table style=\"");
+                sb.append(tableCSS);
+                sb.append("\" border=\"1\" >");
+                sb.append("<tr style=\"");
+                sb.append(headerCSS);
+                sb.append("\" >");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.tariff")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.dataincluded")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.dataused")).append("</th>");
+                sb.append("  </tr>");
 
-                        sb.append(nf.format(dataIncluded)).append(" MB");
-                        sb.append("</td>");
-
-                        sb.append("<td style=\"");
-                        sb.append(rowCss);
-                        sb.append("\">");
-
-                        sb.append(nf.format(totalDataUsed)).append(" MB").append(" (").append(nf.format((totalDataUsed / dataIncluded) * 100)).append("%)");
-                        sb.append("</td>");
-                        sb.append("</tr>");
-
+                List<SimCardInfos> offlineSims = new ArrayList<>();
+                List<JsonNode> offlineSimUsage = new ArrayList<>();
+                WirelessLogicRequest wirelessLogicRequest = new WirelessLogicRequest(username, password);
+                for (String tariff : tariffs) {
+                    List<JsonNode> sims = wirelessLogicRequest.getSims(tariff, WirelessLogicRequest.STATUS_ACTIVE);
+                    JsonNode tariffDetails = wirelessLogicRequest.getTariffDetails(tariff);
+                    if (tariffDetails.has("error")) {
+                        continue;
                     }
+                    double dataIncluded = wirelessLogicRequest.getDataIncluded(tariffDetails, sims);
+                    double totalDataUsed = wirelessLogicRequest.getTotalDataUsed(wirelessLogicRequest.getSimUsage(sims));
 
-                    sb.append("</table>");
-                    sb.append("<br>");
-                    sb.append("<br>");
+                    offlineSimUsage.addAll(wirelessLogicRequest.getOfflineSim(wirelessLogicRequest.getSimUsage(sims), 1));
 
-                    sb.append("<h2>").append(I18n.getInstance().getString("status.table.title.simoffline")).append("</h2>");
-                    sb.append("<table style=\"");
-                    sb.append(tableCSS);
-                    sb.append("\" border=\"1\" >");
-                    sb.append("<tr style=\"");
-                    sb.append(headerCSS);
-                    sb.append("\" >");
-                    sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.iccid")).append("</th>");
-                    sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lastseen")).append("</th>");
-                    sb.append("  </tr>");
-                    for (JsonNode offlineSim : offlineSims) {
 
-                        sb.append("<tr>");
-                        sb.append("<td style=\"");
-                        sb.append(rowCss);
-                        sb.append("\">");
-                        sb.append(offlineSim.get("iccid").asText());
-                        sb.append("</td>");
 
-                        sb.append("<td style=\"");
-                        sb.append(rowCss);
-                        sb.append("\">");
+                    sb.append("<tr>");
+                    sb.append("<td style=\"");
+                    sb.append(rowCss);
+                    sb.append("\">");
+                    sb.append(tariff);
+                    sb.append("</td>");
 
-                        sb.append(offlineSim.get("last_seen").asText());
-                        sb.append("</td>");
-                        sb.append("</tr>");
-                    }
+                    sb.append("<td style=\"");
+                    sb.append(rowCss);
+                    sb.append("\">");
+
+                    sb.append(nf.format(dataIncluded)).append(" MB");
+                    sb.append("</td>");
+
+                    sb.append("<td style=\"");
+                    sb.append(rowCss);
+                    sb.append("\">");
+
+                    sb.append(nf.format(totalDataUsed)).append(" MB").append(" (").append(nf.format((totalDataUsed / dataIncluded) * 100)).append("%)");
+                    sb.append("</td>");
+                    sb.append("</tr>");
+
+                }
+                offlineSims.addAll(wirelessLogicRequest.combineSimInfos(offlineSimUsage, wirelessLogicRequest.getSimDetails(offlineSimUsage)));
+
+
+
+
+
+                sb.append("</table>");
+                sb.append("<br>");
+                sb.append("<br>");
+
+                sb.append("<h2>").append(I18n.getInstance().getString("status.table.title.simoffline")).append("</h2>");
+                sb.append("<table style=\"");
+                sb.append(tableCSS);
+                sb.append("\" border=\"1\" >");
+                sb.append("<tr style=\"");
+                sb.append(headerCSS);
+                sb.append("\" >");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.iccid")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.cutomerfield1")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.cutomerfield2")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.cutomerfield3")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.cutomerfield4")).append("</th>");
+                sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lastseen")).append("</th>");
+                sb.append("  </tr>");
+                for (SimCardInfos simCardInfos : offlineSims) {
+
+
+                    sb.append("<tr>");
+                    sb.append("<td style=\"");
+                    sb.append(rowCss);
+                    sb.append("\">");
+                    sb.append(simCardInfos.getSimDetails().get("iccid").asText());
+                    sb.append("</td>");
+
+                    sb.append("<td style=\"");
+                    sb.append(rowCss);
+                    sb.append("\">");
+
+                    sb.append(simCardInfos.getSimDetails().get("custom_field1").asText());
+                    sb.append("</td>");
+
+                    sb.append("<td style=\"");
+                    sb.append(rowCss);
+                    sb.append("\">");
+
+                    sb.append(simCardInfos.getSimDetails().get("custom_field2").asText());
+                    sb.append("</td>");
+
+                    sb.append("<td style=\"");
+                    sb.append(rowCss);
+                    sb.append("\">");
+
+                    sb.append(simCardInfos.getSimDetails().get("custom_field3").asText());
+                    sb.append("</td>");
+
+                    sb.append("<td style=\"");
+                    sb.append(rowCss);
+                    sb.append("\">");
+
+                    sb.append(simCardInfos.getSimDetails().get("custom_field4").asText());
+                    sb.append("</td>");
+
+                    sb.append("<td style=\"");
+                    sb.append(rowCss);
+                    sb.append("\">");
+
+                    sb.append(simCardInfos.getSimUsage().get("last_seen").asText());
+                    sb.append("</td>");
+                    sb.append("</tr>");
 
 
                 }
+
+                sb.append("</table>");
+                sb.append("<br>");
             }
-            setTableString(sb.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
-
+        setTableString(sb.toString());
     }
 }

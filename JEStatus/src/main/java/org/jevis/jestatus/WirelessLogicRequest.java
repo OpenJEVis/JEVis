@@ -3,32 +3,30 @@ package org.jevis.jestatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class WirelessLogicRequest {
     private final String user;
     private final String password;
-    private static final String API ="curl --user ${user}:${password} GET \"https://simpro4.wirelesslogic.com/api/v3/${api}\" -H  \"accept: application/json";
+    private static final String API = "curl --user ${user}:${password} GET \"https://simpro4.wirelesslogic.com/api/v3/${api}\" -H  \"accept: application/json";
     public static final String STATUS_ACTIVE = "active";
     public static final String STATUS_CANCELLED = "cancelled";
     public ObjectMapper objectMapper = new ObjectMapper();
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(WirelessLogicRequest.class);
 
     /**
-     *
-     * @param user username of wireless logic
+     * @param user     username of wireless logic
      * @param password password of wireless logic
      */
     public WirelessLogicRequest(String user, String password) {
@@ -37,7 +35,6 @@ public class WirelessLogicRequest {
     }
 
     /**
-     *
      * @param tariff Wireless logic tariff
      * @param status Status of Sim Card eg. active
      * @return list of Sim Cards
@@ -47,10 +44,9 @@ public class WirelessLogicRequest {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("sims?");
         if (status != null) {
-            stringBuilder.append("status=" + status+"&");
+            stringBuilder.append("status=" + status + "&");
         }
         stringBuilder.append("tariff_name=" + tariff);
-
 
 
         JsonNode jsonNode = objectMapper.readTree(getRequest(stringBuilder.toString()));
@@ -63,7 +59,6 @@ public class WirelessLogicRequest {
     }
 
     /**
-     *
      * @param tariff Wireless logic tariff
      * @return Tariff details
      * @throws IOException
@@ -79,8 +74,7 @@ public class WirelessLogicRequest {
     }
 
     /**
-     *
-     * @param tariffDetails Tariff Details of Wireless Logic
+     * @param tariffDetails  Tariff Details of Wireless Logic
      * @param activeSimCards List of Active Sim Cards in the Tariff
      * @return
      */
@@ -92,7 +86,6 @@ public class WirelessLogicRequest {
     }
 
     /**
-     *
      * @param sims List of Sim Cards
      * @return List of the Usage of the Sim Cards
      * @throws IOException
@@ -107,13 +100,12 @@ public class WirelessLogicRequest {
     }
 
     /**
-     *
      * @param simCardsUsage List of Sim Card Usage
      * @return amount of data all the sims have used this month
      */
     public double getTotalDataUsed(List<JsonNode> simCardsUsage) {
         double usage = 0;
-        for (JsonNode jsonNode:simCardsUsage) {
+        for (JsonNode jsonNode : simCardsUsage) {
             usage += jsonNode.get("month_to_date_bytes_up").asDouble();
             usage += jsonNode.get("month_to_date_bytes_down").asDouble();
         }
@@ -121,14 +113,13 @@ public class WirelessLogicRequest {
     }
 
     /**
-     *
      * @param simCardsUsage List of Sim Card Usage
-     * @param day offline since how many days to be counted as offline
+     * @param day           offline since how many days to be counted as offline
      * @return a List of Sim Card Usage containing information like iccid and last seen
      */
-    public List<JsonNode> getOfflineSim(List<JsonNode>simCardsUsage, int day) {
+    public List<JsonNode> getOfflineSim(List<JsonNode> simCardsUsage, int day) {
         List<JsonNode> jsonNodes = new ArrayList<>();
-        for (JsonNode jsonNode:simCardsUsage) {
+        for (JsonNode jsonNode : simCardsUsage) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             if (jsonNode.get("last_seen").asText().equals("null")) {
                 jsonNodes.add(jsonNode);
@@ -142,30 +133,48 @@ public class WirelessLogicRequest {
         return jsonNodes;
     }
 
+    public List<JsonNode> getSimDetails(List<JsonNode> simCardsUsage) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("sims/details?iccid=").append(String.join(",", simCardsUsage.stream().map(jsonNode -> jsonNode.get("iccid").asText()).collect(Collectors.toList())));
+        JsonNode jsonNode = objectMapper.readTree(getRequest(stringBuilder.toString()));
+        List<JsonNode> jsonNodeList = new ArrayList<>();
+        for (int i = 0; i < jsonNode.size();i++) {
+            jsonNodeList.add(jsonNode.get(i));
+
+        }
+        return jsonNodeList;
+
+    }
+
+    public List<SimCardInfos> combineSimInfos(List<JsonNode> simUsage, List<JsonNode> simDetails) {
+        List<SimCardInfos> offlineSimCards = new ArrayList<>();
+        for (int i = 0; i < simDetails.size(); i++) {
+            offlineSimCards.add(new SimCardInfos(simUsage.get(i), simDetails.get(i)));
+        }
+        return offlineSimCards;
+    }
+
+
+
+
     /**
      * send a get request to the simpro
+     *
      * @param api the part of the api after api/v3/
      * @return the result json String
      * @throws IOException
      */
-    public String getRequest(String api) throws IOException {
-        Map<String, String> data = new HashMap<String, String>();
-        data.put("user", user);
-        data.put("password", password);
-        data.put("api", api);
+    public InputStream getRequest(String api) throws IOException {
+        URL url = new URL("https://simpro4.wirelesslogic.com/api/v3/" + api);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setRequestMethod("GET");
+        httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        httpURLConnection.setRequestProperty("Accept-Charset", "UTF-8");
 
-        String formattedString = StrSubstitutor.replace(API, data);
+        String auth = new String(Base64.encodeBase64((user + ":" + password).getBytes()));
+        httpURLConnection.setRequestProperty("Authorization", "Basic " + auth);
 
-
-        Process process = Runtime.getRuntime().exec(formattedString);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String result = reader.readLine();
-        if (result == null) {
-            return "";
-        } else {
-            return result;
-        }
-
+        return httpURLConnection.getInputStream();
 
     }
 
@@ -182,5 +191,5 @@ public class WirelessLogicRequest {
         }
 
         return jsonNodes;
-        }
+    }
 }

@@ -71,15 +71,24 @@ public class EquipmentPlugin extends TablePlugin {
     private void createColumns(TableView<RegisterTableRow> tableView, JEVisClass jeVisClass) {
 
         try {
+            TableColumn<RegisterTableRow, String> pathColumn = new TableColumn<>(I18n.getInstance().getString("plugin.basedata.table.path.columnname"));
+            pathColumn.setCellValueFactory(param -> {
+                if (param.getValue().isMultiSite()) {
+                    return new ReadOnlyObjectWrapper<>(objectRelations.getObjectPath(param.getValue().getObject()));
+                } else return new ReadOnlyObjectWrapper<>("");
+            });
+            pathColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+            pathColumn.setSortable(true);
+            pathColumn.setSortType(TableColumn.SortType.ASCENDING);
+
             TableColumn<RegisterTableRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
             nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
             nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
             nameColumn.setSortable(true);
             nameColumn.setSortType(TableColumn.SortType.ASCENDING);
 
-            tableView.getColumns().add(nameColumn);
-            tableView.getSortOrder().addAll(nameColumn);
-
+            tableView.getColumns().addAll(pathColumn, nameColumn);
+            tableView.getSortOrder().addAll(pathColumn, nameColumn);
 
             for (JEVisType type : jeVisClass.getTypes()) {
                 TableColumn<RegisterTableRow, JEVisAttribute> column = new TableColumn<>(I18nWS.getInstance().getTypeName(jeVisClass.getName(), type.getName()));
@@ -417,7 +426,7 @@ public class EquipmentPlugin extends TablePlugin {
                     @Override
                     protected Object call() throws Exception {
                         try {
-                            this.updateTitle(I18n.getInstance().getString("Clear Cache"));
+                            this.updateTitle(I18n.getInstance().getString("plugin.equipment.load"));
                             if (initialized) {
                                 ds.clearCache();
                                 ds.preload();

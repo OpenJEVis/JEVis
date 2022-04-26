@@ -118,6 +118,8 @@ public class AlarmHandler {
         ServiceStatus serviceStatus = new ServiceStatus(_ds);
         sb.append(serviceStatus.getTableString());
 
+        WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
+        sb.append(wirelessLogicStatus.getTableString());
 
         DataServerTable dataServerTable = new DataServerTable(_ds, getLatestReported());
         sb.append(dataServerTable.getTableString());
@@ -127,12 +129,8 @@ public class AlarmHandler {
 
         CleanDataTable cleanDataTable = new CleanDataTable(_ds, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
         sb.append(cleanDataTable.getTableString());
-        try {
-            WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
-            sb.append(wirelessLogicStatus.getTableString());
-        } catch (Exception ex) {
-            logger.error("Error in WirelessLogicStatus", ex, ex);
-        }
+        WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
+        sb.append(wirelessLogicStatus.getTableString());
 
         sb.append("</html>");
 
@@ -326,7 +324,6 @@ public class AlarmHandler {
             //create Authenticator object to pass in Session.getInstance argument
             Authenticator auth = new Authenticator() {
                 //override the getPasswordAuthentication method
-                @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(conf.getSmtpUser(), conf.getSmtpPW());
                 }
@@ -367,63 +364,50 @@ public class AlarmHandler {
         return now.minus(Period.hours(latestReported.intValue()));
     }
 
-    private List<String> getTariff() throws JEVisException {
-        List<String> tariffs = new ArrayList<>();
-
+    private List<String> getTariff() {
         try {
             JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
             List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
             if (jEStatusObjects.size() > 0) {
-                JEVisObject jeStatusObject = jEStatusObjects.get(0);
-                JEVisAttribute tariffAttribute = jeStatusObject.getAttribute("Tariffs");
-                if (tariffAttribute != null) {
-                    if (tariffAttribute.getLatestSample() != null) {
-                        String tariff = tariffAttribute.getLatestSample().getValueAsString();
-                        if (tariff.equals("")) {
-                            return tariffs;
-                        } else {
-                            return Arrays.asList(tariff.split(";"));
-                        }
-                    } else {
-                        logger.error("Tariffs attribute is not set");
-                    }
+                String tariff = jEStatusObjects.get(0).getAttribute("Tariffs").getLatestSample().getValueAsString();
+                if (tariff.equals("")) {
+                    return null;
                 } else {
-                    logger.error("Tariffs Attribute does not exist");
+                    return Arrays.asList(tariff.split(";"));
                 }
-
-            } else {
-                logger.error("Could not found JEStatus class");
             }
-        } catch (Exception ex) {
-            logger.error("Error while loading Tariffs: {}", ex, ex);
+        } catch (Exception e) {
+            logger.error("Could not get tariffs from JEStatus", e);
         }
-
-        return tariffs;
-
-    }
-
-    private String getUsername() throws Exception {
-        JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
-        List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
-
-        if (jEStatusObjects.size() > 0) {
-            JEVisAttribute userAttribute = jEStatusObjects.get(0).getAttribute("User");
-            if (userAttribute != null && userAttribute.hasSample()) {
-                return userAttribute.getLatestSample().getValueAsString();
-            }
-        }
-
         return null;
     }
 
-    private String getPassword() throws Exception {
-        JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
-        List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
-        if (jEStatusObjects.size() > 0) {
-            JEVisAttribute passwordAttribute = jEStatusObjects.get(0).getAttribute("Password");
-            if (passwordAttribute != null && passwordAttribute.hasSample()) {
-                return passwordAttribute.getLatestSample().getValueAsString();
+    private String getUsername() {
+        try {
+            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
+            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
+            if (jEStatusObjects.size() > 0) {
+                return jEStatusObjects.get(0).getAttribute("User").getLatestSample().getValueAsString();
+            } else {
+                return null;
             }
+        } catch (Exception e) {
+            logger.error("Could not get username for tariff check from JEStatus", e);
+        }
+        return null;
+    }
+
+    private String getPassword() {
+        try {
+            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
+            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
+            if (jEStatusObjects.size() > 0) {
+                return jEStatusObjects.get(0).getAttribute("Password").getLatestSample().getValueAsString();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Could not get password for tariff check from JEStatus", e);
         }
         return null;
     }

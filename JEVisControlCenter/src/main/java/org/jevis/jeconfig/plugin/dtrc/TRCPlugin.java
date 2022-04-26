@@ -73,7 +73,7 @@ public class TRCPlugin implements Plugin {
     private final GridPane configOutputs = new GridPane();
     private final Tab configurationTab = new Tab(I18n.getInstance().getString("graph.tabs.configuration"));
     private final TabPane tabPane = new TabPane();
-    private final OutputView viewTab;
+    private OutputView viewTab;
     private final ObjectMapper mapper = new ObjectMapper();
     private final TemplateHandler templateHandler = new TemplateHandler();
 
@@ -85,7 +85,6 @@ public class TRCPlugin implements Plugin {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.title = getTitleFromPlugin();
-        this.viewTab = new OutputView(I18n.getInstance().getString("menu.view"), ds, templateHandler);
 
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -95,8 +94,6 @@ public class TRCPlugin implements Plugin {
         this.configOutputs.setPadding(new Insets(4));
         this.configOutputs.setVgap(6);
         this.configOutputs.setHgap(6);
-
-        initToolBar();
     }
 
     public static String getRealName(JEVisObject jeVisObject) {
@@ -554,6 +551,8 @@ public class TRCPlugin implements Plugin {
         if (!initialized) {
             initialized = true;
 
+            initToolBar();
+
             List<JEVisObject> allTemplateCalculations = getAllTemplateCalculations();
             if (allTemplateCalculations.isEmpty()) {
                 templateHandler.setRcTemplate(new RCTemplate());
@@ -569,6 +568,8 @@ public class TRCPlugin implements Plugin {
     }
 
     private void initGui() {
+        viewTab = new OutputView(I18n.getInstance().getString("menu.view"), ds, templateHandler);
+
         viewTab.setClosable(false);
         viewTab.showInputs(true);
 
@@ -583,7 +584,7 @@ public class TRCPlugin implements Plugin {
         configInputs.getChildren().add(buildAddInputButton());
 
         Label formulaLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
-        Label formulaInputsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel") + " " + I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
+//        Label formulaInputsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel") + " " + I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
         Label inputsLabel2 = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.inputslabel"));
         Label outputsLabel2 = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.outputslabel"));
 
@@ -596,9 +597,9 @@ public class TRCPlugin implements Plugin {
         Separator separator5 = new Separator(Orientation.HORIZONTAL);
         separator5.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox configVBox = new VBox(4, formulaLabel, configFormulas, separator3, formulaInputsLabel, configFormulaInputs, separator4,
-                inputsLabel2, configInputs, separator5,
-                new HBox(outputsLabel2, buildAddOutputButton()), configOutputs);
+        VBox configVBox = new VBox(4, formulaLabel, configFormulas, separator3,
+//        VBox configVBox = new VBox(4, formulaLabel, configFormulas, separator3, formulaInputsLabel, configFormulaInputs, separator4,
+                inputsLabel2, configInputs, separator5, new HBox(outputsLabel2, buildAddOutputButton()), configOutputs);
 
         configVBox.setPadding(new Insets(12));
 
@@ -613,6 +614,7 @@ public class TRCPlugin implements Plugin {
         tabPane.getTabs().setAll(viewTab, configurationTab);
 
         borderPane.setCenter(tabPane);
+
     }
 
     private JFXButton buildAddFormulaButton() {

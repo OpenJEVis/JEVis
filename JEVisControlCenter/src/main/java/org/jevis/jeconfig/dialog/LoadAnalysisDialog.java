@@ -96,6 +96,7 @@ public class LoadAnalysisDialog extends JFXDialog {
 
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
+        setOverlayClose(false);
 
         filteredData = new FilteredList<>(analysisDataModel.getObservableListAnalyses(), s -> true);
 
@@ -288,6 +289,14 @@ public class LoadAnalysisDialog extends JFXDialog {
                         //last Year
                         dateHelper.setType(DateHelper.TransformType.LASTYEAR);
                         analysisDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.LAST_YEAR));
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
+                        updateGridLayout();
+                        break;
+                    case THE_YEAR_BEFORE_LAST:
+                        //last Year
+                        dateHelper.setType(DateHelper.TransformType.THEYEARBEFORELAST);
+                        analysisDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.THE_YEAR_BEFORE_LAST));
                         analysisDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
                         analysisDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
                         updateGridLayout();

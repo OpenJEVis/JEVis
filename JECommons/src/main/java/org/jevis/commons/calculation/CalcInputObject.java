@@ -76,10 +76,11 @@ public class CalcInputObject {
         boolean foundUserDataObject = false;
         final JEVisClass userDataClass;
         try {
+            JEVisObject object = valueAttribute.getObject();
             userDataClass = valueAttribute.getDataSource().getJEVisClass("User Data");
-            for (JEVisObject parent : valueAttribute.getObject().getParents()) {
+            for (JEVisObject parent : object.getParents()) {
                 for (JEVisObject child : parent.getChildren()) {
-                    if (child.getJEVisClass().equals(userDataClass)) {
+                    if (child.getJEVisClass().equals(userDataClass) && child.getName().contains(object.getName())) {
                         correspondingUserDataObject = child;
                         foundUserDataObject = true;
                         break;
@@ -95,6 +96,11 @@ public class CalcInputObject {
             case PERIODIC:
                 //todo try to make it better for incomplete periods (aggregation)
                 returnSamples = valueAttribute.getSamples(startTime, endTime);
+
+                if (foundUserDataObject) {
+                    returnSamples = getUserData(startTime, endTime, correspondingUserDataObject, returnSamples);
+                }
+
                 break;
             case STATIC:
                 JEVisSample constant = valueAttribute.getLatestSample();
@@ -106,37 +112,12 @@ public class CalcInputObject {
                 break;
             case NON_PERIODIC:
                 returnSamples = valueAttribute.getAllSamples();
+
+                if (foundUserDataObject) {
+                    returnSamples = getUserData(startTime, endTime, correspondingUserDataObject, returnSamples);
+                }
+
                 break;
-        }
-
-        if (foundUserDataObject) {
-            try {
-                SortedMap<DateTime, JEVisSample> map = new TreeMap<>();
-                for (JEVisSample jeVisSample : returnSamples) {
-                    map.put(jeVisSample.getTimestamp(), jeVisSample);
-                }
-
-                JEVisAttribute userDataValueAttribute = correspondingUserDataObject.getAttribute("Value");
-                List<JEVisSample> userValues = userDataValueAttribute.getSamples(startTime, endTime);
-
-                for (JEVisSample userValue : userValues) {
-                    try {
-                        String note = map.get(userValue.getTimestamp()).getNote();
-                        VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble());
-                        virtualSample.setNote(note + "," + USER_VALUE);
-                        virtualSample.setAttribute(map.get(userValue.getTimestamp()).getAttribute());
-
-                        map.remove(userValue.getTimestamp());
-                        map.put(virtualSample.getTimestamp(), virtualSample);
-                    } catch (Exception e) {
-                        logger.error("Error applying user value for {}", userValue.getTimestamp(), e);
-                    }
-                }
-
-                returnSamples = new ArrayList<>(map.values());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
         this.samples = returnSamples;
@@ -151,10 +132,35 @@ public class CalcInputObject {
         } catch (Exception e) {
             logger.error("Could not reload attribute. ", e);
         }
+
+        JEVisObject correspondingUserDataObject = null;
+        boolean foundUserDataObject = false;
+        final JEVisClass userDataClass;
+        try {
+            JEVisObject object = valueAttribute.getObject();
+            userDataClass = valueAttribute.getDataSource().getJEVisClass("User Data");
+            for (JEVisObject parent : object.getParents()) {
+                for (JEVisObject child : parent.getChildren()) {
+                    if (child.getJEVisClass().equals(userDataClass) && child.getName().contains(object.getName())) {
+                        correspondingUserDataObject = child;
+                        foundUserDataObject = true;
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         switch (inputType) {
             case ASYNC:
             case PERIODIC:
                 returnSamples = valueAttribute.getSamples(startTime, endTime, true, aggregationPeriod.toString(), ManipulationMode.NONE.toString(), DateTimeZone.getDefault().getID());
+
+                if (foundUserDataObject) {
+                    returnSamples = getUserData(startTime, endTime, correspondingUserDataObject, returnSamples);
+                }
+
                 break;
             case STATIC:
                 JEVisSample constant = valueAttribute.getLatestSample();
@@ -166,8 +172,14 @@ public class CalcInputObject {
                 break;
             case NON_PERIODIC:
                 returnSamples = valueAttribute.getAllSamples();
+
+                if (foundUserDataObject) {
+                    returnSamples = getUserData(startTime, endTime, correspondingUserDataObject, returnSamples);
+                }
+
                 break;
         }
+
         this.samples = returnSamples;
 
     }
@@ -180,6 +192,26 @@ public class CalcInputObject {
         } catch (Exception e) {
             logger.error("Could not reload attribute. ", e);
         }
+
+        JEVisObject correspondingUserDataObject = null;
+        boolean foundUserDataObject = false;
+        final JEVisClass userDataClass;
+        try {
+            JEVisObject object = valueAttribute.getObject();
+            userDataClass = valueAttribute.getDataSource().getJEVisClass("User Data");
+            for (JEVisObject parent : object.getParents()) {
+                for (JEVisObject child : parent.getChildren()) {
+                    if (child.getJEVisClass().equals(userDataClass) && child.getName().contains(object.getName())) {
+                        correspondingUserDataObject = child;
+                        foundUserDataObject = true;
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         switch (inputType) {
             case ASYNC:
             case PERIODIC:
@@ -188,6 +220,11 @@ public class CalcInputObject {
                     List<JEVisSample> tempList = valueAttribute.getSamples(startTime, endTime, true, AggregationPeriod.NONE.toString(), ManipulationMode.NONE.toString(), DateTimeZone.getDefault().getID());
 
                     if (!tempList.isEmpty()) {
+
+                        if (foundUserDataObject) {
+                            tempList = getUserData(startTime, endTime, correspondingUserDataObject, tempList);
+                        }
+
                         boolean isQuantity = qu.isQuantityUnit(valueAttribute.getDisplayUnit());
                         isQuantity = qu.isQuantityIfCleanData(valueAttribute, isQuantity);
 
@@ -216,9 +253,50 @@ public class CalcInputObject {
                 break;
             case NON_PERIODIC:
                 returnSamples = valueAttribute.getAllSamples();
+
+                if (foundUserDataObject) {
+                    returnSamples = getUserData(startTime, endTime, correspondingUserDataObject, returnSamples);
+                }
+
                 break;
         }
+
         this.samples = returnSamples;
 
+    }
+
+    private List<JEVisSample> getUserData(DateTime startTime, DateTime endTime, JEVisObject correspondingUserDataObject, List<JEVisSample> tempList) {
+        try {
+            SortedMap<DateTime, JEVisSample> map = new TreeMap<>();
+            for (JEVisSample jeVisSample : tempList) {
+                map.put(jeVisSample.getTimestamp(), jeVisSample);
+            }
+
+            JEVisAttribute userDataValueAttribute = correspondingUserDataObject.getAttribute("Value");
+            List<JEVisSample> userValues = userDataValueAttribute.getSamples(startTime, endTime);
+
+            for (JEVisSample userValue : userValues) {
+                DateTime ts = userValue.getTimestamp();
+                try {
+                    String note = "";
+                    if (map.get(ts) != null) {
+                        note += map.get(ts).getNote();
+                    }
+                    VirtualSample virtualSample = new VirtualSample(ts, userValue.getValueAsDouble());
+                    virtualSample.setNote(note + "," + USER_VALUE);
+                    virtualSample.setAttribute(map.get(ts).getAttribute());
+
+                    map.remove(ts);
+                    map.put(ts, virtualSample);
+                } catch (Exception e) {
+                    logger.error("Error applying user value for {}", ts, e);
+                }
+            }
+
+            tempList = new ArrayList<>(map.values());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tempList;
     }
 }

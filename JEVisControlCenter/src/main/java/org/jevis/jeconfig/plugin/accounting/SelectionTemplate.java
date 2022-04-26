@@ -1,12 +1,14 @@
 package org.jevis.jeconfig.plugin.accounting;
 
 import org.jevis.jeconfig.plugin.dtrc.TemplateInput;
+import org.jevis.jeconfig.plugin.dtrc.TemplateOutput;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SelectionTemplate {
     private List<TemplateInput> selectedInputs = new ArrayList<>();
+    private List<TemplateOutput> linkedOutputs = new ArrayList<>();
     private Long templateSelection;
     private String contractNumber;
     private String contractType;
@@ -24,6 +26,14 @@ public class SelectionTemplate {
 
     public void setSelectedInputs(List<TemplateInput> selectedInputs) {
         this.selectedInputs = selectedInputs;
+    }
+
+    public List<TemplateOutput> getLinkedOutputs() {
+        return linkedOutputs;
+    }
+
+    public void setLinkedOutputs(List<TemplateOutput> linkedOutputs) {
+        this.linkedOutputs = linkedOutputs;
     }
 
     public Long getTemplateSelection() {

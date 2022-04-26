@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.dtrc;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -71,6 +72,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
     private final JFXTimePicker startTimePicker;
     private final JFXDatePicker endDatePicker;
     private final JFXTimePicker endTimePicker;
+    private final SimpleBooleanProperty update = new SimpleBooleanProperty(false);
     private Interval interval;
 
     public IntervalSelector(JEVisDataSource ds, JFXDatePicker startDatePicker, JFXTimePicker startTimePicker, JFXDatePicker endDatePicker, JFXTimePicker endTimePicker) {
@@ -106,9 +108,13 @@ public class IntervalSelector extends ToolBarIntervalSelector {
 
         this.timeFrameEditor = new TimeFrameEditor(activeTimeFrame.get(), interval);
         this.timeFrameEditor.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
-            interval = activeTimeFrame.get().getInterval(newValue.getEnd());
-            applyNewDate(interval);
-            dateButton.setText(activeTimeFrame.get().format(interval));
+            if (!newValue.equals(oldValue)) {
+                interval = activeTimeFrame.get().getInterval(newValue.getEnd());
+                applyNewDate(interval);
+                dateButton.setText(activeTimeFrame.get().format(interval));
+
+                update.set(true);
+            }
         });
 
         dateButton.setOnAction(event -> {
@@ -123,7 +129,9 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         timeFactoryBox.selectValue(activeTimeFrame.get());
 
         timeFactoryBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            activeTimeFrame.set(newValue);
+            if (!newValue.equals(oldValue)) {
+                activeTimeFrame.set(newValue);
+            }
         });
 
         prevButton.setOnAction(event -> {
@@ -145,9 +153,11 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         });
 
         activeTimeFrame.addListener((observable, oldValue, newValue) -> {
-            interval = activeTimeFrame.get().getInterval(interval.getEnd());
-            dateButton.setText(activeTimeFrame.get().format(interval));
-            applyNewDate(interval);
+            if (!newValue.equals(oldValue)) {
+                interval = activeTimeFrame.get().getInterval(interval.getEnd());
+                dateButton.setText(activeTimeFrame.get().format(interval));
+                applyNewDate(interval);
+            }
         });
 
         Region spacer = new Region();
@@ -176,5 +186,15 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         timeFrameEditor.setDate(end);
     }
 
+    public boolean isUpdate() {
+        return update.get();
+    }
 
+    public void setUpdate(boolean update) {
+        this.update.set(update);
+    }
+
+    public SimpleBooleanProperty updateProperty() {
+        return update;
+    }
 }

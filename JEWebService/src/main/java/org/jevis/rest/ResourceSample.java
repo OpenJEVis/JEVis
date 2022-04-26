@@ -48,6 +48,7 @@ import javax.ws.rs.core.Response.Status;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -218,9 +219,10 @@ public class ResourceSample {
                 String fileName = createFilePattern(id, attribute, sample.getValue(), dbTS);
                 File file = new File(fileName);
                 if (file.exists() && file.canRead()) {
-                    ResponseBuilder response = Response.ok(file, MediaType.APPLICATION_OCTET_STREAM);
-                    response.header("Content-Disposition",
-                            "attachment; filename=\"" + sample.getValue() + "\"");
+                    ResponseBuilder response = Response.ok(file, MediaType.APPLICATION_OCTET_STREAM)
+                            .header(HttpHeaders.CONTENT_DISPOSITION, file.getName())
+                            .header(HttpHeaders.CONTENT_LENGTH, file.length())
+                            .header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()));
                     return response.build();
                 } else {
                     Response.status(Status.INTERNAL_SERVER_ERROR).build();

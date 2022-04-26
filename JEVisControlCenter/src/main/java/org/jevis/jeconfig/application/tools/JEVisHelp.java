@@ -163,7 +163,7 @@ public class JEVisHelp {
     }
 
     public void addHelpItems(String plugin, String subModule, LAYOUT layout, List<Node> nodes) {
-        logger.debug("Add Help items for: {}.{}", plugin, subModule);
+        logger.debug("Add Help items for {} nodes : {}.{}", nodes.size(), plugin, subModule);
         for (Node node : nodes) {
             try {
                 if (node instanceof Control) {
@@ -196,8 +196,6 @@ public class JEVisHelp {
         addControl(controlsMap, plugin, subModule, layout, elements);
         //if (isHelpShowing.get()) update();
         if (isHelpShowing.get()) update();
-
-
     }
 
     public void addInfoControl(String plugin, String subModule, LAYOUT layout, Control... elements) {

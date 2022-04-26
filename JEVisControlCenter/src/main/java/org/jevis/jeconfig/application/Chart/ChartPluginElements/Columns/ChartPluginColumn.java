@@ -79,7 +79,7 @@ public interface ChartPluginColumn {
             }
             newData.setAttribute(row.getJEVisAttribute());
 
-            if (getData().isglobalAnalysisTimeFrame()) {
+            if (getData().isGlobalAnalysisTimeFrame()) {
                 AnalysisTimeFrame analysisTimeFrame = getData().getGlobalAnalysisTimeFrame();
                 newData.setSelectedStart(analysisTimeFrame.getStart());
                 newData.setSelectedEnd(analysisTimeFrame.getEnd());

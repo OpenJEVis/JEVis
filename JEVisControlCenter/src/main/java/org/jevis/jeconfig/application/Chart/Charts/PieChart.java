@@ -432,6 +432,13 @@ public class PieChart implements Chart {
     }
 
     @Override
+    public void setChart(de.gsi.chart.Chart chart) {
+        if (chart == null) {
+            this.pieChart = null;
+        }
+    }
+
+    @Override
     public ChartType getChartType() {
         return chartType;
     }

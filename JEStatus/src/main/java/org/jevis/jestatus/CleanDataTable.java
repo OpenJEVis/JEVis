@@ -23,7 +23,7 @@ public class CleanDataTable extends AlarmTable {
 
         try {
             createTableString();
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not initialize.");
         }
     }

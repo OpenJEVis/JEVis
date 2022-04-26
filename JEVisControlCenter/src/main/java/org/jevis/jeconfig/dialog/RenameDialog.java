@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
@@ -36,8 +37,13 @@ public class RenameDialog extends JFXDialog {
 
         ok.setOnAction(event -> {
             try {
-                selectedItem.setName(nameField.getText());
-                selectedItem.commit();
+                if (selectedItem.getDataSource().getCurrentUser().canWrite(selectedItem.getID())) {
+                    selectedItem.setName(nameField.getText());
+                    selectedItem.commit();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("jevistree.dialog.rename.permission.denied.message"));
+                    alert.showAndWait();
+                }
             } catch (JEVisException e) {
                 e.printStackTrace();
             }

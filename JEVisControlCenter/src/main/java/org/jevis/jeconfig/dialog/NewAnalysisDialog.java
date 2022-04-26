@@ -1,7 +1,9 @@
 package org.jevis.jeconfig.dialog;
 
+import javafx.application.Platform;
 import javafx.scene.layout.StackPane;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
@@ -11,7 +13,7 @@ public class NewAnalysisDialog {
     private final JEVisDataSource ds;
     private final AnalysisDataModel model;
     private final ChartPlugin chartPlugin;
-    private Boolean changed;
+    private final Boolean changed;
 
     public NewAnalysisDialog(StackPane DialogContainer, JEVisDataSource ds, AnalysisDataModel model, ChartPlugin chartPlugin, Boolean changed) {
         dialogContainer = DialogContainer;
@@ -35,7 +37,8 @@ public class NewAnalysisDialog {
                 model.setCurrentAnalysis(null);
                 model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
                 model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
-                changed = true;
+                chartPlugin.handleRequest(Constants.Plugin.Command.SAVE);
+                Platform.runLater(() -> chartPlugin.getToolBarView().setDisableToolBarIcons(false));
             }
 
             JEVisHelp.getInstance().deactivatePluginModule();

@@ -104,6 +104,8 @@ public class AccountingPlugin extends TablePlugin {
     private final ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", toolBarIconSize, toolBarIconSize));
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
+    private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", toolBarIconSize, toolBarIconSize));
+    private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", toolBarIconSize, toolBarIconSize));
     private final BorderPane borderPane = new BorderPane();
     private final StackPane dialogPane = new StackPane(borderPane);
     private final TabPane motherTabPane = new TabPane();
@@ -187,7 +189,8 @@ public class AccountingPlugin extends TablePlugin {
     private boolean guiUpdate = false;
     private final TemplateHandler templateHandler = new TemplateHandler();
     private final OutputView viewTab;
-    private final Tab contractsTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"));
+    private final StackPane contractsTabDialogContainer = new StackPane();
+    private final Tab contractsTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"), contractsTabDialogContainer);
     private final JFXTextField contractNumberField = new JFXTextField();
     private final JFXComboBox<ContractType> contractTypeBox = new JFXComboBox<>();
     private final JFXTextField marketLocationNumberField = new JFXTextField();
@@ -202,9 +205,12 @@ public class AccountingPlugin extends TablePlugin {
     private Label contractNumberLabel;
     private Label contractTypeLabel;
     private Label marketLocationNumberLabel;
+    private double fontSize = 12;
 
     public AccountingPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
+
+        double fontSize = pref.getDouble("fontSize", 12d);
 
         accountingDirectories = new AccountingDirectories(ds);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -212,8 +218,11 @@ public class AccountingPlugin extends TablePlugin {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         viewTab = new OutputView(I18n.getInstance().getString("plugin.accounting.tab.view"), ds, templateHandler);
+        viewTab.setFontSize(fontSize);
         viewTab.showDatePicker(false);
         viewTab.showInputs(false);
+        viewTab.setContractsDialogContainer(contractsTabDialogContainer);
+        viewTab.setViewDialogContainer(dialogPane);
 
         enterDataTab.setContent(enterDataStackPane);
 
@@ -235,7 +244,7 @@ public class AccountingPlugin extends TablePlugin {
             energyGridOperatorsTab.setText(I18nWS.getInstance().getClassName(accountingDirectories.getEnergyGridOperatorClass()));
             energyContractorTab.setText(I18nWS.getInstance().getClassName(accountingDirectories.getEnergyContractorClass()));
             governmentalDuesTab.setText(I18nWS.getInstance().getClassName(accountingDirectories.getGovernmentalDuesClass()));
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not get class name for tabs", e);
         }
 
@@ -264,7 +273,23 @@ public class AccountingPlugin extends TablePlugin {
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.new.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.tooltip.print")));
 
-        motherTabPane.getTabs().addAll(viewTab, contractsTab, enterDataTab);
+        boolean canWriteToContracts = false;
+        try {
+            canWriteToContracts = ds.getCurrentUser().canWrite(accountingDirectories.getEnergyContractingDir().getID());
+        } catch (Exception e) {
+            logger.error("Failed to check user permissions to write to contracts directory", e);
+            try {
+                canWriteToContracts = ds.getCurrentUser().isSysAdmin();
+            } catch (Exception ex) {
+                logger.error("Failed to check user is Sys Admin", e);
+            }
+        }
+
+        if (canWriteToContracts) {
+            motherTabPane.getTabs().addAll(viewTab, contractsTab, enterDataTab);
+        } else {
+            motherTabPane.getTabs().addAll(viewTab);
+        }
 
         motherTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.equals(enterDataTab)) {
@@ -283,6 +308,7 @@ public class AccountingPlugin extends TablePlugin {
         this.borderPane.setCenter(motherTabPane);
 
         initToolBar();
+
     }
 
     private void createContractsTab() {
@@ -426,7 +452,7 @@ public class AccountingPlugin extends TablePlugin {
         contractsGP.add(trcs, 1, contractsRow);
         contractsRow++;
 
-        contractsTab.setContent(new VBox(4, contractsGP));
+        contractsTabDialogContainer.getChildren().add(new VBox(4, contractsGP));
         viewTab.setContractsGP(contractsGP);
         viewTab.setTimeframeField(timeframeField);
 
@@ -588,8 +614,36 @@ public class AccountingPlugin extends TablePlugin {
             }
         });
 
-        toolBar.getItems().setAll(configComboBox, sep0, viewTab.getDateBox(), sep1, reload, sep2, save, newButton, delete, sep3, xlsxButton, printButton);
-        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        Separator sep4 = new Separator(Orientation.VERTICAL);
+
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomIn);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
+        zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
+        zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
+
+        zoomIn.setOnAction(event -> {
+            fontSize += 1;
+            viewTab.setFontSize(fontSize);
+            pref.putDouble("fontSize", fontSize);
+            viewTab.requestUpdate();
+        });
+
+        zoomOut.setOnAction(event -> {
+            if (fontSize > 8d) {
+                fontSize -= 1;
+                viewTab.setFontSize(fontSize);
+                pref.putDouble("fontSize", fontSize);
+                viewTab.requestUpdate();
+            }
+        });
+
+        toolBar.getItems().setAll(configComboBox,
+                sep0, viewTab.getDateBox(),
+                sep1, reload,
+                sep2, save, newButton, delete,
+                sep3, xlsxButton, printButton,
+                sep4, zoomIn, zoomOut,
+                JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(AccountingPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
 
@@ -605,7 +659,41 @@ public class AccountingPlugin extends TablePlugin {
         Sheet sheet = workbook.createSheet(I18n.getInstance().getString("plugin.dtrc.view.output"));
 
         List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
-        templateOutputs.sort(viewTab::compareTemplateOutputs);
+        final List<TemplateFormula> templateFormulas = templateHandler.getRcTemplate().getTemplateFormulas();
+
+        List<TemplateOutput> separatorOutputs = new ArrayList<>();
+
+        List<TemplateOutput> noInputOutputs = new ArrayList<>();
+        List<TemplateOutput> singleInputFormulaOutputs = new ArrayList<>();
+        List<TemplateOutput> multiInputFormulaOutputs = new ArrayList<>();
+
+        for (TemplateOutput output : templateOutputs) {
+            if (output.getSeparator()) {
+                separatorOutputs.add(output);
+            } else {
+                TemplateFormula templateFormula = templateFormulas.stream().filter(formula -> formula.getOutput().equals(output.getId())).findFirst().orElse(null);
+
+                if (templateFormula != null) {
+                    boolean foundFormulaInput = templateFormulas.stream().anyMatch(otherFormula -> templateFormula.getInputIds().contains(otherFormula.getId()));
+
+                    if (!foundFormulaInput) {
+                        singleInputFormulaOutputs.add(output);
+                    } else {
+                        multiInputFormulaOutputs.add(output);
+                    }
+                } else {
+                    noInputOutputs.add(output);
+                }
+            }
+        }
+
+        viewTab.sortMultiInputFormulaOutputs(multiInputFormulaOutputs);
+
+        List<TemplateOutput> sortedList = new ArrayList<>();
+        sortedList.addAll(noInputOutputs);
+        sortedList.addAll(singleInputFormulaOutputs);
+        sortedList.addAll(multiInputFormulaOutputs);
+
         Map<String, Double> resultMap = new HashMap<>();
 
         DateTime start = viewTab.getStart();
@@ -633,7 +721,7 @@ public class AccountingPlugin extends TablePlugin {
         invoiceHeaderCell.setCellValue(I18n.getInstance().getString("plugin.accounting.invoice"));
 
         int maxColumn = 0;
-        for (TemplateOutput templateOutput : templateOutputs) {
+        for (TemplateOutput templateOutput : sortedList) {
             maxColumn = Math.max(maxColumn, templateOutput.getColumn());
             if (!templateOutput.getSeparator()) {
                 Cell cell = getOrCreateCell(sheet, templateOutput.getRow() + 9, templateOutput.getColumn(), templateOutput.getRowSpan(), templateOutput.getColSpan());
@@ -649,23 +737,19 @@ public class AccountingPlugin extends TablePlugin {
                     boolean isText = false;
                     for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
                         if (formula.getInputIds().contains(templateInput.getId())) {
-                            try {
-                                if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
-                                    isText = true;
-                                }
-
-                                if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-                                    formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
-                                } else {
-                                    Double d = resultMap.get(templateInput.getVariableName());
-                                    if (d != null) {
-                                        formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
-                                    }
-                                }
-
-                            } catch (JEVisException e) {
-                                logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
+                            if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
+                                isText = true;
                             }
+
+                            if (!templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+                                formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
+                            } else {
+                                Double d = resultMap.get(templateInput.getVariableName());
+                                if (d != null) {
+                                    formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
+                                }
+                            }
+
                         }
                     }
 
@@ -678,12 +762,20 @@ public class AccountingPlugin extends TablePlugin {
                             }
 
                             if (hasLabel) {
-                                cell.setCellValue(cell.getStringCellValue() + ": " + nf.format(calculate) + " " + templateOutput.getUnit());
+                                if (templateOutput.getUnit() != null) {
+                                    cell.setCellValue(cell.getStringCellValue() + ": " + nf.format(calculate) + " " + templateOutput.getUnit());
+                                } else {
+                                    cell.setCellValue(cell.getStringCellValue() + ": " + nf.format(calculate));
+                                }
                             } else {
                                 cell.setCellValue(calculate);
                                 DataFormat format = workbook.createDataFormat();
                                 CellStyle cellStyle = workbook.createCellStyle();
-                                cellStyle.setDataFormat(format.getFormat("#,##0.00 [$" + templateOutput.getUnit() + "]"));
+                                if (templateOutput.getUnit() != null) {
+                                    cellStyle.setDataFormat(format.getFormat("#,##0.00 [$" + templateOutput.getUnit() + "]"));
+                                } else {
+                                    cellStyle.setDataFormat(format.getFormat("#,##0.00"));
+                                }
                                 cell.setCellStyle(cellStyle);
                             }
                         } catch (Exception e) {
@@ -992,7 +1084,7 @@ public class AccountingPlugin extends TablePlugin {
                     @Override
                     protected Object call() throws Exception {
                         try {
-                            this.updateTitle(I18n.getInstance().getString("Clear Cache"));
+                            this.updateTitle(I18n.getInstance().getString("plugin.accounting.load"));
                             if (initialized) {
                                 ds.clearCache();
                                 ds.preload();

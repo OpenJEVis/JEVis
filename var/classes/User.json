@@ -119,6 +119,15 @@
       "jevisClass": "User"
     },
     {
+      "name": "Analysis File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
       "name": "Activities",
       "primitiveType": 0,
       "guiType": "Text",

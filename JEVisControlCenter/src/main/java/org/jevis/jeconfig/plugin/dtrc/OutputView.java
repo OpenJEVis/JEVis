@@ -1,26 +1,20 @@
 package org.jevis.jeconfig.plugin.dtrc;
 
 import com.ibm.icu.text.NumberFormat;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXListCell;
-import com.jfoenix.controls.JFXTimePicker;
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
@@ -28,15 +22,17 @@ import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.dialog.EnterDataDialog;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.accounting.SelectionTemplate;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -56,6 +52,8 @@ public class OutputView extends Tab {
     private static final Logger logger = LogManager.getLogger(OutputView.class);
     private static final String NO_RESULT = I18n.getInstance().getString("plugin.dtrc.noresult");
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
+    private StackPane contractsDialogContainer;
+    private StackPane viewDialogContainer;
     private final JEVisDataSource ds;
     private final JFXDatePicker startDate = new JFXDatePicker(LocalDate.now());
     private final JFXDatePicker endDate = new JFXDatePicker(LocalDate.now());
@@ -78,9 +76,12 @@ public class OutputView extends Tab {
     private final DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
     private GridPane contractsGP;
     private Label timeframeField;
+    private double fontSize = 12d;
 
     public OutputView(String title, JEVisDataSource ds, TemplateHandler templateHandler) {
         super(title);
+        this.contractsDialogContainer = new StackPane();
+        setContent(contractsDialogContainer);
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.templateHandler = templateHandler;
@@ -114,25 +115,13 @@ public class OutputView extends Tab {
         endTime.set24HourView(true);
         endTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-
-        ChangeListener<LocalTime> updateTimeListener = new ChangeListener<LocalTime>() {
-            @Override
-            public void changed(ObservableValue<? extends LocalTime> observable, LocalTime oldValue, LocalTime newValue) {
-                requestUpdate();
-            }
-        };
-        startTime.valueProperty().addListener(updateTimeListener);
-        endTime.valueProperty().addListener(updateTimeListener);
-        ChangeListener<? super LocalDate> updateDateListener = new ChangeListener<LocalDate>() {
-            @Override
-            public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
-                requestUpdate();
-            }
-        };
-        startDate.valueProperty().addListener(updateDateListener);
-        endDate.valueProperty().addListener(updateDateListener);
-
         intervalSelector = new IntervalSelector(ds, startDate, startTime, endDate, endTime);
+        intervalSelector.updateProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                requestUpdate();
+                intervalSelector.setUpdate(false);
+            }
+        });
 
         GridPane datePane = new GridPane();
         datePane.setPadding(new Insets(4));
@@ -175,7 +164,13 @@ public class OutputView extends Tab {
                 outputsLabel, gridPane);
         viewVBox.setPadding(new Insets(12));
 
-        setContent(viewVBox);
+        ScrollPane scrollPane = new ScrollPane(viewVBox);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        contractsDialogContainer.getChildren().add(scrollPane);
 
         showDatePicker.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -191,7 +186,9 @@ public class OutputView extends Tab {
                         dateBox, separator1,
                         inputsLabel, viewInputs, separator2,
                         outputsLabel, gridPane);
-                setContent(viewVBox);
+                if (!contractsDialogContainer.getChildren().contains(viewVBox)) {
+                    contractsDialogContainer.getChildren().add(viewVBox);
+                }
             } else {
                 viewVBox.getChildren().setAll(headerGP, billLabel, gridPane);
             }
@@ -218,97 +215,235 @@ public class OutputView extends Tab {
         DateTime start = getStart();
         DateTime end = getEnd();
 
+        //Sort outputs by formula
+        List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
+        final List<TemplateFormula> templateFormulas = templateHandler.getRcTemplate().getTemplateFormulas();
+
+        List<TemplateOutput> separatorOutputs = new ArrayList<>();
+
+        List<TemplateOutput> noInputOutputs = new ArrayList<>();
+        List<TemplateOutput> singleInputFormulaOutputs = new ArrayList<>();
+        List<TemplateOutput> multiInputFormulaOutputs = new ArrayList<>();
+
+        for (TemplateOutput output : templateOutputs) {
+            if (output.getSeparator()) {
+                separatorOutputs.add(output);
+            } else {
+                TemplateFormula templateFormula = templateFormulas.stream().filter(formula -> formula.getOutput().equals(output.getId())).findFirst().orElse(null);
+
+                if (templateFormula != null) {
+                    boolean foundFormulaInput = templateFormulas.stream().anyMatch(otherFormula -> templateFormula.getInputIds().contains(otherFormula.getId()));
+
+                    if (!foundFormulaInput) {
+                        singleInputFormulaOutputs.add(output);
+                    } else {
+                        multiInputFormulaOutputs.add(output);
+                    }
+                } else {
+                    noInputOutputs.add(output);
+                }
+            }
+        }
+
+        logger.debug("Order of multi input formula outputs before sorting:");
+        if (logger.isDebugEnabled()) {
+            for (TemplateOutput output : multiInputFormulaOutputs) {
+                templateFormulas.forEach(templateFormula -> {
+                    if (templateFormula.getOutput().equals(output.getId())) {
+                        logger.debug(templateFormula.getName());
+                    }
+                });
+            }
+        }
+
+        sortMultiInputFormulaOutputs(multiInputFormulaOutputs);
+
+        logger.debug("Order of formula outputs after sorting:");
+        if (logger.isDebugEnabled()) {
+            for (TemplateOutput output : multiInputFormulaOutputs) {
+                templateFormulas.forEach(templateFormula -> {
+                    if (templateFormula.getOutput().equals(output.getId())) {
+                        logger.debug(templateFormula.getName());
+                    }
+                });
+            }
+        }
+
+        if (timeframeField != null) {
+            String overall = String.format("%s %s %s",
+                    dtfOutLegend.print(start),
+                    I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
+                    dtfOutLegend.print(end));
+
+            Platform.runLater(() -> timeframeField.setText(overall));
+        }
+
+        List<TemplateOutput> sortedList = new ArrayList<>();
+        sortedList.addAll(singleInputFormulaOutputs);
+        sortedList.addAll(multiInputFormulaOutputs);
+
+        createOutputs(separatorOutputs);
+        createOutputs(noInputOutputs);
+        createOutputs(sortedList);
+
+    }
+
+    public void sortMultiInputFormulaOutputs(List<TemplateOutput> multiInputFormulaOutputs) {
+        Map<TemplateOutput, List<TemplateOutput>> map = new HashMap<>();
+        for (TemplateOutput output : multiInputFormulaOutputs) {
+            List<TemplateOutput> dependencies = new ArrayList<>();
+            TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(output.getId())).findFirst().orElse(null);
+            if (formula != null) {
+                multiInputFormulaOutputs.forEach(otherOutput -> {
+                    TemplateFormula formulaOtherOutput = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(otherOutput.getId())).findFirst().orElse(null);
+                    if (formulaOtherOutput != null && formula.getInputIds().contains(formulaOtherOutput.getId())) {
+                        dependencies.add(otherOutput);
+                    }
+                });
+            }
+            map.put(output, dependencies);
+        }
+
+        multiInputFormulaOutputs.sort((o1, o2) -> {
+            List<TemplateOutput> templateOutputs1 = map.get(o1);
+            List<TemplateOutput> templateOutputs2 = map.get(o2);
+            if (templateOutputs1.contains(o2)) return 1;
+            if (templateOutputs1.contains(o2) && templateOutputs2.contains(o2)) return 0;
+            else return -1;
+        });
+    }
+
+    private void createOutputs(List<TemplateOutput> outputs) {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() {
-                //Sort outputs by formula
-                List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
-                templateOutputs.sort((o1, o2) -> compareTemplateOutputs(o1, o2));
 
-                if (timeframeField != null) {
-                    String overall = String.format("%s %s %s",
-                            dtfOutLegend.print(start),
-                            I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
-                            dtfOutLegend.print(end));
+                DateTime start = getStart();
+                DateTime end = getEnd();
 
-                    Platform.runLater(() -> timeframeField.setText(overall));
-                }
-
-                for (TemplateOutput templateOutput : templateOutputs) {
+                for (TemplateOutput templateOutput : outputs) {
                     if (!templateOutput.getSeparator()) {
-                        Label label = new Label(templateOutput.getName());
-                        if (templateOutput.getNameBold()) {
-                            label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, label.getFont().getSize()));
-                        }
-                        Label result = new Label();
-                        result.setTextAlignment(TextAlignment.RIGHT);
-                        result.setAlignment(Pos.CENTER_RIGHT);
-                        if (templateOutput.getResultBold()) {
-                            result.setFont(Font.font(result.getFont().getFamily(), FontWeight.BOLD, result.getFont().getSize()));
-                        }
-                        HBox hBox = new HBox(label, result);
+                        try {
+                            logger.debug("Output creation for {} with variable name {}", templateOutput.getName(), templateOutput.getVariableName());
 
-                        if (templateOutput.getName() == null || templateOutput.getName().equals("")) {
-                            hBox.setAlignment(Pos.CENTER_RIGHT);
-                        }
-
-                        if (templateOutput.getVariableName() == null || templateOutput.getVariableName().equals("")) {
-                            if (templateOutput.getColSpan() > 1) {
-                                hBox.setAlignment(Pos.CENTER);
+                            Label label = new Label(templateOutput.getName());
+                            if (templateOutput.getNameBold()) {
+                                label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, getFontSize()));
+                            } else {
+                                label.setFont(Font.font(label.getFont().getFamily(), FontWeight.NORMAL, getFontSize()));
                             }
-                        }
+                            Label result = new Label();
+                            result.setTextAlignment(TextAlignment.RIGHT);
+                            result.setAlignment(Pos.CENTER_RIGHT);
+                            if (templateOutput.getResultBold()) {
+                                result.setFont(Font.font(result.getFont().getFamily(), FontWeight.BOLD, getFontSize()));
+                            } else {
+                                result.setFont(Font.font(label.getFont().getFamily(), FontWeight.NORMAL, getFontSize()));
+                            }
 
-                        TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
+                            HBox hBox = new HBox(label, result);
 
-                        if (formula != null) {
+                            if (templateOutput.getLink()) {
+                                JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", 12, 12));
+                                manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
 
-                            result.setText(NO_RESULT);
-
-                            String formulaString = formula.getFormula();
-                            boolean isText = false;
-                            for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-                                if (formula.getInputIds().contains(templateInput.getId())) {
+                                if (templateOutput.getTarget() != null) {
                                     try {
+                                        TargetHelper th = new TargetHelper(ds, templateOutput.getTarget());
+
+                                        manSampleButton.setOnAction(event -> {
+                                            if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+                                                JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
+
+                                                EnterDataDialog enterDataDialog = new EnterDataDialog(viewDialogContainer, ds);
+                                                enterDataDialog.setShowDetailedTarget(false);
+                                                enterDataDialog.setTarget(false, th.getAttribute().get(0));
+                                                enterDataDialog.setSample(lastValue);
+                                                enterDataDialog.setShowValuePrompt(true);
+
+                                                enterDataDialog.show();
+                                            }
+                                        });
+
+                                        hBox.getChildren().add(manSampleButton);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                            if (templateOutput.getName() == null || templateOutput.getName().equals("")) {
+                                hBox.setAlignment(Pos.CENTER_RIGHT);
+                            }
+
+                            if (templateOutput.getVariableName() == null || templateOutput.getVariableName().equals("")) {
+                                if (templateOutput.getColSpan() > 1) {
+                                    hBox.setAlignment(Pos.CENTER);
+                                }
+                            }
+
+                            TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
+
+                            if (formula != null) {
+
+                                result.setText(NO_RESULT);
+
+                                String formulaString = formula.getFormula();
+                                logger.debug("Start of formula creation: " + formulaString);
+
+                                boolean isText = false;
+                                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                                    if (formula.getInputIds().contains(templateInput.getId())) {
                                         if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
                                             isText = true;
                                         }
 
                                         formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
-
-                                    } catch (JEVisException e) {
-                                        logger.error("Could not get template input value for {}", templateInput.getVariableName(), e);
                                     }
+                                }
+
+                                logger.debug("Formula after input replacement: " + formulaString);
+
+                                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateFormulaInputs()) {
+                                    if (formula.getInputIds().contains(templateInput.getTemplateFormula())) {
+
+                                        Double d = resultMap.get(templateInput.getTemplateFormula());
+                                        if (d != null) {
+                                            formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
+                                        } else {
+                                            formulaString = formulaString.replace(templateInput.getVariableName(), "0");
+                                        }
+                                    }
+                                }
+
+                                logger.debug("Finished formula after formula input replacement: " + formulaString);
+
+                                if (!isText) {
+                                    try {
+                                        Expression expression = new Expression(formulaString);
+                                        Double calculate = expression.calculate();
+                                        if (!calculate.isNaN()) {
+                                            resultMap.put(formula.getId(), calculate);
+                                        }
+                                        if (templateOutput.getUnit() != null) {
+                                            result.setText(nf.format(calculate) + " " + templateOutput.getUnit());
+                                        } else {
+                                            result.setText(nf.format(calculate));
+                                        }
+
+                                        succeeded();
+                                    } catch (Exception e) {
+                                        logger.error("Error in formula {}", formula.getName(), e);
+                                    }
+                                } else {
+                                    result.setText(formulaString);
                                 }
                             }
 
-                            for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateFormulaInputs()) {
-                                if (formula.getInputIds().contains(templateInput.getTemplateFormula())) {
-
-                                    Double d = resultMap.get(templateInput.getTemplateFormula());
-                                    if (d != null) {
-                                        formulaString = formulaString.replace(templateInput.getVariableName(), d.toString());
-                                    }
-                                }
-                            }
-
-                            if (!isText) {
-                                try {
-                                    Expression expression = new Expression(formulaString);
-                                    Double calculate = expression.calculate();
-                                    if (!calculate.isNaN()) {
-                                        resultMap.put(formula.getId(), calculate);
-                                    }
-                                    result.setText(nf.format(calculate) + " " + templateOutput.getUnit());
-                                    succeeded();
-                                } catch (Exception e) {
-                                    logger.error("Error in formula {}", formula.getName(), e);
-                                }
-                            } else {
-                                result.setText(formulaString);
-                            }
+                            Platform.runLater(() -> gridPane.add(hBox, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan()));
+                        } catch (Exception e) {
+                            logger.error("Could not create Output {} on location Column: {} Row: {}", templateOutput.getName(), templateOutput.getColumn(), templateOutput.getRow());
                         }
-
-                        Platform.runLater(() -> gridPane.add(hBox, templateOutput.getColumn(), templateOutput.getRow(), templateOutput.getColSpan(), templateOutput.getRowSpan()));
                     } else {
                         Separator separator = new Separator();
                         if (templateOutput.getColSpan() > 1) {
@@ -336,12 +471,12 @@ public class OutputView extends Tab {
         if (selectionTemplate == null) {
             selectionTemplate = new SelectionTemplate();
         }
-        createTranslationMap(translationMap);
+        linkConfiguredToTemplate(translationMap);
 
         Map<JEVisClass, List<TemplateInput>> groupedInputsMap = new HashMap<>();
         List<TemplateInput> ungroupedInputs = new ArrayList<>();
         for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
-            if (((templateInput.getGroup() == null || templateInput.getGroup()) && templateInput.getVariableType() != null) && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+            if (((templateInput.getGroup() == null || templateInput.getGroup()) && templateInput.getVariableType() != null)) {
                 JEVisClass jeVisClass = null;
                 try {
                     jeVisClass = ds.getJEVisClass(templateInput.getObjectClass());
@@ -387,7 +522,6 @@ public class OutputView extends Tab {
             }
 
             try {
-
                 JFXComboBox<JEVisObject> objectSelector = createObjectSelector(ungroupedInput.getObjectClass(), ungroupedInput.getFilter());
 
                 try {
@@ -440,7 +574,11 @@ public class OutputView extends Tab {
                     } else {
                         translatedClassName = I18nWS.getInstance().getClassName(objectClassString);
                     }
-                    label.setText(translatedClassName);
+//                    if (label.getText().equals("")) {
+//                        label.setText(translatedClassName);
+//                    } else {
+//                        label.setText(label.getText() + " (" + translatedClassName + ")");
+//                    }
                     label.setTooltip(new Tooltip(translatedClassName));
                     Region region = new Region();
                     region.setMinWidth(25);
@@ -490,12 +628,21 @@ public class OutputView extends Tab {
             JFXComboBox<JEVisObject> objectSelector = createObjectSelector(groupedInputs.get(0).getObjectClass(), groupedInputs.get(0).getFilter());
 
             try {
-                Long objectID = groupedInputsMap.get(jeVisClass).get(0).getObjectID();
+                Long objectID = groupedInputs.stream().filter(input -> input.getObjectID() != -1L).findFirst().map(TemplateSelected::getObjectID).orElse(-1L);
+
                 if (objectID != -1L) {
+                    for (TemplateInput templateInput : groupedInputs) {
+                        if (templateInput.getObjectID() == -1) {
+                            logger.debug("Found grouped input without id {}, selecting id {}", templateInput.getVariableName(), objectID);
+                            templateInput.setObjectID(objectID);
+                        }
+                    }
+
                     JEVisObject selectedObject = ds.getObject(objectID);
                     logger.debug("Found object {}:{}, selecting for {}", selectedObject.getName(), selectedObject.getID(), groupedInputs.get(0).getVariableName());
                     objectSelector.getSelectionModel().select(selectedObject);
                 } else {
+                    logger.debug("Found no object, selecting for {}", groupedInputs.get(0).getVariableName());
                     objectSelector.getSelectionModel().selectFirst();
                     groupedInputs.forEach(templateInput1 -> {
                         templateInput1.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID());
@@ -506,7 +653,7 @@ public class OutputView extends Tab {
                     });
                 }
             } catch (Exception e) {
-                logger.error("Could not get object {}", groupedInputsMap.get(jeVisClass).get(0).getVariableName());
+                logger.error("Could correctly assign selection values vor class {}", jeVisClass);
             }
 
             objectSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -562,15 +709,188 @@ public class OutputView extends Tab {
             }
             column += 3;
         }
+
+        for (TemplateOutput templateOutput : templateHandler.getRcTemplate().getTemplateOutputs()) {
+            if (templateOutput.getLink()) {
+                if (column == 6) {
+                    column = 0;
+                    row++;
+                }
+
+                Label label = new Label(templateOutput.getVariableName());
+
+                JFXButton targetButton = new JFXButton(I18n
+                        .getInstance().getString("plugin.object.attribute.target.button"),
+                        JEConfig.getImage("folders_explorer.png", 18, 18));
+                targetButton.wrapTextProperty().setValue(true);
+                targetButton.setOnAction(getTargetButtonActionEventEventHandler(templateOutput, targetButton));
+                setButtonText(templateOutput, targetButton);
+
+                int finalColumn1 = column;
+                int finalRow1 = row;
+                if (contractsGP == null) {
+                    Region region = new Region();
+                    region.setMinWidth(25);
+                    Platform.runLater(() -> {
+                        removeNode(finalRow1, finalColumn1, viewInputs);
+                        removeNode(finalRow1, finalColumn1 + 1, viewInputs);
+                        removeNode(finalRow1, finalColumn1 + 2, viewInputs);
+                        viewInputs.add(label, finalColumn1, finalRow1);
+                        viewInputs.add(targetButton, finalColumn1 + 1, finalRow1);
+                        viewInputs.add(region, finalColumn1 + 2, finalRow1);
+                    });
+                } else {
+                    Region region = new Region();
+                    region.setMinWidth(25);
+
+                    Platform.runLater(() -> {
+                        removeNode(finalRow1, finalColumn1, contractsGP);
+                        removeNode(finalRow1, finalColumn1 + 1, contractsGP);
+                        removeNode(finalRow1, finalColumn1 + 2, contractsGP);
+                        contractsGP.add(label, finalColumn1, finalRow1);
+                        contractsGP.add(targetButton, finalColumn1 + 1, finalRow1);
+                        contractsGP.add(region, finalColumn1 + 2, finalRow1);
+                    });
+                }
+
+                column += 3;
+            }
+        }
     }
 
-    private void createTranslationMap(Map<TemplateInput, TemplateInput> translationMap) {
+    public EventHandler<ActionEvent> getTargetButtonActionEventEventHandler(TemplateOutput templateOutput, JFXButton targetButton) {
+        return t -> {
+            try {
+                SelectTargetDialog selectTargetDialog = null;
+
+                TargetHelper th = null;
+                if (templateOutput.getTarget() != null) {
+                    th = new TargetHelper(ds, templateOutput.getTarget());
+                    if (th.isValid() && th.targetAccessible()) {
+                        logger.info("Target Is valid");
+                        setButtonText(templateOutput, targetButton);
+                    }
+                }
+
+                List<JEVisTreeFilter> allFilter = new ArrayList<>();
+                JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
+                JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
+                allFilter.add(allDataFilter);
+                allFilter.add(allAttributesFilter);
+
+                List<UserSelection> openList = new ArrayList<>();
+                if (th != null && !th.getAttribute().isEmpty()) {
+                    for (JEVisAttribute att : th.getAttribute())
+                        openList.add(new UserSelection(UserSelection.SelectionType.Attribute, att, null, null));
+                } else if (th != null && !th.getObject().isEmpty()) {
+                    for (JEVisObject obj : th.getObject())
+                        openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
+                }
+
+                selectTargetDialog = new SelectTargetDialog(contractsDialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, ds, openList);
+
+                SelectTargetDialog finalSelectTargetDialog = selectTargetDialog;
+                selectTargetDialog.setOnDialogClosed(event -> {
+                    try {
+                        if (finalSelectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                            logger.trace("Selection Done");
+
+                            String newTarget = "";
+                            List<UserSelection> selections = finalSelectTargetDialog.getUserSelection();
+                            for (UserSelection us : selections) {
+                                int index = selections.indexOf(us);
+                                if (index > 0) newTarget += ";";
+
+                                newTarget += us.getSelectedObject().getID();
+                                if (us.getSelectedAttribute() != null) {
+                                    newTarget += ":" + us.getSelectedAttribute().getName();
+                                } else {
+                                    newTarget += ":Value";
+                                }
+                            }
+                            templateOutput.setTarget(newTarget);
+                            setButtonText(templateOutput, targetButton);
+                        }
+                    } catch (Exception ex) {
+                        logger.catching(ex);
+                    }
+                });
+                selectTargetDialog.show();
+
+            } catch (Exception ex) {
+                logger.catching(ex);
+            }
+        };
+    }
+
+    void setButtonText(TemplateOutput templateOutput, JFXButton targetButton) {
+        TargetHelper th = null;
+        try {
+            if (templateOutput.getTarget() != null) {
+                th = new TargetHelper(ds, templateOutput.getTarget());
+            }
+
+            if (th != null && th.isValid() && th.targetAccessible()) {
+
+                StringBuilder bText = new StringBuilder();
+
+                JEVisClass cleanData = ds.getJEVisClass("Clean Data");
+
+                for (JEVisObject obj : th.getObject()) {
+                    int index = th.getObject().indexOf(obj);
+                    if (index > 0) bText.append("; ");
+
+                    if (obj.getJEVisClass().equals(cleanData)) {
+                        List<JEVisObject> parents = obj.getParents();
+                        if (!parents.isEmpty()) {
+                            for (JEVisObject parent : parents) {
+                                bText.append("[");
+                                bText.append(parent.getID());
+                                bText.append("] ");
+                                bText.append(parent.getName());
+                                bText.append(" / ");
+                            }
+                        }
+                    }
+
+                    bText.append("[");
+                    bText.append(obj.getID());
+                    bText.append("] ");
+                    bText.append(obj.getName());
+
+                    if (th.hasAttribute()) {
+
+                        bText.append(" - ");
+                        bText.append(th.getAttribute().get(index).getName());
+
+                    }
+                }
+
+                Platform.runLater(() -> targetButton.setText(bText.toString()));
+            }
+
+        } catch (Exception ex) {
+            logger.catching(ex);
+        }
+    }
+
+    private void linkConfiguredToTemplate(Map<TemplateInput, TemplateInput> translationMap) {
         templateHandler.getRcTemplate().getTemplateInputs().stream().filter(templateInput -> !selectionTemplate.getSelectedInputs().contains(templateInput)).forEach(templateInput -> selectionTemplate.getSelectedInputs().add(templateInput));
         for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
             for (TemplateInput input : selectionTemplate.getSelectedInputs()) {
                 if (templateInput.equals(input)) {
                     translationMap.put(templateInput, input);
                     templateInput.setObjectID(input.getObjectID());
+                    break;
+                }
+            }
+        }
+
+        templateHandler.getRcTemplate().getTemplateOutputs().stream().filter(templateOutput -> !selectionTemplate.getLinkedOutputs().contains(templateOutput)).forEach(templateOutput -> selectionTemplate.getLinkedOutputs().add(templateOutput));
+        for (TemplateOutput templateOutput : templateHandler.getRcTemplate().getTemplateOutputs()) {
+            for (TemplateOutput output : selectionTemplate.getLinkedOutputs()) {
+                if (templateOutput.equals(output)) {
+                    templateOutput.setTarget(output.getTarget());
                     break;
                 }
             }
@@ -713,33 +1033,6 @@ public class OutputView extends Tab {
         return intervalSelector;
     }
 
-    public int compareTemplateOutputs(TemplateOutput o1, TemplateOutput o2) {
-        TemplateFormula formulaO1 = null;
-        for (TemplateFormula formula : templateHandler.getRcTemplate().getTemplateFormulas()) {
-            if (formula.getOutput().equals(o1.getVariableName())) {
-                formulaO1 = formula;
-                break;
-            }
-        }
-        TemplateFormula formulaO2 = null;
-        for (TemplateFormula templateFormula : templateHandler.getRcTemplate().getTemplateFormulas()) {
-            if (templateFormula.getOutput().equals(o2.getVariableName())) {
-                formulaO2 = templateFormula;
-                break;
-            }
-        }
-        if (formulaO1 != null && formulaO2 == null) {
-            return 1;
-        } else if (formulaO1 == null && formulaO2 != null) {
-            return -1;
-        } else if (formulaO1 != null && formulaO2 != null) {
-            for (String inputId : formulaO1.getInputIds()) {
-                if (inputId.equals(formulaO2.getId())) return -1;
-            }
-        }
-        return 1;
-    }
-
     public void setContractsGP(GridPane contractsGP) {
         this.contractsGP = contractsGP;
     }
@@ -754,5 +1047,21 @@ public class OutputView extends Tab {
 
     public GridPane getHeaderGP() {
         return headerGP;
+    }
+
+    public void setContractsDialogContainer(StackPane contractsTabDialogContainer) {
+        this.contractsDialogContainer = contractsTabDialogContainer;
+    }
+
+    public void setViewDialogContainer(StackPane viewDialogContainer) {
+        this.viewDialogContainer = viewDialogContainer;
+    }
+
+    public double getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(double fontSize) {
+        this.fontSize = fontSize;
     }
 }

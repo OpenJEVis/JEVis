@@ -79,8 +79,22 @@ public class AccountingTemplateHandler {
         });
 
         dataHandlerNode.set("selectedInputs", templateInputsArrayNode);
-        dataHandlerNode.set("templateSelection", JsonNodeFactory.instance.numberNode(selectionTemplate.getTemplateSelection()));
 
+        ArrayNode templateLinkedOutputsArrayNode = JsonNodeFactory.instance.arrayNode();
+        this.selectionTemplate.getLinkedOutputs().forEach(templateOutput -> {
+            if (templateOutput.getLink() && templateOutput.getTarget() != null) {
+                ObjectNode outputNode = JsonNodeFactory.instance.objectNode();
+                outputNode.put("id", templateOutput.getId());
+                outputNode.put("link", templateOutput.getLink());
+                outputNode.put("target", templateOutput.getTarget());
+
+                templateLinkedOutputsArrayNode.add(outputNode);
+            }
+        });
+
+        dataHandlerNode.set("linkedOutputs", templateLinkedOutputsArrayNode);
+
+        dataHandlerNode.set("templateSelection", JsonNodeFactory.instance.numberNode(selectionTemplate.getTemplateSelection()));
         dataHandlerNode.set("type", JsonNodeFactory.instance.textNode(TYPE));
 
         dataHandlerNode.set("contractNumber", JsonNodeFactory.instance.textNode(selectionTemplate.getContractNumber()));

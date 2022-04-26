@@ -63,9 +63,9 @@ public class ChartDataRow {
     private Double max = 0d;
     private Double avg = 0d;
     private Double sum = 0d;
-    private final Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
-    private final Map<DateTime, JEVisSample> userDataMap = new TreeMap<>();
-    private final Map<DateTime, Alarm> alarmMap = new TreeMap<>();
+    private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
+    private Map<DateTime, JEVisSample> userDataMap = new TreeMap<>();
+    private Map<DateTime, Alarm> alarmMap = new TreeMap<>();
     private boolean customWorkDay = true;
     private String customCSS;
 
@@ -159,6 +159,18 @@ public class ChartDataRow {
         }
 
         return userDataMap;
+    }
+
+    public void setUserDataMap(Map<DateTime, JEVisSample> map) {
+        userDataMap = map;
+    }
+
+    public void setUserNoteMap(Map<DateTime, JEVisSample> userNoteMap) {
+        this.userNoteMap = userNoteMap;
+    }
+
+    public void setAlarmMap(Map<DateTime, Alarm> alarmMap) {
+        this.alarmMap = alarmMap;
     }
 
     public Map<DateTime, Alarm> getAlarms(boolean force) {
@@ -277,12 +289,15 @@ public class ChartDataRow {
                                     int logVal = 0;
 
                                     logVal = ScheduleService.getValueForLog(ts, usageSchedules);
-                                    JEVisSample alarmSample = new VirtualSample(ts, (long) logVal);
 
-                                    if (upper) {
-                                        alarmMap.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, upperValue, sampleAlarmType, logVal));
-                                    } else {
-                                        alarmMap.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, lowerValue, sampleAlarmType, logVal));
+                                    if (logVal != 4) {
+                                        JEVisSample alarmSample = new VirtualSample(ts, (long) logVal);
+
+                                        if (upper) {
+                                            alarmMap.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, upperValue, sampleAlarmType, logVal));
+                                        } else {
+                                            alarmMap.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, lowerValue, sampleAlarmType, logVal));
+                                        }
                                     }
                                 }
                             } catch (Exception e) {
@@ -489,14 +504,6 @@ public class ChartDataRow {
         }
     }
 
-    public Map<DateTime, JEVisSample> getSamplesMap() throws JEVisException {
-        Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
-        for (JEVisSample sample : getSamples()) {
-            sampleMap.put(sample.getTimestamp(), sample);
-        }
-        return sampleMap;
-    }
-
     public List<JEVisSample> getForecastSamples() {
 
         try {
@@ -535,6 +542,10 @@ public class ChartDataRow {
         }
 
         return forecastSamples;
+    }
+
+    public void setForecastSamples(List<JEVisSample> forecastSamples) {
+        this.forecastSamples = forecastSamples;
     }
 
     public void setSamples(List<JEVisSample> samples) {

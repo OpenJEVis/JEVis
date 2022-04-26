@@ -58,6 +58,10 @@ public class ConnectionEncoder {
         pass.setKey(CommonOptions.DataSource.PASSWORD.getKey());
         pass.setValue(segs[4]);
 
+        JEVisOption locale = new BasicOption();
+        pass.setKey(CommonOptions.DataSource.LOCALE.getKey());
+        pass.setValue(segs[5]);
+
         JEVisOption dsclass = new BasicOption();
         dsclass.setKey(CommonOptions.DataSource.CLASS.getKey());
         dsclass.setValue("org.jevis.api.sql.JEVisDataSourceSQL");
@@ -67,6 +71,7 @@ public class ConnectionEncoder {
         datasource.addOption(schema, true);
         datasource.addOption(user, true);
         datasource.addOption(pass, true);
+        datasource.addOption(locale, true);
         datasource.addOption(dsclass, true);
 
 //        for (JEVisOption jo : datasource.getOptions()) {

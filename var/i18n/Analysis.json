@@ -48,6 +48,17 @@
         "th": "ไดอะแกรม",
         "uk": "Діаграми"
       }
+    },
+    {
+      "type": "Analysis File",
+      "descriptions": {
+        "de": "Speicherort der Analysendatei",
+        "en": "File destination of analysis"
+      },
+      "names": {
+        "de": "Analysen Datei",
+        "en": "Analysis File"
+      }
     }
   ]
 }

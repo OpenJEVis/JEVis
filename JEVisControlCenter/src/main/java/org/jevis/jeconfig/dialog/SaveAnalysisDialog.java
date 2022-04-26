@@ -41,6 +41,7 @@ public class SaveAnalysisDialog extends JFXDialog {
     private final JFXComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean changed;
     private JEVisObject currentAnalysisDirectory = null;
+    private Response response = Response.CANCEL;
 
     public SaveAnalysisDialog(StackPane dialogContainer, JEVisDataSource ds, AnalysisDataModel model, ToolBarView toolBarView) {
         setDialogContainer(dialogContainer);
@@ -188,6 +189,8 @@ public class SaveAnalysisDialog extends JFXDialog {
                     model.updateListAnalyses();
                     model.isGlobalAnalysisTimeFrame(true);
                     toolBarView.updateLayout();
+
+                    response = Response.OK;
                 }
             } else {
                 JFXAlert dialogOverwrite = new JFXAlert(this.getScene().getWindow());
@@ -217,6 +220,8 @@ public class SaveAnalysisDialog extends JFXDialog {
                         model.setCurrentAnalysisNOEVENT(currentAnalysis.get());
                         model.updateListAnalyses();
                         toolBarView.updateLayout();
+
+                        response = Response.OK;
                     }
                     dialogOverwrite.close();
                 });
@@ -369,5 +374,9 @@ public class SaveAnalysisDialog extends JFXDialog {
         } catch (JEVisException e) {
             logger.error("Error: could not save data model and chart settings", e);
         }
+    }
+
+    public Response getResponse() {
+        return response;
     }
 }
