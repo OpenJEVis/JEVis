@@ -245,6 +245,21 @@ public class AttributeTable {
     }
 
 
+    public void delete(long objectID) {
+        logger.debug("delete attributes: {}", objectID);
+        String sqlUpdate = String.format("delete from %s where %s=? ", TABLE, COLUMN_OBJECT);
+
+        try (PreparedStatement psUpdate = ds.getConnection().prepareStatement(sqlUpdate)) {
+            psUpdate.setLong(1, objectID);
+
+
+        } catch (SQLException ex) {
+            logger.error(ex, ex);
+        }
+
+
+    }
+
     /**
      * Update the min/max/count if samples changed for an attribute
      * TODO: this could be an trigger in mysql direct

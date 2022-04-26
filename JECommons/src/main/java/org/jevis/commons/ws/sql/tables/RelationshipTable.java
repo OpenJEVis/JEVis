@@ -142,6 +142,25 @@ public class RelationshipTable {
     }
 
 
+    public boolean changeType(long start, int oldType, int newType) {
+        String sql = String.format("update %s set %s=? where %s=? and %s=?", TABLE, COLUMN_TYPE, COLUMN_START, COLUMN_TYPE);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, newType);
+            ps.setLong(2, start);
+            ps.setInt(3, oldType);
+            logger.debug("SQL: {}", ps);
+            int count = ps.executeUpdate();
+            if (count == 1) {
+                return true;
+            } else {
+                return true;
+            }
+        } catch (SQLException ex) {
+            logger.error(ex);
+            return false;
+        }
+    }
+
     public boolean delete(long start, long end, int type) {
 
         String sql = String.format("delete from %s where %s=? and %s=? and %s=?", TABLE, COLUMN_START, COLUMN_END, COLUMN_TYPE);
@@ -179,7 +198,7 @@ public class RelationshipTable {
 
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            logger.trace("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
 
             int count = ps.executeUpdate();
 

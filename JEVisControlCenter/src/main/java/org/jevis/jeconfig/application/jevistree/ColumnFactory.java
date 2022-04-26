@@ -60,7 +60,7 @@ public class ColumnFactory {
 
     private static final String OBJECT_NAME = "Name";
     private static final String OBJECT_ID = "ID";
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:MM");
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     private static final Image ATTRIBUTE_ICON = ResourceLoader.getImage("graphic-design.png");
     private static final Map<String, Image> classIconCache = new HashMap<>();
 
@@ -244,6 +244,8 @@ public class ColumnFactory {
                         }
 
                     } else {
+                        
+
                         return new ReadOnlyObjectWrapper<>("");
                     }
 

@@ -122,6 +122,8 @@ public interface JEVisDataSource {
 
     List<JEVisObject> getObjects() throws JEVisException;
 
+    List<JEVisObject> getDeletedObjects() throws JEVisException;
+
     /**
      * Get a JEVisClass by its name
      *
@@ -247,9 +249,10 @@ public interface JEVisDataSource {
      * Delete an Objects
      *
      * @param objectID
+     * @param deleteForever delete the object, if false move to recycle bin
      * @return
      */
-    boolean deleteObject(long objectID) throws JEVisException;
+    boolean deleteObject(long objectID, boolean deleteForever) throws JEVisException;
 
     /**
      * Delete an JEVisClass
@@ -313,6 +316,7 @@ public interface JEVisDataSource {
     void reloadAttribute(JEVisObject object);
 
     void reloadObject(JEVisObject object);
+
 
     /**
      * Clears the internal cache

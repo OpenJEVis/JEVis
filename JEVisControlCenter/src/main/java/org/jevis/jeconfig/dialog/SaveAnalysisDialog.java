@@ -357,7 +357,7 @@ public class SaveAnalysisDialog extends JFXDialog {
 
                 if (this.model.getTemporary()) {
                     try {
-                        ds.deleteObject(this.model.getCurrentAnalysis().getID());
+                        ds.deleteObject(this.model.getCurrentAnalysis().getID(), true);
                         this.model.updateListAnalyses();
                     } catch (JEVisException e) {
                         logger.error("Could not delete temporary analysis", e);

@@ -8,6 +8,7 @@ import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeItem;
@@ -27,8 +28,10 @@ public class JEVisItemLoader {
     private final JEVisTree jeVisTree;
     private final List<JEVisObject> roots;
     private final ConcurrentHashMap<JEVisObject, JEVisTreeItem> itemObjectLinker = new ConcurrentHashMap<>();
+    //private final ConcurrentHashMap<JEVisObject, JEVisTreeItem> itemDeletedObjectLinker = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, JEVisTreeItem> itemAttributeLinker = new ConcurrentHashMap<>();
     private final ObservableList<JEVisObject> visibleObjects = FXCollections.observableArrayList();
+    private final JEVisObject recycleBinObject;
 
 
     /**
@@ -38,12 +41,27 @@ public class JEVisItemLoader {
      * @param objects
      * @param roots
      */
-    public JEVisItemLoader(JEVisTree jeVisTree, List<JEVisObject> objects, List<JEVisObject> roots) {
+    public JEVisItemLoader(JEVisTree jeVisTree, List<JEVisObject> objects, List<JEVisObject> roots, JEVisObject recycleBinObject) {
         this.jeVisTree = jeVisTree;
         this.roots = roots;
+        this.recycleBinObject = recycleBinObject;
+
+        /*
+        objects.addAll(deletedObjects);
+        deletedObjects.forEach(jeVisObject -> {
+            try {
+                if (!jeVisObject.getRelationships(JEVisConstants.ObjectRelationship.DELETED_PARENT).isEmpty()) {
+                    recycleBinObject.getChildren().add(jeVisObject);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+         */
 
         buildItems(objects);
         buildItems(this.roots);
+        //buildDeletedItems(deletedObjects);
     }
 
     /**
@@ -72,6 +90,13 @@ public class JEVisItemLoader {
     public Collection<JEVisTreeItem> getAllItems() {
         return this.itemObjectLinker.values();
     }
+
+    /*
+    public Collection<JEVisTreeItem> getAllDeletedItems() {
+        return this.itemDeletedObjectLinker.values();
+    }
+
+     */
 
     public ObservableList<JEVisObject> getVisibleObjects() {
         visibleObjects.clear();
@@ -125,11 +150,38 @@ public class JEVisItemLoader {
                         logger.error("Error while loading type {}", attribute.getName(), aex);
                     }
                 }
+
+                try {
+                    if (!object.getRelationships(JEVisConstants.ObjectRelationship.DELETED_PARENT, JEVisConstants.Direction.FORWARD).isEmpty()) {
+                        //System.out.println("Is Delete Root child: " + object);
+                        recycleBinObject.getChildren().add(object);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error while building Object: {}", object, e, e);
+                }
+
             } catch (Exception ex) {
                 logger.error("Error while loading object {}", object.getID(), ex);
             }
         }
     }
+
+    /*
+    private void buildDeletedItems(List<JEVisObject> objects) {
+
+        for (JEVisObject object : objects) {
+            try {
+//                logger.debug("Create item for object: {}", object.getName());
+                JEVisTreeItem item = new JEVisTreeItem(object);
+                registerEventHandler(object);
+                this.itemDeletedObjectLinker.put(object, item);
+
+            } catch (Exception ex) {
+                logger.error("Error while loading object {}", object.getID(), ex);
+            }
+        }
+    }
+*/
 
     private String attributeKey(JEVisAttribute attribute) {
         return attribute.getObjectID() + ":" + attribute.getName();
@@ -248,6 +300,7 @@ public class JEVisItemLoader {
 //        benchmark.printBenchmarkDetail("find parents");
         /** build children lists **/
         this.itemObjectLinker.forEach((object, jeVisTreeItem) -> {
+
             if ((jeVisTreeItem.isFiltered() || jeVisTreeItem.isParentForFilter()) && jeVisTreeItem.isObject()) {
                 try {
                     update(jeVisTreeItem.getValue().getJEVisObject());
@@ -257,6 +310,7 @@ public class JEVisItemLoader {
             }
         });
 //        benchmark.printBenchmarkDetail("build children");
+
 
         this.itemObjectLinker.forEach((object, jeVisTreeItem) -> {
             if (!jeVisTreeItem.getChildren().isEmpty()) {
@@ -270,6 +324,7 @@ public class JEVisItemLoader {
         JEVisTreeItem rootItem = new JEVisTreeItem();
         rootItem.setExpanded(true);
         for (JEVisObject rooObject : this.roots) {
+
             if (this.itemObjectLinker.containsKey(rooObject)) {
                 JEVisTreeItem rootChild = this.itemObjectLinker.get(rooObject);
                 if (rootChild.isFiltered() || rootChild.isParentForFilter()) {
@@ -320,10 +375,6 @@ public class JEVisItemLoader {
                 }
             }
             newChildrenList.sort(JEVisTreeItem.jeVisTreeItemComparator);
-            if (item.getChildren() == null) {
-                logger.error("Why is the list null");
-
-            }
             item.getChildren().clear();
             item.getChildren().addAll(newChildrenList);
 
@@ -344,13 +395,70 @@ public class JEVisItemLoader {
      */
     private void registerEventHandler(JEVisObject object) {
         /** TODO: an weak listener would be better **/
+
+
         object.addEventListener(event -> {
-            logger.debug("Object Event [{}]: object [{}]{}  Source: {}", event.getType(), object.getID(), object.getName(), event.getSource());
+            logger.error("Object Event [{}]: object [{}]{}  Source: {}", event.getType(), object.getID(), object.getName(), event.getSource());
+            JEVisObject detectedObject = (JEVisObject) event.getObject();
+            JEVisTreeItem treeItem = getItemForObject(detectedObject);
+            JEVisTreeItem treeItemBin = getItemForObject(recycleBinObject);
+
+
             switch (event.getType()) {
                 case OBJECT_DELETE:
+                    JEVisTreeItem treeParent = (JEVisTreeItem) treeItem.getParent();
+                    JEVisObject parenObject = treeParent.getValue().getJEVisObject();
+
+                    try {
+                        parenObject.getParents().remove(detectedObject);
+                        treeParent.getChildren().remove(treeItem);
+                        update(object);
+
+                    } catch (Exception ex) {
+                        logger.error(ex, ex);
+                    }
+
+                    treeParent.setExpanded(false);
+                    treeParent.setExpanded(true);
+
+
+                    jeVisTree.getSelectionModel().clearSelection();
+
+                    break;
+
+                case OBJECT_DELETE_BIN:
                     /** nothing to do, we listen to the parent OBJECT_CHILD_DELETED event **/
+
+                    JEVisTreeItem treeParent2 = (JEVisTreeItem) treeItem.getParent();
+                    JEVisObject parenObject2 = treeParent2.getValue().getJEVisObject();
+
+                    try {
+                        parenObject2.getParents().remove(detectedObject);
+                        treeParent2.getChildren().remove(treeItem);
+
+                        recycleBinObject.getChildren().add(detectedObject);
+                        treeItemBin.getChildren().add(treeItem);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
+                    Platform.runLater(() -> {
+                        treeParent2.setExpanded(false);
+                        treeParent2.setExpanded(true);
+
+                        if (treeItemBin.isExpanded()) {
+                            treeItemBin.setExpanded(false);
+                            treeItemBin.setExpanded(true);
+                        }
+
+                        jeVisTree.getSelectionModel().clearSelection();
+                    });
+
+
                     break;
                 case OBJECT_NEW_CHILD:
+                    logger.error("New Child Event: {}", event);
                     JEVisObject newObject = (JEVisObject) event.getObject();
 
                     if (newObject != null && !this.itemObjectLinker.containsKey(newObject)) {
@@ -359,11 +467,6 @@ public class JEVisItemLoader {
                         logger.error("Remove item from cache: {}", newObject);
                         this.itemObjectLinker.remove(newObject);
                         buildItems(newObject);
-//                        if (this.itemObjectLinker.containsKey(newObject)) {
-//                        logger.error("Remove item from jevis tree cache: {}", newObject);
-//                        itemObjectLinker.remove(newObject);
-//                        buildItems(newObject);
-//                        }
                     }
 
                     if (newObject != null) {
@@ -377,9 +480,11 @@ public class JEVisItemLoader {
                             //jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
                         });
                     }
+                    jeVisTree.getSelectionModel().clearSelection();
+
                     break;
                 case OBJECT_CHILD_DELETED:
-                    Platform.runLater(() -> update(object));
+
                     break;
                 case OBJECT_UPDATED:
                     JEVisTreeItem itemToUpdate = this.itemObjectLinker.get(object);

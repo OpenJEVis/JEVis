@@ -52,6 +52,8 @@ public class ServiceStatus extends AlarmTable {
 
         for (FileStore store : fs.getFileStores()) {
             try {
+                if (store.name().equals("none") || store.name().equals("tmpfs")) continue;
+
                 double totalSpace = store.getTotalSpace() / 1024d / 1024d / 1024d;
                 double usableSpace = store.getUsableSpace() / 1024d / 1024d / 1024d;
                 double percent = usableSpace / totalSpace * 100d;
