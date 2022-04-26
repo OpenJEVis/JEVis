@@ -177,7 +177,7 @@ public class PrepareStep implements ProcessStep {
                 currentDateLocal = currentDateLocal.minusDays(1);
 
                 offsetMillis = maxEndDateLocal.getMillis() - maxEndDateLocal.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).getMillis();
-                maxEndDateLocal = maxEndDateLocal.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                maxEndDateLocal = maxEndDateLocal.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             }
             if (compare < 0 && firstRawPeriod.getDays() > 0) {
                 currentDateLocal = currentDateLocal.minusDays(1);
