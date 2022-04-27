@@ -396,10 +396,12 @@ public class OPCClient {
 
                 if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[i])) {
                     nodeId = new NodeId(referenceDescriptionList.get(j).getNodeId().getNamespaceIndex(), (UInteger) referenceDescriptionList.get(j).getNodeId().getIdentifier());
+                    System.out.println(referenceDescriptionList.get(j));
                 }
                 if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[rootFolder.split("/").length-1])) {
                     pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(j), "", null);
                     list.add(pathReferenceDescription);
+                    System.out.println(referenceDescriptionList.get(j));
 
                 }
             }
@@ -436,6 +438,38 @@ public class OPCClient {
             e.printStackTrace();
             return null;
         }
+
+    }
+
+    public PathReferenceDescription getRoot(String rootFolder){
+
+        NodeId nodeId = Identifiers.RootFolder;
+
+        PathReferenceDescription pathReferenceDescription = null;
+
+
+        for (int i = 0; i < rootFolder.split("/").length; i++) {
+            List<ReferenceDescription> referenceDescriptionList = browseToRoot (nodeId);
+
+            for (int j = 0; j < referenceDescriptionList.size(); j++) {
+                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[i])) {
+                    pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(j), "/"+referenceDescriptionList.get(j).getBrowseName(), null);
+                }
+
+
+                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[rootFolder.split("/").length-1])) {
+                    pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(j), "/"+referenceDescriptionList.get(j).getBrowseName(), null);
+                    System.out.println(referenceDescriptionList.get(j));
+                    System.out.println("pathdescription");
+
+                }
+            }
+        }
+        System.out.println(pathReferenceDescription);
+       // NodeId nodeId = getNodeId(path);
+       // List<ReferenceDescription> referenceDescriptionList = getReferenceDescription(nodeId);
+      //  PathReferenceDescription pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(0),"",null);
+        return pathReferenceDescription;
 
     }
 

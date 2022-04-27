@@ -55,21 +55,24 @@ public class NodeTreeTable {
 
     private final TreeTableView<Node> opcUATreeTableView = new TreeTableView<>();
     private final OPCClient opcClient;
-    private TreeItem<Node> rootTreeItem;
+    private TreeItem<Node> branchRootTreeItem;
+    private TreeItem<Node> mainRootTreeItem;
     private TreeItem<Node> currentTreeItem;
+    private boolean bacnet = false;
     private boolean rootSet = false;
     private final JFXButton importDataStructureJFXButton;
     private final JFXButton selectTargetJFXButton;
     private JFXDialog setValueDialog;
 
-    private int count;
+    private int jevisObjectcount;
 
     private JEVisObject targetDataObject;
     private JEVisDataSource ds;
     private final ObservableList<Node> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
-    private StackPane dialogContainer;
+    private final StackPane dialogContainer;
     private static final String LOYTEC_XML_DL_DIRECTORY = "Loytec XML-DL CEA709 Channel Directory";
+    private static final String LOYTEC_XML_DL_BACNET_DIRECTORY = "Loytec XML-DL Bacnet Channel Directory";
     private static final String DATA_DIRECTORY = "Data Directory";
     private static final String LOYTEC_XML_DL_CHANNEL = "Loytec XML-DL Channel";
     private static final String TREND_ID = "Trend ID";
@@ -77,8 +80,9 @@ public class NodeTreeTable {
     private static final String IMPORTED_FROM_OPC_UA = "Imported From OPC UA";
 
 
-    private JEVisObject trendRoot;
+    private final JEVisObject trendRoot;
     private final String opcUARootFolder;
+    private final String backNetRootFolder;
     public static final String BROWSER_MODE = I18n.getInstance().getString("plugin.object.opcua.mode.browse");
     public static final String SETUP_MODE = I18n.getInstance().getString("plugin.object.opcua.mode.setupassistant");
     public static final String LOG_MODE = "trendMode";
@@ -86,11 +90,13 @@ public class NodeTreeTable {
     private final String mode;
 
 
-    public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, StackPane dialogContainer, String mode) {
+
+    public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, String backNetRootFolder, StackPane dialogContainer, String mode) {
 
         this.mode = mode;
         this.opcClient = opcClient;
         this.trendRoot = trendRoot;
+        this.backNetRootFolder = backNetRootFolder;
         this.opcUARootFolder = opcUaRootFolder;
         this.dialogContainer = dialogContainer;
         selectTargetJFXButton = buildTargetButton();
@@ -100,20 +106,142 @@ public class NodeTreeTable {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
+        setRoot();
 
 
+        setUpTable(mode);
 
 
+        if (mode.equals(SETUP_MODE)) {
+            HBox hBox = new HBox(10);
+            hBox.getChildren().addAll(selectTargetJFXButton, importDataStructureJFXButton);
+            hBox.setPadding(new Insets(10, 10, 10, 10));
 
+            view.getChildren().add(hBox);
+
+        } else if (mode.equals(BROWSER_MODE)) {
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem cMcopyNodeId = new MenuItem(I18n.getInstance().getString("plugin.object.opcua.copynodeid"));
+
+
+            opcUATreeTableView.setOnKeyPressed(event -> {
+                if (event.isControlDown()) {
+                    if (KeyCode.C.equals(event.getCode())) {
+                        copyNodeId();
+                    }
+                }
+            });
+            cMcopyNodeId.setOnAction(event -> {
+
+                copyNodeId();
+
+            });
+            MenuItem cMsetValue = new MenuItem(I18n.getInstance().getString("plugin.object.opcua.setvalue"));
+            cMsetValue.setOnAction(event -> {
+                setSetValueDialog(opcClient, dialogContainer);
+            });
+            contextMenu.getItems().addAll(cMcopyNodeId, cMsetValue);
+            opcUATreeTableView.setContextMenu(contextMenu);
+        }
+        GridPane.setFillWidth(opcUATreeTableView, true);
+        GridPane.setFillHeight(opcUATreeTableView, true);
+
+
+        try {
+            ObservableList<PathReferenceDescription> list = FXCollections.observableArrayList();
+            list.addListener(new ListChangeListener<PathReferenceDescription>() {
+                @Override
+                public void onChanged(Change<? extends PathReferenceDescription> c) {
+                    while (c.next()) {
+                        if (c.wasAdded()) {
+                            c.getAddedSubList().forEach(o -> {
+                                logger.debug("New Des: " + o.getPath() + "  -> " + o.getReferenceDescription().getBrowseName().getName());
+                                PathReferenceDescription x = o;
+
+                                Node node = new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue());
+                                System.out.println("name");
+                                System.out.println(o.getReferenceDescription().getBrowseName().getName());
+                                if (rootSet == false) {
+
+                                    currentTreeItem = setRoot(node);
+
+                                } else if (rootSet == true) {
+
+                                    currentTreeItem = createOPCUAChildren(currentTreeItem, node);
+                                }
+
+
+                            });
+
+                        }
+                    }
+                    if (bacnet == true && mode.equals(SETUP_MODE)) {
+                        branchRootTreeItem.getChildren().removeIf(nodeTreeItem -> !nodeTreeItem.getValue().getName().equals("Trend"));
+                    }
+
+                }
+
+            });
+
+
+            Task task = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    try {
+                        opcClient.browse(list, opcUARootFolder);
+                        super.done();
+                    } catch (Exception ex) {
+                        super.failed();
+                    }
+                    return null;
+                }
+            };
+            Task task2 = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    try {
+                        opcClient.browse(list, backNetRootFolder);
+                        super.done();
+                    } catch (Exception ex) {
+                        super.failed();
+                    }
+                    return null;
+                }
+            };
+
+            task.setOnSucceeded(event -> {
+                        if (mode.equals(SETUP_MODE)) {
+                            bacnet = true;
+                            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), task2, taskIcon, true);
+                            rootSet = false;
+                        }
+                    }
+            );
+            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), task, taskIcon, true);
+
+            /**
+             HashMap<String,ReferenceDescription> map = opcClient.browse();
+             System.out.println("Mapsize: "+map.size());
+             map.forEach((xpath, referenceDescription) -> {
+             Node newNode = new Node(referenceDescription,xpath);
+             list.add(newNode);
+             });
+             **/
+        } catch (Exception ex) {
+            logger.error("error while browsing Client: {}", ex);
+        }
+    }
+
+    private void setUpTable(String mode) {
         TreeTableColumn<Node, String> nameCol = new TreeTableColumn<>(I18n.getInstance().getString("plugin.object.opcua.column.name"));
-        nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().descriptionProperty.get().getBrowseName().getName()));
+        nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().getName()));
 
 
         if (mode.equals(BROWSER_MODE)) {
             TreeTableColumn<Node, String> valueCol = new TreeTableColumn<>(I18n.getInstance().getString("plugin.object.opcua.column.value"));
             TreeTableColumn<Node, String> nodeIDCol = new TreeTableColumn<>(I18n.getInstance().getString("plugin.object.opcua.column.nodeid"));
             valueCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().readData()));
-            nodeIDCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().nodeIdProperty.get().toParseableString()));
+            nodeIDCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().getNodeIdProperty().toParseableString()));
             opcUATreeTableView.getColumns().addAll(nameCol, valueCol, nodeIDCol);
         } else if (mode.equals(SETUP_MODE)) {
             TreeTableColumn<Node, Boolean> checkCol = new TreeTableColumn<>(I18n.getInstance().getString("plugin.object.opcua.column.import"));
@@ -139,7 +267,7 @@ public class NodeTreeTable {
                             if (!empty && getTreeTableRow().getTreeItem() != null) {
                                 try {
 
-                                    if (getTreeTableRow().getTreeItem().getValue().descriptionProperty.get().getNodeClass().getValue() == 1) {
+                                    if (getTreeTableRow().getTreeItem().getValue().getDescriptionProperty().getNodeClass().getValue() == 1) {
                                         JFXCheckBox box = new JFXCheckBox();
                                         box.setSelected(item);
                                         box.setOnAction(event -> {
@@ -187,105 +315,11 @@ public class NodeTreeTable {
 
 
         view.getChildren().add(opcUATreeTableView);
-
-
-        if (mode.equals(SETUP_MODE)) {
-            HBox hBox = new HBox(10);
-            hBox.getChildren().addAll(selectTargetJFXButton, importDataStructureJFXButton);
-            hBox.setPadding(new Insets(10, 10, 10, 10));
-
-            view.getChildren().add(hBox);
-
-        } else if (mode.equals(BROWSER_MODE)) {
-            ContextMenu contextMenu = new ContextMenu();
-            MenuItem cMcopyNodeId = new MenuItem(I18n.getInstance().getString("plugin.object.opcua.copynodeid"));
-
-
-            opcUATreeTableView.setOnKeyPressed(event -> {
-                if (event.isControlDown()) {
-                    if (KeyCode.C.equals(event.getCode())) {
-                        copyNodeId();
-                    }
-                }
-            });
-            cMcopyNodeId.setOnAction(event -> {
-
-                copyNodeId();
-
-            });
-            MenuItem cMsetValue = new MenuItem(I18n.getInstance().getString("plugin.object.opcua.setvalue"));
-            cMsetValue.setOnAction(event -> {
-                setSetValueDialog(opcClient, dialogContainer);
-            });
-            contextMenu.getItems().addAll(cMcopyNodeId, cMsetValue);
-            opcUATreeTableView.setContextMenu(contextMenu);
-        }
-        GridPane.setFillWidth(opcUATreeTableView, true);
-        GridPane.setFillHeight(opcUATreeTableView, true);
-
-
-        try {
-            ObservableList<PathReferenceDescription> list = FXCollections.observableArrayList();
-            list.addListener(new ListChangeListener<PathReferenceDescription>() {
-                @Override
-                public void onChanged(Change<? extends PathReferenceDescription> c) {
-                    while (c.next()) {
-                        if (c.wasAdded()) {
-                            c.getAddedSubList().forEach(o -> {
-                               logger.debug("New Des: " + o.getPath() + "  -> " + o.getReferenceDescription().getBrowseName().getName());
-                                PathReferenceDescription x = o;
-
-                                if (rootSet == false) {
-
-                                    currentTreeItem = setRoot(new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue()));
-
-                                }
-//                                if (o.getReferenceDescription().getBrowseName().getName().equals(opcUaRootFolder)) {
-//                                    currentTreeItem = setRoot(new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue()));
-//                                }
-                                else if (rootSet == true) {
-                                    currentTreeItem = createOPCUAChildren(currentTreeItem, new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue()));
-                                }
-
-                            });
-
-                        }
-                    }
-
-                }
-            });
-
-
-            Task task = new Task() {
-                @Override
-                protected Object call() throws Exception {
-                    try {
-                        opcClient.browse(list, opcUARootFolder);
-                        super.done();
-                    } catch (Exception ex) {
-                        super.failed();
-                    }
-                    return null;
-                }
-            };
-            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), task, taskIcon, true);
-
-            /**
-             HashMap<String,ReferenceDescription> map = opcClient.browse();
-             System.out.println("Mapsize: "+map.size());
-             map.forEach((xpath, referenceDescription) -> {
-             Node newNode = new Node(referenceDescription,xpath);
-             list.add(newNode);
-             });
-             **/
-        } catch (Exception ex) {
-            logger.error("error while browsing Client: {}", ex);
-        }
     }
 
     private void setSetValueDialog(OPCClient opcClient, StackPane dialogContainer) {
         try {
-            String dataType = opcClient.getDataType(NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+            String dataType = opcClient.getDataType(NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().getStringNodeID()));
 
 
             setValueDialog = new JFXDialog();
@@ -329,13 +363,13 @@ public class NodeTreeTable {
 
 
                     if (dataType.equals(Boolean.class.getName())) {
-                        opcClient.writeValue(valueComboBox.getValue(), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                        opcClient.writeValue(valueComboBox.getValue(), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().getStringNodeID()));
                     } else if (dataType.equals(String.class.getName())) {
-                        opcClient.writeValue(valueField.getText(), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                        opcClient.writeValue(valueField.getText(), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().getStringNodeID()));
                     } else if (dataType.equals(Double.class.getName())) {
-                        opcClient.writeValue(Double.valueOf(valueField.getText()), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                        opcClient.writeValue(Double.valueOf(valueField.getText()), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().getStringNodeID()));
                     } else if (dataType.equals(Integer.class.getName())) {
-                        opcClient.writeValue(Integer.valueOf(valueField.getText()), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                        opcClient.writeValue(Integer.valueOf(valueField.getText()), NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().getStringNodeID()));
                     } else {
                         logger.info("Datatype Mismatch");
                         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -344,7 +378,7 @@ public class NodeTreeTable {
                         alert.showAndWait();
                     }
 
-                    opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().dataValue = opcClient.readValue(NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get()));
+                    opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().setDataValue(opcClient.readValue(NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().getStringNodeID())));
                     opcUATreeTableView.refresh();
                 } catch (UaException | NumberFormatException e) {
                     e.printStackTrace();
@@ -378,7 +412,7 @@ public class NodeTreeTable {
      */
     private void copyNodeId() {
         final ClipboardContent content = new ClipboardContent();
-        content.putString(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().stringNodeID.get());
+        content.putString(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().getStringNodeID());
         Clipboard.getSystemClipboard().setContent(content);
     }
 
@@ -397,11 +431,25 @@ public class NodeTreeTable {
      */
 
     private TreeItem<Node> setRoot(Node node) {
-        rootTreeItem = new TreeItem<>(node);
+        if (bacnet == true) {
+            node.setTrendType(Node.BACNET_TREND);
+        }
+        branchRootTreeItem = new TreeItem<>(node);
         rootSet = true;
-        opcUATreeTableView.setRoot(rootTreeItem);
-        return rootTreeItem;
+        mainRootTreeItem.getChildren().add(branchRootTreeItem);
+        //opcUATreeTableView.setRoot(rootTreeItem);
+        return branchRootTreeItem;
     }
+
+
+    private TreeItem<Node> setRoot() {
+        PathReferenceDescription pd = opcClient.getRoot("/Objects/Loytec ROOT");
+        mainRootTreeItem = new TreeItem<>(new Node(pd.getReferenceDescription(), pd.getPath(), pd.getDataValue()));
+        opcUATreeTableView.setRoot(mainRootTreeItem);
+        opcUATreeTableView.setShowRoot(false);
+        return branchRootTreeItem;
+    }
+
 
     /**
      * @param parent OPC-UA Parent
@@ -410,17 +458,20 @@ public class NodeTreeTable {
      */
 
     private TreeItem<Node> createOPCUAChildren(TreeItem<Node> parent, Node node) {
-        if ((parent.getValue().pathProperty.get() + "/" + parent.getValue().descriptionProperty.get().getBrowseName().getName()).equals(node.pathProperty.get())) {
+        if (bacnet == true) {
+            node.setTrendType(Node.BACNET_TREND);
+        }
+        if ((parent.getValue().getPathProperty() + "/" + parent.getValue().getDescriptionProperty().getBrowseName().getName()).equals(node.getPathProperty())) {
             TreeItem<Node> treeItem = new TreeItem<>(node);
-            logger.info("OPC-UA children: {} added", node.descriptionProperty.get().getBrowseName());
-            if (node.descriptionProperty.get().getNodeClass().getValue() == 1 || mode.equals(BROWSER_MODE)) {
+            logger.info("OPC-UA children: {} added", node.getDescriptionProperty().getBrowseName());
+            if (node.getDescriptionProperty().getNodeClass().getValue() == 1 || mode.equals(BROWSER_MODE)) {
                 parent.getChildren().add(treeItem);
                 return treeItem;
             } else {
-                if (node.descriptionProperty.get().getBrowseName().getName().equals("CsvFile")) {
-                    String csvString = node.readData().split("\\.|\\/")[node.readData().split("\\.|\\/.").length - 2];
-                    parent.getValue().setTrendID(csvString);
-                } else if (node.descriptionProperty.get().getBrowseName().getName().equals("Configuration")) {
+                if (node.getDescriptionProperty().getBrowseName().getName().equals("LogHandle")) {
+                    String logHandleString = node.readData().split("\\.|\\-")[node.readData().split("\\.|\\-.").length - 2];
+                    parent.getValue().setTrendID(logHandleString);
+                } else if (node.getDescriptionProperty().getBrowseName().getName().equals("Configuration")) {
                     try {
                         parent.getValue().setLogInterval(getLogInterval(node.readData()));
                     } catch (ParserConfigurationException e) {
@@ -434,7 +485,7 @@ public class NodeTreeTable {
                 return parent;
             }
 
-        } else if (parent.getValue().pathProperty.get().contains(rootTreeItem.getValue().pathProperty.get())) {
+        } else if (parent.getValue().getPathProperty().contains(branchRootTreeItem.getValue().getPathProperty())) {
             return createOPCUAChildren(parent.getParent(), node);
         } else {
             return parent;
@@ -452,9 +503,14 @@ public class NodeTreeTable {
     private void createTrendDataTree(TreeItem<Node> node, JEVisObject dataSourceJEVisObject, DateTime dateTime, JEVisObject dataJEVisObject) throws JEVisException {
 
         if (node.getValue().getTrendID() == null) {
-            logger.info("OPC-UA Node: {} is a Folder", node.getValue().descriptionProperty.get().getDisplayName());
+            logger.info("OPC-UA Node: {} is a Folder", node.getValue().getDescriptionProperty().getDisplayName());
             if (node.getValue().isSelected()) {
-                dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_DIRECTORY);
+                if (node.getValue().getTrendType().equals(Node.BACNET_TREND)) {
+                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_BACNET_DIRECTORY);
+                } else {
+                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_DIRECTORY);
+                }
+
                 if (dataJEVisObject != null) {
 
                     dataJEVisObject = createJEVisObject(node, dataJEVisObject, DATA_DIRECTORY);
@@ -462,7 +518,7 @@ public class NodeTreeTable {
 
             }
         } else {
-            logger.info("OPC-UA Node: {} is not Folder", node.getValue().descriptionProperty.get().getDisplayName());
+            logger.info("OPC-UA Node: {} is not Folder", node.getValue().getDescriptionProperty().getDisplayName());
             if (node.getValue().isSelected()) {
                 dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_CHANNEL);
                 JEVisAttribute jevisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
@@ -505,14 +561,14 @@ public class NodeTreeTable {
     private JEVisObject createJEVisObject(TreeItem<Node> node, JEVisObject jevisParentObject, String className) throws JEVisException {
         JEVisClass dataClass = jevisParentObject.getDataSource().buildClass(className);
 
-        String name = node.getValue().descriptionProperty.get().getBrowseName().getName();
+        String name = node.getValue().getDescriptionProperty().getBrowseName().getName();
         name = name.replace("Trend_", "");
 
 
         JEVisObject newObject = jevisParentObject.buildObject(name, dataClass);
         if (newObject.isAllowedUnder(jevisParentObject)) {
             newObject.commit();
-            count++;
+            jevisObjectcount++;
             return newObject;
         } else {
             return jevisParentObject;
@@ -581,6 +637,7 @@ public class NodeTreeTable {
 
 
     }
+
     /**
      * @param interval Log Interval in Seconds
      * @return Periode
@@ -693,14 +750,14 @@ public class NodeTreeTable {
 
                                 rootTrendObject.commit();
                                 rootDataObject.commit();
-                                createTrendDataTree(rootTreeItem, rootTrendObject, dateTime, rootDataObject);
+                                createTrendDataTree(mainRootTreeItem, rootTrendObject, dateTime, rootDataObject);
 
                             }
 
                         } else {
                             logger.info("no target selected");
                             rootTrendObject.commit();
-                            createTrendDataTree(rootTreeItem, rootTrendObject, dateTime, null);
+                            createTrendDataTree(mainRootTreeItem, rootTrendObject, dateTime, null);
                         }
 
 
@@ -717,8 +774,8 @@ public class NodeTreeTable {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.import.finish.title"));
                 alert.setHeaderText("");
-                alert.setContentText(I18n.getInstance().getString("plugin.object.opcua.import.finish.message") + "" + count);
-                count = 0;
+                alert.setContentText(I18n.getInstance().getString("plugin.object.opcua.import.finish.message") + "" + jevisObjectcount);
+                jevisObjectcount = 0;
                 alert.showAndWait();
             });
 

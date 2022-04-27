@@ -133,6 +133,30 @@ public class WirelessLogicRequest {
         return jsonNodes;
     }
 
+    public List<JsonNode> getSimDetails(List<JsonNode> simCardsUsage) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("sims/details?iccid=").append(String.join(",", simCardsUsage.stream().map(jsonNode -> jsonNode.get("iccid").asText()).collect(Collectors.toList())));
+        JsonNode jsonNode = objectMapper.readTree(getRequest(stringBuilder.toString()));
+        List<JsonNode> jsonNodeList = new ArrayList<>();
+        for (int i = 0; i < jsonNode.size();i++) {
+            jsonNodeList.add(jsonNode.get(i));
+
+        }
+        return jsonNodeList;
+
+    }
+
+    public List<SimCardInfos> combineSimInfos(List<JsonNode> simUsage, List<JsonNode> simDetails) {
+        List<SimCardInfos> offlineSimCards = new ArrayList<>();
+        for (int i = 0; i < simDetails.size(); i++) {
+            offlineSimCards.add(new SimCardInfos(simUsage.get(i), simDetails.get(i)));
+        }
+        return offlineSimCards;
+    }
+
+
+
+
     /**
      * send a get request to the simpro
      *
