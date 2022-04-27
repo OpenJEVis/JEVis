@@ -144,7 +144,13 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
 
         vBox.setPadding(new Insets(12));
 
-        setContent(vBox);
+        ScrollPane vBoxScrollPane = new ScrollPane(vBox);
+        vBoxScrollPane.setFitToHeight(true);
+        vBoxScrollPane.setFitToWidth(true);
+        vBoxScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        vBoxScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        setContent(vBoxScrollPane);
     }
 
     public Response getResponse() {
