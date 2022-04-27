@@ -57,15 +57,20 @@ public class DifferentialStep implements ProcessStep {
                     jeVisSample = userDataMap.get(timeStamp);
                 }
 
-                if (compare > 0 && (interval.getOutputPeriod().getMonths() == 0 && interval.getOutputPeriod().getYears() == 0) && (timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end)))) {
+                if (compare > 0
+                        && (interval.getOutputPeriod().getDays() == 0 && interval.getOutputPeriod().getWeeks() == 0 && interval.getOutputPeriod().getMonths() == 0 && interval.getOutputPeriod().getYears() == 0)
+                        && (timeStamp.equals(end) || (timeStamp.isAfter(start) && timeStamp.isBefore(end)))) {
                     //raw data  period is smaller then clean data period, e.g. 15-minute values -> day values
                     interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
-                } else if (compare > 0 && (interval.getOutputPeriod().getMonths() == 1 || interval.getOutputPeriod().getYears() == 1) && (timeStamp.equals(start.minusSeconds(1)) || (timeStamp.isAfter(start) && timeStamp.isBefore(end)))) {
+                } else if (compare > 0
+                        && (interval.getOutputPeriod().getDays() == 1 || interval.getOutputPeriod().getWeeks() == 1 || interval.getOutputPeriod().getMonths() == 1 || interval.getOutputPeriod().getYears() == 1)
+                        && (timeStamp.equals(start.minusSeconds(1)) || (timeStamp.isAfter(start) && timeStamp.isBefore(end)))) {
                     //raw data  period is smaller then clean data period, e.g. 15-minute values -> month/year values
                     interval.getRawSamples().add(jeVisSample);
                     rawPointer++;
-                } else if (compare < 0 && ((timeStamp.equals(end) && !interval.getOutputPeriod().equals(Period.minutes(5)))
+                } else if (compare < 0
+                        && ((timeStamp.equals(end) && !interval.getOutputPeriod().equals(Period.minutes(5)))
                         || (interval.getOutputPeriod().equals(Period.minutes(5)) && (timeStamp.equals(interval.getInterval().getEnd()) || (timeStamp.isAfter(interval.getInterval().getStart()) && timeStamp.isBefore(interval.getInterval().getEnd())))))) {
                     //raw data  period is bigger then clean data period, e.g. day values -> 15-minute values
 

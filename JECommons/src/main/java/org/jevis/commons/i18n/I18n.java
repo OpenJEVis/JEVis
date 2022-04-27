@@ -37,6 +37,7 @@ public class I18n {
         availableLang.add(new Locale("ru", "RU"));
         availableLang.add(new Locale("uk", "UA"));
         availableLang.add(new Locale("th", "TH"));
+        //availableLang.add(new Locale("ar", "DZ"));
 
         for (Locale locale : availableLang) {
             try {
