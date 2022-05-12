@@ -500,40 +500,44 @@ public class NodeTreeTable {
      * @throws JEVisException
      */
 
-    private void createTrendDataTree(TreeItem<Node> node, JEVisObject dataSourceJEVisObject, DateTime dateTime, JEVisObject dataJEVisObject) throws JEVisException {
+    private void createTrendDataTree(TreeItem<Node> node, JEVisObject dataSourceJEVisObject, DateTime dateTime, JEVisObject dataJEVisObject) {
+        try {
 
-        if (node.getValue().getTrendID() == null) {
-            logger.info("OPC-UA Node: {} is a Folder", node.getValue().getDescriptionProperty().getDisplayName());
-            if (node.getValue().isSelected()) {
-                if (node.getValue().getTrendType().equals(Node.BACNET_TREND)) {
-                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_BACNET_DIRECTORY);
-                } else {
-                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_DIRECTORY);
+            if (node.getValue().getTrendID() == null) {
+                logger.info("OPC-UA Node: {} is a Folder", node.getValue().getDescriptionProperty().getDisplayName());
+                if (node.getValue().isSelected()) {
+                    if (node.getValue().getTrendType().equals(Node.BACNET_TREND)) {
+                        dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_BACNET_DIRECTORY);
+                    } else {
+                        dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_DIRECTORY);
+                    }
+
+                    if (dataJEVisObject != null) {
+
+                        dataJEVisObject = createJEVisObject(node, dataJEVisObject, DATA_DIRECTORY);
+                    }
+
                 }
-
-                if (dataJEVisObject != null) {
-
-                    dataJEVisObject = createJEVisObject(node, dataJEVisObject, DATA_DIRECTORY);
+            } else {
+                logger.info("OPC-UA Node: {} is not Folder", node.getValue().getDescriptionProperty().getDisplayName());
+                if (node.getValue().isSelected()) {
+                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_CHANNEL);
+                    JEVisAttribute jevisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
+                    if (dataJEVisObject != null && jevisAttributeTarget != null) {
+                        dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
+                        jevisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
+                        setLogIntervalToJEVisObject(node, dataJEVisObject);
+                        JEVisObject cleanDataJEVisObject = createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
+                        setLogIntervalToJEVisObject(node, cleanDataJEVisObject);
+                    }
+                    setTrendIdToJEVisObject(node, dataSourceJEVisObject, dateTime);
                 }
-
             }
-        } else {
-            logger.info("OPC-UA Node: {} is not Folder", node.getValue().getDescriptionProperty().getDisplayName());
-            if (node.getValue().isSelected()) {
-                dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_CHANNEL);
-                JEVisAttribute jevisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
-                if (dataJEVisObject != null) {
-                    dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
-                    jevisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
-                    setLogIntervalToJEVisObject(node, dataJEVisObject);
-                    JEVisObject cleanDataJEVisObject = createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
-                    setLogIntervalToJEVisObject(node, cleanDataJEVisObject);
-                }
-                setTrendIdToJEVisObject(node, dataSourceJEVisObject, dateTime);
+            for (TreeItem<Node> nodeChild : node.getChildren()) {
+                createTrendDataTree(nodeChild, dataSourceJEVisObject, dateTime, dataJEVisObject);
             }
-        }
-        for (TreeItem<Node> nodeChild : node.getChildren()) {
-            createTrendDataTree(nodeChild, dataSourceJEVisObject, dateTime, dataJEVisObject);
+        }catch (JEVisException e){
+            e.printStackTrace();
         }
     }
 
