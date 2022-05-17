@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -38,9 +38,19 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.joda.time.DateTime;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 
 /**
  *
@@ -80,8 +90,6 @@ public class AboutDialog {
 
         BorderPane header = new BorderPane();
         header.getStyleClass().add("dialog-header");
-//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
-//        header.setPadding(new Insets(10, 10, 10, 10));
 
         ImageView imageView = ResourceLoader.getImage(ICON_TASKBAR, 65, 65);
 
@@ -125,9 +133,21 @@ public class AboutDialog {
         Label systemInfo = new Label("OS System:");
         Label systemVersion = new Label(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
 
+        Label buildDate = new Label("Build Date:");
+        Label jarCreationDate = new Label();
+
+        try {
+            Path jarPath = Paths.get(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+            BasicFileAttributes basicFileAttributes = Files.readAttributes(jarPath, BasicFileAttributes.class);
+            FileTime fileTime = basicFileAttributes.creationTime();
+            DateTime fileDate = new DateTime(fileTime);
+            jarCreationDate.setText(fileDate.toString(JEVisDates.DEFAULT_DATE_FORMAT));
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+        }
 
         Label vmNameLabel = new Label("JAVA Name:");
-        Label vmName = new Label(System.getProperty("java.vm.name") );
+        Label vmName = new Label(System.getProperty("java.vm.name"));
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -136,36 +156,27 @@ public class AboutDialog {
 
         //spalte , zeile bei 0 starten
 
-        grid.addColumn(0,pInfo,vmNameLabel,javaInfo,systemInfo,apiInfo);
-        grid.addColumn(1,pVersion,vmName,javaVersion,systemVersion,apiVersion);
-//        grid.add(pInfo, 0, 0);
-//        grid.add(pVersion, 1, 0);
-//
-//
-//
-//        grid.add(javaInfo, 0, 1);
-//        grid.add(javaVersion, 1, 1);
-//
-//        grid.add(systemInfo, 0, 2);
-//        grid.add(systemVersion, 1, 2);
-//        grid.add(apiInfo, 0, 3);
-//        grid.add(apiVersion, 1, 3);
+        grid.addColumn(0,
+                pInfo,
+                vmNameLabel,
+                javaInfo,
+                systemInfo,
+                apiInfo,
+                buildDate);
 
-//        int gy = 3;
-//        for (LibraryInfo lib : info.getLibrarys()) {
-//            Label libName = new Label(lib.getName() + ":");
-//            Label libVersion = new Label(lib.getVersion());
-//            ++gy;
-//            grid.add(libName, 0, gy);
-//            grid.add(libVersion, 1, gy);
-//        }
+        grid.addColumn(1,
+                pVersion,
+                vmName,
+                javaVersion,
+                systemVersion,
+                apiVersion,
+                jarCreationDate);
 
         root.getChildren().addAll(
                 header, new Separator(Orientation.HORIZONTAL),
                 grid,
                 buttonPanel
         );
-//        root.setSpacing(5);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
@@ -179,8 +190,6 @@ public class AboutDialog {
 
         stage.setWidth(365);
         stage.setHeight(500);
-        //Workaround to set a dynamic size
-//        stage.setHeight(460 + ((gy - 3) * 17));
 
         stage.sizeToScene();
         stage.showAndWait();
