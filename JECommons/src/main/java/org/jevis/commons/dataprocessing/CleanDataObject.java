@@ -112,14 +112,21 @@ public class CleanDataObject {
     }
 
     public CleanDataObject(JEVisObject cleanObject, ObjectHandler objectHandler) {
-        this.cleanObject = cleanObject;
-        rawDataObject = objectHandler.getFirstParent(cleanObject);
         sampleHandler = new SampleHandler();
-
+        this.cleanObject = cleanObject;
         try {
-            cleanObject.getDataSource().reloadAttribute(rawDataObject);
+            if (cleanObject != null) {
+                rawDataObject = objectHandler.getFirstParent(cleanObject);
+                if (rawDataObject != null) {
+                    cleanObject.getDataSource().reloadAttribute(rawDataObject);
+                } else {
+                    logger.error("Clean Object does not have raw date: o: {}", cleanObject);
+                }
+            } else {
+                logger.error("Clean Object is null");
+            }
         } catch (Exception e) {
-            logger.error("Could not reload input data object for object {}:{}", cleanObject.getName(), cleanObject.getID(), e);
+            logger.error("Could not reload input data object for object {}", cleanObject, e);
         }
     }
 
