@@ -979,7 +979,10 @@ public class ToolBarView {
             JEVisHelp.getInstance().deactivatePluginModule();
         });
 
+
         dia.show();
+
+
     }
 
     public void select(JEVisObject obj) {

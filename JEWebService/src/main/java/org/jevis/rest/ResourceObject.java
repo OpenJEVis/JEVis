@@ -88,12 +88,13 @@ public class ResourceObject {
             @DefaultValue("") @QueryParam("name") String name,
             @DefaultValue("false") @QueryParam("detail") boolean detailed,
             @DefaultValue("true") @QueryParam("rel") boolean rel,
+            @DefaultValue("false") @QueryParam("deleted") boolean deleteObjects,
             @QueryParam("parent") long parent,
             @QueryParam("child") long child) {
 
         try {
             this.ds = new SQLDataSource(httpHeaders, request, url);
-            this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
+            if (!deleteObjects) this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
             this.ds.preload(SQLDataSource.PRELOAD.ALL_REL);
 
 
@@ -102,6 +103,22 @@ public class ResourceObject {
             } else {
                 this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
             }
+
+            /*
+            if (deleteObjects) {
+                System.out.println("Deleted Objects");
+                //System.out.println(Arrays.asList(this.ds.getDeletedObjects()));
+                this.returnList = this.ds.getUserManager().filterList(this.ds.getDeletedObjects());
+            } else {
+                if (root) {
+                    this.returnList = this.ds.getRootObjects();
+                } else {
+                    this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
+                }
+            }
+
+             */
+
 
             if (!jclass.isEmpty()) {
                 this.returnList = this.ds.filterObjectByClass(this.returnList, jclass);
@@ -173,6 +190,7 @@ public class ResourceObject {
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url,
+            @DefaultValue("false") @QueryParam("deleteForever") boolean deleteForever,
             @PathParam("id") long id) {
 
         try {
@@ -181,8 +199,17 @@ public class ResourceObject {
 
             JsonObject obj = this.ds.getObject(id);
             if (this.ds.getUserManager().canDelete(obj)) {
-                ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_OBJECT, String.format("%s:%s", id, obj.getName()));
-                this.ds.deleteObject(obj);
+
+                if (deleteForever) {
+                    ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_OBJECT, String.format("%s:%s", id, obj.getName()));
+                    logger.error("Delete forever: " + id);
+                    this.ds.deleteObject(obj);
+                } else {
+                    ds.logUserAction(SQLDataSource.LOG_EVENT.MARK_AS_DELETE_OBJECT, String.format("%s:%s", id, obj.getName()));
+                    System.out.println("Mark as delete: " + id);
+                    this.ds.markAsDeletedObject(obj);
+                }
+
             }
 
             try {
@@ -297,6 +324,7 @@ public class ResourceObject {
 
     }
 
+
     @POST
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
@@ -310,6 +338,7 @@ public class ResourceObject {
             String object) {
 
         try {
+            System.out.println("post Object: " + object);
             this.ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject json = objectMapper.readValue(object, JsonObject.class);
@@ -325,6 +354,11 @@ public class ResourceObject {
                 } catch (Exception ex) {
                     logger.error(ex, ex);
                 }
+
+                if (existingObj.getDeleteTS() != null && json.getDeleteTS() == null) {
+                    ds.getObjectTable().restoreObjectAsDeleted(json);
+                }
+
 
                 /** TODO: note to self, why did i do an if and no the boolean as var? **/
                 if (existingObj.getisPublic() != json.getisPublic()) {

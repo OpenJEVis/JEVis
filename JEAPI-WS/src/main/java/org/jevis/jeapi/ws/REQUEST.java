@@ -43,6 +43,9 @@ public interface REQUEST {
             String INCLUDE_RELATIONSHIPS = "rel=";
             String ONLY_ROOT = "root=";
             String INCLUDE_CHILDREN = "includeChildren=";
+            String DELETED = "deleted=";
+            String RESTORE = "restore=";
+            String DELETE_FOREVER = "deleteForever=";
         }
 
         interface ATTRIBUTES {

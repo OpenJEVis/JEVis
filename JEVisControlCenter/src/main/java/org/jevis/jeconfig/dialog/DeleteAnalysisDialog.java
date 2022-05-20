@@ -39,7 +39,7 @@ public class DeleteAnalysisDialog {
             if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
                 try {
                     if (ds.getCurrentUser().canDelete(model.getCurrentAnalysis().getID())) {
-                        ds.deleteObject(model.getCurrentAnalysis().getID());
+                        ds.deleteObject(model.getCurrentAnalysis().getID(), false);
                         model.updateListAnalyses();
                         listAnalysesComboBox.getSelectionModel().selectFirst();
                     } else {

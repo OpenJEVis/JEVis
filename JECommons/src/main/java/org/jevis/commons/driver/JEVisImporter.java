@@ -216,6 +216,7 @@ public class JEVisImporter implements Importer {
                     List<JEVisSample> sList = toImportList.get(target);
 
                     if (overwrite) {
+                        logger.info("Overwrite is enabled, delete samples in between: {}-{}",convertedDate,convertedDate);
                         target.deleteSamplesBetween(convertedDate, convertedDate);
                     }
 
@@ -229,12 +230,14 @@ public class JEVisImporter implements Importer {
             }
 
             //do the import into the JEVis DB
+            //logger.info("Total List Count: {}",toImportList.size());
             for (Map.Entry<JEVisAttribute, List<JEVisSample>> entrySet : toImportList.entrySet()) {
                 try {
                     JEVisAttribute key = entrySet.getKey();
                     List<JEVisSample> values = entrySet.getValue();
 
                     //Bulk Import
+                    logger.info("Import samples: key: {} , values: {}",key.getObject().getName(),values.size());
                     key.addSamples(values);
 
                     DateTime lastTSForAtt = null;

@@ -352,7 +352,7 @@ public class CommonMethods {
         return list;
     }
 
-    public static List<JEVisObject> getAllChildrenRecursive(JEVisObject firstObject) throws JEVisException {
+public static List<JEVisObject> getAllChildrenRecursive(JEVisObject firstObject) throws JEVisException {
         List<JEVisObject> list = new ArrayList<>();
         list.add(firstObject);
         for (JEVisObject child : firstObject.getChildren()) {
@@ -360,6 +360,19 @@ public class CommonMethods {
 
             for (JEVisObject secondChild : child.getChildren()) {
                 list.addAll(getAllChildrenRecursive(secondChild));
+            }
+        }
+
+        return list;
+    }
+  
+  public static List<JEVisObject> getChildrenRecursive(JEVisObject firstObject) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+        for (JEVisObject child : firstObject.getChildren()) {
+            list.add(child);
+
+            for (JEVisObject secondChild : child.getChildren()) {
+                list.addAll(getChildrenRecursive(secondChild));
             }
         }
 

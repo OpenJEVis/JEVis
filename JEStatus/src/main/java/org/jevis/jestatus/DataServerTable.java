@@ -416,27 +416,36 @@ public class DataServerTable extends AlarmTable {
 
                 TargetHelper th = null;
                 for (JEVisSample lastSampleTarget : samples) {
-                    th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                    JEVisObject target = th.getObject().get(0);
-                    if (target != null) {
+                    try {
+                        th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
 
-                        channelAndTarget.put(target, target);
-                        getListCheckedData().add(target);
+                        if (!th.hasObject()) {
+                            logger.error("DP has no valid target: {}:{} in '{}'", lastSampleTarget.getAttribute().getName(), lastSampleTarget);
+                            continue;
+                        }
+                        JEVisObject target = th.getObject().get(0);
+                        if (target != null) {
 
-                        JEVisAttribute resultAtt = null;
-                        if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
-                        if (resultAtt == null) resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
+                            channelAndTarget.put(target, target);
+                            getListCheckedData().add(target);
 
-                        if (resultAtt != null) {
-                            if (resultAtt.hasSample()) {
-                                JEVisSample lastSample = resultAtt.getLatestSample();
-                                if (lastSample != null) {
-                                    if (lastSample.getTimestamp().isBefore(latestReported)) {
-                                        if (!outOfBounds.contains(target)) outOfBounds.add(target);
+                            JEVisAttribute resultAtt = null;
+                            if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
+                            if (resultAtt == null) resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
+
+                            if (resultAtt != null) {
+                                if (resultAtt.hasSample()) {
+                                    JEVisSample lastSample = resultAtt.getLatestSample();
+                                    if (lastSample != null) {
+                                        if (lastSample.getTimestamp().isBefore(latestReported)) {
+                                            if (!outOfBounds.contains(target)) outOfBounds.add(target);
+                                        }
                                     }
                                 }
                             }
                         }
+                    } catch (Exception ex) {
+                        logger.error("error in target: {}-{}", dp, lastSampleTarget, ex);
                     }
                 }
             }

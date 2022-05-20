@@ -33,34 +33,27 @@ import java.util.Map;
  *
  * @author fs
  */
-public class JEVisRootObject implements JEVisObject {
+public class JEVisRecycleBinObject implements JEVisObject {
 
-    //    private final List<JEVisObject> _children;
-//    private final JEVisDataSource _ds;
-    private String _name = "Fake Root";
+    private String _name = "Recycle Bin";
     private List<JEVisObject> children = new ArrayList<>();
-    private List<JEVisRelationship> jeVisRelationships = new ArrayList<>();
+    final JEVisDataSource ds;
+    private List<JEVisObject> childrenList = new ArrayList<>();
 
-    public JEVisRootObject() {
-//        this._ds = ds;
-//        _children = _ds.getRootObjects();
+    public JEVisRecycleBinObject(JEVisDataSource ds) {
+        this.ds = ds;
     }
-
-//    public JEVisRootObject(JEVisDataSource ds, List<JEVisObject> roots) {
-//        _ds = ds;
-//
-//        _children = roots;
-//    }
-
 
     @Override
     public List<JEVisObject> getParents() throws JEVisException {
-        return children;
+        return new ArrayList<>();
     }
 
     @Override
     public List<JEVisObject> getChildren() throws JEVisException {
-        return children;
+        // System.out.println("RecycleBin.getChilderen: " + Arrays.toString(ds.getDeletedObjects().toArray()));
+        // children = ds.getDeletedObjects();
+        return childrenList;
     }
 
     @Override
@@ -105,6 +98,11 @@ public class JEVisRootObject implements JEVisObject {
 
     @Override
     public JEVisClass getJEVisClass() {
+        try {
+            return ds.getJEVisClass("Recycle Bin");
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -156,22 +154,22 @@ public class JEVisRootObject implements JEVisObject {
 
     @Override
     public List<JEVisRelationship> getRelationships() {
-        return jeVisRelationships;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public List<JEVisRelationship> getRelationships(int type) {
-        return jeVisRelationships;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public List<JEVisRelationship> getRelationships(int type, int direction) {
-        return jeVisRelationships;
+        return new ArrayList<>();
     }
 
     @Override
     public List<JEVisClass> getAllowedChildrenClasses() {
-        return new ArrayList<>();
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -208,7 +206,7 @@ public class JEVisRootObject implements JEVisObject {
 //    }
     @Override
     public String getJEVisClassName() {
-        return "FakeRoot";
+        return "Recycle Bin";
     }
 
     @Override

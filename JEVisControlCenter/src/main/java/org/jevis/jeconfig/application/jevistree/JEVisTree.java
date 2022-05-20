@@ -56,6 +56,7 @@ public class JEVisTree extends TreeTableView {
     private final HashMap<String, Object> configMap = new HashMap<>();
     private final List<Long> calculationIDs = new ArrayList<>();
     private final ItemActionController itemActionController;
+    private JEVisObject recycleBinObject;
 
     /**
      * Create an default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
@@ -83,7 +84,11 @@ public class JEVisTree extends TreeTableView {
         try {
             loadCalcFilter();
 
-            this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), this.ds.getRootObjects());
+            List<JEVisObject> rootObjects = this.ds.getRootObjects();
+            recycleBinObject = new JEVisRecycleBinObject(this.ds);
+            rootObjects.add(recycleBinObject);
+
+            this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), rootObjects, recycleBinObject);
             this.itemLoader.filterTree(this.cellFilter);
             setShowRoot(false);
 
@@ -95,6 +100,10 @@ public class JEVisTree extends TreeTableView {
         } catch (Exception ex) {
             logger.fatal(ex);
         }
+    }
+
+    public JEVisObject getRecycleBinObject() {
+        return recycleBinObject;
     }
 
     public List<Long> getCalculationIDs() {
@@ -532,6 +541,16 @@ public class JEVisTree extends TreeTableView {
 
     public void setSearchFilterBar(SearchFilterBar searchBar) {
         this.searchBar = searchBar;
+    }
+
+    /**
+     * Help the garbage collector.
+     * we have some kind of memory leak most likely because of the listeners.
+     */
+    public void destroy() {
+        getItems().forEach(jeVisTreeItem -> {
+            //jeVisTreeItem.getValue().getJEVisObject().get
+        });
     }
 
     private void onChanged(ListChangeListener.Change<? extends TreePlugin> c) {

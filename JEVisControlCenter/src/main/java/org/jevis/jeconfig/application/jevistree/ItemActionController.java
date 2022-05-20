@@ -3,11 +3,14 @@ package org.jevis.jeconfig.application.jevistree;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TreeItem;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 
 public class ItemActionController {
 
     final JEVisTree jeVisTree;
+    private static final Logger logger = LogManager.getLogger(ItemActionController.class);
 
     private BooleanProperty cutEnabledProperty = new SimpleBooleanProperty(false);
     private BooleanProperty pasteEnabledProperty = new SimpleBooleanProperty(false);
@@ -65,8 +68,8 @@ public class ItemActionController {
             boolean hasNonCalcObjects = false;
             boolean canDelete = true;
             for (Object o : jeVisTree.getSelectionModel().getSelectedItems()) {
-                JEVisObject obj = ((TreeItem<JEVisTreeRow>) o).getValue().getJEVisObject();
                 try {
+                    JEVisObject obj = ((TreeItem<JEVisTreeRow>) o).getValue().getJEVisObject();
                     if (obj.getJEVisClassName().equals("Clean Data")
                             || obj.getJEVisClassName().equals("Base Data")
                             || obj.getJEVisClassName().equals("Data")
@@ -83,12 +86,12 @@ public class ItemActionController {
                         hasNonCalcObjects = true;
                     }
 
-                    if (!obj.getDataSource().getCurrentUser().canDelete(obj.getID())) {
+                    if (obj.getID() < 0 || !obj.getDataSource().getCurrentUser().canDelete(obj.getID())) {
                         canDelete = false;
                     }
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Error while checking TreeObject: {}", o);
                 }
 
             }
