@@ -232,7 +232,7 @@ public class PeriodHelper {
             if (period.equals(org.joda.time.Period.days(1))) {
                 normalPattern = "dd. MMM (EEE)";
             } else if (period.equals(org.joda.time.Period.weeks(1))) {
-                normalPattern = "dd. MMMM yyyy";
+                normalPattern = "'KW'w yyyy";
             } else if (period.equals(org.joda.time.Period.months(1)) && !isCounter) {
                 normalPattern = "MMMM yyyy";
             } else if (period.equals(org.joda.time.Period.months(1)) && isCounter) {

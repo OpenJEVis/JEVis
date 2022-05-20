@@ -64,6 +64,10 @@ public interface DataCollectorTypes {
 
             String NAME = "sFTP Channel Directory";
         }
+
+        interface JEVisChannelDirectory extends ChannelDirectory {
+            String NAME = "JEVis Channel Directory";
+        }
     }
 
     interface JEDataCollector {
@@ -162,6 +166,12 @@ public interface DataCollectorTypes {
                 String PROTOCOL = "Protocol";
             }
 
+            interface JEVisServer extends DataServer {
+                String NAME = "JEVis Server";
+                String USER = "User";
+                String PASSWORD = "Password";
+                String SSL = "SSL";
+            }
         }
     }
 
@@ -189,7 +199,12 @@ public interface DataCollectorTypes {
             String PATH = "Path";
         }
 
-
+        interface JEVisChannel extends Channel {
+            String NAME = "JEVis Channel";
+            String SOURCEID = "Source Id";
+            String SOURCEATTRIBUTE = "Source Attribute";
+            String TARGETID = "Target Id";
+        }
     }
 
     interface Importer {

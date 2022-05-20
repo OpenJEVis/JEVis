@@ -1,0 +1,46 @@
+{
+  "name": "JEVis Channel",
+  "description": "The class JEVis Channel ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JEVis Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "JEVis Channel",
+      "end": "JEVis Channel Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Source Id",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEVis Channel"
+    },
+    {
+      "name": "Source Attribute",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEVis Channel"
+    },
+    {
+      "name": "Target Id",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEVis Channel"
+    }
+  ]
+}

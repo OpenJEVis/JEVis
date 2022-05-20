@@ -1,0 +1,109 @@
+{
+  "jevisclass": "JEVis Server",
+  "names": {
+    "de": "JEVis Server",
+    "en": "JEVis Server"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Connection Timeout",
+      "descriptions": {
+        "de": "Connection Timeout description",
+        "en": "Connection Timeout description"
+      },
+      "names": {
+        "de": "Verbindungs-Timeout",
+        "en": "Connection Timeout"
+      }
+    },
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Enabled description",
+        "en": "Enabled description"
+      },
+      "names": {
+        "de": "Aktiviert",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Host",
+      "descriptions": {
+        "de": "Host description",
+        "en": "Host description"
+      },
+      "names": {
+        "de": "Host",
+        "en": "Host"
+      }
+    },
+    {
+      "type": "Password",
+      "descriptions": {
+        "de": "Password description",
+        "en": "Password description"
+      },
+      "names": {
+        "de": "Passwort",
+        "en": "Password"
+      }
+    },
+    {
+      "type": "Port",
+      "descriptions": {
+        "de": "Port description",
+        "en": "Port description"
+      },
+      "names": {
+        "de": "Port",
+        "en": "Port"
+      }
+    },
+    {
+      "type": "Read Timeout",
+      "descriptions": {
+        "de": "Read Timeout description",
+        "en": "Read Timeout description"
+      },
+      "names": {
+        "de": "Lese-Timeout",
+        "en": "Read Timeout"
+      }
+    },
+    {
+      "type": "SSL",
+      "descriptions": {
+        "de": "SSL description",
+        "en": "SSL description"
+      },
+      "names": {
+        "de": "SSL",
+        "en": "SSL"
+      }
+    },
+    {
+      "type": "Timezone",
+      "descriptions": {
+        "de": "Timezone description",
+        "en": "Timezone description"
+      },
+      "names": {
+        "de": "Zeitzone",
+        "en": "Timezone"
+      }
+    },
+    {
+      "type": "User",
+      "descriptions": {
+        "de": "User description",
+        "en": "User description"
+      },
+      "names": {
+        "de": "Benutzer",
+        "en": "User"
+      }
+    }
+  ]
+}
