@@ -111,6 +111,10 @@ public class AlarmHandler {
 //        sb.append("<br>");
 //        sb.append(alarm.getMessage());
 
+        AutoMySQLBackupTable autoMySQLBackupTable = new AutoMySQLBackupTable(_ds, getLatestReported());
+        sb.append(autoMySQLBackupTable.getTableString());
+
+
         ServiceStatus serviceStatus = new ServiceStatus(_ds);
         sb.append(serviceStatus.getTableString());
 
@@ -125,6 +129,7 @@ public class AlarmHandler {
 
         CleanDataTable cleanDataTable = new CleanDataTable(_ds, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
         sb.append(cleanDataTable.getTableString());
+       
 
         sb.append("</html>");
 

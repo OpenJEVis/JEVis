@@ -172,6 +172,11 @@ public interface DataCollectorTypes {
                 String PASSWORD = "Password";
                 String SSL = "SSL";
             }
+          
+            interface HTTP extends DataServer{
+                String AUTHENTICATION = "Authentication";
+            }
+
         }
     }
 

@@ -41,7 +41,7 @@ public class CachedAccessControl {
         //dataSource.getAttributeTable().getDataPorozessorTodoList();
         groupMemberships.clear();
 
-        
+
         users.forEach((s, jeVisUserNew) -> {
             groupMemberships.put(jeVisUserNew.getUserID(), new ArrayList<>());
         });
@@ -138,7 +138,13 @@ public class CachedAccessControl {
 
 
     public JEVisUserNew getUser(String userName) {
-        return users.get(userName.toLowerCase(Locale.ROOT));
+        try {
+            return users.get(userName.toLowerCase(Locale.ROOT));
+        } catch (NullPointerException ex) {
+            logger.error("User does not exist: '{}'", userName);
+            logger.debug(ex, ex);
+            return null;
+        }
     }
 
     public boolean validLogin(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -146,6 +152,7 @@ public class CachedAccessControl {
         if (user != null && PasswordHash.validatePassword(password, user.getPassword())) {
             return true;
         } else {
+            logger.error("Wrong PW for: '{}", userName);
             return false;
         }
 

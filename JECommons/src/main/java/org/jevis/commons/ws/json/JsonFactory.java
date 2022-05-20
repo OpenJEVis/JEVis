@@ -232,9 +232,6 @@ public class JsonFactory {
         json.setId(obj.getID());
         json.setJevisClass(obj.getJEVisClassName());
         json.setisPublic(obj.isPublic());
-        if (obj.getID() < 10) {
-            logger.info("----------- " + obj.isPublic());
-        }
 
 
         if (!obj.getParents().isEmpty()) {

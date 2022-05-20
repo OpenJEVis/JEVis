@@ -42,6 +42,7 @@ public class JsonObject {
     private List<JsonAttribute> attributes;
     private boolean isPublic = false;
     private List<JsonI18n> i18n;
+    private String deleteTS = null;
 
     public JsonObject() {
     }
@@ -91,15 +92,16 @@ public class JsonObject {
      *
      * @param i18n
      */
-    public void setI18n(List<JsonI18n> i18n){
-        this.i18n=i18n;
+    public void setI18n(List<JsonI18n> i18n) {
+        this.i18n = i18n;
     }
 
     /**
      * returns the localisation List
+     *
      * @return
      */
-    public List<JsonI18n> getI18n(){
+    public List<JsonI18n> getI18n() {
         if (i18n == null) {
             i18n = new ArrayList<>();
         }
@@ -157,8 +159,6 @@ public class JsonObject {
 
     /**
      * Set the JEVisClass of this JEVisObject.
-     *
-     * @param jevisclass
      */
     public void setJevisClass(String jevisClass) {
         this.jevisClass = jevisClass;
@@ -179,8 +179,6 @@ public class JsonObject {
 
     /**
      * Set the List of JEVisRelationships.
-     *
-     * @param relations
      */
     public void setRelationships(List<JsonRelationship> relationships) {
         this.relationships = relationships;
@@ -205,6 +203,14 @@ public class JsonObject {
         this.parent = parent;
     }
 
+    @XmlElement(name = "deletets")
+    public String getDeleteTS() {
+        return deleteTS;
+    }
+
+    public void setDeleteTS(String ts) {
+        this.deleteTS = ts;
+    }
 
     @Override
     public String toString() {
@@ -217,6 +223,7 @@ public class JsonObject {
                 ", objects=" + objects +
                 ", attributes=" + attributes +
                 ", isPublic=" + isPublic +
+                ", delete ts=" + deleteTS +
                 '}';
     }
 }
