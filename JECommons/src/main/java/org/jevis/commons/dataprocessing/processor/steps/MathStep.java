@@ -207,7 +207,9 @@ public class MathStep implements ProcessStep {
                         }
                         break;
                     case FORMULA:
-                        calcFormula(intervals, samples, mathDataObject.getFormula());
+                        for (CleanInterval cleanInterval : intervals) {
+                            calcFormula(cleanInterval, samples, mathDataObject.getFormula());
+                        }
                         break;
                 }
             }
@@ -416,19 +418,18 @@ public class MathStep implements ProcessStep {
 
         cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
         cleanInterval.getResult().setValue(result);
-        cleanInterval.getResult().setNote("math(avg)");
+        cleanInterval.getResult().setNote("math(cumulate)");
     }
 
-    private void calcFormula(List<CleanInterval> intervals, List<JEVisSample> samples, String formula) throws JEVisException {
-        Map<DateTime, CleanInterval> map = intervals.stream().collect(Collectors.toMap(CleanInterval::getDate, interval -> interval, (a, b) -> b));
+    private void calcFormula(CleanInterval interval, List<JEVisSample> samples, String formula) throws JEVisException {
         NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getDefaultBundle().getLocale());
 
         for (JEVisSample sample : samples) {
             Expression expression = new Expression(formula.replace("x", nf.format(sample.getValueAsDouble())));
             double result = expression.calculate();
-            map.get(sample.getTimestamp()).getResult().setTimeStamp(sample.getTimestamp());
-            map.get(sample.getTimestamp()).getResult().setValue(result);
-            map.get(sample.getTimestamp()).getResult().setNote("math(formula)");
+            interval.getResult().setTimeStamp(sample.getTimestamp());
+            interval.getResult().setValue(result);
+            interval.getResult().setNote("math(formula)");
         }
     }
 }
