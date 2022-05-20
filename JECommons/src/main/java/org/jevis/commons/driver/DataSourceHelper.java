@@ -124,11 +124,22 @@ public class DataSourceHelper {
 //                    fileName = removeFoler(fileName, folder);
                     DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss").withZone(timeZone);
                     String fileName = file.getName();
-                    String timePart = fc.getModificationTime(folder + fileName).split(" ")[1].trim();
-                    DateTime modificationTime = dateFormat.parseDateTime(timePart);
-                    if (modificationTime.isBefore(lastReadout) && !overwrite) {
-                        continue;
+                    logger.debug("Filename: {} , getModificationTime: {}", fileName, fc.getModificationTime(folder + fileName));
+                    String timePart = fc.getModificationTime(folder + fileName);
+                    if (timePart == null || timePart.isEmpty()) {
+                        logger.warn("no date in file: {}", fileName);
+                    } else {
+                        try {
+                            logger.debug("parsing date: {}", timePart);
+                            DateTime modificationTime = dateFormat.parseDateTime(timePart);
+                            if (modificationTime.isBefore(lastReadout) && !overwrite) {
+                                continue;
+                            }
+                        } catch (Exception ex) {
+                            logger.error("cannot parse date in file: {}", ex, ex);
+                        }
                     }
+
                     boolean match = false;
                     logger.info(file.getName());
                     if (DataSourceHelper.containsTokens(fileNameScheme)) {
@@ -154,7 +165,7 @@ public class DataSourceHelper {
             logger.error("Error while searching a matching file");
             logger.error("Folder: " + currentfolder);
             logger.error("FileName: " + fileNameScheme);
-            logger.error(ex.getMessage());
+            logger.error(ex.getMessage(), ex);
         }
         if (folderPathes.isEmpty()) {
             logger.error("Cant find suitable files on the device");
