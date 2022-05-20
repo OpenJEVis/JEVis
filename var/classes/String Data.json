@@ -17,7 +17,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Data"
+      "jevisClass": "String Data"
     }
   ]
 }

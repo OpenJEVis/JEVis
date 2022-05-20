@@ -533,8 +533,28 @@ public class MathDataObject {
         AggregationPeriod aggregationPeriod = getReferencePeriod();
         Long referencePeriodCount = getReferencePeriodCount();
         DateTime lastRun = getLastRun(getMathDataObject());
-
-        return PeriodHelper.getNextPeriod(lastRun, org.jevis.commons.datetime.Period.parsePeriod(aggregationPeriod.toString()), referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
+        org.jevis.commons.datetime.Period period = org.jevis.commons.datetime.Period.parsePeriod(aggregationPeriod.toString());
+        if (period == org.jevis.commons.datetime.Period.NONE) {
+            Period jodaPeriod = CleanDataObject.getPeriodForDate(mathDataObject, lastRun);
+            if (Period.minutes(1).equals(jodaPeriod)) {
+                period = org.jevis.commons.datetime.Period.MINUTELY;
+            } else if (Period.minutes(15).equals(jodaPeriod)) {
+                period = org.jevis.commons.datetime.Period.QUARTER_HOURLY;
+            } else if (Period.hours(1).equals(jodaPeriod)) {
+                period = org.jevis.commons.datetime.Period.HOURLY;
+            } else if (Period.days(1).equals(jodaPeriod)) {
+                period = org.jevis.commons.datetime.Period.DAILY;
+            } else if (Period.weeks(1).equals(jodaPeriod)) {
+                period = org.jevis.commons.datetime.Period.WEEKLY;
+            } else if (Period.months(1).equals(jodaPeriod)) {
+                period = org.jevis.commons.datetime.Period.MONTHLY;
+            } else if (Period.minutes(3).equals(jodaPeriod)) {
+                period = org.jevis.commons.datetime.Period.QUARTERLY;
+            } else if (Period.years(1).equals(jodaPeriod)) {
+                period = org.jevis.commons.datetime.Period.YEARLY;
+            }
+        }
+        return PeriodHelper.getNextPeriod(lastRun, period, referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
     }
 
     private DateTimeZone getTimeZone(JEVisObject object) {
