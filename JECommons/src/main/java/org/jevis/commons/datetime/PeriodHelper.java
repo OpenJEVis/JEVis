@@ -13,6 +13,7 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
@@ -118,6 +119,59 @@ public class PeriodHelper {
                 break;
         }
         return resultDate;
+    }
+
+    public static DateTime getNextPeriod(DateTime start, org.joda.time.Period period, int count, boolean aligned, DateTimeZone timeZone) {
+        DateTime resultDate = start.withZone(timeZone);
+        boolean wasLastDay = resultDate.getDayOfMonth() == resultDate.dayOfMonth().getMaximumValue();
+        if (org.joda.time.Period.minutes(1).equals(period)) {
+            resultDate = resultDate.plusMinutes(count);
+            if (aligned) {
+                resultDate = resultDate.withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (org.joda.time.Period.minutes(15).equals(period)) {
+            resultDate = resultDate.plusMinutes(15 * count);
+            if (aligned) {
+                resultDate = resultDate.withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (org.joda.time.Period.hours(1).equals(period)) {
+            resultDate = resultDate.plusHours(count);
+            if (aligned) {
+                resultDate = resultDate.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (org.joda.time.Period.days(1).equals(period)) {
+            resultDate = resultDate.plusDays(count);
+            if (aligned) {
+                resultDate = resultDate.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (org.joda.time.Period.weeks(1).equals(period)) {
+            resultDate = resultDate.plusWeeks(count);
+            if (aligned) {
+                resultDate = resultDate.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (org.joda.time.Period.months(1).equals(period)) {
+            resultDate = resultDate.plusMonths(count);
+            if (wasLastDay) {
+                resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+            } else if (aligned) {
+                resultDate = resultDate.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (org.joda.time.Period.months(3).equals(period)) {
+            resultDate = resultDate.plusMonths(3 * count);
+            if (wasLastDay) {
+                resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+            } else if (aligned) {
+                resultDate = resultDate.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        } else if (org.joda.time.Period.years(1).equals(period)) {
+            resultDate = resultDate.plusYears(count);
+            if (wasLastDay) {
+                resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+            } else if (aligned) {
+                resultDate = resultDate.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+        return resultDate.withZone(DateTimeZone.UTC);
     }
 
     public static DateTime calcEndRecord(DateTime start, Period schedule, org.jevis.commons.datetime.DateHelper dateHelper) {
