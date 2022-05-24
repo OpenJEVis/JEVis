@@ -31,6 +31,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -87,6 +88,7 @@ public class FXLogin extends AnchorPane {
     private final JFXPasswordField userPassword = new JFXPasswordField();
     private final GridPane authGrid = new GridPane();
     private final Preferences jevisPref = Preferences.userRoot().node("JEVis");
+    private final TextArea messageBox = new TextArea("");
     private JEVisDataSource _ds;
     //    private final Preferences serverPref = Preferences.userRoot().node("JEVis.Server");
     private final List<JEVisObject> rootObjects = new ArrayList<>();
@@ -119,6 +121,7 @@ public class FXLogin extends AnchorPane {
     private Locale selectedLocale = Locale.getDefault();
     private final NotificationPane notificationPane = new NotificationPane();
     private JFXComboBox<Locale> langSelect;
+    private boolean hasCredentials = false;
 
 
     private FXLogin() {
@@ -167,7 +170,9 @@ public class FXLogin extends AnchorPane {
         }
 
         if (hasLoginCredentials(this.configuration)) {
-            doLogin();
+            initSlim();
+
+            hasCredentials = true;
         } else {
             init();
 
@@ -220,7 +225,7 @@ public class FXLogin extends AnchorPane {
      * This function will try to connect to the JEVisDataSource with the
      * configures server settings.
      */
-    private void doLogin() {
+    public void doLogin() {
 
         Platform.runLater(() -> {
             this.loginButton.setDisable(true);
@@ -657,6 +662,55 @@ public class FXLogin extends AnchorPane {
 
     }
 
+    private void initSlim() {
+        loadPreference(true);
+
+        //TODO load from URL/RESOURCE
+        ImageView logo = new ImageView(new Image("/icons/openjevislogo_simple2.png"));
+        logo.setPreserveRatio(true);
+
+        AnchorPane leftSpacer = new AnchorPane();
+        AnchorPane rightSpacer = new AnchorPane();
+
+        leftSpacer.setId("fxlogin-body-left");
+        rightSpacer.setId("fxlogin-body-right");
+
+        leftSpacer.setMinWidth(200);//todo 20%
+
+        HBox body = new HBox();
+        body.setId("fxlogin-body");
+        body.getChildren().setAll(leftSpacer, messageBox, rightSpacer);
+        HBox.setHgrow(messageBox, Priority.NEVER);
+        HBox.setHgrow(leftSpacer, Priority.NEVER);
+        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+
+        Node header = buildHeader();
+        Node footer = buildFooter();
+
+        this.mainHBox = new VBox();
+        this.mainHBox.getChildren().setAll(header, body, footer);
+        VBox.setVgrow(body, Priority.NEVER);
+        VBox.setVgrow(header, Priority.ALWAYS);
+        VBox.setVgrow(footer, Priority.ALWAYS);
+
+        setDefaultStyle(body, "-fx-background-color: white;");
+        setDefaultStyle(leftSpacer, "-fx-background-color: white;");
+        setDefaultStyle(rightSpacer, "-fx-background-color: white;");
+        setDefaultStyle(this.mainHBox, "-fx-background-color: yellow;");
+
+        AnchorPane.setTopAnchor(this.mainHBox, 0.0);
+        AnchorPane.setRightAnchor(this.mainHBox, 0.0);
+        AnchorPane.setLeftAnchor(this.mainHBox, 0.0);
+        AnchorPane.setBottomAnchor(this.mainHBox, 0.0);
+        notificationPane.setContent(this.mainHBox);
+
+        AnchorPane root = new AnchorPane(notificationPane);
+        Layouts.setAnchor(notificationPane, 0);
+        Layouts.setAnchor(root, 0);
+        getChildren().setAll(root);
+
+    }
+
     public void checkVersion() {
         try {
             String serverJECCVersion = ((JEVisDataSourceWS) _ds).getJEVisCCVersion();
@@ -914,6 +968,18 @@ public class FXLogin extends AnchorPane {
         return vbox;
     }
 
+    public void addLoginMessage(String message) {
+        StringBuilder stringBuilder = new StringBuilder(messageBox.getText());
+        if (stringBuilder.toString().length() > 0) {
+            stringBuilder.append(System.getProperty("line.separator"));
+        }
+        stringBuilder.append(message);
+        Platform.runLater(() -> {
+            messageBox.setText(stringBuilder.toString());
+            messageBox.setScrollTop(Double.MAX_VALUE);
+        });
+    }
+
     /**
      * The an BooleanProperty which is true if the user logged in successfully
      *
@@ -951,6 +1017,10 @@ public class FXLogin extends AnchorPane {
      */
     public String getUserPassword() {
         return this.userPassword.getText();
+    }
+
+    public boolean hasCredentials() {
+        return hasCredentials;
     }
 
     public interface Color {

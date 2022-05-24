@@ -190,7 +190,9 @@ public class ChartWidget extends Widget implements DataModelWidget {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
                 this.setBackground(bgColorTrans);
-                this.legend.setBackground(bgColorTrans);
+                if (this.legend != null) {
+                    this.legend.setBackground(bgColorTrans);
+                }
                 this.borderPane.setBackground(bgColor);
 
                 try {

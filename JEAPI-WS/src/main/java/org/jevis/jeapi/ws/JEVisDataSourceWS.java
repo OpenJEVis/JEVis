@@ -1612,6 +1612,45 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
     }
 
+    public void preloadClasses() {
+        if (this.hasPreloaded) return;
+        try {
+            getJEVisClasses();
+        } catch (Exception ex) {
+            logger.error("Error while preloading data source", ex);
+        }
+    }
+
+    public void preloadRelationships() {
+        if (this.hasPreloaded) return;
+        try {
+            this.getRelationships();
+        } catch (Exception ex) {
+            logger.error("Error while preloading data source", ex);
+        }
+    }
+
+    public void preloadObjects() {
+        if (this.hasPreloaded) return;
+        try {
+            if (!this.objectCache.isEmpty()) this.objectCache.clear();
+            getObjects();
+        } catch (Exception ex) {
+            logger.error("Error while preloading data source", ex);
+        }
+    }
+
+    public void preloadAttributes() {
+        if (this.hasPreloaded) return;
+        try {
+            if (!this.attributeCache.isEmpty()) this.attributeCache.clear();
+            getAttributes();
+            this.hasPreloaded = true;
+        } catch (Exception ex) {
+            logger.error("Error while preloading data source", ex);
+        }
+    }
+
     public List<JsonI18nClass> getTranslation() {
         logger.trace("Get I18n");
         try {

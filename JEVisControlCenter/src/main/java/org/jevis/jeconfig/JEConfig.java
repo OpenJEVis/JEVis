@@ -373,14 +373,17 @@ public class JEConfig extends Application {
         AnchorPane.setLeftAnchor(jeconfigRoot, 0.0);
         AnchorPane.setBottomAnchor(jeconfigRoot, 0.0);
 
-        login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
+        Task<Void> loginTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+
                 startDate = new Date();
                 logger.debug("Start JEVis Control Center");
+                login.addLoginMessage(I18n.getInstance().getString("app.login.start"));
                 _mainDS = login.getDataSource();
-                checkVersion(_mainDS);
 
                 JEConfig.userpassword = login.getUserPassword();
+                login.addLoginMessage(I18n.getInstance().getString("app.login.initializelocale"));
                 I18n.getInstance().selectBundle(login.getSelectedLocale());
                 Locale.setDefault(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
@@ -389,7 +392,11 @@ public class JEConfig extends Application {
                 _config.setLocale(login.getSelectedLocale());
 
                 try {
-                    _mainDS.preload();
+                    login.addLoginMessage(I18n.getInstance().getString("app.login.beginpreload"));
+
+                    preload(login);
+
+                    login.addLoginMessage(I18n.getInstance().getString("app.login.donepreload"));
                     logger.error("done preloading");
 
                     Holidays.setDataSource(_mainDS);
@@ -403,17 +410,7 @@ public class JEConfig extends Application {
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
                 PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
-                Platform.runLater(() -> {
-                    primaryStage.setTitle(I18n.getInstance().getString("app.name"));
-//                    try {
-//                        java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
-//                        Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
-//                        awtAppClassNameField.setAccessible(true);
-//                        awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("app.name"));
-//                    } catch (NoSuchFieldException | IllegalAccessException e) {
-//                        e.printStackTrace();
-//                    }
-                });
+                Platform.runLater(() -> primaryStage.setTitle(I18n.getInstance().getString("app.name")));
 
                 ExecutorService exe = Executors.newSingleThreadExecutor();
                 exe.submit(() -> {
@@ -504,15 +501,18 @@ public class JEConfig extends Application {
                     logger.error(jex);
                 }
 
-                dialogContainer.getChildren().add(pluginManager.getView());
-                vbox.getChildren().addAll(menu, pluginManager.getToolbar());
+
+                Platform.runLater(() -> {
+                    dialogContainer.getChildren().add(pluginManager.getView());
+                    vbox.getChildren().addAll(menu, pluginManager.getToolbar());
+                });
 
                 statusBar.setDataSource(_mainDS);
                 statusBar.initView();
 
-                border.setBottom(statusBar);
+                Platform.runLater(() -> border.setBottom(statusBar));
 
-                //Disable GUI is StatusBar note an disconnect
+                //Disable GUI if StatusBar detects a disconnect
                 border.disableProperty().bind(statusBar.connectedProperty.not());
 
                 Platform.runLater(() -> {
@@ -557,12 +557,22 @@ public class JEConfig extends Application {
 
                     logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
                 });
+                return null;
+            }
+        };
 
+        login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                JEConfig.getStatusBar().addTask(JEConfig.class.getName(), loginTask, null, true);
             } else {
                 System.exit(0);
             }
 
         });
+
+        if (login.hasCredentials()) {
+            login.doLogin();
+        }
 
         AnchorPane.setTopAnchor(login, 0.0);
         AnchorPane.setRightAnchor(login, 0.0);
@@ -613,6 +623,26 @@ public class JEConfig extends Application {
         });
 
 
+    }
+
+    private void preload(FXLogin login) {
+        JEVisDataSourceWS dataSourceWS = (JEVisDataSourceWS) _mainDS;
+
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingclasses"));
+        dataSourceWS.preloadClasses();
+        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedclasses"));
+
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingrelationships"));
+        dataSourceWS.preloadRelationships();
+        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedrelationships"));
+
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingobjects"));
+        dataSourceWS.preloadObjects();
+        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedobjects"));
+
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingattributes"));
+        dataSourceWS.preloadAttributes();
+        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedattributes"));
     }
 
     public static void showError(String message, Exception ex) {

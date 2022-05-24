@@ -39,7 +39,8 @@ public class Widgets {
         widgetList.add(new ValueWidget(control, new WidgetPojo(i--)));
         widgetList.add(new ValueEditWidget(control, new WidgetPojo(i--)));
         widgetList.add(new TableWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new WebPieWidget(control, new WidgetPojo(i--)));
+        //disabled because its not working on the correct thread
+//        widgetList.add(new WebPieWidget(control, new WidgetPojo(i--)));
         widgetList.add(new LinkerWidget(control, new WidgetPojo(i--)));
         widgetList.add(new DashboadLinkWidget(control, new WidgetPojo(i--)));
         widgetList.add(new ArrowWidget(control, new WidgetPojo(i--)));

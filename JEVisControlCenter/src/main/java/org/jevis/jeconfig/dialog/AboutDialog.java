@@ -140,7 +140,7 @@ public class AboutDialog {
             Path jarPath = Paths.get(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
             BasicFileAttributes basicFileAttributes = Files.readAttributes(jarPath, BasicFileAttributes.class);
             FileTime fileTime = basicFileAttributes.creationTime();
-            DateTime fileDate = new DateTime(fileTime);
+            DateTime fileDate = new DateTime(fileTime.toMillis());
             jarCreationDate.setText(fileDate.toString(JEVisDates.DEFAULT_DATE_FORMAT));
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
