@@ -184,7 +184,7 @@ public class EquipmentDialog extends JFXDialog {
             response = Response.CANCEL;
             if (newObject != null) {
                 try {
-                    ds.deleteObject(newObject.getID());
+                    ds.deleteObject(newObject.getID(), true);
                 } catch (JEVisException e) {
                     e.printStackTrace();
                 }

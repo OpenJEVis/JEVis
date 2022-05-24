@@ -97,7 +97,7 @@
     },
     {
       "name": "Datasheet",
-      "primitiveType": 6,
+      "primitiveType": 3,
       "guiType": "File Selector",
       "guiposition": 9,
       "validity": 0,

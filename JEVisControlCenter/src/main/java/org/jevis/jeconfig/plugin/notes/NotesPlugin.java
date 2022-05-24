@@ -124,7 +124,7 @@ public class NotesPlugin implements Plugin {
         gridPane.setHgap(12);
 
         JFXTextField searchbar = new JFXTextField();
-        searchbar.setPromptText("Suche nach...");
+        searchbar.setPromptText(I18n.getInstance().getString("plugin.notes.search.prompt"));
         searchbar.setMinWidth(250);
 
         searchbar.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -132,19 +132,19 @@ public class NotesPlugin implements Plugin {
         });
 
 
-        Label filterLabel = new Label("Suche in:");
+        Label filterLabel = new Label(I18n.getInstance().getString("plugin.notes.search.filterlabel"));
         JFXToggleButton toggleUser = new JFXToggleButton();
-        toggleUser.setText("User");
+        toggleUser.setText(I18n.getInstance().getString("plugin.notes.search.toggle.user"));
         toggleUser.setSelected(true);
         JFXToggleButton toggleNote = new JFXToggleButton();
-        toggleNote.setText("Notiz");
+        toggleNote.setText(I18n.getInstance().getString("plugin.notes.search.toggle.note"));
         toggleNote.setSelected(true);
         JFXToggleButton toggleDR = new JFXToggleButton();
-        toggleDR.setText("Datenpunkt");
+        toggleDR.setText(I18n.getInstance().getString("plugin.notes.search.toggle.data"));
         toggleDR.setSelected(true);
 
         JFXToggleButton toggleTag = new JFXToggleButton();
-        toggleTag.setText("Tags");
+        toggleTag.setText(I18n.getInstance().getString("plugin.notes.search.toggle.tag"));
         toggleTag.setSelected(true);
 
 
@@ -206,7 +206,7 @@ public class NotesPlugin implements Plugin {
         });
 
 
-        MenuItem selectAllMenuItem = new MenuItem("Alle Auswählen");
+        MenuItem selectAllMenuItem = new MenuItem(I18n.getInstance().getString("plugin.notes.contextmenu.selectall"));
         selectAllMenuItem.setOnAction(event -> {
             selectedTags.clear();
             selectedTags.addAll(allTags);
@@ -216,7 +216,7 @@ public class NotesPlugin implements Plugin {
             });
         });
 
-        MenuItem deselectAllMenuItem = new MenuItem("Alle Abwählen");
+        MenuItem deselectAllMenuItem = new MenuItem(I18n.getInstance().getString("plugin.notes.contextmenu.selectnone"));
         deselectAllMenuItem.setOnAction(event -> {
             selectedTags.clear();
             activeTags.forEach((s, booleanProperty) -> {
@@ -238,7 +238,7 @@ public class NotesPlugin implements Plugin {
             cm.getItems().add(cmi);
         });
 
-        JFXButton tagButton = new JFXButton("Tags");
+        JFXButton tagButton = new JFXButton(I18n.getInstance().getString("plugin.notes.contextmenu.tags"));
         tagButton.setContextMenu(cm);
         tagButton.setOnAction(event -> {
             cm.show(tagButton, Side.BOTTOM, 0, 0);
@@ -338,12 +338,12 @@ public class NotesPlugin implements Plugin {
                 protected List<NotesRow> call() {
                     //List<NotesRow> list = new ArrayList<>();
                     try {
-                        Platform.runLater(() -> this.updateTitle("Loading Notes '" + noteObject.getName() + "'"));
+                        Platform.runLater(() -> this.updateTitle(I18n.getInstance().getString("plugin.notes.loading") + " '" + noteObject.getName() + "'"));
                         JEVisAttribute userNotes = noteObject.getAttribute("User Notes");
                         //list.addAll(getNotesRow(userNotes));
-                        List<NotesRow> dataLust = getNotesRow(userNotes);
+                        List<NotesRow> notesRow = getNotesRow(userNotes);
                         Platform.runLater(() -> {
-                            data.addAll(dataLust);
+                            data.addAll(notesRow);
                             filter();
                         });
                         //Platform.runLater(() -> autoFitTable(tableView));
@@ -360,7 +360,7 @@ public class NotesPlugin implements Plugin {
                         JEConfig.getStatusBar().progressProgressJob(
                                 NotesPlugin.class.getName(),
                                 1,
-                                I18n.getInstance().getString("plugin.alarms.message.finishedalarmconfig") + " " + noteObject.getName());
+                                I18n.getInstance().getString("plugin.notes.message.finishedloading") + " " + noteObject.getName());
                     }
 
                     return null;

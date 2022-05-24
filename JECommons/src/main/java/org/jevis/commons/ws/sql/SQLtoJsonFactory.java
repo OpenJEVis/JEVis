@@ -36,6 +36,7 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +53,7 @@ public class SQLtoJsonFactory {
      * default date format for JEVIsSamples Timestamps
      */
     public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
+    public static final DateTimeFormatter deleteDTF = ISODateTimeFormat.date();
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(SQLtoJsonFactory.class);
     /**
      * Default date format for attribute dates
@@ -149,13 +151,19 @@ public class SQLtoJsonFactory {
         json.setId(rs.getLong(ObjectTable.COLUMN_ID));
         json.setJevisClass(rs.getString(ObjectTable.COLUMN_CLASS));
         json.setisPublic(rs.getBoolean(ObjectTable.COLUMN_PUBLIC));
+        Timestamp deletets = rs.getTimestamp(ObjectTable.COLUMN_DELETE);
+        if (deletets != null) {
+            json.setDeleteTS(rs.getString(ObjectTable.COLUMN_DELETE));
+            //json.setDeleteTS(sampleDTF.print(new DateTime(deletets)));
+        }
+
 
         String i18njsonString = rs.getString(ObjectTable.COLUMN_I18N);
-        if(i18njsonString!=null && !i18njsonString.isEmpty()){
+        if (i18njsonString != null && !i18njsonString.isEmpty()) {
             try {
                 JsonI18n[] jsons = objectMapper.readValue(i18njsonString, JsonI18n[].class);
                 json.setI18n(Arrays.asList(jsons));
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error(ex);
             }
 

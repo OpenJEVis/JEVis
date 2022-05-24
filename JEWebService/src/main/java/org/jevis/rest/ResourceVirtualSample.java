@@ -555,7 +555,22 @@ public class ResourceVirtualSample {
             }
 
             @Override
+            public JEVisEventListener[] getEventListener() {
+                return null;
+            }
+
+            @Override
             public void notifyListeners(JEVisEvent event) {
+
+            }
+
+            @Override
+            public DateTime getDeleteTS() {
+                return null;
+            }
+
+            @Override
+            public void setDeleteTS(DateTime ts) throws JEVisException {
 
             }
 

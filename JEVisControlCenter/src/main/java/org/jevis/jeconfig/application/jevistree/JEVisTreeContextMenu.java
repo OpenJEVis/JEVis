@@ -75,46 +75,59 @@ public class JEVisTreeContextMenu extends ContextMenu {
         tree.setOnMouseClicked(event -> {
             try {
                 obj = getObject();
-                getItems().setAll(
-                        buildNew2(),
-                        buildReload(),
-                        new SeparatorMenuItem(),
-                        buildDelete(),
-                        //buildRename(),
-                        buildMenuLocalize(),
-                        buildCopy(),
-                        buildCut(),
-                        buildPaste(),
-                        new SeparatorMenuItem(),
-                        buildCopyFormat(),
-                        buildParsedFormat(),
-                        new SeparatorMenuItem(),
-                        buildExport(),
-                        buildImport()
-                );
+                if (obj.getDeleteTS() != null) {
+                    getItems().setAll(
+                            buildDelete(true),
+                            //buildCopy(), // need additional checks
+                            buildCut(),
+                            new SeparatorMenuItem(),
+                            buildCopyFormat(),
+                            buildParsedFormat(),
+                            new SeparatorMenuItem(),
+                            buildExport(),
+                            buildImport());
+                } else {
+                    getItems().setAll(
+                            buildNew2(),
+                            buildReload(),
+                            new SeparatorMenuItem(),
+                            buildDelete(false),
+                            //buildRename(),
+                            buildMenuLocalize(),
+                            buildCopy(),
+                            buildCut(),
+                            buildPaste(),
+                            new SeparatorMenuItem(),
+                            buildCopyFormat(),
+                            buildParsedFormat(),
+                            new SeparatorMenuItem(),
+                            buildExport(),
+                            buildImport()
+                    );
 
+                    if (obj.getJEVisClassName().equals("Calculation")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildMenuAddInput());
+                        getItems().add(buildRecalculate());
+                    } else if (obj.getJEVisClassName().equals("Loytec XML-DL Server")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildOCP());
+                    } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
+                        getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
+                        getItems().add(buildCreateAlarms());
+                    } else if (obj.getJEVisClassName().equals("Data")) {
+                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
+                        getItems().add(buildReCalcClean());
+                    } else if (obj.getJEVisClassName().equals("Clean Data")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildReCalcClean());
+                    }
 
-                if (obj.getJEVisClassName().equals("Calculation")) {
-                    getItems().add(new SeparatorMenuItem());
-                    getItems().add(buildMenuAddInput());
-                    getItems().add(buildRecalculate());
-                } else if (obj.getJEVisClassName().equals("Loytec XML-DL Server")) {
-                    getItems().add(new SeparatorMenuItem());
-                    getItems().add(buildOCP());
-                } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
-                    getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
-                    getItems().add(buildCreateAlarms());
-                } else if (obj.getJEVisClassName().equals("Data")) {
-                    getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
-                    getItems().add(buildReCalcClean());
-                } else if (obj.getJEVisClassName().equals("Clean Data")) {
-                    getItems().add(new SeparatorMenuItem());
-                    getItems().add(buildReCalcClean());
+                    if (obj.getAttribute("Value") != null) {
+                        getItems().add(buildManualSample());
+                    }
                 }
 
-                if (obj.getAttribute("Value") != null) {
-                    getItems().add(buildManualSample());
-                }
 
             } catch (Exception ex) {
                 logger.fatal(ex);
@@ -334,7 +347,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 objects.add(jeVisTreeItem.getValue().getJEVisObject());
             });
 
-            Task exportTask = exportMaster.exportToFileTask(file, objects);
+            Task<Void> exportTask = exportMaster.exportToFileTask(file, objects);
             JEConfig.getStatusBar().addTask("Tree Exporter", exportTask, JEConfig.getImage("save.gif"), true);
 
         }
@@ -358,7 +371,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         if (selectedFile != null) {
             try {
                 TreeExporterDelux exportMaster = new TreeExporterDelux();
-                Task exportTask = exportMaster.importFromFile(selectedFile, obj);
+                Task<Void> exportTask = exportMaster.importFromFile(selectedFile, obj);
                 JEConfig.getStatusBar().addTask("Tree Importer", exportTask, JEConfig.getImage("save.gif"), true);
                 //List<DimpexObject> objects = DimpEX.readFile(selectedFile);
                 //DimpEX.importALL(obj.getDataSource(), objects, obj);
@@ -517,7 +530,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
             public void handle(ActionEvent t) {
                 Object obj2 = getUserData();
                 logger.debug("userdate: " + obj2);
-                logger.debug("new event");
                 TreeHelper.EventNew(tree, obj);
 
             }
@@ -549,13 +561,18 @@ public class JEVisTreeContextMenu extends ContextMenu {
         return menu;
     }
 
-    private MenuItem buildDelete() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.delete"), ResourceLoader.getImage("list-remove.png", 20, 20));
+    private MenuItem buildDelete(boolean deleteForever) {
+        MenuItem menu;
+        if (deleteForever) {
+            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.deleteforever"), ResourceLoader.getImage("list-remove.png", 20, 20));
+        } else {
+            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.delete"), ResourceLoader.getImage("list-remove.png", 20, 20));
+        }
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent t) {
-                TreeHelper.EventDelete(tree);
+                TreeHelper.EventDelete(tree, deleteForever);
             }
         });
         return menu;

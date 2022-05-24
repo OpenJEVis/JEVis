@@ -51,12 +51,13 @@ public class SQLDataSource {
 
     private List<JsonRelationship> allRelationships = Collections.synchronizedList(new LinkedList<>());
     private List<JsonObject> allObjects = Collections.synchronizedList(new LinkedList<>());
+    private List<JsonObject> allDeletedObjects = Collections.synchronizedList(new LinkedList<>());
     private UserRightManagerForWS um;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public enum LOG_EVENT {
         USER_LOGIN,
-        DELETE_OBJECT, DELETE_SAMPLE, DELETE_RELATIONSHIP,
+        DELETE_OBJECT, MARK_AS_DELETE_OBJECT, DELETE_SAMPLE, DELETE_RELATIONSHIP,
         CREATE_OBJECT, CREATE_SAMPLE, CREATE_RELATIONSHIP,
         UPDATE_OBJECT, UPDATE_ATTRIBUTE
 
@@ -419,7 +420,7 @@ public class SQLDataSource {
     }
 
     public List<JsonObject> getObjects() throws JEVisException {
-        logger.debug("getObjectS");
+        logger.debug("getObjects");
         if (!this.allObjects.isEmpty()) {
             logger.debug("Cache");
             return this.allObjects;
@@ -429,6 +430,19 @@ public class SQLDataSource {
         logger.debug("NONE-Cache");
         return this.allObjects;
     }
+
+    public List<JsonObject> getDeletedObjects() throws JEVisException {
+        logger.debug("getDeletedObjects");
+        if (!this.allDeletedObjects.isEmpty()) {
+            logger.debug("Cache");
+            return this.allDeletedObjects;
+        }
+
+        this.allDeletedObjects = this.oTable.getAllDeletedObjects();
+        logger.debug("NONE-Cache");
+        return this.allDeletedObjects;
+    }
+
 
     public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) {
         List<JsonRelationship> newRels = new ArrayList<>();
@@ -826,8 +840,12 @@ public class SQLDataSource {
         }
     }
 
+    public boolean markAsDeletedObject(JsonObject objectID) {
+        return getObjectTable().markObjectAsDeleted(objectID);
+    }
+
     public boolean deleteObject(JsonObject objectID) {
-        return getObjectTable().deleteObject(objectID);
+        return getObjectTable().deleteObjectFromDB(objectID);
     }
 
     public boolean deleteRelationship(Long fromObject, Long toObject, int type) {

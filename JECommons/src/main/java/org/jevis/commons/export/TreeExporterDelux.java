@@ -16,33 +16,34 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TreeExporterDelux {
 
 
-    private String OBJECT_NAME = "name";
-    private String OBJECT_CLASS = "class";
-    private String OBJECT_CHILD = "children";
-    private String OBJECT_LANG = "lang";
-    private String OBJECT_ATTRIBUTES = "attributes";
-    private String ATTRIBUTE_NAME = "attribute";
-    private String ATTRIBUTE_ID = "object";
-    private String ATTRIBUTE_UNIT = "unit";
-    private String ATTRIBUTE_SAMPLES = "samples";
-    private String ATTRIBUTE_RATE = "sampleRate";
-    private String SAMPLE_TS = "t";
-    private String SAMPLE_VALUE = "v";
+    private final String OBJECT_NAME = "name";
+    private final String OBJECT_CLASS = "class";
+    private final String OBJECT_CHILD = "children";
+    private final String OBJECT_LANG = "lang";
+    private final String OBJECT_ATTRIBUTES = "attributes";
+    private final String ATTRIBUTE_NAME = "attribute";
+    private final String ATTRIBUTE_ID = "object";
+    private final String ATTRIBUTE_UNIT = "unit";
+    private final String ATTRIBUTE_SAMPLES = "samples";
+    private final String ATTRIBUTE_RATE = "sampleRate";
+    private final String SAMPLE_TS = "t";
+    private final String SAMPLE_VALUE = "v";
     private static final Logger logger = LogManager.getLogger(TreeExporterDelux.class);
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public TreeExporterDelux() {
     }
@@ -65,12 +66,11 @@ public class TreeExporterDelux {
             JEVisObject newJEVisObject = parent.buildObject(jsonNode.get(OBJECT_NAME).asText(), objClass);
 
             if (jsonNode.get(OBJECT_LANG).isArray()) {
-                jsonNode.get(OBJECT_LANG).forEach(jsonNode1 -> {
+                for (JsonNode jsonNode1 : jsonNode.get(OBJECT_LANG)) {
                     jsonNode1.fieldNames().forEachRemaining(s -> {
                         newJEVisObject.setLocalName(s, jsonNode1.get(s).asText());
                     });
-
-                });
+                }
             }
 
 
@@ -156,18 +156,16 @@ public class TreeExporterDelux {
         return;
     }
 
-    public Task importFromFile(File file, JEVisObject parent) throws IOException {
-        Task task = new Task() {
+    public Task<Void> importFromFile(File file, JEVisObject parent) {
+        return new Task<Void>() {
             @Override
-            protected Object call() throws Exception {
+            protected Void call() {
                 try {
                     logger.error("==========================================");
                     logger.error("importFromFile: {} parent: {}", file, parent);
                     JsonNode jsonNodes = mapper.readTree(file);
                     StringProperty messages = new SimpleStringProperty();
-                    messages.addListener((observable, oldValue, newValue) -> {
-                        updateMessage(newValue);
-                    });
+                    messages.addListener((observable, oldValue, newValue) -> updateMessage(newValue));
 
                     for (JsonNode jsonNode : jsonNodes) {
                         createObject(jsonNode, parent, messages);
@@ -185,72 +183,29 @@ public class TreeExporterDelux {
                 return null;
             }
         };
-
-        return task;
-
-
     }
 
-
-    public ObjectNode buildObjectNode(JEVisObject obj, StringProperty message, int counter, int total) throws Exception {
-        ObjectNode jNode = toJson(obj);
-        counter++;
-        message.set("Prepare Export Job [" + counter + "/" + total + "] object: [" + obj.getID() + "] " + obj.getName() + "");
-
-        ArrayNode jAttributes = jNode.putArray(OBJECT_ATTRIBUTES);
-        obj.getAttributes().forEach(jeVisAttribute -> {
-            try {
-                //message.set("Export Attribute: " + obj.getName() + "-" + jeVisAttribute.getName());
-                jAttributes.add(toJson(jeVisAttribute));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        ArrayNode jChildren = jNode.putArray(OBJECT_CHILD);
-        for (JEVisObject child : obj.getChildren()) {
-            try {
-                jChildren.add(buildObjectNode(child, message, counter, total));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        return jNode;
-    }
-
-    public int countObjects(JEVisObject obj) {
-        int i = 0;
-        try {
-            for (JEVisObject object : obj.getChildren()) {
-                i += 1;
-                i += countObjects(object);
-            }
-        } catch (Exception ex) {
-        }
-        return i;
-    }
-
-    public Task exportToFileTask(File file, List<JEVisObject> objects) {
-
-        Task task = new Task() {
+    public Task<Void> exportToFileTask(File file, List<JEVisObject> objects) {
+        return new Task<Void>() {
             @Override
-            protected Object call() throws Exception {
+            protected Void call() {
                 try {
                     StringProperty message = new SimpleStringProperty();
-                    message.addListener((observable, oldValue, newValue) -> {
-                        updateMessage(newValue);
-                    });
-                    List<ObjectNode> jObjects = new ArrayList<>();
-                    int jobCount = 0;
+                    message.addListener((observable, oldValue, newValue) -> updateMessage(newValue));
 
+                    List<ObjectNode> jObjects = new ArrayList<>();
+                    List<JEVisObject> allObjects = new ArrayList<>();
+
+                    for (JEVisObject object : objects) {
+                        allObjects.addAll(CommonMethods.getAllChildrenRecursive(object));
+                    }
+
+                    int jobCount = allObjects.size();
 
                     for (JEVisObject obj : objects) {
                         try {
-                            jobCount += countObjects(obj) + 1;
 
-                            ObjectNode jNode = buildObjectNode(obj, message, new Integer(0), jobCount);
+                            ObjectNode jNode = buildObjectNode(allObjects, obj, message, jobCount);
                             jObjects.add(jNode);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -259,10 +214,9 @@ public class TreeExporterDelux {
                     ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
                     try {
                         writer.writeValue(file, jObjects);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-
 
                     succeeded();
                 } catch (Exception ex) {
@@ -273,24 +227,45 @@ public class TreeExporterDelux {
                 return null;
             }
         };
-
-        return task;
-
-
     }
 
+    public ObjectNode buildObjectNode(List<JEVisObject> allObjects, JEVisObject obj, StringProperty message, int total) throws Exception {
+        ObjectNode jNode = toJson(obj);
+        message.set("Prepare Export Job [" + allObjects.indexOf(obj) + "/" + total + "] object: [" + obj.getID() + "] " + obj.getName() + "");
+
+        ArrayNode jAttributes = jNode.putArray(OBJECT_ATTRIBUTES);
+        for (JEVisAttribute jeVisAttribute : obj.getAttributes()) {
+            try {
+                //message.set("Export Attribute: " + obj.getName() + "-" + jeVisAttribute.getName());
+                jAttributes.add(toJson(jeVisAttribute));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        ArrayNode jChildren = jNode.putArray(OBJECT_CHILD);
+        for (JEVisObject child : obj.getChildren()) {
+            try {
+                jChildren.add(buildObjectNode(allObjects, child, message, total));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return jNode;
+    }
 
     public ObjectNode toJson(JEVisAttribute jeVisAttribute) throws Exception {
 
-
         ObjectNode attributeNode = mapper.createObjectNode();
 
-        attributeNode
-                .put(ATTRIBUTE_NAME, jeVisAttribute.getName())
-        ;
+        attributeNode.put(ATTRIBUTE_NAME, jeVisAttribute.getName());
+
         if (jeVisAttribute.getInputSampleRate() != null) {
             attributeNode.put(ATTRIBUTE_RATE, jeVisAttribute.getInputSampleRate().toString());
         }
+
         if (jeVisAttribute.getInputUnit() != null) {
             JsonUnit junit = JsonFactory.buildUnit(jeVisAttribute.getInputUnit());
             //JsonTools.objectMapper().writeValueAsString(junit);
@@ -300,25 +275,20 @@ public class TreeExporterDelux {
 
         if (jeVisAttribute.hasSample()) {
             ArrayNode jSamples = attributeNode.putArray(ATTRIBUTE_SAMPLES);
-            jeVisAttribute.getAllSamples().forEach(jeVisSample -> {
+            for (JEVisSample jeVisSample : jeVisAttribute.getAllSamples()) {
                 try {
                     ObjectNode sampleNode = mapper.createObjectNode();
 
-                    sampleNode
-                            .put(SAMPLE_TS, jeVisSample.getTimestamp().toString())
-                            .put(SAMPLE_VALUE, jeVisSample.getValueAsString())
-                    ;
+                    sampleNode.put(SAMPLE_TS, jeVisSample.getTimestamp().toString()).put(SAMPLE_VALUE, jeVisSample.getValueAsString());
                     jSamples.add(sampleNode);
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-            });
+            }
         }
 
-
         return attributeNode;
-
     }
 
 
@@ -326,23 +296,21 @@ public class TreeExporterDelux {
 
 
         ObjectNode dashBoardNode = mapper.createObjectNode();
-        dashBoardNode
-                .put(OBJECT_NAME, object.getName())
-                .put(OBJECT_CLASS, object.getJEVisClassName())
-        ;
+        dashBoardNode.put(OBJECT_NAME, object.getName()).put(OBJECT_CLASS, object.getJEVisClassName());
 
         ArrayNode jnames = dashBoardNode.putArray(OBJECT_LANG);
 
-        object.getLocalNameList().forEach((s, s2) -> {
+        for (Map.Entry<String, String> entry : object.getLocalNameList().entrySet()) {
+            String lang = entry.getKey();
+            String translatedName = entry.getValue();
             try {
                 ObjectNode langNode = mapper.createObjectNode();
-                langNode.put(s, s2);
+                langNode.put(lang, translatedName);
                 jnames.add(langNode);
             } catch (Exception ex) {
-                logger.error("Error while exporting languge: {} ", s, ex);
+                logger.error("Error while exporting language: {} ", lang, ex);
             }
-        });
-
+        }
 
         return dashBoardNode;
 

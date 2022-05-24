@@ -22,6 +22,7 @@ package org.jevis.jeconfig.application.jevistree;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.jevis.api.*;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ public class JEVisRootObject implements JEVisObject {
 //    private final JEVisDataSource _ds;
     private String _name = "Fake Root";
     private List<JEVisObject> children = new ArrayList<>();
+    private List<JEVisRelationship> jeVisRelationships = new ArrayList<>();
 
     public JEVisRootObject() {
 //        this._ds = ds;
@@ -154,22 +156,22 @@ public class JEVisRootObject implements JEVisObject {
 
     @Override
     public List<JEVisRelationship> getRelationships() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return jeVisRelationships;
     }
 
     @Override
     public List<JEVisRelationship> getRelationships(int type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return jeVisRelationships;
     }
 
     @Override
     public List<JEVisRelationship> getRelationships(int type, int direction) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return jeVisRelationships;
     }
 
     @Override
     public List<JEVisClass> getAllowedChildrenClasses() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>();
     }
 
     @Override
@@ -206,7 +208,7 @@ public class JEVisRootObject implements JEVisObject {
 //    }
     @Override
     public String getJEVisClassName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "FakeRoot";
     }
 
     @Override
@@ -230,7 +232,22 @@ public class JEVisRootObject implements JEVisObject {
     }
 
     @Override
+    public JEVisEventListener[] getEventListener() {
+        return null;
+    }
+
+    @Override
     public void notifyListeners(JEVisEvent event) {
+    }
+
+    @Override
+    public DateTime getDeleteTS() {
+        return null;
+    }
+
+    @Override
+    public void setDeleteTS(DateTime ts) throws JEVisException {
+
     }
 
 

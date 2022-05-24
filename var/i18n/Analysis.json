@@ -59,6 +59,39 @@
         "de": "Analysen Datei",
         "en": "Analysis File"
       }
+    },
+    {
+      "type": "Number of Charts per Screen",
+      "descriptions": {
+        "de": "Definiert die Anzahl der Diagramme einer Analyse, die auf einem Bildschirm untereinander dargestellt werden",
+        "en": "Defines the number of diagrams of an analysis that are displayed one below the other on a screen"
+      },
+      "names": {
+        "de": "Anzahl Diagramme pro Bildschirm",
+        "en": "Number of Charts per Screen"
+      }
+    },
+    {
+      "type": "Number of Horizontal Pies",
+      "descriptions": {
+        "de": "Definiert die Anzahl an Kuchendiagrammen einer Analyse, die nebeneinander dargestellt werden",
+        "en": "Defines the number of pie charts of an analysis that are displayed side by side"
+      },
+      "names": {
+        "de": "Anzahl horizontaler Kuchen",
+        "en": "Number of Horizontal Pies"
+      }
+    },
+    {
+      "type": "Number of Horizontal Tables",
+      "descriptions": {
+        "de": "Definiert die Anzahl an Tabellen einer Analyse, die nebeneinander dargestellt werden",
+        "en": "Defines the number of tables of an analysis that are displayed side by side"
+      },
+      "names": {
+        "de": "Anzahl horizontaler Tabellen",
+        "en": "Number of Horizontal Tables"
+      }
     }
   ]
 }

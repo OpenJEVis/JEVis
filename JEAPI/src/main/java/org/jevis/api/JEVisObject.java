@@ -1,30 +1,32 @@
 /**
  * Copyright (C) 2013 - 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI.
- *
+ * <p>
  * JEAPI is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.api;
+
+import org.joda.time.DateTime;
 
 import java.util.List;
 import java.util.Map;
 
 /**
  * This interface represents a JEVis Object.
- *
+ * <p>
  * Examples for an object are a customer, a measurement device or a building. A
  * JEVisObject cannot store any samples. Measurable attributes of an object like
  * the build year of an building are stored in JEVisAttribute.
@@ -36,7 +38,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
     /**
      * Returns the name of the JEVisObject entity as String based on the set local.
      * Return default name if no translation for the local exist.
-     *
+     * <p>
      * Names are not unique in the JEVis system. For a unique identifier use the
      * ID.
      *
@@ -69,9 +71,10 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      */
     void setLocalName(String key, String name);
 
-    void setLocalNames(Map<String,String> translation);
+    void setLocalNames(Map<String, String> translation);
 
-    /** returns a Mit with all localissations for the name. The key is the  ISO 639 language name.
+    /**
+     * returns a Mit with all localissations for the name. The key is the  ISO 639 language name.
      * <pre>
      * new Locale("he").getLanguage()
      *    ...
@@ -79,7 +82,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      *
      * @return
      */
-    Map<String,String> getLocalNameList();
+    Map<String, String> getLocalNameList();
 
 
     /**
@@ -94,7 +97,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      * Returns the unique identifier of this JEVisObject entity. The same ID
      * cannot appear twice on the same JEVis server. Its possible and very
      * likely that the same ID appear on different JEVis server.
-     *
+     * <p>
      * The ID cannot be set by the client and will be given from the server.
      *
      * @return identifier as Long
@@ -105,7 +108,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      * Returns the JEVis Object Type of this JEVisObject entity. Every
      * JEVisObject is from a certain Type which describes the object attributes
      * and its handling.
-     *
+     * <p>
      * There can be unlimited JEVisObject entities from one JEVisObjectType.
      *
      * @return JEVisCalss
@@ -123,7 +126,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
 
     /**
      * Returns hierarchy parent of this JEVisObject entity.
-     *
+     * <p>
      * The JEVisObject is stored in tree like structure where every JEVisObject
      * can have an unlimited amount of JEVisObject-children but just one
      * JEVisObject-parent.
@@ -143,6 +146,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      * move this JEVisObject to an other parent
      */
 //    void moveTo(JEVisObject newParent) throws JEVisException;
+
     /**
      * Returns all hierarchy children as a list of JEVisObject. The List will be
      * empty if this JEobject has no children.
@@ -156,7 +160,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      * Returns all children as a List of JEVisObject from the certain given
      * JEVisObjectType or all JEVisObjectTypes which inherit the type.
      *
-     * @param type Requested type as JEVisObjectType
+     * @param type    Requested type as JEVisObjectType
      * @param inherit Include inherited classes
      * @return List of all accessible JEVisObject from the same Type or inherit
      * type.
@@ -176,7 +180,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
     /**
      * Returns an specific JEVisAttribute which is of the given JEVisType. If
      * the JEVisAttribute is not set the default value will be returned.
-     *
+     * <p>
      * Will return an Exception if the JEAttributeType is not allowed unter the
      * JEVisObjectType
      *
@@ -189,7 +193,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
     /**
      * Returns a specific JEVisAttribute. If the JEVisAttribute is not set the
      * default value will be returned.
-     *
+     * <p>
      * Will return an Exception if the JEVisType is not allowed under the
      * JEVisObjectType
      *
@@ -202,10 +206,10 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
     /**
      * Delete this JEVisObject on the JEVis Server. This JEVisObject will be set
      * to null and will be removed from the child list of the parent.
-     *
+     * <p>
      * If this JEVisObject is a link it will only delete the link an not the
      * linked reference.
-     *
+     * <p>
      * All linked references will also be deleted.
      *
      * @return true if the delete was successful
@@ -216,7 +220,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
     /**
      * Build n new JEVisObject from the given JEVisObjectType and name under
      * this JEVisObject.
-     *
+     * <p>
      * Throws Exception if the JEVisObjectType is not allowed under this
      * JEVisObject.
      *
@@ -239,7 +243,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      * Create and commit a new Relationship
      *
      * @param obj
-     * @param type {@link org.jevis.jeapi.JEVisConstants.Relationship}
+     * @param type      {@link org.jevis.jeapi.JEVisConstants.Relationship}
      * @param direction {@link org.jevis.jeapi.JEVisConstants.Direction}
      * @return
      * @throws org.jevis.api.JEVisException
@@ -274,9 +278,9 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
     /**
      * Return all relationships from the given type
      *
-     * @param type {@link org.jevis.jeapi.JEVisConstants.Relationship}
+     * @param type      {@link org.jevis.jeapi.JEVisConstants.Relationship}
      * @param direction if Forward the the Class has to be the start, if
-     * Backward the class has to be the end
+     *                  Backward the class has to be the end
      * @return
      * @throws JEVisException
      */
@@ -295,7 +299,6 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      *
      * @param otherObject
      * @return true if the object is allowed under the other object
-     *
      * @throws JEVisException
      */
     boolean isAllowedUnder(JEVisObject otherObject) throws JEVisException;
@@ -318,13 +321,23 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
     void setIsPublic(boolean ispublic) throws JEVisException;
 
     void addEventListener(JEVisEventListener listener);
+
     void removeEventListener(JEVisEventListener listener);
 
+
+    JEVisEventListener[] getEventListener();
+
     /**
-     *
      * @param event
      */
-    public void notifyListeners(JEVisEvent event);
-    
-    
+    void notifyListeners(JEVisEvent event);
+
+    /**
+     * Get the date when this object was deleted.
+     * returns null if object is not deleted.
+     */
+    DateTime getDeleteTS();
+
+    void setDeleteTS(DateTime ts) throws JEVisException;
+
 }

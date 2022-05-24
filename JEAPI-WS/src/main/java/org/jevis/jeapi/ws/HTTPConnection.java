@@ -70,7 +70,7 @@ public class HTTPConnection {
     private final String password;
     private final int readTimeout = 120000;//millis
 
-    enum Trust {
+    public enum Trust {
         ALWAYS, SYSTEM
     }
 
