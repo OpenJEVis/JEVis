@@ -2242,7 +2242,47 @@ public class TreeHelper {
                                 Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + finalAllSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
 
                                 if (allSamples.size() == virtualSamples.size()) {
-                                    value.deleteAllSample();
+                                    if (!changedFrom.get() && !changedTo.get()) {
+                                        value.deleteAllSample();
+                                    } else if (changedFrom.get() && !changedTo.get()) {
+                                        DateTime dateTimeFrom = new DateTime(
+                                                datePickerFrom.valueProperty().get().getYear(),
+                                                datePickerFrom.valueProperty().get().getMonthValue(),
+                                                datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                timePickerFrom.valueProperty().get().getHour(),
+                                                timePickerFrom.valueProperty().get().getMinute(),
+                                                timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        value.deleteSamplesBetween(dateTimeFrom, new DateTime(2500, 1, 1, 0, 0, 0, 0));
+                                    } else if (!changedFrom.get() && changedTo.get()) {
+                                        DateTime dateTimeTo = new DateTime(
+                                                datePickerTo.valueProperty().get().getYear(),
+                                                datePickerTo.valueProperty().get().getMonthValue(),
+                                                datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                timePickerTo.valueProperty().get().getHour(),
+                                                timePickerTo.valueProperty().get().getMinute(),
+                                                timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        value.deleteSamplesBetween(new DateTime(1900, 1, 1, 0, 0, 0, 0), dateTimeTo);
+                                    } else {
+                                        DateTime dateTimeFrom = new DateTime(
+                                                datePickerFrom.valueProperty().get().getYear(),
+                                                datePickerFrom.valueProperty().get().getMonthValue(),
+                                                datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                timePickerFrom.valueProperty().get().getHour(),
+                                                timePickerFrom.valueProperty().get().getMinute(),
+                                                timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        DateTime dateTimeTo = new DateTime(
+                                                datePickerTo.valueProperty().get().getYear(),
+                                                datePickerTo.valueProperty().get().getMonthValue(),
+                                                datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                timePickerTo.valueProperty().get().getHour(),
+                                                timePickerTo.valueProperty().get().getMinute(),
+                                                timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        value.deleteSamplesBetween(dateTimeFrom, dateTimeTo);
+                                    }
                                     value.addSamples(virtualSamples);
                                     Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " finished moving samples"));
                                 }
