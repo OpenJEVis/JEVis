@@ -11,6 +11,7 @@ import org.jevis.jeconfig.application.control.CalendarRow;
 
 import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 
 public class Holidays {
@@ -18,8 +19,8 @@ public class Holidays {
     private static JEVisDataSource ds;
     private static JEVisClass siteClass;
     private static HolidayManager defaultHolidayManager;
-    private static HolidayManager siteHolidayManager;
-    private static HolidayManager customHolidayManager;
+    private static final HashMap<JEVisObject, HolidayManager> siteHolidayManagerMap = new HashMap<>();
+    private static final HashMap<JEVisObject, HolidayManager> customHolidayManagerMap = new HashMap<>();
     private static String stateCode = "";
 
     public Holidays() {
@@ -44,7 +45,7 @@ public class Holidays {
                     if (holidaysAtt.hasSample()) {
                         try {
                             CalendarRow calendarRow = new CalendarRow(holidaysAtt.getLatestSample().getValueAsString());
-                            siteHolidayManager = HolidayManager.getInstance(ManagerParameters.create(calendarRow.getCountryCode()));
+                            siteHolidayManagerMap.put(site, HolidayManager.getInstance(ManagerParameters.create(calendarRow.getCountryCode())));
                             stateCode = calendarRow.getStateCode();
                         } catch (Exception e) {
                             logger.error("Could not create site holiday manager");
@@ -61,14 +62,10 @@ public class Holidays {
                             jeVisFile.saveToFile(file);
 
                             URL url = new URL("file:" + file);
-                            customHolidayManager = HolidayManager.getInstance(ManagerParameters.create(url));
+                            customHolidayManagerMap.put(site, HolidayManager.getInstance(ManagerParameters.create(url)));
                         } catch (Exception e) {
                             logger.error("Could not create custom holiday manager");
                         }
-                    }
-
-                    if (siteHolidayManager != null || customHolidayManager != null) {
-                        break;
                     }
                 }
             } catch (Exception e) {
@@ -85,11 +82,15 @@ public class Holidays {
         return defaultHolidayManager;
     }
 
-    public static HolidayManager getSiteHolidayManager() {
-        return siteHolidayManager;
+    public static HolidayManager getSiteHolidayManager(JEVisObject site) {
+        if (site != null) {
+            return siteHolidayManagerMap.get(site);
+        } else return defaultHolidayManager;
     }
 
-    public static HolidayManager getCustomHolidayManager() {
-        return customHolidayManager;
+    public static HolidayManager getCustomHolidayManager(JEVisObject site) {
+        if (site != null) {
+            return customHolidayManagerMap.get(site);
+        } else return defaultHolidayManager;
     }
 }

@@ -37,6 +37,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeapi.ws.JEVisObjectWS;
@@ -144,6 +145,11 @@ public class XYChart implements Chart {
         this.analysisDataModel = dataModel;
         this.chartDataRows = dataRows;
         this.chartSetting = chartSetting;
+        try {
+            DefaultDateAxis.setSite(CommonMethods.getFirstParentalObjectOfClass(dataModel.getCurrentAnalysis(), "Building"));
+        } catch (Exception e) {
+            logger.error("Could not set site for date axis", e);
+        }
 
         CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());
         CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(chartSetting.getMinFractionDigits(), chartSetting.getMaxFractionDigits());

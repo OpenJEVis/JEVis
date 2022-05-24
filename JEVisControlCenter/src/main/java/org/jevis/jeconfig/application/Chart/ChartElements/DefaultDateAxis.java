@@ -8,6 +8,7 @@ import de.jollyday.Holiday;
 import javafx.collections.ObservableList;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.joda.time.DateTime;
@@ -16,6 +17,8 @@ import java.time.LocalDate;
 import java.util.Set;
 
 public class DefaultDateAxis extends DefaultNumericAxis {
+
+    private static JEVisObject site = null;
 
     public DefaultDateAxis() {
         super();
@@ -30,17 +33,17 @@ public class DefaultDateAxis extends DefaultNumericAxis {
             DateTime dateTime = new DateTime(value.longValue());
             String toolTipString = "";
             if (Holidays.getDefaultHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()))
-                    || (Holidays.getSiteHolidayManager() != null && Holidays.getSiteHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()), Holidays.getStateCode()))
-                    || (Holidays.getCustomHolidayManager() != null && Holidays.getCustomHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale())))) {
+                    || (Holidays.getSiteHolidayManager(site) != null && Holidays.getSiteHolidayManager(site).isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()), Holidays.getStateCode()))
+                    || (Holidays.getCustomHolidayManager(site) != null && Holidays.getCustomHolidayManager(site).isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale())))) {
                 LocalDate localDate = LocalDate.of(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
 
                 Set<Holiday> holidays = Holidays.getDefaultHolidayManager().getHolidays(localDate, localDate, "");
-                if (Holidays.getSiteHolidayManager() != null) {
-                    holidays.addAll(Holidays.getSiteHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                if (Holidays.getSiteHolidayManager(site) != null) {
+                    holidays.addAll(Holidays.getSiteHolidayManager(site).getHolidays(localDate, localDate, Holidays.getStateCode()));
                 }
 
-                if (Holidays.getCustomHolidayManager() != null) {
-                    holidays.addAll(Holidays.getCustomHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                if (Holidays.getCustomHolidayManager(site) != null) {
+                    holidays.addAll(Holidays.getCustomHolidayManager(site).getHolidays(localDate, localDate, Holidays.getStateCode()));
                 }
 
                 for (Holiday holiday : holidays) {
@@ -278,5 +281,9 @@ public class DefaultDateAxis extends DefaultNumericAxis {
         }
 
         gc.restore();
+    }
+
+    public static void setSite(JEVisObject site) {
+        DefaultDateAxis.site = site;
     }
 }
