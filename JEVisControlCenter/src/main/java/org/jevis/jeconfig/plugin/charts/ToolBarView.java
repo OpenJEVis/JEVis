@@ -30,7 +30,6 @@ import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -46,7 +45,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PresetDateBox;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.Chart;
@@ -1343,30 +1341,30 @@ public class ToolBarView {
         infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
         testButton = new ToggleButton("X");
         testButton.setOnAction(actionEvent -> {
-            try {
-                List<JEVisClass> classFilter = new ArrayList<>();
-                classFilter.add(ds.getJEVisClass("Data"));
-                classFilter.add(ds.getJEVisClass("Clean Data"));
-                classFilter.add(ds.getJEVisClass("Math Data"));
-                classFilter.add(ds.getJEVisClass("Base Data"));
-
-                TreeSelectionDialog selectionDialog = new TreeSelectionDialog(getChartPluginView().getDialogContainer(), ds, classFilter, SelectionMode.SINGLE);
-
-                selectionDialog.setOnDialogClosed(jfxDialogEvent -> {
-                    StringBuilder stringBuilder = new StringBuilder();
-
-
-                    for (JEVisObject object : selectionDialog.getTreeView().getSelectedObjects()) {
-                        stringBuilder.append("\n").append(object.getName());
-                    }
-                    Alert selectionShow = new Alert(Alert.AlertType.INFORMATION, "Selected Objects: " + stringBuilder);
-                    selectionShow.show();
-                });
-
-                selectionDialog.show();
-            } catch (Exception e) {
-                logger.error("Error while testing", e);
-            }
+//            try {
+//                List<JEVisClass> classFilter = new ArrayList<>();
+//                classFilter.add(ds.getJEVisClass("Data"));
+//                classFilter.add(ds.getJEVisClass("Clean Data"));
+//                classFilter.add(ds.getJEVisClass("Math Data"));
+//                classFilter.add(ds.getJEVisClass("Base Data"));
+//
+//                TreeSelectionDialog selectionDialog = new TreeSelectionDialog(getChartPluginView().getDialogContainer(), ds, classFilter, SelectionMode.SINGLE);
+//
+//                selectionDialog.setOnDialogClosed(jfxDialogEvent -> {
+//                    StringBuilder stringBuilder = new StringBuilder();
+//
+//
+//                    for (JEVisObject object : selectionDialog.getTreeView().getSelectedObjects()) {
+//                        stringBuilder.append("\n").append(object.getName());
+//                    }
+//                    Alert selectionShow = new Alert(Alert.AlertType.INFORMATION, "Selected Objects: " + stringBuilder);
+//                    selectionShow.show();
+//                });
+//
+//                selectionDialog.show();
+//            } catch (Exception e) {
+//                logger.error("Error while testing", e);
+//            }
         });
 
         List<Node> nodes = Arrays.asList(listAnalysesComboBox,

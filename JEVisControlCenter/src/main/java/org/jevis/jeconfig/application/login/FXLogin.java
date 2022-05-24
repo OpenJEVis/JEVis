@@ -132,7 +132,8 @@ public class FXLogin extends AnchorPane {
         super();
         this.mainStage = stage;
         this.app = app;
-        this.parameters = parameters;
+
+        this.messageBox.setBorder(null);
 
         //this.loginButton.getStyleClass().add("button-raised");
         //loginButton.setId("ok-button");
