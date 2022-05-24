@@ -383,7 +383,7 @@ public class DashBoardToolbar extends ToolBar {
         });
 
         getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-        JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems());
+        Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
         updateView(dashboardControl.getActiveDashboard());
     }
