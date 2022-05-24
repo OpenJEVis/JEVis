@@ -14,6 +14,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,26 +33,25 @@ public class PathFollower {
 
     public PathFollower(JEVisObject channel) {
         logger.debug("New PathFollower: {}", channel);
-        try {
-            followClass = channel.getDataSource().getJEVisClass(FOLLOW_CLASS);
-        } catch (Exception ex) {
-            logger.error("'{}' class not found", FOLLOW_CLASS, ex);
-        }
+        if (channel == null) {
+            logger.warn("Error channel is null, cancel PathFollower init");
+        } else {
+            if (channel != null && followClass != null) {
 
+                try {
+                    channel.getChildren(followClass, false).forEach(jeVisObject -> {
+                        logger.debug("Dynamic Channel: {}", jeVisObject);
+                        link = new Link(jeVisObject);
+                    });
 
-        if (channel != null && followClass != null) {
+                } catch (Exception e) {
+                    logger.error("Error while init PathFollower: {}", e, e);
+                }
 
-            try {
-                channel.getChildren(followClass, false).forEach(jeVisObject -> {
-                    logger.debug("Dynamic Channel: {}", jeVisObject);
-                    link = new Link(jeVisObject);
-                });
-
-            } catch (Exception e) {
-                logger.error(e, e);
             }
-
         }
+
+
     }
 
     public void setConnection(CloseableHttpClient httpClient, HttpClientContext context) {
