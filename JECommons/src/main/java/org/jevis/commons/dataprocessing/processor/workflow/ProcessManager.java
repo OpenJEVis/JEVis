@@ -160,15 +160,15 @@ public class ProcessManager {
                 resourceManager.setRawIntervals(null);
             } while (!isFinished);
         } else if (resourceManager.getForecastDataObject() != null) {
-            do {
+            while (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
                 reRun();
                 resourceManager.getForecastDataObject().finishCurrentRun(resourceManager.getForecastDataObject().getForecastDataObject());
-            } while (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject()));
+            }
         } else if (resourceManager.getMathDataObject() != null) {
-            do {
+            while (resourceManager.getMathDataObject().isReady()) {
                 reRun();
                 resourceManager.getMathDataObject().finishCurrentRun(resourceManager.getMathDataObject().getMathDataObject());
-            } while (resourceManager.getMathDataObject().isReady());
+            }
         }
     }
 

@@ -23,11 +23,13 @@ import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
@@ -199,6 +201,13 @@ public class HeatMapChart implements Chart {
         GridPane rightAxis = new GridPane();
         rightAxis.setPadding(new Insets(4));
 
+        JEVisObject site = null;
+        try {
+            site = CommonMethods.getFirstParentalObjectOfClass(chartDataRow.getObject(), "Building");
+        } catch (Exception e) {
+            logger.error("Could not get site object", e);
+        }
+
         int row = 0;
         for (DateTime dateTime : yAxisList) {
             Label tsLeft = new Label(dateTime.toString(Y_FORMAT));
@@ -215,18 +224,19 @@ public class HeatMapChart implements Chart {
 
             String toolTipString = "";
             Calendar dtToCal = dateTime.toCalendar(I18n.getInstance().getLocale());
+
             if (Holidays.getDefaultHolidayManager().isHoliday(dtToCal)
-                    || (Holidays.getSiteHolidayManager() != null && Holidays.getSiteHolidayManager().isHoliday(dtToCal, Holidays.getStateCode()))
-                    || (Holidays.getCustomHolidayManager() != null && Holidays.getCustomHolidayManager().isHoliday(dtToCal))) {
+                    || (Holidays.getSiteHolidayManager(site) != null && Holidays.getSiteHolidayManager(site).isHoliday(dtToCal, Holidays.getStateCode()))
+                    || (Holidays.getCustomHolidayManager(site) != null && Holidays.getCustomHolidayManager(site).isHoliday(dtToCal))) {
                 LocalDate localDate = LocalDate.of(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
 
                 Set<Holiday> holidays = Holidays.getDefaultHolidayManager().getHolidays(localDate, localDate, "");
-                if (Holidays.getSiteHolidayManager() != null) {
-                    holidays.addAll(Holidays.getSiteHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                if (Holidays.getSiteHolidayManager(site) != null) {
+                    holidays.addAll(Holidays.getSiteHolidayManager(site).getHolidays(localDate, localDate, Holidays.getStateCode()));
                 }
 
-                if (Holidays.getCustomHolidayManager() != null) {
-                    holidays.addAll(Holidays.getCustomHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                if (Holidays.getCustomHolidayManager(site) != null) {
+                    holidays.addAll(Holidays.getCustomHolidayManager(site).getHolidays(localDate, localDate, Holidays.getStateCode()));
                 }
 
                 for (Holiday holiday : holidays) {

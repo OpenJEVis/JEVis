@@ -127,6 +127,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
              * LineChart does not support updateData, so we need to create a new one every time;
              */
             AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
+            model.setCurrentAnalysisNOEVENT(control.getActiveDashboard().getDashboardObject());
             model.setHideShowIconsNO_EVENT(false);
             model.setCustomWorkDayNO_EVENT(customWorkDay);
             ChartSetting chartSetting = new ChartSetting(0, "");
@@ -347,8 +348,10 @@ public class ChartWidget extends Widget implements DataModelWidget {
             try {
 
                 this.setBackground(bgColorTrans);
+                if (this.legend != null) {
                 this.legend.setBackground(bgColorTrans);
                 this.legend.setStyle("-fx-background-color: transparent; -fx-text-color: " + fontColor + ";");
+                }
                 this.borderPane.setBackground(bgColor);
 
                 try {
