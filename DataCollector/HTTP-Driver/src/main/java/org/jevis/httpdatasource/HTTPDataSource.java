@@ -12,7 +12,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.auth.DigestScheme;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,12 +75,18 @@ public class HTTPDataSource {
         if (ssl) {
             if (!serverURL.startsWith("https")) {
                 serverURL = "https://" + serverURL;
+                if (port != null) {
+                    serverURL += ":" + port;
+                }
             }
             /* We trust self signed certificates for now, this way is not save **/
             DataSourceHelper.doTrustToCertificates();
         } else {
             if (!serverURL.startsWith("http")) {
                 serverURL = "http://" + serverURL;
+                if (port != null) {
+                    serverURL += ":" + port;
+                }
             }
         }
 
@@ -87,19 +96,12 @@ public class HTTPDataSource {
             serverURL += "/";
         }
 
-        String contentURL = serverURL + path;
-
-        contentURL = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), contentURL, timeZone);
-
-        contentURL=HTTPDataSource.FixURL(contentURL);
-        logger.debug("Channel URL: {}", contentURL);
-
-
         URL url = new URL(serverURL);
-        if(url.getPort()>-1 && port==null){
-            logger.info("Port not set in Attribute, using port from URL: {}",port);
+        if (port == null && url.getPort() > -1) {
+            logger.info("Port not set in Attribute, using port from URL: {}", port);
             setPort(url.getPort());
         }
+
         HttpHost targetHost = new HttpHost(url.getHost(), port, url.getProtocol());
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpClientContext context = HttpClientContext.create();
@@ -123,20 +125,28 @@ public class HTTPDataSource {
             context.setCredentialsProvider(credsProvider);
         }
 
+        String contentURL = path;
+        contentURL = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), contentURL, timeZone);
+        contentURL = HTTPDataSource.FixURL(contentURL);
+        logger.debug("Channel URL: {}", contentURL);
 
+        String getRequest = "";
         if (pathFollower.isActive()) {
             logger.info("Using Dynamic Link");
             pathFollower.setConnection(httpClient, context);
-            contentURL = pathFollower.startFetching(serverURL, contentURL);
-            logger.info("Final target url after following links: {}", contentURL);
+            getRequest = pathFollower.startFetching(serverURL, contentURL);
+            logger.info("Final target url after following links: {}", getRequest);
+        } else {
+            getRequest = serverURL + contentURL;
+            logger.info("Target URL: {}", getRequest);
         }
-        logger.info("Content URL: {}", contentURL);
+        logger.info("Content URL: {}", getRequest);
 
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(connectionTimeout)
                 .setSocketTimeout(readTimeout)
                 .build();
-        HttpGet get = new HttpGet(contentURL);
+        HttpGet get = new HttpGet(getRequest);
         get.setConfig(requestConfig);
 
         HttpResponse oResponse = httpClient.execute(get, context);
