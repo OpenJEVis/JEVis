@@ -3,12 +3,14 @@
   "names": {
     "de": "Wärmezähler",
     "ru": "Heat Measurement Instrument",
-    "en": "Heat Measurement Instrument"
+    "en": "Heat Measurement Instrument",
+    "ar": "أداة قياس الحرارة"
   },
   "descriptions": {
     "de": "Stellt einen Wärmezähler in einem Messaufbau dar.",
     "ru": "Represents a Heat meter in a test setup.",
-    "en": "Represents a Heat meter in a test setup."
+    "en": "Represents a Heat meter in a test setup.",
+    "ar": "يمثل مقياس حرارة في إعداد القياس."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Gibt den Rohrdurchmesser des Wärmezählers an.",
         "ru": "Specifies the pipe diameter of the Heat meter.",
-        "en": "Specifies the pipe diameter of the Heat meter."
+        "en": "Specifies the pipe diameter of the Heat meter.",
+        "ar": "يحدد قطر أنبوب مقياس الحرارة."
       },
       "names": {
         "de": "Durchmesser",
         "ru": "Diameter",
-        "en": "Diameter"
+        "en": "Diameter",
+        "ar": "قطر الدائرة"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Gibt den Sensor im Zulauf des Wärmezählers an.",
         "ru": "Specifies the sensor in the flow direction of the Heat meter.",
-        "en": "Specifies the sensor in the flow direction of the Heat meter."
+        "en": "Specifies the sensor in the flow direction of the Heat meter.",
+        "ar": "يشير إلى المستشعر في مدخل مقياس الحرارة."
       },
       "names": {
         "de": "Sensor VL",
         "ru": "Sensor Fl",
-        "en": "Sensor Fl"
+        "en": "Sensor Fl",
+        "ar": "جهاز الاستشعار VL"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Gibt den Sensor im Rücklauf des Wärmezählers an.",
         "ru": "Specifies the sensor in the return direction of the Heat meter.",
-        "en": "Specifies the sensor in the return direction of the Heat meter."
+        "en": "Specifies the sensor in the return direction of the Heat meter.",
+        "ar": "يشير إلى المستشعر في عودة مقياس الحرارة."
       },
       "names": {
         "de": "Sensor RL",
         "ru": "Sensor Re",
-        "en": "Sensor Re"
+        "en": "Sensor Re",
+        "ar": "جهاز الاستشعار RL"
       }
     }
   ]

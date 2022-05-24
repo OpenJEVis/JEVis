@@ -5,14 +5,16 @@
     "ru": "Конфигурация тревоги",
     "th": "การกำหนดค่าการเตือนภัย",
     "uk": "Конфігурація сигналізації",
-    "en": "Alarm Configuration"
+    "en": "Alarm Configuration",
+    "ar": "تكوين الإنذار"
   },
   "descriptions": {
     "de": "Das Alarmkonfigurationsobjekt beeinhaltet alle Einstellmöglichkeiten für einen oder mehrere Alarme. Ebenfalls zeigt der Verlauf die eingestellten Alarmmeldungen.",
     "ru": "Объект конфигурации аварийных сигналов содержит все параметры настройки для одного или нескольких аварийных сигналов. Журнал также показывает установленные сообщения тревоги.",
     "uk": "Об'єкт конфігурації тривоги містить усі параметри налаштування для однієї або декількох сигналів тривоги. У журналі також відображаються встановлені тривожні повідомлення.",
     "th": "วัตถุการกำหนดค่าการเตือนภัยมีตัวเลือกการตั้งค่าทั้งหมดสำหรับการเตือนภัยอย่างน้อยหนึ่งครั้ง บันทึกจะแสดงข้อความเตือนที่ตั้งไว้",
-    "en": "The alarm configuration object contains all setting options for one or more alarms. The log also shows the set alarm messages."
+    "en": "The alarm configuration object contains all setting options for one or more alarms. The log also shows the set alarm messages.",
+    "ar": "يحتوي كائن تكوين الإنذار على جميع خيارات الإعداد لواحد أو أكثر من الإنذارات. يعرض السجل أيضًا رسائل التنبيه المحددة."
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "Активирует выбранную конфигурацию тревоги.",
         "uk": "Активує вибрану конфігурацію сигналу тривоги.",
         "th": "เปิดใช้งานการกำหนดค่าสัญญาณเตือนที่เลือก",
-        "en": "Activates the selected alarm configuration."
+        "en": "Activates the selected alarm configuration.",
+        "ar": "يقوم بتنشيط تكوين التنبيه المحدد."
       },
       "names": {
         "de": "Aktiviert",
         "ru": "включен",
         "th": "เปิดการใช้งาน",
         "uk": "включений",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -39,14 +43,16 @@
         "ru": "Деактивирует ссылку на связанный ряд данных в плагине тревоги.",
         "uk": "Деактивує посилання на зв'язані серії даних у плагіні тривоги.",
         "th": "เลิกใช้งานลิงก์ไปยังชุดข้อมูลที่เชื่อมโยงในปลั๊กอินเตือนภัย",
-        "en": "Deactivates the link to the data row in the alarm plugin"
+        "en": "Deactivates the link to the data row in the alarm plugin",
+        "ar": "تعطيل الارتباط"
       },
       "names": {
         "de": "Deaktiviert Plugin Link",
         "ru": "Деактивирует ссылку на плагин",
         "th": "ปิดใช้งานลิงก์ปลั๊กอิน",
         "uk": "Деактивує посилання на плагін",
-        "en": "Disable Plugin Link"
+        "en": "Disable Plugin Link",
+        "ar": "تعطيل ارتباط البرنامج المساعد"
       }
     },
     {
@@ -56,42 +62,48 @@
         "ru": "Определяет область действия включенных сигналов тревоги; все, выбранное, все, кроме выбранного или ни одного. В любом случае, пределы L1 / L2 регистрируются.",
         "uk": "Визначає сферу включених тривог; всі, вибрані, всі, крім вибраного або жодного. У будь-якому випадку, реєструються межі L1 / L2.",
         "th": "กำหนดขอบเขตของการเตือนที่รวมไว้; ทั้งหมดถูกเลือกทั้งหมดยกเว้นที่เลือกหรือไม่เลือก ไม่ว่าในกรณีใดข้อ จำกัด L1 / L2 จะถูกบันทึกไว้",
-        "en": "Defines the scope of the included alarms; all, selected, all except the selected or none. In any case, the L1 / L2 limits are logged."
+        "en": "Defines the scope of the included alarms; all, selected, all except the selected or none. In any case, the L1 / L2 limits are logged.",
+        "ar": "يحدد نطاق الإنذارات المضمنة ؛ الكل محدد أو الكل ما عدا المختار أو لا شيء. في أي حال ، يتم تسجيل حدود L1 / L2."
       },
       "names": {
         "de": "Alarmbereich",
         "ru": "диапазон сигнализации",
         "th": "ช่วงปลุก",
         "uk": "діапазон сигналізації",
-        "en": "Alarm Scope"
+        "en": "Alarm Scope",
+        "ar": "منطقة التنبيه"
       },
       "enums": {
         "COMPLETE": {
           "descriptions": null,
           "names": {
             "de": "Alle Alarme",
-            "en": "Every Alarm"
+            "en": "Every Alarm",
+            "ar": "كل انذار"
           }
         },
         "SELECTED": {
           "descriptions": null,
           "names": {
             "de": "Ausgewählte Alarme",
-            "en": "Selected Alarm"
+            "en": "Selected Alarm",
+            "ar": "التنبيهات المحددة"
           }
         },
         "WITHOUT_SELECTED": {
           "descriptions": null,
           "names": {
             "de": "Ohne ausgewählte Alarme",
-            "en": "Without selected"
+            "en": "Without selected",
+            "ar": "بدون إنذارات محددة"
           }
         },
         "NONE": {
           "descriptions": null,
           "names": {
             "de": "Keine",
-            "en": "None"
+            "en": "None",
+            "ar": "لا أحد"
           }
         }
       }
@@ -103,14 +115,16 @@
         "ru": "Выбранный для зоны тревоги.",
         "uk": "Вибрана для області тривоги.",
         "th": "ส่วนที่เลือกไว้สำหรับพื้นที่เตือนภัย",
-        "en": "The selected objects for the alarm scope."
+        "en": "The selected objects for the alarm scope.",
+        "ar": "عناصر الإنذار"
       },
       "names": {
         "de": "Alarmobjekte",
         "ru": "объекты сигнализации",
         "th": "วัตถุปลุก",
         "uk": "об'єкти сигналізації",
-        "en": "Alarm Objects"
+        "en": "Alarm Objects",
+        "ar": "عناصر الإنذار"
       }
     },
     {
@@ -120,14 +134,16 @@
         "ru": "Последняя отметка времени, в которую выбранные объекты были проверены на соответствие критериям тревоги.",
         "uk": "Остання часова мітка, на якій вибрані об'єкти перевірялися на відповідність критеріям тривоги.",
         "th": "เวลาล่าสุดที่มีการตรวจสอบวัตถุที่เลือกเพื่อให้เป็นไปตามเกณฑ์การเตือนภัย",
-        "en": "The last timestamp on which the selected objects were checked for fulfillment of the alarm criteria."
+        "en": "The last timestamp on which the selected objects were checked for fulfillment of the alarm criteria.",
+        "ar": "آخر طابع زمني عندما تم فحص الكائنات المحددة لاستيفاء معايير الإنذار."
       },
       "names": {
         "de": "Zeitstempel",
         "ru": "отметка времени",
         "th": "การประทับเวลา",
         "uk": "відмітка часу",
-        "en": "Time Stamp"
+        "en": "Time Stamp",
+        "ar": "الطابع الزمني"
       }
     },
     {
@@ -137,14 +153,16 @@
         "ru": "Период, на котором проверяются выбранные объекты.",
         "uk": "Період, на якому відстань перевіряються вибраними об'єктами.",
         "th": "ระยะเวลาที่ตรวจสอบวัตถุที่เลือก",
-        "en": "The period at which distance the selected objects are checked."
+        "en": "The period at which distance the selected objects are checked.",
+        "ar": "فترة الإنذار"
       },
       "names": {
         "de": "Alarmperiode",
         "ru": "период сигнализации",
         "th": "ระยะเวลาการเตือนภัย",
         "uk": "період сигналізації",
-        "en": "Alarm Period"
+        "en": "Alarm Period",
+        "ar": "فترة الإنذار"
       },
       "enums": {
         "MINUTELY": {
@@ -152,7 +170,8 @@
           "names": {
             "de": "Minütlich",
             "ru": "минутный",
-            "en": "Minutely"
+            "en": "Minutely",
+            "ar": "كل دقيقة"
           }
         },
         "QUARTER_HOURLY": {
@@ -160,7 +179,8 @@
           "names": {
             "de": "Viertelstündlich",
             "ru": "Eжеквартально",
-            "en": "Quarter-hourly"
+            "en": "Quarter-hourly",
+            "ar": "كل ربع ساعة "
           }
         },
         "HOURLY": {
@@ -168,7 +188,8 @@
           "names": {
             "de": "Stündlich",
             "ru": "ежечасно",
-            "en": "Hourly"
+            "en": "Hourly",
+            "ar": "كل ساعة"
           }
         },
         "DAILY": {
@@ -178,7 +199,8 @@
             "ru": "Ежедневно",
             "en": "Daily",
             "th": "รายวัน",
-            "uk": "Щодня"
+            "uk": "Щодня",
+            "ar": "كل يوم"
           }
         },
         "WEEKLY": {
@@ -186,7 +208,8 @@
           "names": {
             "de": "Wöchentlich",
             "ru": "Eженедельно",
-            "en": "Weekly"
+            "en": "Weekly",
+            "ar": "كل اسبوع"
           }
         },
         "MONTHLY": {
@@ -194,7 +217,8 @@
           "names": {
             "de": "Monatlich",
             "ru": "ежемесячно",
-            "en": "Monthly"
+            "en": "Monthly",
+            "ar": "كل شهر"
           }
         },
         "QUARTERLY": {
@@ -202,7 +226,8 @@
           "names": {
             "de": "Vierteljährlich",
             "ru": "Eжеквартальный",
-            "en": "Quarterly"
+            "en": "Quarterly",
+            "ar": "كل ربع سنة "
           }
         },
         "YEARLY": {
@@ -210,7 +235,8 @@
           "names": {
             "de": "Jährlich",
             "ru": "Ежегодно",
-            "en": "Yearly"
+            "en": "Yearly",
+            "ar": "كل سنة"
           }
         },
         "CUSTOM": {
@@ -218,7 +244,8 @@
           "names": {
             "de": "Benutzerdefiniert",
             "ru": "Пользовательский",
-            "en": "Custom"
+            "en": "Custom",
+            "ar": "مخصص من قبل المستخدم"
           }
         },
         "NONE": {
@@ -226,7 +253,8 @@
           "names": {
             "de": "Keine",
             "ru": "Никто",
-            "en": "None"
+            "en": "None",
+            "ar": "لا أحد/لا شيء"
           }
         }
       }
@@ -238,14 +266,16 @@
         "ru": "Пользовательский объект периода при выборе в периоде тревоги.",
         "uk": "Спеціальний об'єкт періоду, коли його вибирають у період тривоги",
         "th": "วัตถุระยะเวลาที่กำหนดเองเมื่อเลือกในช่วงเวลาปลุก",
-        "en": "The custom period object when selected in the alarm period."
+        "en": "The custom period object when selected in the alarm period.",
+        "ar": "عنصر الفترة المخصص عند تحديده في فترة التنبيه."
       },
       "names": {
         "de": "Benutzerdefinierter Zeitraum",
         "ru": "Пользовательский период",
         "th": "ระยะเวลาที่กำหนดเอง",
         "uk": "Спеціальний період",
-        "en": "Custom Period"
+        "en": "Custom Period",
+        "ar": "فترة مخصصة من قبل المستخدم"
       }
     },
     {
@@ -255,14 +285,16 @@
         "ru": "Ход тревожных сообщений.",
         "uk": "Перебіг тривожних повідомлень.",
         "th": "หลักสูตรของข้อความเตือนภัย",
-        "en": "The history of the alarm messages."
+        "en": "The history of the alarm messages.",
+        "ar": "تاريخ رسائل التنبيه."
       },
       "names": {
         "de": "Verlauf",
         "ru": "история",
         "th": "ประวัติศาสตร์",
         "uk": "історія",
-        "en": "History"
+        "en": "History",
+        "ar": "مسار"
       }
     },
     {
@@ -272,14 +304,16 @@
         "ru": "Ход тревожных сообщений.",
         "uk": "Перебіг тривожних повідомлень.",
         "th": "หลักสูตรของข้อความเตือนภัย",
-        "en": "The history of the alarm messages."
+        "en": "The history of the alarm messages.",
+        "ar": "ملف تسجيل"
       },
       "names": {
         "de": "Datei Verlauf",
         "ru": "История файла",
         "th": "ประวัติไฟล์",
         "uk": "Історія файлів",
-        "en": "File History"
+        "en": "File History",
+        "ar": "تاريخ الملف"
       }
     },
     {
@@ -289,14 +323,16 @@
         "ru": "Атрибут показывает, был ли проверен последний сгенерированный сигнал тревоги.",
         "uk": "Атрибут показує, чи перевірено останній створений сигнал тривоги.",
         "th": "แอททริบิวจะแสดงว่ามีการตรวจสอบสัญญาณเตือนที่สร้างล่าสุดหรือไม่",
-        "en": "The attribute shows if the last generated alarm has been checked."
+        "en": "The attribute shows if the last generated alarm has been checked.",
+        "ar": "توضح السمة ما إذا كان قد تم التحقق من آخر إنذار تم إنشاؤه."
       },
       "names": {
         "de": "Geprüft",
         "ru": "проверенный",
         "th": "การทดสอบ",
         "uk": "перевірений",
-        "en": "Checked"
+        "en": "Checked",
+        "ar": "تم الفحص"
       }
     }
   ]

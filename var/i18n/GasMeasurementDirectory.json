@@ -3,11 +3,13 @@
   "names": {
     "de": "Messstellen (Gas)",
     "ru": "Measurement (Gas)",
-    "en": "Measurement (Gas)"
+    "en": "Measurement (Gas)",
+    "ar": "دليل قياس الغازات"
   },
   "descriptions": {
     "de": "Dient der Verwaltung von Messstellen (Gas).",
     "ru": "For managing measurements (gas).",
-    "en": "For managing measurements (gas)."
+    "en": "For managing measurements (gas).",
+    "ar": "تستخدم لإدارة نقاط القياس (الغاز)."
   }
 }

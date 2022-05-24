@@ -3,7 +3,8 @@
   "names": {
     "de": "Schulung",
     "ru": "Training",
-    "en": "Training"
+    "en": "Training",
+    "ar": "تدريب"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Participants description",
         "ru": "Participants description",
-        "en": "Participants description"
+        "en": "Participants description",
+        "ar": "المشاركين"
       },
       "names": {
         "de": "Participants",
         "ru": "Participants",
-        "en": "Participants"
+        "en": "Participants",
+        "ar": "المشاركين"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Trainer description",
         "ru": "Trainer description",
-        "en": "Trainer description"
+        "en": "Trainer description",
+        "ar": "مدرب"
       },
       "names": {
         "de": "Trainer",
         "ru": "Trainer",
-        "en": "Trainer"
+        "en": "Trainer",
+        "ar": "مدرب"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Training Course description",
         "ru": "Training Course description",
-        "en": "Training Course description"
+        "en": "Training Course description",
+        "ar": "دورة تدريبية"
       },
       "names": {
         "de": "Training Course",
         "ru": "Training Course",
-        "en": "Training Course"
+        "en": "Training Course",
+        "ar": "دورة تدريبية"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Training Date description",
         "ru": "Training Date description",
-        "en": "Training Date description"
+        "en": "Training Date description",
+        "ar": "تاريخ التدريب"
       },
       "names": {
         "de": "Training Date",
         "ru": "Training Date",
-        "en": "Training Date"
+        "en": "Training Date",
+        "ar": "تاريخ التدريب"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Training Time description",
         "ru": "Training Time description",
-        "en": "Training Time description"
+        "en": "Training Time description",
+        "ar": "وقت التدريب"
       },
       "names": {
         "de": "Training Time",
         "ru": "Training Time",
-        "en": "Training Time"
+        "en": "Training Time",
+        "ar": "وقت التدريب"
       }
     }
   ]

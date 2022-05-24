@@ -3,12 +3,14 @@
   "names": {
     "de": "JEDataProcessor",
     "ru": "JEDataProcessor",
-    "en": "JEDataProcessor"
+    "en": "JEDataProcessor",
+    "ar": "معالج البيانات JE"
   },
   "descriptions": {
     "de": "JEDataProcessor ist ein Dienst, der Rohdaten bereinigt. Dies beinhaltet periodische Veränderungen, Bildung differenzieller Werte, Plausibilisierung, Lückenbefüllung, Skalierung, Offsets und mehr.",
     "ru": "JEDataProcessor - это служба очистки необработанных данных. Это включает периодические изменения, создание дифференциальных значений, проверку достоверности, заполнение пробелов, масштабирование, смещения и многое другое.",
-    "en": "JEDataProcessor is a service that cleans raw data. This includes periodic changes, creation of differential values, plausibility checks, gap filling, scaling, offsets and more."
+    "en": "JEDataProcessor is a service that cleans raw data. This includes periodic changes, creation of differential values, plausibility checks, gap filling, scaling, offsets and more.",
+    "ar": "JEDataProcessor هي خدمة تنظف البيانات الأولية. وهذا يشمل التغييرات الدورية ، وتشكيل القيم التفاضلية ، وفحوصات المعقولية ، وسد الفجوة ، والقياس ، والتعويضات والمزيد."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Dieser Schalter schaltet den Dienst ein oder aus.",
         "ru": "Этот переключатель включает или выключает службу.",
-        "en": "This switch turns the service on or off."
+        "en": "This switch turns the service on or off.",
+        "ar": "يقوم هذا المفتاح بتشغيل الخدمة أو إيقاف تشغيلها."
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Активированный",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Die Anzahl der parallelen Threads, die dem Dienst zur Verfügung stehen.",
         "ru": "Количество параллельных потоков, доступных сервису.",
-        "en": "The number of parallel threads available to the service."
+        "en": "The number of parallel threads available to the service.",
+        "ar": "عدد الخيوط المتوازية المتاحة للخدمة."
       },
       "names": {
         "de": "Anzahl an Threads",
         "ru": "Количество потоков",
-        "en": "Number of Threads"
+        "en": "Number of Threads",
+        "ar": "عدد المواضيع"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Die Zeit, nach der der Dienst eine neue Abfragerunde startet. Angegeben in Millisekunden.",
         "ru": "Время, по истечении которого служба начинает новый раунд голосования. Указано в миллисекундах.",
-        "en": "The time after which the service starts a new polling round. Specified in milliseconds."
+        "en": "The time after which the service starts a new polling round. Specified in milliseconds.",
+        "ar": "الوقت الذي تبدأ بعده الخدمة جولة اقتراع جديدة. محدد بالمللي ثانية."
       },
       "names": {
         "de": "Taktzeit",
         "ru": "продолжительность цикла",
-        "en": "Cycle Time"
+        "en": "Cycle Time",
+        "ar": "دورة الزمن"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Der letzte bekannte Status des Dienstes. Möglich sind: 0 = aus, 1 = an und wartend, 2 = an und arbeitend.",
         "ru": "Последний известный статус службы. Возможны следующие варианты: 0 = выключен, 1 = включен и ждет, 2 = включен и работает.",
-        "en": "The last known status of the service. Possible are: 0 = off, 1 = on and waiting, 2 = on and working."
+        "en": "The last known status of the service. Possible are: 0 = off, 1 = on and waiting, 2 = on and working.",
+        "ar": "آخر حالة معروفة للخدمة. ما يلي ممكن: 0 = إيقاف ، 1 = قيد التشغيل والانتظار ، 2 = قيد التشغيل والعمل."
       },
       "names": {
         "de": "Status",
         "ru": "Статус",
-        "en": "State"
+        "en": "State",
+        "ar": "حالة"
       }
     },
     {
@@ -70,14 +80,16 @@
         "ru": "Максимальное количество выборок, обработанных за один проход процессора.",
         "uk": "Максимальна кількість проб, оброблених під час проходження процесора.",
         "th": "จำนวนตัวอย่างสูงสุดที่ประมวลผลระหว่างตัวประมวลผลผ่าน",
-        "en": "The maximum amount of samples which are processed in one processor cycle."
+        "en": "The maximum amount of samples which are processed in one processor cycle.",
+        "ar": "أقصى عدد من العينات التي تمت معالجتها أثناء تشغيل معالج واحد."
       },
       "names": {
         "de": "Verarbeitungsgröße",
         "ru": "Размер обработки",
         "uk": "Розмір обробки",
         "th": "ขนาดการประมวลผล",
-        "en": "Processing Size"
+        "en": "Processing Size",
+        "ar": "حجم المعالجة"
       }
     }
   ]

@@ -3,7 +3,8 @@
   "names": {
     "de": "03 Unterstützung und Betrieb",
     "ru": "03 Do",
-    "en": "03 Do"
+    "en": "03 Do",
+    "ar": "03 الدعم والعمليات"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Datum der Auditdurchführung",
         "ru": "Audit Date description",
-        "en": "Audit Date description"
+        "en": "Audit Date description",
+        "ar": "تاريخ أداء المراجعة"
       },
       "names": {
         "de": "Auditdatum",
         "ru": "Audit Date",
-        "en": "Audit Date"
+        "en": "Audit Date",
+        "ar": "تاريخ مراجعة"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Durchführender Auditor",
         "ru": "Auditor description",
-        "en": "Auditor description"
+        "en": "Auditor description",
+        "ar": "المدقق التنفيذي"
       },
       "names": {
         "de": "Auditor",
         "ru": "Auditor",
-        "en": "Auditor"
+        "en": "Auditor",
+        "ar": "مدقق حسابات"
       }
     }
   ]

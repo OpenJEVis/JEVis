@@ -4,12 +4,14 @@
     "de": "Datenserver",
     "ru": "Сервер даних",
     "uk": "Cервер данных",
-    "en": "Data Server"
+    "en": "Data Server",
+    "ar": "خوادم البيانات"
   },
   "descriptions": {
     "de": "Ein Datenserver ist eine Datenquelle, welche über TCP/IP kommuniziert.",
     "ru": "",
-    "en": "A Data Server is a data source communicating via TCP/IP"
+    "en": "A Data Server is a data source communicating via TCP/IP",
+    "ar": "خادم البيانات هو مصدر بيانات يتصل عبر TCP / IP."
   },
   "types": [
     {
@@ -17,12 +19,14 @@
       "descriptions": {
         "de": "Bestimmt die Wartezeit eines Verbindungsaufbaus. Der Verbindungsaufbau wird abgebrochen, wenn das Verbindungszeitlimit überschritten wird.",
         "ru": "Connection Timeout description",
-        "en": "Defines the time limit for establishing a connection. The connection process will be cancelled when the Connection Timeout is reached."
+        "en": "Defines the time limit for establishing a connection. The connection process will be cancelled when the Connection Timeout is reached.",
+        "ar": "يحدد وقت الانتظار حتى يتم إنشاء الاتصال. تم إحباط تأسيس الاتصال إذا تم تجاوز مهلة الاتصال."
       },
       "names": {
         "de": "Verbindungszeitlimit",
         "ru": "Connection Timeout",
-        "en": "Connection Timeout"
+        "en": "Connection Timeout",
+        "ar": "انتهى وقت محاولة الاتصال"
       }
     },
     {
@@ -30,12 +34,14 @@
       "descriptions": {
         "de": "Aktiviert/Deaktiviert den Datenserver",
         "ru": "Enabled desctiption",
-        "en": "Enables/Disables the Data Server"
+        "en": "Enables/Disables the Data Server",
+        "ar": "ينشط / يلغي تنشيط خادم البيانات"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -43,12 +49,14 @@
       "descriptions": {
         "de": "Hostname oder IP-Adresse des Datenservers",
         "ru": "Host desctiption",
-        "en": "Host name or IP address of the Data Server"
+        "en": "Host name or IP address of the Data Server",
+        "ar": "اسم المضيف أو عنوان IP لخادم البيانات"
       },
       "names": {
         "de": "Host",
         "ru": "Host",
-        "en": "Host"
+        "en": "Host",
+        "ar": "مضيف"
       }
     },
     {
@@ -56,12 +64,14 @@
       "descriptions": {
         "de": "Ermöglicht das manuelle Auslösen der Datenauslesung",
         "ru": "Manual Trigger desctiption",
-        "en": "Allows the manual trigger of the data read-out"
+        "en": "Allows the manual trigger of the data read-out",
+        "ar": "يسمح بالتشغيل اليدوي لقراءة البيانات"
       },
       "names": {
         "de": "Manueller Auslöser",
         "ru": "Manual Trigger",
-        "en": "Manual Trigger"
+        "en": "Manual Trigger",
+        "ar": "الزناد اليدوي"
       }
     },
     {
@@ -69,12 +79,14 @@
       "descriptions": {
         "de": "IP-Port des Datenservers",
         "ru": "Port desctiption",
-        "en": "IP-Port of the Data Server"
+        "en": "IP-Port of the Data Server",
+        "ar": "منفذ IP لخادم البيانات"
       },
       "names": {
         "de": "Port",
         "ru": "Port",
-        "en": "Port"
+        "en": "Port",
+        "ar": "المنفذ"
       }
     },
     {
@@ -82,12 +94,14 @@
       "descriptions": {
         "de": "Bestimmt die Wartezeit einer Datenauslesung. Die Datenauslesung wird abgebrochen, wenn das Auslesezeitlimit überschritten wird.",
         "ru": "Read Timeout desctiption",
-        "en": "Defines the time limit for a data read-out. The read-out process will be cancelled when the Readout Timeout is reached."
+        "en": "Defines the time limit for a data read-out. The read-out process will be cancelled when the Readout Timeout is reached.",
+        "ar": "يحدد وقت الانتظار لقراءة البيانات. يتم إحباط قراءة البيانات عند تجاوز مهلة القراءة."
       },
       "names": {
         "de": "Auslesezeitlimit",
         "ru": "Read Timeout",
-        "en": "Read Timeout"
+        "en": "Read Timeout",
+        "ar": "مهلة القراءة"
       }
     },
     {
@@ -95,12 +109,14 @@
       "descriptions": {
         "de": "Bestimmt die Zeitzone des Datenservers",
         "ru": "Timezone desctiption",
-        "en": "Defines the timezone of the Data Server"
+        "en": "Defines the timezone of the Data Server",
+        "ar": "يحدد المنطقة الزمنية لخادم البيانات"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "Timezone",
-        "en": "Timezone"
+        "en": "Timezone",
+        "ar": "وحدة زمنية"
       }
     },
     {
@@ -108,12 +124,14 @@
       "descriptions": {
         "de": "Bestimmt die maximale Dauer eines Threads (ms)",
         "ru": "Timezone desctiption",
-        "en": "Defines the maximum time a thread will be alive (ms)"
+        "en": "Defines the maximum time a thread will be alive (ms)",
+        "ar": "يحدد الحد الأقصى لمدة موضوع (مللي ثانية)"
       },
       "names": {
         "de": "Max Thread Dauer",
         "ru": "Timezone",
-        "en": "Max thread time"
+        "en": "Max thread time",
+        "ar": "أقصى مدة الموضوع"
       }
     }
   ]

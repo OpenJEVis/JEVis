@@ -5,14 +5,16 @@
     "ru": "кондиционер",
     "en": "Air Conditioning",
     "th": "เครื่องปรับอากาศ",
-    "uk": "кондиціонер"
+    "uk": "кондиціонер",
+    "ar": "تكييف الهواء"
   },
   "descriptions": {
     "de": "Die Klasse Klimaanlage enthält Daten zur Gebäudeausrüstung. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten der Klimaanlage.",
     "ru": "Класс кондиционирования воздуха содержит данные о строительном оборудовании. Атрибуты класса включают в себя полное описание конкретных энергетических данных системы кондиционирования воздуха.",
     "en": "The class Air Conditioning contains data of the building equipment air condition. Attributes of the class include a complete description of the specific energy data of the air condition. ",
     "th": "คลาสปรับอากาศมีข้อมูลเกี่ยวกับอุปกรณ์ในอาคาร คุณลักษณะของคลาสประกอบด้วยคำอธิบายแบบเต็มของข้อมูลพลังงานเฉพาะของระบบปรับอากาศ",
-    "uk": "Клас кондиціонування містить дані про будівельне обладнання. Атрибути класу включають повний опис конкретних даних про енергію системи кондиціонування."
+    "uk": "Клас кондиціонування містить дані про будівельне обладнання. Атрибути класу включають повний опис конкретних даних про енергію системи кондиціонування.",
+    "ar": "تحتوي فئة تكييف الهواء على بيانات معدات البناء. تتضمن سمات الفصل وصفًا كاملاً لبيانات الطاقة المحددة لمكيف الهواء."
   },
   "types": [
   ]

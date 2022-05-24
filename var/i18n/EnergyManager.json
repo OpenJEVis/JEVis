@@ -3,7 +3,8 @@
   "names": {
     "de": "Energiemanager",
     "ru": "Energy Manager",
-    "en": "Energy Manager"
+    "en": "Energy Manager",
+    "ar": "مدير الطاقة"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Appointment Letter description",
         "ru": "Appointment Letter description",
-        "en": "Appointment Letter description"
+        "en": "Appointment Letter description",
+        "ar": "رسالة موعد"
       },
       "names": {
         "de": "Appointment Letter",
         "ru": "Appointment Letter",
-        "en": "Appointment Letter"
+        "en": "Appointment Letter",
+        "ar": "رسالة موعد"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "EMail description",
         "ru": "EMail description",
-        "en": "EMail description"
+        "en": "EMail description",
+        "ar": "EMail"
       },
       "names": {
         "de": "EMail",
         "ru": "EMail",
-        "en": "EMail"
+        "en": "EMail",
+        "ar": "EMail"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Function description",
         "ru": "Function description",
-        "en": "Function description"
+        "en": "Function description",
+        "ar": "وظيفة"
       },
       "names": {
         "de": "Function",
         "ru": "Function",
-        "en": "Function"
+        "en": "Function",
+        "ar": "وظيفة"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Name description",
         "ru": "Name description",
-        "en": "Name description"
+        "en": "Name description",
+        "ar": "اسم"
       },
       "names": {
         "de": "Name",
         "ru": "Name",
-        "en": "Name"
+        "en": "Name",
+        "ar": "اسم"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Phone description",
         "ru": "Phone description",
-        "en": "Phone description"
+        "en": "Phone description",
+        "ar": "هاتف"
       },
       "names": {
         "de": "Phone",
         "ru": "Phone",
-        "en": "Phone"
+        "en": "Phone",
+        "ar": "هاتف"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Surname description",
         "ru": "Surname description",
-        "en": "Surname description"
+        "en": "Surname description",
+        "ar": "اسم العائلة"
       },
       "names": {
         "de": "Surname",
         "ru": "Surname",
-        "en": "Surname"
+        "en": "Surname",
+        "ar": "اسم العائلة"
       }
     }
   ]

@@ -3,11 +3,13 @@
   "names": {
     "de": "Messstellen (Wasser)",
     "ru": "Measurement (water)",
-    "en": "Measurement (water)"
+    "en": "Measurement (water)",
+    "ar": "دليل قياس المياه"
   },
   "descriptions": {
     "de": "Dient der Verwaltung von Messstellen (Wasser).",
     "ru": "For managing measurements (water).",
-    "en": "For managing measurements (water)."
+    "en": "For managing measurements (water).",
+    "ar": "يعمل على إدارة نقاط القياس (المياه)."
   }
 }

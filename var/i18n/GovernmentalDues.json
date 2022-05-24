@@ -5,14 +5,16 @@
     "ru": "Государственные налоги",
     "uk": "Державні податки",
     "en": "Governmental Dues",
-    "th": "ภาษีของรัฐ"
+    "th": "ภาษีของรัฐ",
+    "ar": "ضرائب الولاية"
   },
   "descriptions": {
     "de": "Die Klasse Staatliche Abgaben definiert die Attribute für staatliche Abgaben",
     "ru": "Класс государственных налогов определяет атрибуты государственных налогов",
     "en": "The class Governmental Dues defines the attributes of governmental dues",
     "uk": "Клас державних податків визначає атрибути державних податків",
-    "th": "ระดับภาษีของรัฐกำหนดแอตทริบิวต์สำหรับภาษีของรัฐ"
+    "th": "ระดับภาษีของรัฐกำหนดแอตทริบิวต์สำหรับภาษีของรัฐ",
+    "ar": "تحدد فئة الرسوم الحكومية سمات الرسوم الحكومية"
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": "مصدر طاقة"
       },
       "names": {
         "de": "Energieträger",
         "ru": "Энергетический ресурс",
         "uk": "Джерело енергії",
         "th": "แหล่งพลังงาน",
-        "en": "Energy Source"
+        "en": "Energy Source",
+        "ar": "مصدر طاقة"
       }
     },
     {
@@ -39,14 +43,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "Umsatzsteuer",
         "ru": "налог на добавленную стоимость",
         "uk": "податок на додану вартість",
         "th": "ภาษีมูลค่าเพิ่ม",
-        "en": "VAT"
+        "en": "VAT",
+        "ar": ""
       }
     },
     {
@@ -56,14 +62,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "Energiesteuer Gas",
         "ru": "Налог на энергию",
         "uk": "Податок на енергію",
         "th": "ภาษีพลังงาน",
-        "en": "Energy Tax"
+        "en": "Energy Tax",
+        "ar": ""
       }
     },
     {
@@ -73,14 +81,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "Energiesteuer Strom",
         "ru": "Налог на энергию",
         "uk": "Податок на енергію",
         "th": "ภาษีพลังงาน",
-        "en": "Energy Tax"
+        "en": "Energy Tax",
+        "ar": ""
       }
     },
     {
@@ -90,14 +100,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "EEG-Umlage",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 01"
+        "en": "Allocation 01",
+        "ar": ""
       }
     },
     {
@@ -107,14 +119,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "KWKG-Umlage",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 02"
+        "en": "Allocation 02",
+        "ar": ""
       }
     },
     {
@@ -124,14 +138,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "§ 19 Abs. 2 StromNEV (<=1 mio kWh)",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 03"
+        "en": "Allocation 03",
+        "ar": ""
       }
     },
     {
@@ -141,14 +157,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "§ 19 Abs. 2 StromNEV (>1 mio kWh)",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 04"
+        "en": "Allocation 04",
+        "ar": ""
       }
     },
     {
@@ -158,14 +176,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "§ 17f EnWG",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 05"
+        "en": "Allocation 05",
+        "ar": ""
       }
     },
     {
@@ -175,14 +195,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "§ 18 AbLaV",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 06"
+        "en": "Allocation 06",
+        "ar": ""
       }
     },
     {
@@ -192,14 +214,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "Ökosteuer",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 07"
+        "en": "Allocation 07",
+        "ar": ""
       }
     },
     {
@@ -209,14 +233,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "CO2-Abgabe",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 08"
+        "en": "Allocation 08",
+        "ar": ""
       }
     },
     {
@@ -226,14 +252,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "Abgabe 09",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 09"
+        "en": "Allocation 09",
+        "ar": ""
       }
     },
     {
@@ -243,14 +271,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "Abgabe 10",
         "ru": "",
         "uk": "",
         "th": "",
-        "en": "Allocation 10"
+        "en": "Allocation 10",
+        "ar": ""
       }
     }
   ]

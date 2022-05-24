@@ -5,14 +5,16 @@
     "th": "ไดเรกทอรีไดร์เวอร์ Parser",
     "uk": "Каталог драйверів парсера",
     "ru": "Каталог драйверов парсера",
-    "en": "Parser Driver Directory"
+    "en": "Parser Driver Directory",
+    "ar": "دليل برنامج تشغيل المحلل اللغوي"
   },
   "descriptions": {
     "de": "Die Klasse Parsertreiber stellt ein spezifisches Verzeichnis für die Verwaltung von Parser-Treibern dar.",
     "ru": "Класс Parser Driver Directory представляет собой специальный каталог для управления данными драйвера синтаксического анализатора.",
     "th": "คลาส Parser Driver Directory เป็นไดเรกทอรีเฉพาะสำหรับการจัดการข้อมูล parser driver",
     "uk": "Каталог драйверів Parser класу представляє специфічний каталог для управління даними драйвера аналізатора.",
-    "en": "The class Parser Driver Directory represents a specific directory for the management of parser driver data."
+    "en": "The class Parser Driver Directory represents a specific directory for the management of parser driver data.",
+    "ar": "تمثل فئة برنامج التشغيل Parser دليلًا محددًا لإدارة برامج تشغيل المحلل اللغوي."
   },
   "types": []
 }

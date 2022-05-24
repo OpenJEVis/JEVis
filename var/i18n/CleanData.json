@@ -5,14 +5,16 @@
     "ru": "Откорректированные данные",
     "uk": "Коригування даних",
     "th": "ทำความสะอาดข้อมูล",
-    "en": "Clean Data"
+    "en": "Clean Data",
+    "ar": "تنظيف البيانات"
   },
   "descriptions": {
     "de": "Bereinigte Daten ist ein Datenobjekt für manipulierten Datenreihen.",
     "ru": "Очищенные данные - это объект данных для рядов манипулируемых данных.",
     "uk": "Чисті дані - це об'єкт даних для операцій з даними.",
     "th": "ข้อมูลที่ถูกล้างข้อมูลเป็นวัตถุข้อมูลสำหรับชุดข้อมูลที่ถูกจัดการ",
-    "en": "Clean Data is a data object for manipulated data."
+    "en": "Clean Data is a data object for manipulated data.",
+    "ar": "البيانات التي تم تنظيفها هي عناصر لبيانات لسلسلة البيانات التي تم التلاعب بها."
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "Разрешает/запрещает преобразование накопленных данных в дифференциальные данные.",
         "uk": "Ввімкнути / Вимкнути перетворення сукупних даних на диференціальні значення",
         "th": "เปิดใช้งาน / ปิดใช้งานการแปลงข้อมูลสะสมเป็นข้อมูลส่วนต่าง",
-        "en": "Enables/Disables the conversion of cumulative data to differential values."
+        "en": "Enables/Disables the conversion of cumulative data to differential values.",
+        "ar": "لتمكين / تعطيل تحويل البيانات التراكمية إلى بيانات تفاضلية"
       },
       "names": {
         "de": "Umwandlung zu Differenz",
         "ru": "Преобразование в разницу",
         "uk": "Перетворення на диференціальні значення",
         "th": "การแปลงไปสู่ความแตกต่าง",
-        "en": "Conversion to Differential"
+        "en": "Conversion to Differential",
+        "ar": "التحويل إلى الاختلاف"
       }
     },
     {
@@ -39,14 +43,16 @@
         "ru": "Включает/выключает очистку данных.",
         "uk": "Ввімкнути / Вимкнути очищення даних",
         "th": "เปิดใช้งาน / ปิดใช้งานการล้างข้อมูล",
-        "en": "Enables/Disables the data cleaning"
+        "en": "Enables/Disables the data cleaning",
+        "ar": "لتمكين / تعطيل تنظيف البيانات"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Активированный",
         "uk": "Увімкнено",
         "th": "เปิดการใช้งาน",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -56,14 +62,16 @@
         "ru": "Разрешает/запрещает ограничение рядов данных минимальными/максовыми значениями, заданными в конфигурации.",
         "uk": "Ввімкнути / Вимкнути обмеження серії даних на значення min / max, визначені в конфігурації",
         "th": "เปิด / ปิดการใช้งานข้อ จำกัด ของชุดข้อมูลเป็นค่าต่ำสุด / สูงสุดที่กำหนดไว้ในการกำหนดค่า",
-        "en": "Enables/Disables the limitation of the data series to min/max values, defined in the configuration"
+        "en": "Enables/Disables the limitation of the data series to min/max values, defined in the configuration",
+        "ar": "لتمكين / تعطيل تقييد سلسلة البيانات إلى قيم دنيا / قصوى ، المحددة في التكوين"
       },
       "names": {
         "de": "Grenzwerte aktiv",
         "ru": "Предельные значения активны",
         "uk": "Обмеження ввімкнено",
         "th": "จำกัด การใช้งาน",
-        "en": "Limits Enabled"
+        "en": "Limits Enabled",
+        "ar": "حدود نشطة"
       }
     },
     {
@@ -73,14 +81,16 @@
         "ru": "Установка вариантов способа формирования стоимости замещения в случае превышения или снижения предельных значений",
         "uk": "Опис заповнення розриву",
         "th": "การตั้งค่าตัวเลือกสำหรับวิธีการสร้างค่าทดแทนเมื่อเกินหรือลดลงต่ำกว่าขีด จำกัด",
-        "en": "Define the method for the gap filling"
+        "en": "Define the method for the gap filling",
+        "ar": "حدد طريقة ملء الفراغ"
       },
       "names": {
         "de": "Grenzwertkontrolle",
         "ru": "контроль лимитов",
         "uk": "Конфігурація обмежень",
         "th": "ควบคุมขีด จำกัด",
-        "en": "Limit Configuration"
+        "en": "Limit Configuration",
+        "ar": "السيطرة على الحد"
       }
     },
     {
@@ -90,14 +100,16 @@
         "ru": "Активирует / деактивирует ограничение серии данных на изменение пороговых значений, определенных в конфигурации.",
         "uk": "Активує/деактивує обмеження ряду даних для зміни порогових значень, визначених у конфігурації",
         "th": "เปิดใช้งาน/ปิดใช้งานข้อจำกัดของชุดข้อมูลเพื่อเปลี่ยนขีดจำกัดที่กำหนดไว้ในการกำหนดค่า",
-        "en": "Enables / disables the limitation of the data series to change thresholds, defined in the configuration"
+        "en": "Enables / disables the limitation of the data series to change thresholds, defined in the configuration",
+        "ar": "لتمكين / تعطيل قيود سلسلة البيانات لتغيير العتبات المحددة في التكوين"
       },
       "names": {
         "de": "Änderungsschwellen aktiv",
         "ru": "Изменить пороги активны",
         "uk": "Змінити пороги активні",
         "th": "เปลี่ยนเกณฑ์ที่ใช้งาน",
-        "en": "Change thresholds Enabled"
+        "en": "Change thresholds Enabled",
+        "ar": "عتبات التغيير نشطة"
       }
     },
     {
@@ -107,14 +119,16 @@
         "ru": "Параметры настройки метода генерации замещающих значений при превышении или недостижении пороговых значений изменения",
         "uk": "Налаштування параметрів методу генерування замінних значень при перевищенні або недосягненні порогових значень зміни",
         "th": "การตั้งค่าตัวเลือกสำหรับวิธีการสร้างค่าทดแทนเมื่อเกินเกณฑ์การเปลี่ยนแปลงหรือไม่ถึง",
-        "en": "Setting options for the method for generating substitute values when the change thresholds are exceeded or not reached"
+        "en": "Setting options for the method for generating substitute values when the change thresholds are exceeded or not reached",
+        "ar": "تعيين الخيارات لطريقة توليد القيم البديلة عندما يتم تجاوز عتبات التغيير أو عدم الوصول إليها"
       },
       "names": {
         "de": "Änderungsschwellen",
         "ru": "Изменить пороги",
         "uk": "Змінити пороги",
         "th": "เปลี่ยนเกณฑ์",
-        "en": "Change thresholds"
+        "en": "Change thresholds",
+        "ar": "عتبات التغيير"
       }
     },
     {
@@ -124,14 +138,16 @@
         "ru": "Активирует/деактивирует создание стоимости замещения пробелов в серии данных, определенных в конфигурации.",
         "uk": "Ввімкнути / вимкнути заповнення розриву рядків даних, визначених у конфігурації",
         "th": "เปิด / ปิดการสร้างค่าทดแทนสำหรับช่องว่างในชุดข้อมูลที่กำหนดไว้ในการกำหนดค่า",
-        "en": "Enables/Disables the replacement value methods of the data series, defined in the configuration"
+        "en": "Enables/Disables the replacement value methods of the data series, defined in the configuration",
+        "ar": "لتمكين / تعطيل طرق القيمة البديلة لسلسلة البيانات المحددة في التكوين"
       },
       "names": {
         "de": "Ersatzwertbildung aktiv",
         "ru": "Создание альтернативной стоимости активно",
         "uk": "Заповнення розриву ввімкнено",
         "th": "การสร้างค่าทดแทนใช้งานได้",
-        "en": "Replacement value method enabled"
+        "en": "Replacement value method enabled",
+        "ar": "تم تنشيط إنشاء القيمة البديلة"
       }
     },
     {
@@ -141,14 +157,16 @@
         "ru": "Определяет метод создания стоимости замещения пробелов в данных.",
         "uk": "Визначте метод заповнення розриву даних",
         "th": "กำหนดวิธีการสร้างมูลค่าทดแทนในกรณีที่ช่องว่างข้อมูล",
-        "en": "Define the method for replacement values for data gaps"
+        "en": "Define the method for replacement values for data gaps",
+        "ar": "حدد طريقة لقيم الاستبدال لفجوات البيانات"
       },
       "names": {
         "de": "Ersatzwertbildung",
         "ru": "создание восстановительной стоимости",
         "uk": "Конфігурація заповнення розривів",
         "th": "ค่าทดแทน",
-        "en": "Replacement value configuration"
+        "en": "Replacement value configuration",
+        "ar": "تكوين قيمة الاستبدال"
       }
     },
     {
@@ -158,14 +176,16 @@
         "ru": "Определяет соответствие времени ожидаемому периоду для различных временных меток.",
         "uk": "Опис вирівнювання періоду",
         "th": "กำหนดการจัดเรียงเวลากับช่วงเวลาที่คาดไว้สำหรับการประทับเวลาที่แตกต่างกัน",
-        "en": "Defines the alignment of timestemp if they differ from the expected period."
+        "en": "Defines the alignment of timestemp if they differ from the expected period.",
+        "ar": "يحدد محاذاة التوقيت الزمني إذا كانت تختلف عن الفترة المتوقعة."
       },
       "names": {
         "de": "Zeitliche Ausrichtung",
         "ru": "Выравнивание по времени",
         "uk": "Вирівнювання періоду",
         "th": "เวลาการจัดตำแหน่ง",
-        "en": "Period Alignment"
+        "en": "Period Alignment",
+        "ar": "محاذاة الفترة"
       }
     },
     {
@@ -175,14 +195,16 @@
         "ru": "Определяет смещение времени в секундах, например, для переноса значения на начало периода измерения.",
         "uk": "Опис зміщення періоду",
         "th": "กำหนดเวลาชดเชยเป็นวินาทีเช่น เพื่อเพิ่มมูลค่าให้กับจุดเริ่มต้นของระยะเวลาการวัด",
-        "en": "Defines the time offset in seconds, i.e. for moving a value to the beginning of the metering period."
+        "en": "Defines the time offset in seconds, i.e. for moving a value to the beginning of the metering period.",
+        "ar": ""
       },
       "names": {
         "de": "Perioden Verzögerung",
         "ru": "Периоды Задержки",
         "uk": "Зміщення періоду",
         "th": "ระยะเวลาล่าช้า",
-        "en": "Period Offset"
+        "en": "Period Offset",
+        "ar": "فترات تأخير"
       }
     },
     {
@@ -192,14 +214,16 @@
         "ru": "Содержит ряд значений",
         "uk": "Опис значення",
         "th": "มีชุดค่า",
-        "en": "Contains the series of values"
+        "en": "Contains the series of values",
+        "ar": "تحتوي على سلسلة القيمة"
       },
       "names": {
         "de": "Wert",
         "ru": "ценность",
         "uk": "Значення",
         "th": "ความคุ้มค่า",
-        "en": "Value"
+        "en": "Value",
+        "ar": "القيمة"
       }
     },
     {
@@ -209,14 +233,16 @@
         "ru": "Определяет, является ли это значение количеством, например, кВтч.",
         "uk": "Значення кількісно описує",
         "th": "กำหนดว่าค่าเป็นการบ่งบอกปริมาณเช่น กิโลวัตต์ต่อชั่วโมง",
-        "en": "Defines if the value represents a quantity, such as kWh."
+        "en": "Defines if the value represents a quantity, such as kWh.",
+        "ar": "يحدد ما إذا كانت القيمة تمثل كمية ، مثل كيلووات في الساعة."
       },
       "names": {
         "de": "Mengeneinheit",
         "ru": "агрегат",
         "uk": "Значення це кількість",
         "th": "หน่วย",
-        "en": "Value is a Quantity"
+        "en": "Value is a Quantity",
+        "ar": "وحدة القياس"
       }
     },
     {
@@ -226,14 +252,16 @@
         "ru": "Определяет множитель для интерпретации измеренного значения.",
         "uk": "Значення описує множник",
         "th": "กำหนดตัวคูณสำหรับการตีความค่าที่วัดได้",
-        "en": "Defines a multiplicator for the interpretation of the metering value."
+        "en": "Defines a multiplicator for the interpretation of the metering value.",
+        "ar": "يحدد المضاعف لتفسير القيمة المقاسة."
       },
       "names": {
         "de": "Werte Multiplikator",
         "ru": "Значения Мультипликатор",
         "uk": "Значення множника",
         "th": "ตัวคูณค่า",
-        "en": "Value Multiplier"
+        "en": "Value Multiplier",
+        "ar": "مضاعف القيم"
       }
     },
     {
@@ -243,14 +271,16 @@
         "ru": "Определяет смещение для интерпретации измеренной величины",
         "uk": "Опис значення зміщення",
         "th": "กำหนดออฟเซ็ตสำหรับการตีความค่าที่วัดได้",
-        "en": "Defines a offset for the interpretation of the metering value."
+        "en": "Defines a offset for the interpretation of the metering value.",
+        "ar": "قيمة تعويض"
       },
       "names": {
         "de": "Werte Offset",
         "ru": "Значения Смещение",
         "uk": "Значення зміщення",
         "th": "ชดเชยค่า",
-        "en": "Value Offset"
+        "en": "Value Offset",
+        "ar": "يعرّف تعويض لتفسير قيمة القياس."
       }
     },
     {
@@ -260,25 +290,29 @@
         "ru": "Свойство определяет значение счетчика, при котором счетчик был сброшен.",
         "uk": "Властивість визначає значення, при якому був скинутий лічильник.",
         "th": "กำหนดค่าตัวนับที่รีเซ็ตตัวนับ",
-        "en": "Defines a counter value at which the counter was reset."
+        "en": "Defines a counter value at which the counter was reset.",
+        "ar": "يحدد قيمة العداد التي تم إعادة ضبط العداد عندها."
       },
       "names": {
         "de": "Zähler Überlauf",
         "ru": "Переполнение счетчика",
         "uk": "Переповнення лічильника",
         "th": "เคาน์เตอร์ล้น",
-        "en": "Counter Overflow"
+        "en": "Counter Overflow",
+        "ar": "تجاوز العداد"
       }
     },
     {
       "type": "Alarm Enabled",
       "descriptions": {
         "de": "Aktivieren der Alarm Überwachung",
-        "en": "Enables the alarm monitoring"
+        "en": "Enables the alarm monitoring",
+        "ar": "تم تمكين التنبيه"
       },
       "names": {
         "de": "Alarm aktiviert",
-        "en": "Alarm enabled"
+        "en": "Alarm enabled",
+        "ar": "تنشيط التنبيه"
       }
     },
     {
@@ -288,14 +322,16 @@
         "ru": "Позволяет конфигурировать аварийный сигнал в соответствии с рядом заданных значений (динамическое) или статическое ограничение (статическое).",
         "uk": "Дозволяє налаштувати сигнал на основі набору значень (динамічних) або статичних (статичних) кордонів",
         "th": "ช่วยให้คุณสามารถกำหนดค่าการเตือนตามขอบเขตของ setpoints (ไดนามิก) หรือขอบเขตคงที่ (คงที่)็ตตัวนับ",
-        "en": "Allows you to configure an alarm based on a set of setpoints (dynamic) or a static (static) boundary"
+        "en": "Allows you to configure an alarm based on a set of setpoints (dynamic) or a static (static) boundary",
+        "ar": "يسمح بتكوين إنذار متعلق بمجموعة من الضبط (ديناميكي) أو حد ثابت (ستاتيكي)"
       },
       "names": {
         "de": "Alarmkonfiguration",
         "ru": "Конфигурация сигнализации",
         "uk": "Конфігурація сигналізації",
         "th": "การกำหนดค่าการเตือนภัยย์ล้น",
-        "en": "Alarm configuration"
+        "en": "Alarm configuration",
+        "ar": "تكوين الإنذار"
       }
     },
     {
@@ -305,14 +341,16 @@
         "ru": "Серия значений, в которой сохраняются состояния, определенные конфигурацией аварийной сигнализации.",
         "uk": "Серії значень, в яких збережені статуси, визначені конфігурацією сигналу.",
         "th": "ชุดค่าที่สถานะที่กำหนดโดยการกำหนดค่าการเตือนภัยถูกบันทึกไว้็ตตัวนับ",
-        "en": "Value series in which the statuses defined by the alarm configuration are saved."
+        "en": "Value series in which the statuses defined by the alarm configuration are saved.",
+        "ar": "سلسلة القيمة التي يتم فيها حفظ الحالات التي تم تحديدها بواسطة تكوين التنبيه."
       },
       "names": {
         "de": "Alarm Log",
         "ru": "Журнал тревог",
         "uk": "Журнал будильника",
         "th": "บันทึกการเตือนภัยล้น",
-        "en": "Alarm Log"
+        "en": "Alarm Log",
+        "ar": "سجل الإنذار"
       }
     }
   ]

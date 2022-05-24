@@ -3,12 +3,14 @@
   "names": {
     "de": "7.4 Kommunikation",
     "ru": "7.4 Communication",
-    "en": "7.4 Communication"
+    "en": "7.4 Communication",
+    "ar": "7.4 التواصل"
   },
   "descriptions": {
     "de": "Die Organisation muss die interne und externe Kommunikation in Bezug auf das EnMS festlegen, einschließlich:\na) worüber;\nb) wann;\nc) mit wem;\nd) wie kommuniziert wird;\ne) wer kommuniziert.\nBei der Festlegung ihrer Kommunikationsprozesse muss die Organisation sicherstellen, dass die kommunizierte Information in Einklang mit der innerhalb des EnMS erzeugten Information steht und zuverlässig ist.\nDie Organisation muss einen Prozess einführen und umsetzen, der es allen in der Organisation oder in deren Namen arbeitenden Personen ermöglicht, Kommentare oder Verbesserungsvorschläge zum EnMS und zur energiebezogenen Leistung abzugeben.",
     "ru": "The organization shall determine the internal and external communications relevant to the EnMS,  including:  \na) on what it will communicate;  \nb) when to communicate;  \nc) with whom to communicate;  \nd) how to communicate;  \ne) who communicates.  \nWhen establishing its communication process(es), the organization shall ensure that information  communicated is consistent with information generated within the EnMS and is reliable.    \nThe organization shall establish and implement a process by which any person working for, or on behalf  of the organization can make comments or suggest improvements to the EnMS and to energy  performance. ",
-    "en": "The organization shall determine the internal and external communications relevant to the EnMS,  including:  \na) on what it will communicate;  \nb) when to communicate;  \nc) with whom to communicate;  \nd) how to communicate;  \ne) who communicates.  \nWhen establishing its communication process(es), the organization shall ensure that information  communicated is consistent with information generated within the EnMS and is reliable.    \nThe organization shall establish and implement a process by which any person working for, or on behalf  of the organization can make comments or suggest improvements to the EnMS and to energy  performance. "
+    "en": "The organization shall determine the internal and external communications relevant to the EnMS,  including:  \na) on what it will communicate;  \nb) when to communicate;  \nc) with whom to communicate;  \nd) how to communicate;  \ne) who communicates.  \nWhen establishing its communication process(es), the organization shall ensure that information  communicated is consistent with information generated within the EnMS and is reliable.    \nThe organization shall establish and implement a process by which any person working for, or on behalf  of the organization can make comments or suggest improvements to the EnMS and to energy  performance. ",
+    "ar": "يجب على المنظمة تحديد الاتصالات الداخلية والخارجية المتعلقة بنظام إدارة الطاقة ، بما في ذلك:\nأ) حول ماذا ؛\nب) متى ؛\nج) مع من.\nد) كيفية التواصل.\nه) من يتواصل.\nعند تحديد عمليات الاتصال الخاصة بها ، يجب على المنظمة التأكد من أن المعلومات التي يتم نقلها متسقة مع المعلومات التي تم إنشاؤها داخل نظام إدارة الطاقة وموثوق بها.\nيجب على المنظمة إنشاء وتنفيذ عملية تسمح لأي شخص يعمل في المنظمة أو بالنيابة عنها بالتعليق أو اقتراح تحسينات على نظام إدارة الطاقة وأداء الطاقة."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "وصف نطاق نظام الإدارة"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الانشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

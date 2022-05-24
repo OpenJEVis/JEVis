@@ -3,7 +3,8 @@
   "names": {
     "de": "01 Allgemein",
     "ru": "01 General",
-    "en": "01 General"
+    "en": "01 General",
+    "ar": " عام 01"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Der durchführende Auditor",
         "ru": "Auditor description",
-        "en": "Auditor description"
+        "en": "Auditor description",
+        "ar": "المدقق المنفذ"
       },
       "names": {
         "de": "Auditor",
         "ru": "Auditor",
-        "en": "Auditor"
+        "en": "Auditor",
+        "ar": "مدقق حسابات"
       }
     }
   ]

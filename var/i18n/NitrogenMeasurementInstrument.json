@@ -3,12 +3,14 @@
   "names": {
     "de": "Stickstoffzähler",
     "ru": "Nitrogen Measurement Instrument",
-    "en": "Nitrogen Measurement Instrument"
+    "en": "Nitrogen Measurement Instrument",
+    "ar": "أداة قياس النيتروجين"
   },
   "descriptions": {
     "de": "Stellt einen Stickstoffzähler in einem Messaufbau dar.",
     "ru": "Represents a nitrogen meter in a test setup.",
-    "en": "Represents a nitrogen meter in a test setup."
+    "en": "Represents a nitrogen meter in a test setup.",
+    "ar": "يمثل مقياس النيتروجين في إعداد القياس."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Gibt den Rohrdurchmesser des Stickstoffzählers an.",
         "ru": "Specifies the pipe diameter of the nitrogen meter.",
-        "en": "Specifies the pipe diameter of the nitrogen meter."
+        "en": "Specifies the pipe diameter of the nitrogen meter.",
+        "ar": "يشير إلى قطر أنبوب مقياس النيتروجين."
       },
       "names": {
         "de": "Durchmesser",
         "ru": "Diameter",
-        "en": "Diameter"
+        "en": "Diameter",
+        "ar": "قطر الدائرة"
       }
     }
   ]

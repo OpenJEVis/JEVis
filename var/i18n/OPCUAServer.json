@@ -3,7 +3,8 @@
   "names": {
     "de": "OPC UA Server",
     "ru": "OPC UA Server",
-    "en": "OPC UA Server"
+    "en": "OPC UA Server",
+    "ar": "خوادم OPC UA"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Connection Timeout description",
         "ru": "Имя пользователя для подключения к серверу",
-        "en": "Username for connecting to the server"
+        "en": "Username for connecting to the server",
+        "ar": "المستخدمين"
       },
       "names": {
         "de": "Benutzername",
         "ru": "Имя пользователя",
-        "en": "Username"
+        "en": "Username",
+        "ar": "اسم المستخدم"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Passwort für die Verbindung zum Server.",
         "ru": "Пароль для подключения к серверу",
-        "en": "Password for connecting to the server"
+        "en": "Password for connecting to the server",
+        "ar": "كلمه السر"
       },
       "names": {
         "de": "Passwort",
         "ru": "Пароль",
-        "en": "Password"
+        "en": "Password",
+        "ar": "كلمه السر"
       }
     }
   ]

@@ -3,7 +3,8 @@
   "names": {
     "de": "JECalc",
     "ru": "JECalc",
-    "en": "JECalc"
+    "en": "JECalc",
+    "ar": "JE حساب"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Dieser Schalter schaltet den Dienst ein oder aus.",
         "ru": "Этот переключатель включает или выключает службу.",
-        "en": "This switch turns the service on or off."
+        "en": "This switch turns the service on or off.",
+        "ar": "يقوم هذا المفتاح بتشغيل الخدمة أو إيقاف تشغيلها."
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Активированный",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Die Anzahl der parallelen Threads, die dem Dienst zur Verfügung stehen.",
         "ru": "Количество параллельных потоков, доступных сервису.",
-        "en": "The number of parallel threads available to the service."
+        "en": "The number of parallel threads available to the service.",
+        "ar": "عدد الخيوط المتوازية المتاحة للخدمة."
       },
       "names": {
         "de": "Anzahl an Threads",
         "ru": "Количество потоков",
-        "en": "Number of Threads"
+        "en": "Number of Threads",
+        "ar": "عدد المواضيع"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Die Zeit, nach der der Dienst eine neue Abfragerunde startet. Angegeben in Millisekunden.",
         "ru": "Время, по истечении которого служба начинает новый раунд голосования. Указано в миллисекундах.",
-        "en": "The time after which the service starts a new polling round. Specified in milliseconds."
+        "en": "The time after which the service starts a new polling round. Specified in milliseconds.",
+        "ar": "الوقت الذي تبدأ بعده الخدمة جولة اقتراع جديدة. محدد بالمللي ثانية."
       },
       "names": {
         "de": "Taktzeit",
         "ru": "продолжительность цикла",
-        "en": "Cycle Time"
+        "en": "Cycle Time",
+        "ar": "دورة الزمن"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Der letzte bekannte Status des Dienstes. Möglich sind: 0 = aus, 1 = an und wartend, 2 = an und arbeitend.",
         "ru": "Последний известный статус службы. Возможны следующие варианты: 0 = выключен, 1 = включен и ждет, 2 = включен и работает.",
-        "en": "The last known status of the service. Possible are: 0 = off, 1 = on and waiting, 2 = on and working."
+        "en": "The last known status of the service. Possible are: 0 = off, 1 = on and waiting, 2 = on and working.",
+        "ar": "آخر حالة معروفة للخدمة. ما يلي ممكن: 0 = إيقاف ، 1 = قيد التشغيل والانتظار ، 2 = قيد التشغيل والعمل."
       },
       "names": {
         "de": "Status",
         "ru": "Статус",
-        "en": "State"
+        "en": "State",
+        "ar": "الحالة"
       }
     }
   ]

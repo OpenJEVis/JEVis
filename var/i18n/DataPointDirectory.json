@@ -3,12 +3,14 @@
   "names": {
     "de": "Datenpunktverzeichnis",
     "ru": "Data Point Directory",
-    "en": "Data Point Directory"
+    "en": "Data Point Directory",
+    "ar": "دليل نقطة البيانات"
   },
   "descriptions": {
     "de": "Die Klasse Datenpunktverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung verschiedener Datenpunkte dar. Die Klasse ist eindeutig, d.h. es ist nicht möglich, ein Objekt dieser Klasse parallel zu einem bereits existierenden Objekt derselben Klasse zu erstellen.",
     "ru": "The class Data Point Directory represents a specific directory for the management of miscellaneous data points.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
-    "en": "The class Data Point Directory represents a specific directory for the management of miscellaneous data points.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+    "en": "The class Data Point Directory represents a specific directory for the management of miscellaneous data points.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ar": "تمثل فئة دليل نقطة البيانات دليلاً محددًا لإدارة نقاط البيانات المختلفة ، والفئة فريدة ، بمعنى أنه لا يمكن إنشاء كائن من هذه الفئة موازيًا لكائن موجود بالفعل من نفس الفئة."
   },
   "types": []
 }

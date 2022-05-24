@@ -3,10 +3,12 @@
   "names": {
     "de": "8.1 Betriebliche Planung und Steuerung",
     "ru": "8.1 Operational Planning and Control",
-    "en": "8.1 Operational Planning and Control"
+    "en": "8.1 Operational Planning and Control",
+    "ar": "8.1 تخطيط ومراقبة العمليات"
   },
   "descriptions": {
-    "de": "Die Organisation muss die Prozesse, einschließlich derer bezüglich ihrer SEUs (siehe 6.3), zur Erfüllung der Anforderungen und zur Durchführung der unter 6.2 bestimmten Maßnahmen planen, verwirklichen und steuern, indem sie:\na) Kriterien für die Prozesse festlegt, einschließlich: des wirksamen Betriebs und der Instandhaltung ihrer Anlagen/Standorte, Einrichtungen, Systeme und Energie nutzenden Prozesse, wo das Fehlen solcher Kriterien zu einer signifikanten Abweichung von der vorgesehenen energiebezogenen Leistung führen kann.\n\nANMERKUNG Signifikante Abweichungskriterien werden durch die Organisation bestimmt.\n\nb) allen in der Organisation oder in deren Namen arbeitenden relevanten Personen die Kriterien mitteilt (siehe 7.4);\nc) die Steuerung der Prozesse in Übereinstimmung mit den Kriterien durchführt; einschließlich Betrieb und Instandhaltung von Anlagen/Standorten, Einrichtungen, Systemen und Energienutzenden Prozessen in Übereinstimmung mit den festgelegten Kriterien;\nd) dokumentierte Information (siehe 7.5) im notwendigen Umfang bereithält, so dass darauf vertraut werden kann, dass die Prozesse wie geplant durchgeführt wurden.\nDie Organisation muss geplante Änderungen überwachen sowie die Folgen unbeabsichtigter Änderungen beurteilen und, falls notwendig, Maßnahmen ergreifen, um jegliche negativen Auswirkungen zu vermindern.\nDie Organisation muss sicherstellen, dass ausgegliederte SEUs oder auf ihre SEUs bezogene Prozesse (siehe 6.3) gesteuert werden (siehe 8.3), wenn das Fehlen der Steuerung die energiebezogene Leistung beeinträchtigen kann."
+    "de": "Die Organisation muss die Prozesse, einschließlich derer bezüglich ihrer SEUs (siehe 6.3), zur Erfüllung der Anforderungen und zur Durchführung der unter 6.2 bestimmten Maßnahmen planen, verwirklichen und steuern, indem sie:\na) Kriterien für die Prozesse festlegt, einschließlich: des wirksamen Betriebs und der Instandhaltung ihrer Anlagen/Standorte, Einrichtungen, Systeme und Energie nutzenden Prozesse, wo das Fehlen solcher Kriterien zu einer signifikanten Abweichung von der vorgesehenen energiebezogenen Leistung führen kann.\n\nANMERKUNG Signifikante Abweichungskriterien werden durch die Organisation bestimmt.\n\nb) allen in der Organisation oder in deren Namen arbeitenden relevanten Personen die Kriterien mitteilt (siehe 7.4);\nc) die Steuerung der Prozesse in Übereinstimmung mit den Kriterien durchführt; einschließlich Betrieb und Instandhaltung von Anlagen/Standorten, Einrichtungen, Systemen und Energienutzenden Prozessen in Übereinstimmung mit den festgelegten Kriterien;\nd) dokumentierte Information (siehe 7.5) im notwendigen Umfang bereithält, so dass darauf vertraut werden kann, dass die Prozesse wie geplant durchgeführt wurden.\nDie Organisation muss geplante Änderungen überwachen sowie die Folgen unbeabsichtigter Änderungen beurteilen und, falls notwendig, Maßnahmen ergreifen, um jegliche negativen Auswirkungen zu vermindern.\nDie Organisation muss sicherstellen, dass ausgegliederte SEUs oder auf ihre SEUs bezogene Prozesse (siehe 6.3) gesteuert werden (siehe 8.3), wenn das Fehlen der Steuerung die energiebezogene Leistung beeinträchtigen kann.",
+    "ar": "يجب أن تخطط المنظمة وتنفذ وتتحكم في العمليات ، بما في ذلك تلك المتعلقة بوحدات استخدام الطاقة الخاصة بها (انظر 6.3) ، لتلبية المتطلبات وتنفيذ الإجراءات المحددة في 6.2 من خلال:\nأ) يضع معايير للعمليات ، بما في ذلك: التشغيل والصيانة الفعالين للمصانع / المواقع والمرافق والأنظمة وعمليات استخدام الطاقة ، حيث قد يؤدي عدم وجود مثل هذه المعايير إلى انحراف كبير عن الأداء المرتبط بالطاقة.\n\nملاحظة: يتم تحديد معايير الانحراف الهامة من قبل المنظمة.\n\nب) ينقل المعايير إلى جميع الأشخاص المعنيين العاملين في المنظمة أو بالنيابة عنها (انظر 7.4) ؛\nج) يتحكم في العمليات وفقًا للمعايير ؛ بما في ذلك تشغيل وصيانة المصانع / المواقع والمرافق والأنظمة وعمليات استخدام الطاقة وفقًا للمعايير المحددة ؛\nد) يحتفظ بالمعلومات الموثقة (انظر 7.5) بالقدر اللازم لإعطاء الثقة بأن العمليات قد تم تنفيذها كما هو مخطط لها.\nيجب على المنظمة مراقبة التغييرات المخطط لها وتقييم عواقب التغييرات غير المقصودة ، وإذا لزم الأمر ، اتخاذ إجراءات للتخفيف من أي تأثير سلبي.\nيجب أن تضمن المنظمة أن عمليات الاستعانة بمصادر خارجية لاستخدام الطاقة المخصّصة أو العمليات المتعلقة بوحدات استخدام الطاقة الخاصة بها (انظر 6.3) يتم التحكم فيها (انظر 8.3) عندما يكون نقص التحكم قد يؤثر على الأداء المرتبط بالطاقة."
   },
   "types": [
     {
@@ -14,12 +16,14 @@
       "descriptions": {
         "de": "Beschreibt die Prozesse zu Erfüllung und zur Durchführung der Maßnahmen",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "ةصف عمليات تحقيق وتنفيذ التدابير"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -27,12 +31,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -40,12 +46,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الانشاء"
       }
     },
     {
@@ -53,12 +61,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -66,12 +76,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -79,12 +91,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -92,12 +106,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -105,12 +121,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

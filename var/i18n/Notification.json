@@ -3,7 +3,8 @@
   "names": {
     "de": "Benachrichtigung",
     "ru": "Notification",
-    "en": "Notification"
+    "en": "Notification",
+    "ar": "إشعار"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Sent Time description",
         "ru": "Sent Time description",
-        "en": "Sent Time description"
+        "en": "Sent Time description",
+        "ar": "وقت الإرسال"
       },
       "names": {
         "de": "Zeitpunkt Benachrichtigung",
         "ru": "Sent Time",
-        "en": "Sent Time"
+        "en": "Sent Time",
+        "ar": "إعلام الوقت"
       }
     }
   ]

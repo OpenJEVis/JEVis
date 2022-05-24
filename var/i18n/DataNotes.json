@@ -3,12 +3,14 @@
   "names": {
     "de": "Daten Notizen",
     "ru": "Data Notes",
-    "en": "Data Notes"
+    "en": "Data Notes",
+    "ar": "ملاحظات البيانات"
   },
   "descriptions": {
     "de": "Hier werden die Notizen zu den paralellen Datenreihen gespeichert",
     "ru": "Storage of of notes of concurrent data rows.",
-    "en": "Storage of of notes of concurrent data rows."
+    "en": "Storage of of notes of concurrent data rows.",
+    "ar": "هذا هو المكان الذي يتم فيه تخزين الملاحظات على سلسلة البيانات المتوازية"
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Benutzernotiz der zugehörigen Datenreihe",
         "ru": "User notes of respective Data Rows",
-        "en": "User notes of respective Data Rows"
+        "en": "User notes of respective Data Rows",
+        "ar": "ملاحظة المستخدم لسلسلة البيانات المرتبطة"
       },
       "names": {
         "de": "Benutzer Notiz",
         "ru": "User Note",
-        "en": "User Note"
+        "en": "User Note",
+        "ar": "ملاحظة المستخدم"
       }
     }
   ]

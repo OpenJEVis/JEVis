@@ -5,14 +5,16 @@
     "ru": "Поставщик электроэнергии",
     "uk": "Постачальник електроенергії",
     "en": "Electricity Supply Contractor",
-    "th": "ผู้ผลิตไฟฟ้า"
+    "th": "ผู้ผลิตไฟฟ้า",
+    "ar": "مقاول إمداد الكهرباء"
   },
   "descriptions": {
     "de": "Die Klasse Stromlieferant definiert die Attribute für Stromlieferanten",
     "ru": "Класс поставщика электроэнергии определяет атрибуты поставщиков электроэнергии",
     "en": "The class Electricity Supply Contractor defines the attributes of electricity suppliers",
     "uk": "Клас постачальника електроенергії визначає атрибути постачальників електроенергії",
-    "th": "ระดับผู้ผลิตไฟฟ้ากำหนดคุณลักษณะสำหรับผู้ผลิตไฟฟ้า"
+    "th": "ระดับผู้ผลิตไฟฟ้ากำหนดคุณลักษณะสำหรับผู้ผลิตไฟฟ้า",
+    "ar": "تحدد فئة مورد الكهرباء سمات موردي الكهرباء"
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": "سعر الطاقة HT"
       },
       "names": {
         "de": "Energiepreis HT",
         "ru": "Цена энергии HT",
         "uk": "Ціна енергії HT",
         "th": "ราคาพลังงาน HT",
-        "en": "Energy Price HT"
+        "en": "Energy Price HT",
+        "ar": "سعر الطاقة HT"
       }
     },
     {
@@ -39,14 +43,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": "سعر الطاقة NT"
       },
       "names": {
         "de": "Energiepreis NT",
         "ru": "Цена энергии NT",
         "uk": "Ціна енергії NT",
         "th": "ราคาพลังงาน NT",
-        "en": "Energy Price NT"
+        "en": "Energy Price NT",
+        "ar": "سعر الطاقة NT"
       }
     },
     {
@@ -56,14 +62,16 @@
         "ru": "",
         "uk": "",
         "th": "",
-        "en": ""
+        "en": "",
+        "ar": "رسوم الطلب"
       },
       "names": {
         "de": "Leistungspreis",
         "ru": "Цена исполнения",
         "uk": "Ціна виконання",
         "th": "ราคาประสิทธิภาพ",
-        "en": "Demand Charge"
+        "en": "Demand Charge",
+        "ar": "رسوم الطلب"
       }
     }
   ]

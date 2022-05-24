@@ -3,12 +3,14 @@
   "names": {
     "de": "7.5.3 Lenkung dokumentierter Informationen",
     "ru": "7.5.3 Control of Documented Information",
-    "en": "7.5.3 Control of Documented Information"
+    "en": "7.5.3 Control of Documented Information",
+    "ar": "7.5.3 مراقبة المعلومات الموثقة"
   },
   "descriptions": {
     "de": "Die für das EnMS erforderliche und von diesem Dokument geforderte dokumentierte Information muss gelenkt werden, um sicherzustellen, dass sie:\na) verfügbar und für die Verwendung geeignet ist, wo und wann sie benötigt wird;\nb) angemessen geschützt wird (z.B. vor Verlust der Vertraulichkeit, unsachgemäßem Gebrauch oder Verlust der Integrität).\nZur Lenkung dokumentierter Information muss die Organisation, falls zutreffend, folgende Tätigkeiten berücksichtigen:\n— Verteilung, Zugriff, Auffindung und Verwendung;\n— Ablage/Speicherung und Erhaltung, einschließlich Erhaltung der Lesbarkeit;\n— Überwachung von Änderungen (z.B. Versionskontrolle);\n— Aufbewahrung und Verfügung über den weiteren Verbleib.\nDokumentierte Information externer Herkunft, die von der Organisation als notwendig für Planung und Betrieb des EnMS bestimmt wurde, muss angemessen gekennzeichnet und gelenkt werden.\n\nANMERKUNG Zugriff kann eine Entscheidung voraussetzen, mit der die Erlaubnis erteilt wird, dokumentierte Information lediglich zu lesen, oder die Erlaubnis und Befugnis zum Lesen und Ändern dokumentierter Information.",
     "ru": "Documented information required by the EnMS and by this document shall be controlled to ensure:  \na) it is available and suitable for use, where and when it is needed;  \nb) it is adequately protected (e.g. from loss of confidentiality, improper use, loss of integrity).  \nFor the control of documented information, the organization shall address the following activities, as  applicable:  \n",
-    "en": "Documented information required by the EnMS and by this document shall be controlled to ensure:  \na) it is available and suitable for use, where and when it is needed;  \nb) it is adequately protected (e.g. from loss of confidentiality, improper use, loss of integrity).  \nFor the control of documented information, the organization shall address the following activities, as  applicable:  \n"
+    "en": "Documented information required by the EnMS and by this document shall be controlled to ensure:  \na) it is available and suitable for use, where and when it is needed;  \nb) it is adequately protected (e.g. from loss of confidentiality, improper use, loss of integrity).  \nFor the control of documented information, the organization shall address the following activities, as  applicable:  \n",
+    "ar": "يجب التحكم في المعلومات الموثقة المطلوبة من قبل نظام إدارة الطاقة والتي تتطلبها هذه الوثيقة للتأكد من أنها:\nأ) متاحة ومناسبة للاستخدام عند الحاجة ؛\nب) يتمتع بالحماية الكافية (على سبيل المثال ضد فقدان السرية أو الاستخدام غير السليم أو فقدان النزاهة).\nللسيطرة على المعلومات الموثقة ، يجب على المنظمة النظر في الأنشطة التالية ، حسب الاقتضاء:\n- التوزيع والوصول والاسترجاع والاستخدام ؛\n- الإيداع / التخزين والحفظ ، بما في ذلك الحفاظ على سهولة القراءة ؛\n- مراقبة التغييرات (مثل التحكم في الإصدار) ؛\n- التخزين والتخلص من أماكن تواجدهم الأخرى.\nيجب تحديد المعلومات الموثقة ذات الأصل الخارجي والتي تحددها المنظمة على أنها ضرورية لتخطيط وتشغيل نظام إدارة الطاقة بشكل مناسب.\n\nملاحظة: قد يتضمن الوصول قرارًا يمنح الإذن بقراءة المعلومات الموثقة فقط ، أو إذنًا وسلطة لقراءة المعلومات الموثقة وتعديلها."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibt wie die Lenkung der Dokumentation auszusehen hat",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

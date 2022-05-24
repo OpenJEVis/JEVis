@@ -3,7 +3,8 @@
   "names": {
     "de": "Ergebnis",
     "ru": "Output",
-    "en": "Output"
+    "en": "Output",
+    "ar": "الناتج"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Definiert die Datenreihe für das Ergebnis der Berechnung",
         "ru": "Output description",
-        "en": "Defines output target of the calculation"
+        "en": "Defines output target of the calculation",
+        "ar": "يحدد سلسلة البيانات لنتيجة الحساب"
       },
       "names": {
         "de": "Zieldatenreihe",
         "ru": "Output Target",
-        "en": "Output Target"
+        "en": "Output Target",
+        "ar": "سلسلة البيانات الهدف"
       }
     }
   ]

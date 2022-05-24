@@ -3,12 +3,14 @@
   "names": {
     "de": "Dashboard",
     "ru": "Dashboard",
-    "en": "Dashboard"
+    "en": "Dashboard",
+    "ar": "لوحة المراقبة"
   },
   "descriptions": {
     "de": "Das Analysenobjekt beeinhaltet das Daten Modell aus Graph. Alle wichtigen Einstellungen zu der entsprechenden Analyse sind hier abgelegt.",
     "ru": "The analysis object contains the data model from graph. All important settings for the corresponding analysis are stored here.",
-    "en": "The analysis object contains the data model from graph. All important settings for the corresponding analysis are stored here."
+    "en": "The analysis object contains the data model from graph. All important settings for the corresponding analysis are stored here.",
+    "ar": "يحتوي كائن التحليل على نموذج البيانات من الرسم البياني. يتم تخزين جميع الإعدادات المهمة للتحليل المقابل هنا."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beeinhaltet das Datenmodell zur gespeicherten Analyse",
         "ru": "Includes the data model for stored analysis",
-        "en": "Includes the data model for stored analysis"
+        "en": "Includes the data model for stored analysis",
+        "ar": "يحتوي على نموذج البيانات الخاص بالتحليل المحفوظ"
       },
       "names": {
         "de": "Datenmodell",
         "ru": "Data Model",
-        "en": "Data Model"
+        "en": "Data Model",
+        "ar": "نموذج البيانات"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Hintergrundbild des Dashboards",
         "ru": "Background image of the dashboard",
-        "en": "Background image of the dashboard"
+        "en": "Background image of the dashboard",
+        "ar": "صورة خلفية لوحة المعلومات"
       },
       "names": {
         "de": "Hintergrundbild",
         "ru": "Background",
-        "en": "Background"
+        "en": "Background",
+        "ar": "الصورة الخلفية"
       }
     }
   ]

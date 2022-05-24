@@ -3,12 +3,14 @@
   "names": {
     "de": "Loytec XML-DL Kanalverzeichnis",
     "ru": "Loytec XML-DL Channel Directory",
-    "en": "Loytec XML-DL Channel Directory"
+    "en": "Loytec XML-DL Channel Directory",
+    "ar": "دليل قناة Loytec XML-DL"
   },
   "descriptions": {
     "de": "Das Loytec XML-DL Kanalverzeichnis enthält Loytec XML-DL Kanäle des angegebenen Technologietyps.\n\n- Technologie: dpal, bacnet (Standard: dpal)",
     "ru": "The Loytec XML-DL Channel Directory contains Loytec XML-DL Channels of the specified technology type.\n\n- Technology: dpal, bacnet (default: dpal)",
-    "en": "The Loytec XML-DL Channel Directory contains Loytec XML-DL Channels of the specified technology type.\n\n- Technology: dpal, bacnet (default: dpal)"
+    "en": "The Loytec XML-DL Channel Directory contains Loytec XML-DL Channels of the specified technology type.\n\n- Technology: dpal, bacnet (default: dpal)",
+    "ar": "يحتوي دليل قناة Loytec XML-DL على قنوات Loytec XML-DL من نوع التكنولوجيا المحدد.\n\n- التكنولوجيا: dpal، bacnet (الافتراضي: dpal)"
   },
   "types": []
 }

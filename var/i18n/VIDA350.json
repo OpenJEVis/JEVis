@@ -3,12 +3,14 @@
   "names": {
     "de": "VIDA350",
     "ru": "VIDA350",
-    "en": "VIDA350"
+    "en": "VIDA350",
+    "ar": "VIDA350"
   },
   "descriptions": {
     "de": "Ein VIDA-Datenserver ist eine Datenquelle, welche über TCP/IP kommuniziert.",
     "ru": "",
-    "en": "A VIDA-Data Server is a data source communicating via TCP/IP"
+    "en": "A VIDA-Data Server is a data source communicating via TCP/IP",
+    "ar": "خادم بيانات VIDA هو مصدر بيانات يتواصل عبر TCP / IP"
   },
   "types": [
   ]

@@ -3,12 +3,14 @@
   "names": {
     "de": "CSV Datenpunkt",
     "ru": "CSV Data Point",
-    "en": "CSV Data Point"
+    "en": "CSV Data Point",
+    "ar": "نقطة بيانات CSV"
   },
   "descriptions": {
     "de": "Ein CSV Datenpunkt ist ein Wert aus einer Spalte oder Zeiler einer CSV-Datei.",
     "ru": "CSV Data Point",
-    "en": "CSV Data Point is a value out of a column or row of a CSV file."
+    "en": "CSV Data Point is a value out of a column or row of a CSV file.",
+    "ar": "نقطة بيانات CSV هي قيمة من عمود أو صف في ملف CSV."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Die Erkennungs-ID dient der Zuordnung des CSV-Datenpunkts zu der korrekten Spalte bzw. Zeile der CSV-Datei. Alternativ kann die Zuordnung über den Werte Index definiert werden.",
         "ru": "Mapping Identifier description",
-        "en": "The Mapping ID allows the mapping of a CSV Data Point to the correct column or row of a CSV file. Alternatively, the mapping can be made via the Value Index."
+        "en": "The Mapping ID allows the mapping of a CSV Data Point to the correct column or row of a CSV file. Alternatively, the mapping can be made via the Value Index.",
+        "ar": "يسمح معرّف التعيين بتعيين نقطة بيانات CSV إلى العمود أو الصف الصحيح لملف CSV. بدلاً من ذلك ، يمكن إجراء التعيين عبر مؤشر القيمة."
       },
       "names": {
         "en": "Mapping ID",
         "ru": "Mapping Identifier",
-        "de": "Erkennungs-ID"
+        "de": "Erkennungs-ID",
+        "ar": "معرف الاكتشاف"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Das Ziel gibt die Datenreihe an, in die der CSV-Datenpunkt eingelesen wird.",
         "ru": "Target description",
-        "en": "The Target defines the data row, where the CSV Data Point is stored."
+        "en": "The Target defines the data row, where the CSV Data Point is stored.",
+        "ar": "يحدد الهدف صف البيانات ، حيث يتم تخزين نقطة بيانات CSV."
       },
       "names": {
         "de": "Ziel",
         "ru": "Target",
-        "en": "Target"
+        "en": "Target",
+        "ar": "هدف"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Der Werte Index gibt die Spalte bzw. Zeile an, welche den Wert des CSV-Datenpunkts enthält. Alternativ kann die Zuordnung über die Erkennungs-ID definiert werden.",
         "ru": "Value Index description",
-        "en": "The Value Index defines the column or row, where the CSV Data Point is stored. Alternatively, the mapping can be made via the Mapping ID."
+        "en": "The Value Index defines the column or row, where the CSV Data Point is stored. Alternatively, the mapping can be made via the Mapping ID.",
+        "ar": "يحدد مؤشر القيمة العمود أو الصف ، حيث يتم تخزين نقطة بيانات CSV. بدلاً من ذلك ، يمكن إجراء التعيين عبر معرف التعيين."
       },
       "names": {
         "de": "Werte Index",
         "ru": "Value Index",
-        "en": "Value Index"
+        "en": "Value Index",
+        "ar": "مؤشر القيمة"
       }
     }
   ]

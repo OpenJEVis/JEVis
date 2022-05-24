@@ -5,14 +5,16 @@
     "ru": "Работа в сети",
     "uk": "Робота мережі",
     "en": "Energy Grid Operation Directory",
-    "th": "การทำงานของเครือข่าย"
+    "th": "การทำงานของเครือข่าย",
+    "ar": "تشغيل الشبكة"
   },
   "descriptions": {
     "de": "Im Netzbetrieb werden Netzbetreiber Informationen organisiert",
     "ru": "При работе в сети информация оператора сети организована",
     "en": "Energy Grid Operation Information are managed in the Energy Grid Operation Directory",
     "uk": "Під час роботи мережі впорядковується інформація оператора мережі",
-    "th": "ในการทำงานของเครือข่ายจะมีการจัดระเบียบข้อมูลผู้ให้บริการเครือข่าย"
+    "th": "ในการทำงานของเครือข่ายจะมีการจัดระเบียบข้อมูลผู้ให้บริการเครือข่าย",
+    "ar": "في تشغيل الشبكة ، يتم تنظيم معلومات مشغل الشبكة."
   },
   "types": []
 }

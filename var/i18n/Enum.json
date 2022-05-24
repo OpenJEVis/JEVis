@@ -3,12 +3,14 @@
   "names": {
     "de": "Enumeration",
     "ru": "Enumeration",
-    "en": "Enumeration"
+    "en": "Enumeration",
+    "ar": "العد"
   },
   "descriptions": {
     "de": "Eine Enumeration wird verwendet, um dem Benutzer die Auswahl möglicher Attributwerte anzubieten.",
     "ru": "An Enumeration is used to present a user all possible attribute values.",
-    "en": "An Enumeration is used to present a user all possible attribute values."
+    "en": "An Enumeration is used to present a user all possible attribute values.",
+    "ar": "يتم استخدام التعداد لتزويد المستخدم باختيار قيم السمات الممكنة."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Definiert die Datenklasse des JEVis Servers für die diese Enumeration gilt",
         "ru": "Defines the data class of the JEVis Server where the enumeration is used.",
-        "en": "Defines the data class of the JEVis Server where the enumeration is used."
+        "en": "Defines the data class of the JEVis Server where the enumeration is used.",
+        "ar": "فئة JEVis"
       },
       "names": {
         "de": "JEVis-Klasse",
         "ru": "JEVis Class",
-        "en": "JEVis Class"
+        "en": "JEVis Class",
+        "ar": "فئة JEVis"
       }
     }
   ]
