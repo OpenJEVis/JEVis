@@ -611,10 +611,12 @@ public class TopMenu extends MenuBar {
     }
 
     private void applyTheme(String themeString) {
-        JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
-        JEConfig.getStage().getScene().getStylesheets().add(stylesString);
-        JEConfig.getStage().getScene().getStylesheets().add(chartString);
-        JEConfig.getStage().getScene().getStylesheets().add(themeString);
+        Platform.runLater(() -> {
+            JEConfig.getStage().getScene().getStylesheets().removeAll(allThemes);
+            JEConfig.getStage().getScene().getStylesheets().add(stylesString);
+            JEConfig.getStage().getScene().getStylesheets().add(chartString);
+            JEConfig.getStage().getScene().getStylesheets().add(themeString);
+        });
 
         activeTheme = themeString;
     }
