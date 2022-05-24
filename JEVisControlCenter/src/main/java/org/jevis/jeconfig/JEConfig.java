@@ -407,6 +407,7 @@ public class JEConfig extends Application {
 
 
                 logger.error("start GUI");
+                login.addLoginMessage(I18n.getInstance().getString("app.login.startinggui"));
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
                 PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
