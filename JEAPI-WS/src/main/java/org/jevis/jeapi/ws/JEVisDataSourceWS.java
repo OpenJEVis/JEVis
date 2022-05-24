@@ -631,10 +631,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void reloadAttribute(JEVisObject object) {
         try {
-            logger.warn("Reload Attribute: {}", object);
-            getAttributesFromWS(object.getID());
+            if(object!=null){
+                logger.warn("Reload Attribute: {}", object);
+                getAttributesFromWS(object.getID());
+            }else{
+                logger.error("Error trying to reload null object");
+            }
+
         } catch (Exception ex) {
-            logger.error("Error, can not reload attribute", ex);
+            logger.error("Error, can not reload attribute: {}", ex,ex);
         }
     }
 
@@ -1670,6 +1675,45 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             benchmark.printBenchmarkDetail("Preload - Attributes");
             Optimization.getInstance().printStatistics();
             logger.info("preload Done");
+            this.hasPreloaded = true;
+        } catch (Exception ex) {
+            logger.error("Error while preloading data source", ex);
+        }
+    }
+
+    public void preloadClasses() {
+        if (this.hasPreloaded) return;
+        try {
+            getJEVisClasses();
+        } catch (Exception ex) {
+            logger.error("Error while preloading data source", ex);
+        }
+    }
+
+    public void preloadRelationships() {
+        if (this.hasPreloaded) return;
+        try {
+            this.getRelationships();
+        } catch (Exception ex) {
+            logger.error("Error while preloading data source", ex);
+        }
+    }
+
+    public void preloadObjects() {
+        if (this.hasPreloaded) return;
+        try {
+            if (!this.objectCache.isEmpty()) this.objectCache.clear();
+            getObjects();
+        } catch (Exception ex) {
+            logger.error("Error while preloading data source", ex);
+        }
+    }
+
+    public void preloadAttributes() {
+        if (this.hasPreloaded) return;
+        try {
+            if (!this.attributeCache.isEmpty()) this.attributeCache.clear();
+            getAttributes();
             this.hasPreloaded = true;
         } catch (Exception ex) {
             logger.error("Error while preloading data source", ex);

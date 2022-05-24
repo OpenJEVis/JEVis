@@ -31,8 +31,8 @@ import java.util.jar.JarFile;
 @Path("/JEWebService/v1/login")
 public class Login {
 
-    private final String dsUserName = "Sys Admin";
-    private final String dsPassword = "nordhorn2.0";
+    private final String dsUserName = "jevis";
+    private final String dsPassword = "jevispw";
 
     public String getBasicAuth() throws UnsupportedEncodingException {
         String encoded = "Basic ";

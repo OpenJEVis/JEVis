@@ -1,0 +1,57 @@
+{
+  "jevisclass": "JEVis Channel",
+  "names": {
+    "de": "JEVis Kanal",
+    "en": "JEVis Channel"
+  },
+  "descriptions": {
+    "de": "The class JEVis Channel ",
+    "en": "The class JEVis Channel "
+  },
+  "types": [
+    {
+      "type": "Last Readout",
+      "descriptions": {
+        "de": "Datum und Zeit der letzten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
+        "en": "Date and Time of last readout in time zone setup in the server object"
+      },
+      "names": {
+        "de": "Letzte Auslesung",
+        "en": "Last Readout"
+      }
+    },
+    {
+      "type": "Source Id",
+      "descriptions": {
+        "de": "Id des auszulesenden Objekts auf dem anderen JEVis Server",
+        "en": "Id of object on the other JEVis Server"
+      },
+      "names": {
+        "de": "Quellen Id",
+        "en": "Source Id"
+      }
+    },
+    {
+      "type": "Source Attribute",
+      "descriptions": {
+        "de": "Attribut das ausgelesen werden soll",
+        "en": "Attribute which is read"
+      },
+      "names": {
+        "de": "Quellen Attribut",
+        "en": "Source Attribute"
+      }
+    },
+    {
+      "type": "Target Id",
+      "descriptions": {
+        "de": "Zielobject auf dem momentan Server",
+        "en": "Target object on the current server"
+      },
+      "names": {
+        "de": "Ziel Id",
+        "en": "Target Id"
+      }
+    }
+  ]
+}

@@ -398,105 +398,115 @@ public class JEVisItemLoader {
 
 
         object.addEventListener(event -> {
-            logger.error("Object Event [{}]: object [{}]{}  Source: {}", event.getType(), object.getID(), object.getName(), event.getSource());
-            JEVisObject detectedObject = (JEVisObject) event.getObject();
-            JEVisTreeItem treeItem = getItemForObject(detectedObject);
-            JEVisTreeItem treeItemBin = getItemForObject(recycleBinObject);
+            try{
+                if(event.getObject() instanceof JEVisObject){
+                    logger.error("Object Event [{}]: object [{}]{}  Source: {}", event.getType(), object.getID(), object.getName(), event.getSource());
+                    JEVisObject detectedObject = (JEVisObject) event.getObject();
+                    JEVisTreeItem treeItem = getItemForObject(detectedObject);
+                    JEVisTreeItem treeItemBin = getItemForObject(recycleBinObject);
 
 
-            switch (event.getType()) {
-                case OBJECT_DELETE:
-                    JEVisTreeItem treeParent = (JEVisTreeItem) treeItem.getParent();
-                    JEVisObject parenObject = treeParent.getValue().getJEVisObject();
+                    switch (event.getType()) {
+                        case OBJECT_DELETE:
+                            JEVisTreeItem treeParent = (JEVisTreeItem) treeItem.getParent();
+                            JEVisObject parenObject = treeParent.getValue().getJEVisObject();
 
-                    try {
-                        parenObject.getParents().remove(detectedObject);
-                        treeParent.getChildren().remove(treeItem);
-                        update(object);
+                            try {
+                                parenObject.getParents().remove(detectedObject);
+                                treeParent.getChildren().remove(treeItem);
+                                update(object);
 
-                    } catch (Exception ex) {
-                        logger.error(ex, ex);
+                            } catch (Exception ex) {
+                                logger.error(ex, ex);
+                            }
+
+                            treeParent.setExpanded(false);
+                            treeParent.setExpanded(true);
+
+
+                            jeVisTree.getSelectionModel().clearSelection();
+
+                            break;
+
+                        case OBJECT_DELETE_BIN:
+                            /** nothing to do, we listen to the parent OBJECT_CHILD_DELETED event **/
+
+                            JEVisTreeItem treeParent2 = (JEVisTreeItem) treeItem.getParent();
+                            JEVisObject parenObject2 = treeParent2.getValue().getJEVisObject();
+
+                            try {
+                                parenObject2.getParents().remove(detectedObject);
+                                treeParent2.getChildren().remove(treeItem);
+
+                                recycleBinObject.getChildren().add(detectedObject);
+                                treeItemBin.getChildren().add(treeItem);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+
+                            Platform.runLater(() -> {
+                                treeParent2.setExpanded(false);
+                                treeParent2.setExpanded(true);
+
+                                if (treeItemBin.isExpanded()) {
+                                    treeItemBin.setExpanded(false);
+                                    treeItemBin.setExpanded(true);
+                                }
+
+                                jeVisTree.getSelectionModel().clearSelection();
+                            });
+
+
+                            break;
+                        case OBJECT_NEW_CHILD:
+                            logger.error("New Child Event: {}", event);
+                            JEVisObject newObject = (JEVisObject) event.getObject();
+
+                            if (newObject != null && !this.itemObjectLinker.containsKey(newObject)) {
+                                buildItems(newObject);
+                            } else if (newObject != null && this.itemObjectLinker.containsKey(newObject)) {
+                                logger.error("Remove item from cache: {}", newObject);
+                                this.itemObjectLinker.remove(newObject);
+                                buildItems(newObject);
+                            }
+
+                            if (newObject != null) {
+                                Platform.runLater(() -> {
+                                    update(object);
+                                    update(newObject);
+                                    this.itemObjectLinker.get(object).setExpanded(true);
+                                    this.itemObjectLinker.get(newObject).setExpanded(false);
+
+                                    /** We do not want to select the new object for now, but maybe later in some cases **/
+                                    //jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
+                                });
+                            }
+                            jeVisTree.getSelectionModel().clearSelection();
+
+                            break;
+                        case OBJECT_CHILD_DELETED:
+
+                            break;
+                        case OBJECT_UPDATED:
+                            JEVisTreeItem itemToUpdate = this.itemObjectLinker.get(object);
+                            if (itemToUpdate != null) {
+                                TreeItem.TreeModificationEvent<JEVisTreeRow> treeEvent = new TreeItem.TreeModificationEvent<>(JEVisTreeItem.valueChangedEvent(), itemToUpdate);
+                                Event.fireEvent(itemToUpdate, treeEvent);
+                            }
+
+                            break;
+                        default:
+                            break;
                     }
-
-                    treeParent.setExpanded(false);
-                    treeParent.setExpanded(true);
-
-
-                    jeVisTree.getSelectionModel().clearSelection();
-
-                    break;
-
-                case OBJECT_DELETE_BIN:
-                    /** nothing to do, we listen to the parent OBJECT_CHILD_DELETED event **/
-
-                    JEVisTreeItem treeParent2 = (JEVisTreeItem) treeItem.getParent();
-                    JEVisObject parenObject2 = treeParent2.getValue().getJEVisObject();
-
-                    try {
-                        parenObject2.getParents().remove(detectedObject);
-                        treeParent2.getChildren().remove(treeItem);
-
-                        recycleBinObject.getChildren().add(detectedObject);
-                        treeItemBin.getChildren().add(treeItem);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-
-                    Platform.runLater(() -> {
-                        treeParent2.setExpanded(false);
-                        treeParent2.setExpanded(true);
-
-                        if (treeItemBin.isExpanded()) {
-                            treeItemBin.setExpanded(false);
-                            treeItemBin.setExpanded(true);
-                        }
-
-                        jeVisTree.getSelectionModel().clearSelection();
-                    });
-
-
-                    break;
-                case OBJECT_NEW_CHILD:
-                    logger.error("New Child Event: {}", event);
-                    JEVisObject newObject = (JEVisObject) event.getObject();
-
-                    if (newObject != null && !this.itemObjectLinker.containsKey(newObject)) {
-                        buildItems(newObject);
-                    } else if (newObject != null && this.itemObjectLinker.containsKey(newObject)) {
-                        logger.error("Remove item from cache: {}", newObject);
-                        this.itemObjectLinker.remove(newObject);
-                        buildItems(newObject);
-                    }
-
-                    if (newObject != null) {
-                        Platform.runLater(() -> {
-                            update(object);
-                            update(newObject);
-                            this.itemObjectLinker.get(object).setExpanded(true);
-                            this.itemObjectLinker.get(newObject).setExpanded(false);
-
-                            /** We do not want to select the new object for now, but maybe later in some cases **/
-                            //jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
-                        });
-                    }
-                    jeVisTree.getSelectionModel().clearSelection();
-
-                    break;
-                case OBJECT_CHILD_DELETED:
-
-                    break;
-                case OBJECT_UPDATED:
-                    JEVisTreeItem itemToUpdate = this.itemObjectLinker.get(object);
-                    if (itemToUpdate != null) {
-                        TreeItem.TreeModificationEvent<JEVisTreeRow> treeEvent = new TreeItem.TreeModificationEvent<>(JEVisTreeItem.valueChangedEvent(), itemToUpdate);
-                        Event.fireEvent(itemToUpdate, treeEvent);
-                    }
-
-                    break;
-                default:
-                    break;
+                }
+            }catch (Exception ex){
+                logger.error("Error in Object event",ex,ex);
             }
+
+
+
+
         });
 
     }

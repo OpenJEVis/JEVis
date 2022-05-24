@@ -95,6 +95,7 @@ public class ToolBarView {
     private ToggleButton zoomOut;
     private ToggleButton infoButton;
     private ToggleButton helpButton;
+    private ToggleButton testButton;
     private final PickerCombo pickerCombo;
     private final PresetDateBox presetDateBox;
     private final JFXDatePicker pickerDateStart;
@@ -360,7 +361,7 @@ public class ToolBarView {
                 toolBar.getItems().addAll(showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
             }
 
-            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
 
             addAnalysisComboBoxListener();
             setDisableToolBarIcons(disabledIcons.get());
@@ -1338,6 +1339,33 @@ public class ToolBarView {
 
         helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
         infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+        testButton = new ToggleButton("X");
+        testButton.setOnAction(actionEvent -> {
+//            try {
+//                List<JEVisClass> classFilter = new ArrayList<>();
+//                classFilter.add(ds.getJEVisClass("Data"));
+//                classFilter.add(ds.getJEVisClass("Clean Data"));
+//                classFilter.add(ds.getJEVisClass("Math Data"));
+//                classFilter.add(ds.getJEVisClass("Base Data"));
+//
+//                TreeSelectionDialog selectionDialog = new TreeSelectionDialog(getChartPluginView().getDialogContainer(), ds, classFilter, SelectionMode.SINGLE);
+//
+//                selectionDialog.setOnDialogClosed(jfxDialogEvent -> {
+//                    StringBuilder stringBuilder = new StringBuilder();
+//
+//
+//                    for (JEVisObject object : selectionDialog.getTreeView().getSelectedObjects()) {
+//                        stringBuilder.append("\n").append(object.getName());
+//                    }
+//                    Alert selectionShow = new Alert(Alert.AlertType.INFORMATION, "Selected Objects: " + stringBuilder);
+//                    selectionShow.show();
+//                });
+//
+//                selectionDialog.show();
+//            } catch (Exception e) {
+//                logger.error("Error while testing", e);
+//            }
+        });
 
         List<Node> nodes = Arrays.asList(listAnalysesComboBox,
                 presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,

@@ -27,7 +27,7 @@ public class AutoMySQLBackupTable extends AlarmTable {
                 createTableString();
             } else {
                 setTableString("");
-                logger.error("AutoMySQLBackup cannot access '{}'", default_dir.toString());
+                logger.warn("Skip AutoMySQLBackup because it cannot access '{}'", default_dir.toString());
             }
 
 
@@ -65,7 +65,7 @@ public class AutoMySQLBackupTable extends AlarmTable {
         boolean odd = false;
         for (File file : default_dir.listFiles()) {
 
-            /** databse level **/
+            /** database level **/
             for (File dbFolder : file.listFiles()) {
 
                 if (dbFolder.isDirectory() && dbFolder.getName().equals("jevis")) {
