@@ -36,7 +36,12 @@ public class Holidays {
             }
         }
 
-        defaultHolidayManager = HolidayManager.getInstance(ManagerParameters.create(I18n.getInstance().getLocale()));
+        try {
+            defaultHolidayManager = HolidayManager.getInstance(ManagerParameters.create(I18n.getInstance().getLocale()));
+        } catch (Exception e) {
+            defaultHolidayManager = HolidayManager.getInstance(ManagerParameters.create(I18n.getInstance().getDefaultBundle().getLocale()));
+            logger.error("Could not identify {}, creating fallback default holiday manager {}", I18n.getInstance().getLocale(), I18n.getInstance().getDefaultBundle().getLocale());
+        }
         if (ds != null) {
             try {
                 List<JEVisObject> sites = ds.getObjects(siteClass, false);
