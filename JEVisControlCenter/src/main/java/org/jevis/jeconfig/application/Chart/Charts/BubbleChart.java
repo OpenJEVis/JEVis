@@ -123,6 +123,7 @@ public class BubbleChart extends XYChart {
                 try {
                     if (model.getBubbleType() == BubbleType.X && !sample.getValueAsDouble().equals(0d)) {
                         xList.add(sample);
+                        minX.set(Math.min(minX.get(), sample.getValueAsDouble()));
                         maxX.set(Math.max(maxX.get(), sample.getValueAsDouble()));
                     } else if (model.getBubbleType() == BubbleType.Y && !sample.getValueAsDouble().equals(0d)) {
                         yList.add(sample);
@@ -146,27 +147,36 @@ public class BubbleChart extends XYChart {
         }
 
         Map<Double, List<DateTime>> yDates = new HashMap<>();
-        for (double i = -groupingInterval / 2; i < maxX.get() + (2 * groupingInterval); i = i + groupingInterval) {
+        AtomicReference<Double> startXAxis = new AtomicReference<>(0d);
+        if (minX.get() < 0) {
+            while (startXAxis.get() > minX.get()) {
+                startXAxis.set(startXAxis.get() - groupingInterval);
+            }
+        } else {
+            while (startXAxis.get() + groupingInterval < minX.get()) {
+                startXAxis.set(startXAxis.get() + groupingInterval);
+            }
+        }
+        for (double i = startXAxis.get(); i < maxX.get() + (2 * groupingInterval); i = i + groupingInterval) {
             double upperBound = i + groupingInterval;
-            double meanX = i + groupingInterval / 2;
             for (JEVisSample sample : xList) {
                 try {
                     if (sample.getValueAsDouble() >= i && sample.getValueAsDouble() < upperBound) {
-                        if (modifiedX.get(meanX) != null) {
-                            double old = modifiedX.get(meanX);
-                            modifiedX.remove(meanX);
-                            modifiedX.put(meanX, old + 1);
+                        if (modifiedX.get(i) != null) {
+                            double old = modifiedX.get(i);
+                            modifiedX.remove(i);
+                            modifiedX.put(i, old + 1);
                         } else {
-                            modifiedX.put(meanX, 1.0);
+                            modifiedX.put(i, 1.0);
                         }
 
-                        if (yDates.get(meanX) != null) {
-                            List<DateTime> old = yDates.get(meanX);
+                        if (yDates.get(i) != null) {
+                            List<DateTime> old = yDates.get(i);
                             old.add(xList.get(xList.indexOf(sample)).getTimestamp());
-                            yDates.remove(meanX);
-                            yDates.put(meanX, old);
+                            yDates.remove(i);
+                            yDates.put(i, old);
                         } else {
-                            yDates.put(meanX, new ArrayList<>(Collections.singleton(xList.get(xList.indexOf(sample)).getTimestamp())));
+                            yDates.put(i, new ArrayList<>(Collections.singleton(xList.get(xList.indexOf(sample)).getTimestamp())));
                         }
                     }
                 } catch (JEVisException e) {
@@ -285,15 +295,24 @@ public class BubbleChart extends XYChart {
             getDateAxis().setName(finalXAxisTitle);
             getDateAxis().setUnit(xUnit);
             getDateAxis().setAutoRanging(false);
-            getDateAxis().setMin(Math.max(minX.get() - groupingInterval, 0d));
+            getDateAxis().setMin(startXAxis.get());
             getDateAxis().setMax(maxX.get() + groupingInterval);
             getDateAxis().setTickUnit(30);
 
             getY1Axis().setName(finalYAxisTitle);
             getY1Axis().setUnit(yUnit);
             getY1Axis().setAutoRanging(false);
-            getY1Axis().setMin(Math.max(minY.get(), 0d) * 0.75);
-            getY1Axis().setMax(maxY.get() * 1.25);
+            if (minY.get() >= 0) {
+                getY1Axis().setMin(minY.get() * 0.75);
+            } else {
+                getY1Axis().setMin(minY.get() * 1.25);
+            }
+
+            if (maxY.get() >= 0) {
+                getY1Axis().setMax(maxY.get() * 1.25);
+            } else {
+                getY1Axis().setMax(maxY.get() * 0.75);
+            }
             getY1Axis().setForceZeroInRange(false);
         });
 

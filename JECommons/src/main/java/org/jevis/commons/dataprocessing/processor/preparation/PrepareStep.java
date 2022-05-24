@@ -163,6 +163,10 @@ public class PrepareStep implements ProcessStep {
                 currentDateLocal = currentDateLocal.minusMonths(1).withDayOfMonth(1);
             }
 
+            if (compare < 0 && CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataObject(), maxEndDateLocal).equals(Period.months(1))) {
+                maxEndDateLocal = maxEndDateLocal.withDayOfMonth(maxEndDateLocal.dayOfMonth().getMaximumValue()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
+            }
+
             if (firstCleanPeriod.getWeeks() > 0) {
                 currentDateLocal = currentDateLocal.minusWeeks(1).withDayOfWeek(1);
 
