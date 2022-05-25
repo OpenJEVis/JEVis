@@ -115,6 +115,19 @@
         "ru": "Timezone",
         "en": "Max thread time"
       }
+    },
+    {
+      "type": "Overwrite",
+      "descriptions": {
+        "de": "Auslesesene Messwerte überschrieben exestierende",
+        "ru": "Значения перезаписывают существующие",
+        "en": "Values overwrite existing"
+      },
+      "names": {
+        "de": "Messwerte überschriben",
+        "ru": "перезаписать измерения",
+        "en": "Overwrite measurements"
+      }
     }
   ]
 }
