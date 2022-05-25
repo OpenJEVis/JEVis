@@ -58,6 +58,7 @@ public class HTTPDataSource {
      * @return
      */
     public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
+        String channelID = channel.getChannelObject().getID().toString();
         logger.info("sendSampleRequest to http channel: {}", channel.getChannelObject());
         List<InputStream> answer = new ArrayList<InputStream>();
 
@@ -68,7 +69,7 @@ public class HTTPDataSource {
             path = path.substring(1);
         }
 
-        logger.info("Connection Setting: Server: {} User: {} PW: {}", serverURL, userName, password);
+        logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
 
         /* Workaround if the protocol is not in the url**/
@@ -90,15 +91,17 @@ public class HTTPDataSource {
             }
         }
 
+        /** we need a backslash at the end of server port*/
         if (serverURL.endsWith("/")) {
 
         } else {
             serverURL += "/";
         }
 
+        /** Fallback if the URL does contain the port and the Port attribute has non **/
         URL url = new URL(serverURL);
         if (port == null && url.getPort() > -1) {
-            logger.info("Port not set in Attribute, using port from URL: {}", port);
+            logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, port);
             setPort(url.getPort());
         }
 
@@ -128,23 +131,22 @@ public class HTTPDataSource {
         String contentURL = path;
         contentURL = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), contentURL, timeZone);
         contentURL = HTTPDataSource.FixURL(contentURL);
-        logger.debug("Channel URL: {}", contentURL);
+        logger.debug("[{}] Channel URL: {}", channelID, contentURL);
 
         String getRequest = "";
         if (pathFollower.isActive()) {
-            logger.info("Using Dynamic Link");
+            logger.debug("[{}] Using Dynamic Link", channelID, channelID);
             pathFollower.setConnection(httpClient, context);
             getRequest = pathFollower.startFetching(serverURL, contentURL);
-            logger.info("Final target url after following links: {}", getRequest);
+            logger.debug("[{}] Final target url after following links: {}", channelID, getRequest);
         } else {
             getRequest = serverURL + contentURL;
-            logger.info("Target URL: {}", getRequest);
         }
-        logger.info("Content URL: {}", getRequest);
+        logger.info("[{}] send HTTP.get: {}", channelID, getRequest);
 
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(connectionTimeout)
-                .setSocketTimeout(readTimeout)
+                .setConnectTimeout(connectionTimeout * 1000)
+                .setSocketTimeout(readTimeout * 1000)
                 .build();
         HttpGet get = new HttpGet(getRequest);
         get.setConfig(requestConfig);
@@ -153,8 +155,8 @@ public class HTTPDataSource {
 
         HttpEntity oEntity = oResponse.getEntity();
         String oXmlString = EntityUtils.toString(oEntity);
-        logger.info("Content length to parse: {}",oXmlString.length());
-        logger.debug("Content to parse: {}",oXmlString);
+        logger.info("[{}] Content length to parse: {}", channelID, oXmlString.length());
+        logger.debug("[{}] Content to parse: {}", channelID, oXmlString);
         EntityUtils.consume(oEntity);
         InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
         answer.add(stream);
