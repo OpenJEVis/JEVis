@@ -149,12 +149,8 @@ public class TreeHelper {
                                                 }
                                             }
 
-                                            if (deleteforever) {
-                                                object.getDataSource().deleteObject(id, true);
-                                            } else {
-                                                object.getDataSource().deleteObject(id, false);
-                                            }
-                                            
+                                            object.getDataSource().deleteObject(id, deleteforever);
+
 
                                         } else {
                                             Platform.runLater(() -> {
@@ -2074,7 +2070,46 @@ public class TreeHelper {
         TopMenu.applyActiveTheme(warning.getDialogPane().getScene());
 
         JFXTextField textField = new JFXTextField();
-        Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples their period x field");
+        Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples between start and end their period x field");
+
+        Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));
+        JFXDatePicker datePickerFrom = new JFXDatePicker();
+        JFXTimePicker timePickerFrom = new JFXTimePicker();
+        timePickerFrom.set24HourView(true);
+        timePickerFrom.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+        AtomicBoolean changedFrom = new AtomicBoolean(false);
+
+        datePickerFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                changedFrom.set(true);
+            }
+        });
+
+        timePickerFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                changedFrom.set(true);
+            }
+        });
+
+        Label dateLabelTo = new Label(I18n.getInstance().getString("tree.treehelper.to"));
+        JFXDatePicker datePickerTo = new JFXDatePicker();
+        JFXTimePicker timePickerTo = new JFXTimePicker();
+        timePickerTo.set24HourView(true);
+        timePickerTo.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+        AtomicBoolean changedTo = new AtomicBoolean(false);
+
+        datePickerTo.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                changedTo.set(true);
+            }
+        });
+
+        datePickerTo.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                changedTo.set(true);
+            }
+        });
+
         JFXCheckBox correctUTC = new JFXCheckBox("Correct UTC diff");
         JFXCheckBox allObjects = new JFXCheckBox("All objects");
         Label tzInputLabel = new Label("input timezone");
@@ -2088,7 +2123,13 @@ public class TreeHelper {
         JFXTextArea textArea = new JFXTextArea();
         textArea.setPrefRowCount(20);
 
-        VBox vBox = new VBox(6, message, textField, correctUTC, allObjects, inputBox, outputBox, textArea);
+        Label periodLabel = new Label("Period count");
+        HBox periodBox = new HBox(6, periodLabel, textField);
+
+        HBox fromBox = new HBox(6, dateLabelFrom, datePickerFrom, timePickerFrom);
+        HBox toBox = new HBox(6, dateLabelTo, datePickerTo, timePickerTo);
+
+        VBox vBox = new VBox(6, message, periodBox, fromBox, toBox, correctUTC, allObjects, inputBox, outputBox, textArea);
         warning.getDialogPane().setContent(vBox);
 
         ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
@@ -2130,7 +2171,51 @@ public class TreeHelper {
 
                             JEVisAttribute value = dataObject.getAttribute("Value");
                             if (value != null) {
-                                List<JEVisSample> allSamples = value.getAllSamples();
+                                List<JEVisSample> allSamples = new ArrayList<>();
+
+                                if (!changedFrom.get() && !changedTo.get()) {
+                                    allSamples = value.getAllSamples();
+                                } else if (changedFrom.get() && !changedTo.get()) {
+                                    DateTime dateTimeFrom = new DateTime(
+                                            datePickerFrom.valueProperty().get().getYear(),
+                                            datePickerFrom.valueProperty().get().getMonthValue(),
+                                            datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                            timePickerFrom.valueProperty().get().getHour(),
+                                            timePickerFrom.valueProperty().get().getMinute(),
+                                            timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                    allSamples = value.getSamples(dateTimeFrom, new DateTime(2500, 1, 1, 0, 0, 0, 0));
+                                } else if (!changedFrom.get() && changedTo.get()) {
+                                    DateTime dateTimeTo = new DateTime(
+                                            datePickerTo.valueProperty().get().getYear(),
+                                            datePickerTo.valueProperty().get().getMonthValue(),
+                                            datePickerTo.valueProperty().get().getDayOfMonth(),
+                                            timePickerTo.valueProperty().get().getHour(),
+                                            timePickerTo.valueProperty().get().getMinute(),
+                                            timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                    allSamples = value.getSamples(new DateTime(1900, 1, 1, 0, 0, 0, 0), dateTimeTo);
+                                } else {
+                                    DateTime dateTimeFrom = new DateTime(
+                                            datePickerFrom.valueProperty().get().getYear(),
+                                            datePickerFrom.valueProperty().get().getMonthValue(),
+                                            datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                            timePickerFrom.valueProperty().get().getHour(),
+                                            timePickerFrom.valueProperty().get().getMinute(),
+                                            timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                    DateTime dateTimeTo = new DateTime(
+                                            datePickerTo.valueProperty().get().getYear(),
+                                            datePickerTo.valueProperty().get().getMonthValue(),
+                                            datePickerTo.valueProperty().get().getDayOfMonth(),
+                                            timePickerTo.valueProperty().get().getHour(),
+                                            timePickerTo.valueProperty().get().getMinute(),
+                                            timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                    allSamples = value.getSamples(dateTimeFrom, dateTimeTo);
+                                }
+
+
                                 List<JEVisSample> virtualSamples = new ArrayList<>();
 
                                 for (JEVisSample sample : allSamples) {
@@ -2153,10 +2238,51 @@ public class TreeHelper {
                                     virtualSamples.add(virtualSample);
                                 }
 
-                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
+                                List<JEVisSample> finalAllSamples = allSamples;
+                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + finalAllSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
 
                                 if (allSamples.size() == virtualSamples.size()) {
-                                    value.deleteAllSample();
+                                    if (!changedFrom.get() && !changedTo.get()) {
+                                        value.deleteAllSample();
+                                    } else if (changedFrom.get() && !changedTo.get()) {
+                                        DateTime dateTimeFrom = new DateTime(
+                                                datePickerFrom.valueProperty().get().getYear(),
+                                                datePickerFrom.valueProperty().get().getMonthValue(),
+                                                datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                timePickerFrom.valueProperty().get().getHour(),
+                                                timePickerFrom.valueProperty().get().getMinute(),
+                                                timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        value.deleteSamplesBetween(dateTimeFrom, new DateTime(2500, 1, 1, 0, 0, 0, 0));
+                                    } else if (!changedFrom.get() && changedTo.get()) {
+                                        DateTime dateTimeTo = new DateTime(
+                                                datePickerTo.valueProperty().get().getYear(),
+                                                datePickerTo.valueProperty().get().getMonthValue(),
+                                                datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                timePickerTo.valueProperty().get().getHour(),
+                                                timePickerTo.valueProperty().get().getMinute(),
+                                                timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        value.deleteSamplesBetween(new DateTime(1900, 1, 1, 0, 0, 0, 0), dateTimeTo);
+                                    } else {
+                                        DateTime dateTimeFrom = new DateTime(
+                                                datePickerFrom.valueProperty().get().getYear(),
+                                                datePickerFrom.valueProperty().get().getMonthValue(),
+                                                datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                timePickerFrom.valueProperty().get().getHour(),
+                                                timePickerFrom.valueProperty().get().getMinute(),
+                                                timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        DateTime dateTimeTo = new DateTime(
+                                                datePickerTo.valueProperty().get().getYear(),
+                                                datePickerTo.valueProperty().get().getMonthValue(),
+                                                datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                timePickerTo.valueProperty().get().getHour(),
+                                                timePickerTo.valueProperty().get().getMinute(),
+                                                timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        value.deleteSamplesBetween(dateTimeFrom, dateTimeTo);
+                                    }
                                     value.addSamples(virtualSamples);
                                     Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " finished moving samples"));
                                 }
