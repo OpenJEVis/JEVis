@@ -970,11 +970,18 @@ public class FXLogin extends AnchorPane {
     }
 
     public void addLoginMessage(String message) {
-        StringBuilder stringBuilder = new StringBuilder(messageBox.getText());
-        if (stringBuilder.toString().length() > 0) {
+        String oldText = "";
+        if (messageBox.getText() != null && !messageBox.getText().isEmpty()) {
+            oldText = messageBox.getText();
+        }
+
+        StringBuilder stringBuilder = new StringBuilder(oldText);
+        if (oldText.length() > 0) {
             stringBuilder.append(System.getProperty("line.separator"));
         }
+
         stringBuilder.append(message);
+
         Platform.runLater(() -> {
             messageBox.setText(stringBuilder.toString());
             messageBox.setScrollTop(Double.MAX_VALUE);
