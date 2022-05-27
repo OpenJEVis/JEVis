@@ -385,7 +385,7 @@ public class DashboardControl {
         logger.debug("selectDashboard: {}", object);
         stopAllUpdates();
         try {
-            /** check if the last dashboard was saved and if not ask user **/
+            /* check if the last dashboard was saved and if not ask user */
             if (firstLoadedConfigHash != null) {
                 String newConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
                 if (!firstLoadedConfigHash.equals(newConfigHash)) {
@@ -401,12 +401,14 @@ public class DashboardControl {
                     });
                 }
             }
+            /* reset controls */
             this.firstLoadedConfigHash = null;
             this.editableProperty.setValue(false);
             this.snapToGridProperty.setValue(true);
             this.backgroundImage = null;
             this.newBackgroundFile = null;
             this.selectedWidgets = new ArrayList<>();
+            this.showGridProperty.setValue(false);
 
 
             showConfig();//if list is empty=reset
@@ -418,14 +420,14 @@ public class DashboardControl {
                 this.activeDashboard.setTitle("New Dashboard");
                 this.activeDashboard.setTimeFrame(timeFrameFactory.day());
 
-                /** Now we use 1920 x 1080 (minus the boarders) as default for all **/
+                /* Now we use 1920 x 1080 (minus the boarders) as default for all */
                 Size pluginSize = new Size(886.0, 1863.0);
                 //Size pluginSize = dashBordPlugIn.getPluginSize();
 
                 pluginSize.setHeight(pluginSize.getHeight() - 10);
                 pluginSize.setWidth(pluginSize.getWidth() - 10);
                 this.activeDashboard.setSize(pluginSize);
-            } else { /** load existing Dashboard**/
+            } else { /* load existing Dashboard*/
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
                     this.wd = new WorkDays(object);
