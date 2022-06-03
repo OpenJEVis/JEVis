@@ -96,7 +96,7 @@ public class ResourceSample {
             JsonObject obj = ds.getObject(id);
             if (obj == null) {
                 return Response.status(Status.NOT_FOUND)
-                        .entity("Object is not accessable").build();
+                        .entity("Object is not accessible").build();
             }
 
             if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
@@ -553,6 +553,13 @@ public class ResourceSample {
             ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject object = ds.getObject(id);
+
+            if (object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()) {
+                if (attribute.equals("Sys Admin")) {
+                    throw new JEVisException("permission denied", 3023);
+                }
+            }
+
             if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
                 if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
                     throw new JEVisException("permission denied", 3022);
