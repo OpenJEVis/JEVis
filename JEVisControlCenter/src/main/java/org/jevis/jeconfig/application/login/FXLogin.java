@@ -973,17 +973,23 @@ public class FXLogin extends AnchorPane {
         Platform.runLater(() -> {
             String oldText = "";
             if (messageBox.getText() != null && !messageBox.getText().isEmpty()) {
-                oldText = messageBox.getText();
+                try {
+                    oldText = messageBox.getAccessibleText();
+                    StringBuilder stringBuilder = new StringBuilder(oldText);
+                    if (oldText.length() > 0) {
+                        stringBuilder.append(System.getProperty("line.separator"));
+                    }
+
+                    stringBuilder.append(message);
+                    messageBox.setText(stringBuilder.toString());
+                    messageBox.setScrollTop(Double.MAX_VALUE);
+
+                } catch (IndexOutOfBoundsException ex) {
+                    logger.warn("Message index out of bounds", ex, ex);
+                }
             }
 
-            StringBuilder stringBuilder = new StringBuilder(oldText);
-            if (oldText.length() > 0) {
-                stringBuilder.append(System.getProperty("line.separator"));
-            }
 
-            stringBuilder.append(message);
-            messageBox.setText(stringBuilder.toString());
-            messageBox.setScrollTop(Double.MAX_VALUE);
         });
     }
 
