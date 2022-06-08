@@ -1,21 +1,15 @@
 package org.jevis.httpdatasource;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.auth.DigestScheme;
-import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,9 +39,11 @@ public class HTTPDataSource {
     private String password;
     private DateTimeZone timeZone;
     private Boolean ssl = false;
+
     public enum AUTH_SCHEME {
         BASIC, DIGEST, NONE
     }
+
     private AUTH_SCHEME authScheme;
     private Long id;
     private String name;
@@ -76,27 +72,25 @@ public class HTTPDataSource {
         if (ssl) {
             if (!serverURL.startsWith("https")) {
                 serverURL = "https://" + serverURL;
-                if (port != null) {
-                    serverURL += ":" + port;
-                }
             }
             /* We trust self signed certificates for now, this way is not save **/
             DataSourceHelper.doTrustToCertificates();
         } else {
             if (!serverURL.startsWith("http")) {
                 serverURL = "http://" + serverURL;
-                if (port != null) {
-                    serverURL += ":" + port;
-                }
             }
         }
 
-        /** we need a backslash at the end of server port*/
         if (serverURL.endsWith("/")) {
-
-        } else {
-            serverURL += "/";
+            serverURL = serverURL.substring(0, serverURL.length() - 1);
         }
+
+        if (port != null) {
+            serverURL += ":" + port;
+        }
+
+        serverURL += "/";
+
 
         /** Fallback if the URL does contain the port and the Port attribute has non **/
         URL url = new URL(serverURL);
@@ -105,27 +99,27 @@ public class HTTPDataSource {
             setPort(url.getPort());
         }
 
-        HttpHost targetHost = new HttpHost(url.getHost(), port, url.getProtocol());
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpClientContext context = HttpClientContext.create();
 
-        if (getAuthScheme() != null) {
-            CredentialsProvider credsProvider = new BasicCredentialsProvider();
-            credsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, password));
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(connectionTimeout * 1000)
+                .setSocketTimeout(readTimeout * 1000)
+                .build();
 
-            AuthCache authCache = new BasicAuthCache();
-            context.setAuthCache(authCache);
+        //HttpHost targetHost = new HttpHost(url.getHost(), port, url.getProtocol());
 
-            setAuthScheme(AUTH_SCHEME.DIGEST);
-            if (getAuthScheme() == AUTH_SCHEME.BASIC) {
-                BasicScheme basicScheme = new BasicScheme();
-                authCache.put(targetHost, basicScheme);
-            } else if (getAuthScheme() == AUTH_SCHEME.DIGEST) {
-                DigestScheme digestScheme = new DigestScheme();
-                authCache.put(targetHost, digestScheme);
-            }
-
-            context.setCredentialsProvider(credsProvider);
+        CloseableHttpClient httpClient;
+        if (userName != null && !userName.isEmpty()) {
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            provider.setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials(userName, password)
+            );
+            httpClient = HttpClientBuilder.create()
+                    .setDefaultCredentialsProvider(provider)
+                    .build();
+        } else {
+            httpClient = HttpClientBuilder.create()
+                    .build();
         }
 
         String contentURL = path;
@@ -136,7 +130,7 @@ public class HTTPDataSource {
         String getRequest = "";
         if (pathFollower.isActive()) {
             logger.debug("[{}] Using Dynamic Link", channelID, channelID);
-            pathFollower.setConnection(httpClient, context);
+            pathFollower.setConnection(httpClient, requestConfig);
             getRequest = pathFollower.startFetching(serverURL, contentURL);
             logger.debug("[{}] Final target url after following links: {}", channelID, getRequest);
         } else {
@@ -144,15 +138,11 @@ public class HTTPDataSource {
         }
         logger.info("[{}] send HTTP.get: {}", channelID, getRequest);
 
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(connectionTimeout * 1000)
-                .setSocketTimeout(readTimeout * 1000)
-                .build();
         HttpGet get = new HttpGet(getRequest);
         get.setConfig(requestConfig);
 
-        HttpResponse oResponse = httpClient.execute(get, context);
-
+        HttpResponse oResponse = httpClient.execute(get);
+        logger.info("[{}] HTTP response status code: {}", channelID, oResponse.getStatusLine());
         HttpEntity oEntity = oResponse.getEntity();
         String oXmlString = EntityUtils.toString(oEntity);
         logger.info("[{}] Content length to parse: {}", channelID, oXmlString.length());
@@ -203,7 +193,6 @@ public class HTTPDataSource {
         String SSL = "SSL";
         String USER = "User";
     }
-
 
 
     interface HTTPChannelDirectory extends DataCollectorTypes.ChannelDirectory {

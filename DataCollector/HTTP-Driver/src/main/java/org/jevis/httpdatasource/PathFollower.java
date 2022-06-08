@@ -3,8 +3,8 @@ package org.jevis.httpdatasource;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
@@ -27,15 +27,21 @@ public class PathFollower {
     private static final Logger logger = LogManager.getLogger(PathFollower.class);
     JEVisClass followClass;
     Link link = null;
+    private RequestConfig requestConfig;
 
     private CloseableHttpClient httpClient;
-    HttpClientContext context;
 
     public PathFollower(JEVisObject channel) {
         logger.debug("New PathFollower: {}", channel);
         if (channel == null) {
             logger.warn("Error channel is null, cancel PathFollower init");
         } else {
+            try {
+                followClass = channel.getDataSource().getJEVisClass(FOLLOW_CLASS);
+            } catch (Exception ex) {
+                logger.error("Could not load class: '{}'", FOLLOW_CLASS, ex);
+            }
+
             if (channel != null && followClass != null) {
 
                 try {
@@ -54,17 +60,19 @@ public class PathFollower {
 
     }
 
-    public void setConnection(CloseableHttpClient httpClient, HttpClientContext context) {
+    public void setConnection(CloseableHttpClient httpClient, RequestConfig requestConfig) {
         this.httpClient = httpClient;
-        this.context = context;
+        this.requestConfig = requestConfig;
     }
 
 
     public Document getDocument(String url) {
         HttpGet httpget = new HttpGet(url);
+        httpget.setConfig(this.requestConfig);
         String html = "";
         try {
-            HttpResponse response = httpClient.execute(httpget, context);
+            //HttpResponse response = httpClient.execute(httpget, context);
+            HttpResponse response = httpClient.execute(httpget);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_OK) {
 
@@ -83,7 +91,7 @@ public class PathFollower {
 
 
     public String startFetching(String baseURL, String documentURL) throws IOException {
-        Document document = getDocument(documentURL);
+        Document document = getDocument(baseURL + documentURL);
         logger.trace("----DOC Start----");
         logger.trace("Document: {}", document);
         logger.trace("----DOC End----");
@@ -93,8 +101,8 @@ public class PathFollower {
     }
 
     private String followLinks(Document document, Link link, String baseURL) throws IOException {
-        logger.error("---------------------------------------------------");
-        logger.error("followLinks in: {}, link: {}", document.title(), link.getLinkObject());
+        logger.debug("---------------------------------------------------");
+        logger.info("followLinks in: {}, link: {}", document.title(), link.getLinkObject());
 
         Pattern pattern = Pattern.compile(link.patternToFind);
         logger.debug("pattern to find: {}", pattern);
@@ -103,7 +111,7 @@ public class PathFollower {
         List<String> matches = new ArrayList<>();
         document.select("a").forEach(element -> {
             try {
-                logger.debug("Link: '{}' Matches: '{}' = {}", element.text(), link.patternToFind, pattern.matcher(element.text()));
+                logger.info("Link: '{}' Matches: '{}' = {}", element.text(), link.patternToFind, pattern.matcher(element.text()));
                 Matcher matcher = pattern.matcher(element.text());
                 boolean match = matcher.matches();
                 if (match) {
@@ -243,9 +251,9 @@ public class PathFollower {
                                 takeElement = elementAtt.getLatestSample().getValueAsLong().intValue();
                             }
 
-                            logger.error("Element index value: {}", url);
+                            logger.debug("Element index value: {}", url);
                         } else {
-                            logger.error("No path value");
+                            logger.debug("No path value");
                         }
                     } else {
                         logger.error("No path attribute");
@@ -259,7 +267,7 @@ public class PathFollower {
                 try {
                     List<JEVisObject> linksToFollow = obj.getChildren(followClass, false);
                     if (linksToFollow.isEmpty()) {
-                        logger.error("no follow link");
+                        logger.info("no follow link");
                     } else {
                         linksToFollow.forEach(linkObject -> {
 
