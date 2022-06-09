@@ -47,6 +47,7 @@ public class HTTPDataSource {
     private AUTH_SCHEME authScheme;
     private Long id;
     private String name;
+    private boolean needUrlConfig = true;
 
 
     /**
@@ -68,35 +69,37 @@ public class HTTPDataSource {
         logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
 
-        /* Workaround if the protocol is not in the url**/
-        if (ssl) {
-            if (!serverURL.startsWith("https")) {
-                serverURL = "https://" + serverURL;
+        if (needUrlConfig) {/*only the first channel needs to configure the server url*/
+            if (ssl) {/* Workaround if the protocol is not in the url**/
+                if (!serverURL.startsWith("https")) {
+                    serverURL = "https://" + serverURL;
+                }
+                /* We trust self signed certificates for now, this way is not save **/
+                DataSourceHelper.doTrustToCertificates();
+            } else {
+                if (!serverURL.startsWith("http")) {
+                    serverURL = "http://" + serverURL;
+                }
             }
-            /* We trust self signed certificates for now, this way is not save **/
-            DataSourceHelper.doTrustToCertificates();
-        } else {
-            if (!serverURL.startsWith("http")) {
-                serverURL = "http://" + serverURL;
+
+            if (serverURL.endsWith("/")) {
+                serverURL = serverURL.substring(0, serverURL.length() - 1);
             }
-        }
 
-        if (serverURL.endsWith("/")) {
-            serverURL = serverURL.substring(0, serverURL.length() - 1);
-        }
+            if (port != null) {
+                serverURL += ":" + port;
+            }
 
-        if (port != null) {
-            serverURL += ":" + port;
-        }
-
-        serverURL += "/";
+            serverURL += "/";
 
 
-        /** Fallback if the URL does contain the port and the Port attribute has non **/
-        URL url = new URL(serverURL);
-        if (port == null && url.getPort() > -1) {
-            logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, port);
-            setPort(url.getPort());
+            /** Fallback if the URL does contain the port and the Port attribute has non **/
+            URL url = new URL(serverURL);
+            if (port == null && url.getPort() > -1) {
+                logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, port);
+                setPort(url.getPort());
+            }
+            needUrlConfig = false;
         }
 
 
