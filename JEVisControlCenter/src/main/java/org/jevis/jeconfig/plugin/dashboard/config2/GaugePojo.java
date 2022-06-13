@@ -140,7 +140,6 @@ public class GaugePojo {
 
         @Override
         public void commitChanges() {
-            System.out.println("this");
         }
     }
 
@@ -160,20 +159,25 @@ public class GaugePojo {
 
 
         vBox.getChildren().add(new HBox(8,buttonAddSection,buttonRemoveSection));
-        for (GaugeSectionPojo section:sections) {
-            VBox vBoxSection = createNewSection(section);
+
+        for (int i = 0; i < sections.size(); i++) {
+            VBox vBoxSection = createNewSection(sections.get(i),i+1);
             vBox.getChildren().add(vBox.getChildren().size()-1,vBoxSection);
+
         }
+
 
 
         buttonAddSection.setOnAction(event -> {
             sections.add(new GaugeSectionPojo(0.0,50.0,Color.AQUA));
-            VBox vBoxSection = createNewSection(sections.get(sections.size() - 1));
+            VBox vBoxSection = createNewSection(sections.get(sections.size()-1),sections.size());
             vBox.getChildren().add(vBox.getChildren().size()-1,vBoxSection);
         });
 
         buttonRemoveSection.setOnAction(event -> {
-            vBox.getChildren().remove(vBox.getChildren().size() - 2);
+            if (vBox.getChildren().size() > 2) {
+                vBox.getChildren().remove(vBox.getChildren().size() - 2);
+            }
         });
 
         scrollPane.setContent(vBox);
@@ -181,9 +185,10 @@ public class GaugePojo {
         return tab;
     }
 
-    private VBox createNewSection(GaugeSectionPojo gaugeSection) {
+    private VBox createNewSection(GaugeSectionPojo gaugeSection, int index) {
         VBox vBox = new VBox();
         vBox.setSpacing(8);
+        vBox.getChildren().add(new Label(I18n.getInstance().getString("plugin.graph.dashboard.section")+" "+index));
         JFXTextField minTextField = new JFXTextField(String.valueOf(gaugeSection.getStart()));
         minTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             gaugeSection.setStart(Double.parseDouble(newValue));

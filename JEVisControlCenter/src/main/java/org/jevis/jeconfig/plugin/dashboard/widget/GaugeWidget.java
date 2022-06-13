@@ -120,12 +120,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
 
         Platform.runLater(() -> {
-//            this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
-//        });
-//
         String widgetUUID = "-1";
-//
-//
                     AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
                     //try {
                     widgetUUID = getConfig().getUuid() + "";
@@ -142,9 +137,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
                         results = dataModel.getSamples();
                         if (!results.isEmpty()) {
-
-
-
                             total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
                             if (gaugeSettings.isInPercent()) {
                                gauge.setValue(convertToPercent(total.get(), gaugeSettings.getMaximum(),this.config.getDecimals()));
@@ -192,8 +184,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateLayout() {
-        //updateText();
-        //updateSkin();
+        updateSkin();
+        updateText();
     }
 
     @Override
@@ -238,8 +230,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     public void updateConfig() {
             Platform.runLater(() -> {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-                updateText();
                 updateSkin();
+                updateText();
             });
 
     }
@@ -294,6 +286,11 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
         try {
             this.gaugeSettings = new GaugePojo(this.control, this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
+            if (sampleHandler.getDataModel().size() > 0) {
+                if (sampleHandler.getDataModel().get(0) != null) {
+                    displayedUnit.setValue(sampleHandler.getDataModel().get(0).getUnitLabel());
+                }
+            }
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -317,7 +314,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 GridPane gp = new GridPane();
                 gp.setHgap(4);
                 gp.setVgap(8);
-
                 for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
                     if (chartDataRow.getEnPI()) {
                         try {
@@ -376,8 +372,9 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                     && event.getClickCount() == 1 && event.isShiftDown()) {
                 debug();
             }
-        });
 
+        });
+        updateConfig();
 
     }
 
@@ -401,10 +398,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                     .set(GAUGE_DESIGN_NODE_NAME, gaugeSettings.toJSON());
         }
 
-//        if (percent != null) {
-//            dashBoardNode
-//                    .set(PERCENT_NODE_NAME, percent.toJSON());
-//        }
 
 
         return dashBoardNode;
