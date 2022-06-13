@@ -12,7 +12,10 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import java.math.BigDecimal;
@@ -35,12 +38,16 @@ public class AggregationAlignmentStep implements ProcessStep {
 
         Map<DateTime, JEVisSample> notesMap = resourceManager.getNotesMap();
         List<CleanInterval> intervals = resourceManager.getIntervals();
+        List<JEVisSample> rawSamples = resourceManager.getRawSamplesDown();
 
         boolean downSampling = true;
         Boolean valueIsQuantity = cleanDataObject.getValueIsQuantity();
 
         BigDecimal offset = new BigDecimal(resourceManager.getCleanDataObject().getOffset().toString());
         List<JEVisSample> listMultipliers = resourceManager.getCleanDataObject().getMultiplier();
+
+        WorkDays wd = new WorkDays(cleanDataObject.getCleanObject());
+        DateTimeZone timeZone = wd.getDateTimeZone();
 
         /**
          * calc the sample per interval if possible depending on aggregation mode (avg or sum value)
@@ -233,7 +240,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                 int nextAdd = 0;
                 Double value = null;
 
-                if (currentInterval.getRawSamples() == null || currentInterval.getRawSamples().isEmpty()) {
+                if (((currentInterval.getRawSamples() == null || currentInterval.getRawSamples().isEmpty()) && j > 0) && currentInterval.isDifferential()) {
                     String note = "";
                     if (j < intervals.size() - 1) {
                         for (int i = j; i < intervals.size(); i++) {
@@ -268,18 +275,65 @@ public class AggregationAlignmentStep implements ProcessStep {
                             sample1.setNote(note);
                         }
                     }
-                } else if (j == 0) {
+                } else if (j == 0 && currentInterval.isDifferential()) {
                     try {
-                        long periodCount = inputPeriod.toStandardDuration().getMillis() / outputPeriod.toStandardDuration().getMillis();
+                        DateTime timestamp = currentInterval.getResult().getTimestamp();
+                        DateTime inputTS = PeriodHelper.addPeriodToDate(timestamp, inputPeriod);
+                        long diffInput = inputTS.getMillis() - timestamp.getMillis();
+                        DateTime outputTS = PeriodHelper.addPeriodToDate(timestamp, outputPeriod);
+                        long diffOutput = outputTS.getMillis() - timestamp.getMillis();
+                        long periodCount = diffInput / diffOutput;
                         value = currentInterval.getResult().getValueAsDouble() / periodCount;
                         String note = currentInterval.getResult().getNote();
                         if (note == null || note.equals("")) {
-                            note = "agg(yes,up," + periodCount + ",avg)";
+                            note = "agg(yes,up," + periodCount + ",sum)";
                         } else {
-                            note = note + ",agg(yes,up," + periodCount + ",avg)";
+                            note = note + ",agg(yes,up," + periodCount + ",sum)";
                         }
                         currentInterval.getResult().setValue(value);
                         currentInterval.getResult().setNote(note);
+                    } catch (Exception e) {
+                        logger.error("Could not get period count", e);
+                    }
+                } else {
+                    try {
+                        DateTime timestamp = currentInterval.getResult().getTimestamp();
+
+                        boolean matchesUpscaleTimestamp = false;
+                        for (JEVisSample rawSample : rawSamples) {
+                            if (timestamp.equals(rawSample.getTimestamp())) {
+                                matchesUpscaleTimestamp = true;
+                                break;
+                            }
+                        }
+
+                        if (matchesUpscaleTimestamp) {
+
+                            DateTime maxDate = PeriodHelper.getNextPeriod(timestamp, inputPeriod, 1, true, timeZone);
+
+                            long diffInput = maxDate.getMillis() - timestamp.getMillis();
+                            DateTime outputTS = PeriodHelper.addPeriodToDate(timestamp, outputPeriod);
+                            long diffOutput = outputTS.getMillis() - timestamp.getMillis();
+                            long periodCount = diffInput / diffOutput;
+                            value = currentInterval.getResult().getValueAsDouble() / periodCount;
+                            String note = currentInterval.getResult().getNote();
+                            if (note == null || note.equals("")) {
+                                note = "agg(yes,up," + periodCount + ",sum)";
+                            } else {
+                                note = note + ",agg(yes,up," + periodCount + ",sum)";
+                            }
+                            currentInterval.getResult().setValue(value);
+                            currentInterval.getResult().setNote(note);
+
+                            for (int i = j; i < intervals.size(); i++) {
+                                if (intervals.get(i).getResult().getTimestamp().isBefore(maxDate)) {
+                                    intervals.get(i).getResult().setValue(value);
+                                    intervals.get(i).getResult().setNote(note);
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
                     } catch (Exception e) {
                         logger.error("Could not get period count", e);
                     }

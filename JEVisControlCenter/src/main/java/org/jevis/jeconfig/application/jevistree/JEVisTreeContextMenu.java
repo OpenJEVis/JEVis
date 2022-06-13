@@ -347,7 +347,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 objects.add(jeVisTreeItem.getValue().getJEVisObject());
             });
 
-            Task exportTask = exportMaster.exportToFileTask(file, objects);
+            Task<Void> exportTask = exportMaster.exportToFileTask(file, objects);
             JEConfig.getStatusBar().addTask("Tree Exporter", exportTask, JEConfig.getImage("save.gif"), true);
 
         }
@@ -371,7 +371,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         if (selectedFile != null) {
             try {
                 TreeExporterDelux exportMaster = new TreeExporterDelux();
-                Task exportTask = exportMaster.importFromFile(selectedFile, obj);
+                Task<Void> exportTask = exportMaster.importFromFile(selectedFile, obj);
                 JEConfig.getStatusBar().addTask("Tree Importer", exportTask, JEConfig.getImage("save.gif"), true);
                 //List<DimpexObject> objects = DimpEX.readFile(selectedFile);
                 //DimpEX.importALL(obj.getDataSource(), objects, obj);

@@ -187,8 +187,14 @@ public class JEVisImporter implements Importer {
             Map<JEVisAttribute, List<JEVisSample>> toImportList = new HashMap<>();
             for (Result s : results) {
                 try {
-                    //how can there to invalied samples....
-                    if (s == null || s.getTargetStr() == null) {
+                    logger.debug("Result to import: att: {}, date: {}, value: {}, targetS: {}", s.getAttribute(), s.getDate(), s.getValue(), s.getTargetStr());
+                    if (s == null || s.getTargetStr() == null || s.getTargetStr().isEmpty() || s.getAttribute() == null || s.getAttribute().isEmpty()) {
+                        logger.error("Skip import for missing target");
+                        continue;
+                    }
+                    JEVisAttribute target = targets.get(s.getTargetStr());
+                    if (target == null) {
+                        logger.error("Skipping Target, not found: {}", s.getTargetStr());
                         continue;
                     }
 
@@ -208,7 +214,7 @@ public class JEVisImporter implements Importer {
                         logger.error("Error: Could not convert Date");
                         continue;
                     }
-                    JEVisAttribute target = targets.get(s.getTargetStr());
+
                     if (!toImportList.containsKey(target)) {
                         toImportList.put(target, new ArrayList<JEVisSample>());
                     }
@@ -224,7 +230,7 @@ public class JEVisImporter implements Importer {
                     sList.add(sample);
                 } catch (Exception ex) {
                     errorImport++;
-                    logger.fatal("Unexpected error while sample creation: ", ex);
+                    logger.fatal("Unexpected error while sample creation: {}", ex, ex);
                 }
 
             }

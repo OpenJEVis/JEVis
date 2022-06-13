@@ -369,18 +369,21 @@ public class DashBoardToolbar extends ToolBar {
 
         Region spacerForRightSide = new Region();
         HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);
-        getItems().clear();
-        getItems().setAll(
-                listAnalysesComboBox
-                , sep3, toolBarIntervalSelector, customWorkDay
-                , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
-                , sep4, loadDialogButton, save
-                , sep5, navigator, exportPNG, exportPDF, widgetSelector, copyButton, delete
-                , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
-        );
+
+        Platform.runLater(() -> {
+            getItems().clear();
+            getItems().setAll(
+                    listAnalysesComboBox
+                    , sep3, toolBarIntervalSelector, customWorkDay
+                    , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
+                    , sep4, loadDialogButton, save
+                    , sep5, navigator, exportPNG, exportPDF, widgetSelector, copyButton, delete
+                    , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
+            );
+        });
 
         getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-        JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems());
+        Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
         updateView(dashboardControl.getActiveDashboard());
     }

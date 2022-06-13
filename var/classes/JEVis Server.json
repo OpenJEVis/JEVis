@@ -1,0 +1,58 @@
+{
+  "name": "JEVis Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JEVis Channel Directory",
+      "end": "JEVis Server",
+      "type": 3
+    },
+    {
+      "start": "JEVis Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "JEVis Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEVis Server"
+    },
+    {
+      "name": "SSL",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEVis Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEVis Server"
+    },
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "JEVis Server"
+    }
+  ]
+}

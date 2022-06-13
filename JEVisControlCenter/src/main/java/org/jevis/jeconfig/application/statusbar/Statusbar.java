@@ -175,7 +175,7 @@ public class Statusbar extends ToolBar {
                         if (taskProgressView.getTasks().isEmpty()) {
                             Platform.runLater(() -> {
                                 hideTaskListPane.setVisible(true);
-                                popup.hide();
+                                Platform.runLater(popup::hide);
                                 progressBar.setVisible(false);
                             });
                         }
@@ -369,7 +369,7 @@ public class Statusbar extends ToolBar {
 
         Label versionNumber = new Label(JEConfig.class.getPackage().getImplementationVersion());
         versionNumber.widthProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue != newValue) {
+            if (!oldValue.equals(newValue)) {
                 try {
                     Tooltip tooltip = new Tooltip(((new Date()).getTime() - JEConfig.startDate.getTime()) + "ms");
                     versionNumber.setTooltip(tooltip);
@@ -420,7 +420,7 @@ public class Statusbar extends ToolBar {
         this.onlineInfo.setTooltip(serverTip);
 
         HBox.setHgrow(root, Priority.ALWAYS);
-        getItems().add(root);
+        Platform.runLater(() -> getItems().add(root));
 
         setBar();
     }

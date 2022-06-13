@@ -61,6 +61,7 @@
         <module>Email-Driver</module>
         <module>DWDHDDParser</module>
         <module>DWDWDParser</module>
+        <module>JEVisDataServer</module>
     </modules>
    
 </project>

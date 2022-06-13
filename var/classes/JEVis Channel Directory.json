@@ -1,0 +1,22 @@
+{
+  "name": "JEVis Channel Directory",
+  "description": "The class JEVis Channel Directory represents a specific directory for the management of data.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JEVis Channel",
+      "end": "JEVis Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "JEVis Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "JEVis Channel Directory",
+      "end": "JEVis Server",
+      "type": 3
+    }
+  ]
+}

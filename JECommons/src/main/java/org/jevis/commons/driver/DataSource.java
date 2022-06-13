@@ -77,10 +77,15 @@ public interface DataSource {
     void importResult();
 
     default boolean isReady(JEVisObject object) {
-        DateTime lastRun = getLastRun(object);
-        Long cycleTime = getCycleTime(object);
-        DateTime nextRun = lastRun.plusMillis(cycleTime.intValue());
-        return DateTime.now().withZone(getTimeZone(object)).equals(nextRun) || DateTime.now().isAfter(nextRun);
+        try {
+            DateTime lastRun = getLastRun(object);
+            Long cycleTime = getCycleTime(object);
+            DateTime nextRun = lastRun.plusMillis(cycleTime.intValue());
+            return DateTime.now().withZone(getTimeZone(object)).equals(nextRun) || DateTime.now().isAfter(nextRun);
+        } catch (Exception ex) {
+            logger.error("Error while checking isReady for '{}':{}", object, ex, ex);
+            return false;
+        }
     }
 
     default DateTimeZone getTimeZone(JEVisObject object) {
@@ -121,7 +126,7 @@ public interface DataSource {
     }
 
     default Long getCycleTime(JEVisObject object) {
-        Long aLong = null;
+        Long aLong = 3600000l;// 1hour fallback
 
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Cycle Time");
@@ -132,8 +137,8 @@ public interface DataSource {
                 }
             }
 
-        } catch (JEVisException e) {
-            logger.error("Could not get data source cycle time: ", e);
+        } catch (Exception e) {
+            logger.error("Could not get data source cycle time using default {}msec, reason: ", aLong, e);
         }
 
         return aLong;

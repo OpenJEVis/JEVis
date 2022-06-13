@@ -122,6 +122,7 @@ public class PasswordEditor implements AttributeEditor {
                             if (_attribute.hasSample()) {
                                 sample = _attribute.getLatestSample();
                                 sample.setValue(dia.getPassword());
+                                sample.setNote(note);
                             } else {
                                 sample = _attribute.buildSample(new DateTime(), dia.getPassword(), note);
 
