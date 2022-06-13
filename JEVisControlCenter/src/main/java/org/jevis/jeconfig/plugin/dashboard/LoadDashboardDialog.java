@@ -262,11 +262,11 @@ public class LoadDashboardDialog extends JFXDialog {
             Region spacer = new Region();
             cancelButton = new JFXButton(I18n.getInstance().getString("plugin.graph.changedate.cancel"));
             cancelButton.setId("cancel-button");
-            loadButton = new JFXButton(I18n.getInstance().getString("plugin.graph.dashboard.load"));
-            newButton = new JFXButton(I18n.getInstance().getString("plugin.graph.dashboard.new"));
+            loadButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.load"));
+            newButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.new"));
             loadButton.setId("ok-button");
-            loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
-            newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
+            loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.loaddialog.load")));
+            newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.loaddialog.new")));
             cancelButton.setCancelButton(true);
             loadButton.setDefaultButton(true);
 

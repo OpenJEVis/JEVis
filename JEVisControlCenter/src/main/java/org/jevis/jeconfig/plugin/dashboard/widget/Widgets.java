@@ -25,6 +25,7 @@ public class Widgets {
             put(ArrowWidget.WIDGET_ID, ArrowWidget.class.getName());
             put(SankeyWidget.WIDGET_ID, SankeyWidget.class.getName());
             put(ImageWidget.WIDGET_ID, ImageWidget.class.getName());
+            put(GaugeWidget.WIDGET_ID, GaugeWidget.class.getName());
 
         }
     };
@@ -46,6 +47,7 @@ public class Widgets {
         widgetList.add(new ArrowWidget(control, new WidgetPojo(i--)));
         //widgetList.add(new SankeyWidget(control, config));
         widgetList.add(new ImageWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new GaugeWidget(control, new WidgetPojo(i--)));
 
         return widgetList;
     }
