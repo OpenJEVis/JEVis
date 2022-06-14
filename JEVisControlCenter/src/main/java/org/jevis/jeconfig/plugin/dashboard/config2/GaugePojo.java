@@ -33,7 +33,7 @@ public class GaugePojo {
 
     int gaugeWidgetID = -1;
 
-    private double maximum = 50;
+    private double maximum = 0;
 
     private double minimum = 0;
 
@@ -202,7 +202,7 @@ public class GaugePojo {
 
 
         buttonAddSection.setOnAction(event -> {
-            sections.add(new GaugeSectionPojo(0.0,50.0,Color.AQUA));
+            sections.add(new GaugeSectionPojo());
             VBox vBoxSection = createNewSection(sections.get(sections.size()-1),sections.size());
             vBox.getChildren().add(vBox.getChildren().size()-1,vBoxSection);
         });
