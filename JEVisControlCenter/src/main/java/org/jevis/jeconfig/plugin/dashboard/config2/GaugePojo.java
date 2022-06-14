@@ -43,6 +43,12 @@ public class GaugePojo {
 
     final DashboardControl dashboardControl;
 
+    private boolean showTitle = true;
+
+    private boolean showUnit = true;
+
+    private boolean showValue = true;
+
 
     ObservableList<String> skins = FXCollections.observableArrayList();
 
@@ -83,6 +89,9 @@ public class GaugePojo {
             maximum = jsonNode.get("maximum").asDouble();
             minimum = jsonNode.get("minimum").asDouble();
             inPercent = jsonNode.get("inPercent").asBoolean();
+            showTitle = jsonNode.get("showTitle").asBoolean();
+            showUnit = jsonNode.get("showUnit").asBoolean();
+            showValue = jsonNode.get("showValue").asBoolean();
             for (int i = 0; i < jsonNode.get("sections").size(); i++) {
                 double sectionEnd = jsonNode.get("sections").get(i).get("end").asDouble();
                 double sectionStart = jsonNode.get("sections").get(i).get("start").asDouble();
@@ -127,6 +136,30 @@ public class GaugePojo {
                 ", dashboardControl=" + dashboardControl +
                 ", skins=" + skins +
                 '}';
+    }
+
+    public boolean isShowTitle() {
+        return showTitle;
+    }
+
+    public void setShowTitle(boolean showTitle) {
+        this.showTitle = showTitle;
+    }
+
+    public boolean isShowUnit() {
+        return showUnit;
+    }
+
+    public void setShowUnit(boolean showUnit) {
+        this.showUnit = showUnit;
+    }
+
+    public boolean isShowValue() {
+        return showValue;
+    }
+
+    public void setShowValue(boolean showValue) {
+        this.showValue = showValue;
     }
 
 
@@ -188,7 +221,7 @@ public class GaugePojo {
     private VBox createNewSection(GaugeSectionPojo gaugeSection, int index) {
         VBox vBox = new VBox();
         vBox.setSpacing(8);
-        vBox.getChildren().add(new Label(I18n.getInstance().getString("plugin.graph.dashboard.section")+" "+index));
+        vBox.getChildren().add(new Label(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.section")+" "+index));
         JFXTextField minTextField = new JFXTextField(String.valueOf(gaugeSection.getStart()));
         minTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             gaugeSection.setStart(Double.parseDouble(newValue));
@@ -221,6 +254,25 @@ public class GaugePojo {
     private VBox createMaxMin() {
         VBox vBox = new VBox();
         vBox.setSpacing(8);
+        JFXCheckBox jfxCheckBoxShowTitle = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.showTitle"));
+        jfxCheckBoxShowTitle.setSelected(showTitle);
+        JFXCheckBox jfxCheckBoxShowValue = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.showValue"));
+        jfxCheckBoxShowValue.setSelected(showValue);
+        JFXCheckBox jfxCheckBoxShowUnit = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.showUnit"));
+        jfxCheckBoxShowUnit.setSelected(showUnit);
+
+        jfxCheckBoxShowTitle.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            showTitle = newValue;
+        });
+
+        jfxCheckBoxShowUnit.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            showUnit = newValue;
+        });
+
+        jfxCheckBoxShowValue.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            showValue = newValue;
+        });
+
 
         JFXCheckBox checkBoxInPercent = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent"));
         checkBoxInPercent.setSelected(inPercent);
@@ -239,10 +291,22 @@ public class GaugePojo {
             maximum = Double.parseDouble(newValue);
         });
 
+        HBox hBoxShowTitle = new HBox(jfxCheckBoxShowTitle);
+        hBoxShowTitle.setPadding(new Insets(5,8,5,8));
+        hBoxShowTitle.setSpacing(8);
 
-        HBox hBoxStartAngle = new HBox(checkBoxInPercent);
-        hBoxStartAngle.setPadding(new Insets(5,8,5,8));
-        hBoxStartAngle.setSpacing(8);
+        HBox hBoxShowUnit = new HBox(jfxCheckBoxShowUnit);
+        hBoxShowUnit.setPadding(new Insets(5,8,5,8));
+        hBoxShowUnit.setSpacing(8);
+
+        HBox hBoxShowValue = new HBox(jfxCheckBoxShowValue);
+        hBoxShowValue.setPadding(new Insets(5,8,5,8));
+        hBoxShowValue.setSpacing(8);
+
+
+        HBox hBoxInPercent = new HBox(checkBoxInPercent);
+        hBoxInPercent.setPadding(new Insets(5,8,5,8));
+        hBoxInPercent.setSpacing(8);
 
 
         HBox hBoxMaximum = new HBox(new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), maxTextField);
@@ -255,7 +319,7 @@ public class GaugePojo {
         hBoxMinimum.setSpacing(8);
 
 
-        vBox.getChildren().addAll(hBoxStartAngle,hBoxMinimum,hBoxMaximum,new Separator(Orientation.HORIZONTAL));
+        vBox.getChildren().addAll(hBoxShowTitle,hBoxShowUnit,hBoxShowValue,hBoxInPercent,hBoxMinimum,hBoxMaximum,new Separator(Orientation.HORIZONTAL));
         return vBox;
     }
 
@@ -283,6 +347,9 @@ public class GaugePojo {
         dataNode.put("minimum", minimum);
         dataNode.put("maximum", maximum);
         dataNode.put("inPercent", inPercent);
+        dataNode.put("showTitle", showTitle);
+        dataNode.put("showValue", showValue);
+        dataNode.put("showUnit", showUnit);
 
         ArrayNode arrayNode = dataNode.putArray("sections");
         for (GaugeSectionPojo gaugeSection:sections) {

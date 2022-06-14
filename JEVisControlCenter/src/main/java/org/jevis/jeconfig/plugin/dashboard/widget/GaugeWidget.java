@@ -21,6 +21,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
@@ -158,6 +159,16 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         gauge.setUnitColor(this.config.getFontColor());
         gauge.setValueColor(this.config.getFontColor());
         gauge.setDecimals(this.config.getDecimals());
+
+        if (!gaugeSettings.isShowTitle()) {
+            gauge.setTitle("");
+        }
+        if (!gaugeSettings.isShowUnit()) {
+            gauge.setUnit("");
+        }
+        if (!gaugeSettings.isShowValue()) {
+            gauge.setValueColor(Color.valueOf("#ffffff00"));
+        }
     }
 
 
