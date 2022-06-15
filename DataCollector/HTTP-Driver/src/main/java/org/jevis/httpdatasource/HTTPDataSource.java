@@ -55,8 +55,9 @@ public class HTTPDataSource {
      * @return
      */
     public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
+        logger.info("sendSampleRequest to http channel: {}", channel);
+
         String channelID = channel.getChannelObject().getID().toString();
-        logger.info("sendSampleRequest to http channel: {}", channel.getChannelObject());
         List<InputStream> answer = new ArrayList<InputStream>();
 
         String path = channel.getPath();
