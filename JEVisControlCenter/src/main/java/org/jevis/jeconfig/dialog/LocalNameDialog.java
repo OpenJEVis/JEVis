@@ -151,9 +151,34 @@ public class LocalNameDialog {
 
         TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("jevistree.dialog.translate.table.name"));
         lastNameCol.setPrefWidth(220);
-        lastNameCol.setCellValueFactory(new PropertyValueFactory<TranslationRow,String>("name"));
+        //lastNameCol.setCellValueFactory(new PropertyValueFactory<TranslationRow,String>("name"));
         lastNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
         lastNameCol.setEditable(true);
+
+
+        lastNameCol.setCellFactory(param -> new TableCell<TranslationRow,String>(){
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if(empty){
+                    setGraphic(null);
+                    setText(null);
+                }else{
+                    try {
+                            JFXTextField jfxTextField = new JFXTextField();
+                            TranslationRow rowItem = (TranslationRow) getTableRow().getItem();
+                            jfxTextField.textProperty().bindBidirectional(rowItem.name);
+                            setGraphic(jfxTextField);
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+
+                }
+
+            }
+        });
+
+
 
         table.getColumns().addAll(firstNameCol, lastNameCol);
 
@@ -191,7 +216,8 @@ public class LocalNameDialog {
                             object.setName(newName);
                             Map<String, String> commitLangMap = new HashedMap();
                             translationRows.forEach(translationRow -> {
-                                if (translationRow != null && !translationRow.getName().isEmpty()) {
+                                System.out.println(translationRow);
+                                if (translationRow.getLanguage() != null && !translationRow.getName().isEmpty()) {
                                     commitLangMap.put(translationRow.getLanguage(), translationRow.getName());
                                 }
 

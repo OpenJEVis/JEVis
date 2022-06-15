@@ -169,6 +169,11 @@
             <artifactId>library</artifactId>
             <version>2.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>eu.hansolo</groupId>
+            <artifactId>Medusa</artifactId>
+            <version>8.3</version>
+        </dependency>
         <!-- nice javafx stuff
         <dependency>
             <groupId>no.tornado</groupId>
