@@ -3,13 +3,13 @@ package org.jevis.jeconfig.plugin.object.extension.calculation;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Tooltip;
+import javafx.geometry.Orientation;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import net.sourceforge.jeval.Evaluator;
 import org.apache.logging.log4j.LogManager;
@@ -24,9 +24,12 @@ import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.ExceptionDialog2;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FormulaBox extends HBox {
 
@@ -101,12 +104,207 @@ public class FormulaBox extends HBox {
                 eval.putVariable(var, "1");
             }
 
-            String value = eval.evaluate();
+            List<String> warnings = new ArrayList();
+            List<String> error = new ArrayList<>();
+            List<String> info = new ArrayList<>();
+            List<Stats> stats = new ArrayList<>();
+
+            AtomicBoolean hasInput = new AtomicBoolean(false);
+            AtomicBoolean hasOutput = new AtomicBoolean(false);
+            calcObj.getChildren().forEach(jeVisObject -> {
+                try {
+                    if (jeVisObject.getJEVisClassName().equals("Input")) {
+                        hasInput.set(true);
+                        String inputName = jeVisObject.getName();
+
+                        JEVisAttribute targetAtt = jeVisObject.getAttribute("Input Data");
+                        JEVisAttribute identifyAtt = jeVisObject.getAttribute("Identifier");
+                        JEVisAttribute inputTypeAtt = jeVisObject.getAttribute("Input Data Type");
+
+                        if (targetAtt == null || !targetAtt.hasSample()) {
+                            error.add(String.format("%s - Missing Input Data", inputName));
+                        } else {
+                            TargetHelper targetHelper = new TargetHelper(targetAtt.getDataSource(), targetAtt);
+
+                            if (!targetHelper.isValid()) {
+                                error.add(String.format("%s - Invalid Input target", inputName));
+                                stats.add(new Stats(null, inputName, null, null, 0));
+                            } else {
+                                JEVisAttribute targetAttData = targetHelper.getAttribute().get(0);
+                                if (!targetAttData.hasSample()) {
+                                    error.add(String.format("%s - Target has no Data", inputName));
+                                    stats.add(new Stats(jeVisObject, inputName, null, null, 0));
+                                } else {
+                                    stats.add(new Stats(jeVisObject,
+                                            inputName, targetAttData.getTimestampFromFirstSample(),
+                                            targetAttData.getTimestampFromLastSample(),
+                                            0)); // targetAttData.getAllSamples().size()
+                                }
+                            }
+                        }
+
+                        if (identifyAtt == null || !identifyAtt.hasSample()) {
+                            error.add(String.format("%s - Missing Identifier", inputName));
+                            if (!variables.contains(identifyAtt)) {
+                                warnings.add(String.format("%s - Variable not in use", inputName));
+                            }
+                        }
+
+                        if (inputTypeAtt == null || !inputTypeAtt.hasSample()) {
+                            error.add(String.format("%s - Missing Input Data Type", inputName));
+                        }
+
+
+                    }
+
+                    if (jeVisObject.getJEVisClassName().equals("Output")) {
+                        hasOutput.set(true);
+                        JEVisAttribute outputTargetAtt = jeVisObject.getAttribute("Output");
+                        if (outputTargetAtt == null || !outputTargetAtt.hasSample()) {
+                            error.add(String.format("%s - Missing Output Target", jeVisObject.getName()));
+                        } else {
+                            //check if target ins also a target of something else (calc, datasource)
+                        }
+                    }
+
+                } catch (Exception ex) {
+                    error.add(String.format("Unknown Error in %S:", jeVisObject, ex.getMessage()));
+                }
+            });
+
+            if (!hasInput.get()) {
+                error.add(String.format("No Input set"));
+            }
+            if (!hasOutput.get()) {
+                error.add(String.format("No Output set"));
+            }
+
+
+            boolean valIsOK = false;
+            try {
+                String value = eval.evaluate();
+                valIsOK = true;
+                info.add("No error in formula");
+
+            } catch (Exception ex) {
+                error.add(String.format("Error in formula: %S", ex.getMessage()));
+            }
+
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+
+            info.add("Min Data       | Max Data        | Sample Count | Input");
+            stats.forEach(stat1 -> {
+                String from = "";
+                if (stat1.fromDate != null) {
+                    from = stat1.fromDate.toString(fmt);
+                }
+
+                String until = "";
+                if (stat1.untilDate != null) {
+                    until = stat1.untilDate.toString(fmt);
+                }
+
+                info.add(String.format("%s | %s | %10d | %s", from, until, stat1.sampleCount, stat1.name));
+            });
+
+
+            StringBuilder errorStringBuilder = new StringBuilder();
+            if (error.isEmpty()) {
+                errorStringBuilder.append("No Errors found");
+                errorStringBuilder.append(System.getProperty("line.separator"));
+            } else {
+                //errorStringBuilder.append("Errors:");
+                errorStringBuilder.append(System.getProperty("line.separator"));
+                error.forEach(s -> {
+                    errorStringBuilder.append("- ");
+                    errorStringBuilder.append(s);
+                    errorStringBuilder.append(System.getProperty("line.separator"));
+                });
+            }
+
+            StringBuilder warningsStringBuilder = new StringBuilder();
+            if (warnings.isEmpty()) {
+                warningsStringBuilder.append("No Warnings found");
+                warningsStringBuilder.append(System.getProperty("line.separator"));
+            } else {
+                //warningsStringBuilder.append("Warnings:");
+                warningsStringBuilder.append(System.getProperty("line.separator"));
+                warnings.forEach(s -> {
+                    warningsStringBuilder.append("- ");
+                    warningsStringBuilder.append(s);
+                    warningsStringBuilder.append(System.getProperty("line.separator"));
+                });
+            }
+
+            Label waringLabel = new Label("Warnings:");
+            Label warningTextArea = new Label();
+            waringLabel.setWrapText(true);
+            warningTextArea.setText(warningsStringBuilder.toString());
+
+            Label errorLabel = new Label("Error:s");
+            Label errorTextArea = new Label();
+            errorTextArea.setWrapText(true);
+            errorTextArea.setText(errorStringBuilder.toString());
+
+
+            /**
+             if (info.isEmpty()) {
+             stringBuilder.append("No info found");
+             stringBuilder.append(System.getProperty("line.separator"));
+             } else {
+             stringBuilder.append("info:");
+             stringBuilder.append(System.getProperty("line.separator"));
+             info.forEach(s -> {
+             stringBuilder.append("- ");
+             stringBuilder.append(s);
+             stringBuilder.append(System.getProperty("line.separator"));
+             });
+             }
+             **/
+
+
+            TableView tableView = new TableView();
+            TableColumn<Stats, String> firstNameColumn = new TableColumn<>("Data Row name");
+            firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+            TableColumn<Stats, String> firstDateColumn = new TableColumn<>("First Value of Data Row");
+            firstDateColumn.setCellValueFactory(new PropertyValueFactory<>("fromDate"));
+            TableColumn<Stats, String> lastDateColumn = new TableColumn<>("Last Value of Data Row");
+            lastDateColumn.setCellValueFactory(new PropertyValueFactory<>("untilDate"));
+            TableColumn<Stats, String> identifierColumn = new TableColumn<>("Variable Name");
+            identifierColumn.setCellValueFactory(new PropertyValueFactory<>("Identifier"));
+            TableColumn<Stats, String> targetPeriodColumn = new TableColumn<>("Input Period of Data Row");
+            targetPeriodColumn.setCellValueFactory(new PropertyValueFactory<>("TargetPeriod"));
+            TableColumn<Stats, String> inputDataTypeColumn = new TableColumn<>("Input Variable Data Type");
+            inputDataTypeColumn.setCellValueFactory(new PropertyValueFactory<>("InputDataType"));
+            TableColumn<Stats, String> targetNameColumn = new TableColumn<>("Data Row Name");
+            targetNameColumn.setCellValueFactory(new PropertyValueFactory<>("TargetName"));
+
+
+            tableView.getColumns().addAll(targetNameColumn, identifierColumn, firstDateColumn, lastDateColumn, targetPeriodColumn, inputDataTypeColumn);
+            tableView.getItems().addAll(stats);
+
+            VBox vBox = new VBox();
+
+            vBox.getChildren().addAll(
+                    errorLabel,
+                    new Separator(Orientation.HORIZONTAL),
+                    errorTextArea,
+                    waringLabel,
+                    new Separator(Orientation.HORIZONTAL),
+                    warningTextArea,
+
+                    tableView
+            );
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.title"));
-            alert.setHeaderText(null);
-            alert.setContentText(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.success"));
+            alert.setHeaderText(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.header"));
+            alert.setResizable(true);
+            alert.getDialogPane().setPrefWidth(1350);
+            //alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+
+            alert.getDialogPane().setContent(vBox);
+            //alert.setContentText(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.success"));
 
             alert.showAndWait();
 
