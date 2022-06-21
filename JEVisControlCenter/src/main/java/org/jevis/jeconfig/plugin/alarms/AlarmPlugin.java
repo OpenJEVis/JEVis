@@ -699,9 +699,12 @@ public class AlarmPlugin implements Plugin {
                         } else {
                             try {
                                 JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());
-                                AlarmEditor alarmConfiguration = new AlarmEditor(dialogContainer, alarmConfigAttribute);
 
-                                setGraphic(alarmConfiguration.getEditor());
+                                if (ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID())) {
+                                    AlarmEditor alarmConfiguration = new AlarmEditor(dialogContainer, alarmConfigAttribute);
+
+                                    setGraphic(alarmConfiguration.getEditor());
+                                }
                             } catch (Exception e) {
                                 logger.error("Could not get alarm attribute for alarm {}", item, e);
                             }
