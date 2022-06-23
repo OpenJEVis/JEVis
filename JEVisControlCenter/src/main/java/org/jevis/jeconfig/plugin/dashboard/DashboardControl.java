@@ -293,7 +293,7 @@ public class DashboardControl {
         if the zoom level is to one of the dynamic sizes start at 100%.
         There might be a better ways to calculate a better factor
          */
-        if (zoomFactor > this.fitToHeight) {
+        if (zoomFactor >= this.fitToHeight) {
             zoomFactor = 1;
         }
 
@@ -305,7 +305,7 @@ public class DashboardControl {
         if the zoom level is to one of the dynamic sizes start at 100%.
         There might be a better ways to calculate a better factor
          */
-        if (zoomFactor > this.fitToHeight) {
+        if (zoomFactor >= this.fitToHeight) {
             zoomFactor = 1;
         }
         setZoomFactor(zoomFactor - zoomSteps);
