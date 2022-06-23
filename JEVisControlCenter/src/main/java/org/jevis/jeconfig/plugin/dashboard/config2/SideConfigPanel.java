@@ -93,8 +93,6 @@ public class SideConfigPanel extends GridPane {
 
 
     public void setLastSelectedWidget(Widget widget) {
-        System.out.println("-------------------setLastSelectedWidget: " + widget.getConfig().getUuid());
-        System.out.println("Layer in config: " + widget.getConfig().getLayer());
         isUpdating = true;
 
         layerComboBox.setValue(widget.getConfig().getLayer());
