@@ -55,6 +55,7 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
+import org.jevis.jeconfig.plugin.object.attribute.AlarmEditor;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -68,6 +69,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.ALARM_CONFIG;
+
 public class AlarmPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(AlarmPlugin.class);
     private static int ROWS_PER_PAGE = 25;
@@ -76,6 +79,7 @@ public class AlarmPlugin implements Plugin {
     private final JEVisDataSource ds;
     private final String title;
     private final BorderPane borderPane = new BorderPane();
+    private final StackPane dialogContainer = new StackPane(borderPane);
     private final ToolBar toolBar = new ToolBar();
     private final int iconSize = 20;
     private static Method columnToFitMethod;
@@ -669,7 +673,49 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, operatorColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
+        TableColumn<AlarmRow, Alarm> configurationColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.configuration"));
+        configurationColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Alarm>("configuration"));
+        configurationColumn.setStyle("-fx-alignment: CENTER;");
+        configurationColumn.setSortable(false);
+//        alarmTypeColumn.setPrefWidth(500);
+        configurationColumn.setMinWidth(100);
+
+        configurationColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getAlarmType() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm());
+            else return new SimpleObjectProperty<>();
+        });
+
+        configurationColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Alarm>, TableCell<AlarmRow, Alarm>>() {
+            @Override
+            public TableCell<AlarmRow, Alarm> call(TableColumn<AlarmRow, Alarm> param) {
+                return new TableCell<AlarmRow, Alarm>() {
+                    @Override
+                    protected void updateItem(Alarm item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            try {
+                                JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());
+
+                                if (ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID())) {
+                                    AlarmEditor alarmConfiguration = new AlarmEditor(dialogContainer, alarmConfigAttribute);
+
+                                    setGraphic(alarmConfiguration.getEditor());
+                                }
+                            } catch (Exception e) {
+                                logger.error("Could not get alarm attribute for alarm {}", item, e);
+                            }
+                        }
+                    }
+                };
+            }
+        });
+
+        tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, operatorColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn, configurationColumn);
+
         Platform.runLater(() -> {
             tableView.getSortOrder().clear();
             tableView.getSortOrder().setAll(dateColumn);
@@ -1032,7 +1078,7 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return borderPane;
+        return dialogContainer;
     }
 
     private void updateList() {
