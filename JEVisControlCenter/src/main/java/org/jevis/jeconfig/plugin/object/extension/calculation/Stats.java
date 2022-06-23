@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.object.extension.calculation;
 
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
@@ -85,7 +86,12 @@ public class Stats {
     public String getInputDataType() {
         try {
             JEVisAttribute att = object.getAttribute("Input Data Type");
-            return att.getLatestSample().getValueAsString();
+            String type = att.getLatestSample().getValueAsString();
+
+            if (type.isEmpty()) {
+                type = I18n.getInstance().getString("plugin.object.extension.calculation.type.async");
+            }
+            return type;
 
         } catch (Exception ex) {
         }

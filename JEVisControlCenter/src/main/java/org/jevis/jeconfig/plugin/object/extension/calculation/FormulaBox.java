@@ -122,17 +122,17 @@ public class FormulaBox extends HBox {
                         JEVisAttribute inputTypeAtt = jeVisObject.getAttribute("Input Data Type");
 
                         if (targetAtt == null || !targetAtt.hasSample()) {
-                            error.add(String.format("%s - Missing Input Data", inputName));
+                            error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.noinputdata")));
                         } else {
                             TargetHelper targetHelper = new TargetHelper(targetAtt.getDataSource(), targetAtt);
 
                             if (!targetHelper.isValid()) {
-                                error.add(String.format("%s - Invalid Input target", inputName));
+                                error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.novalidtarget")));
                                 stats.add(new Stats(null, inputName, null, null, 0));
                             } else {
                                 JEVisAttribute targetAttData = targetHelper.getAttribute().get(0);
                                 if (!targetAttData.hasSample()) {
-                                    error.add(String.format("%s - Target has no Data", inputName));
+                                    error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.notarget")));
                                     stats.add(new Stats(jeVisObject, inputName, null, null, 0));
                                 } else {
                                     stats.add(new Stats(jeVisObject,
@@ -144,14 +144,14 @@ public class FormulaBox extends HBox {
                         }
 
                         if (identifyAtt == null || !identifyAtt.hasSample()) {
-                            error.add(String.format("%s - Missing Identifier", inputName));
+                            error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.warn.noid")));
                             if (!variables.contains(identifyAtt)) {
-                                warnings.add(String.format("%s - Variable not in use", inputName));
+                                warnings.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.warn.varnotused")));
                             }
                         }
 
                         if (inputTypeAtt == null || !inputTypeAtt.hasSample()) {
-                            error.add(String.format("%s - Missing Input Data Type", inputName));
+                            error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.missingtype")));
                         }
 
 
@@ -161,22 +161,22 @@ public class FormulaBox extends HBox {
                         hasOutput.set(true);
                         JEVisAttribute outputTargetAtt = jeVisObject.getAttribute("Output");
                         if (outputTargetAtt == null || !outputTargetAtt.hasSample()) {
-                            error.add(String.format("%s - Missing Output Target", jeVisObject.getName()));
+                            error.add(String.format("%s - %s", jeVisObject.getName(), I18n.getInstance().getString("plugin.object.extension.calculation.error.missingoutput")));
                         } else {
                             //check if target ins also a target of something else (calc, datasource)
                         }
                     }
 
                 } catch (Exception ex) {
-                    error.add(String.format("Unknown Error in %S:", jeVisObject, ex.getMessage()));
+                    error.add(String.format("%s: %S", I18n.getInstance().getString("plugin.object.extension.calculation.error.unkown"), jeVisObject, ex.getMessage()));
                 }
             });
 
             if (!hasInput.get()) {
-                error.add(String.format("No Input set"));
+                error.add(I18n.getInstance().getString("plugin.object.extension.calculation.error.noinput"));
             }
             if (!hasOutput.get()) {
-                error.add(String.format("No Output set"));
+                error.add(I18n.getInstance().getString("plugin.object.extension.calculation.error.nooutput"));
             }
 
 
@@ -184,14 +184,15 @@ public class FormulaBox extends HBox {
             try {
                 String value = eval.evaluate();
                 valIsOK = true;
-                info.add("No error in formula");
+                info.add(I18n.getInstance().getString("plugin.object.extension.calculation.error.noerrorformula"));
 
             } catch (Exception ex) {
-                error.add(String.format("Error in formula: %S", ex.getMessage()));
+                error.add(String.format("%s: %S", I18n.getInstance().getString("plugin.object.extension.calculation.error.formula"), ex.getMessage()));
             }
 
             DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
+            /*
             info.add("Min Data       | Max Data        | Sample Count | Input");
             stats.forEach(stat1 -> {
                 String from = "";
@@ -207,10 +208,12 @@ public class FormulaBox extends HBox {
                 info.add(String.format("%s | %s | %10d | %s", from, until, stat1.sampleCount, stat1.name));
             });
 
+             */
+
 
             StringBuilder errorStringBuilder = new StringBuilder();
             if (error.isEmpty()) {
-                errorStringBuilder.append("No Errors found");
+                errorStringBuilder.append(I18n.getInstance().getString("plugin.object.extension.calculation.error.noerror"));
                 errorStringBuilder.append(System.getProperty("line.separator"));
             } else {
                 //errorStringBuilder.append("Errors:");
@@ -224,7 +227,7 @@ public class FormulaBox extends HBox {
 
             StringBuilder warningsStringBuilder = new StringBuilder();
             if (warnings.isEmpty()) {
-                warningsStringBuilder.append("No Warnings found");
+                warningsStringBuilder.append(I18n.getInstance().getString("plugin.object.extension.calculation.error.nowarning"));
                 warningsStringBuilder.append(System.getProperty("line.separator"));
             } else {
                 //warningsStringBuilder.append("Warnings:");
@@ -236,49 +239,34 @@ public class FormulaBox extends HBox {
                 });
             }
 
-            Label waringLabel = new Label("Warnings:");
+            Label waringLabel = new Label(I18n.getInstance().getString("plugin.object.extension.calculation.label.warning"));
             Label warningTextArea = new Label();
             waringLabel.setWrapText(true);
             warningTextArea.setText(warningsStringBuilder.toString());
 
-            Label errorLabel = new Label("Error:s");
+            Label errorLabel = new Label(I18n.getInstance().getString("plugin.object.extension.calculation.label.error"));
             Label errorTextArea = new Label();
             errorTextArea.setWrapText(true);
             errorTextArea.setText(errorStringBuilder.toString());
 
 
-            /**
-             if (info.isEmpty()) {
-             stringBuilder.append("No info found");
-             stringBuilder.append(System.getProperty("line.separator"));
-             } else {
-             stringBuilder.append("info:");
-             stringBuilder.append(System.getProperty("line.separator"));
-             info.forEach(s -> {
-             stringBuilder.append("- ");
-             stringBuilder.append(s);
-             stringBuilder.append(System.getProperty("line.separator"));
-             });
-             }
-             **/
-
-
             TableView tableView = new TableView();
-            TableColumn<Stats, String> firstNameColumn = new TableColumn<>("Data Row name");
+            TableColumn<Stats, String> firstNameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.dr"));
             firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-            TableColumn<Stats, String> firstDateColumn = new TableColumn<>("First Value of Data Row");
+            TableColumn<Stats, String> firstDateColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.firstts"));
             firstDateColumn.setCellValueFactory(new PropertyValueFactory<>("fromDate"));
-            TableColumn<Stats, String> lastDateColumn = new TableColumn<>("Last Value of Data Row");
+            TableColumn<Stats, String> lastDateColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.lastts"));
             lastDateColumn.setCellValueFactory(new PropertyValueFactory<>("untilDate"));
-            TableColumn<Stats, String> identifierColumn = new TableColumn<>("Variable Name");
+            TableColumn<Stats, String> identifierColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.varname"));
             identifierColumn.setCellValueFactory(new PropertyValueFactory<>("Identifier"));
-            TableColumn<Stats, String> targetPeriodColumn = new TableColumn<>("Input Period of Data Row");
+            TableColumn<Stats, String> targetPeriodColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.drperiode"));
             targetPeriodColumn.setCellValueFactory(new PropertyValueFactory<>("TargetPeriod"));
-            TableColumn<Stats, String> inputDataTypeColumn = new TableColumn<>("Input Variable Data Type");
+            TableColumn<Stats, String> inputDataTypeColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.inputperiod"));
             inputDataTypeColumn.setCellValueFactory(new PropertyValueFactory<>("InputDataType"));
-            TableColumn<Stats, String> targetNameColumn = new TableColumn<>("Data Row Name");
+            TableColumn<Stats, String> targetNameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.drname"));
             targetNameColumn.setCellValueFactory(new PropertyValueFactory<>("TargetName"));
 
+            Label infoLabel = new Label(I18n.getInstance().getString("plugin.object.extension.calculation.label.information"));
 
             tableView.getColumns().addAll(targetNameColumn, identifierColumn, firstDateColumn, lastDateColumn, targetPeriodColumn, inputDataTypeColumn);
             tableView.getItems().addAll(stats);
@@ -292,7 +280,8 @@ public class FormulaBox extends HBox {
                     waringLabel,
                     new Separator(Orientation.HORIZONTAL),
                     warningTextArea,
-
+                    infoLabel,
+                    new Separator(Orientation.HORIZONTAL),
                     tableView
             );
 
