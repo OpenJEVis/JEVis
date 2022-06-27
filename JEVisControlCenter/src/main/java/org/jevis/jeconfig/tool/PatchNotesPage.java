@@ -50,7 +50,113 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.62------\n" +
+            "------Version 3.9.63------\n" +
+                    "JECC - AccountingPlugin - added write check for visible tabs\n" +
+                    "JECC - AccountingPlugin - added zooming \n" +
+                    "JECC - AccountingPlugin - fixed user permissions for sys admin\n" +
+                    "JECC - Add a note to the changed password\n" +
+                    "JECC - Add new calculation check dialog\n" +
+                    "JECC - AlarmPlugin - adde a button to each alarm, to directly see / change the alarmsettings\n" +
+                    "JECC - CalculationNameFormatter - added ' to bad chars in variable names\n" +
+                    "JECC - ChartPlugin - BubbleChart - allowing negative values on x axis\n" +
+                    "JECC - ChartPlugin - HeatMapChart - added config\n" +
+                    "JECC - ChartPlugin - bugfixes\n" +
+                    "JECC - ChartPlugin - disabled overlay close on load analysis dialog\n" +
+                    "JECC - ChartPlugin - fixed alarm map displaying too much information\n" +
+                    "JECC - ChartPlugin - fixed disabled quick selection box\n" +
+                    "JECC - ChartPlugin - fixed disabled toolbar working properly\n" +
+                    "JECC - ChartPlugin - fixed memory leak\n" +
+                    "JECC - DashboardPlugin - Fixed Load/Save Dialog says Analysis instead of Dashboard\n" +
+                    "JECC - DashboardPlugin - changed zoom behaving for dynamic zoom levels\n" +
+                    "JECC - DashboardPlugin - fixed fir to height zoom level\n" +
+                    "JECC - DashboardPlugin - removed debug message\n" +
+                    "JECC - DashboardPlugin - implemented new Widget Gauge\n" +
+                    "JECC - DashboardPlugin - implemented new Widget Gauge added missing files\n" +
+                    "JECC - DashboardPlugin - ChartWidget - fixed null pointer for holiday manager\n" +
+                    "JECC - DashboardPlugin - DashBoardToolbar - fixed null pointer for JEVisHelp\n" +
+                    "JECC - DashboardPlugin - unlock icon not working\n" +
+                    "JECC - DashboardPlugin - fixed HeatMapChart display\n" +
+                    "JECC - DataDialog - added scroll option for small resolutions\n" +
+                    "JECC - Dialog - EnterDataDialog - fixed opening\n" +
+                    "JECC - EnterDataDialog - added missing translation \n" +
+                    "JECC - FXLogin - added check to message box\n" +
+                    "JECC - Fixed and bug where the login messages crash the login\n" +
+                    "JECC - Holidays - fixed null pointer\n" +
+                    "JECC - Holidays - fixed wrong calendar on multi-site systems\n" +
+                    "JECC - I18n - prepared arabic language\n" +
+                    "JECC - JEVisTree - Fixed an bug where JEVisAttributes would be casted as JEVisObject\n" +
+                    "JECC - Login - changed pw\n" +
+                    "JECC - Login - improved auto-login with info text and traditional background\n" +
+                    "JECC - Loytec Assistant - bug fix backnet\n" +
+                    "JECC - Loytec Assistant - implemented to import bacnet trends\n" +
+                    "JECC - Made the dashboard side config page permanent instep of hover\n" +
+                    "JECC - NotesPlugin - added translations\n" +
+                    "JECC - ObjectPlugin - AlarmEditor - fixed null pointer\n" +
+                    "JECC - ObjectPlugin - FileEditor - added option for json files\n" +
+                    "JECC - ObjectPlugin - FileEditor - fixed extension recognition\n" +
+                    "JECC - ObjectPlugin - ObjectTable - improved memory performance on large data structures\n" +
+                    "JECC - ObjectPlugin - RenameDialog - added warning for missing user rights\n" +
+                    "JECC - ObjectPlugin - SampleTable - added expert tools for base and user data\n" +
+                    "JECC - ObjectPlugin - SampleTable - increased width of note column\n" +
+                    "JECC - ObjectPlugin - TreeHelper - added range to move sample ts by period\n" +
+                    "JECC - ObjectPlugin - TreeHelper - fixed delete option\n" +
+                    "JECC - ObjectPlugin - implemented basic json viewer\n" +
+                    "JECC - ProgressForm - increased size a bit\n" +
+                    "JECC - TRCPlugin - added data input option for OutputView\n" +
+                    "JECC - TRCPlugin - fixed TemplateCalculationFormulaDialog not scrollable\n" +
+                    "JECC - TablePlugin - added fraction digits configuration\n" +
+                    "JECC - TablePlugin - added path column\n" +
+                    "JECC - TablePlugin - fixed autofit for multisite\n" +
+                    "JECC - TablePlugin - improved EnterDataDialog\n" +
+                    "JECC - Themes - improved dark theme settings\n" +
+                    "JECC - addeed Nullpointer Check and try catch\n" +
+                    "JECC - all file chooser fixing invalid chars\n" +
+                    "JECC - bugfix load Dashboard dialog now shows laod / new Dashboard instead of Analysis\n" +
+                    "JECC - fix Translation Dialog no Enter required to commit change on Translation\n" +
+                    "JECC - fixed dialog background\n" +
+                    "\n" +
+                    "DataCollector - added JEVisServer data source\n" +
+                    "DataCollector - Fixed a bug where the Vida350 driver did not use the port\n" +
+                    "\n" +
+                    "JEStatus - Fixed merge mistake, with duplicate WirelessLogicStatus\n" +
+                    "\n" +
+                    "DataCollector - Fixed null pointer in a non-existing dynamic path\n" +
+                    "DataCollector - Fixed null pointer in unchecked string split. This should fix the DWD readout problem\n" +
+                    "DataCollector - Fixed timeout from msec to seconds \n" +
+                    "DataCollector - JEDataCollector - Add checks and fallbacks for the isReady function\n" +
+                    "DataCollector - JEDataCollector - Fixed a bug where HTTP auth did not work\n" +
+                    "DataCollector - JEDataCollector - Fixed a bug where the VIDA350DataSource did not set the channel object\n" +
+                    "DataCollector - JEDataCollector - Fixed a bug where the second channel would add the port a second time to the url\n" +
+                    "\n" +
+                    "JECommons - AggregatorFunction - fixed wrong quantity check for aggregation\n" +
+                    "JECommons - AlarmProcess - standby time working properly\n" +
+                    "JECommons - Calculation - fixed user data input\n" +
+                    "JECommons - CommonMethods - added period dependency on delete clean data for math objects\n" +
+                    "JECommons - ConnectionFactory - removed deprecated driver class \n" +
+                    "JECommons - DataProcessing - DifferentialStep - fixed weekly aggregation \n" +
+                    "JECommons - DateHelper - added the year before last to calendar presets\n" +
+                    "JECommons - GapsAndLimits - fixed cache not working properly for median\n" +
+                    "JECommons - MathDataObject - added safety to ready check \n" +
+                    "JECommons - MathStep - added sum functionality \n" +
+                    "JECommons - PeriodHelper - added calendar week to output formatting\n" +
+                    "JECommons - WorkDays - added workaround for objects not in buildings\n" +
+                    "JECommons - fixed some work day aggregation problems\n" +
+                    "\n" +
+                    "JEDataProcessor - MathStep - fixed formula processing \n" +
+                    "JEDataProcessor - ProcessManager - fixed Math Object ready check\n" +
+                    "JEDataProcessor - aggregation daily fixed last day\n" +
+                    "JEDataProcessor - fixed bug with not differential monthly values upscaling\n" +
+                    "\n" +
+                    "JEStatus - Add additional null pointer checks.\n" +
+                    "JEStatus - WirelessLogicRequest - using httpurlconnection instead of curl for get request\n" +
+                    "JEStatus - Wirelesslogic added Translation for Customer Field 1-4\n" +
+                    "JEStatus - add null pointer check for targets.\n" +
+                    "JEStatus - added Customer Infos for offline Sim Cards\n" +
+                    "JEStatus - change error to warning\n" +
+                    "JEStatus - logging improvement\n" +
+                    "\n" +
+                    "JEWebService - Add a permission check for deleting the Sys Admin attribute\n\n" +
+                    "------Version 3.9.62------\n" +
                     "JECC - AccountingPlugin - added write check for visible tabs\n" +
                     "JECC - ChartPlugin - bugfixes\n" +
                     "JECC - ChartPlugin - disabled overlay close on load analysis dialog\n" +

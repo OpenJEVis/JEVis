@@ -361,7 +361,8 @@ public class ToolBarView {
                 toolBar.getItems().addAll(showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
             }
 
-            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
+//            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
+            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
             addAnalysisComboBoxListener();
             setDisableToolBarIcons(disabledIcons.get());
