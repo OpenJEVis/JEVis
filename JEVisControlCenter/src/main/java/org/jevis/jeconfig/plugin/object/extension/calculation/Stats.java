@@ -69,14 +69,9 @@ public class Stats {
         try {
             JEVisAttribute att = object.getAttribute("Input Data");
             TargetHelper targetHelper = new TargetHelper(att.getDataSource(), att);
-            for (JEVisObject jeVisObject : targetHelper.getObject().get(0).getChildren()) {
-                try {
-                    if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
-                        return jeVisObject.getAttribute("Period").getLatestSample().getValueAsString();
-                    }
-                } catch (Exception ex) {
-                }
-            }
+            JEVisObject jeVisObject = targetHelper.getObject().get(0);
+            return jeVisObject.getAttribute("Period").getLatestSample().getValueAsString();
+
 
         } catch (Exception ex) {
         }
