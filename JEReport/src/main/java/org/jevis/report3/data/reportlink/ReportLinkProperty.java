@@ -260,7 +260,7 @@ public class ReportLinkProperty implements ReportData {
 
                                 try {
                                     linkMap.putAll(sampleGenerator.work(linkProperty, attributeProperty, property));
-                                    logger.debug("added link map {}  to attribute map", linkMap.entrySet());
+                                    logger.debug("added link map {}  to attribute map", linkProperty);
                                 } catch (JEVisException e) {
                                     logger.error(e);
                                 }
@@ -333,4 +333,13 @@ public class ReportLinkProperty implements ReportData {
         }
     }
 
+
+    @Override
+    public String toString() {
+        return "ReportLinkProperty{" +
+                "linkObject=" + linkObject + '\'' +
+                ", isCalculation=" + isCalculation + '\'' +
+                ", templateVariableName=" + templateVariableName +
+                '}';
+    }
 }
