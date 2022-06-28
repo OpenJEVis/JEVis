@@ -122,8 +122,8 @@ public class Launcher extends AbstractCliApp {
                         ah.checkAlarm();
                         finishCurrentRun(serviceObject);
 
-                    } catch (JEVisException ex) {
-                        logger.fatal(ex);
+                    } catch (Exception ex) {
+                        logger.error(ex);
                     }
                 } else {
                     logger.info("Service is disabled.");

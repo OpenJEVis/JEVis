@@ -41,7 +41,7 @@ public class AlarmTable {
     protected final String STANDARD_TARGET_ATTRIBUTE_NAME = "Target";
     protected JEVisDataSource ds;
     private final List<JEVisObject> listCheckedData = new ArrayList<>();
-    private String tableString;
+    private String tableString = "";
     private JEVisClass vida350ChannelClass;
     private JEVisClass loytecXMLDLChannelClass;
     private JEVisClass loytecOPCUAChannelClass;

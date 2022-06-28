@@ -18,10 +18,12 @@ public class WirelessLogicStatus extends AlarmTable {
     public WirelessLogicStatus(JEVisDataSource ds, List<String> tariffs, String username, String password) {
         super(ds);
 
-        try {
-            createTableString(tariffs, username, password);
-        } catch (Exception e) {
-            logger.error("Exception while creating Wireless Logic Status", e);
+        if (!tariffs.isEmpty()) {
+            try {
+                createTableString(tariffs, username, password);
+            } catch (Exception e) {
+                logger.error("Exception while creating Wireless Logic Status", e);
+            }
         }
     }
 
@@ -66,7 +68,6 @@ public class WirelessLogicStatus extends AlarmTable {
                     offlineSimUsage.addAll(wirelessLogicRequest.getOfflineSim(wirelessLogicRequest.getSimUsage(sims), 1));
 
 
-
                     sb.append("<tr>");
                     sb.append("<td style=\"");
                     sb.append(rowCss);
@@ -91,9 +92,6 @@ public class WirelessLogicStatus extends AlarmTable {
 
                 }
                 offlineSims.addAll(wirelessLogicRequest.combineSimInfos(offlineSimUsage, wirelessLogicRequest.getSimDetails(offlineSimUsage)));
-
-
-
 
 
                 sb.append("</table>");
