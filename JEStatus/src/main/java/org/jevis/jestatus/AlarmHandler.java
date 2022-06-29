@@ -24,6 +24,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
@@ -31,6 +32,7 @@ import org.jevis.jenotifier.notifier.Email.EmailServiceProperty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -157,6 +159,8 @@ public class AlarmHandler {
         sb.append("</html>");
 
         logToServiceObject(sb.toString());
+        logFileToServiceObject(sb.toString());
+
         if (isEMailEnabled()) {
             logger.info("E-Mail is enabled. Initializing...");
 
@@ -239,6 +243,22 @@ public class AlarmHandler {
             JEVisAttribute emailEnabledAttribute = object.getAttribute("Status Log");
             JEVisSample newLog = emailEnabledAttribute.buildSample(DateTime.now(), log);
             newLog.commit();
+        }
+    }
+
+    private void logFileToServiceObject(String log) throws JEVisException {
+        JEVisClass statusClass = _ds.getJEVisClass("JEStatus");
+        List<JEVisObject> statusObjects = _ds.getObjects(statusClass, true);
+        for (JEVisObject object : statusObjects) {
+
+            JEVisAttribute statusFileLogAttribute = object.getAttribute("Status File Log");
+            try {
+                JEVisFile file = new JEVisFileImp(DateTime.now().toString("yyyyMMdd_HHmmss") + ".html", log.getBytes(StandardCharsets.UTF_8));
+                JEVisSample newLog = statusFileLogAttribute.buildSample(DateTime.now(), file);
+                newLog.commit();
+            } catch (Exception e) {
+                logger.error("Could not create file", e);
+            }
         }
     }
 
