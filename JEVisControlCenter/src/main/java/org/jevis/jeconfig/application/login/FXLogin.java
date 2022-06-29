@@ -602,66 +602,7 @@ public class FXLogin extends AnchorPane {
         return this.authGrid;
     }
 
-    /**
-     * Initilize this class, this will build most of the GUI
-     */
-    private void init() {
-        loadPreference(true);
-
-        //TODO load from URL/RESOURCE
-        ImageView logo = new ImageView(new Image("/icons/openjevislogo_simple2.png"));
-        logo.setPreserveRatio(true);
-
-        AnchorPane leftSpacer = new AnchorPane();
-        AnchorPane rightSpacer = new AnchorPane();
-
-        leftSpacer.setId("fxlogin-body-left");
-        rightSpacer.setId("fxlogin-body-right");
-        this.progress.setId("fxlogin-body-progress");
-
-        this.progress.setPrefSize(80, 80);
-        this.progress.setVisible(false);
-        AnchorPane.setTopAnchor(this.progress, 70d);
-        AnchorPane.setLeftAnchor(this.progress, 100d);
-        rightSpacer.getChildren().setAll(this.progress);
-
-        leftSpacer.setMinWidth(200);//todo 20%
-
-        Node authForm = buildAuthForm();
-
-        HBox body = new HBox();
-        body.setId("fxlogin-body");
-        body.getChildren().setAll(leftSpacer, authForm, rightSpacer);
-        HBox.setHgrow(authForm, Priority.NEVER);
-        HBox.setHgrow(leftSpacer, Priority.NEVER);
-        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
-
-        Node header = buildHeader();
-        Node footer = buildFooter();
-
-        this.mainHBox = new VBox();
-        this.mainHBox.getChildren().setAll(header, body, footer);
-        VBox.setVgrow(body, Priority.NEVER);
-        VBox.setVgrow(header, Priority.ALWAYS);
-        VBox.setVgrow(footer, Priority.ALWAYS);
-
-        setDefaultStyle(body, "-fx-background-color: white;");
-        setDefaultStyle(leftSpacer, "-fx-background-color: white;");
-        setDefaultStyle(rightSpacer, "-fx-background-color: white;");
-        setDefaultStyle(this.mainHBox, "-fx-background-color: yellow;");
-
-        AnchorPane.setTopAnchor(this.mainHBox, 0.0);
-        AnchorPane.setRightAnchor(this.mainHBox, 0.0);
-        AnchorPane.setLeftAnchor(this.mainHBox, 0.0);
-        AnchorPane.setBottomAnchor(this.mainHBox, 0.0);
-        notificationPane.setContent(this.mainHBox);
-
-        AnchorPane root = new AnchorPane(notificationPane);
-        Layouts.setAnchor(notificationPane, 0);
-        Layouts.setAnchor(root, 0);
-        getChildren().setAll(root);
-
-    }
+    private final StringBuilder messageText = new StringBuilder();
 
     private void initSlim() {
         loadPreference(true);
@@ -969,27 +910,77 @@ public class FXLogin extends AnchorPane {
         return vbox;
     }
 
+    /**
+     * Initilize this class, this will build most of the GUI
+     */
+    private void init() {
+        loadPreference(true);
+
+        //TODO load from URL/RESOURCE
+        ImageView logo = new ImageView(new Image("/icons/openjevislogo_simple2.png"));
+        logo.setPreserveRatio(true);
+
+        AnchorPane leftSpacer = new AnchorPane();
+        AnchorPane rightSpacer = new AnchorPane();
+
+        leftSpacer.setId("fxlogin-body-left");
+        rightSpacer.setId("fxlogin-body-right");
+        this.progress.setId("fxlogin-body-progress");
+
+        this.progress.setPrefSize(80, 80);
+        this.progress.setVisible(false);
+        AnchorPane.setTopAnchor(this.progress, 70d);
+        AnchorPane.setLeftAnchor(this.progress, 100d);
+        rightSpacer.getChildren().setAll(this.progress);
+
+        leftSpacer.setMinWidth(200);//todo 20%
+
+        Node authForm = buildAuthForm();
+
+        HBox body = new HBox();
+        body.setId("fxlogin-body");
+        body.getChildren().setAll(leftSpacer, authForm, rightSpacer, messageBox);
+        HBox.setHgrow(authForm, Priority.NEVER);
+        HBox.setHgrow(leftSpacer, Priority.NEVER);
+        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+
+        Node header = buildHeader();
+        Node footer = buildFooter();
+
+        this.mainHBox = new VBox();
+        this.mainHBox.getChildren().setAll(header, body, footer);
+        VBox.setVgrow(body, Priority.NEVER);
+        VBox.setVgrow(header, Priority.ALWAYS);
+        VBox.setVgrow(footer, Priority.ALWAYS);
+
+        setDefaultStyle(body, "-fx-background-color: white;");
+        setDefaultStyle(leftSpacer, "-fx-background-color: white;");
+        setDefaultStyle(rightSpacer, "-fx-background-color: white;");
+        setDefaultStyle(this.mainHBox, "-fx-background-color: yellow;");
+
+        AnchorPane.setTopAnchor(this.mainHBox, 0.0);
+        AnchorPane.setRightAnchor(this.mainHBox, 0.0);
+        AnchorPane.setLeftAnchor(this.mainHBox, 0.0);
+        AnchorPane.setBottomAnchor(this.mainHBox, 0.0);
+        notificationPane.setContent(this.mainHBox);
+
+        AnchorPane root = new AnchorPane(notificationPane);
+        Layouts.setAnchor(notificationPane, 0);
+        Layouts.setAnchor(root, 0);
+        getChildren().setAll(root);
+
+    }
+
     public void addLoginMessage(String message) {
+        if (messageText.length() > 0) {
+            messageText.append(System.getProperty("line.separator"));
+        }
+
+        messageText.append(message);
+
         Platform.runLater(() -> {
-            String oldText = "";
-            if (messageBox.getText() != null && !messageBox.getText().isEmpty()) {
-                try {
-                    oldText = messageBox.getAccessibleText();
-                    StringBuilder stringBuilder = new StringBuilder(oldText);
-                    if (oldText.length() > 0) {
-                        stringBuilder.append(System.getProperty("line.separator"));
-                    }
-
-                    stringBuilder.append(message);
-                    messageBox.setText(stringBuilder.toString());
-                    messageBox.setScrollTop(Double.MAX_VALUE);
-
-                } catch (IndexOutOfBoundsException ex) {
-                    logger.warn("Message index out of bounds", ex, ex);
-                }
-            }
-
-
+            messageBox.setText(messageText.toString());
+            messageBox.setScrollTop(Double.MAX_VALUE);
         });
     }
 
