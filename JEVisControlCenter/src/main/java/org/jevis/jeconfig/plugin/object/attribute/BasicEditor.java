@@ -54,6 +54,7 @@ public abstract class BasicEditor implements AttributeEditor {
     private boolean readonly = false;
     private Object finalNewValue;
     private final BooleanProperty isValid = new SimpleBooleanProperty(false);
+    private boolean initialized = false;
 
     /**
      * @param att
@@ -71,6 +72,7 @@ public abstract class BasicEditor implements AttributeEditor {
         Platform.runLater(() -> {
             this.editorNode.getChildren().clear();
             this.editorNode.getChildren().add(buildGui(this.attribute));
+            initialized = true;
         });
     }
 
@@ -198,7 +200,9 @@ public abstract class BasicEditor implements AttributeEditor {
 
     @Override
     public Node getEditor() {
-        update();
+        if (!initialized) {
+            update();
+        }
         return this.editorNode;
     }
 

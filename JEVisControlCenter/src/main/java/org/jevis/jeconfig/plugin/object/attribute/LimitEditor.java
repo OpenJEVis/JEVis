@@ -78,6 +78,7 @@ public class LimitEditor implements AttributeEditor {
     private List<JsonLimitsConfig> _listConfig;
     private final boolean delete = false;
     private final DoubleValidator dv = DoubleValidator.getInstance();
+    private boolean initialized = false;
 
     public LimitEditor(StackPane dialogContainer, JEVisAttribute att) {
         this.dialogContainer = dialogContainer;
@@ -127,7 +128,9 @@ public class LimitEditor implements AttributeEditor {
             }
         });
 
-        box.getChildren().addAll(openConfig);
+        box.getChildren().setAll(openConfig);
+
+        initialized = true;
     }
 
     @Override
@@ -146,7 +149,9 @@ public class LimitEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            init();
+            if (!initialized) {
+                init();
+            }
         } catch (Exception ex) {
             logger.catching(ex);
         }
