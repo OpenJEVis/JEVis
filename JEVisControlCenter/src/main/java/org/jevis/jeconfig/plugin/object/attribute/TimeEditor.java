@@ -53,7 +53,7 @@ public class TimeEditor implements AttributeEditor {
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisDataSource ds;
-    private JEVisSample originalSample;
+    private final JEVisSample originalSample;
 
     public TimeEditor(JEVisAttribute att) {
         this.att = att;
@@ -133,7 +133,7 @@ public class TimeEditor implements AttributeEditor {
             }
         });
 
-        editor.getChildren().addAll(pickerTime);
+        editor.getChildren().setAll(pickerTime);
     }
 
     @Override

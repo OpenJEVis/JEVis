@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.alarms;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
@@ -49,6 +50,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -56,6 +58,7 @@ import org.jevis.jeconfig.application.tools.NumberSpinner;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.object.attribute.AlarmEditor;
+import org.jevis.jeconfig.plugin.object.attribute.LimitEditor;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -70,6 +73,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.ALARM_CONFIG;
+import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.LIMITS_CONFIGURATION;
 
 public class AlarmPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(AlarmPlugin.class);
@@ -698,13 +702,30 @@ public class AlarmPlugin implements Plugin {
                             setText(null);
                         } else {
                             try {
-                                JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());
+                                Node node = null;
+                                if (item.getAlarmType().equals(AlarmType.L1) || item.getAlarmType().equals(AlarmType.L2)) {
+                                    JEVisAttribute limitConfigAttribute = item.getObject().getAttribute(LIMITS_CONFIGURATION.getAttributeName());
 
-                                if (ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID())) {
+                                    LimitEditor limitEditor = new LimitEditor(dialogContainer, limitConfigAttribute);
+                                    HBox hbox = (HBox) limitEditor.getEditor();
+                                    JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
+                                    jfxButton.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
+                                    limitEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(limitConfigAttribute.getObjectID()));
+
+                                    setGraphic(limitEditor.getEditor());
+                                } else {
+
+                                    JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());
+
                                     AlarmEditor alarmConfiguration = new AlarmEditor(dialogContainer, alarmConfigAttribute);
+                                    HBox hbox = (HBox) alarmConfiguration.getEditor();
+                                    JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
+                                    jfxButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
+                                    alarmConfiguration.getEditor().setDisable(!ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID()));
 
                                     setGraphic(alarmConfiguration.getEditor());
                                 }
+
                             } catch (Exception e) {
                                 logger.error("Could not get alarm attribute for alarm {}", item, e);
                             }

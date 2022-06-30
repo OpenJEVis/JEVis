@@ -31,7 +31,7 @@ public class CleanDatas {
             try {
                 JEVisObject obj = jeVisTreeItem.getValue().getJEVisObject();
 
-                if (obj.getJEVisClassName().equals("Clean Data")) {
+                if (obj.getJEVisClassName().equals("Clean Data") || obj.getJEVisClassName().equals("Math Data")) {
                     recalculate(obj);
                 } else if (obj.getJEVisClassName().equals("Data")) {
                     obj.getChildren().forEach(object -> {
