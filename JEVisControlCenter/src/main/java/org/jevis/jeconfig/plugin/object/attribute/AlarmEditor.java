@@ -75,6 +75,7 @@ public class AlarmEditor implements AttributeEditor {
     private JEVisSample _lastSample;
     private List<JsonAlarmConfig> _listConfig;
     private final boolean delete = false;
+    private boolean initialized = false;
 
     public AlarmEditor(StackPane dialogContainer, JEVisAttribute att) {
         this.dialogContainer = dialogContainer;
@@ -97,7 +98,9 @@ public class AlarmEditor implements AttributeEditor {
             }
         });
 
-        box.getChildren().addAll(openConfig);
+        box.getChildren().setAll(openConfig);
+
+        initialized = true;
     }
 
     @Override
@@ -132,7 +135,9 @@ public class AlarmEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            init();
+            if (!initialized) {
+                init();
+            }
         } catch (Exception ex) {
             logger.catching(ex);
         }

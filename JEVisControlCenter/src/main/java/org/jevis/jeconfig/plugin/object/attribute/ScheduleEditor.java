@@ -48,6 +48,7 @@ public class ScheduleEditor implements AttributeEditor {
     private final BooleanProperty hasChangedProperty = new SimpleBooleanProperty(false);
     private final SimpleStringProperty _newValue = new SimpleStringProperty("");
     private JsonScheduler inputValue;
+    private boolean initialized = false;
 
     public ScheduleEditor(JEVisAttribute att) {
         _attribute = att;
@@ -512,7 +513,9 @@ public class ScheduleEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            init();
+            if (!initialized) {
+                init();
+            }
         } catch (Exception ex) {
             logger.catching(ex);
         }
@@ -611,6 +614,8 @@ public class ScheduleEditor implements AttributeEditor {
 
         box.setSpacing(8);
         box.getChildren().setAll(jfxComboBoxTimeZone, addDeleteBox, tabPane);
+
+        initialized = true;
     }
 
     private JsonScheduler createDefaultConfig() {

@@ -117,6 +117,15 @@
       "jevisClass": "JEStatus"
     },
     {
+      "name": "Status File Log",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEStatus"
+    },
+    {
       "name": "Status",
       "primitiveType": 2,
       "guiposition": 0,

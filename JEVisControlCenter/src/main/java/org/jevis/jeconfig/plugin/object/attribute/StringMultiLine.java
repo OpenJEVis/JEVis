@@ -51,6 +51,7 @@ public class StringMultiLine implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private boolean _readOnly = true;
+    private boolean initialized = false;
 
     public StringMultiLine(JEVisAttribute att) {
         _attribute = att;
@@ -99,7 +100,9 @@ public class StringMultiLine implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            buildEditor();
+            if (!initialized) {
+                buildEditor();
+            }
         } catch (Exception ex) {
 
         }
@@ -110,6 +113,7 @@ public class StringMultiLine implements AttributeEditor {
 
     private void buildEditor() throws JEVisException {
         if (_field == null) {
+            box.getChildren().clear();
             _field = new JFXTextArea();
             _field.setPrefWidth(GenericAttributeExtension.editorWidth.doubleValue());
 //            _field.setPrefWidth(500);//TODO: remove this workaround
@@ -174,6 +178,7 @@ public class StringMultiLine implements AttributeEditor {
                 logger.fatal(ex);
             }
 
+            initialized = true;
         }
     }
 

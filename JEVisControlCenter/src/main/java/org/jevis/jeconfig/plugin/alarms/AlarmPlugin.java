@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.alarms;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
@@ -49,6 +50,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -700,10 +702,14 @@ public class AlarmPlugin implements Plugin {
                             setText(null);
                         } else {
                             try {
+                                Node node = null;
                                 if (item.getAlarmType().equals(AlarmType.L1) || item.getAlarmType().equals(AlarmType.L2)) {
                                     JEVisAttribute limitConfigAttribute = item.getObject().getAttribute(LIMITS_CONFIGURATION.getAttributeName());
 
                                     LimitEditor limitEditor = new LimitEditor(dialogContainer, limitConfigAttribute);
+                                    HBox hbox = (HBox) limitEditor.getEditor();
+                                    JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
+                                    jfxButton.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
                                     limitEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(limitConfigAttribute.getObjectID()));
 
                                     setGraphic(limitEditor.getEditor());
@@ -712,6 +718,9 @@ public class AlarmPlugin implements Plugin {
                                     JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());
 
                                     AlarmEditor alarmConfiguration = new AlarmEditor(dialogContainer, alarmConfigAttribute);
+                                    HBox hbox = (HBox) alarmConfiguration.getEditor();
+                                    JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
+                                    jfxButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
                                     alarmConfiguration.getEditor().setDisable(!ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID()));
 
                                     setGraphic(alarmConfiguration.getEditor());

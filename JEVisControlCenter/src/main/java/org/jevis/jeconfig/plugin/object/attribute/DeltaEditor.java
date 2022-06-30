@@ -74,6 +74,7 @@ public class DeltaEditor implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private JsonDeltaConfig deltaConfig;
+    private boolean initialized = false;
 
     public DeltaEditor(StackPane dialogContainer, JEVisAttribute att) {
         this.dialogContainer = dialogContainer;
@@ -121,7 +122,9 @@ public class DeltaEditor implements AttributeEditor {
             }
         });
 
-        box.getChildren().addAll(openConfig);
+        box.getChildren().setAll(openConfig);
+
+        initialized = true;
     }
 
     @Override
@@ -140,7 +143,9 @@ public class DeltaEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            init();
+            if (!initialized) {
+                init();
+            }
         } catch (Exception ex) {
             logger.catching(ex);
         }

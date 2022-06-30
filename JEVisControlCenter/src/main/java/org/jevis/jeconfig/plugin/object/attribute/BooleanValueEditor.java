@@ -122,7 +122,7 @@ public class BooleanValueEditor implements AttributeEditor {
             }
         });
         logger.trace("end");
-        editorNode.getChildren().addAll(_field);
+        editorNode.getChildren().setAll(_field);
 
     }
 

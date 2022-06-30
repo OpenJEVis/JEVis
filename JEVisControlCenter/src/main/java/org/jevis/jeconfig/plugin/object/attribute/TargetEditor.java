@@ -52,6 +52,7 @@ public class TargetEditor implements AttributeEditor {
     private boolean _readOnly = true;
     JEVisSample newSample;
     private JFXButton _treeButton;
+    private boolean initialized = false;
 
     public TargetEditor(StackPane dialogContainer, JEVisAttribute att, MODE mode, JEVisTree tree) {
         this.dialogContainer = dialogContainer;
@@ -95,7 +96,9 @@ public class TargetEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            init();
+            if (!initialized) {
+                init();
+            }
         } catch (Exception ex) {
             logger.catching(ex);
         }
@@ -148,6 +151,7 @@ public class TargetEditor implements AttributeEditor {
 
         setButtonText();
 
+        initialized = true;
     }
 
     public EventHandler<ActionEvent> getTreeButtonActionEventEventHandler() {

@@ -154,7 +154,7 @@ public class TimeStampEditor implements AttributeEditor {
             }
         });
 
-        editor.getChildren().addAll(pickerDate, pickerTime);
+        editor.getChildren().setAll(pickerDate, pickerTime);
     }
 
     @Override
