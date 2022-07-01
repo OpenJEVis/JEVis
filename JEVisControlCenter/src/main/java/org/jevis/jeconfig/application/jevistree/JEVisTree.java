@@ -66,13 +66,12 @@ public class JEVisTree extends TreeTableView {
      */
     public JEVisTree(JEVisDataSource ds, JEVisTreeFilter filter) {
         super();
-        logger.error("Create new JEVis tree: ds: {}", ds);
+
         this.setId("JEVisTree");
         this.ds = ds;
 //        cellFilter = FilterFactory.buildDefaultItemFilter();
         this.cellFilter = filter;
         this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
 
 //        addCellFactory();
         initialize();
@@ -448,20 +447,20 @@ public class JEVisTree extends TreeTableView {
     public void setCopyObjectsBySelection(boolean cut) {
         List<JEVisObject> selection = new ArrayList<>();
 
-        logger.error("--COPY--");
+        logger.trace("--COPY--");
         getSelectionModel().getSelectedItems().forEach(o -> {
             try {
                 JEVisObject toCopy = ((JEVisTreeItem) o).getValue().getJEVisObject();
                 if (!isParentInList(selection, toCopy)) {
                     selection.add(toCopy);
-                    logger.error("--add: " + toCopy);
+                    logger.trace("--add: " + toCopy);
                 }
 
             } catch (Exception ex) {
                 logger.error(ex, ex);
             }
         });
-        logger.error("--------");
+        logger.trace("--------");
 
         setCopyObjects(selection, false);
         this.isCut = cut;

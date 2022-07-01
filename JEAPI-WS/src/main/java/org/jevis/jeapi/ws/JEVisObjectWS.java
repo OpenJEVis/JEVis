@@ -69,7 +69,6 @@ public class JEVisObjectWS implements JEVisObject {
     public void addEventListener(JEVisEventListener listener) {
         if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
             logger.debug("Duplicate Listener: {}", json.getId());
-            System.out.println();
         }
 
         this.listeners.add(JEVisEventListener.class, listener);
