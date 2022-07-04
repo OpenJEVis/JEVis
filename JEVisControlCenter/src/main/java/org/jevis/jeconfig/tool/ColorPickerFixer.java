@@ -24,7 +24,6 @@ public class ColorPickerFixer {
 //                if (Modifier.isPrivate(field.getModifiers())) {
 //                    field.setAccessible(true);
                 field.setAccessible(true);
-                System.out.println(field.getName() + " : " + field.get(colorPicker));
 //                }
             }
 //

@@ -95,7 +95,6 @@ public class DataValueTable {
 
 
         filteredList.addAll(list);
-        System.out.println("filteredList; " + filteredList.size());
 
         tableView.setItems(filteredList);
 
