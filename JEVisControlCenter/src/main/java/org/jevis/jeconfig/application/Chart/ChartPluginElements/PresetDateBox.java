@@ -20,6 +20,7 @@ import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.joda.time.DateTime;
@@ -269,10 +270,14 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
     }
 
     public void isWithCustom(JEVisObject object, boolean withCustom) {
-        if (withCustom && object != null) {
-            getItems().addAll(getCustomPeriods(object));
-        } else if (object != null) {
-            getItems().removeAll(getCustomPeriods(object));
+        Collection<? extends AnalysisTimeFrame> customPeriods = getCustomPeriods(object);
+        if (customPeriods != null) {
+            if (withCustom && object != null) {
+                getItems().removeAll(customPeriods);
+                getItems().addAll(customPeriods);
+            } else if (object != null) {
+                getItems().removeAll(customPeriods);
+            }
         }
     }
 
@@ -305,16 +310,13 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
                 logger.error("Error: could not get calendar directories", e);
             }
             if (Objects.requireNonNull(listCalendarDirectories).isEmpty()) {
-                List<JEVisObject> listBuildings = new ArrayList<>();
+                JEVisObject building = CommonMethods.getFirstParentalObjectOfClass(object, "Building");
                 try {
-                    JEVisClass building = ds.getJEVisClass("Building");
-                    listBuildings = ds.getObjects(building, false);
-
-                    if (!listBuildings.isEmpty()) {
+                    if (building != null) {
                         JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                        if (ds.getCurrentUser().canCreate(listBuildings.get(0).getID())) {
+                        if (ds.getCurrentUser().canCreate(building.getID())) {
 
-                            JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
+                            JEVisObject calendarDirectory = building.buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
                             calendarDirectory.commit();
                         }
                     }

@@ -32,15 +32,16 @@ import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.PathReferenceDescription;
 import org.joda.time.DateTime;
-
 import org.joda.time.Period;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
-import java.io.*;
-
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -159,8 +160,6 @@ public class NodeTreeTable {
                                 PathReferenceDescription x = o;
 
                                 Node node = new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue());
-                                System.out.println("name");
-                                System.out.println(o.getReferenceDescription().getBrowseName().getName());
                                 if (rootSet == false) {
 
                                     currentTreeItem = setRoot(node);

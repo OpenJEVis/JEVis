@@ -113,7 +113,7 @@ public class PeriodHelper {
             case CUSTOM:
             case CUSTOM2:
                 resultDate = resultDate.plus(customPeriod);
-                if (wasLastDay) {
+                if (org.joda.time.Period.months(1).equals(customPeriod) && wasLastDay) {
                     resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
                 }
                 break;

@@ -164,7 +164,6 @@ public abstract class BasicEditor implements AttributeEditor {
                         super.updateItem(unitItem, empty);
                         setGraphic(null);
                         if (!empty) {
-                            System.out.println("Unit Text: " + unitItem);
                             setAlignment(Pos.CENTER);
                             setText("");
 

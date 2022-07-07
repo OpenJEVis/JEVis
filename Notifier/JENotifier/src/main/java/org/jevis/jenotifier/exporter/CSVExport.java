@@ -48,7 +48,17 @@ public class CSVExport extends Export {
     //    protected JEVisAttribute attExportStatus;
     private int exportCount = 0;
 
-    private List<File> exportFiles = new ArrayList<>();
+    private static final Comparator<JEVisSample> jeVisSampleComparator = new Comparator<JEVisSample>() {
+        @Override
+        public int compare(JEVisSample o1, JEVisSample o2) {
+            try {
+                return o1.getTimestamp().compareTo(o2.getTimestamp());
+            } catch (Exception ex) {
+
+            }
+            return 0;
+        }
+    };
     private DateTime lastUpdate;
     private String enclosed = "";
     protected String seperator = ";";
@@ -60,20 +70,10 @@ public class CSVExport extends Export {
     private boolean hasNewData = false;
     //    private DateTime lastTimeStamp;
     protected DateTimeZone dateTimeZone = DateTimeZone.getDefault();
-    private List<ExportEvent> exportEventList = new ArrayList<>();
+    private final List<File> exportFiles = new ArrayList<>();
     private DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM.dd HH:mm:ss");
-    private List<ExportLink> exportLinkList = new ArrayList<>();
-    private static Comparator<JEVisSample> jeVisSampleComparator = new Comparator<JEVisSample>() {
-        @Override
-        public int compare(JEVisSample o1, JEVisSample o2) {
-            try {
-                return o1.getTimestamp().compareTo(o2.getTimestamp());
-            } catch (Exception ex) {
-
-            }
-            return 0;
-        }
-    };
+    private final List<ExportEvent> exportEventList = new ArrayList<>();
+    private final List<ExportLink> exportLinkList = new ArrayList<>();
 
     public CSVExport(JENotifierConfig jeNotifierConfig, JEVisObject object) {
         super(jeNotifierConfig, object);
@@ -208,7 +208,6 @@ public class CSVExport extends Export {
     @Override
     public void executeExport() throws Exception {
 //        logger.error("executeExport()");
-        System.out.println("Export from: " + lastUpdate);
 
         logDate = new DateTime();
         AtomicBoolean export = new AtomicBoolean(false);

@@ -1153,15 +1153,16 @@ public class AlarmPlugin implements Plugin {
                 if (allJobsDone(futures)) {
                     JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
                     data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
-                    createPage(0);
-                    Platform.runLater(() -> autoFitTable(tableView));
+
+                    Platform.runLater(() -> {
+                        createPage(0);
+                        autoFitTable(tableView);
+                    });
                 }
             };
-            Platform.runLater(() -> {
-                task.setOnSucceeded(doneEvent);
-                task.setOnFailed(doneEvent);
-            });
 
+            task.setOnSucceeded(doneEvent);
+            task.setOnFailed(doneEvent);
 
             this.runningUpdateTaskList.add(task);
             //this.executor.execute(task);
