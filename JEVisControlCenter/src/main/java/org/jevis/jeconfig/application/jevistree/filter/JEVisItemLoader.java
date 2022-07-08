@@ -474,20 +474,22 @@ public class JEVisItemLoader {
                             JEVisTreeItem treeParent3 = (JEVisTreeItem) treeItem.getParent();
                             JEVisObject parenObject3 = treeParent3.getValue().getJEVisObject();
 
-                            try {
-                                parenObject3.getParents().remove(detectedObject);
-                                treeParent3.getChildren().remove(treeItem);
-                            } catch (Exception e) {
-                                logger.error(e, e);
-                            }
-
-                            try {
-                                if (!treeItemBin.getChildren().contains(treeItem)) {
-                                    treeItemBin.getChildren().add(treeItem);
+                            Platform.runLater(() -> {
+                                try {
+                                    parenObject3.getParents().remove(detectedObject);
+                                    treeParent3.getChildren().remove(treeItem);
+                                } catch (Exception e) {
+                                    logger.error(e, e);
                                 }
-                            } catch (Exception ex) {
-                                logger.error(ex, ex);
-                            }
+                            });
+
+                            Platform.runLater(() -> {
+                                try {
+                                    treeItemBin.getChildren().add(treeItem);
+                                } catch (Exception ex) {
+                                    logger.error(ex, ex);
+                                }
+                            });
 
 
                             Platform.runLater(() -> {
