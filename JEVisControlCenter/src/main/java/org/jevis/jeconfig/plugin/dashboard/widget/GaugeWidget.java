@@ -58,7 +58,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(GaugeWidget.class);
     public static String WIDGET_ID = "Gauge";
-    private final eu.hansolo.medusa.Gauge gauge;// = GaugeBuilder.create().animated(false).build();
+    private final eu.hansolo.medusa.Gauge gauge = GaugeBuilder.create().animated(false).build();
     private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
@@ -66,11 +66,11 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     private GaugePojo gaugeSettings;
     public static String PERCENT_NODE_NAME = "percent";
     private Interval lastInterval = null;
-    private ChangeListener<Number> limitListener = null;
-    private ChangeListener<Number> percentListener = null;
-    private GaugeWidget limitWidget = null;
-    private GaugeWidget percentWidget = null;
-    private String percentText = "";
+    private final ChangeListener<Number> limitListener = null;
+    private final ChangeListener<Number> percentListener = null;
+    private final GaugeWidget limitWidget = null;
+    private final GaugeWidget percentWidget = null;
+    private final String percentText = "";
 
 
     public static String GAUGE_DESIGN_NODE_NAME = "gaugeDesign";
@@ -80,18 +80,15 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     public GaugeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
-        gauge = GaugeBuilder.create().animated(false).build();
     }
 
     public GaugeWidget(DashboardControl control) {
         super(control);
-        gauge = GaugeBuilder.create().animated(false).build();
     }
 
     public GaugeWidget() {
         super();
         setId(WIDGET_ID);
-        gauge = GaugeBuilder.create().animated(false).build();
     }
 
     @Override
@@ -163,7 +160,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     }
 
     private void updateText() {
-        if (this.config != null && gauge != null) {
+        if (gauge != null && config != null) {
             gauge.setTitle(this.config.getTitle());
             gauge.setTitleColor(this.config.getFontColor());
             gauge.setUnitColor(this.config.getFontColor());
@@ -246,26 +243,25 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     }
 
     private void updateSkin() {
+        if (gauge != null) {
+            gauge.setSkinType(eu.hansolo.medusa.Gauge.SkinType.SIMPLE_SECTION);
+            if (gaugeSettings != null) {
 
-        gauge.setSkinType(eu.hansolo.medusa.Gauge.SkinType.SIMPLE_SECTION);
-        System.out.println(gaugeSettings);
-        if (gaugeSettings != null) {
-
-            if (gaugeSettings.isInPercent()) {
-                gauge.setMinValue(0);
-                gauge.setMaxValue(100);
-                gauge.setUnit("%");
+                if (gaugeSettings.isInPercent()) {
+                    gauge.setMinValue(0);
+                    gauge.setMaxValue(100);
+                    gauge.setUnit("%");
+                } else {
+                    gauge.setMinValue(gaugeSettings.getMinimum());
+                    gauge.setMaxValue(gaugeSettings.getMaximum());
+                    gauge.setUnit(displayedUnit.getValue());
+                }
+                List<Section> sections = gaugeSettings.getSections().stream().map(gaugeSection -> new Section(gaugeSection.getStart(), gaugeSection.getEnd(), gaugeSection.getColor())).collect(Collectors.toList());
+                gauge.setSections(sections);
             } else {
-                gauge.setMinValue(gaugeSettings.getMinimum());
-                gauge.setMaxValue(gaugeSettings.getMaximum());
-                gauge.setUnit(displayedUnit.getValue());
+                init();
             }
-            List<Section> sections = gaugeSettings.getSections().stream().map(gaugeSection -> new Section(gaugeSection.getStart(), gaugeSection.getEnd(), gaugeSection.getColor())).collect(Collectors.toList());
-            gauge.setSections(sections);
-        } else {
-            init();
         }
-
     }
 
     @Override
@@ -380,6 +376,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
 
     }
+
 
 
     @Override

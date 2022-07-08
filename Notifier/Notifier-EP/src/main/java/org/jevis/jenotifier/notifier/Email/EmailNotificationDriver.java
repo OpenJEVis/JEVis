@@ -43,7 +43,7 @@ public class EmailNotificationDriver implements NotificationDriver {
     private String _userName;
     private String _password;
     public static final String _type = "EMail Plugin";
-    private TansportSecurity _transportSecurity;
+    private TansportSecurity _transportSecurity = TansportSecurity.NO;
     private Authenticator _authentication;
     //
     public static final String APPLICATIVE_NOTI_TYPE = "E-Mail Notification";
@@ -421,12 +421,11 @@ public class EmailNotificationDriver implements NotificationDriver {
         if (jenoti.getType().equals(APPLICATIVE_NOTI_TYPE)) {
             EmailNotification emnoti = (EmailNotification) jenoti;//(EmailNotification) jenoti;
             successful = sendEmailNotification(emnoti, customMessage);
-            return successful;
         } else {
             logger.info("This Notification is not the EmailNotification.");
             logger.info("This Notification is" + jenoti.getType() + ".");
-            return successful;
         }
+        return successful;
     }
 
     /**

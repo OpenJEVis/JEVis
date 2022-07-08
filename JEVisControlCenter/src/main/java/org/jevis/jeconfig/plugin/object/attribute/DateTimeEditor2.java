@@ -55,7 +55,7 @@ public class DateTimeEditor2 implements AttributeEditor {
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisDataSource ds;
-    private JEVisSample originalSample;
+    private final JEVisSample originalSample;
 
     public DateTimeEditor2(JEVisAttribute att) {
         this.att = att;
@@ -141,7 +141,7 @@ public class DateTimeEditor2 implements AttributeEditor {
             }
         });
 
-        editor.getChildren().addAll(pickerDate, pickerTime);
+        editor.getChildren().setAll(pickerDate, pickerTime);
     }
 
     @Override

@@ -4,6 +4,13 @@ public enum AggregationPeriod {
 
     NONE, MINUTELY, QUARTER_HOURLY, HOURLY, DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY, THREEYEARS, FIVEYEARS, TENYEARS, CUSTOM, CUSTOM2;
 
+    public boolean isGreaterThenDays() {
+        AggregationPeriod aggregationPeriod = this;
+        return aggregationPeriod == AggregationPeriod.DAILY || aggregationPeriod == AggregationPeriod.WEEKLY || aggregationPeriod == AggregationPeriod.MONTHLY
+                || aggregationPeriod == AggregationPeriod.QUARTERLY || aggregationPeriod == AggregationPeriod.YEARLY || aggregationPeriod == AggregationPeriod.THREEYEARS
+                || aggregationPeriod == AggregationPeriod.FIVEYEARS || aggregationPeriod == AggregationPeriod.TENYEARS;
+    }
+
     public static AggregationPeriod get(String modeName) {
         String[] modeArray = modeName.split("_");
         String mode = NONE.name();

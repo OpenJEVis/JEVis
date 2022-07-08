@@ -50,6 +50,7 @@ public class WebViewEditor implements AttributeEditor {
     private final JEVisSample _lastSample;
     private final VBox vBox = new VBox();
     private final WebView webView = new WebView();
+    private boolean initialized = false;
 
     public WebViewEditor(JEVisAttribute att) {
         logger.debug("==init== for: {}", att.getName());
@@ -106,6 +107,7 @@ public class WebViewEditor implements AttributeEditor {
             });
 
             vBox.getChildren().setAll(dateTimeComboBox, webView);
+            initialized = true;
         }
     }
 
@@ -128,7 +130,9 @@ public class WebViewEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            init();
+            if (!initialized) {
+                init();
+            }
         } catch (Exception ex) {
             logger.catching(ex);
         }

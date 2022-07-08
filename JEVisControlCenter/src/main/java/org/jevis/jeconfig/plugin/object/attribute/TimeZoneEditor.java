@@ -89,7 +89,7 @@ public class TimeZoneEditor implements AttributeEditor {
                 logger.fatal(ex);
             }
         });
-        _editor.getChildren().addAll(timeZoneBox);
+        _editor.getChildren().setAll(timeZoneBox);
 
     }
 

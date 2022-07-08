@@ -73,6 +73,7 @@ public class GapFillingEditor implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private List<JsonGapFillingConfig> _listConfig;
+    private boolean initialized = false;
 
     public GapFillingEditor(StackPane dialogContainer, JEVisAttribute att) {
         this.dialogContainer = dialogContainer;
@@ -121,8 +122,9 @@ public class GapFillingEditor implements AttributeEditor {
             }
         });
 
-        box.getChildren().addAll(openConfig);
+        box.getChildren().setAll(openConfig);
 
+        initialized = true;
     }
 
     @Override
@@ -143,7 +145,9 @@ public class GapFillingEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            init();
+            if (!initialized) {
+                init();
+            }
         } catch (Exception ex) {
             logger.catching(ex);
         }
