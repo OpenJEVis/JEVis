@@ -238,7 +238,7 @@ public class PieWidget extends Widget implements DataModelWidget {
     public void init() {
 
         try {
-            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
             ex.printStackTrace();

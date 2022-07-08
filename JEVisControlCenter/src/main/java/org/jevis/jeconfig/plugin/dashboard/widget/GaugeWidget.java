@@ -285,7 +285,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
@@ -376,6 +376,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
 
     }
+
 
 
     @Override

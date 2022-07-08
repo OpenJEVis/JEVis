@@ -79,7 +79,7 @@ public class PeriodEditor implements AttributeEditor {
 
     @Override
     public void commit() throws JEVisException {
-        logger.error("commit: {}", att.getName());
+        logger.debug("commit: {}", att.getName());
         if (hasChanged()) {
             DateTime datetime = new DateTime(
                     pickerDate.valueProperty().get().getYear(),

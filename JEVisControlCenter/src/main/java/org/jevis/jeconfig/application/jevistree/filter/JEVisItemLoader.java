@@ -398,8 +398,14 @@ public class JEVisItemLoader {
 
 
         object.addEventListener(event -> {
-            try{
-                if(event.getObject() instanceof JEVisObject){
+            try {
+                /*
+                System.out.println("LoaderEvent: " + event);
+                System.out.println("2: " + event.getObject().getClass());
+                System.out.println("3: " + (event.getObject() instanceof JEVisObject));
+
+                 */
+                if (event.getObject() instanceof JEVisObject) {
                     logger.error("Object Event [{}]: object [{}]{}  Source: {}", event.getType(), object.getID(), object.getName(), event.getSource());
                     JEVisObject detectedObject = (JEVisObject) event.getObject();
                     JEVisTreeItem treeItem = getItemForObject(detectedObject);
@@ -431,32 +437,11 @@ public class JEVisItemLoader {
                         case OBJECT_DELETE_BIN:
                             /** nothing to do, we listen to the parent OBJECT_CHILD_DELETED event **/
 
-                            JEVisTreeItem treeParent2 = (JEVisTreeItem) treeItem.getParent();
-                            JEVisObject parenObject2 = treeParent2.getValue().getJEVisObject();
-
                             try {
-                                parenObject2.getParents().remove(detectedObject);
-                                treeParent2.getChildren().remove(treeItem);
-
-                                recycleBinObject.getChildren().add(detectedObject);
-                                treeItemBin.getChildren().add(treeItem);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                                treeItemBin.getChildren().remove(treeItem);
+                            } catch (Exception ex) {
+                                logger.error(ex, ex);
                             }
-
-
-                            Platform.runLater(() -> {
-                                treeParent2.setExpanded(false);
-                                treeParent2.setExpanded(true);
-
-                                if (treeItemBin.isExpanded()) {
-                                    treeItemBin.setExpanded(false);
-                                    treeItemBin.setExpanded(true);
-                                }
-
-                                jeVisTree.getSelectionModel().clearSelection();
-                            });
-
 
                             break;
                         case OBJECT_NEW_CHILD:
@@ -486,6 +471,35 @@ public class JEVisItemLoader {
 
                             break;
                         case OBJECT_CHILD_DELETED:
+                            JEVisTreeItem treeParent3 = (JEVisTreeItem) treeItem.getParent();
+                            JEVisObject parenObject3 = treeParent3.getValue().getJEVisObject();
+
+                            try {
+                                parenObject3.getParents().remove(detectedObject);
+                                treeParent3.getChildren().remove(treeItem);
+                            } catch (Exception e) {
+                                logger.error(e, e);
+                            }
+
+                            try {
+                                if (!treeItemBin.getChildren().contains(treeItem)) {
+                                    treeItemBin.getChildren().add(treeItem);
+                                }
+                            } catch (Exception ex) {
+                                logger.error(ex, ex);
+                            }
+
+
+                            Platform.runLater(() -> {
+                                try {
+                                    treeParent3.setExpanded(false);
+                                    treeParent3.setExpanded(true);
+
+                                    jeVisTree.getSelectionModel().clearSelection();
+                                } catch (Exception ex) {
+                                    logger.error(ex, ex);
+                                }
+                            });
 
                             break;
                         case OBJECT_UPDATED:
@@ -500,12 +514,9 @@ public class JEVisItemLoader {
                             break;
                     }
                 }
-            }catch (Exception ex){
-                logger.error("Error in Object event",ex,ex);
+            } catch (Exception ex) {
+                logger.error("Error in Object event", ex, ex);
             }
-
-
-
 
         });
 
