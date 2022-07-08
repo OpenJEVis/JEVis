@@ -58,7 +58,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(GaugeWidget.class);
     public static String WIDGET_ID = "Gauge";
-    private final eu.hansolo.medusa.Gauge gauge = GaugeBuilder.create().animated(false).build();
+    private final eu.hansolo.medusa.Gauge gauge;// = GaugeBuilder.create().animated(false).build();
     private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
@@ -80,15 +80,18 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     public GaugeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
+        gauge = GaugeBuilder.create().animated(false).build();
     }
 
     public GaugeWidget(DashboardControl control) {
         super(control);
+        gauge = GaugeBuilder.create().animated(false).build();
     }
 
     public GaugeWidget() {
         super();
         setId(WIDGET_ID);
+        gauge = GaugeBuilder.create().animated(false).build();
     }
 
     @Override
@@ -123,51 +126,51 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 //            this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
 //        });
 //
-        String widgetUUID = "-1";
+            String widgetUUID = "-1";
 //
 //
-                    AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
-                    //try {
-                    widgetUUID = getConfig().getUuid() + "";
-                    this.sampleHandler.setAutoAggregation(true);
-                    this.sampleHandler.setInterval(interval);
-                    this.sampleHandler.update();
-                    if (!this.sampleHandler.getDataModel().isEmpty()) {
-                        ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
-                        dataModel.setCustomWorkDay(customWorkday);
-                        List<JEVisSample> results;
+            AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
+            //try {
+            widgetUUID = getConfig().getUuid() + "";
+            this.sampleHandler.setAutoAggregation(true);
+            this.sampleHandler.setInterval(interval);
+            this.sampleHandler.update();
+            if (!this.sampleHandler.getDataModel().isEmpty()) {
+                ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
+                dataModel.setCustomWorkDay(customWorkday);
+                List<JEVisSample> results;
 
-                        String unit = dataModel.getUnitLabel();
-                        displayedUnit.setValue(unit);
+                String unit = dataModel.getUnitLabel();
+                displayedUnit.setValue(unit);
 
-                        results = dataModel.getSamples();
-                        if (!results.isEmpty()) {
+                results = dataModel.getSamples();
+                if (!results.isEmpty()) {
 
 
+                    total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
+                    if (gaugeSettings.isInPercent()) {
+                        gauge.setValue(convertToPercent(total.get(), gaugeSettings.getMaximum(), this.config.getDecimals()));
 
-                            total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
-                            if (gaugeSettings.isInPercent()) {
-                               gauge.setValue(convertToPercent(total.get(), gaugeSettings.getMaximum(),this.config.getDecimals()));
-
-                            }else {
-                                gauge.setValue(total.get());
-
-                            }
-
-                        }
+                    } else {
+                        gauge.setValue(total.get());
 
                     }
+
+                }
+
+            }
         });
     }
 
     private void updateText() {
-        gauge.setTitle(this.config.getTitle());
-        gauge.setTitleColor(this.config.getFontColor());
-        gauge.setUnitColor(this.config.getFontColor());
-        gauge.setValueColor(this.config.getFontColor());
-        gauge.setDecimals(this.config.getDecimals());
+        if (this.config != null && gauge != null) {
+            gauge.setTitle(this.config.getTitle());
+            gauge.setTitleColor(this.config.getFontColor());
+            gauge.setUnitColor(this.config.getFontColor());
+            gauge.setValueColor(this.config.getFontColor());
+            gauge.setDecimals(this.config.getDecimals());
+        }
     }
-
 
 
     @Override
@@ -221,10 +224,10 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     }
 
 
-    private double convertToPercent(double value, double maximum,int decimalPlaces) {
+    private double convertToPercent(double value, double maximum, int decimalPlaces) {
         BigDecimal bd;
         if (maximum > 0) {
-            bd =new BigDecimal(value/maximum*100).setScale(2, RoundingMode.HALF_DOWN);
+            bd = new BigDecimal(value / maximum * 100).setScale(2, RoundingMode.HALF_DOWN);
             return bd.doubleValue();
         } else return 0;
 
@@ -232,15 +235,13 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     }
 
 
-
-
     @Override
     public void updateConfig() {
-            Platform.runLater(() -> {
-                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-                updateText();
-                updateSkin();
-            });
+        Platform.runLater(() -> {
+            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+            updateText();
+            updateSkin();
+        });
 
     }
 
@@ -254,14 +255,14 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 gauge.setMinValue(0);
                 gauge.setMaxValue(100);
                 gauge.setUnit("%");
-            }else {
+            } else {
                 gauge.setMinValue(gaugeSettings.getMinimum());
                 gauge.setMaxValue(gaugeSettings.getMaximum());
                 gauge.setUnit(displayedUnit.getValue());
             }
             List<Section> sections = gaugeSettings.getSections().stream().map(gaugeSection -> new Section(gaugeSection.getStart(), gaugeSection.getEnd(), gaugeSection.getColor())).collect(Collectors.toList());
             gauge.setSections(sections);
-        }else {
+        } else {
             init();
         }
 
@@ -288,7 +289,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
@@ -302,7 +303,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             logger.error("Gauge Setting is null make new: " + config.getUuid());
             this.gaugeSettings = new GaugePojo(this.control);
         }
-
 
 
         this.gauge.setPadding(new Insets(0, 8, 0, 8));
@@ -380,7 +380,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
 
     }
-
 
 
     @Override
