@@ -84,7 +84,14 @@ public class ReportTable extends AlarmTable {
 
                 DateTime end = intervalCalculator.getInterval(PeriodMode.CURRENT.toString().toUpperCase()).getEnd();
 
-                if (!precondition.isPreconditionReached(report) || DateTime.now().isBefore(end)) {
+                boolean dateCheck = DateTime.now().isAfter(end) && end.isBefore(latestReported);
+
+                if (!dateCheck) {
+                    logger.info("Date conditions not met, report ok");
+                    continue;
+                }
+
+                if (!precondition.isPreconditionReached(report)) {
                     logger.info("Precondition not reached, report ok");
                     continue;
                 }
