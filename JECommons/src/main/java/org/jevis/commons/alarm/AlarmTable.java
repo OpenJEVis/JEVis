@@ -61,6 +61,8 @@ public class AlarmTable {
     private JEVisClass cleanDataClass;
     private JEVisClass channelClass;
 
+    private JEVisClass reportClass;
+
     private JEVisClass outputClass;
     private JEVisClass inputClass;
     private JEVisClass calculationClass;
@@ -157,6 +159,7 @@ public class AlarmTable {
             outputClass = dataSource.getJEVisClass("Output");
             inputClass = dataSource.getJEVisClass("Input");
             calculationClass = dataSource.getJEVisClass("Calculation");
+            reportClass = dataSource.getJEVisClass("Periodic Report");
         } catch (JEVisException e) {
             e.printStackTrace();
         }
@@ -351,5 +354,9 @@ public class AlarmTable {
 
     public JEVisClass getCalculationClass() {
         return calculationClass;
+    }
+
+    public JEVisClass getReportClass() {
+        return reportClass;
     }
 }
