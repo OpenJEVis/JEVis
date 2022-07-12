@@ -50,7 +50,38 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.63------\n" +
+            "------Version 3.9.64------\n" +
+                    "JECC - AlarmPlugin - added alarm type check and respective button for limit configuration or alarm configuration\n" +
+                    "JECC - AlarmPlugin - fixed attribute editor node\n" +
+                    "JECC - AlarmPlugin - fixed null pointer in task\n" +
+                    "JECC - AttributeEditor - fixed initialization problems in derived classes\n" +
+                    "JECC - CalculationExtension - Fixed a bug where the wrong period was displayed\n" +
+                    "JECC - ChartPlugin - fixed recurring adding of custom periods in preset date box\n" +
+                    "JECC - DashboardPlugin - Int the DataModel with the static Widget ID.\n" +
+                    "JECC - DashboardPlugin - Removed a redundant UpdateConfig all which even when the Widget was not ready.\n" +
+                    "JECC - FXLogin - fixed login progress text\n" +
+                    "JECC - Fixed merged properties\n" +
+                    "JECC - JEVisTreeContextMenu - added base data to go to source\n" +
+                    "JECC - JEVisTreeContextMenu - added math data to recalc\n" +
+                    "JECC - LocalNameDialog - fixed null pointer\n" +
+                    "JECC - Reference Data - History dialog does not fit into screen\n" +
+                    "JECC - TrashBin - Fixed a bug where the GUI would show a fresh delete\n" +
+                    "JECC - TrashBin - Fixed deleted Object not in bin\n" +
+                    "JECC - add null pointer check\n" +
+                    "JECC - removed multiple system.out \n" +
+                    "JECC - DashboardPlugin - GaugeWidget - fixed null pointer\n" +
+                    "\n" +
+                    "JEAlarm - fixed missing attribute check\n" +
+                    "\n" +
+                    "JEDataProcessor - MathStep - implemented custom period\n" +
+                    "JEDataProcessor - fixed problem with custom workday and math data objects\n" +
+                    "\n" +
+                    "JEStatus - added report table for report stati\n" +
+                    "JEStatus - improved report status\n" +
+                    "JEStatus - mirrored html status to html file attribute\n" +
+                    "\n" +
+                    "Notifier - fixed null pointer on several occasions\n\n" +
+                    "------Version 3.9.63------\n" +
                     "JECC - AccountingPlugin - added write check for visible tabs\n" +
                     "JECC - AccountingPlugin - added zooming \n" +
                     "JECC - AccountingPlugin - fixed user permissions for sys admin\n" +
