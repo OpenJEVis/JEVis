@@ -13,14 +13,21 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisType;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigTab;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+
+import java.time.Period;
 
 public class GenericConfigNode extends Tab implements ConfigTab {
 
@@ -68,6 +75,13 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         timeFrameBox.setMinWidth(200);
         timeFrameBox.getItems().addAll(timeFrames);
 
+        if (widget.getClass().equals(GaugeWidget.class) || widget.getClass().equals(LinearGaugeWidget.class)) {
+            if (dataModelDataHandler.getDataModel() != null) {
+                if (dataModelDataHandler.getDataModel().size() > 0) {
+                    timeFrameBox.getItems().add(widget.getControl().getAllTimeFrames().getTimeframe(Period.ZERO.toString(), "lastValue"));
+                }
+            }
+        }
         alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
         alignmentBox.setPrefWidth(200);
         alignmentBox.setMinWidth(200);

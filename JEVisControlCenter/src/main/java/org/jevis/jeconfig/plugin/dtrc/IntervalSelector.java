@@ -20,6 +20,7 @@ import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -30,6 +31,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         public String getListName() {
             return "";
         }
+
 
         @Override
         public Interval nextPeriod(Interval interval, int addAmount) {

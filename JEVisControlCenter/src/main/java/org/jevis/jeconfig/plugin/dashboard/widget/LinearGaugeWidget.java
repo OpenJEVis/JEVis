@@ -122,58 +122,61 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
 
         Platform.runLater(() -> {
-        String widgetUUID = "-1";
-                    AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
-                    //try {
-                    widgetUUID = getConfig().getUuid() + "";
-                    this.sampleHandler.setAutoAggregation(true);
-                    this.sampleHandler.setInterval(interval);
-                    this.sampleHandler.update();
-                    if (!this.sampleHandler.getDataModel().isEmpty()) {
-                        ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
-                        dataModel.setCustomWorkDay(customWorkday);
-                        List<JEVisSample> results;
+            String widgetUUID = "-1";
+            AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
+            //try {
+            widgetUUID = getConfig().getUuid() + "";
+            this.sampleHandler.setAutoAggregation(true);
+            this.sampleHandler.setInterval(interval);
+            this.sampleHandler.update();
+            if (!this.sampleHandler.getDataModel().isEmpty()) {
+                ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
+                dataModel.setCustomWorkDay(customWorkday);
+                List<JEVisSample> results;
 
-                        String unit = dataModel.getUnitLabel();
-                        displayedUnit.setValue(unit);
+                String unit = dataModel.getUnitLabel();
+                displayedUnit.setValue(unit);
 
-                        results = dataModel.getSamples();
-                        if (!results.isEmpty()) {
-                            total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
-                            if (gaugeSettings.isInPercent()) {
-                               gauge.setValue(convertToPercent(total.get(), gaugeSettings.getMaximum(),this.config.getDecimals()));
+                results = dataModel.getSamples();
+                if (!results.isEmpty()) {
+                    total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
+                    if (gaugeSettings.isInPercent()) {
+                        gauge.setValue(convertToPercent(total.get(), gaugeSettings.getMaximum(), this.config.getDecimals()));
 
-                            }else {
-                                gauge.setValue(total.get());
-
-                            }
-
-                        }
+                    } else {
+                        gauge.setValue(total.get());
 
                     }
+
+                }
+
+            }
         });
     }
 
     private void updateText() {
-        gauge.setTitle(this.config.getTitle());
-        gauge.setTitleColor(this.config.getFontColor());
-        gauge.setUnitColor(this.config.getFontColor());
-        gauge.setValueColor(this.config.getFontColor());
-        gauge.setDecimals(this.config.getDecimals());
-        gauge.setTickLabelColor(this.config.getFontColor());
-        gauge.setTickMarkColor(gaugeSettings.getColorBorder());
+        if (gauge != null) {
+            gauge.setTitle(this.config.getTitle());
+            gauge.setTitleColor(this.config.getFontColor());
+            gauge.setUnitColor(this.config.getFontColor());
+            gauge.setValueColor(this.config.getFontColor());
+            gauge.setDecimals(this.config.getDecimals());
+            gauge.setTickLabelColor(this.config.getFontColor());
+            gauge.setTickMarkColor(gaugeSettings.getColorBorder());
 
-        if (!gaugeSettings.isShowTitle()) {
-            gauge.setTitle("");
+            if (!gaugeSettings.isShowTitle()) {
+                gauge.setTitle("");
+            }
+            if (!gaugeSettings.isShowUnit()) {
+                gauge.setUnit("");
+            }
+            if (!gaugeSettings.isShowValue()) {
+                gauge.setValueColor(Color.valueOf("#ffffff00"));
+            }
         }
-        if (!gaugeSettings.isShowUnit()) {
-            gauge.setUnit("");
-        }
-        if (!gaugeSettings.isShowValue()) {
-            gauge.setValueColor(Color.valueOf("#ffffff00"));
-        }
+
+
     }
-
 
 
     @Override
@@ -198,8 +201,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateLayout() {
-        updateSkin();
-        updateText();
     }
 
     @Override
@@ -227,10 +228,10 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     }
 
 
-    private double convertToPercent(double value, double maximum,int decimalPlaces) {
+    private double convertToPercent(double value, double maximum, int decimalPlaces) {
         BigDecimal bd;
         if (maximum > 0) {
-            bd =new BigDecimal(value/maximum*100).setScale(2, RoundingMode.HALF_DOWN);
+            bd = new BigDecimal(value / maximum * 100).setScale(2, RoundingMode.HALF_DOWN);
             return bd.doubleValue();
         } else return 0;
 
@@ -238,39 +239,39 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     }
 
 
-
-
     @Override
     public void updateConfig() {
-            Platform.runLater(() -> {
-                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-                updateSkin();
-                updateText();
-            });
+        Platform.runLater(() -> {
+            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+            updateSkin();
+            updateText();
+        });
 
     }
 
     private void updateSkin() {
+        if (gauge != null) {
+            gauge.setSkinType(Gauge.SkinType.LINEAR);
+            if (gaugeSettings != null) {
+                System.out.println(gaugeSettings);
+                gauge.setBarColor(gaugeSettings.getColor());
+                gauge.setMajorTickMarksVisible(gaugeSettings.isShowMajorTick());
+                gauge.setMediumTickMarksVisible(gaugeSettings.isShowMediumTick());
+                gauge.setMinorTickMarksVisible(gaugeSettings.isShowMinorTick());
 
-        gauge.setSkinType(Gauge.SkinType.LINEAR);
-        System.out.println(gaugeSettings);
-        gauge.setBarColor(gaugeSettings.getColor());
-        gauge.setMajorTickMarksVisible(gaugeSettings.isShowMajorTick());
-        gauge.setMediumTickMarksVisible(gaugeSettings.isShowMediumTick());
-        gauge.setMinorTickMarksVisible(gaugeSettings.isShowMinorTick());
-        if (gaugeSettings != null) {
 
-            if (gaugeSettings.isInPercent()) {
-                gauge.setMinValue(0);
-                gauge.setMaxValue(100);
-                gauge.setUnit("%");
-            }else {
-                gauge.setMinValue(gaugeSettings.getMinimum());
-                gauge.setMaxValue(gaugeSettings.getMaximum());
-                gauge.setUnit(displayedUnit.getValue());
+                if (gaugeSettings.isInPercent()) {
+                    gauge.setMinValue(0);
+                    gauge.setMaxValue(100);
+                    gauge.setUnit("%");
+                } else {
+                    gauge.setMinValue(gaugeSettings.getMinimum());
+                    gauge.setMaxValue(gaugeSettings.getMaximum());
+                    gauge.setUnit(displayedUnit.getValue());
+                }
+            } else {
+                init();
             }
-        }else {
-            init();
         }
 
     }
@@ -315,7 +316,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
             logger.error("Gauge Setting is null make new: " + config.getUuid());
             this.gaugeSettings = new LinearGaugePojo(this.control);
         }
-
 
 
         this.gauge.setPadding(new Insets(0, 8, 0, 8));
@@ -395,7 +395,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     }
 
 
-
     @Override
     public String typeID() {
         return WIDGET_ID;
@@ -415,13 +414,12 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
         }
 
 
-
         return dashBoardNode;
     }
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/ValueWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+        return JEConfig.getImage("widget/LinearGaugeWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
 

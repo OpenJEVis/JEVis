@@ -95,6 +95,7 @@ public class DataModelDataHandler {
     }
 
     public static Double getManipulatedData(DataModelNode dataModelNode, List<JEVisSample> samples, ChartDataRow dataModel) {
+        System.out.println(samples.get(samples.size()-1));
         Double value = 0d;
         if (samples.size() == 1) {
             try {
@@ -289,6 +290,9 @@ public class DataModelDataHandler {
     }
 
     public void setInterval(Interval interval) {
+        System.out.println("set intervall");
+        System.out.println(interval.getStart());
+        System.out.println(interval.getEnd());
         if (this.forcedInterval) {
 
             TimeFrame timeFrame = getTimeFrameFactory();
@@ -452,7 +456,11 @@ public class DataModelDataHandler {
 //            System.out.println("Set autoAggrigate: " + chartDataModel.getObject().getName() + " b: " + autoAggregation);
 //            chartDataModel.setAbsolute(autoAggregation);
             DateTime start = this.durationProperty.getValue().getStart();
+
             DateTime end = this.durationProperty.getValue().getEnd();
+            System.out.println("update");
+            System.out.println(end);
+            System.out.println(start);
 
             if (chartDataModel.getAggregationPeriod() != AggregationPeriod.NONE
                     && chartDataModel.getAggregationPeriod() != AggregationPeriod.MINUTELY
@@ -605,5 +613,9 @@ public class DataModelDataHandler {
             }
 
         }
+    }
+
+    public DashboardControl getDashboardControl() {
+        return dashboardControl;
     }
 }
