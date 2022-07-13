@@ -112,7 +112,7 @@ public class ColumnFactory {
                                               super.updateItem(item, empty);
                                               setText(null);
                                               setGraphic(null);
-                                              if (!empty
+                                              if (!empty && item != null
                                                       && getTreeTableRow() != null
                                                       && getTreeTableRow().getTreeItem() != null
                                                       && getTreeTableRow().getTreeItem().getValue() != null
@@ -244,7 +244,7 @@ public class ColumnFactory {
                         }
 
                     } else {
-                        
+
 
                         return new ReadOnlyObjectWrapper<>("");
                     }

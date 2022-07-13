@@ -349,8 +349,8 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
                 this.setBackground(bgColorTrans);
                 if (this.legend != null) {
-                this.legend.setBackground(bgColorTrans);
-                this.legend.setStyle("-fx-background-color: transparent; -fx-text-color: " + fontColor + ";");
+                    this.legend.setBackground(bgColorTrans);
+                    this.legend.setStyle("-fx-background-color: transparent; -fx-text-color: " + fontColor + ";");
                 }
                 this.borderPane.setBackground(bgColor);
 
@@ -417,7 +417,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.sampleHandler.setMultiSelect(true);
 
         this.legend.setAlignment(Pos.CENTER);

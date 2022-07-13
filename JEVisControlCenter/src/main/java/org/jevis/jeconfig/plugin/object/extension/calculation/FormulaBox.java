@@ -3,13 +3,13 @@ package org.jevis.jeconfig.plugin.object.extension.calculation;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Tooltip;
+import javafx.geometry.Orientation;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import net.sourceforge.jeval.Evaluator;
 import org.apache.logging.log4j.LogManager;
@@ -24,9 +24,12 @@ import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.ExceptionDialog2;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FormulaBox extends HBox {
 
@@ -101,12 +104,196 @@ public class FormulaBox extends HBox {
                 eval.putVariable(var, "1");
             }
 
-            String value = eval.evaluate();
+            List<String> warnings = new ArrayList();
+            List<String> error = new ArrayList<>();
+            List<String> info = new ArrayList<>();
+            List<Stats> stats = new ArrayList<>();
+
+            AtomicBoolean hasInput = new AtomicBoolean(false);
+            AtomicBoolean hasOutput = new AtomicBoolean(false);
+            calcObj.getChildren().forEach(jeVisObject -> {
+                try {
+                    if (jeVisObject.getJEVisClassName().equals("Input")) {
+                        hasInput.set(true);
+                        String inputName = jeVisObject.getName();
+
+                        JEVisAttribute targetAtt = jeVisObject.getAttribute("Input Data");
+                        JEVisAttribute identifyAtt = jeVisObject.getAttribute("Identifier");
+                        JEVisAttribute inputTypeAtt = jeVisObject.getAttribute("Input Data Type");
+
+                        if (targetAtt == null || !targetAtt.hasSample()) {
+                            error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.noinputdata")));
+                        } else {
+                            TargetHelper targetHelper = new TargetHelper(targetAtt.getDataSource(), targetAtt);
+
+                            if (!targetHelper.isValid()) {
+                                error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.novalidtarget")));
+                                stats.add(new Stats(null, inputName, null, null, 0));
+                            } else {
+                                JEVisAttribute targetAttData = targetHelper.getAttribute().get(0);
+                                if (!targetAttData.hasSample()) {
+                                    error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.notarget")));
+                                    stats.add(new Stats(jeVisObject, inputName, null, null, 0));
+                                } else {
+                                    stats.add(new Stats(jeVisObject,
+                                            inputName, targetAttData.getTimestampFromFirstSample(),
+                                            targetAttData.getTimestampFromLastSample(),
+                                            0)); // targetAttData.getAllSamples().size()
+                                }
+                            }
+                        }
+
+                        if (identifyAtt == null || !identifyAtt.hasSample()) {
+                            error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.warn.noid")));
+                            if (!variables.contains(identifyAtt)) {
+                                warnings.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.warn.varnotused")));
+                            }
+                        }
+
+                        if (inputTypeAtt == null || !inputTypeAtt.hasSample()) {
+                            error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.missingtype")));
+                        }
+
+
+                    }
+
+                    if (jeVisObject.getJEVisClassName().equals("Output")) {
+                        hasOutput.set(true);
+                        JEVisAttribute outputTargetAtt = jeVisObject.getAttribute("Output");
+                        if (outputTargetAtt == null || !outputTargetAtt.hasSample()) {
+                            error.add(String.format("%s - %s", jeVisObject.getName(), I18n.getInstance().getString("plugin.object.extension.calculation.error.missingoutput")));
+                        } else {
+                            //check if target ins also a target of something else (calc, datasource)
+                        }
+                    }
+
+                } catch (Exception ex) {
+                    error.add(String.format("%s: %S", I18n.getInstance().getString("plugin.object.extension.calculation.error.unkown"), jeVisObject, ex.getMessage()));
+                }
+            });
+
+            if (!hasInput.get()) {
+                error.add(I18n.getInstance().getString("plugin.object.extension.calculation.error.noinput"));
+            }
+            if (!hasOutput.get()) {
+                error.add(I18n.getInstance().getString("plugin.object.extension.calculation.error.nooutput"));
+            }
+
+
+            boolean valIsOK = false;
+            try {
+                String value = eval.evaluate();
+                valIsOK = true;
+                info.add(I18n.getInstance().getString("plugin.object.extension.calculation.error.noerrorformula"));
+
+            } catch (Exception ex) {
+                error.add(String.format("%s: %S", I18n.getInstance().getString("plugin.object.extension.calculation.error.formula"), ex.getMessage()));
+            }
+
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+
+            /*
+            info.add("Min Data       | Max Data        | Sample Count | Input");
+            stats.forEach(stat1 -> {
+                String from = "";
+                if (stat1.fromDate != null) {
+                    from = stat1.fromDate.toString(fmt);
+                }
+
+                String until = "";
+                if (stat1.untilDate != null) {
+                    until = stat1.untilDate.toString(fmt);
+                }
+
+                info.add(String.format("%s | %s | %10d | %s", from, until, stat1.sampleCount, stat1.name));
+            });
+
+             */
+
+
+            StringBuilder errorStringBuilder = new StringBuilder();
+            if (error.isEmpty()) {
+                errorStringBuilder.append(I18n.getInstance().getString("plugin.object.extension.calculation.error.noerror"));
+                errorStringBuilder.append(System.getProperty("line.separator"));
+            } else {
+                //errorStringBuilder.append("Errors:");
+                errorStringBuilder.append(System.getProperty("line.separator"));
+                error.forEach(s -> {
+                    errorStringBuilder.append("- ");
+                    errorStringBuilder.append(s);
+                    errorStringBuilder.append(System.getProperty("line.separator"));
+                });
+            }
+
+            StringBuilder warningsStringBuilder = new StringBuilder();
+            if (warnings.isEmpty()) {
+                warningsStringBuilder.append(I18n.getInstance().getString("plugin.object.extension.calculation.error.nowarning"));
+                warningsStringBuilder.append(System.getProperty("line.separator"));
+            } else {
+                //warningsStringBuilder.append("Warnings:");
+                warningsStringBuilder.append(System.getProperty("line.separator"));
+                warnings.forEach(s -> {
+                    warningsStringBuilder.append("- ");
+                    warningsStringBuilder.append(s);
+                    warningsStringBuilder.append(System.getProperty("line.separator"));
+                });
+            }
+
+            Label waringLabel = new Label(I18n.getInstance().getString("plugin.object.extension.calculation.label.warning"));
+            Label warningTextArea = new Label();
+            waringLabel.setWrapText(true);
+            warningTextArea.setText(warningsStringBuilder.toString());
+
+            Label errorLabel = new Label(I18n.getInstance().getString("plugin.object.extension.calculation.label.error"));
+            Label errorTextArea = new Label();
+            errorTextArea.setWrapText(true);
+            errorTextArea.setText(errorStringBuilder.toString());
+
+
+            TableView tableView = new TableView();
+            TableColumn<Stats, String> firstNameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.dr"));
+            firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+            TableColumn<Stats, String> firstDateColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.firstts"));
+            firstDateColumn.setCellValueFactory(new PropertyValueFactory<>("fromDate"));
+            TableColumn<Stats, String> lastDateColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.lastts"));
+            lastDateColumn.setCellValueFactory(new PropertyValueFactory<>("untilDate"));
+            TableColumn<Stats, String> identifierColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.varname"));
+            identifierColumn.setCellValueFactory(new PropertyValueFactory<>("Identifier"));
+            TableColumn<Stats, String> targetPeriodColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.drperiode"));
+            targetPeriodColumn.setCellValueFactory(new PropertyValueFactory<>("TargetPeriod"));
+            TableColumn<Stats, String> inputDataTypeColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.inputperiod"));
+            inputDataTypeColumn.setCellValueFactory(new PropertyValueFactory<>("InputDataType"));
+            TableColumn<Stats, String> targetNameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.extension.calculation.table.drname"));
+            targetNameColumn.setCellValueFactory(new PropertyValueFactory<>("TargetName"));
+
+            Label infoLabel = new Label(I18n.getInstance().getString("plugin.object.extension.calculation.label.information"));
+
+            tableView.getColumns().addAll(targetNameColumn, identifierColumn, firstDateColumn, lastDateColumn, targetPeriodColumn, inputDataTypeColumn);
+            tableView.getItems().addAll(stats);
+
+            VBox vBox = new VBox();
+
+            vBox.getChildren().addAll(
+                    errorLabel,
+                    new Separator(Orientation.HORIZONTAL),
+                    errorTextArea,
+                    waringLabel,
+                    new Separator(Orientation.HORIZONTAL),
+                    warningTextArea,
+                    infoLabel,
+                    new Separator(Orientation.HORIZONTAL),
+                    tableView
+            );
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.title"));
-            alert.setHeaderText(null);
-            alert.setContentText(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.success"));
+            alert.setHeaderText(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.header"));
+            alert.setResizable(true);
+            alert.getDialogPane().setPrefWidth(1350);
+            //alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+
+            alert.getDialogPane().setContent(vBox);
+            //alert.setContentText(I18n.getInstance().getString("plugin.object.extension.calculation.formulabox.eval.success"));
 
             alert.showAndWait();
 

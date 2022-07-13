@@ -7,8 +7,10 @@ import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.datetime.WorkDays;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.LocalTime;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
@@ -27,6 +29,23 @@ public class PrepareMath implements ProcessStep {
         Period inputPeriod = CleanDataObject.getPeriodForDate(periodRules, start);
 
         AggregationPeriod aggregationPeriod = mathDataObject.getReferencePeriod();
+        WorkDays workDays = new WorkDays(mathDataObject.getMathDataObject());
+
+        if (aggregationPeriod.isGreaterThenDays() && workDays.isCustomWorkDay()) {
+            java.time.LocalTime wdStart = workDays.getWorkdayStart();
+            java.time.LocalTime wdEnd = workDays.getWorkdayEnd();
+            LocalTime dtStart = new LocalTime(wdStart.getHour(), wdStart.getMinute(), wdStart.getSecond(), 0);
+            LocalTime dtEnd = new LocalTime(wdEnd.getHour(), wdEnd.getMinute(), wdEnd.getSecond(), 999);
+
+            start = start.withTime(dtStart);
+            end = end.withTime(dtEnd).plusMillis(1);
+
+            if (dtEnd.isBefore(dtStart)) {
+                start = start.minusDays(1);
+                end = end.minusDays(1);
+            }
+        }
+
         Long referencePeriodCount = mathDataObject.getReferencePeriodCount();
         Long periodOffset = mathDataObject.getPeriodOffset();
 

@@ -1356,7 +1356,6 @@ public class TreeHelper {
 
                 try {
                     if (obj.getDeleteTS() != null) {
-                        System.out.println("Set Delete TS");
                         obj.setDeleteTS(null);
                         obj.commit();
 
@@ -1502,7 +1501,6 @@ public class TreeHelper {
                 } else if (re == CopyObjectDialog.Response.LINK) {
                     buildLink(dragObj, targetParent, dia.getCreateName());
                 } else if (re == CopyObjectDialog.Response.COPY) {
-                    System.out.println("--- Copy object: " + dragObj + " newParent: " + targetParent);
                     copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), recursion, dia.getCreateCount());
                 }
             } else {

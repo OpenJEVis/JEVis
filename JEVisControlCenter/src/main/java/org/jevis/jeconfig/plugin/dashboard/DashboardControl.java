@@ -288,10 +288,26 @@ public class DashboardControl {
     }
 
     public void zoomIn() {
+
+        /*
+        if the zoom level is to one of the dynamic sizes start at 100%.
+        There might be a better ways to calculate a better factor
+         */
+        if (zoomFactor >= this.fitToHeight) {
+            zoomFactor = 1;
+        }
+
         setZoomFactor(zoomFactor + zoomSteps);
     }
 
     public void zoomOut() {
+         /*
+        if the zoom level is to one of the dynamic sizes start at 100%.
+        There might be a better ways to calculate a better factor
+         */
+        if (zoomFactor >= this.fitToHeight) {
+            zoomFactor = 1;
+        }
         setZoomFactor(zoomFactor - zoomSteps);
     }
 
@@ -483,6 +499,10 @@ public class DashboardControl {
             });
 
             sideConfigPanel = new SideConfigPanel(this);
+
+            this.dashBordPlugIn.getWidgetControlPane().setContent(sideConfigPanel);
+
+
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -490,7 +510,7 @@ public class DashboardControl {
     }
 
     /**
-     * Calculate an fitting DateTime based on available Samples.
+     * Calculate a fitting DateTime based on available Samples.
      * For now we use get maximum of all samples.
      *
      * @return
@@ -1182,10 +1202,12 @@ public class DashboardControl {
 
     private void showConfig() {
         if (selectedWidgets.isEmpty()) {
-            dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
+            //dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
+            this.dashBordPlugIn.showWidgetControlPane(false);
         } else {
-            configPanePos(configSideProperty.get(), sideConfigPanel);
+            //configPanePos(configSideProperty.get(), sideConfigPanel);
             sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+            this.dashBordPlugIn.showWidgetControlPane(true);
         }
     }
 

@@ -64,7 +64,6 @@ public class HiddenConfig {
             CHART_PRECISION_ON = (boolean) userConfig.get("CDPE").getObject();
             CHART_PRECISION_LIMIT = (int) userConfig.get("CDPL").getObject();
             DASH_THREADS = (int) userConfig.get("DTH").getObject();
-            System.out.println("CHART_PRECESSION_ON: " + CHART_PRECISION_ON);
         }
 
 

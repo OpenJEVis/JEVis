@@ -68,7 +68,6 @@ public class DialogHeader {
 //        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));
         header.getStyleClass().add("dialog-header");
-        System.out.println(text);
         Label topTitle = new Label(text);
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));

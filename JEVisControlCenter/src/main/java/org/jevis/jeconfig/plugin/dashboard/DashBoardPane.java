@@ -86,7 +86,7 @@ public class DashBoardPane extends Pane {
 
     /**
      * does not work with the current java/jfxtras version 8.x
-     * Need Maven dependencie jfxtras-labs
+     * Need Maven dependencies jfxtras-labs
      * <p>
      * There is the problem that the other mous events are not working and a
      * Bug in this version: https://github.com/JFXtras/jfxtras-labs/issues/127

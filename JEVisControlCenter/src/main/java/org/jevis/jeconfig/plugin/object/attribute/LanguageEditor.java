@@ -153,7 +153,7 @@ public class LanguageEditor implements AttributeEditor {
 //        HBox.setHgrow(picker, Priority.NEVER);
 //        HBox.setHgrow(spacer, Priority.ALWAYS);
 //        box.getChildren().addAll(spacer,picker);
-        _editor.getChildren().addAll(picker);
+        _editor.getChildren().setAll(picker);
 
     }
 

@@ -60,7 +60,7 @@ public class CalendarEditor implements AttributeEditor {
             }
         });
 
-        _editor.getChildren().addAll(calendarBox);
+        _editor.getChildren().setAll(calendarBox);
     }
 
     @Override

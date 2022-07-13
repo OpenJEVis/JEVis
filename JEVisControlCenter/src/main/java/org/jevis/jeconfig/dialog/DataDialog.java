@@ -85,13 +85,14 @@ public class DataDialog extends JFXDialog {
 
         tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         tableView.setMinWidth(450);
-        tableView.setMinHeight(800);
+        double height = dialogContainer.getHeight() * 0.75;
+        tableView.setMinHeight(height);
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.setEditable(true);
         tableView.setTableMenuButtonVisible(true);
 
         pagination.setMinWidth(500);
-        pagination.setMinHeight(850);
+        pagination.setMinHeight(height + 50);
 
         workDays = new WorkDays(attribute.getObject());
         Period p = CleanDataObject.getPeriodForDate(attribute.getObject(), lastTs);

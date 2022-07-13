@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.alarms;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
@@ -49,12 +50,15 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
+import org.jevis.jeconfig.plugin.object.attribute.AlarmEditor;
+import org.jevis.jeconfig.plugin.object.attribute.LimitEditor;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -68,6 +72,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.ALARM_CONFIG;
+import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.LIMITS_CONFIGURATION;
+
 public class AlarmPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(AlarmPlugin.class);
     private static int ROWS_PER_PAGE = 25;
@@ -76,6 +83,7 @@ public class AlarmPlugin implements Plugin {
     private final JEVisDataSource ds;
     private final String title;
     private final BorderPane borderPane = new BorderPane();
+    private final StackPane dialogContainer = new StackPane(borderPane);
     private final ToolBar toolBar = new ToolBar();
     private final int iconSize = 20;
     private static Method columnToFitMethod;
@@ -669,7 +677,66 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, operatorColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
+        TableColumn<AlarmRow, Alarm> configurationColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.configuration"));
+        configurationColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Alarm>("configuration"));
+        configurationColumn.setStyle("-fx-alignment: CENTER;");
+        configurationColumn.setSortable(false);
+//        alarmTypeColumn.setPrefWidth(500);
+        configurationColumn.setMinWidth(100);
+
+        configurationColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getAlarmType() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm());
+            else return new SimpleObjectProperty<>();
+        });
+
+        configurationColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Alarm>, TableCell<AlarmRow, Alarm>>() {
+            @Override
+            public TableCell<AlarmRow, Alarm> call(TableColumn<AlarmRow, Alarm> param) {
+                return new TableCell<AlarmRow, Alarm>() {
+                    @Override
+                    protected void updateItem(Alarm item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            try {
+                                Node node = null;
+                                if (item.getAlarmType().equals(AlarmType.L1) || item.getAlarmType().equals(AlarmType.L2)) {
+                                    JEVisAttribute limitConfigAttribute = item.getObject().getAttribute(LIMITS_CONFIGURATION.getAttributeName());
+
+                                    LimitEditor limitEditor = new LimitEditor(dialogContainer, limitConfigAttribute);
+                                    HBox hbox = (HBox) limitEditor.getEditor();
+                                    JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
+                                    jfxButton.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
+                                    limitEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(limitConfigAttribute.getObjectID()));
+
+                                    setGraphic(limitEditor.getEditor());
+                                } else {
+
+                                    JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());
+
+                                    AlarmEditor alarmConfiguration = new AlarmEditor(dialogContainer, alarmConfigAttribute);
+                                    HBox hbox = (HBox) alarmConfiguration.getEditor();
+                                    JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
+                                    jfxButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
+                                    alarmConfiguration.getEditor().setDisable(!ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID()));
+
+                                    setGraphic(alarmConfiguration.getEditor());
+                                }
+
+                            } catch (Exception e) {
+                                logger.error("Could not get alarm attribute for alarm {}", item, e);
+                            }
+                        }
+                    }
+                };
+            }
+        });
+
+        tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, operatorColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn, configurationColumn);
+
         Platform.runLater(() -> {
             tableView.getSortOrder().clear();
             tableView.getSortOrder().setAll(dateColumn);
@@ -1032,7 +1099,7 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return borderPane;
+        return dialogContainer;
     }
 
     private void updateList() {
@@ -1086,15 +1153,16 @@ public class AlarmPlugin implements Plugin {
                 if (allJobsDone(futures)) {
                     JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
                     data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
-                    createPage(0);
-                    Platform.runLater(() -> autoFitTable(tableView));
+
+                    Platform.runLater(() -> {
+                        createPage(0);
+                        autoFitTable(tableView);
+                    });
                 }
             };
-            Platform.runLater(() -> {
-                task.setOnSucceeded(doneEvent);
-                task.setOnFailed(doneEvent);
-            });
 
+            task.setOnSucceeded(doneEvent);
+            task.setOnFailed(doneEvent);
 
             this.runningUpdateTaskList.add(task);
             //this.executor.execute(task);

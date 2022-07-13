@@ -69,11 +69,11 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     private GaugePojo gaugeSettings;
     public static String PERCENT_NODE_NAME = "percent";
     private Interval lastInterval = null;
-    private ChangeListener<Number> limitListener = null;
-    private ChangeListener<Number> percentListener = null;
-    private GaugeWidget limitWidget = null;
-    private GaugeWidget percentWidget = null;
-    private String percentText = "";
+    private final ChangeListener<Number> limitListener = null;
+    private final ChangeListener<Number> percentListener = null;
+    private final GaugeWidget limitWidget = null;
+    private final GaugeWidget percentWidget = null;
+    private final String percentText = "";
 
 
     public static String GAUGE_DESIGN_NODE_NAME = "gaugeDesign";
@@ -149,7 +149,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                         gauge.setValue(convertToPercent(total.get(), gaugeSettings.getMaximum(), this.config.getDecimals()));
 
                     } else {
-                        System.out.println(total.get());
                         gauge.setValue(total.get());
 
                     }
@@ -186,7 +185,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     }
 
     private void updateText() {
-        if (gauge != null) {
+        if (gauge != null  && config != null) {
         System.out.println("test");
             gauge.setTitle(this.config.getTitle());
             gauge.setTitleColor(this.config.getFontColor());
@@ -230,7 +229,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateLayout() {
-
+        //updateText();
+        //updateSkin();
     }
 
     @Override
@@ -273,8 +273,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     public void updateConfig() {
         Platform.runLater(() -> {
             Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-            updateSkin();
             updateText();
+            updateSkin();
         });
 
     }
@@ -298,9 +298,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             } else {
                 init();
             }
-            System.out.println(gaugeSettings);
         }
-
 
     }
 
@@ -346,6 +344,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         }
 
 
+
         this.gauge.setPadding(new Insets(0, 8, 0, 8));
         setGraphic(this.gauge);
 
@@ -358,6 +357,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 GridPane gp = new GridPane();
                 gp.setHgap(4);
                 gp.setVgap(8);
+
                 for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
                     if (chartDataRow.getEnPI()) {
                         try {
@@ -416,11 +416,11 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                     && event.getClickCount() == 1 && event.isShiftDown()) {
                 debug();
             }
-
         });
-        //updateConfig();
+
 
     }
+
 
 
     @Override
@@ -440,6 +440,11 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             dashBoardNode
                     .set(GAUGE_DESIGN_NODE_NAME, gaugeSettings.toJSON());
         }
+
+//        if (percent != null) {
+//            dashBoardNode
+//                    .set(PERCENT_NODE_NAME, percent.toJSON());
+//        }
 
 
         return dashBoardNode;

@@ -230,9 +230,6 @@ public class AttributeCopy {
         gridLayout.add(hBox, 0, 7, 1, 1);
 
         ok.setOnAction(event -> {
-            selectedAttributes.forEach(jeVisAttribute -> {
-                System.out.println("Copy Attribute: " + jeVisAttribute);
-            });
 
             jfxDialog.close();
         });

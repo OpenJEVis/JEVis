@@ -115,10 +115,10 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
                         getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
                         getItems().add(buildCreateAlarms());
-                    } else if (obj.getJEVisClassName().equals("Data")) {
+                    } else if (obj.getJEVisClassName().equals("Data") || obj.getJEVisClassName().equals("Base Data")) {
                         getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
                         getItems().add(buildReCalcClean());
-                    } else if (obj.getJEVisClassName().equals("Clean Data")) {
+                    } else if (obj.getJEVisClassName().equals("Clean Data") || obj.getJEVisClassName().equals("Math Data")) {
                         getItems().add(new SeparatorMenuItem());
                         getItems().add(buildReCalcClean());
                     }

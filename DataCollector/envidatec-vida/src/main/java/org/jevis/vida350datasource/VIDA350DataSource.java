@@ -212,6 +212,7 @@ public class VIDA350DataSource implements DataSource {
         Channel httpChannel = new Channel();
 
         try {
+            httpChannel.setChannelObject(channel);
             JEVisClass channelClass = channel.getJEVisClass();
             JEVisType dpType = channelClass.getType(VIDA350ChannelTypes.INDEX);
             String dp = DatabaseHelper.getObjectAsString(channel, dpType);

@@ -573,7 +573,6 @@ public class DashBoardToolbar extends ToolBar {
     private void showAllTooltips(List<Object> controls) {
         for (Object obj : controls) {
             try {
-                System.out.println("obj :" + obj);
                 if (obj instanceof Control) {
                     Control control = (Control) obj;
                     Tooltip tooltip = new Tooltip();

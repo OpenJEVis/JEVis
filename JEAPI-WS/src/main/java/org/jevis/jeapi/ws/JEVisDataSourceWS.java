@@ -631,15 +631,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void reloadAttribute(JEVisObject object) {
         try {
-            if(object!=null){
+            if (object != null) {
                 logger.warn("Reload Attribute: {}", object);
                 getAttributesFromWS(object.getID());
-            }else{
+            } else {
                 logger.error("Error trying to reload null object");
             }
 
         } catch (Exception ex) {
-            logger.error("Error, can not reload attribute: {}", ex,ex);
+            logger.error("Error, can not reload attribute: {}", ex, ex);
         }
     }
 
@@ -831,11 +831,38 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
             JEVisObject object = getObject(objectID);
 
+
             if (object != null) {
                 HttpURLConnection response = getHTTPConnection().getDeleteConnection(resource);
                 if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
+
                     object.getParents().forEach(parent -> {
+                        try {
+                            removeRelationshipFromCache(object.getID(), parent.getID(), JEVisConstants.ObjectRelationship.PARENT);
+                            /* HOTFIX: The code below should do the same as the line above but does not why */
+                            /*
+                            List<JEVisRelationship> toRemove = new ArrayList<>();
+                            objectRelMapCache.get(parent.getID()).forEach(rel -> {
+                                try {
+                                    Long id = rel.getEndID();
+                                    if ((rel.getType() == JEVisConstants.ObjectRelationship.PARENT) && (id.equals(parent.getID()))) {
+                                        if (rel.getStartObject() != null && object.getID().equals(rel.getStartID())) {
+                                            toRemove.add(rel);
+                                        }
+                                    }
+                                } catch (Exception ex) {
+                                    logger.error(ex);
+                                    ex.printStackTrace();
+                                }
+                            });
+                            objectRelMapCache.get(parent.getID()).removeAll(toRemove);
+                            objectRelMapCache.remove(object.getID());
+                            */
+
+                        } catch (Exception ex) {
+                            logger.error(ex, ex);
+                        }
                         parent.notifyListeners(new JEVisEvent(parent, JEVisEvent.TYPE.OBJECT_CHILD_DELETED, object));
                     });
 

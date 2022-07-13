@@ -901,74 +901,200 @@ public class CleanDataObject {
     }
 
     public JEVisAttribute getConversionToDifferentialAttribute() {
+        if (conversionToDifferentialAttribute == null) {
+            try {
+                conversionToDifferentialAttribute = getCleanObject().getAttribute(CONVERSION_DIFFERENTIAL.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get conversion to differential attribute", e);
+            }
+        }
         return conversionToDifferentialAttribute;
     }
 
     public JEVisAttribute getEnabledAttribute() {
+        if (enabledAttribute == null) {
+            try {
+                enabledAttribute = getCleanObject().getAttribute(ENABLED.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get enabled attribute", e);
+            }
+        }
         return enabledAttribute;
     }
 
     public JEVisAttribute getLimitsEnabledAttribute() {
+        if (limitsEnabledAttribute == null) {
+            try {
+                limitsEnabledAttribute = getCleanObject().getAttribute(LIMITS_ENABLED.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get limits enabled attribute", e);
+            }
+        }
         return limitsEnabledAttribute;
     }
 
     public JEVisAttribute getLimitsConfigurationAttribute() {
+        if (limitsConfigurationAttribute == null) {
+            try {
+                limitsConfigurationAttribute = getCleanObject().getAttribute(LIMITS_CONFIGURATION.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get limits configuration attribute", e);
+            }
+        }
         return limitsConfigurationAttribute;
     }
 
     public JEVisAttribute getGapFillingEnabledAttribute() {
+        if (gapFillingEnabledAttribute == null) {
+            try {
+                gapFillingEnabledAttribute = getCleanObject().getAttribute(GAPFILLING_ENABLED.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get gap filling enabled attribute", e);
+            }
+        }
         return gapFillingEnabledAttribute;
     }
 
     public JEVisAttribute getGapFillingConfigAttribute() {
+        if (gapFillingConfigAttribute == null) {
+            try {
+                gapFillingConfigAttribute = getCleanObject().getAttribute(GAP_FILLING_CONFIG.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get gap filling config attribute", e);
+            }
+        }
         return gapFillingConfigAttribute;
     }
 
     public JEVisAttribute getDeltaEnabledAttribute() {
+        if (deltaEnabledAttribute == null) {
+            try {
+                deltaEnabledAttribute = getCleanObject().getAttribute(DELTA_ENABLED.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get delta enabled attribute", e);
+            }
+        }
         return deltaEnabledAttribute;
     }
 
     public JEVisAttribute getDeltaConfigurationAttribute() {
+        if (deltaConfigurationAttribute == null) {
+            try {
+                deltaConfigurationAttribute = getCleanObject().getAttribute(DELTA_CONFIGURATION.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get delta configuration attribute", e);
+            }
+        }
         return deltaConfigurationAttribute;
     }
 
     public JEVisAttribute getAlarmEnabledAttribute() {
+        if (alarmEnabledAttribute == null) {
+            try {
+                alarmEnabledAttribute = getCleanObject().getAttribute(ALARM_ENABLED.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get alarm enabled attribute", e);
+            }
+        }
         return alarmEnabledAttribute;
     }
 
     public JEVisAttribute getAlarmConfigAttribute() {
+        if (alarmConfigAttribute == null) {
+            try {
+                alarmConfigAttribute = getCleanObject().getAttribute(ALARM_CONFIG.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get alarm config attribute", e);
+            }
+        }
         return alarmConfigAttribute;
     }
 
     public JEVisAttribute getAlarmLogAttribute() {
+        if (alarmLogAttribute == null) {
+            try {
+                alarmLogAttribute = getCleanObject().getAttribute(ALARM_LOG.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get alarm log attribute", e);
+            }
+        }
         return alarmLogAttribute;
     }
 
     public JEVisAttribute getPeriodAlignmentAttribute() {
+        if (periodAlignmentAttribute == null) {
+            try {
+                periodAlignmentAttribute = getCleanObject().getAttribute(PERIOD_ALIGNMENT.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get period alignment attribute", e);
+            }
+        }
         return periodAlignmentAttribute;
     }
 
     public JEVisAttribute getPeriodOffsetAttribute() {
+        if (periodOffsetAttribute == null) {
+            try {
+                periodOffsetAttribute = getCleanObject().getAttribute(PERIOD_OFFSET.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get period offset attribute", e);
+            }
+        }
         return periodOffsetAttribute;
     }
 
     public JEVisAttribute getValueIsAQuantityAttribute() {
+        if (valueIsAQuantityAttribute == null) {
+            try {
+                valueIsAQuantityAttribute = getCleanObject().getAttribute(VALUE_QUANTITY.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get value is a quantity attribute", e);
+            }
+        }
         return valueIsAQuantityAttribute;
     }
 
     public JEVisAttribute getValueMultiplierAttribute() {
+        if (valueMultiplierAttribute == null) {
+            try {
+                valueMultiplierAttribute = getCleanObject().getAttribute(MULTIPLIER.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get multiplier attribute", e);
+            }
+        }
         return valueMultiplierAttribute;
     }
 
     public JEVisAttribute getValueOffsetAttribute() {
+        if (valueOffsetAttribute == null) {
+            try {
+                valueOffsetAttribute = getCleanObject().getAttribute(OFFSET.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get value offset attribute", e);
+            }
+        }
         return valueOffsetAttribute;
     }
 
     public JEVisAttribute getCounterOverflowAttribute() {
+        if (counterOverflowAttribute == null) {
+            try {
+                counterOverflowAttribute = getCleanObject().getAttribute(COUNTEROVERFLOW.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get counter overflow attribute", e);
+            }
+        }
         return counterOverflowAttribute;
     }
 
     public JEVisAttribute getPeriodAttribute() {
+        if (periodAttribute == null) {
+            try {
+                periodAttribute = getCleanObject().getAttribute(PERIOD.getAttributeName());
+            } catch (Exception e) {
+                logger.error("could not get period attribute", e);
+            }
+        }
         return periodAttribute;
     }
 

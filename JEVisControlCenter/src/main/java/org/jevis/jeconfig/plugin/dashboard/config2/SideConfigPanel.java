@@ -65,14 +65,15 @@ public class SideConfigPanel extends GridPane {
     public SideConfigPanel(DashboardControl control) {
         super();
         this.control = control;
-        setStyle("-fx-background-color: fcfcfc;");
+        setStyle("-fx-background-color: ffffff;"); //fcfcfc
 
 
         this.setPadding(new Insets(12, 12, 12, 12));
         VBox accordionBox = new VBox();
+        accordionBox.setStyle("-fx-background-color: ffffff;");
         accordionBox.getChildren().addAll(buildMoveTab(), buildLayer(), buildColors());
 
-        this.add(switchSide, 0, 0);
+        //this.add(switchSide, 0, 0);
         this.add(accordionBox, 0, 1);
 
         GridPane.setHalignment(switchSide, HPos.CENTER);
@@ -92,8 +93,6 @@ public class SideConfigPanel extends GridPane {
 
 
     public void setLastSelectedWidget(Widget widget) {
-        System.out.println("-------------------setLastSelectedWidget: " + widget.getConfig().getUuid());
-        System.out.println("Layer in config: " + widget.getConfig().getLayer());
         isUpdating = true;
 
         layerComboBox.setValue(widget.getConfig().getLayer());

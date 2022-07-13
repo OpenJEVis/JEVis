@@ -13,7 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -49,8 +49,9 @@ public class DashBordPlugIn implements Plugin {
     private final DashboardControl dashboardControl;
     private JEVisDataSource jeVisDataSource;
     private final DashBoardPane dashBoardPane;
+    private final ScrollPane widgetControlPane;
     private final DashBoardToolbar toolBar;
-    private final AnchorPane rootPane = new AnchorPane();
+    private final BorderPane rootPane = new BorderPane();
     private final StackPane dialogPane = new StackPane(rootPane);
     private final HiddenSidesPane hiddenSidesPane = new HiddenSidesPane(dialogPane, new Region(), new Region(), new Region(), new Region());
     private final ScrollPane scrollPane = new ScrollPane();
@@ -63,16 +64,20 @@ public class DashBordPlugIn implements Plugin {
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
         logger.debug("init DashBordPlugIn");
-        this.rootPane.setStyle("-fx-background-color: blue;");
+        //this.rootPane.setStyle("-fx-background-color: blue;");
 
         this.nameProperty.setValue(name);
         this.jeVisDataSource = ds;
 
+        widgetControlPane = new ScrollPane();
+        widgetControlPane.setStyle("-fx-background-color: ffffff;");
 
         this.dashboardControl = new DashboardControl(this);
         this.toolBar = new DashBoardToolbar(this.dashboardControl);
         this.dashBoardPane = new DashBoardPane(this.dashboardControl);
         this.dashboardControl.setDashboardPane(dashBoardPane);
+
+
 //        this.workaround.getChildren().add(dashBoardPane);
 //        this.scrollPane.setContent(workaround);
 //        workaround.setAutoSizeChildren(true);
@@ -89,7 +94,8 @@ public class DashBordPlugIn implements Plugin {
         Layouts.setAnchor(this.rootPane, 0d);
 
 
-        this.rootPane.getChildren().setAll(this.scrollPane);
+        this.rootPane.setCenter(this.scrollPane);
+        //this.rootPane.getChildren().setAll(this.scrollPane);
 
         notificationPane = new NotificationPane(dialogPane);
 //        notificationPane.setStyle("-fx-background-color: red;");
@@ -142,6 +148,18 @@ public class DashBordPlugIn implements Plugin {
         return zoomPane;
     }
 
+    public ScrollPane getWidgetControlPane() {
+        return widgetControlPane;
+    }
+
+    public void showWidgetControlPane(boolean show) {
+        if (show) {
+            this.rootPane.setRight(widgetControlPane);
+        } else {
+            this.rootPane.setRight(null);
+        }
+
+    }
 
     public ScrollPane getScrollPane() {
         return scrollPane;

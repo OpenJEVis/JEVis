@@ -69,7 +69,6 @@ public class JEVisObjectWS implements JEVisObject {
     public void addEventListener(JEVisEventListener listener) {
         if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
             logger.debug("Duplicate Listener: {}", json.getId());
-            System.out.println();
         }
 
         this.listeners.add(JEVisEventListener.class, listener);
@@ -389,8 +388,7 @@ public class JEVisObjectWS implements JEVisObject {
          * Delete form cache and other objects
          */
         if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
-            rel.getEndObject().notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_CHILD_DELETED, rel.getStartObject().getID()));
-
+            rel.getEndObject().notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_CHILD_DELETED, rel.getStartObject()));
         }
 
         notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED, this));

@@ -24,6 +24,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
@@ -31,67 +32,37 @@ import org.jevis.jenotifier.notifier.Email.EmailServiceProperty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * This Class handles the logic and the sending of the alarms.
+ * This Class handles the logic and the sending of the status.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class AlarmHandler {
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(AlarmHandler.class);
-
-    private Long latestReported;
+public class StatusHandler {
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(StatusHandler.class);
     private final DateTime now;
-
+    private Long latestReported;
     private JEVisDataSource _ds;
     private Config _conf;
     private JEVisObject notificationObject;
 
     /**
-     * Create an AlarmHandler for the given Configuration
+     * Create an StatusHandler for the given Configuration
      *
      * @param latestReported
      */
-    public AlarmHandler(JEVisDataSource ds, Long latestReported) {
+    public StatusHandler(JEVisDataSource ds, Long latestReported) {
         _ds = ds;
         this.latestReported = latestReported;
         this.now = DateTime.now();
     }
 
-    public AlarmHandler() {
+    public StatusHandler() {
         this.now = DateTime.now();
-    }
-
-    /**
-     * Get an List of all datapoints configured in this alrms. If the parameter
-     * "<datapoint>" is emty or missing it will return all "Data" Objects
-     *
-     * @param alarm
-     * @return
-     * @throws JEVisException
-     */
-    private List<JEVisObject> getDataPoints(Alarm alarm) throws JEVisException {
-        List<JEVisObject> dps = new ArrayList<>();
-
-        if (alarm.getDatapoint() != null && alarm.getDatapoint().length > 0) {
-            for (String dp : alarm.getDatapoint()) {
-                try {
-                    JEVisObject obj = _ds.getObject(Long.parseLong(dp));
-                    if (obj != null && obj.getJEVisClass().getName().equals("Data")) {
-                        logger.info("Add dP: {}", obj.getName());
-                        dps.add(obj);
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        } else {
-            dps.addAll(_ds.getObjects(_ds.getJEVisClass("Data"), false));
-
-        }
-
-        return dps;
     }
 
     /**
@@ -100,7 +71,7 @@ public class AlarmHandler {
      * @param
      * @throws JEVisException
      */
-    public void checkAlarm() throws JEVisException {
+    public void checkStatus() throws JEVisException {
 
         StringBuilder sb = new StringBuilder();
 
@@ -118,22 +89,53 @@ public class AlarmHandler {
         ServiceStatus serviceStatus = new ServiceStatus(_ds);
         sb.append(serviceStatus.getTableString());
 
-        WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
-        sb.append(wirelessLogicStatus.getTableString());
+        try {
+            WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
+            sb.append(wirelessLogicStatus.getTableString());
+        } catch (Exception e) {
+            logger.error("Could not generate wireless logic status", e);
+        }
 
-        DataServerTable dataServerTable = new DataServerTable(_ds, getLatestReported());
-        sb.append(dataServerTable.getTableString());
+        DataServerTable dataServerTable = null;
+        try {
+            dataServerTable = new DataServerTable(_ds, getLatestReported());
+            sb.append(dataServerTable.getTableString());
+        } catch (Exception e) {
+            logger.error("Could not generate data server table", e);
+        }
 
-        CalculationTable calculationTable = new CalculationTable(_ds, getLatestReported(), dataServerTable.getListCheckedData());
-        sb.append(calculationTable.getTableString());
+        ReportTable reportTable = null;
+        try {
+            reportTable = new ReportTable(_ds, getLatestReported());
+            sb.append(reportTable.getTableString());
+        } catch (Exception e) {
+            logger.error("Could not generate report table", e);
+        }
 
-        CleanDataTable cleanDataTable = new CleanDataTable(_ds, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
-        sb.append(cleanDataTable.getTableString());
-       
+        CalculationTable calculationTable = null;
+        if (dataServerTable != null) {
+            try {
+                calculationTable = new CalculationTable(_ds, getLatestReported(), dataServerTable.getListCheckedData());
+                sb.append(calculationTable.getTableString());
+            } catch (Exception e) {
+                logger.error("Could not generate calculation table", e);
+            }
+        }
+
+        if (calculationTable != null) {
+            try {
+                CleanDataTable cleanDataTable = new CleanDataTable(_ds, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
+                sb.append(cleanDataTable.getTableString());
+            } catch (Exception e) {
+                logger.error("Could not generate clean data table", e);
+            }
+        }
 
         sb.append("</html>");
 
         logToServiceObject(sb.toString());
+        logFileToServiceObject(sb.toString());
+
         if (isEMailEnabled()) {
             logger.info("E-Mail is enabled. Initializing...");
 
@@ -153,7 +155,7 @@ public class AlarmHandler {
 
     private void sendNotification(JEVisObject notificationObject, String customMessage) {
         try {
-
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
             EmailServiceProperty service = getStatusService();
 
             EmailNotification nofi = new EmailNotification();
@@ -165,7 +167,7 @@ public class AlarmHandler {
             emailNofi.setNotificationDriverObject(notiDriObj);
 
             SendNotification sn = new SendNotification(nofi, emailNofi, customMessage);
-            sn.run();
+            executorService.submit(sn);
 
         } catch (Exception ex) {
             logger.error(ex);
@@ -177,9 +179,9 @@ public class AlarmHandler {
         EmailServiceProperty service = new EmailServiceProperty();
         try {
             JEVisClass jeVisClass = _ds.getJEVisClass("JEStatus");
-            List<JEVisObject> statusServies = _ds.getObjects(jeVisClass, true);
-            if (statusServies.size() == 1) {
-                service.initialize(statusServies.get(0));
+            List<JEVisObject> statusServices = _ds.getObjects(jeVisClass, true);
+            if (statusServices.size() == 1) {
+                service.initialize(statusServices.get(0));
             }
         } catch (JEVisException ex) {
             logger.error("error while getting status service", ex);
@@ -216,6 +218,22 @@ public class AlarmHandler {
             JEVisAttribute emailEnabledAttribute = object.getAttribute("Status Log");
             JEVisSample newLog = emailEnabledAttribute.buildSample(DateTime.now(), log);
             newLog.commit();
+        }
+    }
+
+    private void logFileToServiceObject(String log) throws JEVisException {
+        JEVisClass statusClass = _ds.getJEVisClass("JEStatus");
+        List<JEVisObject> statusObjects = _ds.getObjects(statusClass, true);
+        for (JEVisObject object : statusObjects) {
+
+            JEVisAttribute statusFileLogAttribute = object.getAttribute("Status File Log");
+            try {
+                JEVisFile file = new JEVisFileImp(DateTime.now().toString("yyyyMMdd_HHmmss") + ".html", log.getBytes(StandardCharsets.UTF_8));
+                JEVisSample newLog = statusFileLogAttribute.buildSample(DateTime.now(), file);
+                newLog.commit();
+            } catch (Exception e) {
+                logger.error("Could not create file", e);
+            }
         }
     }
 
@@ -274,36 +292,7 @@ public class AlarmHandler {
     }
 
     /**
-     * Returns the name of parent Object from the given JEVisClass. If the
-     * Parent does not exist the name will be emty
-     * <p>
-     * TODO: make an check for an endless loop
-     *
-     * @param obj
-     * @param jclass
-     * @return
-     */
-    private String getParentName(JEVisObject obj, JEVisClass jclass) {
-        StringBuilder name = new StringBuilder();
-        try {
-
-            for (JEVisObject parent : obj.getParents()) {
-//                if (parent.getJEVisClass().equals(jclass)) {
-                if (isJEVisClassOrInherit(parent, jclass)) {
-                    name.append(parent.getName());
-                } else {
-                    name.append(getParentName(parent, jclass));
-                }
-            }
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
-
-        return name.toString();
-    }
-
-    /**
-     * Send the Alarm mail
+     * Send the Status mail
      *
      * @param conf
      * @param body
@@ -364,21 +353,22 @@ public class AlarmHandler {
     }
 
     private List<String> getTariff() {
+        List<String> tariffs = new ArrayList<>();
         try {
             JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
             List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
             if (jEStatusObjects.size() > 0) {
-                String tariff = jEStatusObjects.get(0).getAttribute("Tariffs").getLatestSample().getValueAsString();
-                if (tariff.equals("")) {
-                    return null;
-                } else {
-                    return Arrays.asList(tariff.split(";"));
+                JEVisAttribute tariffsAttribute = jEStatusObjects.get(0).getAttribute("Tariffs");
+                if (tariffsAttribute.hasSample()) {
+                    String tariff = tariffsAttribute.getLatestSample().getValueAsString();
+
+                    tariffs.addAll(Arrays.asList(tariff.split(";")));
                 }
             }
         } catch (Exception e) {
             logger.error("Could not get tariffs from JEStatus", e);
         }
-        return null;
+        return tariffs;
     }
 
     private String getUsername() {
@@ -386,14 +376,17 @@ public class AlarmHandler {
             JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
             List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
             if (jEStatusObjects.size() > 0) {
-                return jEStatusObjects.get(0).getAttribute("User").getLatestSample().getValueAsString();
+                JEVisAttribute userAttribute = jEStatusObjects.get(0).getAttribute("User");
+                if (userAttribute.hasSample()) {
+                    return userAttribute.getLatestSample().getValueAsString();
+                }
             } else {
-                return null;
+                return "";
             }
         } catch (Exception e) {
             logger.error("Could not get username for tariff check from JEStatus", e);
         }
-        return null;
+        return "";
     }
 
     private String getPassword() {
@@ -401,14 +394,17 @@ public class AlarmHandler {
             JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
             List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
             if (jEStatusObjects.size() > 0) {
-                return jEStatusObjects.get(0).getAttribute("Password").getLatestSample().getValueAsString();
+                JEVisAttribute passwordAttribute = jEStatusObjects.get(0).getAttribute("Password");
+                if (passwordAttribute.hasSample()) {
+                    return passwordAttribute.getLatestSample().getValueAsString();
+                }
             } else {
-                return null;
+                return "";
             }
         } catch (Exception e) {
             logger.error("Could not get password for tariff check from JEStatus", e);
         }
-        return null;
+        return "";
     }
 
 
