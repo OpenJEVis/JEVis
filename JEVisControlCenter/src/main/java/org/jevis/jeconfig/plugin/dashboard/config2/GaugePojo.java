@@ -359,7 +359,6 @@ public class GaugePojo {
             dataNode1.put("color", gaugeSection.getColor().toString());
 
         }
-        System.out.println(dataNode);
         return dataNode;
     }
 

@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.jfoenix.controls.JFXTextField;
+import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;
 import javafx.application.Platform;
@@ -61,7 +62,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(GaugeWidget.class);
     public static String WIDGET_ID = "Gauge";
-    private final eu.hansolo.medusa.Gauge gauge = GaugeBuilder.create().animated(false).build();
+    private final eu.hansolo.medusa.Gauge gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.SIMPLE_SECTION).build();
     private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
@@ -162,31 +163,32 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     }
 
     private void setIntervallForLastValue(Interval interval) {
-        if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory())) {
-            sampleHandler.durationPropertyProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
-            sampleHandler.update();
-            if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
-
-                System.out.println(" > 0");
-                Interval interval1 = null;
-                try {
-                    interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
-                    System.out.println(interval1);
-                    sampleHandler.durationPropertyProperty().setValue(interval1);
-                } catch (JEVisException e) {
-                    throw new RuntimeException(e);
+        if (this.getDataHandler().getTimeFrameFactory() != null) {
+            if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory()) && sampleHandler != null) {
+                sampleHandler.durationPropertyProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
+                sampleHandler.update();
+                if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
+                    Interval interval1 = null;
+                    try {
+                        interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
+                        sampleHandler.durationPropertyProperty().setValue(interval1);
+                    } catch (JEVisException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
+
+
+            } else {
+                this.sampleHandler.setInterval(interval);
             }
-
-
-        } else {
-        this.sampleHandler.setInterval(interval);
+        }else {
+            this.sampleHandler.setInterval(interval);
         }
+
     }
 
     private void updateText() {
         if (gauge != null  && config != null) {
-        System.out.println("test");
             gauge.setTitle(this.config.getTitle());
             gauge.setTitleColor(this.config.getFontColor());
             gauge.setUnitColor(this.config.getFontColor());
@@ -281,7 +283,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     private void updateSkin() {
         if (gauge != null) {
-            gauge.setSkinType(eu.hansolo.medusa.Gauge.SkinType.SIMPLE_SECTION);
+            //gauge.setSkinType(eu.hansolo.medusa.Gauge.SkinType.SIMPLE_SECTION);
             if (gaugeSettings != null) {
 
                 if (gaugeSettings.isInPercent()) {
