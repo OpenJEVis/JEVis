@@ -62,7 +62,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(GaugeWidget.class);
     public static String WIDGET_ID = "Gauge";
-    private final eu.hansolo.medusa.Gauge gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.SIMPLE_SECTION).build();
+    private final eu.hansolo.medusa.Gauge gauge;
     private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
@@ -84,17 +84,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     public GaugeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
+        gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.SIMPLE_SECTION).build();
     }
-
-    public GaugeWidget(DashboardControl control) {
-        super(control);
-    }
-
-    public GaugeWidget() {
-        super();
-        setId(WIDGET_ID);
-    }
-
     @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
@@ -231,8 +222,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateLayout() {
-        //updateText();
-        //updateSkin();
     }
 
     @Override

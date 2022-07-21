@@ -61,7 +61,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(LinearGaugeWidget.class);
     public static String WIDGET_ID = "LinearGauge";
-    private final eu.hansolo.medusa.Gauge gauge = GaugeBuilder.create().animated(false).build();
+    private final eu.hansolo.medusa.Gauge gauge;
     private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
@@ -83,15 +83,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     public LinearGaugeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
-    }
-
-    public LinearGaugeWidget(DashboardControl control) {
-        super(control);
-    }
-
-    public LinearGaugeWidget() {
-        super();
-        setId(WIDGET_ID);
+        gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.LINEAR).build();
     }
 
     @Override
@@ -183,7 +175,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     }
 
     private void updateText() {
-        if (gauge != null) {
+        if (this.config != null && gauge != null) {
             gauge.setTitle(this.config.getTitle());
             gauge.setTitleColor(this.config.getFontColor());
             gauge.setUnitColor(this.config.getFontColor());
@@ -279,8 +271,8 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
     private void updateSkin() {
         if (gauge != null) {
-            gauge.setSkinType(Gauge.SkinType.LINEAR);
             if (gaugeSettings != null) {
+
                 gauge.setBarColor(gaugeSettings.getColor());
                 gauge.setMajorTickMarksVisible(gaugeSettings.isShowMajorTick());
                 gauge.setMediumTickMarksVisible(gaugeSettings.isShowMediumTick());
@@ -296,6 +288,8 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                     gauge.setMaxValue(gaugeSettings.getMaximum());
                     gauge.setUnit(displayedUnit.getValue());
                 }
+                System.out.println((gauge.getMaxValue()-gauge.getMinValue())/10);
+                gauge.setMajorTickSpace((gauge.getMaxValue()-gauge.getMinValue())/10);
             } else {
                 init();
             }
