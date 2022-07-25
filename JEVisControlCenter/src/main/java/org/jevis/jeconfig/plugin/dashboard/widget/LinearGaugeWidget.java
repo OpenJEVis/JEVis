@@ -76,14 +76,14 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     private String percentText = "";
 
 
-    public static String GAUGE_DESIGN_NODE_NAME = "gaugeDesign";
+    public static String GAUGE_DESIGN_NODE_NAME = "linearGaugeDesign";
     private Percent percent;
     private Boolean customWorkday = true;
 
     public LinearGaugeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
-        gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.LINEAR).build();
+        gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.LINEAR).startFromZero(false).build();
     }
 
     @Override
@@ -238,6 +238,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
+            logger.debug("OK Pressed {}",this);
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
@@ -261,6 +262,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateConfig() {
+        logger.debug("UpdateConfig");
         Platform.runLater(() -> {
             Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
             updateSkin();

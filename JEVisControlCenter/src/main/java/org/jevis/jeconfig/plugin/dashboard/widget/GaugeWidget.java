@@ -84,7 +84,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     public GaugeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
-        gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.SIMPLE_SECTION).build();
+        gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.SIMPLE_SECTION).startFromZero(false).build();
     }
     @Override
     public WidgetPojo createDefaultConfig() {
@@ -239,6 +239,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
+            logger.debug("OK Pressed {}",this);
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
@@ -262,6 +263,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateConfig() {
+        logger.debug("UpdateConfig");
         Platform.runLater(() -> {
             Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
             updateText();
