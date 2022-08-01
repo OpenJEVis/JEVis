@@ -27,6 +27,7 @@ public class Widgets {
             put(ImageWidget.WIDGET_ID, ImageWidget.class.getName());
             put(GaugeWidget.WIDGET_ID, GaugeWidget.class.getName());
             put(LinearGaugeWidget.WIDGET_ID, LinearGaugeWidget.class.getName());
+            put(ShapeWidget.WIDGET_ID, ShapeWidget.class.getName());
 
         }
     };
@@ -50,6 +51,7 @@ public class Widgets {
         widgetList.add(new ImageWidget(control, new WidgetPojo(i--)));
         widgetList.add(new GaugeWidget(control, new WidgetPojo(i--)));
         widgetList.add(new LinearGaugeWidget(control, new WidgetPojo(i--)));
+        widgetList.add(new ShapeWidget(control, new WidgetPojo(i--)));
 
         return widgetList;
     }
