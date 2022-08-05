@@ -12,6 +12,7 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
@@ -33,7 +34,7 @@ public class NewWidgetSelector extends GridPane {
         widgetComboBox.getSelectionModel().selectFirst();
 
         Label labelType = new Label(I18n.getInstance().getString("plugin.dashboard.toolbar.new.type"));
-        ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
+        ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_ICON, 18, 18));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
 
 
