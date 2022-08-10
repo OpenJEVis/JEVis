@@ -330,7 +330,7 @@ public class JEConfig extends Application {
             region.setPrefSize(width, height);
             SVGPath svgPath = getSvgPath(path);
             region.setShape(svgPath);
-            region.getStyleClass().add("test");
+            region.getStyleClass().add("svg");
             return region;
         } catch (Exception e) {
             return null;
