@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -39,6 +41,14 @@ public class ShapePojo {
 
     private HBox min;
     private HBox max;
+
+    private JFXTextField jfxTextFieldMinValue;
+
+    private JFXTextField jfxTextFieldMaxValue;
+
+    private ColorPickerAdv colorPickerAdvMax;
+
+    private ColorPickerAdv colorPickerAdvMin;
 
     public ShapePojo(DashboardControl dashboardControl, JsonNode jsonNode) {
         this.dashboardControl = dashboardControl;
@@ -126,11 +136,11 @@ public class ShapePojo {
         public void commitChanges() {
             shape = jfxComboBox.getValue();
 
-            minValue = Double.parseDouble((((JFXTextField) min.getChildren().get(1)).getText()));
-            maxValue = Double.parseDouble((((JFXTextField) max.getChildren().get(1)).getText()));
+            minValue = Double.parseDouble(jfxTextFieldMinValue.getText());
+            maxValue = Double.parseDouble(jfxTextFieldMaxValue.getText());
 
-            maxColor = (((ColorPickerAdv) max.getChildren().get(2)).getValue());
-            minColor = (((ColorPickerAdv) min.getChildren().get(2)).getValue());
+            maxColor = (colorPickerAdvMax.getValue());
+            minColor = (colorPickerAdvMin.getValue());
 
 
         }
@@ -141,35 +151,44 @@ public class ShapePojo {
         ShapeTab tab = new ShapeTab(I18n.getInstance().getString("plugin.dashboard.shape")
                 , this);
 
-        VBox vBox = new VBox();
+        GridPane gridPane = new GridPane();
+
+        gridPane.setHgap(8);
+        gridPane.setVgap(8);
+
         jfxComboBox = new JFXComboBox<>();
 
-        min = createHBox(minColor, minValue, "Min Value");
-        max = createHBox(maxColor, maxValue, "Max Value");
         for (SHAPE s : SHAPE.values()) {
             jfxComboBox.getItems().add(s);
         }
         jfxComboBox.setValue(shape);
 
-        vBox.getChildren().addAll(jfxComboBox, min, max);
+        jfxTextFieldMaxValue = new JFXTextField();
+        jfxTextFieldMaxValue.setText(String.valueOf(maxValue));
+
+        colorPickerAdvMin = new ColorPickerAdv();
+        colorPickerAdvMin.setValue(minColor);
+
+        colorPickerAdvMax = new ColorPickerAdv();
+        colorPickerAdvMax.setValue(maxColor);
+
+        jfxTextFieldMinValue = new JFXTextField();
+        jfxTextFieldMinValue.setText(String.valueOf(minValue));
 
 
-        tab.setContent(vBox);
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.shape")), jfxComboBox);
+
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), jfxTextFieldMinValue, colorPickerAdvMin);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), jfxTextFieldMaxValue, colorPickerAdvMax);
+
+
+        tab.setContent(gridPane);
 
         return tab;
 
 
     }
 
-    private HBox createHBox(Color color, double value, String label) {
-        JFXTextField textField = new JFXTextField(String.valueOf(value));
-        ColorPickerAdv colorPickerAdv = new ColorPickerAdv();
-        colorPickerAdv.setValue(color);
-
-
-        return new HBox(new Label(label), textField, colorPickerAdv);
-
-    }
 
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
