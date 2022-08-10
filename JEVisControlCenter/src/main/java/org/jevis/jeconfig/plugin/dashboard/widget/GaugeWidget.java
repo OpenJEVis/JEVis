@@ -46,9 +46,6 @@ import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.LastPeriod;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.joda.time.*;
 
 import java.math.BigDecimal;
@@ -243,6 +240,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
+                this.updateSkin();
+                this.updateText();
             } catch (Exception ex) {
                 logger.error(ex);
             }

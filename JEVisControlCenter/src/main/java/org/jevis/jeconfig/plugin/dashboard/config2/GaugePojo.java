@@ -9,16 +9,18 @@ import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.control.ColorPickerAdv;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 
 import java.util.ArrayList;
@@ -30,6 +32,11 @@ public class GaugePojo {
 
 
     private static final Logger logger = LogManager.getLogger(GaugePojo.class);
+
+    private double iconSize = 20;
+
+    private final JFXButton jfxButtonDelete = new JFXButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+    private final JFXButton jfxButtonAdd = new JFXButton("", JEConfig.getImage("list-add.png", this.iconSize, this.iconSize));
 
     int gaugeWidgetID = -1;
 
@@ -43,6 +50,9 @@ public class GaugePojo {
 
     final DashboardControl dashboardControl;
 
+
+    private ActionEvent actionEvent = new ActionEvent();
+
     private boolean showTitle = true;
 
     private boolean showUnit = true;
@@ -51,6 +61,22 @@ public class GaugePojo {
 
 
     ObservableList<String> skins = FXCollections.observableArrayList();
+
+    private   JFXCheckBox jfxCheckBoxShowTitle;
+
+    private JFXCheckBox jfxCheckBoxShowValue;
+
+    private JFXCheckBox jfxCheckBoxShowUnit;
+
+    private JFXCheckBox jfxCheckBoxInPercent;
+
+    private JFXTextField minTextField;
+
+    private JFXTextField maxTextField;
+
+    private TableView tableViewSections;
+
+    private GridPane gridPane;
 
     public Double getMaximum() {
         return maximum;
@@ -173,6 +199,18 @@ public class GaugePojo {
 
         @Override
         public void commitChanges() {
+
+            showValue = jfxCheckBoxShowValue.isSelected();
+            showUnit = jfxCheckBoxShowUnit.isSelected();
+            showTitle = jfxCheckBoxShowTitle.isSelected();
+            inPercent = jfxCheckBoxInPercent.isSelected();
+            minimum = Double.parseDouble(minTextField.getText());
+            maximum = Double.parseDouble(maxTextField.getText());
+
+            for (int i = 0; i < tableViewSections.getItems().size(); i++) {
+                sections.set(i, (GaugeSectionPojo) tableViewSections.getItems().get(i));
+            }
+
         }
     }
 
@@ -180,147 +218,83 @@ public class GaugePojo {
 
         GaugeDesignTab tab = new GaugeDesignTab(I18n.getInstance().getString("plugin.dashboard.gaugewidget.tab")
                 , this);
-        ScrollPane scrollPane = new ScrollPane();
-        VBox vBox = new VBox();
-        vBox.setSpacing(8);
-        vBox.getChildren().add(createMaxMin());
+        gridPane = new GridPane();
+        ColumnConstraints column1 = new ColumnConstraints();
+        //column1.setPercentWidth(25);
+        ColumnConstraints column2 = new ColumnConstraints();
+        //column2.setPercentWidth(25);
+        ColumnConstraints column3 = new ColumnConstraints();
+        column3.setPercentWidth(50);
+        gridPane.getColumnConstraints().addAll(column1, column2,column3);
+        createMaxMin();
 
-        JFXButton buttonAddSection = new JFXButton(I18n.getInstance().getString("plugin.dashboard.gaugewidget.section.add"));
-        JFXButton buttonRemoveSection = new JFXButton(I18n.getInstance().getString("plugin.dashboard.gaugewidget.section.remove"));
-
-
-
-
-        vBox.getChildren().add(new HBox(8,buttonAddSection,buttonRemoveSection));
-
-        for (int i = 0; i < sections.size(); i++) {
-            VBox vBoxSection = createNewSection(sections.get(i),i+1);
-            vBox.getChildren().add(vBox.getChildren().size()-1,vBoxSection);
-
-        }
+        GaugeSectionTableFactory gaugeSectionTableFactory = new GaugeSectionTableFactory();
 
 
+        tableViewSections = gaugeSectionTableFactory.buildTable();
+        tableViewSections.getItems().addAll(sections);
 
-        buttonAddSection.setOnAction(event -> {
-            sections.add(new GaugeSectionPojo());
-            VBox vBoxSection = createNewSection(sections.get(sections.size()-1),sections.size());
-            vBox.getChildren().add(vBox.getChildren().size()-1,vBoxSection);
+
+        jfxButtonAdd.setOnAction(event -> {
+            tableViewSections.getItems().add(new GaugeSectionPojo());
         });
 
-        buttonRemoveSection.setOnAction(event -> {
-            if (vBox.getChildren().size() > 2) {
-                vBox.getChildren().remove(vBox.getChildren().size() - 2);
-            }
+
+
+
+
+        jfxButtonDelete.setOnAction(event -> {
+            tableViewSections.getItems().remove(tableViewSections.getSelectionModel().getSelectedItem());
         });
 
-        scrollPane.setContent(vBox);
-        tab.setContent(scrollPane);
+        gridPane.setVgap(8);
+        gridPane.setHgap(8);
+
+        HBox hBox = new HBox();
+        hBox.setPadding(new Insets(5,8,5,8));
+        hBox.setSpacing(10);
+        hBox.getChildren().addAll(jfxButtonAdd, jfxButtonDelete);
+        gridPane.add(hBox,0,7,3,1);
+
+
+
+        gridPane.add(tableViewSections,0,8,3,2);
+
+        gridPane.setPadding(new Insets(8,5,8,5));
+        tab.setContent(gridPane);
         return tab;
     }
 
-    private VBox createNewSection(GaugeSectionPojo gaugeSection, int index) {
-        VBox vBox = new VBox();
-        vBox.setSpacing(8);
-        vBox.getChildren().add(new Label(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.section")+" "+index));
-        JFXTextField minTextField = new JFXTextField(String.valueOf(gaugeSection.getStart()));
-        minTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            gaugeSection.setStart(Double.parseDouble(newValue));
-        });
-        JFXTextField maxTextField = new JFXTextField(String.valueOf(gaugeSection.getEnd()));
-        maxTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            gaugeSection.setEnd(Double.parseDouble(newValue));
-        });
-        ColorPickerAdv colorPickerAdv = new ColorPickerAdv();
-        colorPickerAdv.setValue(gaugeSection.getColor());
-        colorPickerAdv.selectColorProperty().addListener((observable, oldValue, newValue) -> {
-            gaugeSection.setColor(newValue);
-        });
-        HBox hBoxEnd = new HBox(new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.end")), maxTextField);
-        hBoxEnd.setPadding(new Insets(5,8,5,8));
-        hBoxEnd.setSpacing(8);
+    private void createMaxMin() {
 
-        HBox hBoxStart = new HBox(new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.start")), minTextField);
-        hBoxStart.setPadding(new Insets(5,8,5,8));
-        hBoxStart.setSpacing(8);
 
-        HBox hBoxColor = new HBox(new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.color")), colorPickerAdv);
-        hBoxColor.setPadding(new Insets(5,8,5,8));
-        hBoxColor.setSpacing(8);
-
-        vBox.getChildren().addAll(hBoxStart,hBoxEnd,hBoxColor,new Separator(Orientation.HORIZONTAL));
-        return vBox;
-    }
-
-    private VBox createMaxMin() {
-        VBox vBox = new VBox();
-        vBox.setSpacing(8);
-        JFXCheckBox jfxCheckBoxShowTitle = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.showTitle"));
+        jfxCheckBoxShowTitle = new JFXCheckBox();
         jfxCheckBoxShowTitle.setSelected(showTitle);
-        JFXCheckBox jfxCheckBoxShowValue = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.showValue"));
+        jfxCheckBoxShowValue = new JFXCheckBox();
         jfxCheckBoxShowValue.setSelected(showValue);
-        JFXCheckBox jfxCheckBoxShowUnit = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.showUnit"));
+        jfxCheckBoxShowUnit = new JFXCheckBox();
         jfxCheckBoxShowUnit.setSelected(showUnit);
 
-        jfxCheckBoxShowTitle.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            showTitle = newValue;
-        });
 
-        jfxCheckBoxShowUnit.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            showUnit = newValue;
-        });
-
-        jfxCheckBoxShowValue.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            showValue = newValue;
-        });
+       jfxCheckBoxInPercent = new JFXCheckBox();
+       jfxCheckBoxInPercent.setSelected(inPercent);
 
 
-        JFXCheckBox checkBoxInPercent = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent"));
-        checkBoxInPercent.setSelected(inPercent);
-
-        checkBoxInPercent.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            inPercent = newValue;
-        });
 
 
-        JFXTextField minTextField = new JFXTextField(String.valueOf(minimum));
-        minTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            minimum = Double.parseDouble(newValue);
-        });
-        JFXTextField maxTextField = new JFXTextField(String.valueOf(maximum));
-        maxTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            maximum = Double.parseDouble(newValue);
-        });
+        minTextField = new JFXTextField(String.valueOf(minimum));
 
-        HBox hBoxShowTitle = new HBox(jfxCheckBoxShowTitle);
-        hBoxShowTitle.setPadding(new Insets(5,8,5,8));
-        hBoxShowTitle.setSpacing(8);
+        maxTextField = new JFXTextField(String.valueOf(maximum));
 
-        HBox hBoxShowUnit = new HBox(jfxCheckBoxShowUnit);
-        hBoxShowUnit.setPadding(new Insets(5,8,5,8));
-        hBoxShowUnit.setSpacing(8);
+        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showTitle")), jfxCheckBoxShowTitle);
+        gridPane.addRow(1,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showUnit")), jfxCheckBoxShowUnit);
+        gridPane.addRow(2,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showValue")), jfxCheckBoxShowValue);
+        gridPane.addRow(3,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent")), jfxCheckBoxInPercent);
 
-        HBox hBoxShowValue = new HBox(jfxCheckBoxShowValue);
-        hBoxShowValue.setPadding(new Insets(5,8,5,8));
-        hBoxShowValue.setSpacing(8);
+        gridPane.addRow(4,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")),minTextField);
+        gridPane.addRow(5,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")),maxTextField);
+        gridPane.add(new Separator(Orientation.HORIZONTAL),0,6,3,1);
 
-
-        HBox hBoxInPercent = new HBox(checkBoxInPercent);
-        hBoxInPercent.setPadding(new Insets(5,8,5,8));
-        hBoxInPercent.setSpacing(8);
-
-
-        HBox hBoxMaximum = new HBox(new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), maxTextField);
-        hBoxMaximum.setPadding(new Insets(5,8,5,8));
-        hBoxMaximum.setSpacing(8);
-
-
-        HBox hBoxMinimum = new HBox(new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), minTextField);
-        hBoxMinimum.setPadding(new Insets(5,8,5,8));
-        hBoxMinimum.setSpacing(8);
-
-
-        vBox.getChildren().addAll(hBoxShowTitle,hBoxShowUnit,hBoxShowValue,hBoxInPercent,hBoxMinimum,hBoxMaximum,new Separator(Orientation.HORIZONTAL));
-        return vBox;
     }
 
 
