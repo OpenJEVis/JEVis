@@ -80,3 +80,6 @@
     -fx-border-color: transparent;
     -fx-table-cell-border-color:transparent;
 }
+.svg{
+    -fx-background-color: black;
+}

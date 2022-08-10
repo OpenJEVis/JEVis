@@ -163,3 +163,6 @@
     /* do not highlight the title pane arrow on focus */
     -fx-background-color: #b8b8b8;
 }
+.svg{
+    -fx-background-color: black;
+}
