@@ -29,8 +29,6 @@ import java.util.List;
 public class GaugePojo {
 
 
-
-
     private static final Logger logger = LogManager.getLogger(GaugePojo.class);
 
     private double iconSize = 20;
@@ -62,7 +60,7 @@ public class GaugePojo {
 
     ObservableList<String> skins = FXCollections.observableArrayList();
 
-    private   JFXCheckBox jfxCheckBoxShowTitle;
+    private JFXCheckBox jfxCheckBoxShowTitle;
 
     private JFXCheckBox jfxCheckBoxShowValue;
 
@@ -95,7 +93,6 @@ public class GaugePojo {
     }
 
 
-
     public GaugePojo(DashboardControl control) {
         this(control, null);
     }
@@ -124,8 +121,6 @@ public class GaugePojo {
                 Color sectionColor = Color.valueOf(jsonNode.get("sections").get(i).get("color").asText());
                 sections.add(new GaugeSectionPojo(sectionStart, sectionEnd, sectionColor));
             }
-
-
 
 
         }
@@ -199,17 +194,24 @@ public class GaugePojo {
 
         @Override
         public void commitChanges() {
+            try {
+                showValue = jfxCheckBoxShowValue.isSelected();
+                showUnit = jfxCheckBoxShowUnit.isSelected();
+                showTitle = jfxCheckBoxShowTitle.isSelected();
+                inPercent = jfxCheckBoxInPercent.isSelected();
+                minimum = Double.parseDouble(minTextField.getText());
+                maximum = Double.parseDouble(maxTextField.getText());
 
-            showValue = jfxCheckBoxShowValue.isSelected();
-            showUnit = jfxCheckBoxShowUnit.isSelected();
-            showTitle = jfxCheckBoxShowTitle.isSelected();
-            inPercent = jfxCheckBoxInPercent.isSelected();
-            minimum = Double.parseDouble(minTextField.getText());
-            maximum = Double.parseDouble(maxTextField.getText());
+                tableViewSections.getItems().forEach(System.out::println);
+                sections.clear();
+                sections.addAll(tableViewSections.getItems());
 
-            for (int i = 0; i < tableViewSections.getItems().size(); i++) {
-                sections.set(i, (GaugeSectionPojo) tableViewSections.getItems().get(i));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+
+
 
         }
     }
@@ -220,12 +222,16 @@ public class GaugePojo {
                 , this);
         gridPane = new GridPane();
         ColumnConstraints column1 = new ColumnConstraints();
-        //column1.setPercentWidth(25);
         ColumnConstraints column2 = new ColumnConstraints();
-        //column2.setPercentWidth(25);
         ColumnConstraints column3 = new ColumnConstraints();
         column3.setPercentWidth(50);
-        gridPane.getColumnConstraints().addAll(column1, column2,column3);
+        gridPane.getColumnConstraints().addAll(column1, column2, column3);
+        gridPane.setVgap(8);
+        gridPane.setHgap(8);
+
+        gridPane.setPadding(new Insets(8, 5, 8, 5));
+
+
         createMaxMin();
 
         GaugeSectionTableFactory gaugeSectionTableFactory = new GaugeSectionTableFactory();
@@ -239,28 +245,20 @@ public class GaugePojo {
             tableViewSections.getItems().add(new GaugeSectionPojo());
         });
 
-
-
-
-
         jfxButtonDelete.setOnAction(event -> {
             tableViewSections.getItems().remove(tableViewSections.getSelectionModel().getSelectedItem());
         });
 
-        gridPane.setVgap(8);
-        gridPane.setHgap(8);
-
         HBox hBox = new HBox();
-        hBox.setPadding(new Insets(5,8,5,8));
+        hBox.setPadding(new Insets(5, 8, 5, 8));
         hBox.setSpacing(10);
         hBox.getChildren().addAll(jfxButtonAdd, jfxButtonDelete);
-        gridPane.add(hBox,0,7,3,1);
+        gridPane.add(hBox, 0, 7, 3, 1);
 
 
+        gridPane.add(tableViewSections, 0, 8, 3, 2);
 
-        gridPane.add(tableViewSections,0,8,3,2);
 
-        gridPane.setPadding(new Insets(8,5,8,5));
         tab.setContent(gridPane);
         return tab;
     }
@@ -276,24 +274,22 @@ public class GaugePojo {
         jfxCheckBoxShowUnit.setSelected(showUnit);
 
 
-       jfxCheckBoxInPercent = new JFXCheckBox();
-       jfxCheckBoxInPercent.setSelected(inPercent);
-
-
+        jfxCheckBoxInPercent = new JFXCheckBox();
+        jfxCheckBoxInPercent.setSelected(inPercent);
 
 
         minTextField = new JFXTextField(String.valueOf(minimum));
 
         maxTextField = new JFXTextField(String.valueOf(maximum));
 
-        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showTitle")), jfxCheckBoxShowTitle);
-        gridPane.addRow(1,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showUnit")), jfxCheckBoxShowUnit);
-        gridPane.addRow(2,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showValue")), jfxCheckBoxShowValue);
-        gridPane.addRow(3,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent")), jfxCheckBoxInPercent);
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showTitle")), jfxCheckBoxShowTitle);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showUnit")), jfxCheckBoxShowUnit);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showValue")), jfxCheckBoxShowValue);
+        gridPane.addRow(3, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent")), jfxCheckBoxInPercent);
 
-        gridPane.addRow(4,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")),minTextField);
-        gridPane.addRow(5,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")),maxTextField);
-        gridPane.add(new Separator(Orientation.HORIZONTAL),0,6,3,1);
+        gridPane.addRow(4, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), minTextField);
+        gridPane.addRow(5, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), maxTextField);
+        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 6, 3, 1);
 
     }
 
@@ -311,9 +307,6 @@ public class GaugePojo {
     }
 
 
-
-
-
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
 
@@ -326,7 +319,7 @@ public class GaugePojo {
         dataNode.put("showUnit", showUnit);
 
         ArrayNode arrayNode = dataNode.putArray("sections");
-        for (GaugeSectionPojo gaugeSection:sections) {
+        for (GaugeSectionPojo gaugeSection : sections) {
             ObjectNode dataNode1 = arrayNode.addObject();
             dataNode1.put("end", gaugeSection.getEnd());
             dataNode1.put("start", gaugeSection.getStart());

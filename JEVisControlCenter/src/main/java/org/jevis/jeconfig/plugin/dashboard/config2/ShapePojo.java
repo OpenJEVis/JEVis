@@ -134,13 +134,18 @@ public class ShapePojo {
 
         @Override
         public void commitChanges() {
-            shape = jfxComboBox.getValue();
+            try {
+                shape = jfxComboBox.getValue();
 
-            minValue = Double.parseDouble(jfxTextFieldMinValue.getText());
-            maxValue = Double.parseDouble(jfxTextFieldMaxValue.getText());
+                minValue = Double.parseDouble(jfxTextFieldMinValue.getText());
+                maxValue = Double.parseDouble(jfxTextFieldMaxValue.getText());
 
-            maxColor = (colorPickerAdvMax.getValue());
-            minColor = (colorPickerAdvMin.getValue());
+                maxColor = (colorPickerAdvMax.getValue());
+                minColor = (colorPickerAdvMin.getValue());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
 
         }
@@ -155,6 +160,7 @@ public class ShapePojo {
 
         gridPane.setHgap(8);
         gridPane.setVgap(8);
+        gridPane.setPadding(new Insets(5, 8, 5, 8));
 
         jfxComboBox = new JFXComboBox<>();
 

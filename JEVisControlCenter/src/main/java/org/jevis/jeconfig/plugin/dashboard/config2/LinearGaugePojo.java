@@ -12,6 +12,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -24,8 +25,6 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 public class LinearGaugePojo {
 
 
-
-
     private static final Logger logger = LogManager.getLogger(LinearGaugePojo.class);
 
     int gaugeWidgetID = -1;
@@ -36,7 +35,7 @@ public class LinearGaugePojo {
 
     private boolean inPercent = false;
 
-    private Color color = Color.DARKBLUE;
+    private Color colorValueIndicator = Color.DARKBLUE;
 
     private Color colorBorder = Color.BLACK;
 
@@ -58,6 +57,29 @@ public class LinearGaugePojo {
 
     ObservableList<String> skins = FXCollections.observableArrayList();
 
+    private JFXCheckBox jfxCheckBoxShowTitle;
+
+    private JFXCheckBox jfxCheckBoxShowValue;
+
+    private JFXCheckBox jfxCheckBoxShowUnit;
+
+    private JFXCheckBox jfxCheckBoxInPercent;
+
+    private JFXCheckBox jfxCheckBoxShowMajorTick;
+
+    private JFXCheckBox jfxCheckBoxShowMediumTick;
+
+    private JFXCheckBox jfxCheckBoxShowMinorTick;
+
+    private JFXTextField jfxTextFieldMaxValue;
+
+    private JFXTextField jfxTextFieldMinValue;
+
+    private ColorPickerAdv colorPickerAdvBoarderColor;
+
+    private ColorPickerAdv colorPickerAdvValueIndicator;
+
+
     public Double getMaximum() {
         return maximum;
     }
@@ -73,7 +95,6 @@ public class LinearGaugePojo {
     public void setMinimum(Double minimum) {
         this.minimum = minimum;
     }
-
 
 
     public LinearGaugePojo(DashboardControl control) {
@@ -98,23 +119,17 @@ public class LinearGaugePojo {
             showTitle = jsonNode.get("showTitle").asBoolean();
             showUnit = jsonNode.get("showUnit").asBoolean();
             showValue = jsonNode.get("showValue").asBoolean();
-            color = Color.valueOf(jsonNode.get("color").asText());
+            colorValueIndicator = Color.valueOf(jsonNode.get("color").asText());
             showMajorTick = jsonNode.get("showMajorTick").asBoolean();
             showMediumTick = jsonNode.get("showMediumTick").asBoolean();
             showMinorTick = jsonNode.get("showMinorTick").asBoolean();
             colorBorder = Color.valueOf(jsonNode.get("colorBorder").asText());
 
 
-
-
-
         }
 
 
     }
-
-
-
 
 
     public boolean isInPercent() {
@@ -157,12 +172,12 @@ public class LinearGaugePojo {
         this.minimum = minimum;
     }
 
-    public Color getColor() {
-        return color;
+    public Color getColorValueIndicator() {
+        return colorValueIndicator;
     }
 
-    public void setColor(Color color) {
-        this.color = color;
+    public void setColorValueIndicator(Color colorValueIndicator) {
+        this.colorValueIndicator = colorValueIndicator;
     }
 
     @Override
@@ -172,7 +187,7 @@ public class LinearGaugePojo {
                 ", maximum=" + maximum +
                 ", minimum=" + minimum +
                 ", inPercent=" + inPercent +
-                ", color=" + color +
+                ", color=" + colorValueIndicator +
                 ", dashboardControl=" + dashboardControl +
                 ", showTitle=" + showTitle +
                 ", showUnit=" + showUnit +
@@ -224,6 +239,26 @@ public class LinearGaugePojo {
 
         @Override
         public void commitChanges() {
+
+            try {
+                showTitle = jfxCheckBoxShowTitle.isSelected();
+                showUnit = jfxCheckBoxShowUnit.isSelected();
+                showValue = jfxCheckBoxShowValue.isDisable();
+
+                minimum = Double.valueOf(jfxTextFieldMinValue.getText());
+                maximum = Double.valueOf(jfxTextFieldMaxValue.getText());
+
+                showMajorTick = jfxCheckBoxShowMajorTick.isSelected();
+                showMediumTick = jfxCheckBoxShowMediumTick.isSelected();
+                showMinorTick = jfxCheckBoxShowMinorTick.isSelected();
+
+                colorBorder = colorPickerAdvBoarderColor.getValue();
+                colorValueIndicator = colorPickerAdvValueIndicator.getValue();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
         }
     }
 
@@ -231,138 +266,73 @@ public class LinearGaugePojo {
 
         GaugeDesignTab tab = new GaugeDesignTab(I18n.getInstance().getString("plugin.dashboard.gaugewidget.tab")
                 , this);
-        VBox vBox = new VBox();
-        vBox.setSpacing(8);
-        vBox.getChildren().add(createMaxMin());
 
+        GridPane gridPane = new GridPane();
+        gridPane.setVgap(8);
+        gridPane.setHgap(8);
+        gridPane.setPadding(new Insets(8, 5, 8, 5));
 
-
-
-        tab.setContent(vBox);
-        return tab;
-    }
-
-
-    private VBox createMaxMin() {
-        VBox vBox = new VBox();
-        vBox.setSpacing(8);
-        JFXCheckBox jfxCheckBoxShowTitle = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.showTitle"));
+        jfxCheckBoxShowTitle = new JFXCheckBox();
         jfxCheckBoxShowTitle.setSelected(showTitle);
-        JFXCheckBox jfxCheckBoxShowValue = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.showValue"));
-        jfxCheckBoxShowValue.setSelected(showValue);
-        JFXCheckBox jfxCheckBoxShowUnit = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.gaugewidget.showUnit"));
+
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showTitle")), jfxCheckBoxShowTitle);
+
+        jfxCheckBoxShowUnit = new JFXCheckBox();
         jfxCheckBoxShowUnit.setSelected(showUnit);
 
-        jfxCheckBoxShowTitle.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            showTitle = newValue;
-        });
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showUnit")), jfxCheckBoxShowUnit);
 
-        jfxCheckBoxShowUnit.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            showUnit = newValue;
-        });
+        jfxCheckBoxShowValue = new JFXCheckBox();
+        jfxCheckBoxShowValue.setSelected(showValue);
 
-        jfxCheckBoxShowValue.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            showValue = newValue;
-        });
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showValue")), jfxCheckBoxShowValue);
+
+        jfxCheckBoxInPercent = new JFXCheckBox();
+        jfxCheckBoxInPercent.setSelected(inPercent);
+
+        gridPane.addRow(3, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent")), jfxCheckBoxInPercent);
+
+        jfxTextFieldMinValue = new JFXTextField();
+        jfxTextFieldMinValue.setText(String.valueOf(minimum));
+
+        gridPane.addRow(4, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), jfxTextFieldMinValue);
+
+        jfxTextFieldMaxValue = new JFXTextField();
+        jfxTextFieldMaxValue.setText(String.valueOf(maximum));
+
+        gridPane.addRow(5, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), jfxTextFieldMaxValue);
 
 
-        JFXCheckBox checkBoxInPercent = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent"));
-        checkBoxInPercent.setSelected(inPercent);
+        colorPickerAdvValueIndicator = new ColorPickerAdv();
+        colorPickerAdvValueIndicator.setValue(colorValueIndicator);
 
-        checkBoxInPercent.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            inPercent = newValue;
-        });
+        gridPane.addRow(6, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.valueIndicatorColor")), colorPickerAdvValueIndicator);
 
-
-        JFXTextField minTextField = new JFXTextField(String.valueOf(minimum));
-        minTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            minimum = Double.parseDouble(newValue);
-        });
-        JFXTextField maxTextField = new JFXTextField(String.valueOf(maximum));
-        maxTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            maximum = Double.parseDouble(newValue);
-        });
-
-        JFXCheckBox jfxCheckBoxShowMajorTick = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.lineargaugewidget.showMajorTick"));
+        jfxCheckBoxShowMajorTick = new JFXCheckBox();
         jfxCheckBoxShowMajorTick.setSelected(showMajorTick);
-        jfxCheckBoxShowMajorTick.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            showMajorTick = newValue;
-        });
-        JFXCheckBox jfxCheckBoxShowMediumTick = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.lineargaugewidget.showMediumTick"));
-        jfxCheckBoxShowMediumTick.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            showMediumTick = newValue;
-        });
+
+
+        gridPane.addRow(7, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.showMajorTick")), jfxCheckBoxShowMajorTick);
+
+
+        jfxCheckBoxShowMediumTick = new JFXCheckBox();
         jfxCheckBoxShowMediumTick.setSelected(showMediumTick);
-        JFXCheckBox jfxCheckBoxShowMinorTick = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.dashboard.lineargaugewidget.showMinorTick"));
+
+        gridPane.addRow(8, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.showMediumTick")), jfxCheckBoxShowMediumTick);
+
+        jfxCheckBoxShowMinorTick = new JFXCheckBox();
         jfxCheckBoxShowMinorTick.setSelected(showMinorTick);
-        jfxCheckBoxShowMinorTick.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            showMinorTick = newValue;
-        });
+
+        gridPane.addRow(9, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.showMinorTick")), jfxCheckBoxShowMinorTick);
 
 
+        colorPickerAdvBoarderColor = new ColorPickerAdv();
+        colorPickerAdvBoarderColor.setValue(colorBorder);
 
-        ColorPickerAdv colorPickerAdv = new ColorPickerAdv();
-        colorPickerAdv.setValue(color);
-        colorPickerAdv.selectColorProperty().addListener((observable, oldValue, newValue) -> {
-            color = newValue;
-        });
+        gridPane.addRow(10, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.borderColor")), colorPickerAdvBoarderColor);
 
-        ColorPickerAdv colorPickerAdvBorderColor = new ColorPickerAdv();
-        colorPickerAdvBorderColor.setValue(colorBorder);
-        colorPickerAdvBorderColor.selectColorProperty().addListener((observable, oldValue, newValue) -> {
-            colorBorder = newValue;
-        });
-
-        HBox hBoxShowTitle = new HBox(jfxCheckBoxShowTitle);
-        hBoxShowTitle.setPadding(new Insets(5,8,5,8));
-        hBoxShowTitle.setSpacing(8);
-
-        HBox hBoxShowUnit = new HBox(jfxCheckBoxShowUnit);
-        hBoxShowUnit.setPadding(new Insets(5,8,5,8));
-        hBoxShowUnit.setSpacing(8);
-
-        HBox hBoxShowValue = new HBox(jfxCheckBoxShowValue);
-        hBoxShowValue.setPadding(new Insets(5,8,5,8));
-        hBoxShowValue.setSpacing(8);
-
-
-        HBox hBoxInPercent = new HBox(checkBoxInPercent);
-        hBoxInPercent.setPadding(new Insets(5,8,5,8));
-        hBoxInPercent.setSpacing(8);
-
-
-        HBox hBoxMaximum = new HBox(new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), maxTextField);
-        hBoxMaximum.setPadding(new Insets(5,8,5,8));
-        hBoxMaximum.setSpacing(8);
-
-
-        HBox hBoxMinimum = new HBox(new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), minTextField);
-        hBoxMinimum.setPadding(new Insets(5,8,5,8));
-        hBoxMinimum.setSpacing(8);
-
-        HBox hBoxColor = new HBox(new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.color")), colorPickerAdv);
-        hBoxColor.setPadding(new Insets(5,8,5,8));
-        hBoxColor.setSpacing(8);
-
-        HBox hBoxShowMajorTick = new HBox(jfxCheckBoxShowMajorTick);
-        hBoxShowMajorTick.setPadding(new Insets(5,8,5,8));
-        hBoxShowMajorTick.setSpacing(8);
-
-        HBox hBoxShowMediumTick = new HBox(jfxCheckBoxShowMediumTick);
-        hBoxShowMediumTick.setPadding(new Insets(5,8,5,8));
-        hBoxShowMediumTick.setSpacing(8);
-
-        HBox hBoxShowMinorTick = new HBox(jfxCheckBoxShowMinorTick);
-        hBoxShowMinorTick.setPadding(new Insets(5,8,5,8));
-        hBoxShowMinorTick.setSpacing(8);
-
-        HBox hBoxColorOutside = new HBox(new Label(I18n.getInstance().getString("plugin.graph.dashboard.lineargaugewidget.borderColor")),colorPickerAdvBorderColor);
-        hBoxColorOutside.setPadding(new Insets(5,8,5,8));
-        hBoxColorOutside.setSpacing(8);
-
-
-        vBox.getChildren().addAll(hBoxShowTitle,hBoxShowUnit,hBoxShowValue,hBoxInPercent,hBoxMinimum,hBoxMaximum,hBoxColor,hBoxShowMajorTick,hBoxShowMediumTick,hBoxShowMinorTick,hBoxColorOutside,new Separator(Orientation.HORIZONTAL));
-        return vBox;
+        tab.setContent(gridPane);
+        return tab;
     }
 
 
@@ -379,9 +349,6 @@ public class LinearGaugePojo {
     }
 
 
-
-
-
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
 
@@ -392,7 +359,7 @@ public class LinearGaugePojo {
         dataNode.put("showTitle", showTitle);
         dataNode.put("showValue", showValue);
         dataNode.put("showUnit", showUnit);
-        dataNode.put("color", color.toString());
+        dataNode.put("color", colorValueIndicator.toString());
         dataNode.put("showMajorTick", showMajorTick);
         dataNode.put("showMediumTick", showMediumTick);
         dataNode.put("showMinorTick", showMinorTick);
