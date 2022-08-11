@@ -240,8 +240,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
-                this.updateSkin();
-                this.updateText();
+                updateConfig();
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -262,18 +261,22 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateConfig() {
-        logger.debug("UpdateConfig");
-        Platform.runLater(() -> {
-            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-            updateText();
-            updateSkin();
-        });
+        try {
+            logger.debug("UpdateConfig");
+            Platform.runLater(() -> {
+                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+                updateText();
+                updateSkin();
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
     }
 
     private void updateSkin() {
         if (gauge != null) {
-            //gauge.setSkinType(eu.hansolo.medusa.Gauge.SkinType.SIMPLE_SECTION);
             if (gaugeSettings != null) {
 
                 if (gaugeSettings.isInPercent()) {

@@ -5,7 +5,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.jfoenix.controls.JFXTextField;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
-import eu.hansolo.medusa.Section;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -55,7 +54,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
@@ -242,6 +240,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
+                updateConfig();
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -264,9 +263,14 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     public void updateConfig() {
         logger.debug("UpdateConfig");
         Platform.runLater(() -> {
-            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-            updateSkin();
-            updateText();
+            try {
+                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+                updateSkin();
+                updateText();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         });
 
     }
@@ -274,8 +278,9 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     private void updateSkin() {
         if (gauge != null) {
             if (gaugeSettings != null) {
+                System.out.println("update Skin");
 
-                gauge.setBarColor(gaugeSettings.getColor());
+                gauge.setBarColor(gaugeSettings.getColorValueIndicator());
                 gauge.setMajorTickMarksVisible(gaugeSettings.isShowMajorTick());
                 gauge.setMediumTickMarksVisible(gaugeSettings.isShowMediumTick());
                 gauge.setMinorTickMarksVisible(gaugeSettings.isShowMinorTick());
@@ -413,7 +418,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
             }
 
         });
-        updateConfig();
 
     }
 

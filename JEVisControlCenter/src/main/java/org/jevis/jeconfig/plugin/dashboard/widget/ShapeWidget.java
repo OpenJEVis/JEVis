@@ -321,7 +321,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         anchorPane.heightProperty().addListener(observable -> updateConfig());
         anchorPane.widthProperty().addListener(observable -> updateConfig());
 
-        updateConfig();
 
     }
 
