@@ -14,6 +14,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
@@ -33,6 +34,11 @@ public class TimeFrameFactory {
 
     public TimeFrameFactory(JEVisDataSource ds) {
         this.ds = ds;
+    }
+
+    public TimeFrame getTimeframe(String periode, String name) {
+        LastPeriod lastPeriod = new LastPeriod(new Period(periode), name);
+        return lastPeriod;
     }
 
     public ObservableList<TimeFrame> getAll() {
@@ -94,6 +100,7 @@ public class TimeFrameFactory {
 
     public TimeFrame customPeriodObject(CustomPeriodObject cpo) {
         return new TimeFrame() {
+
             @Override
             public String getListName() {
                 if (cpo != null && cpo.getObject() != null) {
@@ -188,10 +195,12 @@ public class TimeFrameFactory {
                 return TimeFrameType.CUSTOM.toString();
             }
 
+
             @Override
             public String getListName() {
                 return "Individuell";
             }
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -256,10 +265,14 @@ public class TimeFrameFactory {
 //                return TimeFrameType.DAY.toString();
             }
 
+
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.daily");
             }
+
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -337,10 +350,13 @@ public class TimeFrameFactory {
                 return timeFrameEqual(obj);
             }
 
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.weekly");
             }
+
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -408,10 +424,14 @@ public class TimeFrameFactory {
                 return timeFrameEqual(obj);
             }
 
+
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.monthly");
             }
+
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -480,10 +500,14 @@ public class TimeFrameFactory {
 //                return TimeFrameType.YEAR.toString();
             }
 
+
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.yearly");
             }
+
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -546,11 +570,15 @@ public class TimeFrameFactory {
                 return Period.years(3).toString();
             }
 
+
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
                         + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.threeyears");
             }
+
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -613,11 +641,15 @@ public class TimeFrameFactory {
                 return Period.years(5).toString();
             }
 
+
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
                         + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.fiveyears");
             }
+
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -680,11 +712,15 @@ public class TimeFrameFactory {
                 return Period.years(10).toString();
             }
 
+
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
                         + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.tenyears");
             }
+
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
