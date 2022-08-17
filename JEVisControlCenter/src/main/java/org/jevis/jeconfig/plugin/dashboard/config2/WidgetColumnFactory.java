@@ -2,12 +2,15 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -17,8 +20,10 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
+import org.jevis.jeconfig.dialog.DataDialog;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +34,8 @@ public class WidgetColumnFactory {
 
 
     private static final Logger logger = LogManager.getLogger(WidgetColumnFactory.class);
-    private final DashboardControl control;
-    private TableView<Widget> table;
+    protected final DashboardControl control;
+    protected TableView<Widget> table;
     private final Double numberColumDefaultSize = 70d;
     //    private ObservableList<Widget> fullList;
 //    private FilteredList<Widget> filteredData;
@@ -100,7 +105,7 @@ public class WidgetColumnFactory {
         });
 //        this.filteredData = new FilteredList<Widget>(list);
         this.table.setItems(list);
-
+        this.table.setEditable(true);
         return this.table;
     }
 
@@ -196,43 +201,42 @@ public class WidgetColumnFactory {
         return column;
     }
 
-    public TableColumn<Widget, Integer> buildIDColoumn() {
+    public TableColumn<Widget, String> buildIDColoumn() {
 
-        Callback treeTableColumnCallback = new Callback<TableColumn<Widget, Integer>, TableCell<Widget, Integer>>() {
-            @Override
-            public TableCell<Widget, Integer> call(TableColumn<Widget, Integer> param) {
-                TableCell<Widget, Integer> cell = new TableCell<Widget, Integer>() {
-                    @Override
-                    protected void updateItem(Integer item, boolean empty) {
-                        if (item != null && !empty) {
-                            setText(item.toString());
-                        } else {
-                            setText(null);
-                        }
-                    }
-                };
-                return cell;
-            }
-        };
-        Callback valueFactory = new Callback<TableColumn.CellDataFeatures<Widget, Integer>, ObservableValue<Integer>>() {
-            @Override
-            public ObservableValue<Integer> call(TableColumn.CellDataFeatures<Widget, Integer> param) {
-                try {
-                    return new SimpleObjectProperty<>(param.getValue().getConfig().getUuid());
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
+//        Callback treeTableColumnCallback = new Callback<TableColumn<Widget, Integer>, TableCell<Widget, Integer>>() {
+//            @Override
+//            public TableCell<Widget, Integer> call(TableColumn<Widget, Integer> param) {
+//                TableCell<Widget, Integer> cell = new TableCell<Widget, Integer>() {
+//                    @Override
+//                    protected void updateItem(Integer item, boolean empty) {
+//                        if (item != null && !empty) {
+//                            setText(item.toString());
+//                        } else {
+//                            setText(null);
+//                        }
+//                    }
+//                };
+//                return cell;
+//            }
+//        };
+//        Callback valueFactory = new Callback<TableColumn.CellDataFeatures<Widget, Integer>, ObservableValue<Integer>>() {
+//            @Override
+//            public ObservableValue<Integer> call(TableColumn.CellDataFeatures<Widget, Integer> param) {
+//                try {
+//                    return new SimpleObjectProperty<>(param.getValue().getConfig().getUuid());
+//                } catch (Exception ex) {
+//                    logger.error(ex);
+//                }
+//
+//                return new SimpleObjectProperty<>(null);
+//            }
+//        };
 
-                return new SimpleObjectProperty<>(null);
-            }
-        };
 
-
-        TableColumn<Widget, Integer> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.uuid"));
-
+        TableColumn<Widget, String> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.uuid"));
+        column.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().config.getUuid())));
         column.setId("ID");
-        column.setCellValueFactory(valueFactory);
-        column.setCellFactory(treeTableColumnCallback);
+        column.setCellFactory(TextFieldTableCell.forTableColumn());
 
         column.setPrefWidth(80);
         column.setEditable(false);
@@ -299,6 +303,8 @@ public class WidgetColumnFactory {
 
 
     public TableColumn<Widget, String> typeAttributeColumn() {
+
+
         Callback treeTableColumnCallback = new Callback<TableColumn<Widget, String>, TableCell<Widget, String>>() {
             @Override
             public TableCell<Widget, String> call(TableColumn<Widget, String> param) {
@@ -365,7 +371,7 @@ public class WidgetColumnFactory {
 
     public TableColumn<Widget, String> titleAttributeColumn() {
 
-        Callback treeTableColumnCallback = new Callback<TableColumn<Widget, String>, TableCell<Widget, String>>() {
+       /* Callback treeTableColumnCallback = new Callback<TableColumn<Widget, String>, TableCell<Widget, String>>() {
             @Override
             public TableCell<Widget, String> call(TableColumn<Widget, String> param) {
                 TableCell<Widget, String> cell = new TableCell<Widget, String>() {
@@ -398,27 +404,35 @@ public class WidgetColumnFactory {
                 };
                 return cell;
             }
-        };
+        };*/
 
-        Callback valueFactory = new Callback<TableColumn.CellDataFeatures<Widget, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Widget, String> param) {
-                try {
-                    return new SimpleStringProperty(param.getValue().getConfig().getTitle());
-
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-
-                return new SimpleObjectProperty<>(null);
-            }
-        };
-
-
+//        Callback valueFactory = new Callback<TableColumn.CellDataFeatures<Widget, String>, ObservableValue<String>>() {
+//            @Override
+//            public ObservableValue<String> call(TableColumn.CellDataFeatures<Widget, String> param) {
+//                try {
+//                    return new SimpleStringProperty(param.getValue().getConfig().getTitle());
+//
+//                } catch (Exception ex) {
+//                    logger.error(ex);
+//                }
+//
+//                return new SimpleObjectProperty<>(null);
+//            }
+//        };
         TableColumn<Widget, String> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.title"));
+        column.setCellFactory(TextFieldTableCell.forTableColumn());
+        //TableColumn<Widget, String> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.title"));
         column.setId("title");
-        column.setCellValueFactory(valueFactory);
-        column.setCellFactory(treeTableColumnCallback);
+        column.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().config.getTitle()));
+        //column.setCellValueFactory(valueFactory);
+        column.setEditable(true);
+        column.setSortable(false);
+        column.setOnEditCommit(event -> {
+            if (event.getNewValue() != null) {
+
+            }
+        });
+        //column.setCellFactory(treeTableColumnCallback);
 
         return column;
     }

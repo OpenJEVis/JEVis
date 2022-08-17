@@ -130,6 +130,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
             model.setCurrentAnalysisNOEVENT(control.getActiveDashboard().getDashboardObject());
             model.setHideShowIconsNO_EVENT(false);
             model.setCustomWorkDayNO_EVENT(customWorkDay);
+
             ChartSetting chartSetting = new ChartSetting(0, "");
             chartSetting.setChartType(null);
             chartSetting.setMinFractionDigits(getConfig().getDecimals());
@@ -326,6 +327,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     spVer.getChildren().set(bottomAxisIndex, bottomXAxis);
                 }
             }
+            setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
         } catch (Exception e) {
             e.printStackTrace();
         }

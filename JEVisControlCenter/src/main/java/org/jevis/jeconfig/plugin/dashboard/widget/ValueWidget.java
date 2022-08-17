@@ -111,6 +111,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
+
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -159,7 +160,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 logger.warn("ValueWidget is missing SampleHandler.datamodel: [ID:{}]", widgetUUID);
             }
 
-
+            setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
         } catch (Exception ex) {
             logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
             Platform.runLater(() -> {

@@ -82,6 +82,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Value.Update: {}", interval);
         lastInterval = interval;
+        //setCurrentInterval(interval);
 
         Platform.runLater(() -> {
             showAlertOverview(false, "");
@@ -147,7 +148,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
                 displayedSample.set(Double.NaN);//or NaN?
             }
 
-
+            setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
         } catch (Exception ex) {
             logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
             Platform.runLater(() -> {

@@ -101,6 +101,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
+        //setCurrentInterval(interval);
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -124,6 +125,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                 dataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
+                setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
 
                 String unit = dataModel.getUnitLabel();
                 displayedUnit.setValue(unit);

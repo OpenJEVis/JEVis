@@ -77,6 +77,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.error("Sankey.Update: {}", interval);
         this.lastInterval = interval;
+        //setCurrentInterval(interval);
 
         if (sampleHandler == null) {
             showProgressIndicator(false);
@@ -120,7 +121,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                             }
                         }
                     });
-
+                    setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
                 } catch (Exception ex) {
                     logger.error(ex);
                 }

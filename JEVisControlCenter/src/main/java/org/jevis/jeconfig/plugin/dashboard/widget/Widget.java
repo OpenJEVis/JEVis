@@ -54,6 +54,8 @@ public abstract class Widget extends Region {
     private final Label label = new Label();
     private final Tooltip tt = new Tooltip("");
 
+    private Interval currentInterval = null;
+
 
     private final DragResizeMod.OnDragResizeEventListener onDragResizeEventListener = DragResizeMod.defaultListener;
 
@@ -617,5 +619,13 @@ public abstract class Widget extends Region {
         }
 
         return false;
+    }
+
+    public Interval getCurrentInterval() {
+        return currentInterval;
+    }
+
+    public void setCurrentInterval(Interval currentInterval) {
+        this.currentInterval = currentInterval;
     }
 }

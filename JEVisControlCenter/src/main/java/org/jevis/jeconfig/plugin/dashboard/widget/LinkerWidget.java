@@ -86,6 +86,7 @@ public class LinkerWidget extends Widget {
                 showProgressIndicator(false);
             });
             lastInterval = interval;
+            //setCurrentInterval(interval);
 
             this.graphAnalysisLinker.applyConfig(AggregationPeriod.NONE, ManipulationMode.NONE, interval);
 

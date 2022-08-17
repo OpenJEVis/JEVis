@@ -49,7 +49,7 @@ public class PieWidget extends Widget implements DataModelWidget {
     private final ObjectMapper mapper = new ObjectMapper();
     private final BorderPane borderPane = new BorderPane();
     private final VBox legendPane = new VBox();
-    private Interval lastInterval;
+    //private Interval lastInterval;
     private Boolean customWorkday = true;
 
     public PieWidget(DashboardControl control, WidgetPojo config) {
@@ -80,7 +80,8 @@ public class PieWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Pie.Update: [{}] {}", getConfig().getUuid(), interval);
 
-        this.lastInterval = interval;
+        //this.lastInterval = interval;
+        setCurrentInterval(interval);
         if (sampleHandler == null) {
             return;
         } else {
@@ -159,7 +160,7 @@ public class PieWidget extends Widget implements DataModelWidget {
 
 
 //                applyColors(colors);
-
+                setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
             } catch (Exception ex) {
                 logger.error(ex);
             }

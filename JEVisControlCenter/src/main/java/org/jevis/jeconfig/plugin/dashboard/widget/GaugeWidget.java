@@ -98,8 +98,10 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateData(Interval interval) {
+        System.out.println("update data");
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
+        //setCurrentInterval(interval);
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -131,6 +133,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 String unit = dataModel.getUnitLabel();
                 displayedUnit.setValue(unit);
 
+
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
                     total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
@@ -145,9 +148,11 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 }else {
                     gauge.setValue(0);
                 }
+                setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
 
             }
         });
+
     }
 
     private void setIntervallForLastValue(Interval interval) {
@@ -443,6 +448,11 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
 
         return dashBoardNode;
+    }
+
+    @Override
+    public Interval getCurrentInterval() {
+        return new Interval(sampleHandler.getDurationProperty().getStart(), sampleHandler.getDurationProperty().getEnd());
     }
 
     @Override

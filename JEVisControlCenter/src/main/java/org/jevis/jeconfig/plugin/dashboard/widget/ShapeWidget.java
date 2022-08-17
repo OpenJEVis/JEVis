@@ -97,6 +97,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
+        //setCurrentInterval(interval);
 
         System.out.println(interval);
         Platform.runLater(() -> {
@@ -126,6 +127,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                 dataModel.setCustomWorkDay(customWorkday);
+                setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
                 List<JEVisSample> results;
 
                 results = dataModel.getSamples();
