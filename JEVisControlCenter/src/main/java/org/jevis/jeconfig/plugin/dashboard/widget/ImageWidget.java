@@ -20,6 +20,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.ImageConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -113,6 +114,7 @@ public class ImageWidget extends Widget {
         return true;
     }
 
+
     @Override
     public List<DateTime> getMaxTimeStamps() {
         return new ArrayList<>();
@@ -136,8 +138,6 @@ public class ImageWidget extends Widget {
             logger.error(ex);
             ex.printStackTrace();
         }
-        //anchorPane.heightProperty().addListener(observable -> updateConfig());
-        //anchorPane.widthProperty().addListener(observable -> updateConfig());
 
     }
 
@@ -156,8 +156,6 @@ public class ImageWidget extends Widget {
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
-                updateConfig();
-
             } catch (Exception ex) {
                 logger.error(ex);
             }

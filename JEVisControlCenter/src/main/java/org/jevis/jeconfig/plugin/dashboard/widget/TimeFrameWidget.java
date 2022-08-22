@@ -16,32 +16,38 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config2.Size;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class TitleWidget extends Widget {
+public class TimeFrameWidget extends Widget {
 
-    private static final Logger logger = LogManager.getLogger(TitleWidget.class);
-    public static String WIDGET_ID = "Title";
+    private static final Logger logger = LogManager.getLogger(TimeFrameWidget.class);
+    public static String WIDGET_ID = "Time Frame";
+    public static String DISPLAY_NAME = I18n.getInstance().getString("plugin.dashboard.widget.timeframe");
     private final Label label = new Label();
-    private AnchorPane anchorPane = new AnchorPane();
 
-    public TitleWidget(DashboardControl control, WidgetPojo config) {
+    private DataModelDataHandler sampleHandler;
+    private AnchorPane anchorPane = new AnchorPane();
+    public static String TIME_FRAME_DESIGN_NODE_NAME = "Time Frame";
+
+    private TimeFramePojo timeFramePojo;
+
+    public TimeFrameWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         this.setId(WIDGET_ID + UUID.randomUUID());
     }
 
-    public TitleWidget(DashboardControl control) {
+    public TimeFrameWidget(DashboardControl control) {
         super(control);
     }
 
@@ -56,7 +62,7 @@ public class TitleWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.titlewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 4));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 12));
 
         return widgetPojo;
     }
@@ -64,23 +70,55 @@ public class TitleWidget extends Widget {
 
     @Override
     public void updateData(Interval interval) {
+        Platform.runLater(() -> {
+            try{
+                this.label.setText(convertIntervalToString(this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval())));
+
+            }catch (Exception e){
+                logger.error(e);
+            }
+        });
+
+
+
+
+    }
+
+    private String convertIntervalToString(Interval interval) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(timeFramePojo.getParser());
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            stringBuilder.append(dateTimeFormatter.print(interval.getStart()));
+            stringBuilder.append(" - ");
+            stringBuilder.append(dateTimeFormatter.print(interval.getEnd()));
+        }catch (IllegalArgumentException e){
+            logger.error(e);
+            return null;
+        }
+
+        return stringBuilder.toString();
     }
 
     @Override
     public void updateLayout() {
+
 
     }
 
     @Override
     public void updateConfig() {
         logger.debug("UpdateConfig");
+
+        timeFramePojo.selectWidget();
+
+
         Platform.runLater(() -> {
             try {
+
 
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 this.label.setBackground(bgColor);
                 this.label.setTextFill(this.config.getFontColor());
-                this.label.setText(this.config.getTitle());
                 this.label.setFont(new Font(this.config.getFontSize()));
                 this.label.setPrefWidth(this.config.getSize().getWidth());
                 this.label.setAlignment(this.config.getTitlePosition());
@@ -94,7 +132,7 @@ public class TitleWidget extends Widget {
 
     @Override
     public boolean isStatic() {
-        return true;
+        return false;
     }
 
 
@@ -111,10 +149,20 @@ public class TitleWidget extends Widget {
         anchorPane.getChildren().add(this.label);
         Layouts.setAnchor(this.label, 0);
 
+        try {
+            this.timeFramePojo = new TimeFramePojo(this.control, this.config.getConfigNode(TIME_FRAME_DESIGN_NODE_NAME));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         setGraphic(anchorPane);
 //        anchorPane.setEffect(null);
 //        this.setEffect(null);//Workaround
 
+
+        if (this.timeFramePojo == null) {
+            this.timeFramePojo = new TimeFramePojo(this.control);
+        }
     }
 
 
@@ -122,6 +170,10 @@ public class TitleWidget extends Widget {
     public void openConfig() {
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(null);
+
+        if (timeFramePojo != null) {
+            widgetConfigDialog.addTab(timeFramePojo.getConfigTab());
+        }
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -140,17 +192,19 @@ public class TitleWidget extends Widget {
         return WIDGET_ID;
     }
 
+
     @Override
     public ObjectNode toNode() {
-
         ObjectNode dashBoardNode = super.createDefaultNode();
-//        dashBoardNode
-//                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        if (timeFramePojo != null) {
+            dashBoardNode
+                    .set(TIME_FRAME_DESIGN_NODE_NAME, timeFramePojo.toJSON());
+        }
         return dashBoardNode;
     }
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/TitleWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+        return JEConfig.getImage("iconfinder_calendar-clock_299096.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 }

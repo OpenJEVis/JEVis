@@ -44,7 +44,7 @@ public class PieWidget extends Widget implements DataModelWidget {
     public static String WIDGET_ID = "Pie";
     private final PieChart chart = new PieChart();
     private final NumberFormat nf = NumberFormat.getInstance();
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private final WidgetLegend legend = new WidgetLegend();
     private final ObjectMapper mapper = new ObjectMapper();
     private final BorderPane borderPane = new BorderPane();
@@ -80,8 +80,6 @@ public class PieWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Pie.Update: [{}] {}", getConfig().getUuid(), interval);
 
-        //this.lastInterval = interval;
-        setCurrentInterval(interval);
         if (sampleHandler == null) {
             return;
         } else {
@@ -160,7 +158,6 @@ public class PieWidget extends Widget implements DataModelWidget {
 
 
 //                applyColors(colors);
-                setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -228,6 +225,7 @@ public class PieWidget extends Widget implements DataModelWidget {
     public boolean isStatic() {
         return false;
     }
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {

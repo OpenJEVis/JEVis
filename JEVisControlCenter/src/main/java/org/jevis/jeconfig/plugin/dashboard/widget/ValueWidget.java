@@ -64,7 +64,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     private final Label label = new Label();
     private final NumberFormat nf = new DecimalFormat("#,##0.##");//NumberFormat.getInstance();
     private final NumberFormat nfPercent = new DecimalFormat("0");
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
     private Limit limit;
@@ -160,7 +160,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 logger.warn("ValueWidget is missing SampleHandler.datamodel: [ID:{}]", widgetUUID);
             }
 
-            setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
         } catch (Exception ex) {
             logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
             Platform.runLater(() -> {
@@ -396,6 +395,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public boolean isStatic() {
         return false;
     }
+
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {

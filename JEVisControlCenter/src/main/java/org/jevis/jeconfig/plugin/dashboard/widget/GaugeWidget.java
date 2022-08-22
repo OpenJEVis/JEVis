@@ -60,7 +60,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(GaugeWidget.class);
     public static String WIDGET_ID = "Gauge";
     private final eu.hansolo.medusa.Gauge gauge;
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
 
@@ -101,7 +101,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         System.out.println("update data");
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
-        //setCurrentInterval(interval);
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -148,7 +147,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 }else {
                     gauge.setValue(0);
                 }
-                setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
+
 
             }
         });
@@ -274,7 +273,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 updateSkin();
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
 
 
@@ -450,10 +449,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         return dashBoardNode;
     }
 
-    @Override
-    public Interval getCurrentInterval() {
-        return new Interval(sampleHandler.getDurationProperty().getStart(), sampleHandler.getDurationProperty().getEnd());
-    }
 
     @Override
     public ImageView getImagePreview() {

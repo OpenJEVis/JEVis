@@ -153,6 +153,7 @@ public class DashboadLinkWidget extends Widget {
         return false;
     }
 
+
     @Override
     public List<DateTime> getMaxTimeStamps() {
         return new ArrayList<>();

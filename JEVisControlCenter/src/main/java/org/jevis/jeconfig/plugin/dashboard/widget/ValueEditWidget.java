@@ -45,7 +45,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     private final JFXTextField labelValue = new JFXTextField();
     private final Label labelTimeStamp = new Label();
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private final NumberFormat nf = NumberFormat.getInstance();
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private Limit limit;
@@ -148,7 +148,6 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
                 displayedSample.set(Double.NaN);//or NaN?
             }
 
-            setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
         } catch (Exception ex) {
             logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
             Platform.runLater(() -> {
@@ -264,6 +263,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     public boolean isStatic() {
         return false;
     }
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {

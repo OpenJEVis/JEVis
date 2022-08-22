@@ -19,6 +19,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.sample.SampleEditor;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;

@@ -50,7 +50,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private double red = 0;
 
     private Interval lastInterval = null;
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
 
@@ -97,7 +97,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
-        //setCurrentInterval(interval);
 
         System.out.println(interval);
         Platform.runLater(() -> {
@@ -127,7 +126,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                 dataModel.setCustomWorkDay(customWorkday);
-                setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
                 List<JEVisSample> results;
 
                 results = dataModel.getSamples();
@@ -143,8 +141,11 @@ public class ShapeWidget extends Widget implements DataModelWidget {
             }
         });
 
-
-        updateShape();
+        try {
+            updateShape();
+        } catch (Exception e) {
+            logger.error(e);
+        }
 
 
     }
@@ -169,9 +170,9 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         double diffGreen = Math.abs(shapeConfig.getMaxColor().getGreen() - shapeConfig.getMinColor().getGreen());
 
 
-        blue = calcColor(shapeConfig.getMinColor().getBlue(), shapeConfig.getMaxColor().getBlue(), valueRange, value-shapeConfig.getMinValue(), diffBlue);
-        red = calcColor(shapeConfig.getMinColor().getRed(), shapeConfig.getMaxColor().getRed(), valueRange, value-shapeConfig.getMinValue(), diffRed);
-        green = calcColor(shapeConfig.getMinColor().getGreen(), shapeConfig.getMaxColor().getGreen(), valueRange, value-shapeConfig.getMinValue(), diffGreen);
+        blue = calcColor(shapeConfig.getMinColor().getBlue(), shapeConfig.getMaxColor().getBlue(), valueRange, value - shapeConfig.getMinValue(), diffBlue);
+        red = calcColor(shapeConfig.getMinColor().getRed(), shapeConfig.getMaxColor().getRed(), valueRange, value - shapeConfig.getMinValue(), diffRed);
+        green = calcColor(shapeConfig.getMinColor().getGreen(), shapeConfig.getMaxColor().getGreen(), valueRange, value - shapeConfig.getMinValue(), diffGreen);
     }
 
     private void setIntervallForLastValue(Interval interval) {
@@ -254,7 +255,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     }
 
 
-
     @Override
     public void updateConfig() {
         logger.debug("UpdateConfig");
@@ -286,6 +286,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     public boolean isStatic() {
         return false;
     }
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {
@@ -391,10 +392,8 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("fontawesome-free-6.1.2-desktop/svgs/solid/address-book.svg", this.previewSize.getHeight(), this.previewSize.getWidth());
+        return JEConfig.getImage("widget/shapes.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
-
-
 
 
     public DoubleProperty getDisplayedSampleProperty() {

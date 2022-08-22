@@ -60,7 +60,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(LinearGaugeWidget.class);
     public static String WIDGET_ID = "LinearGauge";
     private final eu.hansolo.medusa.Gauge gauge;
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
 
@@ -101,7 +101,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
-        //setCurrentInterval(interval);
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -125,7 +124,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                 dataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
-                setCurrentInterval(new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd()));
 
                 String unit = dataModel.getUnitLabel();
                 displayedUnit.setValue(unit);
@@ -147,6 +145,8 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
             }
         });
+
+
     }
 
     private void setIntervallForLastValue(Interval interval) {
