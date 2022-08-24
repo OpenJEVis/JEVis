@@ -40,6 +40,8 @@ public class JsonChartSetting {
     private String groupingInterval;
     private String minFractionDigits;
     private String maxFractionDigits;
+
+    private String filterEnabled;
     private JsonChartTimeFrame analysisTimeFrame;
 
     public JsonChartSetting() {
@@ -124,6 +126,15 @@ public class JsonChartSetting {
 
     public void setMaxFractionDigits(String maxFractionDigits) {
         this.maxFractionDigits = maxFractionDigits;
+    }
+
+    @XmlElement(name = "filterEnabled")
+    public String getFilterEnabled() {
+        return filterEnabled;
+    }
+
+    public void setFilterEnabled(String filterEnabled) {
+        this.filterEnabled = filterEnabled;
     }
 
     @XmlElement(name = "analysisTimeFrame")
