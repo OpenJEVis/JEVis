@@ -812,7 +812,6 @@ public class DashboardControl {
 
     public void addWidget(Widget widget) {
         try {
-            System.out.println("---- Control.addWidget");
             widget.init();
             widget.updateConfig(widget.getConfig());
             if (widget instanceof DataModelWidget) {

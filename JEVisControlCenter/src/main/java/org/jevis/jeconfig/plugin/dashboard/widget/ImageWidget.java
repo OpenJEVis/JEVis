@@ -152,6 +152,7 @@ public class ImageWidget extends Widget {
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
+                updateConfig();
 
             } catch (Exception ex) {
                 logger.error(ex);

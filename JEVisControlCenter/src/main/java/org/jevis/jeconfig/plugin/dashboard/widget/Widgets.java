@@ -7,9 +7,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Widgets {
@@ -30,6 +28,10 @@ public class Widgets {
             //put(SankeyWidget.WIDGET_ID, new WidgetSelection(TitleWidget.class.getName(), TitleWidget.WIDGET_ID, TitleWidget.ICON));
             put(ImageWidget.WIDGET_ID, new WidgetSelection(ImageWidget.class.getName(), ImageWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.image"), TitleWidget.ICON));
             put(GaugeWidget.WIDGET_ID, new WidgetSelection(GaugeWidget.class.getName(), GaugeWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.gauge"), TitleWidget.ICON));
+            put(LinearGaugeWidget.WIDGET_ID, new WidgetSelection(LinearGaugeWidget.class.getName(), LinearGaugeWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.lineargauge"), TitleWidget.ICON));
+
+            put(ShapeWidget.WIDGET_ID, new WidgetSelection(ShapeWidget.class.getName(), ShapeWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.shape"), TitleWidget.ICON));
+
         }
     };
     private static EmptyValueWidget emptyValueWidget = null;
@@ -39,37 +41,6 @@ public class Widgets {
         image.fitHeightProperty().set(height);
         image.fitWidthProperty().set(width);
         return image;
-    }
-
-    public static ImageView getIconForClass(String classname) {
-        ;
-        return null;
-    }
-
-    public static List<Widget> getAvailableWidgets(DashboardControl control) {
-        System.out.println("---- Widgets.getAvailibaleWidgets");
-        List<Widget> widgetList = new ArrayList<>();
-
-        int i = -1;
-        //widgetList.add(new TitleWidget(control));
-
-        /*
-        widgetList.add(new PieWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new TitleWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new ChartWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new ValueWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new ValueEditWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new TableWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new LinkerWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new DashboadLinkWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new ArrowWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new ImageWidget(control, new WidgetPojo(i--)));
-        widgetList.add(new GaugeWidget(control, new WidgetPojo(i--)));
-*/
-        //        widgetList.add(new WebPieWidget(control, new WidgetPojo(i--)));
-        //widgetList.add(new SankeyWidget(control, config));
-
-        return widgetList;
     }
 
     public static Widget createWidget(String widgetType, DashboardControl control, WidgetPojo config) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -93,12 +64,5 @@ public class Widgets {
         return emptyValueWidget;
     }
 
-    public static String getDisplayName(String widgetType) {
-        try {
-            return availableWidgets.get(widgetType).getDisplayname();
-        } catch (Exception e) {
-            return "";
-        }
-    }
 
 }

@@ -124,7 +124,7 @@ public class TitleWidget extends Widget {
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
-
+                updateConfig();
             } catch (Exception ex) {
                 logger.error(ex);
             }

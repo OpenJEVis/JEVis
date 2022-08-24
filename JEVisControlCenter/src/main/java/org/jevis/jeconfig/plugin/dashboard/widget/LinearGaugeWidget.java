@@ -5,22 +5,26 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.jfoenix.controls.JFXTextField;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
-import eu.hansolo.medusa.Section;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.calculation.CalcInputObject;
@@ -50,32 +54,39 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class GaugeWidget extends Widget implements DataModelWidget {
+public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
-    private static final Logger logger = LogManager.getLogger(GaugeWidget.class);
-    public static String WIDGET_ID = "Gauge";
-    private eu.hansolo.medusa.Gauge gauge;
-    private DataModelDataHandler sampleHandler;
+    private static final Logger logger = LogManager.getLogger(LinearGaugeWidget.class);
+    public static String WIDGET_ID = "LinearGauge";
+    public static String PERCENT_NODE_NAME = "percent";
+    public static String GAUGE_DESIGN_NODE_NAME = "linearGaugeDesign";
+    private final eu.hansolo.medusa.Gauge gauge;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-    private GaugePojo gaugeSettings;
-    public static String GAUGE_DESIGN_NODE_NAME = "gaugeDesign";
+    private DataModelDataHandler sampleHandler;
+    private LinearGaugePojo gaugeSettings;
+    private Interval lastInterval = null;
+    private ChangeListener<Number> limitListener = null;
+    private ChangeListener<Number> percentListener = null;
+    private LinearGaugeWidget limitWidget = null;
+    private LinearGaugeWidget percentWidget = null;
+    private String percentText = "";
+    private Percent percent;
     private Boolean customWorkday = true;
 
-    public GaugeWidget(DashboardControl control, WidgetPojo config) {
+    public LinearGaugeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
+        gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.LINEAR).startFromZero(false).build();
     }
-
 
     @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 4, control.getActiveDashboard().xGridInterval * 4));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 6, control.getActiveDashboard().xGridInterval * 2));
         widgetPojo.setDecimals(1);
 
 
@@ -86,6 +97,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
+        lastInterval = interval;
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -98,18 +110,14 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
 
         Platform.runLater(() -> {
-
             String widgetUUID = "-1";
             AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
+            //try {
             widgetUUID = getConfig().getUuid() + "";
-
             this.sampleHandler.setAutoAggregation(true);
-
-
             setIntervallForLastValue(interval);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
-
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                 dataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
@@ -119,8 +127,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
-
-
                     total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
                     if (gaugeSettings.isInPercent()) {
                         gauge.setValue(convertToPercent(total.get(), gaugeSettings.getMaximum(), this.config.getDecimals()));
@@ -148,7 +154,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                     try {
                         interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
                         sampleHandler.durationPropertyProperty().setValue(interval1);
-                    } catch (Exception e) {
+                    } catch (JEVisException e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -164,12 +170,14 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     }
 
     private void updateText() {
-        if (gauge != null && config != null) {
+        if (this.config != null && gauge != null) {
             gauge.setTitle(this.config.getTitle());
             gauge.setTitleColor(this.config.getFontColor());
             gauge.setUnitColor(this.config.getFontColor());
             gauge.setValueColor(this.config.getFontColor());
             gauge.setDecimals(this.config.getDecimals());
+            gauge.setTickLabelColor(this.config.getFontColor());
+            gauge.setTickMarkColor(gaugeSettings.getColorBorder());
 
             if (!gaugeSettings.isShowTitle()) {
                 gauge.setTitle("");
@@ -180,8 +188,9 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             if (!gaugeSettings.isShowValue()) {
                 gauge.setValueColor(Color.valueOf("#ffffff00"));
             }
-
         }
+
+
     }
 
 
@@ -249,22 +258,30 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateConfig() {
-        try {
-            logger.debug("UpdateConfig");
-            Platform.runLater(() -> {
-                updateText();
+        logger.debug("UpdateConfig");
+        Platform.runLater(() -> {
+            try {
+                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 updateSkin();
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                updateText();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
+        });
 
     }
 
     private void updateSkin() {
         if (gauge != null) {
             if (gaugeSettings != null) {
+                System.out.println("update Skin");
+
+                gauge.setBarColor(gaugeSettings.getColorValueIndicator());
+                gauge.setMajorTickMarksVisible(gaugeSettings.isShowMajorTick());
+                gauge.setMediumTickMarksVisible(gaugeSettings.isShowMediumTick());
+                gauge.setMinorTickMarksVisible(gaugeSettings.isShowMinorTick());
+
 
                 if (gaugeSettings.isInPercent()) {
                     gauge.setMinValue(0);
@@ -275,12 +292,13 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                     gauge.setMaxValue(gaugeSettings.getMaximum());
                     gauge.setUnit(displayedUnit.getValue());
                 }
-                List<Section> sections = gaugeSettings.getSections().stream().map(gaugeSection -> new Section(gaugeSection.getStart(), gaugeSection.getEnd(), gaugeSection.getColor())).collect(Collectors.toList());
-                gauge.setSections(sections);
+                System.out.println((gauge.getMaxValue() - gauge.getMinValue()) / 10);
+                gauge.setMajorTickSpace((gauge.getMaxValue() - gauge.getMinValue()) / 10);
             } else {
                 init();
             }
         }
+
     }
 
     @Override
@@ -300,18 +318,16 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        gauge = GaugeBuilder.create().animated(false).skinType(Gauge.SkinType.SIMPLE_SECTION).startFromZero(false).build();
-        gauge.setPrefWidth(25);
-        gauge.setPrefHeight(25);
+
+        logger.debug("init Value Widget: " + getConfig().getUuid());
 
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
         this.sampleHandler.setMultiSelect(false);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
         try {
-            this.gaugeSettings = new GaugePojo(this.control, this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
+            this.gaugeSettings = new LinearGaugePojo(this.control, this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
             if (sampleHandler.getDataModel().size() > 0) {
                 if (sampleHandler.getDataModel().get(0) != null) {
                     displayedUnit.setValue(sampleHandler.getDataModel().get(0).getUnitLabel());
@@ -323,15 +339,12 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         }
         if (gaugeSettings == null) {
             logger.error("Gauge Setting is null make new: " + config.getUuid());
-            this.gaugeSettings = new GaugePojo(this.control);
+            this.gaugeSettings = new LinearGaugePojo(this.control);
         }
 
 
-        Platform.runLater(() -> {
-            this.gauge.setPadding(new Insets(0, 8, 0, 8));
-            setGraphic(this.gauge);
-        });
-
+        this.gauge.setPadding(new Insets(0, 8, 0, 8));
+        setGraphic(this.gauge);
 
         setOnMouseClicked(event -> {
             if (!control.editableProperty.get() && event.getButton().equals(MouseButton.PRIMARY)
@@ -342,7 +355,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 GridPane gp = new GridPane();
                 gp.setHgap(4);
                 gp.setVgap(8);
-
                 for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
                     if (chartDataRow.getEnPI()) {
                         try {
@@ -401,8 +413,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                     && event.getClickCount() == 1 && event.isShiftDown()) {
                 debug();
             }
-        });
 
+        });
 
     }
 
@@ -425,18 +437,13 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                     .set(GAUGE_DESIGN_NODE_NAME, gaugeSettings.toJSON());
         }
 
-//        if (percent != null) {
-//            dashBoardNode
-//                    .set(PERCENT_NODE_NAME, percent.toJSON());
-//        }
-
 
         return dashBoardNode;
     }
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/ValueWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+        return JEConfig.getImage("widget/LinearGaugeWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
 

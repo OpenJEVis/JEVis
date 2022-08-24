@@ -31,6 +31,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
             return "";
         }
 
+
         @Override
         public Interval nextPeriod(Interval interval, int addAmount) {
             return interval;

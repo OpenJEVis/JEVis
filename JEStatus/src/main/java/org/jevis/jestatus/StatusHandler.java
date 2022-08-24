@@ -38,64 +38,31 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * This Class handles the logic and the sending of the alarms.
+ * This Class handles the logic and the sending of the status.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class AlarmHandler {
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(AlarmHandler.class);
-
-    private Long latestReported;
+public class StatusHandler {
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(StatusHandler.class);
     private final DateTime now;
-
+    private Long latestReported;
     private JEVisDataSource _ds;
     private Config _conf;
     private JEVisObject notificationObject;
 
     /**
-     * Create an AlarmHandler for the given Configuration
+     * Create an StatusHandler for the given Configuration
      *
      * @param latestReported
      */
-    public AlarmHandler(JEVisDataSource ds, Long latestReported) {
+    public StatusHandler(JEVisDataSource ds, Long latestReported) {
         _ds = ds;
         this.latestReported = latestReported;
         this.now = DateTime.now();
     }
 
-    public AlarmHandler() {
+    public StatusHandler() {
         this.now = DateTime.now();
-    }
-
-    /**
-     * Get an List of all datapoints configured in this alrms. If the parameter
-     * "<datapoint>" is emty or missing it will return all "Data" Objects
-     *
-     * @param alarm
-     * @return
-     * @throws JEVisException
-     */
-    private List<JEVisObject> getDataPoints(Alarm alarm) throws JEVisException {
-        List<JEVisObject> dps = new ArrayList<>();
-
-        if (alarm.getDatapoint() != null && alarm.getDatapoint().length > 0) {
-            for (String dp : alarm.getDatapoint()) {
-                try {
-                    JEVisObject obj = _ds.getObject(Long.parseLong(dp));
-                    if (obj != null && obj.getJEVisClass().getName().equals("Data")) {
-                        logger.info("Add dP: {}", obj.getName());
-                        dps.add(obj);
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        } else {
-            dps.addAll(_ds.getObjects(_ds.getJEVisClass("Data"), false));
-
-        }
-
-        return dps;
     }
 
     /**
@@ -104,7 +71,7 @@ public class AlarmHandler {
      * @param
      * @throws JEVisException
      */
-    public void checkAlarm() throws JEVisException {
+    public void checkStatus() throws JEVisException {
 
         StringBuilder sb = new StringBuilder();
 
@@ -135,6 +102,14 @@ public class AlarmHandler {
             sb.append(dataServerTable.getTableString());
         } catch (Exception e) {
             logger.error("Could not generate data server table", e);
+        }
+
+        ReportTable reportTable = null;
+        try {
+            reportTable = new ReportTable(_ds, getLatestReported());
+            sb.append(reportTable.getTableString());
+        } catch (Exception e) {
+            logger.error("Could not generate report table", e);
         }
 
         CalculationTable calculationTable = null;
@@ -317,36 +292,7 @@ public class AlarmHandler {
     }
 
     /**
-     * Returns the name of parent Object from the given JEVisClass. If the
-     * Parent does not exist the name will be emty
-     * <p>
-     * TODO: make an check for an endless loop
-     *
-     * @param obj
-     * @param jclass
-     * @return
-     */
-    private String getParentName(JEVisObject obj, JEVisClass jclass) {
-        StringBuilder name = new StringBuilder();
-        try {
-
-            for (JEVisObject parent : obj.getParents()) {
-//                if (parent.getJEVisClass().equals(jclass)) {
-                if (isJEVisClassOrInherit(parent, jclass)) {
-                    name.append(parent.getName());
-                } else {
-                    name.append(getParentName(parent, jclass));
-                }
-            }
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
-
-        return name.toString();
-    }
-
-    /**
-     * Send the Alarm mail
+     * Send the Status mail
      *
      * @param conf
      * @param body

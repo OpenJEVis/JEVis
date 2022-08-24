@@ -90,7 +90,7 @@ public class AlarmProcess {
                 CleanDataObject cleanDataObject = new CleanDataObject(obj);
                 boolean alarmEnabled = false;
                 JEVisAttribute alarmEnabledAttribute = cleanDataObject.getAlarmEnabledAttribute();
-                if (alarmEnabledAttribute != null) {
+                if (alarmEnabledAttribute != null && alarmEnabledAttribute.hasSample()) {
                     JEVisSample latestSample = alarmEnabledAttribute.getLatestSample();
                     if (latestSample != null) {
                         try {
@@ -101,7 +101,8 @@ public class AlarmProcess {
                             logger.error("Error while getting alarm enabled attribute sample", e);
                         }
                     }
-                }
+                } else continue;
+
                 DateTime lastTS = cleanDataObject.getFirstDate();
                 if (alarmEnabled && !lastTS.isAfter(end)) {
                     hasData = false;

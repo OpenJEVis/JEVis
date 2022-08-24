@@ -32,8 +32,10 @@ public class NewWidgetSelector extends GridPane {
 
         this.control = dashboardControl;
 
+        System.out.println("W-Size: " + Widgets.availableWidgets.values());
         //Collection<WidgetSelection> widgetName = Widgets.availableWidgets.values();
         Collection<WidgetSelection> widgets = Widgets.availableWidgets.values().stream().sorted((o1, o2) -> o1.getDisplayname().compareTo(o2.getDisplayname())).collect(Collectors.toList());
+        System.out.println("W-Size: " + widgets.size());
         widgetComboBox.getItems().addAll(widgets);
 
         Callback<ListView<WidgetSelection>, ListCell<WidgetSelection>> cellFactory = buildCellFactory();
