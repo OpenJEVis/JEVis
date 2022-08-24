@@ -34,7 +34,7 @@ public class NewWidgetSelector extends GridPane {
         widgetComboBox.getSelectionModel().selectFirst();
 
         Label labelType = new Label(I18n.getInstance().getString("plugin.dashboard.toolbar.new.type"));
-        ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_ICON, 18, 18));
+        ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, 18, 18));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
 
 

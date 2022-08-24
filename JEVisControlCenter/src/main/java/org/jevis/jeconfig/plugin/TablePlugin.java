@@ -37,6 +37,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.utils.FileNames;
 import org.jevis.commons.utils.JEVisDates;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
@@ -78,8 +79,8 @@ public class TablePlugin implements Plugin {
     protected final int toolBarIconSize = 20;
     protected final int tableIconSize = 18;
     protected final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-    protected final ToggleButton reduceFractionDigitsButton = new ToggleButton("", JEConfig.getImage("9069778_reduce_decimal_places_icon.png", toolBarIconSize, toolBarIconSize));
-    protected final ToggleButton increaseFractionDigitsButton = new ToggleButton("", JEConfig.getImage("9069778_increase_decimal_places_icon.png", toolBarIconSize, toolBarIconSize));
+    protected final ToggleButton reduceFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.LESS_DIGITS, toolBarIconSize, toolBarIconSize,"svg",90));
+    protected final ToggleButton increaseFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.MORE_DIGITS, toolBarIconSize, toolBarIconSize,"svg",90));
 
     static {
         try {

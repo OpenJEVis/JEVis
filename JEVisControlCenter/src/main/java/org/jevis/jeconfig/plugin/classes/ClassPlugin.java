@@ -35,10 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.GlobalToolBar;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.*;
 
 /**
  * The Classplugin is an GUI component which allows the user to configure the
@@ -172,33 +169,33 @@ public class ClassPlugin implements Plugin {
             toolBar.setId("ObjectPlugin.Toolbar");
 
             double iconSize = 20;
-            ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
+            ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, newB, Constants.Plugin.Command.NEW);
 
-            ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+            ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, save, Constants.Plugin.Command.SAVE);
 
-            ToggleButton delete = new ToggleButton("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
+            ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, delete, Constants.Plugin.Command.DELETE);
 
             Separator sep1 = new Separator();
 
-            ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+            ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, reload, Constants.Plugin.Command.RELOAD);
 
-            ToggleButton addTable = new ToggleButton("", JEConfig.getImage("add_table.png", iconSize, iconSize));
+            ToggleButton addTable = new ToggleButton("", JEConfig.getSVGImage(Icon.TABLE_PLUS, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(addTable);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, addTable, Constants.Plugin.Command.ADD_TABLE);
 
-            ToggleButton editTable = new ToggleButton("", JEConfig.getImage("edit_table.png", iconSize, iconSize));
+            ToggleButton editTable = new ToggleButton("", JEConfig.getSVGImage(Icon.EDIT, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(editTable);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, editTable, Constants.Plugin.Command.EDIT_TABLE);
 
-            ToggleButton createWizard = new ToggleButton("", JEConfig.getImage("create_wizard.png", iconSize, iconSize));
+            ToggleButton createWizard = new ToggleButton("", JEConfig.getSVGImage(Icon.WIZARD_WAND, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(createWizard);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, createWizard, Constants.Plugin.Command.CREATE_WIZARD);
 

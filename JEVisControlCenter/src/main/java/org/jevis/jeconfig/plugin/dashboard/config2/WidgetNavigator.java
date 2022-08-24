@@ -37,9 +37,9 @@ import org.jevis.jeconfig.tool.ScreenSize;
 
 public class WidgetNavigator {
     private final double iconSize = 16;
-    final Region lockIcon = JEConfig.getSVGImage(Icon.EYE_ICON, this.iconSize, this.iconSize);
-    final Region unlockIcon = JEConfig.getSVGImage(Icon.EYE_SLASH_ICON, this.iconSize, this.iconSize);
-    final Region copyWidget = JEConfig.getSVGImage(Icon.COPY_ICON, this.iconSize, this.iconSize);
+    final Region lockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_ON, this.iconSize, this.iconSize);
+    final Region unlockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_OFF, this.iconSize, this.iconSize);
+    final Region copyWidget = JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize);
 
 
     private final DashboardControl control;
@@ -132,8 +132,8 @@ public class WidgetNavigator {
         timeFactoryBox.selectValue(control.getActiveDashboard().getTimeFrame());
         //timeFactoryBox.selectValue(control.getActiveTimeFrame());
 
-        JFXButton backgroundButton = new JFXButton("", JEConfig.getSVGImage(Icon.FILE_IMG_ICON, this.iconSize, this.iconSize));
-        JFXButton removeBGIcon = new JFXButton("", JEConfig.getSVGImage(Icon.TRASH_ICON, this.iconSize, this.iconSize));
+        JFXButton backgroundButton = new JFXButton("", JEConfig.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
+        JFXButton removeBGIcon = new JFXButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
         ColorPickerAdv pickerAdv = new ColorPickerAdv();
         pickerAdv.setValue(control.getActiveDashboard().getBackgroundColor());
         pickerAdv.setMinHeight(backgroundButton.getHeight());
@@ -292,7 +292,7 @@ public class WidgetNavigator {
         });
         highlightButton.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
 
-        ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.TRASH_ICON, this.iconSize, this.iconSize));
+        ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
         delete.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.delete")));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         delete.setOnAction(event -> {

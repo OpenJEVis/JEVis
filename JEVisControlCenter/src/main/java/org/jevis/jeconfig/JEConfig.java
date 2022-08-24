@@ -323,24 +323,40 @@ public class JEConfig extends Application {
     }
 
 
+    public static Region getSVGImage(String path, double height, double width,String css) {
+
+        return getSVGImage(path, height, width, css, 0);
+
+    }
     public static Region getSVGImage(String path, double height, double width) {
+
+        return getSVGImage(path, height, width, Icon.CSS_TOOLBAR, 0);
+
+    }
+
+    public static Region getSVGImage(String path, double height, double width,double rotate) {
+
+        return getSVGImage(path, height, width, Icon.CSS_TOOLBAR, rotate);
+
+    }
+
+    public static Region getSVGImage(String path, double height, double width, String css, double rotate) {
         try {
             Region region = new Region();
+            region.setRotate(rotate);
 
             region.setPrefSize(width, height);
-            SVGPath svgPath = getSvgPath(path);
+            SVGPath svgPath = getSvgPath(path, height, width);
             region.setShape(svgPath);
-            region.getStyleClass().add("svg");
+            region.getStyleClass().add(css);
             return region;
         } catch (Exception e) {
             return null;
         }
-
-
     }
 
     @NotNull
-    private static SVGPath getSvgPath(String path) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    private static SVGPath getSvgPath(String path, double height, double width) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(JEConfig.class.getResourceAsStream(path));
@@ -350,10 +366,9 @@ public class JEConfig extends Application {
         XPathExpression expression = xpath.compile(xpathExpression);
         NodeList svgPaths = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
 
-        System.out.println(svgPaths.item(0).getNodeValue());
         SVGPath svgPath = new SVGPath();
-        svgPath.setScaleX(50);
-        svgPath.setScaleY(50);
+        svgPath.setScaleX(width);
+        svgPath.setScaleY(height);
         svgPath.setContent(svgPaths.item(0).getNodeValue());
         svgPath.setFill(Color.BLACK);
         return svgPath;
