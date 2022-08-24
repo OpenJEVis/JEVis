@@ -54,14 +54,11 @@ public class SankeyWidget extends Widget implements DataModelWidget {
         setId(WIDGET_ID);
     }
 
-    public SankeyWidget(DashboardControl control) {
-        super(control);
-    }
-
     @Override
     public void debug() {
-        sampleHandler.debug();
+
     }
+
 
     @Override
     public WidgetPojo createDefaultConfig() {

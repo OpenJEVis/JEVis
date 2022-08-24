@@ -59,22 +59,19 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(LinearGaugeWidget.class);
     public static String WIDGET_ID = "LinearGauge";
+    public static String PERCENT_NODE_NAME = "percent";
+    public static String GAUGE_DESIGN_NODE_NAME = "linearGaugeDesign";
     private final eu.hansolo.medusa.Gauge gauge;
-    private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-
+    private DataModelDataHandler sampleHandler;
     private LinearGaugePojo gaugeSettings;
-    public static String PERCENT_NODE_NAME = "percent";
     private Interval lastInterval = null;
     private ChangeListener<Number> limitListener = null;
     private ChangeListener<Number> percentListener = null;
     private LinearGaugeWidget limitWidget = null;
     private LinearGaugeWidget percentWidget = null;
     private String percentText = "";
-
-
-    public static String GAUGE_DESIGN_NODE_NAME = "linearGaugeDesign";
     private Percent percent;
     private Boolean customWorkday = true;
 
@@ -236,7 +233,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            logger.debug("OK Pressed {}",this);
+            logger.debug("OK Pressed {}", this);
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
@@ -295,8 +292,8 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                     gauge.setMaxValue(gaugeSettings.getMaximum());
                     gauge.setUnit(displayedUnit.getValue());
                 }
-                System.out.println((gauge.getMaxValue()-gauge.getMinValue())/10);
-                gauge.setMajorTickSpace((gauge.getMaxValue()-gauge.getMinValue())/10);
+                System.out.println((gauge.getMaxValue() - gauge.getMinValue()) / 10);
+                gauge.setMajorTickSpace((gauge.getMaxValue() - gauge.getMinValue()) / 10);
             } else {
                 init();
             }

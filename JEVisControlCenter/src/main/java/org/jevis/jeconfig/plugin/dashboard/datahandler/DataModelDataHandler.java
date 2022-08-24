@@ -95,7 +95,6 @@ public class DataModelDataHandler {
     }
 
     public static Double getManipulatedData(DataModelNode dataModelNode, List<JEVisSample> samples, ChartDataRow dataModel) {
-        System.out.println(samples.get(samples.size() - 1));
         Double value = 0d;
         if (samples.size() == 1) {
             try {

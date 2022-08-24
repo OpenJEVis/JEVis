@@ -52,9 +52,6 @@ public class WebPieWidget extends Widget {
         super(control, config);
     }
 
-    public WebPieWidget(DashboardControl control) {
-        super(control);
-    }
 
     @Override
     public void debug() {

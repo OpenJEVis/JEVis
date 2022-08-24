@@ -39,37 +39,25 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ShapeWidget.class);
     public static String WIDGET_ID = "Shape";
-    private AnchorPane anchorPane = new AnchorPane();
-
-    private ShapePojo shapeConfig;
-
     public static String SHAPE_NODE_NAME = "shape";
-
-    private double blue = 1;
-    private double green = 0;
-    private double red = 0;
-
-    private Interval lastInterval = null;
-    private DataModelDataHandler sampleHandler;
+    public static String PERCENT_NODE_NAME = "percent";
+    public static String SHAPE_DESIGN_NODE_NAME = "shapeDesign";
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-
-    public static String PERCENT_NODE_NAME = "percent";
     private final ChangeListener<Number> limitListener = null;
     private final ChangeListener<Number> percentListener = null;
     private final ShapeWidget limitWidget = null;
     private final ShapeWidget percentWidget = null;
     private final String percentText = "";
-
-
-    public static String SHAPE_DESIGN_NODE_NAME = "shapeDesign";
+    private AnchorPane anchorPane = new AnchorPane();
+    private ShapePojo shapeConfig;
+    private double blue = 1;
+    private double green = 0;
+    private double red = 0;
+    private Interval lastInterval = null;
+    private DataModelDataHandler sampleHandler;
     private Boolean customWorkday = true;
 
-
-    public enum SHAPE {
-        ELLIPSE,
-        RECTANGLE,
-    }
 
     public ShapeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -90,7 +78,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         return widgetPojo;
 
     }
-
 
     @Override
     public void updateData(Interval interval) {
@@ -167,9 +154,9 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         double diffGreen = Math.abs(shapeConfig.getMaxColor().getGreen() - shapeConfig.getMinColor().getGreen());
 
 
-        blue = calcColor(shapeConfig.getMinColor().getBlue(), shapeConfig.getMaxColor().getBlue(), valueRange, value-shapeConfig.getMinValue(), diffBlue);
-        red = calcColor(shapeConfig.getMinColor().getRed(), shapeConfig.getMaxColor().getRed(), valueRange, value-shapeConfig.getMinValue(), diffRed);
-        green = calcColor(shapeConfig.getMinColor().getGreen(), shapeConfig.getMaxColor().getGreen(), valueRange, value-shapeConfig.getMinValue(), diffGreen);
+        blue = calcColor(shapeConfig.getMinColor().getBlue(), shapeConfig.getMaxColor().getBlue(), valueRange, value - shapeConfig.getMinValue(), diffBlue);
+        red = calcColor(shapeConfig.getMinColor().getRed(), shapeConfig.getMaxColor().getRed(), valueRange, value - shapeConfig.getMinValue(), diffRed);
+        green = calcColor(shapeConfig.getMinColor().getGreen(), shapeConfig.getMaxColor().getGreen(), valueRange, value - shapeConfig.getMinValue(), diffGreen);
     }
 
     private void setIntervallForLastValue(Interval interval) {
@@ -200,7 +187,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private void updateText() {
 
     }
-
 
     @Override
     public DataModelDataHandler getDataHandler() {
@@ -251,8 +237,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         }
     }
 
-
-
     @Override
     public void updateConfig() {
         logger.debug("UpdateConfig");
@@ -279,7 +263,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     }
 
-
     @Override
     public boolean isStatic() {
         return false;
@@ -293,7 +276,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
             return new ArrayList<>();
         }
     }
-
 
     @Override
     public void init() {
@@ -363,7 +345,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     }
 
-
     @Override
     public String typeID() {
         return WIDGET_ID;
@@ -392,11 +373,14 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         return JEConfig.getImage("fontawesome-free-6.1.2-desktop/svgs/solid/address-book.svg", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
-
-
-
     public DoubleProperty getDisplayedSampleProperty() {
         return displayedSample;
+    }
+
+
+    public enum SHAPE {
+        ELLIPSE,
+        RECTANGLE,
     }
 
 

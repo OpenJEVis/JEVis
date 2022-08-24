@@ -13,19 +13,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisType;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigTab;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 
 import java.time.Period;
 

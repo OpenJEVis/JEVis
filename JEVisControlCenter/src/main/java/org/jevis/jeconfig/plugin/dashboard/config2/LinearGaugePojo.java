@@ -8,13 +8,9 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,37 +22,20 @@ public class LinearGaugePojo {
 
 
     private static final Logger logger = LogManager.getLogger(LinearGaugePojo.class);
-
-    int gaugeWidgetID = -1;
-
-    private double maximum = 0;
-
-    private double minimum = 0;
-
-    private boolean inPercent = false;
-
-    private Color colorValueIndicator = Color.DARKBLUE;
-
-    private Color colorBorder = Color.BLACK;
-
-
     final DashboardControl dashboardControl;
-
-    private boolean showTitle = true;
-
-    private boolean showUnit = true;
-
-    private boolean showValue = true;
-
-    private boolean showMajorTick = true;
-
-    private boolean showMediumTick = true;
-
-    private boolean showMinorTick = true;
-
-
+    int gaugeWidgetID = -1;
     ObservableList<String> skins = FXCollections.observableArrayList();
-
+    private double maximum = 0;
+    private double minimum = 0;
+    private boolean inPercent = false;
+    private Color colorValueIndicator = Color.DARKBLUE;
+    private Color colorBorder = Color.BLACK;
+    private boolean showTitle = true;
+    private boolean showUnit = true;
+    private boolean showValue = true;
+    private boolean showMajorTick = true;
+    private boolean showMediumTick = true;
+    private boolean showMinorTick = true;
     private JFXCheckBox jfxCheckBoxShowTitle;
 
     private JFXCheckBox jfxCheckBoxShowValue;
@@ -80,29 +59,8 @@ public class LinearGaugePojo {
     private ColorPickerAdv colorPickerAdvValueIndicator;
 
 
-    public Double getMaximum() {
-        return maximum;
-    }
-
-    public void setMaximum(Double maximum) {
-        this.maximum = maximum;
-    }
-
-    public Double getMinimum() {
-        return minimum;
-    }
-
-    public void setMinimum(Double minimum) {
-        this.minimum = minimum;
-    }
-
-
     public LinearGaugePojo(DashboardControl control) {
         this(control, null);
-    }
-
-    public int getLimitWidgetID() {
-        return gaugeWidgetID;
     }
 
     public LinearGaugePojo(DashboardControl control, JsonNode jsonNode) {
@@ -131,6 +89,33 @@ public class LinearGaugePojo {
 
     }
 
+    public Double getMaximum() {
+        return maximum;
+    }
+
+    public void setMaximum(Double maximum) {
+        this.maximum = maximum;
+    }
+
+    public void setMaximum(double maximum) {
+        this.maximum = maximum;
+    }
+
+    public Double getMinimum() {
+        return minimum;
+    }
+
+    public void setMinimum(Double minimum) {
+        this.minimum = minimum;
+    }
+
+    public void setMinimum(double minimum) {
+        this.minimum = minimum;
+    }
+
+    public int getLimitWidgetID() {
+        return gaugeWidgetID;
+    }
 
     public boolean isInPercent() {
         return inPercent;
@@ -162,14 +147,6 @@ public class LinearGaugePojo {
 
     public void setShowValue(boolean showValue) {
         this.showValue = showValue;
-    }
-
-    public void setMaximum(double maximum) {
-        this.maximum = maximum;
-    }
-
-    public void setMinimum(double minimum) {
-        this.minimum = minimum;
     }
 
     public Color getColorValueIndicator() {
@@ -226,40 +203,6 @@ public class LinearGaugePojo {
 
     public void setColorBorder(Color colorBorder) {
         this.colorBorder = colorBorder;
-    }
-
-
-    private class GaugeDesignTab extends Tab implements ConfigTab {
-        LinearGaugePojo gaugeDesign;
-
-        public GaugeDesignTab(String text, LinearGaugePojo gaugeDesign) {
-            super(text);
-            this.gaugeDesign = gaugeDesign;
-        }
-
-        @Override
-        public void commitChanges() {
-
-            try {
-                showTitle = jfxCheckBoxShowTitle.isSelected();
-                showUnit = jfxCheckBoxShowUnit.isSelected();
-                showValue = jfxCheckBoxShowValue.isDisable();
-
-                minimum = Double.valueOf(jfxTextFieldMinValue.getText());
-                maximum = Double.valueOf(jfxTextFieldMaxValue.getText());
-
-                showMajorTick = jfxCheckBoxShowMajorTick.isSelected();
-                showMediumTick = jfxCheckBoxShowMediumTick.isSelected();
-                showMinorTick = jfxCheckBoxShowMinorTick.isSelected();
-
-                colorBorder = colorPickerAdvBoarderColor.getValue();
-                colorValueIndicator = colorPickerAdvValueIndicator.getValue();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-        }
     }
 
     public Tab getConfigTab() {
@@ -335,7 +278,6 @@ public class LinearGaugePojo {
         return tab;
     }
 
-
     public int getLimitSource() {
         return gaugeWidgetID;
     }
@@ -347,7 +289,6 @@ public class LinearGaugePojo {
     public void setGaugeWidgetID(int gaugeWidgetID) {
         this.gaugeWidgetID = gaugeWidgetID;
     }
-
 
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
@@ -366,6 +307,39 @@ public class LinearGaugePojo {
         dataNode.put("colorBorder", colorBorder.toString());
         System.out.println(dataNode);
         return dataNode;
+    }
+
+    private class GaugeDesignTab extends Tab implements ConfigTab {
+        LinearGaugePojo gaugeDesign;
+
+        public GaugeDesignTab(String text, LinearGaugePojo gaugeDesign) {
+            super(text);
+            this.gaugeDesign = gaugeDesign;
+        }
+
+        @Override
+        public void commitChanges() {
+
+            try {
+                showTitle = jfxCheckBoxShowTitle.isSelected();
+                showUnit = jfxCheckBoxShowUnit.isSelected();
+                showValue = jfxCheckBoxShowValue.isDisable();
+
+                minimum = Double.valueOf(jfxTextFieldMinValue.getText());
+                maximum = Double.valueOf(jfxTextFieldMaxValue.getText());
+
+                showMajorTick = jfxCheckBoxShowMajorTick.isSelected();
+                showMediumTick = jfxCheckBoxShowMediumTick.isSelected();
+                showMinorTick = jfxCheckBoxShowMinorTick.isSelected();
+
+                colorBorder = colorPickerAdvBoarderColor.getValue();
+                colorValueIndicator = colorPickerAdvValueIndicator.getValue();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
     }
 
 }

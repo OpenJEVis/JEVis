@@ -6,29 +6,26 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.widget.ShapeWidget.*;
+import org.jevis.jeconfig.plugin.dashboard.widget.ShapeWidget.SHAPE;
 
 
 public class ShapePojo {
 
     private static final Logger logger = LogManager.getLogger(ArrowConfig.class);
     private final DashboardControl dashboardControl;
-
-    private SHAPE shape = SHAPE.RECTANGLE;
-
-    int gaugeWidgetID = -1;
     private final String JSON_SHAPE = "shape";
-
+    int gaugeWidgetID = -1;
+    private SHAPE shape = SHAPE.RECTANGLE;
     private JFXComboBox<SHAPE> jfxComboBox;
 
     private Color minColor = Color.GREEN;
@@ -124,33 +121,6 @@ public class ShapePojo {
                 '}';
     }
 
-    private class ShapeTab extends Tab implements ConfigTab {
-        ShapePojo shapePojo;
-
-        public ShapeTab(String text, ShapePojo shapePojo) {
-            super(text);
-            this.shapePojo = shapePojo;
-        }
-
-        @Override
-        public void commitChanges() {
-            try {
-                shape = jfxComboBox.getValue();
-
-                minValue = Double.parseDouble(jfxTextFieldMinValue.getText());
-                maxValue = Double.parseDouble(jfxTextFieldMaxValue.getText());
-
-                maxColor = (colorPickerAdvMax.getValue());
-                minColor = (colorPickerAdvMin.getValue());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-        }
-    }
-
     public Tab getConfigTab() {
 
         ShapeTab tab = new ShapeTab(I18n.getInstance().getString("plugin.dashboard.shape")
@@ -195,7 +165,6 @@ public class ShapePojo {
 
     }
 
-
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
         dataNode.put(JSON_SHAPE, shape.toString());
@@ -206,6 +175,33 @@ public class ShapePojo {
         dataNode.put("minValue", minValue);
 
         return dataNode;
+    }
+
+    private class ShapeTab extends Tab implements ConfigTab {
+        ShapePojo shapePojo;
+
+        public ShapeTab(String text, ShapePojo shapePojo) {
+            super(text);
+            this.shapePojo = shapePojo;
+        }
+
+        @Override
+        public void commitChanges() {
+            try {
+                shape = jfxComboBox.getValue();
+
+                minValue = Double.parseDouble(jfxTextFieldMinValue.getText());
+                maxValue = Double.parseDouble(jfxTextFieldMaxValue.getText());
+
+                maxColor = (colorPickerAdvMax.getValue());
+                minColor = (colorPickerAdvMin.getValue());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
     }
 }
 

@@ -308,7 +308,7 @@ public class ConfigManager {
 
     public Widget createWidget(DashboardControl control, WidgetPojo widget) {
         try {
-            return Widgets.createWidget(control, widget);
+            return Widgets.createWidget(widget.getType(), control, widget);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -12,7 +12,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -111,10 +114,10 @@ public class GaugePojo {
 
             maximum = jsonNode.get("maximum").asDouble();
             minimum = jsonNode.get("minimum").asDouble();
-            inPercent = jsonNode.get("inPercent").asBoolean();
-            showTitle = jsonNode.get("showTitle").asBoolean();
-            showUnit = jsonNode.get("showUnit").asBoolean();
-            showValue = jsonNode.get("showValue").asBoolean();
+            inPercent = jsonNode.get("inPercent").asBoolean(true);
+            showTitle = jsonNode.get("showTitle").asBoolean(true);
+            showUnit = jsonNode.get("showUnit").asBoolean(true);
+            showValue = jsonNode.get("showValue").asBoolean(true);
             for (int i = 0; i < jsonNode.get("sections").size(); i++) {
                 double sectionEnd = jsonNode.get("sections").get(i).get("end").asDouble();
                 double sectionStart = jsonNode.get("sections").get(i).get("start").asDouble();
@@ -181,39 +184,6 @@ public class GaugePojo {
 
     public void setShowValue(boolean showValue) {
         this.showValue = showValue;
-    }
-
-
-    private class GaugeDesignTab extends Tab implements ConfigTab {
-        GaugePojo gaugeDesign;
-
-        public GaugeDesignTab(String text, GaugePojo gaugeDesign) {
-            super(text);
-            this.gaugeDesign = gaugeDesign;
-        }
-
-        @Override
-        public void commitChanges() {
-            try {
-                showValue = jfxCheckBoxShowValue.isSelected();
-                showUnit = jfxCheckBoxShowUnit.isSelected();
-                showTitle = jfxCheckBoxShowTitle.isSelected();
-                inPercent = jfxCheckBoxInPercent.isSelected();
-                minimum = Double.parseDouble(minTextField.getText());
-                maximum = Double.parseDouble(maxTextField.getText());
-
-                tableViewSections.getItems().forEach(System.out::println);
-                sections.clear();
-                sections.addAll(tableViewSections.getItems());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-
-
-        }
     }
 
     public Tab getConfigTab() {
@@ -293,20 +263,6 @@ public class GaugePojo {
 
     }
 
-
-    public int getLimitSource() {
-        return gaugeWidgetID;
-    }
-
-    public int getGaugeWidgetID() {
-        return gaugeWidgetID;
-    }
-
-    public void setGaugeWidgetID(int gaugeWidgetID) {
-        this.gaugeWidgetID = gaugeWidgetID;
-    }
-
-
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
 
@@ -327,6 +283,49 @@ public class GaugePojo {
 
         }
         return dataNode;
+    }
+
+
+    public int getLimitSource() {
+        return gaugeWidgetID;
+    }
+
+    public int getGaugeWidgetID() {
+        return gaugeWidgetID;
+    }
+
+    public void setGaugeWidgetID(int gaugeWidgetID) {
+        this.gaugeWidgetID = gaugeWidgetID;
+    }
+
+    private class GaugeDesignTab extends Tab implements ConfigTab {
+        GaugePojo gaugeDesign;
+
+        public GaugeDesignTab(String text, GaugePojo gaugeDesign) {
+            super(text);
+            this.gaugeDesign = gaugeDesign;
+        }
+
+        @Override
+        public void commitChanges() {
+            try {
+                showValue = jfxCheckBoxShowValue.isSelected();
+                showUnit = jfxCheckBoxShowUnit.isSelected();
+                showTitle = jfxCheckBoxShowTitle.isSelected();
+                inPercent = jfxCheckBoxInPercent.isSelected();
+                minimum = Double.parseDouble(minTextField.getText());
+                maximum = Double.parseDouble(maxTextField.getText());
+
+                tableViewSections.getItems().forEach(System.out::println);
+                sections.clear();
+                sections.addAll(tableViewSections.getItems());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
     }
 
 }

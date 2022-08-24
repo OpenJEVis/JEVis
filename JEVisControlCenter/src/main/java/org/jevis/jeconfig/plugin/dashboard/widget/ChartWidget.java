@@ -68,10 +68,6 @@ public class ChartWidget extends Widget implements DataModelWidget {
         setId(WIDGET_ID);
     }
 
-    public ChartWidget(DashboardControl control) {
-        super(control);
-    }
-
     @Override
     public void debug() {
         sampleHandler.debug();
