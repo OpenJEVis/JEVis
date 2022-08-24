@@ -122,6 +122,7 @@ public class FXLogin extends AnchorPane {
     private final NotificationPane notificationPane = new NotificationPane();
     private JFXComboBox<Locale> langSelect;
     private boolean hasCredentials = false;
+    public static String checkMarkSymbol = "\uD83D\uDDF8";
 
 
     private FXLogin() {
