@@ -390,13 +390,13 @@ public class ObjectPlugin implements Plugin {
                 CleanDatas.createTask(tree);
             });
 
-            ToggleButton exportItem = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_UPLOAD, iconSize, iconSize));
+            ToggleButton exportItem = new ToggleButton("", JEConfig.getSVGImage(Icon.EXPORT, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportItem);
             exportItem.setOnAction(event -> {
                 JEVisTreeContextMenu.exportAction(tree);
             });
 
-            ToggleButton importItem = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_DOWNLOAD, iconSize, iconSize));
+            ToggleButton importItem = new ToggleButton("", JEConfig.getSVGImage(Icon.IMPORT, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(importItem);
             importItem.setOnAction(event -> {
                 JEVisObject jeVisObject = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();

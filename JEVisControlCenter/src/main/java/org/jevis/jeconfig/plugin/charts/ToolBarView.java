@@ -24,6 +24,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -41,6 +42,7 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
@@ -115,8 +117,8 @@ public class ToolBarView {
     }
 
     private ToggleButton addSeriesRunningMean;
-    private ImageView pauseIcon;
-    private ImageView playIcon;
+    private Region pauseIcon;
+    private Region playIcon;
     private ToggleButton showRawData;
     private ToggleButton showSum;
     private ToggleButton showL1L2;
@@ -1136,44 +1138,44 @@ public class ToolBarView {
     private void createToolbarIcons() {
         double iconSize = 20;
 
-        save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+        save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
         Tooltip saveTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.save"));
         save.setTooltip(saveTooltip);
 
-        loadNew = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        loadNew = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
         Tooltip loadNewTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.loadNew"));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadNew);
         loadNew.setTooltip(loadNewTooltip);
 
-        exportCSV = new ToggleButton("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
+        exportCSV = new ToggleButton("", JEConfig.getSVGImage(Icon.EXCEL, iconSize, iconSize));
         Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
         exportCSV.setTooltip(exportCSVTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportCSV);
 
-        exportImage = new ToggleButton("", JEConfig.getImage("export-image.png", iconSize, iconSize));
+        exportImage = new ToggleButton("", JEConfig.getSVGImage(Icon.SCREENSHOT, iconSize, iconSize));
         Tooltip exportImageTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportImage"));
         exportImage.setTooltip(exportImageTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportImage);
 
-        exportPDF = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
+        exportPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.PDF, iconSize, iconSize));
         Tooltip exportPDFTooltip = new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.exportPDF"));
         exportPDF.setTooltip(exportPDFTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPDF);
 
-        printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
+        printButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PRINT, iconSize, iconSize));
         Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
-        reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
-        pauseIcon = JEConfig.getImage("pause_32.png", iconSize, iconSize);
-        playIcon = JEConfig.getImage("play_32.png", iconSize, iconSize);
+        pauseIcon = JEConfig.getSVGImage(Icon.PAUSE, iconSize, iconSize);
+        playIcon = JEConfig.getSVGImage(Icon.PLAY, iconSize, iconSize);
 
         runUpdateButton = new ToggleButton("", playIcon);
         Tooltip runUpdateTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.runupdate"));
@@ -1191,12 +1193,12 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
+        delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
         Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
         delete.setTooltip(deleteTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
 
-        autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
+        autoResize = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, iconSize, iconSize));
         Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
         autoResize.setTooltip(autoResizeTip);
         autoResize.setSelected(model.getAutoResize());
@@ -1212,12 +1214,12 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        select = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        select = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
         Tooltip selectTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
         select.setTooltip(selectTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
 
-        showRawData = new ToggleButton("", JEConfig.getImage("raw_199316.png", iconSize, iconSize));
+        showRawData = new ToggleButton("", JEConfig.getSVGImage(Icon.RAW_ON, iconSize, iconSize));
         Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
         showRawData.setTooltip(showRawDataTooltip);
         showRawData.setSelected(model.getShowRawData());
@@ -1232,7 +1234,7 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        showSum = new ToggleButton("", JEConfig.getImage("Sum_132399.png", iconSize, iconSize));
+        showSum = new ToggleButton("", JEConfig.getSVGImage(Icon.SUM, iconSize, iconSize));
         Tooltip showSumTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
         showSum.setTooltip(showSumTooltip);
         showSum.setSelected(model.getShowSum());

@@ -212,7 +212,7 @@ public class ReportPlugin implements Plugin {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> handleRequest(Constants.Plugin.Command.RELOAD));
-        ToggleButton pdfButton = new ToggleButton("", JEConfig.getSVGImage(Icon.FILE_PDF, iconSize, iconSize));
+        ToggleButton pdfButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PDF, iconSize, iconSize));
         Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
         pdfButton.setTooltip(pdfTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(pdfButton);
