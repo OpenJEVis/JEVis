@@ -114,10 +114,10 @@ public class GaugePojo {
 
             maximum = jsonNode.get("maximum").asDouble();
             minimum = jsonNode.get("minimum").asDouble();
-            inPercent = jsonNode.get("inPercent").asBoolean();
-            showTitle = jsonNode.get("showTitle").asBoolean();
-            showUnit = jsonNode.get("showUnit").asBoolean();
-            showValue = jsonNode.get("showValue").asBoolean();
+            inPercent = jsonNode.get("inPercent").asBoolean(true);
+            showTitle = jsonNode.get("showTitle").asBoolean(true);
+            showUnit = jsonNode.get("showUnit").asBoolean(true);
+            showValue = jsonNode.get("showValue").asBoolean(true);
             for (int i = 0; i < jsonNode.get("sections").size(); i++) {
                 double sectionEnd = jsonNode.get("sections").get(i).get("end").asDouble();
                 double sectionStart = jsonNode.get("sections").get(i).get("start").asDouble();
