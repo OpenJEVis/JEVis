@@ -62,9 +62,6 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         super(control, config);
     }
 
-    public ValueEditWidget(DashboardControl control) {
-        super(control);
-    }
 
     @Override
     public WidgetPojo createDefaultConfig() {

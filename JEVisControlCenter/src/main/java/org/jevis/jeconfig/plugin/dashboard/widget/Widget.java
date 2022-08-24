@@ -71,6 +71,7 @@ public abstract class Widget extends Region {
 
     }
 
+/*
     public Widget() {
         super();
         this.config = new WidgetPojo();
@@ -78,13 +79,20 @@ public abstract class Widget extends Region {
         this.control = null;
         this.jeVisDataSource = null;
     }
+*/
 
     public Widget(DashboardControl control, WidgetPojo config) {
         super();
         logger.debug("new Widget with config");
         this.control = control;
         this.jeVisDataSource = control.getDataSource();
-        this.config = config;
+
+        if (config != null) {
+            this.config = config;
+        } else {
+            this.config = createDefaultConfig();
+        }
+
 
         initLayout();
         setCacheHint(CacheHint.QUALITY);
@@ -92,8 +100,9 @@ public abstract class Widget extends Region {
     }
 
     /**
-     * creates an new Widget with an default configuration
+     * creates a new Widget with a default configuration
      **/
+    /*
     public Widget(DashboardControl control) {
         super();
         logger.debug("new Widget without config");
@@ -101,13 +110,11 @@ public abstract class Widget extends Region {
         this.jeVisDataSource = control.getDataSource();
         this.config = createDefaultConfig();
 
-        try {
-            initLayout();
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
+        initLayout();
+        setCacheHint(CacheHint.QUALITY);
+        setCache(true);
     }
-
+*/
     public DashboardControl getControl() {
         return this.control;
     }
@@ -511,8 +518,6 @@ public abstract class Widget extends Region {
         AnchorPane.setTopAnchor(node, 0.0);
         AnchorPane.setLeftAnchor(node, 0.0);
         AnchorPane.setRightAnchor(node, 0.0);
-
-
     }
 
     /**
@@ -543,7 +548,7 @@ public abstract class Widget extends Region {
 
 
     /**
-     * Unique ID of this Widget
+     * Unique ID of this Widget for CSS
      */
     public abstract String typeID();
 
@@ -584,11 +589,17 @@ public abstract class Widget extends Region {
     @Override
     public Widget clone() {
         try {
-            Widget newWidget = this.getClass().getDeclaredConstructor(DashboardControl.class).newInstance(control);
-
+            logger.debug("Clone Widget: " + config);
             ObjectNode json = this.toNode();
             WidgetPojo newConfig = new WidgetPojo(json);
+            Widget newWidget = Widgets.createWidget(typeID(), control, newConfig);
+
+
+            //Widget newWidget = this.getClass().getDeclaredConstructor(DashboardControl.class).newInstance(control);
+            /*
+
             newWidget.updateConfig(newConfig);
+            */
             return newWidget;
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -598,6 +609,8 @@ public abstract class Widget extends Region {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         return null;

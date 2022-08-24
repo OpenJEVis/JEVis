@@ -10,16 +10,12 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,23 +54,12 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(GaugeWidget.class);
     public static String WIDGET_ID = "Gauge";
-    private final eu.hansolo.medusa.Gauge gauge = GaugeBuilder.create().animated(false).build();
+    private eu.hansolo.medusa.Gauge gauge;// = GaugeBuilder.create().animated(false).build();
     private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-
     private GaugePojo gaugeSettings;
-    public static String PERCENT_NODE_NAME = "percent";
-    private Interval lastInterval = null;
-    private final ChangeListener<Number> limitListener = null;
-    private final ChangeListener<Number> percentListener = null;
-    private final GaugeWidget limitWidget = null;
-    private final GaugeWidget percentWidget = null;
-    private final String percentText = "";
-
-
     public static String GAUGE_DESIGN_NODE_NAME = "gaugeDesign";
-    private Percent percent;
     private Boolean customWorkday = true;
 
     public GaugeWidget(DashboardControl control, WidgetPojo config) {
@@ -82,14 +67,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         setId(WIDGET_ID);
     }
 
-    public GaugeWidget(DashboardControl control) {
-        super(control);
-    }
-
-    public GaugeWidget() {
-        super();
-        setId(WIDGET_ID);
-    }
 
     @Override
     public WidgetPojo createDefaultConfig() {
@@ -107,7 +84,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
-        lastInterval = interval;
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -235,7 +211,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     @Override
     public void updateConfig() {
         Platform.runLater(() -> {
-            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
             updateText();
             updateSkin();
         });
@@ -281,9 +256,13 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-
-
         logger.debug("init Value Widget: " + getConfig().getUuid());
+
+        gauge = GaugeBuilder.create().animated(false).build();
+        gauge.setPrefWidth(25);
+        gauge.setPrefHeight(25);
+        gauge.setMinWidth(25);
+        gauge.setMinHeight(25);
 
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
@@ -301,8 +280,11 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         }
 
 
-        this.gauge.setPadding(new Insets(0, 8, 0, 8));
-        setGraphic(this.gauge);
+        Platform.runLater(() -> {
+            this.gauge.setPadding(new Insets(0, 8, 0, 8));
+            setGraphic(this.gauge);
+        });
+
 
         setOnMouseClicked(event -> {
             if (!control.editableProperty.get() && event.getButton().equals(MouseButton.PRIMARY)
@@ -374,9 +356,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             }
         });
 
-
+        System.out.println("init() done");
     }
-
 
 
     @Override
