@@ -43,6 +43,7 @@ public class LocalNameDialog {
     private String newName = "";
 
     private static Method columnToFitMethod;
+
     static {
         try {
             columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
