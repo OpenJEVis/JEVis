@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -272,7 +273,6 @@ public class DashBoardToolbar extends ToolBar {
         });
 
         unlockButton.setOnAction(event -> {
-            this.setEditable(unlockButton.isSelected());
             this.dashboardControl.setEditable(unlockButton.isSelected());
         });
 
@@ -286,7 +286,6 @@ public class DashBoardToolbar extends ToolBar {
 
         this.runUpdateButton.setOnAction(event -> {
             this.dashboardControl.switchUpdating();
-            this.setUpdateRunning(this.runUpdateButton.isSelected());
         });
 
         this.backgroundButton.setOnAction(event -> {
@@ -368,6 +367,7 @@ public class DashBoardToolbar extends ToolBar {
         exportPDF.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.exportPDF")));
         reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload")));
         customWorkDay.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday")));
+
         Region spacerForRightSide = new Region();
         HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);
 
@@ -380,11 +380,10 @@ public class DashBoardToolbar extends ToolBar {
                     , sep4, loadDialogButton, save
                     , sep5, navigator, exportPNG, exportPDF, widgetSelector, copyButton, delete
                     , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
-                    ,JEVisHelp.getInstance().buildSpacerNode(),helpButton,infoButton
             );
         });
 
-        //getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
         updateView(dashboardControl.getActiveDashboard());
@@ -401,8 +400,6 @@ public class DashBoardToolbar extends ToolBar {
     }
 
     public void setEditable(boolean editable) {
-        System.out.println("set editable ");
-        System.out.println(editable);
         Platform.runLater(() -> {
             if (editable) {
                 this.unlockButton.setGraphic(this.unlockIcon);

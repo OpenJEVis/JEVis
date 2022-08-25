@@ -257,7 +257,7 @@ public class JEVisHelp {
     }
 
     public ToggleButton buildHelpButtons(double width, double height) {
-        ToggleButton helpButton = new ToggleButton("", JEConfig.getSVGImage(Icon.HELP, height, width));
+        ToggleButton helpButton = new ToggleButton("", JEConfig.getImage("1404161580_help_blue.png", height, width));
         helpButton.setId("HelpButton");
         Tooltip tooltip = new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.help"));
         helpButton.setTooltip(tooltip);
@@ -271,7 +271,7 @@ public class JEVisHelp {
     }
 
     public ToggleButton buildInfoButtons(double width, double height) {
-        ToggleButton infoButton = new ToggleButton("", JEConfig.getSVGImage(Icon.INFO, height, width));
+        ToggleButton infoButton = new ToggleButton("", JEConfig.getImage("1404337146_info.png", height, width));
         infoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.info")));
         infoButton.setOnAction(event -> toggleInfo());
         isInfoShowing.addListener((observable, oldValue, newValue) -> {

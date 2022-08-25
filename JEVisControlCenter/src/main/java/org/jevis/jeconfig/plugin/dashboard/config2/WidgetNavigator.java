@@ -132,8 +132,8 @@ public class WidgetNavigator {
         timeFactoryBox.selectValue(control.getActiveDashboard().getTimeFrame());
         //timeFactoryBox.selectValue(control.getActiveTimeFrame());
 
-        JFXButton backgroundButton = new JFXButton("", JEConfig.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
-        JFXButton removeBGIcon = new JFXButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+        JFXButton backgroundButton = new JFXButton("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
+        JFXButton removeBGIcon = new JFXButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         ColorPickerAdv pickerAdv = new ColorPickerAdv();
         pickerAdv.setValue(control.getActiveDashboard().getBackgroundColor());
         pickerAdv.setMinHeight(backgroundButton.getHeight());

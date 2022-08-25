@@ -39,7 +39,6 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
-import javafx.scene.web.WebView;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
@@ -788,5 +787,4 @@ public class JEConfig extends Application {
     public TopMenu getMenu() {
         return menu;
     }
-
 }
