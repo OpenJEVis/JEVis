@@ -92,7 +92,7 @@ public class AccountingPlugin extends TablePlugin {
     private final AccountingTemplateHandler ath = new AccountingTemplateHandler();
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
     private final ObjectMapper mapper = new ObjectMapper();
-    private final ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, toolBarIconSize, toolBarIconSize));
     private final ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, toolBarIconSize, toolBarIconSize));
     private final ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, toolBarIconSize, toolBarIconSize));
     private final ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, toolBarIconSize, toolBarIconSize));

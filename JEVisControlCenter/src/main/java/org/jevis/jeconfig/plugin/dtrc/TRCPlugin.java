@@ -17,7 +17,6 @@ import javafx.print.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
@@ -160,7 +159,7 @@ public class TRCPlugin implements Plugin {
 
         Separator sep2 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, toolBarIconSize, toolBarIconSize));
+        ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
         newButton.setOnAction(event -> handleRequest(Constants.Plugin.Command.NEW));
 
