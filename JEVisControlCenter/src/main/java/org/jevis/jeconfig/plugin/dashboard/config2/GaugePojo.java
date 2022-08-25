@@ -112,12 +112,25 @@ public class GaugePojo {
 
         if (jsonNode != null) {
 
-            maximum = jsonNode.get("maximum").asDouble();
-            minimum = jsonNode.get("minimum").asDouble();
-            inPercent = jsonNode.get("inPercent").asBoolean(true);
-            showTitle = jsonNode.get("showTitle").asBoolean(true);
-            showUnit = jsonNode.get("showUnit").asBoolean(true);
-            showValue = jsonNode.get("showValue").asBoolean(true);
+            if (jsonNode.has("maximum")) {
+                maximum = jsonNode.get("maximum").asDouble();
+            }
+            if (jsonNode.has("minimum")) {
+                minimum = jsonNode.get("minimum").asDouble();
+            }
+            if (jsonNode.has("inPercent")) {
+                minimum = jsonNode.get("inPercent").asDouble();
+            }
+            if (jsonNode.has("showTitle")) {
+                showTitle = jsonNode.get("showTitle").asBoolean(true);
+            }
+            if (jsonNode.has("showUnit")) {
+                showUnit = jsonNode.get("showUnit").asBoolean(true);
+            }
+            if (jsonNode.has("showValue")) {
+                showValue = jsonNode.get("showValue").asBoolean(true);
+            }
+
             for (int i = 0; i < jsonNode.get("sections").size(); i++) {
                 double sectionEnd = jsonNode.get("sections").get(i).get("end").asDouble();
                 double sectionStart = jsonNode.get("sections").get(i).get("start").asDouble();
