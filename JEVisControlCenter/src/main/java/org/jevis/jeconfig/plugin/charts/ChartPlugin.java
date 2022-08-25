@@ -614,8 +614,12 @@ public class ChartPlugin implements Plugin {
                         Label titleLabel = new Label(chartSetting.getName());
                         titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");
                         titleLabel.setAlignment(Pos.CENTER);
-                        HBox hBox = new HBox(8, titleLabel, tableChart.getFilterEnabledBox());
+
+                        Region spacer = new Region();
+
+                        HBox hBox = new HBox(8, titleLabel, spacer, tableChart.getFilterEnabledBox());
                         hBox.setAlignment(Pos.CENTER);
+                        HBox.setHgrow(spacer, Priority.ALWAYS);
 
                         TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
                         tableChart.setTableHeader(tableHeaderTable);

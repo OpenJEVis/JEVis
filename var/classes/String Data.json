@@ -18,6 +18,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "String Data"
+    },
+    {
+      "name": "Period",
+      "primitiveType": 0,
+      "guiType": "Period",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "String Data"
     }
   ]
 }
