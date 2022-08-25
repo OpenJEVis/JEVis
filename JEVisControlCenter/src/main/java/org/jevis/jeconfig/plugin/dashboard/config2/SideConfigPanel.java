@@ -221,7 +221,7 @@ public class SideConfigPanel extends GridPane {
         gp.setHgap(8);
         gp.setVgap(8);
 
-        Label label = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.name") + ":");
+        Label label = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.name"));
 
         titleText.setOnAction(event -> {
             if (!isUpdating) {
@@ -231,6 +231,7 @@ public class SideConfigPanel extends GridPane {
 
         gp.add(label, 0, 0);
         gp.add(titleText, 1, 0);
+        GridPane.setHgrow(titleText, Priority.ALWAYS);
         titledPane.setContent(gp);
 
         return titledPane;
