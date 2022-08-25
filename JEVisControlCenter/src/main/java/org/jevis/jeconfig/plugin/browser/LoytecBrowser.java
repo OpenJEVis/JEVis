@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.w3c.dom.Document;
@@ -38,12 +39,12 @@ public class LoytecBrowser implements Plugin {
     private JEVisDataSource ds;
     private BorderPane contentPane = new BorderPane();
     private WebEngine webEngine;
-    private ImageView icon = new ImageView();
+    private Region icon = new Region();
     private String tooltip = I18n.getInstance().getString("pluginmanager.loytecbrowser.tooltip");
 
     public LoytecBrowser(JEVisDataSource ds) {
         this.ds = ds;
-        icon = JEConfig.getImage("if_50_2315874.png", Plugin.IconSize, Plugin.IconSize);
+        icon = JEConfig.getSVGImage(Icon.LOYTEC_BROWSER, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
         try {
 //            final String username = ds.getCurrentUser().getAccountName();
 //            final String password = JEConfig.userpassword;
@@ -238,7 +239,7 @@ public class LoytecBrowser implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
+    public Region getIcon() {
         return icon;
     }
 

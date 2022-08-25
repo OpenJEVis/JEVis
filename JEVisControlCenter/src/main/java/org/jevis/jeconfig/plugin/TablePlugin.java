@@ -13,10 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
@@ -79,8 +76,8 @@ public class TablePlugin implements Plugin {
     protected final int toolBarIconSize = 20;
     protected final int tableIconSize = 18;
     protected final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-    protected final ToggleButton reduceFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.LESS_DIGITS, toolBarIconSize, toolBarIconSize,"svg",90));
-    protected final ToggleButton increaseFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.MORE_DIGITS, toolBarIconSize, toolBarIconSize,"svg",90));
+    protected final ToggleButton reduceFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.LESS_DIGITS, toolBarIconSize, toolBarIconSize,90));
+    protected final ToggleButton increaseFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.MORE_DIGITS, toolBarIconSize, toolBarIconSize,90));
 
     static {
         try {
@@ -980,7 +977,7 @@ public class TablePlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
+    public Region getIcon() {
         return null;
     }
 

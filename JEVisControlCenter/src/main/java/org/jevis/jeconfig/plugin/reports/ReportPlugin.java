@@ -21,10 +21,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
@@ -603,7 +600,7 @@ public class ReportPlugin implements Plugin {
                                     return null;
                                 }
                             };
-                            JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadLastReport, getIcon().getImage(), true);
+                            JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadLastReport, (JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize)).getImage(), true);
 
                             for (JEVisSample pdfSample : allPDFSamples) {
                                 try {
@@ -660,15 +657,15 @@ public class ReportPlugin implements Plugin {
                     }
                 }
                 if (!hasActiveLoadTask.get()) {
-                    JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadOtherFilesInBackground, getIcon().getImage(), true);
+                    JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadOtherFilesInBackground, (JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize)).getImage(), true);
                 } else {
                     Thread.sleep(500);
-                    JEConfig.getStatusBar().addTask("Waiting", this, ReportPlugin.this.getIcon().getImage(), true);
+                    JEConfig.getStatusBar().addTask("Waiting", this, (JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize)).getImage(), true);
                 }
                 return null;
             }
         };
-        JEConfig.getStatusBar().addTask("Waiting", checkForActiveLoading, ReportPlugin.this.getIcon().getImage(), true);
+        JEConfig.getStatusBar().addTask("Waiting", checkForActiveLoading, (JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize)).getImage(), true);
     }
 
     private void setupCellFactory(ListView<JEVisObject> listView) {
@@ -728,8 +725,8 @@ public class ReportPlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.REPORT, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override

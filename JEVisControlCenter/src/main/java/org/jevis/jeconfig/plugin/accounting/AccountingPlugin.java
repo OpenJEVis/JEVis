@@ -20,7 +20,6 @@ import javafx.print.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -1150,8 +1149,8 @@ public class AccountingPlugin extends TablePlugin {
 
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("accounting.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.ACCOUNTING, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override

@@ -3,7 +3,9 @@ package org.jevis.jeconfig;
 
 public class Icon {
 
-    public static final String CSS_TOOLBAR = "svg";
+    public static final String CSS_TOOLBAR = "toolbarSVG";
+
+    public static final String CSS_PLUGIN = "pluginSVG";
     public static final String SAVE = "/icons/MaterialDesignSVG/outlined/save.svg";
     public static final String PLUS = "/icons/MaterialDesignSVG/outlined/add_circle_outline.svg";
     public static final String MINUS = "/icons/MaterialDesignSVG/outlined/remove_circle_outline.svg";
@@ -23,9 +25,9 @@ public class Icon {
     public static final String HELP = "/icons/MaterialDesignSVG/outlined/help.svg";
 
     public static final String ANGLE_RIGHT = "/icons/MaterialDesignSVG/outlined/arrow_forward_ios.svg";
-    public static final String ANGLE_LEFT = "/icons/MaterialDesignSVG/outlined/aarrow_back_ios.svg";
+    public static final String ANGLE_LEFT = "/icons/MaterialDesignSVG/outlined/arrow_back_ios.svg";
     public static final String CALENDAR = "/icons/MaterialDesignSVG/outlined/calendar_month.svg";
-    public static final String FOLDER_OPEN = "/icons/MaterialDesignSVG/outlined/folder_open_FILL0_wght400_GRAD0_opsz48.svg";
+    public static final String FOLDER_OPEN = "/icons/MaterialDesignSVG/outlined/folder_open.svg";
     public static final String SETTINGS = "/icons/MaterialDesignSVG/outlined/settings.svg";
     public static final String PDF = "/icons/MaterialDesignSVG/outlined/picture_as_pdf.svg";
     public static final String DELETE = "/icons/MaterialDesignSVG/outlined/delete.svg";
@@ -46,12 +48,12 @@ public class Icon {
 
     public static final String PRINT = "/icons/MaterialDesignSVG/outlined/print.svg";
 
-    public static final String TABLE_PLUS = "/icons/MaterialDesignSVG/outlined/format_list_bulleted_add_FILL0_wght400_GRAD0_opsz48.svg";
+    public static final String TABLE_PLUS = "/icons/MaterialDesignSVG/outlined/format_list_bulleted_add.svg";
 
     public static final String EXPORT_CSV = "/icons/MaterialDesignSVG/outlined/table_view.svg";
 
     public static final String WIZARD_WAND = "/icons/MaterialDesignSVG/outlined/auto_fix_high.svg";
-    public static final String WIZARD_HAT = "/icons/fontawesome-free-6.1.2-desktop/svgs/solid/hat-wizard.svg";
+    public static final String WIZARD_HAT = "/icons/svg/hat-wizard.svg";
     public static final String TREE = "/icons/MaterialDesignSVG/outlined/account_tree.svg";
 
 
@@ -71,7 +73,7 @@ public class Icon {
 
     public static final String ALARM = "/icons/MaterialDesignSVG/outlined/notifications.svg";
 
-    public static final String EXCEL = "/icons//MaterialDesignSVG/outlined/backup_table.svg";
+    public static final String EXCEL = "/icons/MaterialDesignSVG/outlined/backup_table.svg";
 
     public static final String ADD_CHART = "/icons/MaterialDesignSVG/outlined/addchart.svg";
 
@@ -82,14 +84,39 @@ public class Icon {
 
     public static final String SUM = "/icons/MaterialDesignSVG/outlined/functions.svg";
 
-    public static final String LIMITS = "/icons/svg/index.svg";
+    public static final String Warning = "/icons/MaterialDesignSVG/outlined/warning.svg";
 
+
+    public static final String LIMITS = "/icons/svg/index.svg";
 
 
     //nicht vorhanden
     public static final String FILE_IMPORT_ICON = "/icons/MaterialDesignSVG/outlined/save.svg";
     public static final String FILE_EXPORT_ICON = "/icons/MaterialDesignSVG/outlined/save.svg";
     public static final String ZOOM_ICON = "/icons/MaterialDesignSVG/outlined/save.svg";
+
+    public static final String ACCOUNTING = "/icons/MaterialDesignSVG/outlined/account_balance.svg";
+    public static final String ERROR = "/icons/MaterialDesignSVG/outlined/error_outline.svg";
+    public static final String DATABASE = "/icons/MaterialDesignSVG/outlined/database.svg";
+    public static final String GRAPH = "/icons/MaterialDesignSVG/outlined/monitoring.svg";
+    public static final String DASHBOARD = "/icons/MaterialDesignSVG/outlined/dashboard.svg";
+    public static final String GAUGE = "/icons/MaterialDesignSVG/outlined/speed.svg";
+
+    public static final String BUILDING = "/icons/MaterialDesignSVG/outlined/home_storage.svg";
+
+    public static final String CONFIG = "/icons/MaterialDesignSVG/outlined/settings.svg";
+
+    public static final String NOTE = "/icons/MaterialDesignSVG/outlined/sticky_note_2.svg";
+
+    public static final String REPORT = "/icons/MaterialDesignSVG/outlined/format_image_right.svg";
+
+    public static final String LOYTEC_BROWSER = "/icons/MaterialDesignSVG/outlined/article.svg";
+
+    public static final String CLASS = "/icons/MaterialDesignSVG/outlined/extension.svg";
+
+    public static final String UNIT = "/icons/MaterialDesignSVG/outlined/square_foot.svg";
+
+    public static final String MAP = "/icons/MaterialDesignSVG/outlined/map.svg";
 
 
 }

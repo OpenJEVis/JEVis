@@ -324,14 +324,6 @@ public class JEConfig extends Application {
 
     }
 
-    public static WebView getSVGALt(String path, double heigh, double with) {
-
-        WebView webView = getXX(path, heigh, with);
-        webView.getStyleClass().add(Icon.CSS_TOOLBAR);
-        return webView;
-
-    }
-
 
     public static Region getSVGImage(String path, double height, double width,String css) {
 
@@ -382,24 +374,6 @@ public class JEConfig extends Application {
         svgPath.setContent(svgPaths.item(0).getNodeValue());
         svgPath.setFill(Color.BLACK);
         return svgPath;
-    }
-
-    private static WebView getXX(String path, double height, double width) {
-        final WebView browser = new WebView();
-        try{
-            URL url = JEConfig.class.getResource(path);
-            System.out.println(url.getPath());
-            System.out.println();
-            browser.getEngine().load(url.toExternalForm());
-            //browser.getEngine().load(url.toExternalForm());
-
-            browser.setScaleX(width);
-            browser.setScaleY(height);
-            browser.getEngine().load(path);
-        }catch (Exception e){
-            logger.error(e);
-        }
-        return browser;
     }
 
 

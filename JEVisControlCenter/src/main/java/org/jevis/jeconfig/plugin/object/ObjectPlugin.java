@@ -37,10 +37,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -741,8 +738,8 @@ public class ObjectPlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("1394482640_package_settings.png", 20, 20);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.CONFIG, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     //@AITBilal - Edit a new Table!

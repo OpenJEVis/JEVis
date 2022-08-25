@@ -19,6 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Region;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import org.jevis.api.*;
@@ -785,8 +786,8 @@ public class MeterPlugin extends TablePlugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("measurement_instrument.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.GAUGE, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override

@@ -163,8 +163,11 @@
     /* do not highlight the title pane arrow on focus */
     -fx-background-color: #b8b8b8;
 }
-.svg{
+.toolbarSVG{
     -fx-background-color: #535360;
+}
+.pluginSVG{
+    -fx-background-color: #1d24a6;
 }
 .ToolBarDatePicker.jfx-date-picker {
     -jfx-default-color: #535360;
