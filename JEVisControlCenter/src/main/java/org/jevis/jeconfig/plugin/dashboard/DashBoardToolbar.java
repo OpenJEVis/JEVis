@@ -7,7 +7,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -70,11 +69,12 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_IN, this.iconSize, this.iconSize));
     private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, this.iconSize, this.iconSize));
     private final ToggleButton enlarge = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, this.iconSize, this.iconSize));
-    private final ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, 18, 18));
+    private final ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, this.iconSize, this.iconSize));
     private final ToggleButton sidebarEditor = new ToggleButton("", JEConfig.getSVGImage(Icon.TUNE, this.iconSize, this.iconSize));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
     private final ToggleButton navigator = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
     private final ToggleButton customWorkDay = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, iconSize, iconSize));
+    private final ToggleButton homeButton = new ToggleButton("", JEConfig.getSVGImage(Icon.HOME, iconSize, iconSize));
     //private final ToggleButton moveButton = new ToggleButton("", JEConfig.getImage("move.png", this.iconSize, this.iconSize));
     private final Menu newWidgetMenuItem = new Menu("New");
     private NewWidgetSelector widgetSelector;
@@ -83,10 +83,8 @@ public class DashBoardToolbar extends ToolBar {
 
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-    private final ArrayList<Object> buttonList = new ArrayList();
 
     private boolean disableEventListener = false;
-    //private ToolTipDocu toolTipDocu = new ToolTipDocu();
     private JFXComboBox<JEVisObject> listAnalysesComboBox;
 
 
@@ -193,6 +191,8 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadDialogButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(homeButton);
+
         //GlobalToolBar.changeBackgroundOnHoverUsingBinding(sidebarEditor);
         //GlobalToolBar.changeBackgroundOnHoverUsingBinding(customWorkDay);
 
@@ -334,8 +334,12 @@ public class DashBoardToolbar extends ToolBar {
         //this.dashboardControl.showSideEditorProperty.bindBidirectional(sidebarEditor.selectedProperty());
 
         sidebarEditor.setOnAction(event -> {
-            System.out.println("Set edditor show: " + sidebarEditor.isSelected());
             this.dashboardControl.showSideEditorProperty.setValue(sidebarEditor.isSelected());
+        });
+
+        homeButton.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.home")));
+        homeButton.setOnAction(event -> {
+            this.dashboardControl.loadFirstDashboard();
         });
 
 
@@ -378,7 +382,7 @@ public class DashBoardToolbar extends ToolBar {
         Platform.runLater(() -> {
             getItems().clear();
             getItems().setAll(
-                    listAnalysesComboBox
+                    listAnalysesComboBox, homeButton
                     , sep3, toolBarIntervalSelector, customWorkDay
                     , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
                     , sep4, loadDialogButton, save

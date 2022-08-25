@@ -7,7 +7,7 @@ public class Icon {
 
     public static final String CSS_PLUGIN = "pluginSVG";
     public static final String SAVE = "/icons/MaterialDesignSVG/outlined/save.svg";
-    public static final String PLUS = "/icons/MaterialDesignSVG/outlined/add_circle_outline.svg";
+    public static final String PLUS = "/icons/MaterialDesignSVG/outlined/add.svg";
     public static final String MINUS = "/icons/MaterialDesignSVG/outlined/remove_circle_outline.svg";
     public static final String REFRESH = "/icons/MaterialDesignSVG/outlined/autorenew.svg";
     public static final String COPY = "/icons/MaterialDesignSVG/outlined/content_copy_alt.svg";
@@ -120,5 +120,6 @@ public class Icon {
 
     public static final String TUNE = "/icons/MaterialDesignSVG/outlined/tune.svg";
 
+    public static final String HOME = "/icons/MaterialDesignSVG/outlined/home.svg";
 
 }
