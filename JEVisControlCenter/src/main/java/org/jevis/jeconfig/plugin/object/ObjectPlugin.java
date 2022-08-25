@@ -32,7 +32,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -289,7 +288,7 @@ public class ObjectPlugin implements Plugin {
         if (!initToolbar) {
             toolBar.setId("ObjectPlugin.Toolbar");
             double iconSize = 20;
-            ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, iconSize, iconSize));
+            ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, newB, Constants.Plugin.Command.NEW);
 

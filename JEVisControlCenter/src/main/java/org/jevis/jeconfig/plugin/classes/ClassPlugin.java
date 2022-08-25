@@ -27,7 +27,6 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -170,7 +169,7 @@ public class ClassPlugin implements Plugin {
             toolBar.setId("ObjectPlugin.Toolbar");
 
             double iconSize = 20;
-            ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, iconSize, iconSize));
+            ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, newB, Constants.Plugin.Command.NEW);
 

@@ -525,7 +525,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildNew2() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.new"), JEConfig.getSVGImage(Icon.PLUS, 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.new"), JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {

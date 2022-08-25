@@ -1,12 +1,10 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
@@ -29,6 +27,9 @@ public class NewWidgetSelector extends GridPane {
     final ObjectProperty<Widget> selectedWidgetProperty = new SimpleObjectProperty<>();
     final DashboardControl control;
 
+    private final JFXButton newB = new JFXButton("", JEConfig.getSVGImage(Icon.PLUS, 20, 20));
+
+
     public NewWidgetSelector(DashboardControl dashboardControl) {
         this.control = dashboardControl;
         Collection<WidgetSelection> widgets = Widgets.availableWidgets.values().stream().sorted((o1, o2) -> o1.getDisplayname().compareTo(o2.getDisplayname())).collect(Collectors.toList());
@@ -40,13 +41,14 @@ public class NewWidgetSelector extends GridPane {
         widgetComboBox.getSelectionModel().selectFirst();
 
         Label labelType = new Label(I18n.getInstance().getString("plugin.dashboard.toolbar.new.type"));
-        ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, 20, 20));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
 
 
         newB.setOnAction(event -> {
             selectedWidgetProperty.setValue(getSelectedWidget());
         });
+
+        newB.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.add")));
 
 
         this.setHgap(8d);
@@ -59,6 +61,14 @@ public class NewWidgetSelector extends GridPane {
 
     public ObjectProperty<Widget> getSelectedWidgetProperty() {
         return selectedWidgetProperty;
+    }
+
+    /*
+    @TODO
+     */
+    public JFXButton getNewB() {
+        this.getChildren().remove(newB);
+        return newB;
     }
 
     public Widget getSelectedWidget() {

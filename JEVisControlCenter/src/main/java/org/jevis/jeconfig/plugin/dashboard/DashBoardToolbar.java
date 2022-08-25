@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
 import com.google.common.collect.Iterables;
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -40,7 +41,7 @@ public class DashBoardToolbar extends ToolBar {
     private final double iconSize = 20;
     private final DashboardControl dashboardControl;
     private ToolBarIntervalSelector toolBarIntervalSelector;
-    private final ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
+    private final ToggleButton backgroundButton = new ToggleButton("", JEConfig.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
     private JFXComboBox<Double> listZoomLevel;
     private final ObjectRelations objectRelations;
     private Boolean multiSite = null;
@@ -70,6 +71,7 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, this.iconSize, this.iconSize));
     private final ToggleButton enlarge = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, this.iconSize, this.iconSize));
     private final ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, this.iconSize, this.iconSize));
+
     private final ToggleButton sidebarEditor = new ToggleButton("", JEConfig.getSVGImage(Icon.TUNE, this.iconSize, this.iconSize));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
     private final ToggleButton navigator = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
@@ -77,6 +79,8 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton homeButton = new ToggleButton("", JEConfig.getSVGImage(Icon.HOME, iconSize, iconSize));
     //private final ToggleButton moveButton = new ToggleButton("", JEConfig.getImage("move.png", this.iconSize, this.iconSize));
     private final Menu newWidgetMenuItem = new Menu("New");
+
+    private JFXButton newWidget;
     private NewWidgetSelector widgetSelector;
     private final Button copyButton = new Button("", JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize));
 
@@ -376,6 +380,8 @@ public class DashBoardToolbar extends ToolBar {
         customWorkDay.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday")));
         sidebarEditor.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsidebar")));
 
+        newWidget = widgetSelector.getNewB();
+
         Region spacerForRightSide = new Region();
         HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);
 
@@ -387,12 +393,13 @@ public class DashBoardToolbar extends ToolBar {
                     , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
                     , sep4, loadDialogButton, save
                     , sep5, exportPNG, exportPDF
-                    , sep6, runUpdateButton, unlockButton, navigator, widgetSelector, copyButton, delete
+                    , sep6, runUpdateButton, unlockButton, navigator, widgetSelector, newWidget,  copyButton, delete
                     , sep2, showGridButton, snapGridButton, sidebarEditor
+                    ,helpButton, infoButton
             );
         });
 
-        getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        //getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), );
         Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
         updateView(dashboardControl.getActiveDashboard());
@@ -488,6 +495,7 @@ public class DashBoardToolbar extends ToolBar {
         showGridButton.setDisable(!dashboardControl.editableProperty.get());
         navigator.setDisable(!dashboardControl.editableProperty.get());
         sidebarEditor.setDisable(!dashboardControl.editableProperty.get());
+        newWidget.setDisable(!dashboardControl.editableProperty.get());
 
         //Hide
         widgetSelector.setVisible(dashboardControl.editableProperty.get());
@@ -498,6 +506,7 @@ public class DashBoardToolbar extends ToolBar {
         showGridButton.setVisible(dashboardControl.editableProperty.get());
         navigator.setVisible(dashboardControl.editableProperty.get());
         sidebarEditor.setVisible(dashboardControl.editableProperty.get());
+        newWidget.setVisible(dashboardControl.editableProperty.get());
 
         updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
     }
