@@ -11,7 +11,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -20,6 +19,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
@@ -36,9 +36,9 @@ import org.jevis.jeconfig.tool.ScreenSize;
 
 public class WidgetNavigator {
     private final double iconSize = 16;
-    final ImageView lockIcon = JEConfig.getImage("eye_visible.png", this.iconSize, this.iconSize);
-    final ImageView unlockIcon = JEConfig.getImage("eye_hidden.png", this.iconSize, this.iconSize);
-    final ImageView copyWidget = JEConfig.getImage("16_Copy_48x48.png", this.iconSize, this.iconSize);
+    final Region lockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_ON, this.iconSize, this.iconSize);
+    final Region unlockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_OFF, this.iconSize, this.iconSize);
+    final Region copyWidget = JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize);
 
 
     private final DashboardControl control;
@@ -276,6 +276,7 @@ public class WidgetNavigator {
 
 
         ToggleButton highlightButton = new ToggleButton("", this.unlockIcon);
+
 //        highlightButton.selectedProperty().bindBidirectional(this.control.highlightProperty);
         highlightButton.setOnAction(event -> {
             control.enableHighlightGlow(highlightButton.isSelected());
@@ -290,7 +291,7 @@ public class WidgetNavigator {
         });
         highlightButton.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
 
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+        ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
         delete.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.delete")));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         delete.setOnAction(event -> {

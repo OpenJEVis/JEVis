@@ -38,6 +38,7 @@ import org.jevis.api.*;
 import org.jevis.commons.export.TreeExporterDelux;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
@@ -142,7 +143,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
 
     private MenuItem buildGoToSource() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.gotosrc"), ResourceLoader.getImage("1476393792_Gnome-Go-Jump-32.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.gotosrc"), JEConfig.getSVGImage(Icon.GO_TO_SOURCE, 20, 20));
         menu.setOnAction(t -> {
                     goToSource(tree, obj);
                 }
@@ -253,7 +254,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
 
     private MenuItem buildReCalcClean() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.recalculate"), ResourceLoader.getImage("calc.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.recalculate"), JEConfig.getSVGImage(Icon.CALCULATOR, 20, 20));
 
         menu.setOnAction(t -> {
             CleanDatas.createTask(tree);
@@ -262,7 +263,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildCreateAlarms() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.createalarms"), ResourceLoader.getImage("alarm_icon.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.createalarms"), JEConfig.getSVGImage(Icon.ALARM, 20, 20));
 
         menu.setOnAction(t -> {
             CreateAlarms.createTask(tree);
@@ -271,7 +272,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildRecalculate() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.recalculate"), ResourceLoader.getImage("calc.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.recalculate"), JEConfig.getSVGImage(Icon.CALCULATOR, 20, 20));
 
         menu.setOnAction(t -> {
                     Calculations.createCalcJobs(tree);
@@ -292,7 +293,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
     private MenuItem buildPaste() {
         //TODO: disable if not allowed
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.paste"), ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.paste"), JEConfig.getSVGImage(Icon.PASTE, 20, 20));
 
         menu.setOnAction(t -> TreeHelper.EventDrop(tree, tree.getCopyObjects(), obj, CopyObjectDialog.DefaultAction.COPY)
         );
@@ -300,21 +301,21 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildCopy() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.copy"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.copy"), JEConfig.getSVGImage(Icon.PASTE, 20, 20));
         menu.setOnAction(t -> tree.setCopyObjectsBySelection(false)
         );
         return menu;
     }
 
     private MenuItem buildCut() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.cut"), ResourceLoader.getImage("cut_17352.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.cut"), JEConfig.getSVGImage(Icon.CUT, 20, 20));
         menu.setOnAction(t -> tree.setCopyObjectsBySelection(true)
         );
         return menu;
     }
 
     private MenuItem buildKPIWizard() {
-        MenuItem menu = new MenuItem("KPI Wizard", ResourceLoader.getImage("Startup Wizard_18228.png", 20, 20));
+        MenuItem menu = new MenuItem("KPI Wizard", JEConfig.getSVGImage(Icon.WIZARD_WAND, 20, 20));
         menu.setOnAction(t -> {
                     KPIWizard wizard = new KPIWizard(dialogContainer, obj);
                     wizard.show();
@@ -324,7 +325,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildExport() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.export"), JEConfig.getSVGImage(Icon.EXPORT, 20, 20));
         menu.setOnAction(t -> {
                     exportAction(tree);
                 }
@@ -355,7 +356,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
 
     private MenuItem buildImport() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.import"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.import"), JEConfig.getSVGImage(Icon.IMPORT, 20, 20));
         menu.setOnAction(event -> importAction(obj)
         );
         return menu;
@@ -413,7 +414,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     public MenuItem buildMenuAddInput() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.addinput"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.addinput"), JEConfig.getSVGImage(Icon.EXPORT, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -429,7 +430,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     public MenuItem buildMenuLocalize() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.localename"), ResourceLoader.getImage("translate.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.localename"), JEConfig.getSVGImage(Icon.TRANSLATE, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -446,7 +447,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     public MenuItem buildManualSample() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("menu.file.import.manual"), ResourceLoader.getImage("if_textfield_add_64870.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("menu.file.import.manual"), JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -469,7 +470,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
 
     public MenuItem buildMenuExport() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.export"), JEConfig.getSVGImage(Icon.EXPORT, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -491,7 +492,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
 
     private Menu buildMenuNew() {
-        Menu addMenu = new Menu(I18n.getInstance().getString("jevistree.menu.new"), ResourceLoader.getImage("list-add.png", 20, 20));
+        Menu addMenu = new Menu(I18n.getInstance().getString("jevistree.menu.new"), JEConfig.getSVGImage(Icon.TABLE_PLUS, 20, 20));
         addMenu.getItems().addAll(buildMenuNewContent());
 
         return addMenu;
@@ -524,7 +525,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildNew2() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.new"), ResourceLoader.getImage("list-add.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.new"), JEConfig.getSVGImage(Icon.PLUS, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -551,7 +552,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
      **/
 
     private MenuItem buildReload() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.reload"), ResourceLoader.getImage("1476369770_Sync.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.reload"), JEConfig.getSVGImage(Icon.REFRESH, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -564,9 +565,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildDelete(boolean deleteForever) {
         MenuItem menu;
         if (deleteForever) {
-            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.deleteforever"), ResourceLoader.getImage("list-remove.png", 20, 20));
+            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.deleteforever"), JEConfig.getSVGImage(Icon.MINUS, 20, 20));
         } else {
-            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.delete"), ResourceLoader.getImage("list-remove.png", 20, 20));
+            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.delete"), JEConfig.getSVGImage(Icon.MINUS, 20, 20));
         }
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -580,7 +581,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
 
     private MenuItem buildCopyFormat() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.copyformat"), ResourceLoader.getImage("pipette.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.copyformat"), JEConfig.getSVGImage(Icon.COPY_PROPERTIES, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -595,7 +596,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildParsedFormat() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("dialog.attributecopy.paste"), ResourceLoader.getImage("Asset.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("dialog.attributecopy.paste"), JEConfig.getSVGImage(Icon.PASTE_PROPERTIES, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override

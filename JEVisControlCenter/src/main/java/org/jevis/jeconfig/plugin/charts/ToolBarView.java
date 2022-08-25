@@ -24,6 +24,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -41,6 +42,7 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
@@ -83,9 +85,11 @@ public class ToolBarView {
     private final SimpleBooleanProperty disabledIcons = new SimpleBooleanProperty(true);
     private ToggleButton save;
     private ToggleButton loadNew;
-    private ToggleButton exportCSV;
+    private MenuItem exportCSV;
+
+    private MenuButton export;
     private ToggleButton exportImage;
-    private ToggleButton exportPDF;
+    private MenuItem exportPDF;
     private ToggleButton printButton;
     private ToggleButton reload;
     private ToggleButton delete;
@@ -115,16 +119,18 @@ public class ToolBarView {
     }
 
     private ToggleButton addSeriesRunningMean;
-    private ImageView pauseIcon;
-    private ImageView playIcon;
+    private Region pauseIcon;
+    private Region playIcon;
     private ToggleButton showRawData;
-    private ToggleButton showSum;
-    private ToggleButton showL1L2;
-    private ToggleButton calcRegression;
-    private ToggleButton calcFullLoadHours;
-    private ToggleButton calcHoursAboveBelow;
-    private ToggleButton calcSumAboveBelow;
-    private ToggleButton calcBaseLoad;
+
+    private MenuButton mathOperation;
+    private CheckMenuItem showSum;
+    private CheckMenuItem showL1L2;
+    private CheckMenuItem calcRegression;
+    private CheckMenuItem calcFullLoadHours;
+    private CheckMenuItem calcHoursAboveBelow;
+    private CheckMenuItem calcSumAboveBelow;
+    private CheckMenuItem calcBaseLoad;
 
     public ToolBarView(AnalysisDataModel model, JEVisDataSource ds, ChartPlugin chartPlugin) {
         this.model = model;
@@ -137,10 +143,15 @@ public class ToolBarView {
 
         pickerCombo = new PickerCombo(model, null, true);
         presetDateBox = pickerCombo.getPresetDateBox();
+        presetDateBox.getStyleClass().add("ToolBarDatePicker");
         pickerDateStart = pickerCombo.getStartDatePicker();
+        pickerDateStart.getStyleClass().add("ToolBarDatePicker");
         pickerTimeStart = pickerCombo.getStartTimePicker();
+        pickerTimeStart.getStyleClass().add("ToolBarDatePicker");
         pickerDateEnd = pickerCombo.getEndDatePicker();
+        pickerDateEnd.getStyleClass().add("ToolBarDatePicker");
         pickerTimeEnd = pickerCombo.getEndTimePicker();
+        pickerTimeEnd.getStyleClass().add("ToolBarDatePicker");
 
         setCellFactoryForComboBox();
 
@@ -312,6 +323,8 @@ public class ToolBarView {
             }
 
             toolBar.getItems().clear();
+            mathOperation.getItems().clear();
+
             pickerCombo.initialize(model, null, customWorkDay.isSelected());
             pickerCombo.updateCellFactory();
 
@@ -342,23 +355,25 @@ public class ToolBarView {
             toolBar.getItems().addAll(listAnalysesComboBox,
                     sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                     sep2, reload, zoomOut,
-                    sep3, loadNew, save, delete, select, exportCSV, exportImage, exportPDF, printButton,
+                    sep3, loadNew, save, delete, select, export,exportImage, printButton,
                     sep4);
 
             if (isRegressionPossible) {
-                toolBar.getItems().add(calcRegression);
+                mathOperation.getItems().add(calcRegression);
             }
 
             if (isAdditionalCalcPossible) {
-                toolBar.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad);
+                mathOperation.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad);
             }
 
             if (!JEConfig.getExpert()) {
 
-                toolBar.getItems().addAll(showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
+                mathOperation.getItems().addAll(showL1L2, showSum);
+                toolBar.getItems().addAll(mathOperation, disableIcons, autoResize, runUpdateButton);
             } else {
 
-                toolBar.getItems().addAll(showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
+                mathOperation.getItems().addAll(showL1L2, showSum);
+                toolBar.getItems().addAll(showRawData,mathOperation, disableIcons, autoResize, runUpdateButton);
             }
 
 //            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
@@ -1136,44 +1151,45 @@ public class ToolBarView {
     private void createToolbarIcons() {
         double iconSize = 20;
 
-        save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+        save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
         Tooltip saveTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.save"));
         save.setTooltip(saveTooltip);
 
-        loadNew = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        loadNew = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
         Tooltip loadNewTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.loadNew"));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadNew);
         loadNew.setTooltip(loadNewTooltip);
 
-        exportCSV = new ToggleButton("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
+        export = new MenuButton("", JEConfig.getSVGImage(Icon.EXPORT, iconSize, iconSize));
         Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
-        exportCSV.setTooltip(exportCSVTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportCSV);
+        export.setTooltip(exportCSVTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(export);
 
-        exportImage = new ToggleButton("", JEConfig.getImage("export-image.png", iconSize, iconSize));
+        exportCSV = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
+
+        exportImage = new ToggleButton("", JEConfig.getSVGImage(Icon.SCREENSHOT, iconSize, iconSize));
         Tooltip exportImageTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportImage"));
         exportImage.setTooltip(exportImageTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportImage);
 
-        exportPDF = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
-        Tooltip exportPDFTooltip = new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.exportPDF"));
-        exportPDF.setTooltip(exportPDFTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPDF);
+        exportPDF = new MenuItem(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.exportPDF"));
 
-        printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
+        export.getItems().addAll(exportCSV, exportPDF);
+
+        printButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PRINT, iconSize, iconSize));
         Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
-        reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
-        pauseIcon = JEConfig.getImage("pause_32.png", iconSize, iconSize);
-        playIcon = JEConfig.getImage("play_32.png", iconSize, iconSize);
+        pauseIcon = JEConfig.getSVGImage(Icon.PAUSE, iconSize, iconSize);
+        playIcon = JEConfig.getSVGImage(Icon.PLAY, iconSize, iconSize);
 
         runUpdateButton = new ToggleButton("", playIcon);
         Tooltip runUpdateTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.runupdate"));
@@ -1191,12 +1207,12 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
+        delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
         Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
         delete.setTooltip(deleteTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
 
-        autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
+        autoResize = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, iconSize, iconSize));
         Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
         autoResize.setTooltip(autoResizeTip);
         autoResize.setSelected(model.getAutoResize());
@@ -1212,12 +1228,12 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        select = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        select = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
         Tooltip selectTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
         select.setTooltip(selectTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
 
-        showRawData = new ToggleButton("", JEConfig.getImage("raw_199316.png", iconSize, iconSize));
+        showRawData = new ToggleButton("", JEConfig.getSVGImage(Icon.RAW_ON, iconSize, iconSize));
         Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
         showRawData.setTooltip(showRawDataTooltip);
         showRawData.setSelected(model.getShowRawData());
@@ -1232,63 +1248,30 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        showSum = new ToggleButton("", JEConfig.getImage("Sum_132399.png", iconSize, iconSize));
-        Tooltip showSumTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
-        showSum.setTooltip(showSumTooltip);
+
+        mathOperation = new MenuButton("",JEConfig.getSVGImage(Icon.SUM, iconSize, iconSize));
+        showSum = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
         showSum.setSelected(model.getShowSum());
-        showSum.styleProperty().bind(
-                Bindings
-                        .when(showSum.hoverProperty())
-                        .then(
-                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
-                        .otherwise(Bindings
-                                .when(showSum.selectedProperty())
-                                .then("-fx-background-insets: 1 1 1;")
-                                .otherwise(
-                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        showL1L2 = new ToggleButton("", JEConfig.getImage("l1l2.png", iconSize, iconSize));
-        Tooltip showL1L2Tooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
-        showL1L2.setTooltip(showL1L2Tooltip);
+        showL1L2 = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
         showL1L2.setSelected(model.getShowL1L2());
-        showL1L2.styleProperty().bind(
-                Bindings
-                        .when(showL1L2.hoverProperty())
-                        .then(
-                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
-                        .otherwise(Bindings
-                                .when(showL1L2.selectedProperty())
-                                .then("-fx-background-insets: 1 1 1;")
-                                .otherwise(
-                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        calcRegression = new ToggleButton("", JEConfig.getImage("regression.png", iconSize, iconSize));
-        Tooltip calcRegressionTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
-        calcRegression.setTooltip(calcRegressionTooltip);
+
+        calcRegression = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
         calcRegression.setSelected(model.calcRegression());
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcRegression);
 
-        calcFullLoadHours = new ToggleButton("", JEConfig.getImage("fullload.png", iconSize, iconSize));
-        Tooltip calcFullLoadHoursTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcfullloadhours"));
-        calcFullLoadHours.setTooltip(calcFullLoadHoursTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcFullLoadHours);
+        calcFullLoadHours = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcfullloadhours"));
 
-        calcHoursAboveBelow = new ToggleButton("", JEConfig.getImage("hoursabove.png", iconSize, iconSize));
-        Tooltip calcHoursAboveBelowTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calchoursabovebelow"));
-        calcHoursAboveBelow.setTooltip(calcHoursAboveBelowTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcHoursAboveBelow);
 
-        calcSumAboveBelow = new ToggleButton("", JEConfig.getImage("sumabove.png", iconSize, iconSize));
-        Tooltip calcSumAboveBelowTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcsumabovebelow"));
-        calcSumAboveBelow.setTooltip(calcSumAboveBelowTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcSumAboveBelow);
+        calcHoursAboveBelow = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calchoursabovebelow"));
 
-        calcBaseLoad = new ToggleButton("", JEConfig.getImage("baseload.png", iconSize, iconSize));
-        Tooltip calcBaseLoadHoursTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcbaseloadhours"));
-        calcBaseLoad.setTooltip(calcBaseLoadHoursTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(calcBaseLoad);
+        calcSumAboveBelow = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcsumabovebelow"));
 
-        customWorkDay = new ToggleButton("", JEConfig.getImage("iconfinder_calendar-clock_299096.png", iconSize, iconSize));
+
+        calcBaseLoad = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcbaseloadhours"));
+
+
+        customWorkDay = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, iconSize, iconSize));
         Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
         customWorkDay.setTooltip(customWorkDayTooltip);
         customWorkDay.setSelected(model.isCustomWorkDay());
@@ -1303,7 +1286,7 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
+        disableIcons = new ToggleButton("", JEConfig.getSVGImage(Icon.Warning, iconSize, iconSize));
         Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         disableIcons.setTooltip(disableIconsTooltip);
         disableIcons.setSelected(model.getShowIcons());
@@ -1318,7 +1301,7 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        addSeriesRunningMean = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
+        addSeriesRunningMean = new ToggleButton("", JEConfig.getSVGImage(Icon.ALARM, iconSize, iconSize));
         Tooltip addSeriesRunningMeanTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         addSeriesRunningMean.setTooltip(addSeriesRunningMeanTooltip);
         addSeriesRunningMean.styleProperty().bind(
@@ -1333,7 +1316,7 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
 
-        zoomOut = new ToggleButton("", JEConfig.getImage("ZoomOut.png", iconSize, iconSize));
+        zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, iconSize, iconSize));
         Tooltip zoomOutTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
         zoomOut.setTooltip(zoomOutTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
@@ -1371,9 +1354,8 @@ public class ToolBarView {
         List<Node> nodes = Arrays.asList(listAnalysesComboBox,
                 presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                 reload, zoomOut,
-                loadNew, save, delete, select, exportCSV, exportImage, exportPDF, printButton,
-                calcRegression, calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad
-                , showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
+                loadNew, save, delete, select,export, exportImage, printButton,
+                disableIcons, autoResize, runUpdateButton);
 
         pickerCombo.addListener();
         startToolbarIconListener();

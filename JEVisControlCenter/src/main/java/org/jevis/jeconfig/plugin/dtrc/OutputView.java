@@ -27,6 +27,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -344,7 +345,7 @@ public class OutputView extends Tab {
                             HBox hBox = new HBox(label, result);
 
                             if (templateOutput.getLink()) {
-                                JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", 12, 12));
+                                JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
                                 manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
 
                                 if (templateOutput.getTarget() != null) {

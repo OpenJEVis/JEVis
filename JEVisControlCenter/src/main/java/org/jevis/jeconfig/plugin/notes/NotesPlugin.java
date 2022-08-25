@@ -30,6 +30,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
@@ -109,7 +110,9 @@ public class NotesPlugin implements Plugin {
         this.numberFormat.setMaximumFractionDigits(2);
 
         this.startDatePicker.setPrefWidth(120d);
+        this.startDatePicker.getStyleClass().add("ToolBarDatePicker");
         this.endDatePicker.setPrefWidth(120d);
+        this.endDatePicker.getStyleClass().add("ToolBarDatePicker");
 
         tableView.setItems(filteredData);
 
@@ -764,13 +767,13 @@ public class NotesPlugin implements Plugin {
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
 
-        ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
-        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+        ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, 18, 18));
+        ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
+        ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
@@ -1181,8 +1184,8 @@ public class NotesPlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("data_note.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.NOTE, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override
