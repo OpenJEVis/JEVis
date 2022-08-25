@@ -50,7 +50,7 @@ public class ShapePojo {
     public ShapePojo(DashboardControl dashboardControl, JsonNode jsonNode) {
         this.dashboardControl = dashboardControl;
 
-        System.out.println(jsonNode);
+        logger.debug(jsonNode);
 
         if (jsonNode != null) {
             String shapeStrg = jsonNode.get(JSON_SHAPE).asText();

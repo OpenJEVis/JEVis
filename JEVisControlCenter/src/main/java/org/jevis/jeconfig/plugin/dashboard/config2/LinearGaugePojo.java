@@ -305,7 +305,7 @@ public class LinearGaugePojo {
         dataNode.put("showMediumTick", showMediumTick);
         dataNode.put("showMinorTick", showMinorTick);
         dataNode.put("colorBorder", colorBorder.toString());
-        System.out.println(dataNode);
+        logger.debug(dataNode);
         return dataNode;
     }
 

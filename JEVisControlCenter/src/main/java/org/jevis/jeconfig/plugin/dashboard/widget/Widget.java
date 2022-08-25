@@ -374,7 +374,7 @@ public abstract class Widget extends Region {
                     control.addToWidgetSelection(arrayList);
                     event.consume();
                 } else if (event.isAltDown()) {
-                    System.out.println("Is alt selected: " + this);
+                    logger.debug("Is alt selected: " + this);
                     control.setSelectAllFromType(this);
                     event.consume();
                 } else {
@@ -420,11 +420,10 @@ public abstract class Widget extends Region {
     }
 
     private void debugLayers() {
-        System.out.println("Layers:");
+        logger.debug("Layers:");
         control.getWidgets().stream().sorted((o1, o2) -> o1.getConfig().getLayer().compareTo(o2.getConfig().getLayer())).forEach(widget -> {
-            System.out.println("L: " + widget.getConfig().getLayer() + "  " + widget.getConfig().getTitle());
+            logger.debug("L: " + widget.getConfig().getLayer() + "  " + widget.getConfig().getTitle());
         });
-        System.out.println();
     }
 
     public void setNodeSize(double width, double height) {

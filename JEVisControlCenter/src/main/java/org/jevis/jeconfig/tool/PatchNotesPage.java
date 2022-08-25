@@ -50,7 +50,38 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.64------\n" +
+            "------Version 3.9.65------\n" +
+                    "JECC - ChartPlugin - TableChartV - added filter option\n" +
+                    "JECC - DashboardPlugin - Add default values to GaugePojo\n" +
+                    "JECC - DashboardPlugin - Add icon for side editor\n" +
+                    "JECC - DashboardPlugin - Add localisation to the widget name\n" +
+                    "JECC - DashboardPlugin - Add missing Classes\n" +
+                    "JECC - DashboardPlugin - Catch missing configuration parameters\n" +
+                    "JECC - DashboardPlugin - Fixed a bug where a new Widget did not display the title\n" +
+                    "JECC - DashboardPlugin - Fixed an bug where disabling the limit or procent did not update\n" +
+                    "JECC - DashboardPlugin - Fixed some bug in the side pane editor\n" +
+                    "JECC - DashboardPlugin - Gauge / Linear gauge fix for negative values\n" +
+                    "JECC - DashboardPlugin - Gauge config tab overhaul\n" +
+                    "JECC - DashboardPlugin - Improvemed zoom behavior when zoom is set to fit to screen\n" +
+                    "JECC - DashboardPlugin - LinearGauge - Last Value\n" +
+                    "JECC - DashboardPlugin - LinearGauge - updated tick label spacing\n" +
+                    "JECC - DashboardPlugin - Performance improvement and reduced memory usage\n" +
+                    "JECC - DashboardPlugin - Removed widget icons\n" +
+                    "JECC - DashboardPlugin - Shape config tab overhaul\n" +
+                    "JECC - DashboardPlugin - The side panel editor allows now to edit the title\n" +
+                    "JECC - DashboardPlugin - The side panel editor can now be toggled to stay visible or be hidden\n" +
+                    "JECC - DashboardPlugin - The side panel editor show now the selected input data\n" +
+                    "JECC - DashboardPlugin - bug fix some Widgets did not refresh on commit\n" +
+                    "JECC - DashboardPlugin - implemented Shape Widget\n" +
+                    "JECC - DashboardPlugin - update config tab GUI\n" +
+                    "JECC - DashboardPlugin - Last Value\n" +
+                    "JECC - FXLogin - Removed border form the statusbox and changed the text\n" +
+                    "JECC - reworked icon design\n" +
+                    "\n" +
+                    "JEAlarm - added AlarmPeriod.NONE as functionality, using last alarm as start for period\n" +
+                    "\n" +
+                    "JEStatus - added object name to report status\n\n" +
+                    "------Version 3.9.64------\n" +
                     "JECC - AlarmPlugin - added alarm type check and respective button for limit configuration or alarm configuration\n" +
                     "JECC - AlarmPlugin - fixed attribute editor node\n" +
                     "JECC - AlarmPlugin - fixed null pointer in task\n" +

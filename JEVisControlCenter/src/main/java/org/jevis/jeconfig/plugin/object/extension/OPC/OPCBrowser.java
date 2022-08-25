@@ -4,11 +4,16 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
@@ -30,8 +35,6 @@ import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.OPCUAServer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class OPCBrowser {
@@ -150,7 +153,6 @@ public class OPCBrowser {
             connect.setOnAction(event -> {
 
                 try {
-                    ;
                     OPCUAServer opcuaServer = new OPCUAServer(this.opcServerObj);
                     opcClient = new OPCClient(opcuaServer.getURL().replace(this.opcServerObj.getAttribute("Port").getLatestSample().getValue().toString(), port.getText()));//"opc.tcp://10.1.2.128:4840");
                     endpointDescription = opcClient.autoSelectEndpoint();
@@ -210,7 +212,7 @@ public class OPCBrowser {
             comboRootFolder.getItems().addAll("/Objects/Loytec ROOT","/Objects/Loytec ROOT/LIOB-IP","/Objects/Loytec ROOT/LIOB","/Objects/Loytec ROOT/Local IO","/Objects/Loytec ROOT/BACnet Port","/Objects/Loytec ROOT/CEA709 Port","/Objects/Loytec ROOT/Trend","/Objects/Loytec ROOT/Scheduler","/Objects/Loytec ROOT/User Registers", "/Objects/Loytec ROOT/System Registers");
             comboRootFolder.setValue(ROOT_FOLDER_TREND);
             comboRootFolder.setOnAction(event -> {
-                        System.out.println(comboRootFolder.getValue());
+                logger.debug(comboRootFolder.getValue());
                     }
 
             );

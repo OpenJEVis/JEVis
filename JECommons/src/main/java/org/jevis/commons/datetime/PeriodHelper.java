@@ -282,24 +282,26 @@ public class PeriodHelper {
     public static String getFormatString(org.joda.time.Period period, boolean isCounter) {
         String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
 
-        try {
-            if (period.equals(org.joda.time.Period.days(1))) {
-                normalPattern = "dd. MMM (EEE)";
-            } else if (period.equals(org.joda.time.Period.weeks(1))) {
-                normalPattern = "'KW'w yyyy";
-            } else if (period.equals(org.joda.time.Period.months(1)) && !isCounter) {
-                normalPattern = "MMMM yyyy";
-            } else if (period.equals(org.joda.time.Period.months(1)) && isCounter) {
-                normalPattern = "dd. MMMM yyyy";
-            } else if (period.equals(org.joda.time.Period.years(1)) && !isCounter) {
-                normalPattern = "yyyy";
-            } else if (period.equals(org.joda.time.Period.years(1)) && isCounter) {
-                normalPattern = "dd. MMMM yyyy";
-            } else {
-                normalPattern = "yyyy-MM-dd HH:mm:ss";
+        if (period != null) {
+            try {
+                if (period.equals(org.joda.time.Period.days(1))) {
+                    normalPattern = "dd. MMM (EEE)";
+                } else if (period.equals(org.joda.time.Period.weeks(1))) {
+                    normalPattern = "'KW'w yyyy";
+                } else if (period.equals(org.joda.time.Period.months(1)) && !isCounter) {
+                    normalPattern = "MMMM yyyy";
+                } else if (period.equals(org.joda.time.Period.months(1)) && isCounter) {
+                    normalPattern = "dd. MMMM yyyy";
+                } else if (period.equals(org.joda.time.Period.years(1)) && !isCounter) {
+                    normalPattern = "yyyy";
+                } else if (period.equals(org.joda.time.Period.years(1)) && isCounter) {
+                    normalPattern = "dd. MMMM yyyy";
+                } else {
+                    normalPattern = "yyyy-MM-dd HH:mm:ss";
+                }
+            } catch (Exception e) {
+                logger.error("Could not determine sample rate, fall back to standard", e);
             }
-        } catch (Exception e) {
-            logger.error("Could not determine sample rate, fall back to standard", e);
         }
         return normalPattern;
     }

@@ -519,12 +519,12 @@ public class TopMenu extends MenuBar {
 
 
             if (debug.isSelected()) {
-                System.out.println("Is debug");
+                logger.debug("Is debug");
                 Logger logger = LogManager.getRootLogger();
                 Configurator.setAllLevels(logger.getName(), Level.DEBUG);
                 LogManager.getLogger(TopMenu.class);
             } else {
-                System.out.println("Is not debug");
+                logger.debug("Is not debug");
                 Logger logger = LogManager.getRootLogger();
                 Configurator.setAllLevels(logger.getName(), Level.INFO);
                 LogManager.getLogger(TopMenu.class);
