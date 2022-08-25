@@ -341,6 +341,10 @@ public class AnalysisDataModel {
                         newSettings.setHeight(Double.parseDouble(settings.getHeight()));
                     }
 
+                    if (settings.getFilterEnabled() != null) {
+                        newSettings.setFilterEnabled(Boolean.parseBoolean(settings.getFilterEnabled()));
+                    } else newSettings.setFilterEnabled(Boolean.FALSE);
+
                     chartSettings.getListSettings().add(newSettings);
                 }
 

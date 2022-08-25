@@ -185,7 +185,7 @@ public class AlarmFunction implements ReportData {
                 }
             }
         }
-        return new LinkStatus(false, "No data available for jevis alarm object with id " + alarmObj.getID());
+        return new LinkStatus(false, "No data available for alarm object " + alarmObj.getName() + " with id " + alarmObj.getID());
     }
 
     private AlarmConfiguration getCorrespondingAlarmConfiguration(JEVisObject alarmObj) {
