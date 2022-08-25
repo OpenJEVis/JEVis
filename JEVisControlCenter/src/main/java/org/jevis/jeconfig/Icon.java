@@ -120,5 +120,6 @@ public class Icon {
 
     public static final String TUNE = "/icons/MaterialDesignSVG/outlined/tune.svg";
 
+    public static final String HOME = "/icons/MaterialDesignSVG/outlined/home.svg";
 
 }
