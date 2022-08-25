@@ -348,6 +348,7 @@ public class DashBoardToolbar extends ToolBar {
         Separator sep3 = new Separator();
         Separator sep4 = new Separator();
         Separator sep5 = new Separator();
+        Separator sep6 = new Separator();
 
         showGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.showgrid")));
         snapGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.usegrid")));
@@ -378,8 +379,9 @@ public class DashBoardToolbar extends ToolBar {
                     , sep3, toolBarIntervalSelector, customWorkDay
                     , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
                     , sep4, loadDialogButton, save
-                    , sep5, navigator, exportPNG, exportPDF, widgetSelector, copyButton, delete
-                    , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton, sidebarEditor
+                    , sep5, exportPNG, exportPDF
+                    , sep6, runUpdateButton, unlockButton, navigator, widgetSelector, copyButton, delete
+                    , sep2, showGridButton, snapGridButton, sidebarEditor
             );
         });
 
@@ -470,6 +472,7 @@ public class DashBoardToolbar extends ToolBar {
         sidebarEditor.setSelected(this.dashboardControl.showSideEditorProperty.getValue());
         //toolTipDocu.showHelpTooltips(this.dashboardControl.showHelpProperty.getValue());
 
+        //Disable
         widgetSelector.setDisable(!dashboardControl.editableProperty.get());
         copyButton.setDisable(!dashboardControl.editableProperty.get());
         delete.setDisable(!dashboardControl.editableProperty.get());
@@ -477,6 +480,17 @@ public class DashBoardToolbar extends ToolBar {
         snapGridButton.setDisable(!dashboardControl.editableProperty.get());
         showGridButton.setDisable(!dashboardControl.editableProperty.get());
         navigator.setDisable(!dashboardControl.editableProperty.get());
+        sidebarEditor.setDisable(!dashboardControl.editableProperty.get());
+
+        //Hide
+        widgetSelector.setVisible(dashboardControl.editableProperty.get());
+        copyButton.setVisible(dashboardControl.editableProperty.get());
+        delete.setVisible(dashboardControl.editableProperty.get());
+        navigator.setVisible(dashboardControl.editableProperty.get());
+        snapGridButton.setVisible(dashboardControl.editableProperty.get());
+        showGridButton.setVisible(dashboardControl.editableProperty.get());
+        navigator.setVisible(dashboardControl.editableProperty.get());
+        sidebarEditor.setVisible(dashboardControl.editableProperty.get());
 
         updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
     }
