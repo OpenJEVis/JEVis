@@ -11,6 +11,7 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.json.JsonAlarm;
 import org.jevis.commons.json.JsonDeltaConfig;
@@ -73,12 +74,19 @@ public class AlarmProcess {
     public void start() {
         List<JEVisObject> allCleanDataObjects = new ArrayList<>();
 
+        DateTime now = DateTime.now();
+        Period alarmPeriod = alarmConfiguration.getAlarmPeriod();
         DateHelper dateHelper = null;
         start = alarmConfiguration.getTimeStamp();
-        dateHelper = PeriodHelper.getDateHelper(alarmConfiguration.getObject(), alarmConfiguration.getAlarmPeriod(), dateHelper, start);
-        end = PeriodHelper.calcEndRecord(start, alarmConfiguration.getAlarmPeriod(), dateHelper);
+        dateHelper = PeriodHelper.getDateHelper(alarmConfiguration.getObject(), alarmPeriod, dateHelper, start);
 
-        if (end.isBefore(DateTime.now())) {
+        if (alarmPeriod != Period.NONE) {
+            end = PeriodHelper.calcEndRecord(start, alarmPeriod, dateHelper);
+        } else {
+            end = now.minusMillis(1);
+        }
+
+        if (end.isBefore(now)) {
             try {
                 allCleanDataObjects = getAllCorrespondingCleanDataObjects();
             } catch (JEVisException e) {
@@ -104,7 +112,8 @@ public class AlarmProcess {
                 } else continue;
 
                 DateTime lastTS = cleanDataObject.getFirstDate();
-                if (alarmEnabled && !lastTS.isAfter(end)) {
+                if (alarmPeriod != Period.NONE && alarmEnabled && !lastTS.isAfter(end)) {
+                    logger.debug("Object {}:{} has last ts of {} that is not after {}", obj.getName(), obj.getID(), lastTS, end);
                     hasData = false;
                     break;
                 }
@@ -171,8 +180,13 @@ public class AlarmProcess {
     }
 
     private void finish() throws JEVisException {
-
-        DateTime newStartRecordTime = PeriodHelper.getNextPeriod(start, alarmConfiguration.getAlarmPeriod(), 1, null);
+        DateTime newStartRecordTime;
+        if (alarmConfiguration.getAlarmPeriod() != Period.NONE) {
+            newStartRecordTime = PeriodHelper.getNextPeriod(start, alarmConfiguration.getAlarmPeriod(), 1, null);
+        } else {
+            alarmConfiguration.getTimeStampAttribute().deleteAllSample();
+            newStartRecordTime = DateTime.now();
+        }
         alarmConfiguration.getTimeStampAttribute().buildSample(new DateTime(), newStartRecordTime.toString()).commit();
     }
 
@@ -270,7 +284,23 @@ public class AlarmProcess {
                 JEVisAttribute valueAtt = cleanData.getAttribute(VALUE_ATTRIBUTE);
                 JEVisAttribute alarmLogAttribute = cleanData.getAttribute(ALARM_LOG_ATTRIBUTE);
 
-                List<JEVisSample> valueSamples = valueAtt.getSamples(start, end);
+                List<JEVisSample> valueSamples = new ArrayList<>();
+                if (alarmConfiguration.getAlarmPeriod() != Period.NONE) {
+                    valueSamples.addAll(valueAtt.getSamples(start, end));
+                } else {
+                    DateTime timestampFromLastAlarmLogSample = alarmLogAttribute.getTimestampFromLastSample();
+                    if (timestampFromLastAlarmLogSample != null) {
+                        valueSamples.addAll(valueAtt.getSamples(timestampFromLastAlarmLogSample.plusSeconds(1), end));
+                    } else {
+                        DateTime timestampFromLastValueSample = valueAtt.getTimestampFromLastSample();
+                        if (timestampFromLastValueSample != null) {
+                            valueSamples.addAll(valueAtt.getSamples(timestampFromLastValueSample, end));
+                        } else {
+                            logger.error("Could not get values for {}:{}", cleanData.getName(), cleanData.getID());
+                            continue;
+                        }
+                    }
+                }
 
                 CleanDataObject cleanDataObject = new CleanDataObject(cleanData);
                 List<JsonLimitsConfig> cleanDataObjectLimitsConfig = cleanDataObject.getLimitsConfig();
@@ -300,15 +330,18 @@ public class AlarmProcess {
                 JsonDeltaConfig deltaConfig = cleanDataObject.getDeltaConfig();
                 Double deltaLevel1 = null;
                 Double deltaLevel2 = null;
-                try {
-                    deltaLevel1 = Double.parseDouble(deltaConfig.getMin());
-                } catch (Exception e) {
-                    logger.error("Could not parse delta step 1 setting from object {}:{}", cleanData.getName(), cleanData.getID(), e);
-                }
-                try {
-                    deltaLevel2 = Double.parseDouble(deltaConfig.getMax());
-                } catch (Exception e) {
-                    logger.error("Could not parse delta step 2 setting from object {}:{}", cleanData.getName(), cleanData.getID(), e);
+
+                if (deltaConfig != null) {
+                    try {
+                        deltaLevel1 = Double.parseDouble(deltaConfig.getMin());
+                    } catch (Exception e) {
+                        logger.error("Could not parse delta step 1 setting from object {}:{}", cleanData.getName(), cleanData.getID(), e);
+                    }
+                    try {
+                        deltaLevel2 = Double.parseDouble(deltaConfig.getMax());
+                    } catch (Exception e) {
+                        logger.error("Could not parse delta step 2 setting from object {}:{}", cleanData.getName(), cleanData.getID(), e);
+                    }
                 }
 
                 for (JEVisSample sample : valueSamples) {
@@ -331,42 +364,44 @@ public class AlarmProcess {
                         }
                     }
 
-                    if (note.contains(NoteConstants.Deltas.DELTA_STEP1) && (note.contains(NoteConstants.Deltas.DELTA_DEFAULT)
-                            || note.contains(NoteConstants.Deltas.DELTA_STATIC) || note.contains(NoteConstants.Deltas.DELTA_AVERAGE)
-                            || note.contains(NoteConstants.Deltas.DELTA_MEDIAN) || note.contains(NoteConstants.Deltas.DELTA_INTERPOLATION)
-                            || note.contains(NoteConstants.Deltas.DELTA_MIN) || note.contains(NoteConstants.Deltas.DELTA_MAX))) {
-                        if (deltaLevel2 != null) {
-                            try {
-                                String subtext = note.substring(note.lastIndexOf(NoteConstants.Deltas.DELTA_STEP1));
-                                subtext = subtext.replace(NoteConstants.Deltas.DELTA_STEP1 + ",(", "");
-                                subtext = subtext.replace(")", "");
-                                String dValueString = subtext.substring(0, subtext.indexOf(","));
-                                Double dValue = Double.parseDouble(dValueString);
-                                int length = subtext.length();
-                                String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
-                                Double deltaValue = Double.parseDouble(deltaValueString);
+                    if (deltaConfig != null) {
+                        if (note.contains(NoteConstants.Deltas.DELTA_STEP1) && (note.contains(NoteConstants.Deltas.DELTA_DEFAULT)
+                                || note.contains(NoteConstants.Deltas.DELTA_STATIC) || note.contains(NoteConstants.Deltas.DELTA_AVERAGE)
+                                || note.contains(NoteConstants.Deltas.DELTA_MEDIAN) || note.contains(NoteConstants.Deltas.DELTA_INTERPOLATION)
+                                || note.contains(NoteConstants.Deltas.DELTA_MIN) || note.contains(NoteConstants.Deltas.DELTA_MAX))) {
+                            if (deltaLevel2 != null) {
+                                try {
+                                    String subtext = note.substring(note.lastIndexOf(NoteConstants.Deltas.DELTA_STEP1));
+                                    subtext = subtext.replace(NoteConstants.Deltas.DELTA_STEP1 + ",(", "");
+                                    subtext = subtext.replace(")", "");
+                                    String dValueString = subtext.substring(0, subtext.indexOf(","));
+                                    Double dValue = Double.parseDouble(dValueString);
+                                    int length = subtext.length();
+                                    String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
+                                    Double deltaValue = Double.parseDouble(deltaValueString);
 
-                                activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D2, 0));
-                            } catch (Exception e) {
-                                logger.error("Could not parse delta step 2 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
+                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D2, 0));
+                                } catch (Exception e) {
+                                    logger.error("Could not parse delta step 2 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
+                                }
+
                             }
+                        } else if (note.contains(NoteConstants.Deltas.DELTA_STEP1)) {
+                            if (deltaLevel1 != null) {
+                                try {
+                                    String subtext = note.substring(note.lastIndexOf(NoteConstants.Deltas.DELTA_STEP1));
+                                    subtext = subtext.replace(NoteConstants.Deltas.DELTA_STEP1 + ",(", "");
+                                    subtext = subtext.replace(")", "");
+                                    String dValueString = subtext.substring(0, subtext.indexOf(","));
+                                    Double dValue = Double.parseDouble(dValueString);
+                                    int length = subtext.length();
+                                    String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
+                                    Double deltaValue = Double.parseDouble(deltaValueString);
 
-                        }
-                    } else if (note.contains(NoteConstants.Deltas.DELTA_STEP1)) {
-                        if (deltaLevel1 != null) {
-                            try {
-                                String subtext = note.substring(note.lastIndexOf(NoteConstants.Deltas.DELTA_STEP1));
-                                subtext = subtext.replace(NoteConstants.Deltas.DELTA_STEP1 + ",(", "");
-                                subtext = subtext.replace(")", "");
-                                String dValueString = subtext.substring(0, subtext.indexOf(","));
-                                Double dValue = Double.parseDouble(dValueString);
-                                int length = subtext.length();
-                                String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
-                                Double deltaValue = Double.parseDouble(deltaValueString);
-
-                                activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D1, 0));
-                            } catch (Exception e) {
-                                logger.error("Could not parse delta step 1 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
+                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D1, 0));
+                                } catch (Exception e) {
+                                    logger.error("Could not parse delta step 1 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
+                                }
                             }
                         }
                     }
