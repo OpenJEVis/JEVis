@@ -122,6 +122,7 @@ public class FXLogin extends AnchorPane {
     private final NotificationPane notificationPane = new NotificationPane();
     private JFXComboBox<Locale> langSelect;
     private boolean hasCredentials = false;
+    public static String checkMarkSymbol = "\uD83D\uDDF8";
 
 
     private FXLogin() {
@@ -134,6 +135,8 @@ public class FXLogin extends AnchorPane {
         this.app = app;
 
         this.messageBox.setBorder(null);
+        this.messageBox.setPadding(new Insets(0));
+        this.messageBox.setStyle("-fx-background-color: -fx-control-inner-background;");
 
         //this.loginButton.getStyleClass().add("button-raised");
         //loginButton.setId("ok-button");
@@ -971,12 +974,11 @@ public class FXLogin extends AnchorPane {
 
     }
 
-    public void addLoginMessage(String message) {
-        if (messageText.length() > 0) {
+    public void addLoginMessage(String message, boolean newLIne) {
+        messageText.append(message);
+        if (messageText.length() > 0 && newLIne) {
             messageText.append(System.getProperty("line.separator"));
         }
-
-        messageText.append(message);
 
         Platform.runLater(() -> {
             messageBox.setText(messageText.toString());
