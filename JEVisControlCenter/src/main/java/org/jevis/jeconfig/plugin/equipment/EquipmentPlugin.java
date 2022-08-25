@@ -16,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
@@ -25,10 +26,7 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.GlobalToolBar;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -58,7 +56,7 @@ public class EquipmentPlugin extends TablePlugin {
     private final BorderPane borderPane = new BorderPane();
     private final StackPane dialogContainer = new StackPane(borderPane);
     private final ToolBar toolBar = new ToolBar();
-    private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
+    private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getSVGImage(Icon.SWAP, toolBarIconSize, toolBarIconSize));
     private boolean initialized = false;
 
     public EquipmentPlugin(JEVisDataSource ds, String title) {
@@ -153,21 +151,21 @@ public class EquipmentPlugin extends TablePlugin {
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
+        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> handleRequest(Constants.Plugin.Command.RELOAD));
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", toolBarIconSize, toolBarIconSize));
+        ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
         save.setOnAction(event -> handleRequest(Constants.Plugin.Command.SAVE));
 
         Separator sep2 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton newButton = new ToggleButton("", JEConfig.getImage("list-add.png", toolBarIconSize, toolBarIconSize));
+        ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
         newButton.setOnAction(event -> handleRequest(Constants.Plugin.Command.NEW));
 
@@ -186,13 +184,13 @@ public class EquipmentPlugin extends TablePlugin {
         });
         replaceButton.setDisable(true);
 
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
+        ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         delete.setOnAction(event -> handleRequest(Constants.Plugin.Command.DELETE));
 
         Separator sep3 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", toolBarIconSize, toolBarIconSize));
+        ToggleButton printButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PRINT, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
         printButton.setOnAction(event -> {
@@ -645,8 +643,8 @@ public class EquipmentPlugin extends TablePlugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("building_equipment.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.BUILDING, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override

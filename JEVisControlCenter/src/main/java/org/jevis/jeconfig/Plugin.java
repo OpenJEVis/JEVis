@@ -22,6 +22,7 @@ package org.jevis.jeconfig;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 import org.jevis.api.JEVisDataSource;
 
 /**
@@ -29,7 +30,7 @@ import org.jevis.api.JEVisDataSource;
  */
 public interface Plugin {
 
-    public static double IconSize = 25;
+    public static double IconSize = 15;
 
     String getClassName();
 
@@ -63,7 +64,7 @@ public interface Plugin {
 
     Node getContentNode();
 
-    ImageView getIcon();
+    Region getIcon();
 
     void fireCloseEvent();
 

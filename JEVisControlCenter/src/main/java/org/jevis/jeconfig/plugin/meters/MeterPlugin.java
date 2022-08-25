@@ -19,6 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Region;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import org.jevis.api.*;
@@ -28,10 +29,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.GlobalToolBar;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -59,9 +57,9 @@ public class MeterPlugin extends TablePlugin {
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
     private final ToolBar toolBar = new ToolBar();
     private boolean initialized = false;
-    private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
+    private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getSVGImage(Icon.SWAP, toolBarIconSize, toolBarIconSize));
     private int selectedIndex = 0;
-    private final JFXButton renameButton = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
+    private final JFXButton renameButton = new JFXButton("",JEConfig.getSVGImage(Icon.EDIT,toolBarIconSize,toolBarIconSize));
 
     public MeterPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
@@ -260,21 +258,21 @@ public class MeterPlugin extends TablePlugin {
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
+        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> handleRequest(Constants.Plugin.Command.RELOAD));
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", toolBarIconSize, toolBarIconSize));
+        ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
         save.setOnAction(event -> handleRequest(Constants.Plugin.Command.SAVE));
 
         Separator sep2 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton newButton = new ToggleButton("", JEConfig.getImage("list-add.png", toolBarIconSize, toolBarIconSize));
+        ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
         newButton.setOnAction(event -> handleRequest(Constants.Plugin.Command.NEW));
 
@@ -293,17 +291,17 @@ public class MeterPlugin extends TablePlugin {
         });
         replaceButton.setDisable(true);
 
-        renameButton.setTooltip(new Tooltip("F2"));
+        renameButton.setTooltip(new Tooltip(("(F2)"+I18n.getInstance().getString("plugin.meters.button.rename"))));
         renameButton.setOnAction(event -> openRenameDialog());
         renameButton.setDisable(true);
 
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
+        ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         delete.setOnAction(event -> handleRequest(Constants.Plugin.Command.DELETE));
 
         Separator sep3 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", toolBarIconSize, toolBarIconSize));
+        ToggleButton printButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PRINT, toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
         printButton.setOnAction(event -> {
@@ -788,8 +786,8 @@ public class MeterPlugin extends TablePlugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("measurement_instrument.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.GAUGE, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override

@@ -22,6 +22,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.GlobalToolBar;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
@@ -46,36 +47,37 @@ public class DashBoardToolbar extends ToolBar {
     private Boolean multiSite = null;
     private Boolean multiDir = null;
 
-    private final ImageView lockIcon = JEConfig.getImage("if_lock_blue_68757.png", this.iconSize, this.iconSize);
-    private final ImageView snapToGridIcon = JEConfig.getImage("Snap_to_Grid.png", this.iconSize, this.iconSize);
-    private final ImageView unlockIcon = JEConfig.getImage("if_lock-unlock_blue_68758.png", this.iconSize, this.iconSize);
-    private final ImageView pauseIcon = JEConfig.getImage("pause_32.png", this.iconSize, this.iconSize);
-    private final ImageView playIcon = JEConfig.getImage("play_32.png", this.iconSize, this.iconSize);
-    private final ImageView loadIcon = JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize);
+    private final Region lockIcon = JEConfig.getSVGImage(Icon.LOCK, this.iconSize, this.iconSize);
+    private final Region snapToGridIcon = JEConfig.getSVGImage(Icon.SNAP_TO_GRID, this.iconSize, this.iconSize);
+    private final Region unlockIcon = JEConfig.getSVGImage(Icon.UNLOCK, this.iconSize, this.iconSize);
+    private final Region pauseIcon = JEConfig.getSVGImage(Icon.PAUSE, this.iconSize, this.iconSize);
+    private final Region playIcon = JEConfig.getSVGImage(Icon.PLAY, this.iconSize, this.iconSize);
+    private final Region loadIcon = JEConfig.getSVGImage(Icon.FOLDER_OPEN, this.iconSize, this.iconSize);
     private final ToggleButton loadDialogButton = new ToggleButton("", this.loadIcon);
     private final ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
     private final ToggleButton unlockButton = new ToggleButton("", this.lockIcon);
     private final ToggleButton snapGridButton = new ToggleButton("", snapToGridIcon);
-    public final ToggleButton showGridButton = new ToggleButton("", JEConfig.getImage("grid.png", this.iconSize, this.iconSize));
-    private final ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
+
+    private final ToggleButton showGridButton = new ToggleButton("", JEConfig.getSVGImage(Icon.GRID, this.iconSize, this.iconSize));
+    private final ToggleButton treeButton = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
     private final ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", this.iconSize, this.iconSize));
-    private final ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
-    private final ToggleButton exportPNG = new ToggleButton("", JEConfig.getImage("export-image.png", this.iconSize, this.iconSize));
-    private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", this.iconSize, this.iconSize));
+    private final ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
+    private final ToggleButton exportPNG = new ToggleButton("", JEConfig.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
+    private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.PDF, this.iconSize, this.iconSize));
     //private ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
-    private final ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
-    private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
-    private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
-    private final ToggleButton enlarge = new ToggleButton("", JEConfig.getImage("enlarge_32.png", this.iconSize, this.iconSize));
-    private final ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
-    private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
-    private final ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
-    private final ToggleButton sidebarEditor = new ToggleButton("", JEConfig.getImage("Tune.png", this.iconSize, this.iconSize));
-    private final ToggleButton customWorkDay = new ToggleButton("", JEConfig.getImage("iconfinder_calendar-clock_299096.png", iconSize, iconSize));
+
+    private final ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+    private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_IN, this.iconSize, this.iconSize));
+    private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, this.iconSize, this.iconSize));
+    private final ToggleButton enlarge = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, this.iconSize, this.iconSize));
+    private final ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, 18, 18));
+    private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
+    private final ToggleButton navigator = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
+    private final ToggleButton customWorkDay = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, iconSize, iconSize));
     //private final ToggleButton moveButton = new ToggleButton("", JEConfig.getImage("move.png", this.iconSize, this.iconSize));
     private final Menu newWidgetMenuItem = new Menu("New");
     private NewWidgetSelector widgetSelector;
-    private final Button copyButton = new Button("", JEConfig.getImage("16_Copy_48x48.png", this.iconSize, this.iconSize));
+    private final Button copyButton = new Button("", JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize));
 
 
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);

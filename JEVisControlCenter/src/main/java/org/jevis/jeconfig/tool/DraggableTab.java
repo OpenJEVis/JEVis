@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -44,7 +45,7 @@ public class DraggableTab extends Tab {
         markerStage.setScene(new Scene(markerStack));
     }
 
-    public DraggableTab(String text, ImageView icon, Plugin plugin) {
+    public DraggableTab(String text, Region icon, Plugin plugin) {
         super(text);
         this.plugin = plugin;
         nameLabel = new Label(text);

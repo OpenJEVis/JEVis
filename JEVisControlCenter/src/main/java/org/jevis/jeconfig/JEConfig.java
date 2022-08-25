@@ -36,15 +36,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -62,16 +62,27 @@ import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.Exceptions;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
+
 
 /**
  * This is the main class of the JEConfig. The JEConfig is an JAVAFX programm,
@@ -100,8 +111,11 @@ public class JEConfig extends Application {
     private static final Statusbar statusBar = new Statusbar();
     private static final StackPane dialogContainer = new StackPane();
 
+    public static final String xpathExpression = "//path/@d";
+
     private TopMenu menu;
     public static Date startDate = new Date();
+
 
 
     public static boolean getExpert() {
@@ -308,6 +322,59 @@ public class JEConfig extends Application {
         });
 
     }
+
+
+    public static Region getSVGImage(String path, double height, double width,String css) {
+
+        return getSVGImage(path, height, width, css, 0);
+
+    }
+    public static Region getSVGImage(String path, double height, double width) {
+
+        return getSVGImage(path, height, width, Icon.CSS_TOOLBAR, 0);
+
+    }
+
+    public static Region getSVGImage(String path, double height, double width,double rotate) {
+
+        return getSVGImage(path, height, width, Icon.CSS_TOOLBAR, rotate);
+
+    }
+
+    public static Region getSVGImage(String path, double height, double width, String css, double rotate) {
+        try {
+            Region region = new Region();
+            region.setRotate(rotate);
+
+            region.setPrefSize(width, height);
+            SVGPath svgPath = getSvgPath(path, height, width);
+            region.setShape(svgPath);
+            region.getStyleClass().add(css);
+            return region;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @NotNull
+    private static SVGPath getSvgPath(String path, double height, double width) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(JEConfig.class.getResourceAsStream(path));
+
+        XPathFactory xpf = XPathFactory.newInstance();
+        XPath xpath = xpf.newXPath();
+        XPathExpression expression = xpath.compile(xpathExpression);
+        NodeList svgPaths = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
+
+        SVGPath svgPath = new SVGPath();
+        svgPath.setScaleX(width);
+        svgPath.setScaleY(height);
+        svgPath.setContent(svgPaths.item(0).getNodeValue());
+        svgPath.setFill(Color.BLACK);
+        return svgPath;
+    }
+
 
     @Override
     public void init() throws Exception {
