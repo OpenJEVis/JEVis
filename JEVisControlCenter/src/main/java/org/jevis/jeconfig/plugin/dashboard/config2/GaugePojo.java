@@ -34,7 +34,7 @@ public class GaugePojo {
 
     private static final Logger logger = LogManager.getLogger(GaugePojo.class);
 
-    private double iconSize = 20;
+    private final double iconSize = 20;
 
     private final JFXButton jfxButtonDelete = new JFXButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
     private final JFXButton jfxButtonAdd = new JFXButton("", JEConfig.getImage("list-add.png", this.iconSize, this.iconSize));
@@ -52,7 +52,7 @@ public class GaugePojo {
     final DashboardControl dashboardControl;
 
 
-    private ActionEvent actionEvent = new ActionEvent();
+    private final ActionEvent actionEvent = new ActionEvent();
 
     private boolean showTitle = true;
 
@@ -329,7 +329,7 @@ public class GaugePojo {
                 minimum = Double.parseDouble(minTextField.getText());
                 maximum = Double.parseDouble(maxTextField.getText());
 
-                tableViewSections.getItems().forEach(System.out::println);
+                tableViewSections.getItems().forEach(x -> logger.debug(x));
                 sections.clear();
                 sections.addAll(tableViewSections.getItems());
 

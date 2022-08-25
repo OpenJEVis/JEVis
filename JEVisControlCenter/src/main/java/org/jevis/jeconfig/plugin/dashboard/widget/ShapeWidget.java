@@ -49,7 +49,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private final ShapeWidget limitWidget = null;
     private final ShapeWidget percentWidget = null;
     private final String percentText = "";
-    private AnchorPane anchorPane = new AnchorPane();
+    private final AnchorPane anchorPane = new AnchorPane();
     private ShapePojo shapeConfig;
     private double blue = 1;
     private double green = 0;
@@ -85,7 +85,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
 
-        System.out.println(interval);
+        logger.debug(interval);
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -105,7 +105,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
             this.sampleHandler.setAutoAggregation(true);
 
-            ;
             this.sampleHandler.setInterval(interval);
 
             this.sampleHandler.update();
@@ -289,9 +288,9 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
 
         try {
-            System.out.println(this.config.getConfigNode(SHAPE_DESIGN_NODE_NAME));
+            logger.debug(this.config.getConfigNode(SHAPE_DESIGN_NODE_NAME));
             this.shapeConfig = new ShapePojo(this.control, this.config.getConfigNode(SHAPE_DESIGN_NODE_NAME));
-            System.out.println(shapeConfig);
+            logger.debug(shapeConfig);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
