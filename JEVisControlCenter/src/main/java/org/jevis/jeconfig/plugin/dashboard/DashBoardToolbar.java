@@ -71,6 +71,7 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, this.iconSize, this.iconSize));
     private final ToggleButton enlarge = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, this.iconSize, this.iconSize));
     private final ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, 18, 18));
+    private final ToggleButton sidebarEditor = new ToggleButton("", JEConfig.getSVGImage(Icon.TUNE, this.iconSize, this.iconSize));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
     private final ToggleButton navigator = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
     private final ToggleButton customWorkDay = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, iconSize, iconSize));

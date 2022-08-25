@@ -118,5 +118,7 @@ public class Icon {
 
     public static final String MAP = "/icons/MaterialDesignSVG/outlined/map.svg";
 
+    public static final String TUNE = "/icons/MaterialDesignSVG/outlined/tune.svg";
+
 
 }
