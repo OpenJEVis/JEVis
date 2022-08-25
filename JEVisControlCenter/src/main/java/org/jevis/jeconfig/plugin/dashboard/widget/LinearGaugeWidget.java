@@ -67,11 +67,11 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     private DataModelDataHandler sampleHandler;
     private LinearGaugePojo gaugeSettings;
     private Interval lastInterval = null;
-    private ChangeListener<Number> limitListener = null;
-    private ChangeListener<Number> percentListener = null;
-    private LinearGaugeWidget limitWidget = null;
-    private LinearGaugeWidget percentWidget = null;
-    private String percentText = "";
+    private final ChangeListener<Number> limitListener = null;
+    private final ChangeListener<Number> percentListener = null;
+    private final LinearGaugeWidget limitWidget = null;
+    private final LinearGaugeWidget percentWidget = null;
+    private final String percentText = "";
     private Percent percent;
     private Boolean customWorkday = true;
 
@@ -275,7 +275,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     private void updateSkin() {
         if (gauge != null) {
             if (gaugeSettings != null) {
-                System.out.println("update Skin");
+                logger.debug("update Skin");
 
                 gauge.setBarColor(gaugeSettings.getColorValueIndicator());
                 gauge.setMajorTickMarksVisible(gaugeSettings.isShowMajorTick());
@@ -292,7 +292,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                     gauge.setMaxValue(gaugeSettings.getMaximum());
                     gauge.setUnit(displayedUnit.getValue());
                 }
-                System.out.println((gauge.getMaxValue() - gauge.getMinValue()) / 10);
+                logger.debug((gauge.getMaxValue() - gauge.getMinValue()) / 10);
                 gauge.setMajorTickSpace((gauge.getMaxValue() - gauge.getMinValue()) / 10);
             } else {
                 init();

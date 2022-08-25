@@ -17,7 +17,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
@@ -741,7 +740,7 @@ public class NotesPlugin implements Plugin {
     }
 
     private Object getAnalysisRequest(NotesRow notesRow, JEVisObject noteItem) {
-        System.out.println("getAnalysisRequest: " + notesRow + " item: " + noteItem);
+        logger.debug("getAnalysisRequest: " + notesRow + " item: " + noteItem);
         DateTime start = notesRow.getTimeStamp().minusHours(12);
         DateTime end = notesRow.getTimeStamp().plusHours(12);
 
@@ -882,7 +881,7 @@ public class NotesPlugin implements Plugin {
         save.setOnAction(event -> {
             this.data.forEach(notesRow -> {
                 if (notesRow.hasChanged()) {
-                    System.out.println("Note Has changed commit:");
+                    logger.debug("Note Has changed commit:");
                     notesRow.commit();
                 }
             });

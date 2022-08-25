@@ -34,51 +34,51 @@ public class SideConfigPanel extends GridPane {
 
 
     private static final Logger logger = LogManager.getLogger(SideConfigPanel.class);
-    private DashboardControl control;
+    private final DashboardControl control;
     private boolean isUpdating = false;
-    private double iconSize = 16;
+    private final double iconSize = 16;
 
-    private JFXComboBox<Integer> layerComboBox = new JFXComboBox();
-    private ColorPickerAdv bgColorPicker = new ColorPickerAdv();
-    private ColorPickerAdv fColorPicker = new ColorPickerAdv();
-    private JFXCheckBox showShadowField = new JFXCheckBox();
-    private JFXCheckBox showValueField = new JFXCheckBox();
-    private Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
-    private Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
-    private Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
-    private Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
-    private Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
-    private Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
-    private Label precisionLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.precision"));
-    private Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
-    private Label widthLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.width"));
-    private Label heightLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.height"));
-    private Label moveLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.move"));
-    private Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
-    private Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
-    private Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
-    private JFXTextField widthText = new JFXTextField();
-    private JFXTextField heightText = new JFXTextField();
-    private JFXTextField xPosText = new JFXTextField();
-    private JFXTextField yPosText = new JFXTextField();
+    private final JFXComboBox<Integer> layerComboBox = new JFXComboBox();
+    private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
+    private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
+    private final JFXCheckBox showShadowField = new JFXCheckBox();
+    private final JFXCheckBox showValueField = new JFXCheckBox();
+    private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
+    private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
+    private final Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
+    private final Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
+    private final Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
+    private final Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
+    private final Label precisionLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.precision"));
+    private final Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
+    private final Label widthLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.width"));
+    private final Label heightLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.height"));
+    private final Label moveLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.move"));
+    private final Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
+    private final Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
+    private final Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
+    private final JFXTextField widthText = new JFXTextField();
+    private final JFXTextField heightText = new JFXTextField();
+    private final JFXTextField xPosText = new JFXTextField();
+    private final JFXTextField yPosText = new JFXTextField();
     //-----------
     //ObservableList<String> dataItems = FXCollections.observableArrayList("One", "Two", "Three", "Four", "Five", "Six","Seven", "Eight", "Nine", "Ten");
     JFXComboBox<JEVisObject> objectSelectionBox = new JFXComboBox<>();
-    private JFXButton leftButton = new JFXButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
-    private JFXButton rightButton = new JFXButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
-    private JFXButton downButton = new JFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
-    private JFXButton upButton = new JFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
-    private JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
-    private JFXButton equalizeDataModelButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
+    private final JFXButton leftButton = new JFXButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
+    private final JFXButton rightButton = new JFXButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
+    private final JFXButton downButton = new JFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
+    private final JFXButton upButton = new JFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
+    private final JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
+    private final JFXButton equalizeDataModelButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
     ListView<JEVisObject> selectedObjectsListView = new ListView();
-    private JFXComboBox<Pos> alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+    private final JFXComboBox<Pos> alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
     ObservableList<JEVisObject> dataItems = FXCollections.observableArrayList();
     FilteredList<JEVisObject> filteredItems = new FilteredList<>(dataItems, p -> true);
     FlowPane dataEditor = new FlowPane();
-    private JFXTextField titleText = new JFXTextField();
-    private TextField pixels = new TextField("25");
+    private final JFXTextField titleText = new JFXTextField();
+    private final TextField pixels = new TextField("25");
     private Widget selectedWidget = null;
-    private GridPane dataPointConfigPane = new GridPane();
+    private final GridPane dataPointConfigPane = new GridPane();
 
 
     public SideConfigPanel(DashboardControl control) {
@@ -170,11 +170,8 @@ public class SideConfigPanel extends GridPane {
 
             }
         }
-        isUpdating = false;
 
-        if (widget == null) {
-            isUpdating = true;//Workaround to stop all events from happen
-        }
+        isUpdating = widget == null;//Workaround to stop all events from happen
 
 
     }
@@ -596,21 +593,21 @@ public class SideConfigPanel extends GridPane {
         addButton.setOnAction(event -> {
             Platform.runLater(() -> {
                 Object test = objectSelectionBox.getSelectionModel().getSelectedItem();
-                System.out.println("test.class: " + test.getClass());
-                System.out.println("intencof: " + (objectSelectionBox.getSelectionModel().getSelectedItem() instanceof JEVisObject));
+                logger.debug("test.class: " + test.getClass());
+                logger.debug("intencof: " + (objectSelectionBox.getSelectionModel().getSelectedItem() instanceof JEVisObject));
                 if (!objectSelectionBox.getSelectionModel().isEmpty() && objectSelectionBox.getSelectionModel().getSelectedItem() instanceof JEVisObject) {
-                    System.out.println("add: " + objectSelectionBox.getSelectionModel().getSelectedItem());
+                    logger.debug("add: " + objectSelectionBox.getSelectionModel().getSelectedItem());
                     selectedObjectsListView.getItems().add(objectSelectionBox.getSelectionModel().getSelectedItem());
-                    System.out.println("Done");
+                    logger.debug("Done");
                 } else {
-                    System.out.println("wrong add: " + objectSelectionBox.getSelectionModel().getSelectedItem());
+                    logger.debug("wrong add: " + objectSelectionBox.getSelectionModel().getSelectedItem());
                 }
             });
 
         });
 
         selectedObjectsListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("selectedObjectsListView: " + newValue);
+            logger.debug("selectedObjectsListView: " + newValue);
             // todo add gui elements by widget support type
             // add to dataModel
 

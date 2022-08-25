@@ -124,7 +124,7 @@ public class DashboardControl {
         Task task = new Task() {
             @Override
             protected Object call() throws Exception {
-                System.out.println("---- Control.updateWidgets");
+                logger.debug("---- Control.updateWidgets");
                 widget.updateConfig(widget.getConfig());
                 widget.updateData(activeInterval);
                 super.done();
@@ -247,7 +247,7 @@ public class DashboardControl {
         try {
             Class<?> clazz = Class.forName("org.jevis.jeconfig.plugin.dashboard.widget.TitleWidget");
             Constructor<?> ctor = clazz.getConstructor(DashboardControl.class);
-            Object object = ctor.newInstance(new Object[]{this});
+            Object object = ctor.newInstance(this);
             Widget widget = (Widget) object;
             System.out.println("hmmmmmmmm: " + widget.getControl());
         } catch (Exception exception) {
@@ -310,7 +310,7 @@ public class DashboardControl {
         if the zoom level is to one of the dynamic sizes start at 100%.
         There might be a better ways to calculate a better factor
          */
-        if (zoomFactor >= this.fitToHeight) {
+        if (zoomFactor >= fitToHeight) {
             zoomFactor = 1;
         }
 
@@ -322,7 +322,7 @@ public class DashboardControl {
         if the zoom level is to one of the dynamic sizes start at 100%.
         There might be a better ways to calculate a better factor
          */
-        if (zoomFactor >= this.fitToHeight) {
+        if (zoomFactor >= fitToHeight) {
             zoomFactor = 1;
         }
         setZoomFactor(zoomFactor - zoomSteps);
@@ -652,7 +652,6 @@ public class DashboardControl {
     }
 
     public void requestViewUpdate(Widget widget) {
-        System.out.println("---- Control.requestViewUpdate");
         logger.debug("requestViewUpdate: {}", widget.getConfig().getTitle());
 //        widget.updateData(getInterval());
         try {
