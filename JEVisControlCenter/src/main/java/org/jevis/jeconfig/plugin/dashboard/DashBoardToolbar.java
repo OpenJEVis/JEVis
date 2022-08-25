@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Paint;
 import javafx.scene.transform.Rotate;
 import javafx.util.Callback;
 import org.apache.commons.math3.util.Precision;
@@ -518,9 +519,13 @@ public class DashBoardToolbar extends ToolBar {
                                 setGraphic(null);
                                 setText(null);
                             } else {
-                                if (!isMultiSite() && !isMultiDir())
-                                    setText(obj.getName());
-                                else {
+                                Label label = new Label();
+                                label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
+                                label.setTextFill(Paint.valueOf("Black"));
+                                if (!isMultiSite() && !isMultiDir()) {
+                                    //setText(obj.getName());
+                                    label.setText(obj.getName());
+                                } else {
                                     String prefix = "";
                                     if (isMultiSite()) {
                                         prefix += objectRelations.getObjectPath(obj);
@@ -528,8 +533,11 @@ public class DashBoardToolbar extends ToolBar {
                                     if (isMultiDir()) {
                                         prefix += objectRelations.getRelativePath(obj);
                                     }
-
-                                    setText(prefix + obj.getName());
+                                    label.setText(prefix + obj.getName());
+                                    //label.setTooltip(new Tooltip(prefix + obj.getName()));
+                                    setGraphic(label);
+                                    System.out.println("label.getParent(): " + label.getParent());
+                                    //setText(prefix + obj.getName());
                                 }
                             }
 
