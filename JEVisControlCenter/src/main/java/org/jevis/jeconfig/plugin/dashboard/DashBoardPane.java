@@ -190,8 +190,9 @@ public class DashBoardPane extends Pane {
         Platform.runLater(() -> {
             try {
                 if (!getChildren().contains(widget)) {
-                    getChildren().add(widget);
                     widget.setVisible(true);
+                    getChildren().add(widget);
+
 
                     if (gridIsVisible) {
                         visibleGrid.forEach(line -> {

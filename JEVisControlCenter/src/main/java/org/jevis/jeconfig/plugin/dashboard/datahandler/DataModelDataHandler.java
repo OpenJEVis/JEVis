@@ -452,6 +452,7 @@ public class DataModelDataHandler {
 //            System.out.println("Set autoAggrigate: " + chartDataModel.getObject().getName() + " b: " + autoAggregation);
 //            chartDataModel.setAbsolute(autoAggregation);
             DateTime start = this.durationProperty.getValue().getStart();
+
             DateTime end = this.durationProperty.getValue().getEnd();
 
             if (chartDataModel.getAggregationPeriod() != AggregationPeriod.NONE
@@ -605,5 +606,9 @@ public class DataModelDataHandler {
             }
 
         }
+    }
+
+    public DashboardControl getDashboardControl() {
+        return dashboardControl;
     }
 }

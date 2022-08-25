@@ -35,6 +35,11 @@ public class TimeFrameFactory {
         this.ds = ds;
     }
 
+    public TimeFrame getTimeframe(String periode, String name) {
+        LastPeriod lastPeriod = new LastPeriod(new Period(periode), name);
+        return lastPeriod;
+    }
+
     public ObservableList<TimeFrame> getAll() {
         if (!list.isEmpty()) {
             return list;
@@ -94,6 +99,7 @@ public class TimeFrameFactory {
 
     public TimeFrame customPeriodObject(CustomPeriodObject cpo) {
         return new TimeFrame() {
+
             @Override
             public String getListName() {
                 if (cpo != null && cpo.getObject() != null) {
@@ -188,10 +194,12 @@ public class TimeFrameFactory {
                 return TimeFrameType.CUSTOM.toString();
             }
 
+
             @Override
             public String getListName() {
                 return "Individuell";
             }
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -256,10 +264,12 @@ public class TimeFrameFactory {
 //                return TimeFrameType.DAY.toString();
             }
 
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.daily");
             }
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -337,10 +347,12 @@ public class TimeFrameFactory {
                 return timeFrameEqual(obj);
             }
 
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.weekly");
             }
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -408,10 +420,12 @@ public class TimeFrameFactory {
                 return timeFrameEqual(obj);
             }
 
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.monthly");
             }
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -480,10 +494,12 @@ public class TimeFrameFactory {
 //                return TimeFrameType.YEAR.toString();
             }
 
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.yearly");
             }
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -546,11 +562,13 @@ public class TimeFrameFactory {
                 return Period.years(3).toString();
             }
 
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
                         + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.threeyears");
             }
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -613,11 +631,13 @@ public class TimeFrameFactory {
                 return Period.years(5).toString();
             }
 
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
                         + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.fiveyears");
             }
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
@@ -680,11 +700,13 @@ public class TimeFrameFactory {
                 return Period.years(10).toString();
             }
 
+
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
                         + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.tenyears");
             }
+
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {

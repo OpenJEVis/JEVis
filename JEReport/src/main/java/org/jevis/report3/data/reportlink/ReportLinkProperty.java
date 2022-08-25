@@ -291,7 +291,7 @@ public class ReportLinkProperty implements ReportData {
             }
         } catch (Exception ex) {
             logger.error(ex);
-            return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+            return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
         }
 
         if (attributeProperties.isEmpty() || optional) {
@@ -309,20 +309,20 @@ public class ReportLinkProperty implements ReportData {
                                 if (latestSample.getTimestamp().isAfter(end)) {
                                     return new LinkStatus(true, "ok");
                                 } else {
-                                    return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+                                    return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
                                 }
                             } else {
-                                return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+                                return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
                             }
                         } else {
-                            return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+                            return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
                         }
                     } else {
-                        return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+                        return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
                     }
                 } catch (Exception ex) {
                     logger.error(ex);
-                    return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+                    return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
                 }
             }
         }

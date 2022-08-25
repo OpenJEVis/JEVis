@@ -46,10 +46,6 @@ public class ImageWidget extends Widget {
         this.setId(WIDGET_ID + UUID.randomUUID());
     }
 
-    public ImageWidget(DashboardControl control) {
-        super(control);
-    }
-
     @Override
     public void debug() {
 
@@ -156,6 +152,7 @@ public class ImageWidget extends Widget {
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
+                updateConfig();
 
             } catch (Exception ex) {
                 logger.error(ex);

@@ -250,6 +250,7 @@ public class SaveAnalysisDialog extends JFXDialog {
             if (cset.getMinFractionDigits() != null) set.setMinFractionDigits(cset.getMinFractionDigits().toString());
             if (cset.getMaxFractionDigits() != null) set.setMaxFractionDigits(cset.getMaxFractionDigits().toString());
             if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());
+            if (cset.getFilterEnabled() != null) set.setFilterEnabled(cset.getFilterEnabled().toString());
 
             JsonChartTimeFrame jctf = new JsonChartTimeFrame();
             if (cset.getAnalysisTimeFrame().getTimeFrame() != null) {

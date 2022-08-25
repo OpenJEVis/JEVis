@@ -30,7 +30,6 @@ import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
-import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 import org.jevis.jeconfig.tool.Layouts;
 import org.jevis.jeconfig.tool.ScreenSize;
 
@@ -326,7 +325,7 @@ public class WidgetNavigator {
         });
 
 
-        NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvailableWidgets(control));
+        NewWidgetSelector widgetSelector = new NewWidgetSelector(control);
         widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
             Widget newWidget = widgetSelector.getSelectedWidget();
             //newWidget.getConfig().setUuid(control.getNextFreeUUID());

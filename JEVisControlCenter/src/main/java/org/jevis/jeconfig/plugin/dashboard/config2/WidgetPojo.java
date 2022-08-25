@@ -114,7 +114,7 @@ public class WidgetPojo {
                 logger.debug("Could not parse {}: {}", FONT_COLOR, ex.getMessage());
             }
             try {
-                this.size = new Size(jsonNode.get(HEIGHT).asDouble(), jsonNode.get(WIDTH).asDouble());
+                this.size = new Size(jsonNode.get(HEIGHT).asDouble(25), jsonNode.get(WIDTH).asDouble(25));
             } catch (Exception ex) {
                 logger.debug("Could not parse {} : {}", HEIGHT, ex.getMessage());
             }

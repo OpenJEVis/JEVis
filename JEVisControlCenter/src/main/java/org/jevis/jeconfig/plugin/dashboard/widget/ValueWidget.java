@@ -86,14 +86,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
         setId(WIDGET_ID);
     }
 
-    public ValueWidget(DashboardControl control) {
-        super(control);
-    }
-
-    public ValueWidget() {
-        super();
-        setId(WIDGET_ID);
-    }
 
     @Override
     public WidgetPojo createDefaultConfig() {
@@ -172,7 +164,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
             showProgressIndicator(false);
         });
 
-        updateLayout();
+        //updateLayout();
+        updateText();
         logger.debug("Value.updateData.done: {}", this.getConfig().getTitle());
     }
 
@@ -192,14 +185,36 @@ public class ValueWidget extends Widget implements DataModelWidget {
             }
         }
 
-        if (!percentText.isEmpty()) {
-            if (getConfig().getShowValue()) {
-                valueText.setValue(valueText.getValue() + " (" + percentText + ")");
-            } else {
+        String displayedText = "";
+
+        if (getConfig().getShowValue() && !percentText.isEmpty()) {
+            displayedText = valueText.getValue() + " (" + percentText + ")";
+        }
+        if (getConfig().getShowValue() && percentText.isEmpty()) {
+            displayedText = valueText.getValue();
+        }
+        if (!getConfig().getShowValue() && !percentText.isEmpty()) {
+            displayedText = percentText;
+        }
+        if (!getConfig().getShowValue() && percentText.isEmpty()) {
+            displayedText = "- %";
+        }
+        valueText.setValue(displayedText);
+
+        //if (!percentText.isEmpty()) {
+        /*
+        if (getConfig().getShowValue()) {
+            valueText.setValue(valueText.getValue() + " (" + percentText + ")");
+        } else {
+            if (!percentText.isEmpty()) {
                 valueText.setValue(percentText);
+            } else {
+                valueText.setValue("- %");
             }
 
         }
+        */
+        // }
 
         Platform.runLater(() -> {
             this.label.setText(valueText.getValue());
@@ -230,7 +245,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateLayout() {
-        updateText();
+        //updateText();
     }
 
     @Override
@@ -294,6 +309,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
                     }
 
                 }
+            } else {
+                checkLimit();
+                updateText();
             }
 
         } catch (Exception exception) {
@@ -325,6 +343,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
                         break;
                     }
                 }
+            } else {
+                percentText = "";
+                updateText();
             }
         } catch (Exception exception) {
             logger.error("Error while updating percent: {}", exception, exception);
@@ -338,6 +359,10 @@ public class ValueWidget extends Widget implements DataModelWidget {
     }
 
     private void checkPercent(double reference) {
+        if (percent.getPercentWidgetID() <= 0) {
+            return;
+        }
+
         Double value = ValueWidget.this.displayedSample.get();
         Double result = value / reference * 100;
         if (!result.isNaN()) {

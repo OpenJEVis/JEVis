@@ -445,25 +445,28 @@ public class JEConfig extends Application {
             protected Void call() throws Exception {
 
                 startDate = new Date();
+
                 logger.debug("Start JEVis Control Center");
-                login.addLoginMessage(I18n.getInstance().getString("app.login.start"));
+                login.addLoginMessage(I18n.getInstance().getString("app.login.start"), false);
                 _mainDS = login.getDataSource();
+                login.addLoginMessage(FXLogin.checkMarkSymbol, true);
 
                 JEConfig.userpassword = login.getUserPassword();
-                login.addLoginMessage(I18n.getInstance().getString("app.login.initializelocale"));
+                login.addLoginMessage(I18n.getInstance().getString("app.login.initializelocale"), false);
                 I18n.getInstance().selectBundle(login.getSelectedLocale());
                 Locale.setDefault(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
+                login.addLoginMessage(FXLogin.checkMarkSymbol, true);
 
                 _config.setLocale(login.getSelectedLocale());
 
                 try {
-                    login.addLoginMessage(I18n.getInstance().getString("app.login.beginpreload"));
+                    //login.addLoginMessage(I18n.getInstance().getString("app.login.beginpreload"), true);
 
                     preload(login);
-
-                    login.addLoginMessage(I18n.getInstance().getString("app.login.donepreload"));
+                    //login.addLoginMessage(checkMarkSymbol, true);
+                    //login.addLoginMessage(I18n.getInstance().getString("app.login.donepreload"));
                     logger.error("done preloading");
 
                     Holidays.setDataSource(_mainDS);
@@ -474,7 +477,7 @@ public class JEConfig extends Application {
 
 
                 logger.error("start GUI");
-                login.addLoginMessage(I18n.getInstance().getString("app.login.startinggui"));
+                login.addLoginMessage(I18n.getInstance().getString("app.login.startinggui"), false);
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
                 PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
@@ -625,6 +628,7 @@ public class JEConfig extends Application {
 
                     logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
                 });
+                login.addLoginMessage(FXLogin.checkMarkSymbol, true);
                 return null;
             }
         };
@@ -696,21 +700,25 @@ public class JEConfig extends Application {
     private void preload(FXLogin login) {
         JEVisDataSourceWS dataSourceWS = (JEVisDataSourceWS) _mainDS;
 
-        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingclasses"));
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingclasses"), false);
         dataSourceWS.preloadClasses();
-        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedclasses"));
+        login.addLoginMessage(FXLogin.checkMarkSymbol, true);
+        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedclasses"));
 
-        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingrelationships"));
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingrelationships"), false);
         dataSourceWS.preloadRelationships();
-        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedrelationships"));
+        login.addLoginMessage(FXLogin.checkMarkSymbol, true);
+        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedrelationships"));
 
-        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingobjects"));
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingobjects"), false);
         dataSourceWS.preloadObjects();
-        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedobjects"));
+        login.addLoginMessage(FXLogin.checkMarkSymbol, true);
+        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedobjects"));
 
-        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingattributes"));
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingattributes"), false);
         dataSourceWS.preloadAttributes();
-        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedattributes"));
+        login.addLoginMessage(FXLogin.checkMarkSymbol, true);
+        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedattributes"));
     }
 
     public static void showError(String message, Exception ex) {
