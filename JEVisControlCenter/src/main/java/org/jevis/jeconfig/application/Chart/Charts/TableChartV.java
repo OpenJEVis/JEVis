@@ -452,7 +452,7 @@ public class TableChartV extends XYChart {
                 String columnFilterValue = column.getValue();
                 if (columnFilterValue == null || columnFilterValue.equals("")) continue;
 
-                String columnValue = tableSample.getColumnValues().get(columnIndex); //TableSample has no date column
+                String columnValue = tableSample.getColumnValues().get(columnIndex + 1); //TableSample has no date column
                 if (!columnValue.toLowerCase().contains(columnFilterValue.toLowerCase())) {
                     showTableSample = false;
                     break;
