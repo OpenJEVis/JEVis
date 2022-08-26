@@ -58,7 +58,9 @@ public class TableChartV extends XYChart {
     private Boolean showRowSums = false;
     private Boolean showColumnSums = false;
     private final JFXCheckBox filterEnabledBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
-    private final HashMap<Integer, String> columnFilter = new HashMap<>();
+    private final HashMap<TableColumn, String> columnFilter = new HashMap<>();
+    private final HashMap<TableColumn, Node> newGraphicNodes = new HashMap<>();
+    private FilteredList<TableSample> filteredList;
 
     public TableChartV() {
     }
@@ -89,10 +91,6 @@ public class TableChartV extends XYChart {
             buildChart(dataModel, dataRows, chartSetting);
         }
     }
-
-    private final HashMap<Integer, String> oldColumnTitles = new HashMap<>();
-    private final HashMap<Integer, Node> newGraphicNodes = new HashMap<>();
-    private FilteredList<TableSample> filteredList;
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
@@ -125,15 +123,16 @@ public class TableChartV extends XYChart {
 
     @Override
     public void addSeriesToChart() {
+        this.columnFilter.clear();
         this.filterEnabledBox.setSelected(chartSetting.getFilterEnabled());
         this.filterEnabledBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             chartSetting.setFilterEnabled(newValue);
-            for (Map.Entry<Integer, String> columnTitles : oldColumnTitles.entrySet()) {
-                Integer i = columnTitles.getKey();
-                String columnTitle = columnTitles.getValue();
-                Node newGraphic = newGraphicNodes.get(i);
+            for (XYChartSerie xyChartSerie : xyChartSerieList) {
+                int i = xyChartSerieList.indexOf(xyChartSerie);
+                String columnTitle = xyChartSerie.getTableEntryName();
 
-                TableColumn<TableSample, String> column = (TableColumn<TableSample, String>) tableHeader.getColumns().get(i);
+                TableColumn<TableSample, String> column = (TableColumn<TableSample, String>) tableHeader.getColumns().get(i + 1);
+                Node newGraphic = newGraphicNodes.get(column);
                 if (newValue) {
                     column.setGraphic(newGraphic);
                     column.setText(null);
@@ -238,7 +237,6 @@ public class TableChartV extends XYChart {
                 TableColumn<TableSample, String> column = new TableColumn<>();
                 column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getColumnValues().get(index)));
 
-                oldColumnTitles.put(index + 1, xyChartSerie.getTableEntryName());
                 Label columnNameLabel = new Label(xyChartSerie.getTableEntryName());
                 columnNameLabel.setAlignment(Pos.CENTER);
                 HBox nameLabelBox = new HBox(columnNameLabel);
@@ -247,10 +245,9 @@ public class TableChartV extends XYChart {
                 filterBox.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
                 filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {
-                        Integer i = index + 1; //DateColumn = 0
-                        String s = columnFilter.get(i);
-                        if (s != null) columnFilter.remove(i, newValue);
-                        columnFilter.put(i, newValue);
+                        String s = columnFilter.get(index);
+                        if (s != null) columnFilter.remove(index, newValue);
+                        columnFilter.put(column, newValue);
                         refreshTable();
                     }
                 });
@@ -258,7 +255,7 @@ public class TableChartV extends XYChart {
                 VBox graphicNode = new VBox(nameLabelBox, filterBox);
                 graphicNode.setPadding(new Insets(4));
 
-                newGraphicNodes.put(index + 1, graphicNode);
+                newGraphicNodes.put(column, graphicNode);
 
                 if (filterEnabledBox.isSelected()) {
                     column.setGraphic(graphicNode);
@@ -450,12 +447,12 @@ public class TableChartV extends XYChart {
     private void refreshTable() {
         filteredList.setPredicate(tableSample -> {
             boolean showTableSample = true;
-            for (Map.Entry<Integer, String> column : columnFilter.entrySet()) {
-                Integer columnIndex = column.getKey();
+            for (Map.Entry<TableColumn, String> column : columnFilter.entrySet()) {
+                int columnIndex = tableHeader.getColumns().indexOf(column);
                 String columnFilterValue = column.getValue();
                 if (columnFilterValue == null || columnFilterValue.equals("")) continue;
 
-                String columnValue = tableSample.getColumnValues().get(columnIndex - 1); //TableSample has no date column
+                String columnValue = tableSample.getColumnValues().get(columnIndex); //TableSample has no date column
                 if (!columnValue.toLowerCase().contains(columnFilterValue.toLowerCase())) {
                     showTableSample = false;
                     break;
