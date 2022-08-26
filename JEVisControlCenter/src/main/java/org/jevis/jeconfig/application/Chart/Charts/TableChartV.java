@@ -46,7 +46,10 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TableChartV extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChartV.class);
@@ -60,6 +63,7 @@ public class TableChartV extends XYChart {
     private final JFXCheckBox filterEnabledBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
     private final HashMap<TableColumn, String> columnFilter = new HashMap<>();
     private final HashMap<TableColumn, Node> newGraphicNodes = new HashMap<>();
+    private final HashMap<TableColumn, String> columnTitles = new HashMap<>();
     private FilteredList<TableSample> filteredList;
 
     public TableChartV() {
@@ -127,11 +131,10 @@ public class TableChartV extends XYChart {
         this.filterEnabledBox.setSelected(chartSetting.getFilterEnabled());
         this.filterEnabledBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             chartSetting.setFilterEnabled(newValue);
-            for (XYChartSerie xyChartSerie : xyChartSerieList) {
-                int i = xyChartSerieList.indexOf(xyChartSerie);
-                String columnTitle = xyChartSerie.getTableEntryName();
+            for (Map.Entry<TableColumn, String> entry : columnTitles.entrySet()) {
+                TableColumn<TableSample, String> column = (TableColumn<TableSample, String>) entry.getKey();
+                String columnTitle = entry.getValue();
 
-                TableColumn<TableSample, String> column = (TableColumn<TableSample, String>) tableHeader.getColumns().get(i + 1);
                 Node newGraphic = newGraphicNodes.get(column);
                 if (newValue) {
                     column.setGraphic(newGraphic);
@@ -143,7 +146,8 @@ public class TableChartV extends XYChart {
             }
         });
 
-        xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getSortCriteria));
+        AlphanumComparator alphanumComparator = new AlphanumComparator();
+        xyChartSerieList.sort((o1, o2) -> alphanumComparator.compare(o1.getTableEntryName(), o2.getTableEntryName()));
 
         try {
             tableHeader.getItems().clear();
@@ -256,6 +260,7 @@ public class TableChartV extends XYChart {
                 graphicNode.setPadding(new Insets(4));
 
                 newGraphicNodes.put(column, graphicNode);
+                columnTitles.put(column, xyChartSerie.getTableEntryName());
 
                 if (filterEnabledBox.isSelected()) {
                     column.setGraphic(graphicNode);
@@ -387,8 +392,6 @@ public class TableChartV extends XYChart {
                 }
             }
 
-            AlphanumComparator ac = new AlphanumComparator();
-            tableColumns.sort((o1, o2) -> ac.compare(o1.getText(), o2.getText()));
             tableColumns.add(0, dateColumn);
 
             ObservableList<TableSample> values = FXCollections.observableArrayList(tableSamples.values());
@@ -447,12 +450,13 @@ public class TableChartV extends XYChart {
     private void refreshTable() {
         filteredList.setPredicate(tableSample -> {
             boolean showTableSample = true;
-            for (Map.Entry<TableColumn, String> column : columnFilter.entrySet()) {
+            for (Map.Entry<TableColumn, String> entry : columnFilter.entrySet()) {
+                TableColumn<TableSample, String> column = (TableColumn<TableSample, String>) entry.getKey();
                 int columnIndex = tableHeader.getColumns().indexOf(column);
-                String columnFilterValue = column.getValue();
+                String columnFilterValue = entry.getValue();
                 if (columnFilterValue == null || columnFilterValue.equals("")) continue;
 
-                String columnValue = tableSample.getColumnValues().get(columnIndex + 1); //TableSample has no date column
+                String columnValue = tableSample.getColumnValues().get(columnIndex - 1); //TableSample has no date column
                 if (!columnValue.toLowerCase().contains(columnFilterValue.toLowerCase())) {
                     showTableSample = false;
                     break;
