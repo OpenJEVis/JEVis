@@ -40,6 +40,7 @@ public class JEVisRecycleBinObject implements JEVisObject {
     private final List<JEVisObject> childrenList = new ArrayList<>();
     final JEVisDataSource ds;
     private String _name = I18n.getInstance().getString("plugin.object.recyclebin.name");
+    public static String CLASS_NAME = "Recycle Bin";
 
     public JEVisRecycleBinObject(JEVisDataSource ds) {
         this.ds = ds;
@@ -100,7 +101,7 @@ public class JEVisRecycleBinObject implements JEVisObject {
     @Override
     public JEVisClass getJEVisClass() {
         try {
-            return ds.getJEVisClass("Recycle Bin");
+            return ds.getJEVisClass(CLASS_NAME);
         } catch (JEVisException e) {
             e.printStackTrace();
         }
