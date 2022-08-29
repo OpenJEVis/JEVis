@@ -1163,7 +1163,7 @@ public class ToolBarView {
         loadNew.setTooltip(loadNewTooltip);
 
         export = new MenuButton("", JEConfig.getSVGImage(Icon.EXPORT, iconSize, iconSize));
-        Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
+        Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.export"));
         export.setTooltip(exportCSVTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(export);
 
@@ -1179,7 +1179,7 @@ public class ToolBarView {
         export.getItems().addAll(exportCSV, exportPDF);
 
         printButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PRINT, iconSize, iconSize));
-        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
+        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
 
@@ -1236,6 +1236,7 @@ public class ToolBarView {
         showRawData = new ToggleButton("", JEConfig.getSVGImage(Icon.RAW_ON, iconSize, iconSize));
         Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
         showRawData.setTooltip(showRawDataTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(showRawData);
         showRawData.setSelected(model.getShowRawData());
         showRawData.styleProperty().bind(
                 Bindings
@@ -1250,6 +1251,8 @@ public class ToolBarView {
 
 
         mathOperation = new MenuButton("",JEConfig.getSVGImage(Icon.SUM, iconSize, iconSize));
+        mathOperation.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.mathoperation")));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(mathOperation);
         showSum = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
         showSum.setSelected(model.getShowSum());
 
@@ -1354,7 +1357,7 @@ public class ToolBarView {
         List<Node> nodes = Arrays.asList(listAnalysesComboBox,
                 presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                 reload, zoomOut,
-                loadNew, save, delete, select,export, exportImage, printButton,
+                loadNew, save, delete, select,export,mathOperation,showRawData, exportImage, printButton,
                 disableIcons, autoResize, runUpdateButton);
 
         pickerCombo.addListener();

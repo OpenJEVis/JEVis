@@ -80,3 +80,12 @@
     -fx-border-color: transparent;
     -fx-table-cell-border-color:transparent;
 }
+.toolbarSVG{
+    -fx-background-color: #535360;
+}
+.pluginSVG{
+    -fx-background-color: #1d24a6;
+}
+.ToolBarDatePicker.jfx-date-picker {
+    -jfx-default-color: #535360;
+}

@@ -771,8 +771,11 @@ public class NotesPlugin implements Plugin {
         reload.setTooltip(reloadTooltip);
 
         ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 18, 18));
+        newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.add")));
         ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.save")));
         ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.delete")));
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
