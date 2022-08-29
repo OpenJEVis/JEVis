@@ -395,11 +395,11 @@ public class DashBoardToolbar extends ToolBar {
                     , sep5, exportPNG, exportPDF
                     , sep6, runUpdateButton, unlockButton, navigator, widgetSelector, newWidget,  copyButton, delete
                     , sep2, showGridButton, snapGridButton, sidebarEditor
-                    ,helpButton, infoButton
+                    ,JEVisHelp.getInstance().buildSpacerNode(),helpButton, infoButton
             );
         });
 
-        //getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), );
+        //getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(),helpButton, infoButton);
         Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
         updateView(dashboardControl.getActiveDashboard());
