@@ -74,8 +74,6 @@ public class Icon {
 
     public static final String ALARM = "/icons/MaterialDesignSVG/outlined/notifications.svg";
 
-    public static final String EXCEL = "/icons/MaterialDesignSVG/outlined/backup_table.svg";
-
     public static final String ADD_CHART = "/icons/MaterialDesignSVG/outlined/addchart.svg";
 
     public static final String SCREENSHOT = "/icons/MaterialDesignSVG/outlined/screenshot_monitor.svg";

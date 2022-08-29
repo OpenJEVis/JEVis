@@ -96,7 +96,7 @@ public class AccountingPlugin extends TablePlugin {
     private final ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, toolBarIconSize, toolBarIconSize));
     private final ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, toolBarIconSize, toolBarIconSize));
     private final ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, toolBarIconSize, toolBarIconSize));
-    private final ToggleButton xlsxButton = new ToggleButton("", JEConfig.getSVGImage(Icon.EXCEL, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton xlsxButton = new ToggleButton("", JEConfig.getSVGImage(Icon.EXPORT, toolBarIconSize, toolBarIconSize));
     private final ToggleButton printButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PRINT, toolBarIconSize, toolBarIconSize));
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
@@ -268,6 +268,7 @@ public class AccountingPlugin extends TablePlugin {
         save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.save.tooltip")));
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.new.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.tooltip.print")));
+        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.delete.tooltip")));
 
         boolean canWriteToContracts = false;
         try {

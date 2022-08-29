@@ -356,7 +356,6 @@ public class DashBoardToolbar extends ToolBar {
 
 
         Separator sep1 = new Separator();
-
         Separator sep3 = new Separator();
         Separator sep4 = new Separator();
         Separator sep5 = new Separator();
@@ -394,9 +393,9 @@ public class DashBoardToolbar extends ToolBar {
                     , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
                     , sep4, loadDialogButton, save
                     , sep5, exportPNG, exportPDF
-                    , sep6, runUpdateButton, unlockButton, navigator, widgetSelector, newWidget, copyButton, delete
+                    , sep6, runUpdateButton, unlockButton, navigator, widgetSelector, newWidget,  copyButton, delete
                     , separatorEditMode, showGridButton, snapGridButton, sidebarEditor
-                    , helpButton, infoButton
+                    ,JEVisHelp.getInstance().buildSpacerNode(),helpButton, infoButton
             );
         });
 
