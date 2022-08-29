@@ -87,6 +87,7 @@ public class DashBoardToolbar extends ToolBar {
 
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+    private Separator separatorEditMode = new Separator();
 
     private boolean disableEventListener = false;
     private JFXComboBox<JEVisObject> listAnalysesComboBox;
@@ -355,7 +356,6 @@ public class DashBoardToolbar extends ToolBar {
 
 
         Separator sep1 = new Separator();
-        Separator sep2 = new Separator();
         Separator sep3 = new Separator();
         Separator sep4 = new Separator();
         Separator sep5 = new Separator();
@@ -394,12 +394,12 @@ public class DashBoardToolbar extends ToolBar {
                     , sep4, loadDialogButton, save
                     , sep5, exportPNG, exportPDF
                     , sep6, runUpdateButton, unlockButton, navigator, widgetSelector, newWidget,  copyButton, delete
-                    , sep2, showGridButton, snapGridButton, sidebarEditor
+                    , separatorEditMode, showGridButton, snapGridButton, sidebarEditor
                     ,JEVisHelp.getInstance().buildSpacerNode(),helpButton, infoButton
             );
         });
 
-        //getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(),helpButton, infoButton);
+        //getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), );
         Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(DashBordPlugIn.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
         updateView(dashboardControl.getActiveDashboard());
@@ -507,6 +507,8 @@ public class DashBoardToolbar extends ToolBar {
         navigator.setVisible(dashboardControl.editableProperty.get());
         sidebarEditor.setVisible(dashboardControl.editableProperty.get());
         newWidget.setVisible(dashboardControl.editableProperty.get());
+        separatorEditMode.setVisible(dashboardControl.editableProperty.get());
+
 
         updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
     }
