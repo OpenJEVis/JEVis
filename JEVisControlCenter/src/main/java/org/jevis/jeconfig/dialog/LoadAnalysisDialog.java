@@ -64,13 +64,14 @@ public class LoadAnalysisDialog extends JFXDialog {
     private final JFXListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
     private final DateHelper dateHelper = new DateHelper();
-    private JFXComboBox<AggregationPeriod> aggregationBox;
-    private DisabledItemsComboBox<ManipulationMode> mathBox;
+    private final JFXComboBox<AggregationPeriod> aggregationBox = new AggregationBox();
+    private final DisabledItemsComboBox<ManipulationMode> mathBox = getMathBox();
     private List<CustomPeriodObject> finalListCustomPeriodObjects;
-    private JFXComboBox<String> comboBoxCustomPeriods;
-    private JFXButton loadButton;
-    private JFXButton newButton;
-    private JFXButton cancelButton;
+    private final JFXButton loadButton = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"));
+    private final JFXComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
+    private final JFXButton newButton = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"));
+    private final JFXButton cancelButton = new JFXButton(I18n.getInstance().getString("plugin.graph.changedate.cancel"));
+    private final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
 
     /**
      * drawOptimization.setOnAction(event -> {
@@ -86,8 +87,12 @@ public class LoadAnalysisDialog extends JFXDialog {
     private final Tooltip mathBoxTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.mathBox"));
     private final Tooltip presetDateBoxTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.presetdate"));
     private final Tooltip customPeriodsComboBoxTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.customdate"));
-    //private JFXCheckBox drawOptimization;
-
+    private final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
+    private final Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
+    private final Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
+    private final Label labelAggregation = new Label(I18n.getInstance().getString("plugin.graph.interval.label"));
+    private final Label labelMath = new Label(I18n.getInstance().getString("plugin.graph.manipulation.label"));
+    private final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
 
     public LoadAnalysisDialog(StackPane dialogContainer, JEVisDataSource ds, AnalysisDataModel data) {
         this.analysisDataModel = data;
@@ -135,8 +140,10 @@ public class LoadAnalysisDialog extends JFXDialog {
         analysisListView.setItems(filteredData);
         analysisListView.getSelectionModel().selectedIndexProperty().addListener(
                 (observable, oldValue, newValue) ->
-                        Platform.runLater(() ->
-                                analysisListView.scrollTo(analysisListView.getSelectionModel().getSelectedIndex())));
+                        Platform.runLater(() -> {
+                            loadButton.setDisable(analysisListView.getSelectionModel().getSelectedItem() == null);
+                            analysisListView.scrollTo(analysisListView.getSelectionModel().getSelectedIndex());
+                        }));
 
         analysisListView.setCellFactory(param -> new ListCell<JEVisObject>() {
 
@@ -171,12 +178,45 @@ public class LoadAnalysisDialog extends JFXDialog {
                 && !analysisDataModel.getCurrentAnalysis().getName().equals(""))
             analysisListView.getSelectionModel().select(analysisDataModel.getCurrentAnalysis());
 
+        initializeControls();
+
         updateGridLayout();
 
         JEVisHelp.getInstance().setActiveSubModule(this.getClass().getSimpleName());
         JEVisHelp.getInstance().update();
 
     }
+    //private JFXCheckBox drawOptimization;
+
+    private void initializeControls() {
+        aggregationBox.getSelectionModel().select(analysisDataModel.getAggregationPeriod());
+        aggregationBox.setMaxWidth(200);
+
+        comboBoxCustomPeriods.setMaxWidth(200);
+        if (analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
+            for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
+                if (cpo.getObject().getID().equals(analysisDataModel.getGlobalAnalysisTimeFrame().getId())) {
+                    comboBoxCustomPeriods.getSelectionModel().select(finalListCustomPeriodObjects.indexOf(cpo) + 1);
+                }
+            }
+        } else {
+            comboBoxCustomPeriods.getSelectionModel().select(0);
+        }
+
+        mathBox.getSelectionModel().select(analysisDataModel.getManipulationMode());
+        mathBox.setMaxWidth(200);
+
+        cancelButton.setId("cancel-button");
+        cancelButton.setCancelButton(true);
+
+        loadButton.setId("ok-button");
+        loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
+        loadButton.setDefaultButton(true);
+        loadButton.setDisable(true);
+
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
+    }
+
 
     private void addListener() {
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -532,8 +572,6 @@ public class LoadAnalysisDialog extends JFXDialog {
         math.setCellFactory(cellFactory);
         math.setButtonCell(cellFactory.call(null));
 
-        math.getSelectionModel().select(analysisDataModel.getManipulationMode());
-
         return math;
     }
 
@@ -592,16 +630,6 @@ public class LoadAnalysisDialog extends JFXDialog {
 
         JFXComboBox<String> tempBox = new JFXComboBox<>(customPeriods);
 
-        if (analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
-            for (CustomPeriodObject cpo : listCustomPeriodObjects) {
-                if (cpo.getObject().getID().equals(analysisDataModel.getGlobalAnalysisTimeFrame().getId())) {
-                    tempBox.getSelectionModel().select(listCustomPeriodObjects.indexOf(cpo) + 1);
-                }
-            }
-        } else {
-            tempBox.getSelectionModel().select(0);
-        }
-
         finalListCustomPeriodObjects = listCustomPeriodObjects;
         if (customPeriods.size() > 1) {
             tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -651,15 +679,6 @@ public class LoadAnalysisDialog extends JFXDialog {
             filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
             filterInput.setStyle("-fx-font-weight: bold;");
 
-            Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
-            Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
-            Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
-            Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
-            Label labelAggregation = new Label(I18n.getInstance().getString("plugin.graph.interval.label"));
-            Label labelMath = new Label(I18n.getInstance().getString("plugin.graph.manipulation.label"));
-            final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
-
-
             Region freeSpace = new Region();
             freeSpace.setPrefWidth(40);
 
@@ -696,21 +715,15 @@ public class LoadAnalysisDialog extends JFXDialog {
             gridLayout.add(presetDateBox, 2, 6, 3, 1);
 
             gridLayout.add(customSelectionsLabel, 2, 7, 3, 1);
-            comboBoxCustomPeriods = getCustomPeriodsComboBox();
             GridPane.setFillWidth(comboBoxCustomPeriods, true);
-            comboBoxCustomPeriods.setMaxWidth(200);
             gridLayout.add(comboBoxCustomPeriods, 2, 8, 3, 1);
 
             gridLayout.add(labelAggregation, 2, 9, 3, 1);
-            aggregationBox = new AggregationBox(analysisDataModel, null);
             GridPane.setFillWidth(aggregationBox, true);
-            aggregationBox.setMaxWidth(200);
             gridLayout.add(aggregationBox, 2, 10, 3, 1);
 
             gridLayout.add(labelMath, 2, 11, 3, 1);
-            mathBox = getMathBox();
             GridPane.setFillWidth(mathBox, true);
-            mathBox.setMaxWidth(200);
             gridLayout.add(mathBox, 2, 12, 3, 1);
 
             GridPane.setFillWidth(analysisListView, true);
@@ -723,17 +736,8 @@ public class LoadAnalysisDialog extends JFXDialog {
 
             HBox buttonBox = new HBox(10);
             Region spacer = new Region();
-            cancelButton = new JFXButton(I18n.getInstance().getString("plugin.graph.changedate.cancel"));
-            cancelButton.setId("cancel-button");
-            loadButton = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"));
-            newButton = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"));
             //drawOptimization = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.analysis.drawopt"));
             //drawOptimization.setSelected(HiddenConfig.CHART_PRECISION_ON);
-            loadButton.setId("ok-button");
-            loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
-            newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
-            cancelButton.setCancelButton(true);
-            loadButton.setDefaultButton(true);
 
             HBox.setHgrow(loadButton, Priority.NEVER);
             HBox.setHgrow(newButton, Priority.NEVER);
