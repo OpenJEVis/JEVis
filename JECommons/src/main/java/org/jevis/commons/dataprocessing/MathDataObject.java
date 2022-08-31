@@ -450,7 +450,9 @@ public class MathDataObject {
                 try {
                     DateTime latestSampleTS = latestSample.getTimestamp().withZone(getTimeZone(getMathDataObject()));
 
-                    return latestSampleTS.isAfter(nextRun);
+                    boolean ready = latestSampleTS.equals(nextRun) || latestSampleTS.isAfter(nextRun);
+
+                    return ready;
                 } catch (JEVisException e) {
                     logger.error("Could not check ready state", e);
                 }
