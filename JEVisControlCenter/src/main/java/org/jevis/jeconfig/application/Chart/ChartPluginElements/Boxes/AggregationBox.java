@@ -13,7 +13,7 @@ import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 public class AggregationBox extends JFXComboBox<AggregationPeriod> {
 
 
-    public AggregationBox(AggregationPeriod period) {
+    public AggregationBox() {
         final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
         final String keyMinutely = I18n.getInstance().getString("plugin.unit.samplingrate.everyminute");
         final String keyQuarterHourly = I18n.getInstance().getString("plugin.graph.interval.quarterhourly");
@@ -75,6 +75,10 @@ public class AggregationBox extends JFXComboBox<AggregationPeriod> {
         };
         setCellFactory(cellFactory);
         setButtonCell(cellFactory.call(null));
+    }
+
+    public AggregationBox(AggregationPeriod period) {
+        this();
 
         getSelectionModel().select(period);
     }
