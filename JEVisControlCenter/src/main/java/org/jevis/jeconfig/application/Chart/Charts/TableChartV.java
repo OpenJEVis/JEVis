@@ -1,14 +1,23 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import com.ibm.icu.text.NumberFormat;
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +46,10 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TableChartV extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChartV.class);
@@ -48,6 +60,11 @@ public class TableChartV extends XYChart {
     private final DateTime maxDate = new DateTime(9999, 1, 1, 0, 0, 0, 0);
     private Boolean showRowSums = false;
     private Boolean showColumnSums = false;
+    private final JFXCheckBox filterEnabledBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
+    private final HashMap<TableColumn, String> columnFilter = new HashMap<>();
+    private final HashMap<TableColumn, Node> newGraphicNodes = new HashMap<>();
+    private final HashMap<TableColumn, String> columnTitles = new HashMap<>();
+    private FilteredList<TableSample> filteredList;
 
     public TableChartV() {
     }
@@ -101,7 +118,7 @@ public class TableChartV extends XYChart {
         }
 
         /**
-         * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
+         * check if there is a manipulation for changing the x-axis values into duration instead of concrete timestamps
          */
 
         checkManipulation(singleRow);
@@ -110,7 +127,27 @@ public class TableChartV extends XYChart {
 
     @Override
     public void addSeriesToChart() {
-        xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getSortCriteria));
+        this.columnFilter.clear();
+        this.filterEnabledBox.setSelected(chartSetting.getFilterEnabled());
+        this.filterEnabledBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            chartSetting.setFilterEnabled(newValue);
+            for (Map.Entry<TableColumn, String> entry : columnTitles.entrySet()) {
+                TableColumn<TableSample, String> column = (TableColumn<TableSample, String>) entry.getKey();
+                String columnTitle = entry.getValue();
+
+                Node newGraphic = newGraphicNodes.get(column);
+                if (newValue) {
+                    column.setGraphic(newGraphic);
+                    column.setText(null);
+                } else {
+                    column.setText(columnTitle);
+                    column.setGraphic(null);
+                }
+            }
+        });
+
+        AlphanumComparator alphanumComparator = new AlphanumComparator();
+        xyChartSerieList.sort((o1, o2) -> alphanumComparator.compare(o1.getTableEntryName(), o2.getTableEntryName()));
 
         try {
             tableHeader.getItems().clear();
@@ -201,8 +238,35 @@ public class TableChartV extends XYChart {
                     }
                 }
 
-                TableColumn<TableSample, String> column = new TableColumn<>(xyChartSerie.getTableEntryName());
+                TableColumn<TableSample, String> column = new TableColumn<>();
                 column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getColumnValues().get(index)));
+
+                Label columnNameLabel = new Label(xyChartSerie.getTableEntryName());
+                columnNameLabel.setAlignment(Pos.CENTER);
+                HBox nameLabelBox = new HBox(columnNameLabel);
+                nameLabelBox.setAlignment(Pos.CENTER);
+                JFXTextField filterBox = new JFXTextField();
+                filterBox.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
+                filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
+                    if (!newValue.equals(oldValue)) {
+                        String s = columnFilter.get(index);
+                        if (s != null) columnFilter.remove(index, newValue);
+                        columnFilter.put(column, newValue);
+                        refreshTable();
+                    }
+                });
+
+                VBox graphicNode = new VBox(nameLabelBox, filterBox);
+                graphicNode.setPadding(new Insets(4));
+
+                newGraphicNodes.put(column, graphicNode);
+                columnTitles.put(column, xyChartSerie.getTableEntryName());
+
+                if (filterEnabledBox.isSelected()) {
+                    column.setGraphic(graphicNode);
+                } else {
+                    column.setText(xyChartSerie.getTableEntryName());
+                }
 
                 column.setCellFactory(new Callback<TableColumn<TableSample, String>, TableCell<TableSample, String>>() {
                     @Override
@@ -328,14 +392,14 @@ public class TableChartV extends XYChart {
                 }
             }
 
-            AlphanumComparator ac = new AlphanumComparator();
-            tableColumns.sort((o1, o2) -> ac.compare(o1.getText(), o2.getText()));
             tableColumns.add(0, dateColumn);
 
-            List<TableSample> values = new ArrayList<>(tableSamples.values());
+            ObservableList<TableSample> values = FXCollections.observableArrayList(tableSamples.values());
             values.sort((o1, o2) -> DateTimeComparator.getInstance().compare(o1.getTimeStamp(), o2.getTimeStamp()));
 
-            tableHeader.getItems().addAll(values);
+            filteredList = new FilteredList<>(values, s -> true);
+
+            tableHeader.setItems(filteredList);
 
             for (Map.Entry<Integer, JEVisObject> entry : enpis.entrySet()) {
                 Task task = new Task() {
@@ -381,6 +445,26 @@ public class TableChartV extends XYChart {
         } catch (Exception e) {
             logger.error("Error while adding Series to chart", e);
         }
+    }
+
+    private void refreshTable() {
+        filteredList.setPredicate(tableSample -> {
+            boolean showTableSample = true;
+            for (Map.Entry<TableColumn, String> entry : columnFilter.entrySet()) {
+                TableColumn<TableSample, String> column = (TableColumn<TableSample, String>) entry.getKey();
+                int columnIndex = tableHeader.getColumns().indexOf(column);
+                String columnFilterValue = entry.getValue();
+                if (columnFilterValue == null || columnFilterValue.equals("")) continue;
+
+                String columnValue = tableSample.getColumnValues().get(columnIndex - 1); //TableSample has no date column
+                if (!columnValue.toLowerCase().contains(columnFilterValue.toLowerCase())) {
+                    showTableSample = false;
+                    break;
+                }
+            }
+            return showTableSample;
+        });
+        tableHeader.refresh();
     }
 
     private void updateSample(NumberFormat nf, List<Double> sums, XYChartSerie xyChartSerie, int index, JEVisSample jeVisSample, TableSample nts) throws JEVisException {
@@ -517,5 +601,9 @@ public class TableChartV extends XYChart {
 
     public void showColumnSums(Boolean showColumnSums) {
         this.showColumnSums = showColumnSums;
+    }
+
+    public JFXCheckBox getFilterEnabledBox() {
+        return filterEnabledBox;
     }
 }

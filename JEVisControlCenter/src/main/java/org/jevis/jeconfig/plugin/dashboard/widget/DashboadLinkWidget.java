@@ -58,10 +58,6 @@ public class DashboadLinkWidget extends Widget {
         super(control, config);
     }
 
-    public DashboadLinkWidget(DashboardControl control) {
-        super(control);
-    }
-
     @Override
     public void debug() {
 

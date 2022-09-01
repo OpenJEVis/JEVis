@@ -53,9 +53,6 @@ public class TableWidget extends Widget implements DataModelWidget {
         super(control, config);
     }
 
-    public TableWidget(DashboardControl control) {
-        super(control);
-    }
 
     @Override
     public void debug() {

@@ -405,7 +405,7 @@ public class CleanDataObject {
         boolean isCounter = false;
         try {
             JEVisDataSource ds = null;
-            if (object == null && latestSample.getDataSource() != null) {
+            if (object == null && latestSample != null && latestSample.getDataSource() != null) {
                 ds = latestSample.getDataSource();
                 object = latestSample.getAttribute().getObject();
             } else if (object != null) {

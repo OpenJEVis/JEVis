@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
@@ -27,23 +28,21 @@ import org.joda.time.Interval;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public class TitleWidget extends Widget {
 
     private static final Logger logger = LogManager.getLogger(TitleWidget.class);
     public static String WIDGET_ID = "Title";
+    public static Image ICON = JEConfig.getImage("widget/TitleWidget.png");
     private final Label label = new Label();
     private AnchorPane anchorPane = new AnchorPane();
 
+
     public TitleWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
-        this.setId(WIDGET_ID + UUID.randomUUID());
+        this.setId(WIDGET_ID);
     }
 
-    public TitleWidget(DashboardControl control) {
-        super(control);
-    }
 
     @Override
     public void debug() {
@@ -76,7 +75,6 @@ public class TitleWidget extends Widget {
         logger.debug("UpdateConfig");
         Platform.runLater(() -> {
             try {
-
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 this.label.setBackground(bgColor);
                 this.label.setTextFill(this.config.getFontColor());
@@ -153,4 +151,5 @@ public class TitleWidget extends Widget {
     public ImageView getImagePreview() {
         return JEConfig.getImage("widget/TitleWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
+
 }

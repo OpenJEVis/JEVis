@@ -12,7 +12,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -31,7 +34,7 @@ public class GaugePojo {
 
     private static final Logger logger = LogManager.getLogger(GaugePojo.class);
 
-    private double iconSize = 20;
+    private final double iconSize = 20;
 
     private final JFXButton jfxButtonDelete = new JFXButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
     private final JFXButton jfxButtonAdd = new JFXButton("", JEConfig.getImage("list-add.png", this.iconSize, this.iconSize));
@@ -49,7 +52,7 @@ public class GaugePojo {
     final DashboardControl dashboardControl;
 
 
-    private ActionEvent actionEvent = new ActionEvent();
+    private final ActionEvent actionEvent = new ActionEvent();
 
     private boolean showTitle = true;
 
@@ -109,12 +112,25 @@ public class GaugePojo {
 
         if (jsonNode != null) {
 
-            maximum = jsonNode.get("maximum").asDouble();
-            minimum = jsonNode.get("minimum").asDouble();
-            inPercent = jsonNode.get("inPercent").asBoolean();
-            showTitle = jsonNode.get("showTitle").asBoolean();
-            showUnit = jsonNode.get("showUnit").asBoolean();
-            showValue = jsonNode.get("showValue").asBoolean();
+            if (jsonNode.has("maximum")) {
+                maximum = jsonNode.get("maximum").asDouble();
+            }
+            if (jsonNode.has("minimum")) {
+                minimum = jsonNode.get("minimum").asDouble();
+            }
+            if (jsonNode.has("inPercent")) {
+                minimum = jsonNode.get("inPercent").asDouble();
+            }
+            if (jsonNode.has("showTitle")) {
+                showTitle = jsonNode.get("showTitle").asBoolean(true);
+            }
+            if (jsonNode.has("showUnit")) {
+                showUnit = jsonNode.get("showUnit").asBoolean(true);
+            }
+            if (jsonNode.has("showValue")) {
+                showValue = jsonNode.get("showValue").asBoolean(true);
+            }
+
             for (int i = 0; i < jsonNode.get("sections").size(); i++) {
                 double sectionEnd = jsonNode.get("sections").get(i).get("end").asDouble();
                 double sectionStart = jsonNode.get("sections").get(i).get("start").asDouble();
@@ -181,39 +197,6 @@ public class GaugePojo {
 
     public void setShowValue(boolean showValue) {
         this.showValue = showValue;
-    }
-
-
-    private class GaugeDesignTab extends Tab implements ConfigTab {
-        GaugePojo gaugeDesign;
-
-        public GaugeDesignTab(String text, GaugePojo gaugeDesign) {
-            super(text);
-            this.gaugeDesign = gaugeDesign;
-        }
-
-        @Override
-        public void commitChanges() {
-            try {
-                showValue = jfxCheckBoxShowValue.isSelected();
-                showUnit = jfxCheckBoxShowUnit.isSelected();
-                showTitle = jfxCheckBoxShowTitle.isSelected();
-                inPercent = jfxCheckBoxInPercent.isSelected();
-                minimum = Double.parseDouble(minTextField.getText());
-                maximum = Double.parseDouble(maxTextField.getText());
-
-                tableViewSections.getItems().forEach(System.out::println);
-                sections.clear();
-                sections.addAll(tableViewSections.getItems());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-
-
-        }
     }
 
     public Tab getConfigTab() {
@@ -293,20 +276,6 @@ public class GaugePojo {
 
     }
 
-
-    public int getLimitSource() {
-        return gaugeWidgetID;
-    }
-
-    public int getGaugeWidgetID() {
-        return gaugeWidgetID;
-    }
-
-    public void setGaugeWidgetID(int gaugeWidgetID) {
-        this.gaugeWidgetID = gaugeWidgetID;
-    }
-
-
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
 
@@ -327,6 +296,49 @@ public class GaugePojo {
 
         }
         return dataNode;
+    }
+
+
+    public int getLimitSource() {
+        return gaugeWidgetID;
+    }
+
+    public int getGaugeWidgetID() {
+        return gaugeWidgetID;
+    }
+
+    public void setGaugeWidgetID(int gaugeWidgetID) {
+        this.gaugeWidgetID = gaugeWidgetID;
+    }
+
+    private class GaugeDesignTab extends Tab implements ConfigTab {
+        GaugePojo gaugeDesign;
+
+        public GaugeDesignTab(String text, GaugePojo gaugeDesign) {
+            super(text);
+            this.gaugeDesign = gaugeDesign;
+        }
+
+        @Override
+        public void commitChanges() {
+            try {
+                showValue = jfxCheckBoxShowValue.isSelected();
+                showUnit = jfxCheckBoxShowUnit.isSelected();
+                showTitle = jfxCheckBoxShowTitle.isSelected();
+                inPercent = jfxCheckBoxInPercent.isSelected();
+                minimum = Double.parseDouble(minTextField.getText());
+                maximum = Double.parseDouble(maxTextField.getText());
+
+                tableViewSections.getItems().forEach(x -> logger.debug(x));
+                sections.clear();
+                sections.addAll(tableViewSections.getItems());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
     }
 
 }

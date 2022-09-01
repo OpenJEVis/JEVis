@@ -30,8 +30,10 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.drivermanagment.ClassImporter;
@@ -507,7 +509,27 @@ public class TopMenu extends MenuBar {
         MenuItem showChangelog = new MenuItem(I18n.getInstance().getString("menu.options.patchnotes"));
         MenuItem showHelp = new MenuItem(I18n.getInstance().getString("menu.showToolTips"));
         MenuItem about = new MenuItem(I18n.getInstance().getString("menu.about"));
+        CheckMenuItem debug = new CheckMenuItem("Debug");
         help.getItems().addAll(showHelp, showChangelog, about);
+        if (JEConfig.getExpert()) {
+            help.getItems().add(debug);
+        }
+
+        debug.setOnAction(event -> {
+
+
+            if (debug.isSelected()) {
+                logger.debug("Is debug");
+                Logger logger = LogManager.getRootLogger();
+                Configurator.setAllLevels(logger.getName(), Level.DEBUG);
+                LogManager.getLogger(TopMenu.class);
+            } else {
+                logger.debug("Is not debug");
+                Logger logger = LogManager.getRootLogger();
+                Configurator.setAllLevels(logger.getName(), Level.INFO);
+                LogManager.getLogger(TopMenu.class);
+            }
+        });
 
         about.setOnAction(t -> {
             AboutDialog dia = new AboutDialog();

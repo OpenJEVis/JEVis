@@ -11,8 +11,11 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.widget.EmptyValueWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.ValueWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
+import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
 import java.math.BigDecimal;
@@ -20,17 +23,17 @@ import java.util.Optional;
 
 public class PercentPane extends GridPane {
     private static final Logger logger = LogManager.getLogger(PercentPane.class);
-
-
     private final Label sourceLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.source"));
     private final Percent percent;
     private final ObservableList<Widget> widgetList;
     private JFXComboBox<Widget> widgetBox;
+    private DashboardControl dashboardControl;
 
 
-    public PercentPane(Percent percent, ObservableList<Widget> widgetList) {
+    public PercentPane(DashboardControl dashboardControl, Percent percent, ObservableList<Widget> widgetList) {
         this.percent = percent;
         this.widgetList = widgetList;
+        this.dashboardControl = dashboardControl;
         initControls();
 
         setPadding(new Insets(10));
@@ -65,12 +68,14 @@ public class PercentPane extends GridPane {
     }
 
     private void initControls() {
-        ValueWidget emptyWidget = new ValueWidget();
-        emptyWidget.getConfig().setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.nolink"));
-        if (!widgetList.contains(emptyWidget)) {
-            widgetList.add(0, emptyWidget);
+        //EmptyValueWidget emptyWidget = new EmptyValueWidget(dashboardControl, null);
+        //emptyWidget.getConfig().setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.nolink"));
+        if (!widgetList.contains(Widgets.emptyValueWidget(dashboardControl))) {
+            widgetList.add(0, Widgets.emptyValueWidget(dashboardControl));
         }
-        widgetBox = new JFXComboBox<>(widgetList.filtered(widget -> widget.typeID().equals(ValueWidget.WIDGET_ID)));
+
+        widgetBox = new JFXComboBox<>(widgetList.filtered(widget -> widget.typeID() == Widgets.emptyValueWidget(dashboardControl).TYPE_ID || widget.typeID().equals(ValueWidget.WIDGET_ID)));
+
 
         Callback<ListView<Widget>, ListCell<Widget>> cellFactory = new Callback<ListView<Widget>, ListCell<Widget>>() {
             @Override
@@ -81,15 +86,20 @@ public class PercentPane extends GridPane {
                         super.updateItem(item, empty);
                         if (item != null && !empty) {
                             try {
-                                ValueWidget widget = ((ValueWidget) item);
-                                String title = item.getConfig().getTitle().isEmpty()
-                                        ? I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.list.nottitle")
-                                        : item.getConfig().getTitle();
+                                if (item instanceof EmptyValueWidget) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.valuewidget.nolink"));
+                                } else {
+                                    ValueWidget widget = ((ValueWidget) item);
+                                    String title = item.getConfig().getTitle().isEmpty()
+                                            ? I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.list.nottitle")
+                                            : item.getConfig().getTitle();
 
-                                setText(String.format("[%d] '%s' | %.2f",
-                                        item.getConfig().getUuid(),
-                                        title,
-                                        widget.getDisplayedSampleProperty().getValue()));
+                                    setText(String.format("[%d] '%s' | %.2f",
+                                            item.getConfig().getUuid(),
+                                            title,
+                                            widget.getDisplayedSampleProperty().getValue()));
+                                }
+
 
                             } catch (Exception ex) {
                                 logger.error(ex);
@@ -113,10 +123,16 @@ public class PercentPane extends GridPane {
 
         widgetBox.setOnAction(event -> {
             if (widgetBox.getSelectionModel().getSelectedItem() != null) {
-                percent.percentWidget = widgetBox.getSelectionModel().getSelectedItem().getConfig().getUuid();
+                if (widgetBox.getSelectionModel().getSelectedItem() instanceof EmptyValueWidget) {
+                    percent.percentWidget = -1;
+                } else {
+                    percent.percentWidget = widgetBox.getSelectionModel().getSelectedItem().getConfig().getUuid();
+                }
             }
         });
 
 
     }
+
+
 }

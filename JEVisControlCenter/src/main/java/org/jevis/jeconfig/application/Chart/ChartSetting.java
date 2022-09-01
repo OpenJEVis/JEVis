@@ -17,6 +17,8 @@ public class ChartSetting {
     private Integer minFractionDigits = 2;
     private Integer maxFractionDigits = 2;
 
+    private Boolean filterEnabled = false;
+
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
 
     public ChartSetting(String name) {
@@ -108,5 +110,13 @@ public class ChartSetting {
 
     public void setMaxFractionDigits(Integer maxFractionDigits) {
         this.maxFractionDigits = maxFractionDigits;
+    }
+
+    public Boolean getFilterEnabled() {
+        return filterEnabled;
+    }
+
+    public void setFilterEnabled(Boolean filterEnabled) {
+        this.filterEnabled = filterEnabled;
     }
 }

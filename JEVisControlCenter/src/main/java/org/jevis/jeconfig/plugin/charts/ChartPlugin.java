@@ -68,6 +68,7 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeapi.ws.JEVisObjectWS;
 import org.jevis.jeconfig.Constants;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.*;
@@ -236,11 +237,11 @@ public class ChartPlugin implements Plugin {
                             "    -fx-text-alignment: left;\n";
 //                    "    -fx-text-fill: #0076a3;\n";
 
-            JFXButton newAnalysis = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"), JEConfig.getImage("Data.png", 32, 32));
+            JFXButton newAnalysis = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"), JEConfig.getSVGImage(Icon.ADD_CHART, 32, 32));
             newAnalysis.setStyle(style);
             newAnalysis.setAlignment(Pos.CENTER);
 
-            JFXButton loadAnalysis = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"), JEConfig.getImage("1390343812_folder-open.png", 32, 32));
+            JFXButton loadAnalysis = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"), JEConfig.getSVGImage(Icon.FOLDER_OPEN, 32, 32));
             loadAnalysis.setStyle(style);
             loadAnalysis.setAlignment(Pos.CENTER);
 
@@ -459,8 +460,8 @@ public class ChartPlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("1415314386_Graph.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.GRAPH, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override
@@ -614,8 +615,12 @@ public class ChartPlugin implements Plugin {
                         Label titleLabel = new Label(chartSetting.getName());
                         titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");
                         titleLabel.setAlignment(Pos.CENTER);
-                        HBox hBox = new HBox(titleLabel);
+
+                        Region spacer = new Region();
+
+                        HBox hBox = new HBox(8, titleLabel, spacer, tableChart.getFilterEnabledBox());
                         hBox.setAlignment(Pos.CENTER);
+                        HBox.setHgrow(spacer, Priority.ALWAYS);
 
                         TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
                         tableChart.setTableHeader(tableHeaderTable);

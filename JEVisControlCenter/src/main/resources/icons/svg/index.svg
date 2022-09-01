@@ -1,0 +1,9 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>Layer 1</title>
+  <text xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="24" id="svg_1" y="162" x="373" stroke-width="0" stroke="#000" fill="#000000">L1</text>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_2" y2="175.26829" x2="411.17073" y1="175.26829" x1="360.78049" stroke="#000" fill="none"/>
+  <text style="cursor: move;" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="24" id="svg_4" y="195.17073" x="373.4878" stroke-width="0" stroke="#000" fill="#000000">L2</text>
+ </g>
+</svg>

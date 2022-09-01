@@ -13,24 +13,21 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
-import org.jevis.api.JEVisAttribute;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisType;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigTab;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
-import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 
 import java.time.Period;
 
 public class GenericConfigNode extends Tab implements ConfigTab {
-
+    private static final Logger logger = LogManager.getLogger(GenericConfigNode.class);
     private final Label nameLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.title"));
     private final Label tooltipLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.tooltip"));
     private final Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
@@ -74,9 +71,9 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         timeFrameBox.setPrefWidth(200);
         timeFrameBox.setMinWidth(200);
         timeFrameBox.getItems().addAll(timeFrames);
-        System.out.println(widget.getClass());
+        logger.debug(widget.getClass());
         if (widget.getClass().equals(GaugeWidget.class) || widget.getClass().equals(LinearGaugeWidget.class)) {
-            System.out.println("wiget is gauge");
+            logger.debug("wiget is gauge");
             timeFrameBox.getItems().add(widget.getControl().getAllTimeFrames().getTimeframe(Period.ZERO.toString(), I18n.getInstance().getString("plugin.graph.dashboard.timeframe.lastValue")));
         }
         alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));

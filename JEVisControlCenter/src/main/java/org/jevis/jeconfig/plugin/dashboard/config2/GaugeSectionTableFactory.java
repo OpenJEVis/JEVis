@@ -4,38 +4,23 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.*;
+import javafx.scene.control.Control;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
-import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
-
-import javax.swing.text.html.ImageView;
 
 public class GaugeSectionTableFactory {
 
 
-
     private static final Logger logger = LogManager.getLogger(WidgetColumnFactory.class);
-
-    private TableView<GaugeSectionPojo> tableView;
-
     private final Double numberColumDefaultSize = 70d;
-
-    public TableView<GaugeSectionPojo> buildTable() {
-        tableView = new TableView<>();
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY );
-        this.tableView.getColumns().add(buildStart());
-        this.tableView.getColumns().add(buildEnd());
-        this.tableView.getColumns().add(buildColor());
-
-        return tableView;
-
-    }
+    private TableView<GaugeSectionPojo> tableView;
     private final ChangeListener<Boolean> focusListener = new ChangeListener<Boolean>() {
         @Override
         public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -44,6 +29,17 @@ public class GaugeSectionTableFactory {
             }
         }
     };
+
+    public TableView<GaugeSectionPojo> buildTable() {
+        tableView = new TableView<>();
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        this.tableView.getColumns().add(buildStart());
+        this.tableView.getColumns().add(buildEnd());
+        this.tableView.getColumns().add(buildColor());
+
+        return tableView;
+
+    }
 
     public TableColumn<GaugeSectionPojo, Color> buildColor() {
 
@@ -111,8 +107,8 @@ public class GaugeSectionTableFactory {
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                   GaugeSectionPojo gaugeSectionPojo = (GaugeSectionPojo) getTableRow().getItem();
-                                   gaugeSectionPojo.setStart(Double.parseDouble(newValue));
+                                    GaugeSectionPojo gaugeSectionPojo = (GaugeSectionPojo) getTableRow().getItem();
+                                    gaugeSectionPojo.setStart(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }
@@ -150,8 +146,6 @@ public class GaugeSectionTableFactory {
                 return new SimpleObjectProperty<>(null);
             }
         };
-
-
 
 
         TableColumn<GaugeSectionPojo, Double> column = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.gaugewidget.start"));
@@ -219,8 +213,6 @@ public class GaugeSectionTableFactory {
         };
 
 
-
-
         TableColumn<GaugeSectionPojo, Double> column = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.gaugewidget.end"));
         column.setId("End");
         column.setCellValueFactory(valueFactory);
@@ -238,6 +230,7 @@ public class GaugeSectionTableFactory {
         //textField.setMaxWidth(this.numberColumDefaultSize);
         return textField;
     }
+
     public void addFocusRefreshListener(Control field) {
         field.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
@@ -248,9 +241,6 @@ public class GaugeSectionTableFactory {
             }
         });
     }
-
-
-
 
 
 }

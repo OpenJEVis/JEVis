@@ -46,6 +46,7 @@ import org.jevis.commons.json.JsonAlarm;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.GlobalToolBar;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
@@ -161,7 +162,9 @@ public class AlarmPlugin implements Plugin {
         this.numberFormat.setMaximumFractionDigits(2);
 
         this.startDatePicker.setPrefWidth(120d);
+        this.startDatePicker.getStyleClass().add("ToolBarDatePicker");
         this.endDatePicker.setPrefWidth(120d);
+        this.endDatePicker.getStyleClass().add("ToolBarDatePicker");
 
         createColumns();
 
@@ -778,7 +781,7 @@ public class AlarmPlugin implements Plugin {
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
@@ -850,7 +853,7 @@ public class AlarmPlugin implements Plugin {
 
         Separator sep4 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton checkAll = new ToggleButton(I18n.getInstance().getString("plugin.alarm.checkall"), JEConfig.getImage("jetxee-check-sign-and-cross-sign-3.png", iconSize, iconSize));
+        ToggleButton checkAll = new ToggleButton(I18n.getInstance().getString("plugin.alarm.checkall"), JEConfig.getSVGImage(Icon.CHECK, iconSize, iconSize));
         checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkAll);
         checkAll.setOnMouseClicked(event -> {
@@ -1238,8 +1241,8 @@ public class AlarmPlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("alarm_icon.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.ERROR, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override

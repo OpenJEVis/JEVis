@@ -11,7 +11,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -24,6 +23,7 @@ import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.Constants;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
@@ -77,13 +77,6 @@ public class DashBordPlugIn implements Plugin {
         this.dashBoardPane = new DashBoardPane(this.dashboardControl);
         this.dashboardControl.setDashboardPane(dashBoardPane);
 
-
-//        this.workaround.getChildren().add(dashBoardPane);
-//        this.scrollPane.setContent(workaround);
-//        workaround.setAutoSizeChildren(true);
-//        this.scrollPane.setContent(dashBoardPane);
-
-
         scrollPane.setFitToHeight(true);
         scrollPane.setFitToWidth(true);
         zoomPane.getChildren().add(dashBoardPane);
@@ -95,10 +88,8 @@ public class DashBordPlugIn implements Plugin {
 
 
         this.rootPane.setCenter(this.scrollPane);
-        //this.rootPane.getChildren().setAll(this.scrollPane);
 
         notificationPane = new NotificationPane(dialogPane);
-//        notificationPane.setStyle("-fx-background-color: red;");
         notificationPane.setStyle("-fx-focus-color: transparent;");
         rootPane.setStyle("-fx-focus-color: transparent;");
         notificationPane.getStyleClass().add(NotificationPane.STYLE_CLASS_DARK);
@@ -301,8 +292,8 @@ public class DashBordPlugIn implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("if_dashboard_46791.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.DASHBOARD, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override

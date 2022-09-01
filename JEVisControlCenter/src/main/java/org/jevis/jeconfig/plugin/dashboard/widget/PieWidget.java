@@ -56,16 +56,11 @@ public class PieWidget extends Widget implements DataModelWidget {
         super(control, config);
     }
 
-    public PieWidget(DashboardControl control) {
-        super(control);
-    }
-
     @Override
     public void debug() {
-        this.sampleHandler.debug();
+
     }
 
-    @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.piewidget.newname"));

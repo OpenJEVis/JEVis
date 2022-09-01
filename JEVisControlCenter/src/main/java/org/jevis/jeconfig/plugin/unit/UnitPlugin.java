@@ -28,15 +28,13 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.GlobalToolBar;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.unit.UnitObject;
 import org.jevis.jeconfig.application.unit.UnitTree;
 
@@ -271,8 +269,8 @@ public class UnitPlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("1405444584_measure.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.UNIT, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override

@@ -77,6 +77,11 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
         return (row1, row2) -> {
             try {
 
+                if (row1.getJEVisObject().getJEVisClassName().equals(JEVisRecycleBinObject.CLASS_NAME)) {
+                    return 1;
+                } else if (row2.getJEVisObject().getJEVisClassName().equals(JEVisRecycleBinObject.CLASS_NAME)) {
+                    return -1;
+                }
 
                 if (row1.getType() == row2.getType()) {
 

@@ -39,7 +39,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.accounting.AccountingPlugin;
-import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
+import org.jevis.jeconfig.plugin.alarms.*;
 import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;

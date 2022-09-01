@@ -54,10 +54,6 @@ public class ArrowWidget extends Widget {
         this.setId(WIDGET_ID + UUID.randomUUID());
     }
 
-    public ArrowWidget(DashboardControl control) {
-        super(control);
-    }
-
     @Override
     public void debug() {
 

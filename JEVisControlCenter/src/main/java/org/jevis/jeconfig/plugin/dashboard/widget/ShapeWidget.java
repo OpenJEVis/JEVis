@@ -39,37 +39,25 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ShapeWidget.class);
     public static String WIDGET_ID = "Shape";
-    private AnchorPane anchorPane = new AnchorPane();
-
-    private ShapePojo shapeConfig;
-
     public static String SHAPE_NODE_NAME = "shape";
-
-    private double blue = 1;
-    private double green = 0;
-    private double red = 0;
-
-    private Interval lastInterval = null;
-    //private DataModelDataHandler sampleHandler;
+    public static String PERCENT_NODE_NAME = "percent";
+    public static String SHAPE_DESIGN_NODE_NAME = "shapeDesign";
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-
-    public static String PERCENT_NODE_NAME = "percent";
     private final ChangeListener<Number> limitListener = null;
     private final ChangeListener<Number> percentListener = null;
     private final ShapeWidget limitWidget = null;
     private final ShapeWidget percentWidget = null;
     private final String percentText = "";
-
-
-    public static String SHAPE_DESIGN_NODE_NAME = "shapeDesign";
+    private final AnchorPane anchorPane = new AnchorPane();
+    private ShapePojo shapeConfig;
+    private double blue = 1;
+    private double green = 0;
+    private double red = 0;
+    private Interval lastInterval = null;
+    private DataModelDataHandler sampleHandler;
     private Boolean customWorkday = true;
 
-
-    public enum SHAPE {
-        ELLIPSE,
-        RECTANGLE,
-    }
 
     public ShapeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -91,14 +79,13 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     }
 
-
     @Override
     public void updateData(Interval interval) {
 
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
 
-        System.out.println(interval);
+        logger.debug(interval);
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -118,7 +105,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
             this.sampleHandler.setAutoAggregation(true);
 
-            ;
             this.sampleHandler.setInterval(interval);
 
             this.sampleHandler.update();
@@ -141,11 +127,8 @@ public class ShapeWidget extends Widget implements DataModelWidget {
             }
         });
 
-        try {
-            updateShape();
-        } catch (Exception e) {
-            logger.error(e);
-        }
+
+        updateShape();
 
 
     }
@@ -204,7 +187,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     }
 
-
     @Override
     public DataModelDataHandler getDataHandler() {
         return this.sampleHandler;
@@ -254,7 +236,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         }
     }
 
-
     @Override
     public void updateConfig() {
         logger.debug("UpdateConfig");
@@ -281,12 +262,10 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     }
 
-
     @Override
     public boolean isStatic() {
         return false;
     }
-
 
     @Override
     public List<DateTime> getMaxTimeStamps() {
@@ -296,7 +275,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
             return new ArrayList<>();
         }
     }
-
 
     @Override
     public void init() {
@@ -310,9 +288,9 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
 
         try {
-            System.out.println(this.config.getConfigNode(SHAPE_DESIGN_NODE_NAME));
+            logger.debug(this.config.getConfigNode(SHAPE_DESIGN_NODE_NAME));
             this.shapeConfig = new ShapePojo(this.control, this.config.getConfigNode(SHAPE_DESIGN_NODE_NAME));
-            System.out.println(shapeConfig);
+            logger.debug(shapeConfig);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -366,7 +344,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     }
 
-
     @Override
     public String typeID() {
         return WIDGET_ID;
@@ -392,12 +369,17 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/shapes.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+        return JEConfig.getImage("fontawesome-free-6.1.2-desktop/svgs/solid/address-book.svg", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
-
 
     public DoubleProperty getDisplayedSampleProperty() {
         return displayedSample;
+    }
+
+
+    public enum SHAPE {
+        ELLIPSE,
+        RECTANGLE,
     }
 
 

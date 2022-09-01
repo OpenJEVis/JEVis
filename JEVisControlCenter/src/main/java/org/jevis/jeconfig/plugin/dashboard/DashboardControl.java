@@ -51,6 +51,7 @@ import org.joda.time.Period;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 public class DashboardControl {
@@ -78,6 +79,7 @@ public class DashboardControl {
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty showSideEditorProperty = new SimpleBooleanProperty(true);
     public BooleanProperty snapToGridProperty = new SimpleBooleanProperty(false);
     private final Interval previousActiveInterval = null;
     public BooleanProperty showWidgetHelpProperty = new SimpleBooleanProperty(false);
@@ -123,6 +125,7 @@ public class DashboardControl {
         Task task = new Task() {
             @Override
             protected Object call() throws Exception {
+                logger.debug("---- Control.updateWidgets");
                 widget.updateConfig(widget.getConfig());
                 widget.updateData(activeInterval);
                 super.done();
@@ -239,6 +242,20 @@ public class DashboardControl {
     }
 
     public Widget createNewWidget(WidgetPojo widgetPojo) {
+        System.out.println("Contol.createnewWidgets: " + widgetPojo);
+
+        System.out.println("---- newWidgetS.getSe...");
+        try {
+            Class<?> clazz = Class.forName("org.jevis.jeconfig.plugin.dashboard.widget.TitleWidget");
+            Constructor<?> ctor = clazz.getConstructor(DashboardControl.class);
+            Object object = ctor.newInstance(this);
+            Widget widget = (Widget) object;
+            System.out.println("hmmmmmmmm: " + widget.getControl());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
+
         widgetPojo.setUuid(getNextFreeUUID());
 //        System.out.println("createNewWidget: "+widgetPojo.getUuid());
         return configManager.createWidget(this, widgetPojo);
@@ -294,7 +311,7 @@ public class DashboardControl {
         if the zoom level is to one of the dynamic sizes start at 100%.
         There might be a better ways to calculate a better factor
          */
-        if (zoomFactor >= this.fitToHeight) {
+        if (zoomFactor >= fitToHeight) {
             zoomFactor = 1;
         }
 
@@ -306,7 +323,7 @@ public class DashboardControl {
         if the zoom level is to one of the dynamic sizes start at 100%.
         There might be a better ways to calculate a better factor
          */
-        if (zoomFactor >= this.fitToHeight) {
+        if (zoomFactor >= fitToHeight) {
             zoomFactor = 1;
         }
         setZoomFactor(zoomFactor - zoomSteps);
@@ -569,9 +586,11 @@ public class DashboardControl {
         });
         if (!editable) {
             selectedWidgets.clear();
-            showConfig();
+
             updateHighlightSelected();
         }
+
+        showConfig();
 
         this.toolBar.updateView(activeDashboard);
     }
@@ -591,7 +610,7 @@ public class DashboardControl {
     }
 
     public void setActiveTimeFrame(TimeFrame activeTimeFrame) {
-        logger.error("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
+        logger.debug("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
         this.activeTimeFrame = activeTimeFrame;
         DateTime start = activeInterval.getStart();
         if (wd != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart()) && activeInterval.toDuration().getStandardDays() > 1) {
@@ -1200,6 +1219,14 @@ public class DashboardControl {
         });
     }
 
+    public void setWidgetTitle(String name) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setTitle(name);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
     public void decimalsSelected(int size) {
         selectedWidgets.forEach(widget -> {
             widget.getConfig().setDecimals(size);
@@ -1209,14 +1236,27 @@ public class DashboardControl {
     }
 
     private void showConfig() {
-        if (selectedWidgets.isEmpty()) {
-            //dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
-            this.dashBordPlugIn.showWidgetControlPane(false);
-        } else {
-            //configPanePos(configSideProperty.get(), sideConfigPanel);
+
+        if (!selectedWidgets.isEmpty()) {
             sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
-            this.dashBordPlugIn.showWidgetControlPane(true);
         }
+        if (editableProperty.get()) {
+            this.dashBordPlugIn.showWidgetControlPane(showSideEditorProperty.get());
+        } else {
+            this.dashBordPlugIn.showWidgetControlPane(false);
+        }
+
+
+        /**
+         if (selectedWidgets.isEmpty()) {
+         //dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
+         this.dashBordPlugIn.showWidgetControlPane(false);
+         } else {
+         //configPanePos(configSideProperty.get(), sideConfigPanel);
+         sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+         this.dashBordPlugIn.showWidgetControlPane(true);
+         }
+         */
     }
 
     public void configPanePos(Side pos, Node node) {

@@ -58,15 +58,11 @@ public class LinkerWidget extends Widget {
         objectRelations = new ObjectRelations(control.getDataSource());
     }
 
-    public LinkerWidget(DashboardControl control) {
-        super(control);
-        objectRelations = new ObjectRelations(control.getDataSource());
-    }
-
     @Override
     public void debug() {
 
     }
+
 
     @Override
     public WidgetPojo createDefaultConfig() {

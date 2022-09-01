@@ -14,7 +14,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
@@ -266,12 +265,10 @@ public class TimeFrameFactory {
             }
 
 
-
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.daily");
             }
-
 
 
             @Override
@@ -357,7 +354,6 @@ public class TimeFrameFactory {
             }
 
 
-
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
@@ -425,12 +421,10 @@ public class TimeFrameFactory {
             }
 
 
-
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.monthly");
             }
-
 
 
             @Override
@@ -501,12 +495,10 @@ public class TimeFrameFactory {
             }
 
 
-
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.graph.interval.yearly");
             }
-
 
 
             @Override
@@ -571,13 +563,11 @@ public class TimeFrameFactory {
             }
 
 
-
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
                         + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.threeyears");
             }
-
 
 
             @Override
@@ -642,13 +632,11 @@ public class TimeFrameFactory {
             }
 
 
-
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
                         + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.fiveyears");
             }
-
 
 
             @Override
@@ -713,13 +701,11 @@ public class TimeFrameFactory {
             }
 
 
-
             @Override
             public String getListName() {
                 return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
                         + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.tenyears");
             }
-
 
 
             @Override

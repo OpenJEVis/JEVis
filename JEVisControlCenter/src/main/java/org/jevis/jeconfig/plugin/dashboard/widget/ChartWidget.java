@@ -1,23 +1,15 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import eu.hansolo.fx.charts.MatrixPane;
-import eu.hansolo.fx.charts.data.MatrixChartItem;
 import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -56,7 +48,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
     private XYChart xyChart;
     private HeatMapChart heatMapChart;
-    //private DataModelDataHandler sampleHandler;
+    private DataModelDataHandler sampleHandler;
     private final WidgetLegend legend = new WidgetLegend();
     private final BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
@@ -66,10 +58,6 @@ public class ChartWidget extends Widget implements DataModelWidget {
     public ChartWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
-    }
-
-    public ChartWidget(DashboardControl control) {
-        super(control);
     }
 
     @Override
@@ -130,7 +118,6 @@ public class ChartWidget extends Widget implements DataModelWidget {
             model.setCurrentAnalysisNOEVENT(control.getActiveDashboard().getDashboardObject());
             model.setHideShowIconsNO_EVENT(false);
             model.setCustomWorkDayNO_EVENT(customWorkDay);
-
             ChartSetting chartSetting = new ChartSetting(0, "");
             chartSetting.setChartType(null);
             chartSetting.setMinFractionDigits(getConfig().getDecimals());
@@ -154,7 +141,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     Label titleLabel = new Label(chartSetting.getName());
                     titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");
                     titleLabel.setAlignment(Pos.CENTER);
-                    HBox hBox = new HBox(titleLabel);
+                    HBox hBox = new HBox(8, titleLabel, tableChart.getFilterEnabledBox());
                     hBox.setAlignment(Pos.CENTER);
 
 
@@ -210,126 +197,6 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
         showProgressIndicator(false);
 
-    }
-
-    private void formatHeatMapChart(HeatMapChart heatMapChart) {
-        try {
-            ScrollPane sp = (ScrollPane) heatMapChart.getRegion();
-            VBox spVer = (VBox) sp.getContent();
-            MatrixPane<MatrixChartItem> matrixHeatMap = null;
-            for (Node node : spVer.getChildren()) {
-                if (node instanceof HBox) {
-                    HBox spHor = (HBox) node;
-                    matrixHeatMap = spHor.getChildren().stream().filter(node1 -> node1 instanceof MatrixPane).findFirst().map(node1 -> (MatrixPane<MatrixChartItem>) node1).orElse(matrixHeatMap);
-                }
-            }
-
-            if (matrixHeatMap != null) {
-
-                double pixelHeight = matrixHeatMap.getMatrix().getPixelHeight();
-                double pixelWidth = matrixHeatMap.getMatrix().getPixelWidth();
-                double spacerSizeFactor = matrixHeatMap.getMatrix().getSpacerSizeFactor();
-                double width = matrixHeatMap.getMatrix().getWidth() - matrixHeatMap.getMatrix().getInsets().getLeft() - matrixHeatMap.getMatrix().getInsets().getRight();
-                double height = matrixHeatMap.getMatrix().getHeight() - matrixHeatMap.getMatrix().getInsets().getTop() - matrixHeatMap.getMatrix().getInsets().getBottom();
-                double pixelSize = Math.min((width / heatMapChart.getCOLS()), (height / heatMapChart.getROWS()));
-                double spacer = pixelSize * spacerSizeFactor;
-
-                double leftAxisWidth = 0;
-                double rightAxisWidth = 0;
-                int bottomAxisIndex = 0;
-                Canvas bottomXAxis = null;
-
-                for (Node node : spVer.getChildren()) {
-                    if (node instanceof HBox) {
-                        HBox spHor = (HBox) node;
-                        boolean isLeftAxis = true;
-                        for (Node node1 : spHor.getChildren()) {
-                            if (node1 instanceof GridPane) {
-                                GridPane axis = (GridPane) node1;
-
-                                for (Node node2 : axis.getChildren()) {
-                                    if (node2 instanceof Label) {
-                                        boolean isOk = false;
-                                        double newHeight = pixelHeight - 2;
-                                        Font font = ((Label) node2).getFont();
-                                        if (newHeight < 13) {
-                                            final Label test = new Label(((Label) node2).getText());
-                                            test.setFont(font);
-                                            while (!isOk) {
-                                                double height1 = test.getLayoutBounds().getHeight();
-                                                if (height1 > pixelHeight - 2) {
-                                                    newHeight = newHeight - 0.05;
-                                                    test.setFont(new Font(font.getName(), newHeight));
-                                                } else {
-                                                    isOk = true;
-                                                }
-                                            }
-                                        }
-
-                                        if (newHeight < 12) {
-                                            ((Label) node2).setFont(new Font(font.getName(), newHeight));
-                                        }
-
-                                        ((Label) node2).setPrefHeight(pixelHeight);
-
-                                        final Label test = new Label(((Label) node2).getText());
-                                        test.setFont(((Label) node2).getFont());
-                                        double newWidth = test.getLayoutBounds().getWidth();
-
-                                        if (isLeftAxis) {
-                                            leftAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
-                                            isLeftAxis = false;
-                                        } else {
-                                            rightAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                    } else if (node instanceof GridPane || node instanceof Canvas) {
-
-                        List<DateTime> xAxisList = heatMapChart.getxAxisList();
-                        String X_FORMAT = heatMapChart.getX_FORMAT();
-
-                        bottomXAxis = new Canvas(leftAxisWidth + width + rightAxisWidth, 30);
-                        GraphicsContext gc = bottomXAxis.getGraphicsContext2D();
-                        double x = leftAxisWidth + 4 + spacer + pixelWidth / 2;
-
-                        for (DateTime dateTime : xAxisList) {
-                            String ts = dateTime.toString(X_FORMAT);
-                            Text text = new Text(ts);
-                            Font helvetica = Font.font("Helvetica", 12);
-                            text.setFont(helvetica);
-
-                            final double textWidth = text.getLayoutBounds().getWidth();
-                            final double textHeight = text.getLayoutBounds().getHeight();
-
-                            gc.setFont(helvetica);
-
-                            if (dateTime.getMinuteOfHour() == 0) {
-
-                                gc.fillRect(x, 0, 2, 10);
-                                gc.fillText(ts, x - textWidth / 2, 10 + textHeight + 2);
-
-                            } else if (dateTime.getMinuteOfHour() % 15 == 0) {
-                                gc.fillRect(x, 0, 1, 7);
-                            }
-
-                            x += pixelWidth;
-                        }
-
-                        bottomAxisIndex = spVer.getChildren().indexOf(node);
-                    }
-                }
-
-                if (bottomXAxis != null) {
-                    spVer.getChildren().set(bottomAxisIndex, bottomXAxis);
-                }
-            }
-        } catch (Exception e) {
-           logger.error(e);
-        }
     }
 
     @Override

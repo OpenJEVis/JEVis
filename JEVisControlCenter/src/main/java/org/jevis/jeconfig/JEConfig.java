@@ -36,15 +36,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -62,16 +62,27 @@ import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.Exceptions;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
+
 
 /**
  * This is the main class of the JEConfig. The JEConfig is an JAVAFX programm,
@@ -100,8 +111,11 @@ public class JEConfig extends Application {
     private static final Statusbar statusBar = new Statusbar();
     private static final StackPane dialogContainer = new StackPane();
 
+    public static final String xpathExpression = "//path/@d";
+
     private TopMenu menu;
     public static Date startDate = new Date();
+
 
 
     public static boolean getExpert() {
@@ -309,6 +323,59 @@ public class JEConfig extends Application {
 
     }
 
+
+    public static Region getSVGImage(String path, double height, double width,String css) {
+
+        return getSVGImage(path, height, width, css, 0);
+
+    }
+    public static Region getSVGImage(String path, double height, double width) {
+
+        return getSVGImage(path, height, width, Icon.CSS_TOOLBAR, 0);
+
+    }
+
+    public static Region getSVGImage(String path, double height, double width,double rotate) {
+
+        return getSVGImage(path, height, width, Icon.CSS_TOOLBAR, rotate);
+
+    }
+
+    public static Region getSVGImage(String path, double height, double width, String css, double rotate) {
+        try {
+            Region region = new Region();
+            region.setRotate(rotate);
+
+            region.setPrefSize(width, height);
+            SVGPath svgPath = getSvgPath(path, height, width);
+            region.setShape(svgPath);
+            region.getStyleClass().add(css);
+            return region;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @NotNull
+    private static SVGPath getSvgPath(String path, double height, double width) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(JEConfig.class.getResourceAsStream(path));
+
+        XPathFactory xpf = XPathFactory.newInstance();
+        XPath xpath = xpf.newXPath();
+        XPathExpression expression = xpath.compile(xpathExpression);
+        NodeList svgPaths = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
+
+        SVGPath svgPath = new SVGPath();
+        svgPath.setScaleX(width);
+        svgPath.setScaleY(height);
+        svgPath.setContent(svgPaths.item(0).getNodeValue());
+        svgPath.setFill(Color.BLACK);
+        return svgPath;
+    }
+
+
     @Override
     public void init() throws Exception {
         super.init();
@@ -378,25 +445,28 @@ public class JEConfig extends Application {
             protected Void call() throws Exception {
 
                 startDate = new Date();
+
                 logger.debug("Start JEVis Control Center");
-                login.addLoginMessage(I18n.getInstance().getString("app.login.start"));
+                login.addLoginMessage(I18n.getInstance().getString("app.login.start"), false);
                 _mainDS = login.getDataSource();
+                login.addLoginMessage(FXLogin.checkMarkSymbol, true);
 
                 JEConfig.userpassword = login.getUserPassword();
-                login.addLoginMessage(I18n.getInstance().getString("app.login.initializelocale"));
+                login.addLoginMessage(I18n.getInstance().getString("app.login.initializelocale"), false);
                 I18n.getInstance().selectBundle(login.getSelectedLocale());
                 Locale.setDefault(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
+                login.addLoginMessage(FXLogin.checkMarkSymbol, true);
 
                 _config.setLocale(login.getSelectedLocale());
 
                 try {
-                    login.addLoginMessage(I18n.getInstance().getString("app.login.beginpreload"));
+                    //login.addLoginMessage(I18n.getInstance().getString("app.login.beginpreload"), true);
 
                     preload(login);
-
-                    login.addLoginMessage(I18n.getInstance().getString("app.login.donepreload"));
+                    //login.addLoginMessage(checkMarkSymbol, true);
+                    //login.addLoginMessage(I18n.getInstance().getString("app.login.donepreload"));
                     logger.error("done preloading");
 
                     Holidays.setDataSource(_mainDS);
@@ -407,7 +477,7 @@ public class JEConfig extends Application {
 
 
                 logger.error("start GUI");
-                login.addLoginMessage(I18n.getInstance().getString("app.login.startinggui"));
+                login.addLoginMessage(I18n.getInstance().getString("app.login.startinggui"), false);
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
                 PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
@@ -558,6 +628,7 @@ public class JEConfig extends Application {
 
                     logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
                 });
+                login.addLoginMessage(FXLogin.checkMarkSymbol, true);
                 return null;
             }
         };
@@ -629,21 +700,25 @@ public class JEConfig extends Application {
     private void preload(FXLogin login) {
         JEVisDataSourceWS dataSourceWS = (JEVisDataSourceWS) _mainDS;
 
-        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingclasses"));
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingclasses"), false);
         dataSourceWS.preloadClasses();
-        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedclasses"));
+        login.addLoginMessage(FXLogin.checkMarkSymbol, true);
+        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedclasses"));
 
-        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingrelationships"));
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingrelationships"), false);
         dataSourceWS.preloadRelationships();
-        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedrelationships"));
+        login.addLoginMessage(FXLogin.checkMarkSymbol, true);
+        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedrelationships"));
 
-        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingobjects"));
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingobjects"), false);
         dataSourceWS.preloadObjects();
-        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedobjects"));
+        login.addLoginMessage(FXLogin.checkMarkSymbol, true);
+        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedobjects"));
 
-        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingattributes"));
+        login.addLoginMessage(I18n.getInstance().getString("app.login.loadingattributes"), false);
         dataSourceWS.preloadAttributes();
-        login.addLoginMessage(I18n.getInstance().getString("app.login.finishedattributes"));
+        login.addLoginMessage(FXLogin.checkMarkSymbol, true);
+        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedattributes"));
     }
 
     public static void showError(String message, Exception ex) {

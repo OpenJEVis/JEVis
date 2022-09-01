@@ -34,10 +34,10 @@ public class DashBoardPane extends Pane {
 
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
     private DashboardPojo analysis;
-    private List<Double> xGrids = new ArrayList<>();
-    private List<Double> yGrids = new ArrayList<>();
-    private Scale scale = new Scale();
-    private List<Line> visibleGrid = new ArrayList<>();
+    private final List<Double> xGrids = new ArrayList<>();
+    private final List<Double> yGrids = new ArrayList<>();
+    private final Scale scale = new Scale();
+    private final List<Line> visibleGrid = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
     private final DashboardControl control;
     private final Background defaultBackground;
@@ -102,7 +102,7 @@ public class DashBoardPane extends Pane {
                 for (Node shape : DashBoardPane.this.getChildren()) {
                     if (selectionRect.getBoundsInParent().intersects(shape.getBoundsInParent())) {
                         if (shape instanceof Widget) {
-                            System.out.println("Selected: " + shape);
+                            logger.debug("Selected: " + shape);
                             selected.add((Widget) shape);
                         }
                     }
@@ -190,8 +190,9 @@ public class DashBoardPane extends Pane {
         Platform.runLater(() -> {
             try {
                 if (!getChildren().contains(widget)) {
-                    getChildren().add(widget);
                     widget.setVisible(true);
+                    getChildren().add(widget);
+
 
                     if (gridIsVisible) {
                         visibleGrid.forEach(line -> {
