@@ -55,7 +55,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private double green = 0;
     private double red = 0;
     private Interval lastInterval = null;
-    private DataModelDataHandler sampleHandler;
     private Boolean customWorkday = true;
 
 

@@ -44,7 +44,6 @@ public class PieWidget extends Widget implements DataModelWidget {
     public static String WIDGET_ID = "Pie";
     private final PieChart chart = new PieChart();
     private final NumberFormat nf = NumberFormat.getInstance();
-    //private DataModelDataHandler sampleHandler;
     private final WidgetLegend legend = new WidgetLegend();
     private final ObjectMapper mapper = new ObjectMapper();
     private final BorderPane borderPane = new BorderPane();

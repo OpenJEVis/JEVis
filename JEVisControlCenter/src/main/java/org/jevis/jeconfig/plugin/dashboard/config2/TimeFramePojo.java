@@ -10,9 +10,11 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
@@ -36,8 +38,8 @@ public class TimeFramePojo {
 
     final DashboardControl dashboardControl;
 
-    final ImageView lockIcon = JEConfig.getImage("eye_visible.png", this.iconSize, this.iconSize);
-    final ImageView unlockIcon = JEConfig.getImage("eye_hidden.png", this.iconSize, this.iconSize);
+    final Region lockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_ON, this.iconSize, this.iconSize);
+    final Region unlockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_OFF, this.iconSize, this.iconSize);
 
     private JFXTextField jfxTextFieldParser;
 
@@ -53,8 +55,14 @@ public class TimeFramePojo {
     public TimeFramePojo(DashboardControl control, JsonNode jsonNode) {
         this.dashboardControl = control;
         if (jsonNode != null) {
-            selectedWidgetId = jsonNode.get("selectedWidget").asInt();
-            parser = jsonNode.get("format").asText();
+            if (jsonNode.has("selectedWidget")) {
+                selectedWidgetId = jsonNode.get("selectedWidget").asInt();
+            }
+            if (jsonNode.has("format")) {
+                parser = jsonNode.get("format").asText("yyyy.MM.dd HH:mm");
+            }
+
+            
         }
 
     }
@@ -68,15 +76,14 @@ public class TimeFramePojo {
     }
 
     public void selectWidget() {
-
-        if (selectedWidget == null) {
-            System.out.println(dashboardControl.getWidgets());
+        logger.debug(selectedWidgetId);
+           logger.debug(dashboardControl.getWidgets());
             Optional<Widget> widget =  dashboardControl.getWidgets().stream().filter(widget2 -> widget2.getConfig().getUuid() == selectedWidgetId).findAny();
             if (widget.isPresent()) {
                 selectedWidget = widget.get();
+                logger.debug(selectedWidget);
             }
-            System.out.println(selectedWidget);
-        }
+
 
 
 
@@ -90,6 +97,22 @@ public class TimeFramePojo {
 
     public void setParser(String parser) {
         this.parser = parser;
+    }
+
+    @Override
+    public String toString() {
+        return "TimeFramePojo{" +
+                "iconSize=" + iconSize +
+                ", timeFrameColumnFactory=" + timeFrameColumnFactory +
+                ", timeFrameWidgetID=" + timeFrameWidgetID +
+                ", dashboardControl=" + dashboardControl +
+                ", lockIcon=" + lockIcon +
+                ", unlockIcon=" + unlockIcon +
+                ", jfxTextFieldParser=" + jfxTextFieldParser +
+                ", selectedWidgetId=" + selectedWidgetId +
+                ", selectedWidget=" + selectedWidget +
+                ", parser='" + parser + '\'' +
+                '}';
     }
 
 
@@ -180,8 +203,7 @@ public class TimeFramePojo {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
         dataNode.put("selectedWidget", selectedWidget.getConfig().getUuid());
         dataNode.put("format", parser);
-
-        System.out.println(dataNode);
+        logger.debug(dataNode);
 
 
         return dataNode;

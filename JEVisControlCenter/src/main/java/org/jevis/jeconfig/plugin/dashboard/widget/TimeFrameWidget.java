@@ -44,11 +44,7 @@ public class TimeFrameWidget extends Widget {
 
     public TimeFrameWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
-        this.setId(WIDGET_ID + UUID.randomUUID());
-    }
-
-    public TimeFrameWidget(DashboardControl control) {
-        super(control);
+        this.setId(WIDGET_ID);
     }
 
     @Override
@@ -72,6 +68,7 @@ public class TimeFrameWidget extends Widget {
     public void updateData(Interval interval) {
         Platform.runLater(() -> {
             try{
+                logger.debug(this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval()));
                 this.label.setText(convertIntervalToString(this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval())));
 
             }catch (Exception e){
@@ -122,8 +119,6 @@ public class TimeFrameWidget extends Widget {
                 this.label.setFont(new Font(this.config.getFontSize()));
                 this.label.setPrefWidth(this.config.getSize().getWidth());
                 this.label.setAlignment(this.config.getTitlePosition());
-//                anchorPane.setEffect(null);
-//                label.setEffect(null);
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -156,10 +151,6 @@ public class TimeFrameWidget extends Widget {
         }
 
         setGraphic(anchorPane);
-//        anchorPane.setEffect(null);
-//        this.setEffect(null);//Workaround
-
-
         if (this.timeFramePojo == null) {
             this.timeFramePojo = new TimeFramePojo(this.control);
         }

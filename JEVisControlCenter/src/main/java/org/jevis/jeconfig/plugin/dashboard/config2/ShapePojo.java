@@ -53,12 +53,28 @@ public class ShapePojo {
         logger.debug(jsonNode);
 
         if (jsonNode != null) {
-            String shapeStrg = jsonNode.get(JSON_SHAPE).asText();
-            shape = SHAPE.valueOf(shapeStrg);
-            maxColor = Color.valueOf(jsonNode.get("maxColor").asText());
-            maxValue = jsonNode.get("maxValue").doubleValue();
-            minColor = Color.valueOf(jsonNode.get("minColor").asText());
-            minValue = jsonNode.get("minValue").doubleValue();
+
+
+            if (jsonNode.has(JSON_SHAPE)) {
+                String shapeStrg = jsonNode.get(JSON_SHAPE).asText(SHAPE.RECTANGLE.toString());
+                try{
+                    shape = SHAPE.valueOf(shapeStrg);
+                } catch (Exception e){
+                    logger.error(e);
+                }
+            }
+            if (jsonNode.has("maxColor")) {
+                maxColor = Color.valueOf(jsonNode.get("maxColor").asText(Color.RED.toString()));
+            }
+            if (jsonNode.has("maxValue")) {
+                maxValue = jsonNode.get("maxValue").doubleValue();
+            }
+            if (jsonNode.has("minColor")) {
+                minColor = Color.valueOf(jsonNode.get("minColor").asText(Color.GREEN.toString()));
+            }
+            if (jsonNode.has("minValue")) {
+                minValue = jsonNode.get("minValue").doubleValue();
+            }
         }
 
 

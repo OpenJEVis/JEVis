@@ -64,7 +64,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
     private final Label label = new Label();
     private final NumberFormat nf = new DecimalFormat("#,##0.##");//NumberFormat.getInstance();
     private final NumberFormat nfPercent = new DecimalFormat("0");
-    //private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
     private Limit limit;
