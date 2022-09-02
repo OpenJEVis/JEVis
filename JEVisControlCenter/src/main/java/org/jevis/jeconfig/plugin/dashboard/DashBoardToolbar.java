@@ -65,8 +65,8 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton exportPNG = new ToggleButton("", JEConfig.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
     private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.PDF, this.iconSize, this.iconSize));
     //private ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
-
-    private final ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+    private final ToggleButton deleteDashboard = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+    private final ToggleButton deleteWidget = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
     private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_IN, this.iconSize, this.iconSize));
     private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, this.iconSize, this.iconSize));
     private final ToggleButton enlarge = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, this.iconSize, this.iconSize));
@@ -187,7 +187,8 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPNG);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPDF);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(deleteWidget);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(deleteDashboard);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomIn);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(enlarge);
@@ -328,9 +329,14 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.toggleWidgetTooltips();
         });
 
-        delete.setOnAction(event -> {
+        deleteWidget.setOnAction(event -> {
             dashboardControl.removeAllWidgets(dashboardControl.getSelectedWidgets());
         });
+
+        deleteDashboard.setOnAction(event -> {
+            dashboardControl.deleteDashboard();
+        });
+
 
         loadDialogButton.setOnAction(event -> {
             dashboardControl.showLoadDialog();
@@ -372,7 +378,8 @@ public class DashBoardToolbar extends ToolBar {
         zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
         zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
         listZoomLevel.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomlevel")));
-        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.delete")));
+        deleteWidget.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.delete")));
+        deleteDashboard.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.deleteboard")));
         navigator.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.settings")));
         exportPNG.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.export")));
         exportPDF.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.exportPDF")));
@@ -391,11 +398,11 @@ public class DashBoardToolbar extends ToolBar {
                     listAnalysesComboBox, homeButton
                     , sep3, toolBarIntervalSelector, customWorkDay
                     , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
-                    , sep4, loadDialogButton, save
+                    , sep4, loadDialogButton, save, deleteDashboard
                     , sep5, exportPNG, exportPDF
-                    , sep6, runUpdateButton, unlockButton, navigator, widgetSelector, newWidget,  copyButton, delete
+                    , sep6, runUpdateButton, unlockButton, navigator, widgetSelector, newWidget, copyButton, deleteWidget
                     , separatorEditMode, showGridButton, snapGridButton, sidebarEditor
-                    ,JEVisHelp.getInstance().buildSpacerNode(),helpButton, infoButton
+                    , JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton
             );
         });
 
@@ -489,18 +496,20 @@ public class DashBoardToolbar extends ToolBar {
         //Disable
         widgetSelector.setDisable(!dashboardControl.editableProperty.get());
         copyButton.setDisable(!dashboardControl.editableProperty.get());
-        delete.setDisable(!dashboardControl.editableProperty.get());
+        deleteWidget.setDisable(!dashboardControl.editableProperty.get());
         navigator.setDisable(!dashboardControl.editableProperty.get());
         snapGridButton.setDisable(!dashboardControl.editableProperty.get());
         showGridButton.setDisable(!dashboardControl.editableProperty.get());
         navigator.setDisable(!dashboardControl.editableProperty.get());
         sidebarEditor.setDisable(!dashboardControl.editableProperty.get());
         newWidget.setDisable(!dashboardControl.editableProperty.get());
+        deleteDashboard.setDisable(!dashboardControl.editableProperty.get());
+
 
         //Hide
         widgetSelector.setVisible(dashboardControl.editableProperty.get());
         copyButton.setVisible(dashboardControl.editableProperty.get());
-        delete.setVisible(dashboardControl.editableProperty.get());
+        deleteWidget.setVisible(dashboardControl.editableProperty.get());
         navigator.setVisible(dashboardControl.editableProperty.get());
         snapGridButton.setVisible(dashboardControl.editableProperty.get());
         showGridButton.setVisible(dashboardControl.editableProperty.get());

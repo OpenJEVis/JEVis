@@ -386,6 +386,26 @@ public class DashboardControl {
         }
     }
 
+    public void deleteDashboard() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(I18n.getInstance().getString("plugin.dashboard.dia.delete.title"));
+        alert.setContentText(I18n.getInstance().getString("plugin.dashboard.dia.delete.content"));
+        alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.dia.delete.header"));
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            try {
+                JEVisObject toDeleteObj = this.activeDashboard.getDashboardObject();
+                toDeleteObj.delete();
+                loadDashboardObjects();
+                selectDashboard(this.dashboardObjects.get(0));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
     public ObservableList<JEVisObject> getAllDashboards() {
         ObservableList<JEVisObject> observableList = FXCollections.observableList(this.dashboardObjects);
         DashboardSorter.sortDashboards(this.jevisDataSource, observableList);
@@ -518,6 +538,7 @@ public class DashboardControl {
             sideConfigPanel = new SideConfigPanel(this);
 
             this.dashBordPlugIn.getWidgetControlPane().setContent(sideConfigPanel);
+            this.toolBar.updateView(activeDashboard);
 
 
         } catch (Exception ex) {
