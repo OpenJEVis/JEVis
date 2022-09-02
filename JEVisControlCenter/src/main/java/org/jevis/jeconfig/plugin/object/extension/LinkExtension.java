@@ -36,7 +36,7 @@ import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
-import org.jevis.jeconfig.plugin.object.extension.processchain.relationship.RelationshipTable;
+import org.jevis.jeconfig.plugin.object.relationship.RelationshipTable;
 
 import java.util.List;
 
