@@ -8,9 +8,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -76,13 +74,15 @@ public class TimeFramePojo {
     }
 
     public void selectWidget() {
-        logger.debug(selectedWidgetId);
-           logger.debug(dashboardControl.getWidgets());
+        if (selectedWidget == null) {
+            logger.debug(selectedWidgetId);
+            logger.debug(dashboardControl.getWidgets());
             Optional<Widget> widget =  dashboardControl.getWidgets().stream().filter(widget2 -> widget2.getConfig().getUuid() == selectedWidgetId).findAny();
             if (widget.isPresent()) {
                 selectedWidget = widget.get();
                 logger.debug(selectedWidget);
             }
+        }
 
 
 
@@ -128,7 +128,7 @@ public class TimeFramePojo {
         @Override
         public void commitChanges() {
 
-            System.out.println(timeFrameColumnFactory.getSelectedWidget());
+            logger.debug("Selected Widget:",timeFrameColumnFactory.getSelectedWidget());
             setSelectedWidget(timeFrameColumnFactory.getSelectedWidget());
             parser = jfxTextFieldParser.getText();
 
@@ -145,9 +145,15 @@ public class TimeFramePojo {
         ColumnConstraints column1 = new ColumnConstraints();
         ColumnConstraints column2 = new ColumnConstraints();
         ColumnConstraints column3 = new ColumnConstraints();
-        column3.setPercentWidth(50);
+        column3.setHgrow(Priority.ALWAYS);
+
+        RowConstraints row1 = new RowConstraints();
+        RowConstraints row2 = new RowConstraints();
+        RowConstraints row3 = new RowConstraints();
+        row3.setVgrow(Priority.ALWAYS);
 
         gridPane.getColumnConstraints().addAll(column1, column2, column3);
+        gridPane.getRowConstraints().addAll(row1, row2, row3);
         gridPane.setVgap(8);
         gridPane.setHgap(8);
         gridPane.setPadding(new Insets(8, 5, 8, 5));
@@ -175,7 +181,7 @@ public class TimeFramePojo {
         gridPane.addRow(1, highlightButton);
 
         timeFrameColumnFactory = new TimeFrameColumnFactory(dashboardControl);
-        gridPane.add(timeFrameColumnFactory.buildTable(dashboardControl.getWidgetList()),0,2,3,2);
+        gridPane.add(timeFrameColumnFactory.buildTable(dashboardControl.getWidgetList()),0,2,3,1);
         Platform.runLater(() -> {
             timeFrameColumnFactory.setSelectedWidget(selectedWidget);
         });
