@@ -41,7 +41,7 @@ public class WebPieWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(WebPieWidget.class);
     public static String WIDGET_ID = "Web Pie";
     private final NumberFormat nf = NumberFormat.getInstance();
-    private DataModelDataHandler sampleHandler;
+
     private final ObjectMapper mapper = new ObjectMapper();
     private final BorderPane borderPane = new BorderPane();
     private final VBox legendPane = new VBox();
@@ -170,6 +170,7 @@ public class WebPieWidget extends Widget {
     public boolean isStatic() {
         return false;
     }
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {

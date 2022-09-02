@@ -41,6 +41,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.dashboard.widget.TimeFrameWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
@@ -517,12 +518,19 @@ public class DashboardControl {
 
             /** init configuration of widgets **/
             this.widgetList.forEach(widget -> {
-                try {
-                    widget.updateConfig();
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
+                //if (!widget.getId().equals(TimeFrameWidget.WIDGET_ID)) {
+                    try {
+                        widget.updateConfig();
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+               // }
             });
+
+
+
+
+
 
             this.activeTimeFrame = activeDashboard.getTimeFrame();
             //setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));

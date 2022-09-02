@@ -57,7 +57,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(GaugeWidget.class);
     public static String WIDGET_ID = "Gauge";
     private eu.hansolo.medusa.Gauge gauge;
-    private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
     private GaugePojo gaugeSettings;
@@ -256,7 +255,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 updateSkin();
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
 
 

@@ -28,6 +28,7 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.DragResizeMod;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -53,6 +54,8 @@ public abstract class Widget extends Region {
     private final ProgressIndicator progressIndicator = new ProgressIndicator();
     private final Label label = new Label();
     private final Tooltip tt = new Tooltip("");
+
+    protected DataModelDataHandler sampleHandler;
 
 
     private final DragResizeMod.OnDragResizeEventListener onDragResizeEventListener = DragResizeMod.defaultListener;
@@ -535,6 +538,7 @@ public abstract class Widget extends Region {
      */
     public abstract boolean isStatic();
 
+
     /**
      * @return
      */
@@ -630,4 +634,18 @@ public abstract class Widget extends Region {
 
         return false;
     }
+
+    public Interval getCurrentInterval(Interval interval) {
+        if (sampleHandler != null) {
+            sampleHandler.setInterval(interval);
+            return new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd());
+        }else {
+            return null;
+        }
+
+
+
+
+    }
+
 }

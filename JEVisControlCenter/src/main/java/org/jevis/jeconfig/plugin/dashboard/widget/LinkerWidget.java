@@ -30,6 +30,7 @@ import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -124,6 +125,8 @@ public class LinkerWidget extends Widget {
     public boolean isStatic() {
         return false;
     }
+
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {

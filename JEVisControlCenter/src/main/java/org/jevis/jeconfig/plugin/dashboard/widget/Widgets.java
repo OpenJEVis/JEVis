@@ -31,6 +31,7 @@ public class Widgets {
             put(LinearGaugeWidget.WIDGET_ID, new WidgetSelection(LinearGaugeWidget.class.getName(), LinearGaugeWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.lineargauge"), TitleWidget.ICON));
 
             put(ShapeWidget.WIDGET_ID, new WidgetSelection(ShapeWidget.class.getName(), ShapeWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.shape"), TitleWidget.ICON));
+            put(TimeFrameWidget.WIDGET_ID, new WidgetSelection(TimeFrameWidget.class.getName(), TimeFrameWidget.WIDGET_ID, I18n.getInstance().getString("plugin.dashboard.timeframe"), TitleWidget.ICON));
 
         }
     };

@@ -29,8 +29,8 @@ public class WidgetColumnFactory {
 
 
     private static final Logger logger = LogManager.getLogger(WidgetColumnFactory.class);
-    private final DashboardControl control;
-    private TableView<Widget> table;
+    final protected DashboardControl control;
+    protected TableView<Widget> table;
     private final Double numberColumDefaultSize = 70d;
     //    private ObservableList<Widget> fullList;
 //    private FilteredList<Widget> filteredData;

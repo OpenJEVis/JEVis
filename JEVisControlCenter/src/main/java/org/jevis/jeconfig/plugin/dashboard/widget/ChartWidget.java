@@ -48,7 +48,6 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
     private XYChart xyChart;
     private HeatMapChart heatMapChart;
-    private DataModelDataHandler sampleHandler;
     private final WidgetLegend legend = new WidgetLegend();
     private final BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
@@ -275,8 +274,6 @@ public class ChartWidget extends Widget implements DataModelWidget {
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
-
-
             } catch (Exception ex) {
                 logger.error(ex);
             }
