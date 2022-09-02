@@ -43,7 +43,7 @@ public class TableWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(TableWidget.class);
     public static String WIDGET_ID = "Table";
     private NumberFormat nf = NumberFormat.getInstance();
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private TableView<TableData> table;
     private Interval lastInterval = null;
     private Boolean customWorkday = true;
@@ -148,6 +148,7 @@ public class TableWidget extends Widget implements DataModelWidget {
         });
 
 
+
     }
 
     @Override
@@ -171,6 +172,8 @@ public class TableWidget extends Widget implements DataModelWidget {
     public boolean isStatic() {
         return false;
     }
+
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {
