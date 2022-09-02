@@ -41,7 +41,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     public static String WIDGET_ID = "Sankey";
     private final NumberFormat nf = NumberFormat.getInstance();
     private SankeyPlot sankeyPlot;
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private final WidgetLegend legend = new WidgetLegend();
     private final BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
@@ -74,6 +74,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.error("Sankey.Update: {}", interval);
         this.lastInterval = interval;
+        //setCurrentInterval(interval);
 
         if (sampleHandler == null) {
             showProgressIndicator(false);
@@ -117,7 +118,6 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                             }
                         }
                     });
-
                 } catch (Exception ex) {
                     logger.error(ex);
                 }

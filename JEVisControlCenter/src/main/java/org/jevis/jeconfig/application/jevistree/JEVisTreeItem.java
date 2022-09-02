@@ -77,12 +77,19 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
         return (row1, row2) -> {
             try {
 
+                /* Special rules for the bin */
                 if (row1.getJEVisObject().getJEVisClassName().equals(JEVisRecycleBinObject.CLASS_NAME)) {
                     return 1;
                 } else if (row2.getJEVisObject().getJEVisClassName().equals(JEVisRecycleBinObject.CLASS_NAME)) {
                     return -1;
                 }
 
+                /* sort order within the bin is time based*/
+                if (row1.getJEVisObject().getDeleteTS() != null && row2.getJEVisObject().getDeleteTS() != null) {
+                    return row2.getJEVisObject().getDeleteTS().compareTo(row1.getJEVisObject().getDeleteTS());
+                }
+
+                /* Common rules */
                 if (row1.getType() == row2.getType()) {
 
                     /** if they are objects **/
