@@ -138,7 +138,7 @@ public class TimeFramePojo {
 
     public Tab getConfigTab() {
 
-        GaugeDesignTab tab = new GaugeDesignTab(I18n.getInstance().getString("plugin.plugin.dashboard.timeframe")
+        GaugeDesignTab tab = new GaugeDesignTab(I18n.getInstance().getString("plugin.dashboard.timeframe")
                 , this);
 
         GridPane gridPane = new GridPane();
@@ -170,7 +170,7 @@ public class TimeFramePojo {
         jfxTextFieldParser = new JFXTextField(parser);
         jfxTextFieldParser.setPrefWidth(160d);
 
-        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.plugin.dashboard.timeframe.format")),jfxTextFieldParser);
+        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.dashboard.timeframe.format")),jfxTextFieldParser);
 
         gridPane.addRow(1, highlightButton);
 
