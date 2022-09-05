@@ -110,9 +110,8 @@ public class TableWidget extends Widget implements DataModelWidget {
 
                 if (!results.isEmpty()) {
 
-
                     tableDatas.add(new TableData(
-                            chartDataModel.getObject().getName(),
+                            chartDataModel.getTitle(),
                             this.nf.format(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, chartDataModel)),
                             chartDataModel.getUnitLabel()));
 
@@ -148,7 +147,6 @@ public class TableWidget extends Widget implements DataModelWidget {
         });
 
 
-
     }
 
     @Override
@@ -172,7 +170,6 @@ public class TableWidget extends Widget implements DataModelWidget {
     public boolean isStatic() {
         return false;
     }
-
 
 
     @Override
