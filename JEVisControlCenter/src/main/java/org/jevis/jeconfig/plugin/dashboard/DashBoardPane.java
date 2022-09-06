@@ -42,6 +42,9 @@ public class DashBoardPane extends Pane {
     private final DashboardControl control;
     private final Background defaultBackground;
     private boolean gridIsVisible = false;
+    Rectangle dragBox = new Rectangle(0, 0, 0, 0);
+    private double mouseDownX;
+    private double mouseDownY;
 
     /**
      * Dummy Pane fif no Dashboard is loaded
@@ -74,14 +77,8 @@ public class DashBoardPane extends Pane {
         });
         addPopUpFunctions();
 
-        setOnMouseClicked(event -> {
-            if (!event.isControlDown()) {
-                control.setSelectedWidgets(new ArrayList<>());
-            }
-        });
 
-
-        //addMouseSelectionGesture();
+        addMouseSelectionGesture();
     }
 
     /**
@@ -92,25 +89,82 @@ public class DashBoardPane extends Pane {
      * Bug in this version: https://github.com/JFXtras/jfxtras-labs/issues/127
      */
     private void addMouseSelectionGesture() {
+
+        /* old deselect
+        setOnMouseClicked(event -> {
+            if (!event.isControlDown()) {
+                control.setSelectedWidgets(new ArrayList<>());
+            }
+        });
+        */
+
         final Rectangle selectionRect = new Rectangle(0, 0, Color.TRANSPARENT);
         selectionRect.setStroke(Color.BLACK);
 
-        EventHandler<MouseEvent> mouseReleaseHandler = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                List<Widget> selected = new ArrayList<>();
-                for (Node shape : DashBoardPane.this.getChildren()) {
-                    if (selectionRect.getBoundsInParent().intersects(shape.getBoundsInParent())) {
-                        if (shape instanceof Widget) {
-                            logger.debug("Selected: " + shape);
-                            selected.add((Widget) shape);
+        dragBox.setStroke(Color.BLACK);
+        dragBox.setFill(Color.TRANSPARENT);
+        dragBox.getStrokeDashArray().addAll(5.0, 5.0);
+        dragBox.setWidth(100);
+        dragBox.setHeight(100);
+        dragBox.setVisible(false);
+
+
+        this.setOnMousePressed(e -> {
+            /* Workaround, or else the Widget cannot handel the event */
+            if (!e.getTarget().equals(e.getSource())) return;
+
+            mouseDownX = e.getX();
+            mouseDownY = e.getY();
+            dragBox.setX(mouseDownX);
+            dragBox.setY(mouseDownY);
+            dragBox.setWidth(0);
+            dragBox.setHeight(0);
+        });
+
+        this.setOnMouseDragged(e -> {
+            /* Workaround, or else the Widget cannot handel the event */
+            if (!e.getTarget().equals(e.getSource())) return;
+
+            dragBox.setVisible(true);
+            dragBox.setX(Math.min(e.getX(), mouseDownX));
+            dragBox.setWidth(Math.abs(e.getX() - mouseDownX));
+            dragBox.setY(Math.min(e.getY(), mouseDownY));
+            dragBox.setHeight(Math.abs(e.getY() - mouseDownY));
+        });
+        this.setOnMouseReleased(event -> {
+            /* Workaround, or else the Widget cannot handel the event */
+            if (!event.getTarget().equals(event.getSource())) return;
+
+            List<Widget> toSelect = new ArrayList<>();
+            for (Node node : DashBoardPane.this.getChildren()) {
+
+                if (node instanceof Widget) {
+                    boolean isInX = false;
+                    boolean isInY = false;
+                    if (node.getBoundsInParent().getMinX() >= dragBox.getBoundsInParent().getMinX()) {
+                        if (node.getBoundsInParent().getMaxX() <= dragBox.getBoundsInParent().getMaxX()) {
+                            isInX = true;
                         }
                     }
+
+                    if (node.getBoundsInParent().getMinY() >= dragBox.getBoundsInParent().getMinY()) {
+                        if (node.getBoundsInParent().getMaxY() <= dragBox.getBoundsInParent().getMaxY()) {
+                            isInY = true;
+                        }
+                    }
+                    if (isInX && isInY) {/* we could also be more lean so only one must be true*/
+                        // System.out.println(((Widget) node).getConfig().getTitle() + " is a match!");
+                        toSelect.add((Widget) node);
+                    }
+
                 }
-                control.setSelectedWidgets(selected);
+
             }
-        };
-        //MouseControlUtil.addSelectionRectangleGesture(this, selectionRect, null, null, mouseReleaseHandler);
+            DashBoardPane.this.control.setSelectedWidgets(toSelect);
+            dragBox.setVisible(false);
+
+        });
+
 
     }
 
@@ -163,6 +217,11 @@ public class DashBoardPane extends Pane {
             addWidget(widget);
         });
 
+        if (!getChildren().contains(dragBox)) {
+            //dragBox.setVisible(false);
+            System.out.println("Add dragBox");
+            getChildren().add(dragBox);
+        }
     }
 
     private void sortWidgets(List<Widget> widgetList) {
@@ -308,6 +367,15 @@ public class DashBoardPane extends Pane {
             }
 
         });
+
+        Platform.runLater(() -> {
+            if (show) {
+                DashBoardPane.this.getChildren().add(dragBox);
+            } else {
+                DashBoardPane.this.getChildren().remove(dragBox);
+            }
+        });
+
 
     }
 

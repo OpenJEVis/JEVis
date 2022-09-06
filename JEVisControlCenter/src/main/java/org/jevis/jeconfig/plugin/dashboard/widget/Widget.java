@@ -358,11 +358,12 @@ public abstract class Widget extends Region {
 
         contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, layerUPItem, layerDownItem, new SeparatorMenuItem(), delete);
 
+        //this.editPane.setMouseTransparent(false);
         this.editPane.setOnMouseClicked(event -> {
-            logger.debug("EditPane. Event: {}", event);
             if (event.getClickCount() == 2) {
                 try {
                     Widget.this.openConfig();
+                    event.consume();
                 } catch (Exception ex) {
                     logger.error(ex);
                     ex.printStackTrace();
@@ -370,7 +371,6 @@ public abstract class Widget extends Region {
             }
 
             if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
-
                 if (event.isControlDown()) {
                     ArrayList arrayList = new ArrayList<>();
                     arrayList.add(this);
@@ -638,12 +638,10 @@ public abstract class Widget extends Region {
     public Interval getCurrentInterval(Interval interval) {
         if (sampleHandler != null) {
             sampleHandler.setInterval(interval);
-            return new Interval(sampleHandler.getDurationProperty().getStart(),sampleHandler.getDurationProperty().getEnd());
-        }else {
+            return new Interval(sampleHandler.getDurationProperty().getStart(), sampleHandler.getDurationProperty().getEnd());
+        } else {
             return null;
         }
-
-
 
 
     }
