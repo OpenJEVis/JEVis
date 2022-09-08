@@ -15,6 +15,7 @@ import org.jevis.commons.database.JEVisObjectDataManager;
 import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.report.PeriodMode;
@@ -27,6 +28,7 @@ import org.jevis.report3.process.LastSampleGenerator;
 import org.jevis.report3.process.ProcessHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -281,6 +283,27 @@ public class ReportLinkProperty implements ReportData {
         return linkMap;
     }
 
+    private String getNoDataMessage() {
+
+        String name = "";
+        try {
+            JEVisClass cleanDataClass = dataObject.getDataSource().getJEVisClass("Data");
+
+            if (dataObject.getJEVisClass().equals(cleanDataClass)) {
+                JEVisObject firstParentalDataObject = CommonMethods.getFirstParentalDataObject(dataObject);
+                name += firstParentalDataObject.getName() + "|";
+            }
+        } catch (Exception e) {
+            logger.error("Could not get parental data object name", e);
+        }
+
+        name += dataObject.getName();
+
+        String s = "No data available for data object " + name + " with id " + dataObject.getID();
+
+        return s;
+    }
+
     @Override
     public LinkStatus getReportLinkStatus(DateTime end) {
 
@@ -291,12 +314,20 @@ public class ReportLinkProperty implements ReportData {
             }
         } catch (Exception ex) {
             logger.error(ex);
-            return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
+            return new LinkStatus(false, getNoDataMessage());
         }
 
         if (attributeProperties.isEmpty() || optional) {
             return new LinkStatus(true, "ok");
         }
+
+        Period p = null;
+        try {
+            p = CleanDataObject.getPeriodForDate(dataObject, end);
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
         for (ReportAttributeProperty curProperty : attributeProperties) {
             String attributeName = curProperty.getAttributeName();
             if (attributeName.equals("Value") || attributeName.equals("value")) {
@@ -306,23 +337,25 @@ public class ReportLinkProperty implements ReportData {
                         if (att != null) {
                             JEVisSample latestSample = att.getLatestSample();
                             if (latestSample != null) {
-                                if (latestSample.getTimestamp().isAfter(end)) {
+                                if (p != null && latestSample.getTimestamp().isAfter(end.minus(p))) {
+                                    return new LinkStatus(true, "ok");
+                                } else if (p == null && latestSample.getTimestamp().isAfter(end)) {
                                     return new LinkStatus(true, "ok");
                                 } else {
-                                    return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
+                                    return new LinkStatus(false, getNoDataMessage());
                                 }
                             } else {
-                                return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
+                                return new LinkStatus(false, getNoDataMessage());
                             }
                         } else {
-                            return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
+                            return new LinkStatus(false, getNoDataMessage());
                         }
                     } else {
-                        return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
+                        return new LinkStatus(false, getNoDataMessage());
                     }
                 } catch (Exception ex) {
                     logger.error(ex);
-                    return new LinkStatus(false, "No data available for data object " + dataObject.getName() + " with id " + dataObject.getID());
+                    return new LinkStatus(false, getNoDataMessage());
                 }
             }
         }
