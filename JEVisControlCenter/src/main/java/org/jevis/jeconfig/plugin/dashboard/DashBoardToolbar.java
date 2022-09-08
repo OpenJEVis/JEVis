@@ -28,6 +28,7 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.NewWidgetSelector;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
+import org.jevis.jeconfig.plugin.dashboard.widget.ImageWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
 import java.text.DecimalFormat;
@@ -223,18 +224,23 @@ public class DashBoardToolbar extends ToolBar {
                     Widget oldWidget = Iterables.getLast(dashboardControl.getSelectedWidgets());
                     Widget newWidget = oldWidget.clone();
                     newWidget.getConfig().setUuid(dashboardControl.getNextFreeUUID());
-                    //newWidget.getConfig().setTitle(newWidget.getConfig().getTitle());
+
+                    /* shift the widget a bit to so it not over the original */
                     double newXPos = newWidget.getConfig().getxPosition() + newWidget.getConfig().getSize().getWidth() + 50;
                     if (newXPos > dashboardControl.getDashboardPane().getWidth()) {
                         newWidget.getConfig().setxPosition(newWidget.getConfig().getxPosition() + 50);
                     } else {
                         newWidget.getConfig().setxPosition(newXPos);
                     }
-
                     dashboardControl.addWidget(newWidget);
                     newWidget.updateConfig();
                     newWidget.setEditable(true);
                     dashboardControl.setSelectedWidget(newWidget);
+
+                    /* Workaround for the ImageWidget, we need to reset the image object, or we overwrite the old one*/
+                    if (newWidget instanceof ImageWidget) {
+                        ((ImageWidget) newWidget).restImageConfig();
+                    }
                 }
 
             } catch (Exception ex) {
