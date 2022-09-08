@@ -65,6 +65,10 @@ public class ImageConfig {
         }
     }
 
+    public void setObjectID(Long objectID) {
+        this.objectID = objectID;
+    }
+
     public Tab getConfigTab() {
         ImageTab tab = new ImageTab(I18n.getInstance().getString("plugin.dashboard.imagewidget.tab")
                 , this);

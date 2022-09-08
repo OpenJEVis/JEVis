@@ -137,6 +137,9 @@ public class FXLogin extends AnchorPane {
         this.messageBox.setBorder(null);
         this.messageBox.setPadding(new Insets(0));
         this.messageBox.setStyle("-fx-background-color: -fx-control-inner-background;");
+        this.messageBox.setEditable(false);
+        this.messageBox.setMouseTransparent(true);
+        this.messageBox.setFocusTraversable(false);
 
         //this.loginButton.getStyleClass().add("button-raised");
         //loginButton.setId("ok-button");

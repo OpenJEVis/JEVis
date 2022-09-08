@@ -126,7 +126,9 @@ public class DashboardControl {
             protected Object call() throws Exception {
                 logger.debug("---- Control.updateWidgets");
                 widget.updateConfig(widget.getConfig());
+                widget.updateConfig();
                 widget.updateData(activeInterval);
+
                 super.done();
                 return null;
             }
