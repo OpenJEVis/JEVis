@@ -36,6 +36,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.*;
+import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -55,6 +56,7 @@ import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,6 +75,8 @@ public class GapFillingEditor implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private List<JsonGapFillingConfig> _listConfig;
+
+    private static final DoubleValidator dv = DoubleValidator.getInstance();
     private boolean initialized = false;
 
     public GapFillingEditor(StackPane dialogContainer, JEVisAttribute att) {
@@ -218,7 +222,17 @@ public class GapFillingEditor implements AttributeEditor {
          */
         typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
         boundaryText.setText((Long.parseLong(config.getBoundary()) / 1000) + ""); //msec -> sec
-        defaultValueText.setText(config.getDefaultvalue());
+        try{
+            NumberFormat numberFormat = NumberFormat.getInstance(I18n.getInstance().getLocale());
+            if (config.getDefaultvalue() != null) {
+                Double defaultValue = Double.parseDouble(config.getDefaultvalue());
+                defaultValueText.setText(numberFormat.format(defaultValue));
+            }
+        }catch (Exception e){
+            logger.error("Could not parse default value", e);
+        }
+
+
 
         typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
         referencePeriodBox.getSelectionModel().select(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
@@ -242,7 +256,12 @@ public class GapFillingEditor implements AttributeEditor {
             fillTab(tab, config);
         });
         defaultValueText.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setDefaultvalue(newValue);
+            try {
+                String parsedDefaultValue = dv.validate(newValue, I18n.getInstance().getLocale()).toString();
+                config.setDefaultvalue(parsedDefaultValue);
+            } catch (Exception e) {
+                defaultValueText.setText(oldValue);
+            }
         });
         boundaryText.textProperty().addListener((observable, oldValue, newValue) -> {
             config.setBoundary((Long.parseLong(newValue) * 1000l) + "");//sec -> msec
