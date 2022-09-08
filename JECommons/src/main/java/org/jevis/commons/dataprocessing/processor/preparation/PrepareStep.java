@@ -227,12 +227,14 @@ public class PrepareStep implements ProcessStep {
                 Boolean isDifferential = CleanDataObject.isDifferentialForDate(differentialRules, currentDate);
                 boolean greaterThenDays = false;
 
+                DateTime intervalDate = currentDate.withZone(timeZone);
                 startDateTime = currentDate.withZone(timeZone);
                 endDateTime = currentDate.withZone(timeZone);
 
                 if (cleanPeriod.getYears() > 0) {
                     if (isDifferential) {
-                        startDateTime = startDateTime.minusYears(cleanPeriod.getYears()).withMonthOfYear(1).withDayOfMonth(1);
+                        intervalDate = startDateTime.withMonthOfYear(1).withDayOfMonth(1);
+                        startDateTime = intervalDate;
                     } else {
                         startDateTime = startDateTime.withMonthOfYear(1).withDayOfMonth(1);
                     }
@@ -241,7 +243,8 @@ public class PrepareStep implements ProcessStep {
                 }
                 if (cleanPeriod.getMonths() > 0) {
                     if (isDifferential) {
-                        startDateTime = startDateTime.minusMonths(cleanPeriod.getMonths()).withDayOfMonth(1);
+                        intervalDate = startDateTime.withDayOfMonth(1);
+                        startDateTime = intervalDate;
                     } else {
                         startDateTime = startDateTime.withDayOfMonth(1);
                     }
@@ -249,12 +252,22 @@ public class PrepareStep implements ProcessStep {
                     greaterThenDays = true;
                 }
                 if (cleanPeriod.getWeeks() > 0) {
-                    startDateTime = startDateTime.minusWeeks(cleanPeriod.getWeeks()).withDayOfWeek(1);
+                    if (isDifferential) {
+                        intervalDate = startDateTime.withDayOfWeek(1);
+                        startDateTime = intervalDate;
+                    } else {
+                        startDateTime = startDateTime.withDayOfWeek(1);
+                    }
                     endDateTime = startDateTime.plusWeeks(cleanPeriod.getWeeks()).withDayOfWeek(1).minusDays(1);
                     greaterThenDays = true;
                 }
                 if (cleanPeriod.getDays() > 0) {
-                    startDateTime = startDateTime.withTime(0, 0, 0, 0);
+                    if (isDifferential) {
+                        intervalDate = startDateTime.withTime(0, 0, 0, 0);
+                        startDateTime = intervalDate;
+                    } else {
+                        startDateTime = startDateTime.withTime(0, 0, 0, 0);
+                    }
                     endDateTime = startDateTime.plusDays(cleanPeriod.getDays()).minusSeconds(1);
                     greaterThenDays = true;
                 }
@@ -269,16 +282,20 @@ public class PrepareStep implements ProcessStep {
                 }
 
                 if (greaterThenDays) {
+                    intervalDate = new DateTime(intervalDate.getYear(), intervalDate.getMonthOfYear(), intervalDate.getDayOfMonth(),
+                            dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond(), timeZone);
                     startDateTime = new DateTime(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth(),
                             dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond(), timeZone);
                     endDateTime = new DateTime(endDateTime.getYear(), endDateTime.getMonthOfYear(), endDateTime.getDayOfMonth(),
                             dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond(), timeZone);
 
                     if (dtEnd.isBefore(dtStart)) {
+                        intervalDate = intervalDate.minusDays(1);
                         startDateTime = startDateTime.minusDays(1);
                     }
                 }
 
+                intervalDate = intervalDate.withZone(DateTimeZone.UTC);
                 startDateTime = startDateTime.withZone(DateTimeZone.UTC);
                 endDateTime = endDateTime.withZone(DateTimeZone.UTC);
                 CleanInterval currentInterval;
@@ -305,8 +322,8 @@ public class PrepareStep implements ProcessStep {
                     currentInterval.getResult().setTimeStamp(startDateTime);
                 } else {
                     Interval interval = new Interval(startDateTime.plusSeconds(1), endDateTime.plusSeconds(1));
-                    currentInterval = new CleanInterval(interval, endDateTime.plusSeconds(1));
-                    currentInterval.getResult().setTimeStamp(endDateTime.plusSeconds(1));
+                    currentInterval = new CleanInterval(interval, intervalDate);
+                    currentInterval.getResult().setTimeStamp(intervalDate);
                 }
 
                 currentInterval.setInputPeriod(rawPeriod);
