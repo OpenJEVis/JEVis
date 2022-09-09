@@ -75,9 +75,9 @@ public class GapFillingEditor implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private List<JsonGapFillingConfig> _listConfig;
+    private boolean initialized = false;
 
     private static final DoubleValidator dv = DoubleValidator.getInstance();
-    private boolean initialized = false;
 
     public GapFillingEditor(StackPane dialogContainer, JEVisAttribute att) {
         this.dialogContainer = dialogContainer;
@@ -264,7 +264,7 @@ public class GapFillingEditor implements AttributeEditor {
             }
         });
         boundaryText.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setBoundary((Long.parseLong(newValue) * 1000l) + "");//sec -> msec
+            config.setBoundary((Long.parseLong(newValue) * 1000L) + "");//sec -> msec
         });
 
         referencePeriodCountText.numberProperty().addListener((observable, oldValue, newValue) -> {

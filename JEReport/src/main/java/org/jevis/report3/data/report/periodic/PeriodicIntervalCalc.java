@@ -12,6 +12,7 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.report3.data.report.IntervalCalculator;
@@ -58,6 +59,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         Period schedule = Period.valueOf(scheduleString.toUpperCase());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         DateTime start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
+        WorkDays wd = new WorkDays(reportObject);
 
         org.jevis.commons.datetime.DateHelper dateHelper = null;
 
@@ -66,6 +68,19 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         for (PeriodMode mode : PeriodMode.values()) {
             DateTime startRecord = calcStartRecord(start, schedule, mode, FixedPeriod.NONE, dateHelper);
             DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
+
+            boolean isGreaterThenDays = PeriodHelper.isGreaterThenDays(new org.joda.time.Period(startRecord, endRecord));
+
+            if (isGreaterThenDays && wd.isCustomWorkDay()) {
+                startRecord = startRecord.withHourOfDay(wd.getWorkdayStart().getHour()).withMinuteOfHour(wd.getWorkdayStart().getMinute())
+                        .withSecondOfMinute(wd.getWorkdayStart().getSecond());
+                endRecord = endRecord.withHourOfDay(wd.getWorkdayEnd().getHour()).withMinuteOfHour(wd.getWorkdayEnd().getMinute())
+                        .withSecondOfMinute(wd.getWorkdayEnd().getSecond());
+
+                if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
+                    startRecord = startRecord.minusDays(1);
+                }
+            }
 
             Interval interval = new Interval(startRecord, endRecord);
             intervalMap.put(mode.toString().toUpperCase(), interval);

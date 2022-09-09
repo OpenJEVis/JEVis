@@ -24,6 +24,7 @@ import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -148,6 +149,22 @@ public class SampleHandler {
                 }
             }
         } catch (JEVisException ex) {
+            logger.error(ex);
+        }
+        return lastValue;
+    }
+
+    public Period getLastSample(JEVisObject object, String attributeName, Period defaultValue) {
+        Period lastValue = defaultValue;
+        try {
+            JEVisAttribute attribute = object.getAttribute(attributeName);
+            if (attribute != null) {
+                JEVisSample lastSample = attribute.getLatestSample();
+                if (lastSample != null) {
+                    lastValue = new Period(lastSample.getValueAsString());
+                }
+            }
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastValue;
