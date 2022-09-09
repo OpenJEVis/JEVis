@@ -222,17 +222,17 @@ public class GapFillingEditor implements AttributeEditor {
          */
         typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
         boundaryText.setText((Long.parseLong(config.getBoundary()) / 1000) + ""); //msec -> sec
-
-
-        try {
+        try{
             NumberFormat numberFormat = NumberFormat.getInstance(I18n.getInstance().getLocale());
             if (config.getDefaultvalue() != null) {
                 Double defaultValue = Double.parseDouble(config.getDefaultvalue());
                 defaultValueText.setText(numberFormat.format(defaultValue));
             }
-        } catch (Exception e) {
+        }catch (Exception e){
             logger.error("Could not parse default value", e);
         }
+
+
 
         typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
         referencePeriodBox.getSelectionModel().select(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
