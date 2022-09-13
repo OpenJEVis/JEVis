@@ -485,7 +485,10 @@ public class JEVisItemLoader {
 
                             Platform.runLater(() -> {
                                 try {
-                                    treeItemBin.getChildren().add(treeItem);
+                                    /* move object will also delete the child but does not need to go into the bin*/
+                                    if (treeItem.getValue().getJEVisObject().getDeleteTS() != null) {
+                                        treeItemBin.getChildren().add(treeItem);
+                                    }
                                 } catch (Exception ex) {
                                     logger.error(ex, ex);
                                 }
