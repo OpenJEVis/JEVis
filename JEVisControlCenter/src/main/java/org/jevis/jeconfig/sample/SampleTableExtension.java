@@ -20,6 +20,7 @@
 package org.jevis.jeconfig.sample;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
@@ -34,6 +35,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import javafx.stage.Window;
+import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -57,8 +59,11 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -75,6 +80,7 @@ public class SampleTableExtension implements SampleEditorExtension {
     private List<JEVisSample> _samples = new ArrayList<>();
     private boolean _dataChanged = true;
     private final BooleanProperty disableEditing = new SimpleBooleanProperty(false);
+    private final DoubleValidator dv = DoubleValidator.getInstance();
 
     public SampleTableExtension(JEVisAttribute att, Window owner) {
         _att = att;
@@ -278,10 +284,18 @@ public class SampleTableExtension implements SampleEditorExtension {
                 dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
                 dialog.setOverlayClose(false);
 
-                Label valueLabel = new Label("Wert:");
+                Label valueLabel = new Label(I18n.getInstance().getString("plugin.graph.table.value"));
                 JFXTextField valueField = new JFXTextField();
 
-                Label noteLabel = new Label("Notiz:");
+                valueField.textProperty().addListener((observable, oldValue, newValue) -> {
+                    try {
+                        String parsedValue = dv.validate(newValue, I18n.getInstance().getLocale()).toString();
+                    } catch (Exception e) {
+                        valueField.setText(oldValue);
+                    }
+                });
+
+                Label noteLabel = new Label(I18n.getInstance().getString("plugin.graph.table.note"));
                 JFXTextField noteField = new JFXTextField();
 
                 GridPane gridPane = new GridPane();
@@ -291,20 +305,29 @@ public class SampleTableExtension implements SampleEditorExtension {
 
                 int row = 0;
                 gridPane.add(valueLabel, 0, row);
-                gridPane.add(valueField, 1, row);
+                gridPane.add(valueField, 1, row, 2, 1);
                 row++;
 
                 gridPane.add(noteLabel, 0, row);
-                gridPane.add(noteField, 1, row);
+                gridPane.add(noteField, 1, row, 2, 1);
 
                 final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
                 ok.setDefaultButton(true);
                 final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
                 cancel.setCancelButton(true);
 
-                HBox buttonBar = new HBox(6, cancel, ok);
+                final JFXCheckBox more = new JFXCheckBox(I18n.getInstance().getString("graph.tabs.charts"));
+                more.setSelected(false);
+                final Map<Integer, DaySchedule> dayScheduleMap = new HashMap<>();
+                more.selectedProperty().addListener((observable, oldValue, newValue) -> showSettings(gridPane, newValue, dayScheduleMap));
+
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                HBox buttonBar = new HBox(6, more, spacer, cancel, ok);
                 buttonBar.setAlignment(Pos.CENTER_RIGHT);
                 buttonBar.setPadding(new Insets(12));
+                buttonBar.setMinWidth(240);
 
                 Separator separator = new Separator(Orientation.HORIZONTAL);
                 separator.setPadding(new Insets(8, 0, 8, 0));
@@ -314,23 +337,25 @@ public class SampleTableExtension implements SampleEditorExtension {
 
                 ok.setOnAction(evt -> {
                     try {
-                        BigDecimal d = new BigDecimal(valueField.getText());
+                        BigDecimal d = new BigDecimal(dv.validate(valueField.getText(), I18n.getInstance().getLocale()).toString());
 
                         final ProgressForm pForm = new ProgressForm("Setting values...");
                         List<PeriodRule> periodAlignmentForObject = CleanDataObject.getPeriodAlignmentForObject(att.getObject());
 
                         Task<List<JEVisSample>> set = new Task<List<JEVisSample>>() {
                             @Override
-                            protected List<JEVisSample> call() throws JEVisException {
+                            protected List<JEVisSample> call() throws Exception {
                                 List<JEVisSample> sampleList = new ArrayList<>();
                                 Period periodForDate = CleanDataObject.getPeriodForDate(att.getObject(), minMax[0]);
                                 DateTime date = minMax[0].plus(periodForDate);
 
                                 while (date.isBefore(minMax[1])) {
-                                    VirtualSample sample = new VirtualSample(date, d.doubleValue());
-                                    sample.setNote(noteField.getText());
-                                    sampleList.add(sample);
-                                    logger.info("Created sample " + date + " - " + d + " - " + noteField.getText());
+                                    if (dateCheck(date, dayScheduleMap)) {
+                                        VirtualSample sample = new VirtualSample(date, d.doubleValue());
+                                        sample.setNote(noteField.getText());
+                                        sampleList.add(sample);
+                                        logger.info("Created sample " + date + " - " + d + " - " + noteField.getText());
+                                    }
 
                                     CleanDataObject.getPeriodForDate(periodAlignmentForObject, date);
                                     date = date.plus(periodForDate);
@@ -400,6 +425,41 @@ public class SampleTableExtension implements SampleEditorExtension {
 
         borderPane.setCenter(table);
         borderPane.setBottom(motherBox);
+    }
+
+    private boolean dateCheck(DateTime date, Map<Integer, DaySchedule> dayScheduleMap) {
+        if (dayScheduleMap.isEmpty()) {
+            return true;
+        } else {
+            DaySchedule daySchedule = dayScheduleMap.get(date.getDayOfWeek());
+            if (daySchedule.isSelected()) {
+                LocalTime dateTime = LocalTime.of(date.getHourOfDay(), date.getMinuteOfHour(), date.getSecondOfMinute(), date.getMillisOfSecond() * 100000);
+                return dateTime.equals(daySchedule.getStartTime())
+                        || (dateTime.isAfter(daySchedule.getStartTime()) && dateTime.isBefore(daySchedule.getEndTime()))
+                        || dateTime.equals(daySchedule.getEndTime());
+            }
+        }
+
+        return false;
+    }
+
+    private void showSettings(GridPane gridPane, Boolean newValue, Map<Integer, DaySchedule> dayScheduleMap) {
+        if (!newValue) {
+            gridPane.getChildren().removeIf(node -> GridPane.getRowIndex(node) > 1);
+            dayScheduleMap.clear();
+        } else {
+            dayScheduleMap.clear();
+            for (int i = 2; i < 9; i++) {
+                DaySchedule daySchedule = new DaySchedule(i - 1);
+                dayScheduleMap.put(i - 1, daySchedule);
+
+                gridPane.add(daySchedule.getDayButton(), 0, i);
+                gridPane.add(daySchedule.getStartVBox(), 1, i);
+                gridPane.add(daySchedule.getStart(), 2, i);
+                gridPane.add(daySchedule.getEndVBox(), 3, i);
+                gridPane.add(daySchedule.getEnd(), 4, i);
+            }
+        }
     }
 
     public void taskWithAnimation(Task<Void> task) {
