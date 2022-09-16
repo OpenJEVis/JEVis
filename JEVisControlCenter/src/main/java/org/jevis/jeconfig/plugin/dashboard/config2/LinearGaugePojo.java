@@ -64,24 +64,56 @@ public class LinearGaugePojo {
     }
 
     public LinearGaugePojo(DashboardControl control, JsonNode jsonNode) {
-
-        //gauge.setSkinType(Gauge.SkinType.SIMPLE);
-        skins.addAll(eu.hansolo.medusa.Gauge.SkinType.DASHBOARD.toString(), eu.hansolo.medusa.Gauge.SkinType.SIMPLE.toString());
+        //skins.addAll(eu.hansolo.medusa.Gauge.SkinType.DASHBOARD.toString(), eu.hansolo.medusa.Gauge.SkinType.SIMPLE.toString());
         this.dashboardControl = control;
 
         if (jsonNode != null) {
+            if (jsonNode.has("maximum")) {
+                maximum = jsonNode.get("maximum").asDouble();
+            }
+            if (jsonNode.has("minimum")) {
+                minimum = jsonNode.get("minimum").asDouble();
 
-            maximum = jsonNode.get("maximum").asDouble();
-            minimum = jsonNode.get("minimum").asDouble();
-            inPercent = jsonNode.get("inPercent").asBoolean();
-            showTitle = jsonNode.get("showTitle").asBoolean();
-            showUnit = jsonNode.get("showUnit").asBoolean();
-            showValue = jsonNode.get("showValue").asBoolean();
-            colorValueIndicator = Color.valueOf(jsonNode.get("color").asText());
-            showMajorTick = jsonNode.get("showMajorTick").asBoolean();
-            showMediumTick = jsonNode.get("showMediumTick").asBoolean();
-            showMinorTick = jsonNode.get("showMinorTick").asBoolean();
-            colorBorder = Color.valueOf(jsonNode.get("colorBorder").asText());
+            }
+            if (jsonNode.has("inPercent")) {
+
+                inPercent = jsonNode.get("inPercent").asBoolean();
+            }
+            if (jsonNode.has("showTitle")) {
+
+                showTitle = jsonNode.get("showTitle").asBoolean();
+            }
+            if (jsonNode.has("showUnit")) {
+
+                showUnit = jsonNode.get("showUnit").asBoolean();
+            }
+            if (jsonNode.has("showValue")) {
+
+                showValue = jsonNode.get("showValue").asBoolean();
+            }
+            if (jsonNode.has("color")) {
+
+                colorValueIndicator = Color.valueOf(jsonNode.get("color").asText());
+            }
+            if (jsonNode.has("showMajorTick")) {
+
+                showMajorTick = jsonNode.get("showMajorTick").asBoolean();
+            }
+            if (jsonNode.has("showMediumTick")) {
+
+                showMediumTick = jsonNode.get("showMediumTick").asBoolean();
+
+            }
+            if (jsonNode.has("showMinorTick")) {
+                showMinorTick = jsonNode.get("showMinorTick").asBoolean();
+
+            }
+            if (jsonNode.has("colorBorder")) {
+
+                colorBorder = Color.valueOf(jsonNode.get("colorBorder").asText());
+            }
+
+
 
 
         }
@@ -323,7 +355,8 @@ public class LinearGaugePojo {
             try {
                 showTitle = jfxCheckBoxShowTitle.isSelected();
                 showUnit = jfxCheckBoxShowUnit.isSelected();
-                showValue = jfxCheckBoxShowValue.isDisable();
+                showValue = jfxCheckBoxShowValue.isSelected();
+                inPercent = jfxCheckBoxInPercent.isSelected();
 
                 minimum = Double.valueOf(jfxTextFieldMinValue.getText());
                 maximum = Double.valueOf(jfxTextFieldMaxValue.getText());
