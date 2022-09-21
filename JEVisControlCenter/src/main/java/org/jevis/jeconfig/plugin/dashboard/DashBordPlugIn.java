@@ -1,7 +1,5 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
-//import com.itextpdf.text.Document;
-//import com.itextpdf.text.pdf.PdfWriter;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
