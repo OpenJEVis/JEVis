@@ -443,7 +443,7 @@ public class FXLogin extends AnchorPane {
     private Node buildHeader() {
         AnchorPane header = new AnchorPane();
         header.setId("fxlogin-header");
-        setDefaultStyle(header, "-fx-background-color: " + Color.LIGHT_BLUE);
+        setDefaultStyle(header, "-fx-background-color: " + Color.MID_GREY);
 
         ImageView logo = null;
 
@@ -481,14 +481,14 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Build an footer GUI element
+     * Build a footer GUI element
      *
      * @return
      */
     private Node buildFooter() {
         AnchorPane footer = new AnchorPane();
         footer.setId("fx-login-footer");
-        setDefaultStyle(footer, "-fx-background-color: " + Color.LIGHT_BLUE);
+        setDefaultStyle(footer, "-fx-background-color: " + Color.MID_GREY);
 
         Node buildInfo = buildBuildInfo();
         buildInfo.setId("fx-login-footer-info");
