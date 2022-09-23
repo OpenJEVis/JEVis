@@ -47,7 +47,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -72,11 +71,7 @@ import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.*;
-import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableHeader;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
+import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
@@ -1485,7 +1480,7 @@ public class ChartPlugin implements Plugin {
                 Platform.runLater(() -> logicalChart.getChart().setTitle(null));
             }
 
-            logicalChart.getChartDataRows().get(0).setColor(ColorHelper.toRGBCode(ColorColumn.color_list[subCharts.indexOf(logicalChart)]));
+            logicalChart.getChartDataRows().get(0).setColor(ColorHelper.toRGBCode(ColorTable.color_list[subCharts.indexOf(logicalChart)]));
             logicalChart.getChartDataRows().get(0).calcMinAndMax();
             double min = logicalChart.getMinValue();
             double max = logicalChart.getMaxValue();
