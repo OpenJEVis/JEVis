@@ -21,7 +21,6 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -38,13 +37,13 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
-import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.NewSelectionDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
@@ -54,10 +53,8 @@ import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
-import org.jevis.jeconfig.dialog.BaseLoadDialog;
-import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
-import org.jevis.jeconfig.dialog.Response;
+import org.jevis.jeconfig.dialog.*;
+import org.jevis.jeconfig.sample.DaySchedule;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 
@@ -95,6 +92,7 @@ public class ToolBarView {
     private ToggleButton delete;
     private ToggleButton autoResize;
     private ToggleButton select;
+    private ToggleButton select2;
     private ToggleButton disableIcons;
     private ToggleButton zoomOut;
     private ToggleButton infoButton;
@@ -131,6 +129,8 @@ public class ToolBarView {
     private CheckMenuItem calcHoursAboveBelow;
     private CheckMenuItem calcSumAboveBelow;
     private CheckMenuItem calcBaseLoad;
+
+    private CheckMenuItem calcValues;
 
     public ToolBarView(AnalysisDataModel model, JEVisDataSource ds, ChartPlugin chartPlugin) {
         this.model = model;
@@ -334,7 +334,6 @@ public class ToolBarView {
             Separator sep4 = new Separator();
 
             boolean isRegressionPossible = false;
-            boolean isAdditionalCalcPossible = false;
 
             for (ChartSetting chartSetting : model.getCharts().getListSettings()) {
                 if (chartSetting.getChartType() != ChartType.TABLE && chartSetting.getChartType() != ChartType.HEAT_MAP
@@ -344,27 +343,19 @@ public class ToolBarView {
                 }
             }
 
-            QuantityUnits qu = new QuantityUnits();
-            for (ChartDataRow chartDataRow : model.getSelectedData()) {
-                if (qu.isSumCalculable(chartDataRow.getUnit())) {
-                    isAdditionalCalcPossible = true;
-                    break;
-                }
-            }
-
             toolBar.getItems().addAll(listAnalysesComboBox,
                     sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                     sep2, reload, zoomOut,
-                    sep3, loadNew, save, delete, select, export,exportImage, printButton,
+                    sep3, loadNew, save, delete, select, export, exportImage, printButton,
+                    //sep3, loadNew, save, delete, select, select2, export, exportImage, printButton,
                     sep4);
 
             if (isRegressionPossible) {
                 mathOperation.getItems().add(calcRegression);
             }
 
-            if (isAdditionalCalcPossible) {
-                mathOperation.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad);
-            }
+            //Math buttons now always on
+            mathOperation.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad, calcValues);
 
             if (!JEConfig.getExpert()) {
 
@@ -373,7 +364,7 @@ public class ToolBarView {
             } else {
 
                 mathOperation.getItems().addAll(showL1L2, showSum);
-                toolBar.getItems().addAll(showRawData,mathOperation, disableIcons, autoResize, runUpdateButton);
+                toolBar.getItems().addAll(showRawData, mathOperation, disableIcons, autoResize, runUpdateButton);
             }
 
 //            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
@@ -674,6 +665,102 @@ public class ToolBarView {
                 setting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
 
                 BaseLoadDialog dialog = new BaseLoadDialog(chartPlugin.getDialogContainer(), setting, model);
+
+                dialog.show();
+
+            } catch (Exception e) {
+                logger.error(e);
+            }
+            infoBox.close();
+        });
+
+        cancel.setOnAction(event -> infoBox.close());
+
+        infoBox.setContent(vBox);
+        infoBox.show();
+    }
+
+    private void calcValues() {
+        JFXDialog infoBox = new JFXDialog();
+        infoBox.setDialogContainer(chartPlugin.getDialogContainer());
+        infoBox.setTransitionType(JFXDialog.DialogTransition.NONE);
+
+        final ValuesSetting valuesSetting = new ValuesSetting();
+
+        Label resultTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.resulttimeframe"));
+
+        JFXDatePicker resultStartDate = new JFXDatePicker(pickerDateStart.getValue());
+        resultStartDate.setPrefWidth(120d);
+
+        JFXTimePicker resultStartTime = new JFXTimePicker(pickerTimeStart.getValue());
+        resultStartTime.setPrefWidth(100d);
+        resultStartTime.setMaxWidth(100d);
+        resultStartTime.set24HourView(true);
+        resultStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+        JFXDatePicker resultEndDate = new JFXDatePicker(pickerDateEnd.getValue());
+        resultEndDate.setPrefWidth(120d);
+
+        JFXTimePicker resultEndTime = new JFXTimePicker(pickerTimeEnd.getValue());
+        resultEndTime.setPrefWidth(100d);
+        resultEndTime.setMaxWidth(100d);
+        resultEndTime.set24HourView(true);
+        resultEndTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+        GridPane gp = new GridPane();
+        gp.setVgap(6);
+        gp.setHgap(6);
+
+        int row = 0;
+
+        gp.add(resultTimeFrame, 0, row, 4, 1);
+        row++;
+
+        gp.add(resultStartDate, 0, row);
+        gp.add(resultStartTime, 1, row);
+        gp.add(resultEndDate, 2, row);
+        gp.add(resultEndTime, 3, row);
+        row++;
+
+        JFXCheckBox insideBox = new JFXCheckBox(I18n.getInstance().getString("graph.dialog.buttons.values.inside"));
+        insideBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> valuesSetting.setInside(t1));
+        insideBox.setSelected(true);
+        gp.add(insideBox, 0, row, 2, 1);
+        row++;
+
+        for (int i = 1; i < 8; i++) {
+            DaySchedule daySchedule = new DaySchedule(i);
+            valuesSetting.getDaySchedule().put(i, daySchedule);
+
+            gp.add(daySchedule.getDayButton(), 0, row);
+            gp.add(daySchedule.getStartVBox(), 1, row);
+            gp.add(daySchedule.getStart(), 2, row);
+            gp.add(daySchedule.getEndVBox(), 3, row);
+            gp.add(daySchedule.getEnd(), 4, row);
+            row++;
+        }
+
+        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
+        ok.setDefaultButton(true);
+        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
+        cancel.setCancelButton(true);
+
+        HBox buttonBar = new HBox(6, cancel, ok);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        buttonBar.setPadding(new Insets(12));
+
+        Separator separator = new Separator(Orientation.HORIZONTAL);
+        separator.setPadding(new Insets(8, 0, 8, 0));
+
+        VBox vBox = new VBox(6, gp, separator, buttonBar);
+        vBox.setPadding(new Insets(12));
+
+        ok.setOnAction(event -> {
+            try {
+                valuesSetting.setResultStart(resultStartDate.getValue(), resultStartTime.getValue());
+                valuesSetting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
+
+                ValuesDialog dialog = new ValuesDialog(chartPlugin.getDialogContainer(), valuesSetting, model);
 
                 dialog.show();
 
@@ -999,6 +1086,25 @@ public class ToolBarView {
 
     }
 
+    private void changeSettings2() {
+        NewSelectionDialog dia = new NewSelectionDialog(chartPlugin.getDialogContainer(), ds);
+
+        dia.setOnDialogClosed(event -> {
+//            if (dia.getResponse() == Response.OK) {
+//
+//                model.setCharts(dia.getChartPlugin().getData().getCharts());
+//                model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
+//                changed = true;
+//            }
+            JEVisHelp.getInstance().deactivatePluginModule();
+        });
+
+
+        dia.show();
+
+
+    }
+
     public void select(JEVisObject obj) {
         getListAnalysesComboBox().getSelectionModel().select(obj);
     }
@@ -1018,6 +1124,7 @@ public class ToolBarView {
         delete.setDisable(bool);
         autoResize.setDisable(bool);
         select.setDisable(bool);
+        select2.setDisable(bool);
         showRawData.setDisable(bool);
         showSum.setDisable(bool);
         showL1L2.setDisable(bool);
@@ -1026,6 +1133,7 @@ public class ToolBarView {
         calcHoursAboveBelow.setDisable(bool);
         calcSumAboveBelow.setDisable(bool);
         calcBaseLoad.setDisable(bool);
+        calcValues.setDisable(bool);
         customWorkDay.setDisable(bool);
         disableIcons.setDisable(bool);
         zoomOut.setDisable(bool);
@@ -1120,6 +1228,10 @@ public class ToolBarView {
             changeSettings();
         });
 
+        select2.setOnAction(event -> {
+            changeSettings2();
+        });
+
         delete.setOnAction(event -> getChartPluginView().handleRequest(Constants.Plugin.Command.DELETE));
 
         showRawData.setOnAction(event -> showRawDataInGraph());
@@ -1133,6 +1245,8 @@ public class ToolBarView {
         calcFullLoadHours.setOnAction(event -> calcFullLoadHours());
 
         calcBaseLoad.setOnAction(event -> calcBaseLoad());
+
+        calcValues.setOnAction(event -> calcValues());
 
         calcHoursAboveBelow.setOnAction(event -> calcHoursAboveBelow());
 
@@ -1233,6 +1347,11 @@ public class ToolBarView {
         select.setTooltip(selectTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
 
+        select2 = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
+        Tooltip selectTooltip2 = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
+        select2.setTooltip(selectTooltip2);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(select2);
+
         showRawData = new ToggleButton("", JEConfig.getSVGImage(Icon.RAW_ON, iconSize, iconSize));
         Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
         showRawData.setTooltip(showRawDataTooltip);
@@ -1250,7 +1369,7 @@ public class ToolBarView {
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
 
-        mathOperation = new MenuButton("",JEConfig.getSVGImage(Icon.SUM, iconSize, iconSize));
+        mathOperation = new MenuButton("", JEConfig.getSVGImage(Icon.SUM, iconSize, iconSize));
         mathOperation.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.mathoperation")));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(mathOperation);
         showSum = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
@@ -1259,20 +1378,18 @@ public class ToolBarView {
         showL1L2 = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
         showL1L2.setSelected(model.getShowL1L2());
 
-
         calcRegression = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
         calcRegression.setSelected(model.calcRegression());
 
         calcFullLoadHours = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcfullloadhours"));
 
-
         calcHoursAboveBelow = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calchoursabovebelow"));
 
         calcSumAboveBelow = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcsumabovebelow"));
 
-
         calcBaseLoad = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcbaseloadhours"));
 
+        calcValues = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcvalues"));
 
         customWorkDay = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, iconSize, iconSize));
         Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
@@ -1357,7 +1474,7 @@ public class ToolBarView {
         List<Node> nodes = Arrays.asList(listAnalysesComboBox,
                 presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                 reload, zoomOut,
-                loadNew, save, delete, select,export,mathOperation,showRawData, exportImage, printButton,
+                loadNew, save, delete, select, select2, export, mathOperation, showRawData, exportImage, printButton,
                 disableIcons, autoResize, runUpdateButton);
 
         pickerCombo.addListener();

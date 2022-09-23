@@ -14,6 +14,7 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.jeconfig.application.Chart.ChartElements.ColorTable;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
@@ -189,7 +190,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                  * if the checkbox is selected, get a color for it
                                                  */
                                                 if (!wasSelected) {
-                                                    currentDataModel.setColor(ColorHelper.toRGBCode(colorColumn.getNextColor()));
+                                                    currentDataModel.setColor(ColorHelper.toRGBCode(ColorTable.getNextColor(colorColumn.getUsedColors())));
                                                 } else if (oldColor != null) {
                                                     currentDataModel.setColor(ColorHelper.toRGBCode(oldColor));
                                                 }

@@ -38,7 +38,7 @@ import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.Chart.*;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
+import org.jevis.jeconfig.application.Chart.ChartElements.ColorTable;
 import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
@@ -1075,7 +1075,7 @@ public class AnalysisDataModel {
     public void selectNone() {
         getSelectedData().forEach(mdl -> {
             mdl.setSelectedCharts(new ArrayList<>());
-            mdl.setColor(ColorHelper.toRGBCode(ColorColumn.STANDARD_COLOR));
+            mdl.setColor(ColorHelper.toRGBCode(ColorTable.STANDARD_COLOR));
         });
     }
 

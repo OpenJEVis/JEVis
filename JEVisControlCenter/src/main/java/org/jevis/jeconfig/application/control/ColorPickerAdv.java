@@ -17,7 +17,7 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
+import org.jevis.jeconfig.application.Chart.ChartElements.ColorTable;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -25,10 +25,10 @@ import java.util.List;
 public class ColorPickerAdv extends HBox {
 
     private static final Logger logger = LogManager.getLogger(ColorPickerAdv.class);
-    private final ObjectProperty<Color> selectColorProperty = new SimpleObjectProperty<>(ColorColumn.color_list[0]);
+    private final ObjectProperty<Color> selectColorProperty = new SimpleObjectProperty<>(ColorTable.color_list[0]);
     private Window owner;
-    private Color initColor = ColorColumn.color_list[0];
-    private final ObjectProperty<Color> finalColor = new SimpleObjectProperty<>(ColorColumn.color_list[0]);
+    private final ObjectProperty<Color> finalColor = new SimpleObjectProperty<>(ColorTable.color_list[0]);
+    private Color initColor = ColorTable.color_list[0];
     private final JFXButton button = new JFXButton();
 
     public ColorPickerAdv() {
@@ -72,7 +72,6 @@ public class ColorPickerAdv extends HBox {
         return finalColor.getValue();
     }
 
-
     public void show() {
         try {
 //            System.out.println("Show color");
@@ -110,7 +109,7 @@ public class ColorPickerAdv extends HBox {
                         });
 
 
-                        Lists.newArrayList(ColorColumn.color_list).forEach(color -> {
+                        Lists.newArrayList(ColorTable.color_list).forEach(color -> {
                             Node colorRect = colorRectPane(color, 12d);
                             vBox.getChildren().add(colorRect);
                             colorRect.setOnMouseClicked(event -> {
