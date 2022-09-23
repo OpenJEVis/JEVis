@@ -43,7 +43,6 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.NewSelectionDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
@@ -1086,24 +1085,24 @@ public class ToolBarView {
 
     }
 
-    private void changeSettings2() {
-        NewSelectionDialog dia = new NewSelectionDialog(chartPlugin.getDialogContainer(), ds);
-
-        dia.setOnDialogClosed(event -> {
+//    private void changeSettings2() {
+//        NewSelectionDialog dia = new NewSelectionDialog(chartPlugin.getDialogContainer(), ds);
+//
+//        dia.setOnDialogClosed(event -> {
 //            if (dia.getResponse() == Response.OK) {
 //
 //                model.setCharts(dia.getChartPlugin().getData().getCharts());
 //                model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
 //                changed = true;
 //            }
-            JEVisHelp.getInstance().deactivatePluginModule();
-        });
-
-
-        dia.show();
-
-
-    }
+//            JEVisHelp.getInstance().deactivatePluginModule();
+//        });
+//
+//
+//        dia.show();
+//
+//
+//    }
 
     public void select(JEVisObject obj) {
         getListAnalysesComboBox().getSelectionModel().select(obj);
@@ -1228,9 +1227,9 @@ public class ToolBarView {
             changeSettings();
         });
 
-        select2.setOnAction(event -> {
-            changeSettings2();
-        });
+//        select2.setOnAction(event -> {
+//            changeSettings2();
+//        });
 
         delete.setOnAction(event -> getChartPluginView().handleRequest(Constants.Plugin.Command.DELETE));
 
