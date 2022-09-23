@@ -528,7 +528,6 @@ public class FXLogin extends AnchorPane {
 //        Node serverConfigBox = buildServerSelection();
         Region serverConfigBox = new Region();
         this.langSelect = buildLanguageBox();
-        loadPreference(true);
 
         Label userL = new Label("Username:");
         userL.setId("fxlogin-form-user-label");
@@ -611,7 +610,6 @@ public class FXLogin extends AnchorPane {
     private final StringBuilder messageText = new StringBuilder();
 
     private void initSlim() {
-        loadPreference(true);
 
         //TODO load from URL/RESOURCE
         ImageView logo = new ImageView(new Image("/icons/openjevislogo_simple2.png"));
