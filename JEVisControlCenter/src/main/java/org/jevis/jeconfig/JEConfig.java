@@ -73,9 +73,7 @@ import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -381,8 +379,8 @@ public class JEConfig extends Application {
         super.init();
         BasicConfigurator.configure();//Load an default log4j config
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
-        Parameters parameters = getParameters();
-        _config.parseParameters(parameters);
+//        Parameters parameters = getParameters();
+//        _config.parseParameters(parameters);
 //        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
