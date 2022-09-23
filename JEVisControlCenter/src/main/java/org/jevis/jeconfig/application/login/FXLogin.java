@@ -837,7 +837,7 @@ public class FXLogin extends AnchorPane {
      */
     private void loadPreference(boolean showServer) {
 //        logger.info("load from disk");
-        if (!this.jevisPref.get("JEVisUser", "").isEmpty()) {
+        if (!this.jevisPref.get("JEVisUser", "").isEmpty() && !hasCredentials) {
             this.storeConfig.setSelected(true);
 //            logger.info("username: " + jevisPref.get("JEVisUser", ""));
             this.userName.setText(this.jevisPref.get("JEVisUser", ""));

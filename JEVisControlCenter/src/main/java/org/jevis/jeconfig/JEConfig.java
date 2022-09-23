@@ -379,8 +379,8 @@ public class JEConfig extends Application {
         super.init();
         BasicConfigurator.configure();//Load an default log4j config
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
-//        Parameters parameters = getParameters();
-//        _config.parseParameters(parameters);
+        Parameters parameters = getParameters();
+        _config.parseParameters(parameters);
 //        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
