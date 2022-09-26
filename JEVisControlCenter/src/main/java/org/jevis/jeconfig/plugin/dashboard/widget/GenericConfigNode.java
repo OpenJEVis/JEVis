@@ -72,7 +72,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         timeFrameBox.setMinWidth(200);
         timeFrameBox.getItems().addAll(timeFrames);
         logger.debug(widget.getClass());
-        if (widget.getClass().equals(GaugeWidget.class) || widget.getClass().equals(LinearGaugeWidget.class)) {
+        if (widget.getClass().equals(GaugeWidget.class) || widget.getClass().equals(LinearGaugeWidget.class) || widget.getClass().equals(ShapeWidget.class) || widget.getClass().equals(ValueWidget.class)) {
             logger.debug("wiget is gauge");
             timeFrameBox.getItems().add(widget.getControl().getAllTimeFrames().getTimeframe(Period.ZERO.toString(), I18n.getInstance().getString("plugin.graph.dashboard.timeframe.lastValue")));
         }

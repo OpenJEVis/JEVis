@@ -17,10 +17,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -137,6 +134,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
                 } else {
                     gauge.setValue(0);
+                    showAlertOverview(true,I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
                 }
 
             }
@@ -178,13 +176,17 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
             gauge.setTickLabelColor(this.config.getFontColor());
             gauge.setTickMarkColor(gaugeSettings.getColorBorder());
 
+
             if (!gaugeSettings.isShowTitle()) {
+                System.out.println("disable title");
                 gauge.setTitle("");
             }
             if (!gaugeSettings.isShowUnit()) {
+                System.out.println("disable unit");
                 gauge.setUnit("");
             }
             if (!gaugeSettings.isShowValue()) {
+                System.out.println("diable value");
                 gauge.setValueColor(Color.valueOf("#ffffff00"));
             }
         }
@@ -257,7 +259,9 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateConfig() {
+        System.out.println(gaugeSettings);
         logger.debug("UpdateConfig");
+        gauge.setPrefSize(config.getSize().getWidth(),config.getSize().getHeight());
         Platform.runLater(() -> {
             try {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
@@ -275,6 +279,8 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
         if (gauge != null) {
             if (gaugeSettings != null) {
                 logger.debug("update Skin");
+                System.out.println("updateskin");
+
 
                 gauge.setBarColor(gaugeSettings.getColorValueIndicator());
                 gauge.setMajorTickMarksVisible(gaugeSettings.isShowMajorTick());
@@ -293,8 +299,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                 }
                 logger.debug((gauge.getMaxValue() - gauge.getMinValue()) / 10);
                 gauge.setMajorTickSpace((gauge.getMaxValue() - gauge.getMinValue()) / 10);
-            } else {
-                init();
             }
         }
 
@@ -317,8 +321,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-
-
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
@@ -341,9 +343,9 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
             this.gaugeSettings = new LinearGaugePojo(this.control);
         }
 
-
-        this.gauge.setPadding(new Insets(0, 8, 0, 8));
-        setGraphic(this.gauge);
+        Platform.runLater(() -> {
+            setGraphic(this.gauge);
+        });
 
         setOnMouseClicked(event -> {
             if (!control.editableProperty.get() && event.getButton().equals(MouseButton.PRIMARY)

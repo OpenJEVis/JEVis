@@ -131,6 +131,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
                 } else {
                     gauge.setValue(0);
+                    showAlertOverview(true,I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
                 }
 
             }
