@@ -48,16 +48,16 @@ public class ParameterHelper {
     public static List<JEVisOption> ParseJEVisConfiguration(Application.Parameters parameters) {
         List<JEVisOption> options = new ArrayList<>();
 
-        //simple implementation to convert the parameters. Paramaerts can be seperated by dot.
+        //simple implementation to convert the parameters. Parameters can be separated by dot.
         for (Map.Entry<String, String> entrySet : parameters.getNamed().entrySet()) {
             String[] keyGroup = entrySet.getKey().split("\\.", 2);
 
-            if (keyGroup.length == 1) {//simple paramerter like "enabled"
+            if (keyGroup.length == 1) {//simple parameter like "enabled"
                 JEVisOption newOpt = new BasicOption();
                 newOpt.setKey(keyGroup[0]);
                 newOpt.setValue(entrySet.getValue());
                 options.add(newOpt);
-            } else if (keyGroup.length > 1) {//complex parameter with dop seperation like "datasource.host"
+            } else if (keyGroup.length > 1) {//complex parameter with dop separation like "datasource.host"
                 //workaround solution an mask connection. Can be removed soon.
                 if (keyGroup[1].equalsIgnoreCase(CommonOptions.DataSource.CONNECTION.getKey())) {
                     options.add(ConnectionEncoder.decode(entrySet.getValue()));

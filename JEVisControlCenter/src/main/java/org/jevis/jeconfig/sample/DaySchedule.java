@@ -13,6 +13,7 @@ import org.joda.time.DateTime;
 
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
+import java.util.Map;
 
 public class DaySchedule {
 
@@ -107,5 +108,21 @@ public class DaySchedule {
 
     public JFXTimePicker getEnd() {
         return end;
+    }
+
+    public static boolean dateCheck(DateTime date, Map<Integer, DaySchedule> dayScheduleMap) {
+        if (dayScheduleMap.isEmpty()) {
+            return true;
+        } else {
+            DaySchedule daySchedule = dayScheduleMap.get(date.getDayOfWeek());
+            if (daySchedule.isSelected()) {
+                LocalTime dateTime = LocalTime.of(date.getHourOfDay(), date.getMinuteOfHour(), date.getSecondOfMinute(), date.getMillisOfSecond() * 100000);
+                return dateTime.equals(daySchedule.getStartTime())
+                        || (dateTime.isAfter(daySchedule.getStartTime()) && dateTime.isBefore(daySchedule.getEndTime()))
+                        || dateTime.equals(daySchedule.getEndTime());
+            }
+        }
+
+        return false;
     }
 }

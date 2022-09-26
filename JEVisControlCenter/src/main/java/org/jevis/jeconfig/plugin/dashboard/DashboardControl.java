@@ -1100,7 +1100,8 @@ public class DashboardControl {
             selectedWidgets.clear();
             selectedWidgets.addAll(widgets);
             updateHighlightSelected();
-
+            /* dashboard need focus so the key events work*/
+            dashBordPlugIn.getScrollPane().requestFocus();
             showConfig();
         }
     }
@@ -1247,9 +1248,15 @@ public class DashboardControl {
 
     private void showConfig() {
 
-        if (!selectedWidgets.isEmpty()) {
-            sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+        if (sideConfigPanel != null) {
+            if (!selectedWidgets.isEmpty()) {
+                sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+            } else {
+                sideConfigPanel.setLastSelectedWidget(null);
+            }
         }
+
+
         if (editableProperty.get()) {
             this.dashBordPlugIn.showWidgetControlPane(showSideEditorProperty.get());
         } else {

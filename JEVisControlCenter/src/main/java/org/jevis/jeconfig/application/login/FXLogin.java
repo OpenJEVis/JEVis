@@ -443,7 +443,7 @@ public class FXLogin extends AnchorPane {
     private Node buildHeader() {
         AnchorPane header = new AnchorPane();
         header.setId("fxlogin-header");
-        setDefaultStyle(header, "-fx-background-color: " + Color.LIGHT_BLUE);
+        setDefaultStyle(header, "-fx-background-color: " + Color.MID_GREY);
 
         ImageView logo = null;
 
@@ -481,14 +481,14 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Build an footer GUI element
+     * Build a footer GUI element
      *
      * @return
      */
     private Node buildFooter() {
         AnchorPane footer = new AnchorPane();
         footer.setId("fx-login-footer");
-        setDefaultStyle(footer, "-fx-background-color: " + Color.LIGHT_BLUE);
+        setDefaultStyle(footer, "-fx-background-color: " + Color.MID_GREY);
 
         Node buildInfo = buildBuildInfo();
         buildInfo.setId("fx-login-footer-info");
@@ -528,7 +528,6 @@ public class FXLogin extends AnchorPane {
 //        Node serverConfigBox = buildServerSelection();
         Region serverConfigBox = new Region();
         this.langSelect = buildLanguageBox();
-        loadPreference(true);
 
         Label userL = new Label("Username:");
         userL.setId("fxlogin-form-user-label");
@@ -611,7 +610,6 @@ public class FXLogin extends AnchorPane {
     private final StringBuilder messageText = new StringBuilder();
 
     private void initSlim() {
-        loadPreference(true);
 
         //TODO load from URL/RESOURCE
         ImageView logo = new ImageView(new Image("/icons/openjevislogo_simple2.png"));
@@ -837,7 +835,7 @@ public class FXLogin extends AnchorPane {
      */
     private void loadPreference(boolean showServer) {
 //        logger.info("load from disk");
-        if (!this.jevisPref.get("JEVisUser", "").isEmpty()) {
+        if (!this.jevisPref.get("JEVisUser", "").isEmpty() && !hasCredentials) {
             this.storeConfig.setSelected(true);
 //            logger.info("username: " + jevisPref.get("JEVisUser", ""));
             this.userName.setText(this.jevisPref.get("JEVisUser", ""));

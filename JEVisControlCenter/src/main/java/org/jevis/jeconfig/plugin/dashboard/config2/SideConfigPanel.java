@@ -135,6 +135,7 @@ public class SideConfigPanel extends GridPane {
         this.selectedWidget = widget;
 
         if (widget != null) {
+            this.setDisable(false);
             layerComboBox.setValue(widget.getConfig().getLayer());
             fColorPicker.setValue(widget.getConfig().getFontColor());
             bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
@@ -169,6 +170,23 @@ public class SideConfigPanel extends GridPane {
             } catch (Exception ex) {
 
             }
+        } else {
+            this.setDisable(true);
+            //layerComboBox.setValue();
+            //fColorPicker.setValue(widget.getConfig().getFontColor());
+            //bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
+            //showShadowField.setSelected(widget.getConfig().getShowShadow());
+            //showValueField.setSelected(widget.getConfig().getShowValue());
+            //fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
+            widthText.setText("");
+            xPosText.setText("");
+            yPosText.setText("");
+            heightText.setText("");
+            pixels.setText(control.getActiveDashboard().getxGridInterval().intValue() + "");
+            //alignmentBox.getSelectionModel().select();
+            titleText.setText("");
+
+            selectedObjectsListView.getItems().clear();
         }
 
         isUpdating = widget == null;//Workaround to stop all events from happen

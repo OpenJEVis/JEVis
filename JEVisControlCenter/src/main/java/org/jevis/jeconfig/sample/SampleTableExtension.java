@@ -59,7 +59,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.math.BigDecimal;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -350,7 +349,7 @@ public class SampleTableExtension implements SampleEditorExtension {
                                 DateTime date = minMax[0].plus(periodForDate);
 
                                 while (date.isBefore(minMax[1])) {
-                                    if (dateCheck(date, dayScheduleMap)) {
+                                    if (DaySchedule.dateCheck(date, dayScheduleMap)) {
                                         VirtualSample sample = new VirtualSample(date, d.doubleValue());
                                         sample.setNote(noteField.getText());
                                         sampleList.add(sample);
@@ -425,22 +424,6 @@ public class SampleTableExtension implements SampleEditorExtension {
 
         borderPane.setCenter(table);
         borderPane.setBottom(motherBox);
-    }
-
-    private boolean dateCheck(DateTime date, Map<Integer, DaySchedule> dayScheduleMap) {
-        if (dayScheduleMap.isEmpty()) {
-            return true;
-        } else {
-            DaySchedule daySchedule = dayScheduleMap.get(date.getDayOfWeek());
-            if (daySchedule.isSelected()) {
-                LocalTime dateTime = LocalTime.of(date.getHourOfDay(), date.getMinuteOfHour(), date.getSecondOfMinute(), date.getMillisOfSecond() * 100000);
-                return dateTime.equals(daySchedule.getStartTime())
-                        || (dateTime.isAfter(daySchedule.getStartTime()) && dateTime.isBefore(daySchedule.getEndTime()))
-                        || dateTime.equals(daySchedule.getEndTime());
-            }
-        }
-
-        return false;
     }
 
     private void showSettings(GridPane gridPane, Boolean newValue, Map<Integer, DaySchedule> dayScheduleMap) {
