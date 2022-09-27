@@ -341,11 +341,13 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         rectangle.setFill(new Color(red, green, blue, 1));
         rectangle.setStroke(Color.BLACK);
         rectangle.setStrokeWidth(this.config.getBorderSize().getBottom());
+        rectangle.setOpacity(this.config.getBackgroundColor().getOpacity());
 
         Ellipse ellipse = new Ellipse(parentWidth / 2, parentHeight / 2, parentWidth / 2, parentHeight / 2);
         ellipse.setFill(new Color(red, green, blue, 1));
         ellipse.setStroke(Color.BLACK);
         ellipse.setStrokeWidth(this.config.getBorderSize().getBottom());
+        ellipse.setOpacity(this.config.getBackgroundColor().getOpacity());
         Pane arrow = new Pane();
 
 
