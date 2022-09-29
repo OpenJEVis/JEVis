@@ -277,7 +277,7 @@ public class ReportLink {
 
     }
 
-    public static ReportLink parseFromJEVisObject(JEVisObject jeVisObject) {
+    public static ReportLink parseFromJEVisObject(JEVisObject jeVisObject) throws RuntimeException {
         logger.debug("parse JEVis Obejct: ", jeVisObject);
         if (jeVisObject != null) {
             String name = null;
@@ -345,10 +345,12 @@ public class ReportLink {
                 if (reportPeriodeConfiguration.getAttribute("Fixed Period").hasSample()) {
                     fixedPeriod = reportPeriodeConfiguration.getAttribute("Fixed Period").getLatestSample().getValueAsString();
                 }
+
                 aggregationPeriod1 = AggregationPeriod.parseAggregation(aggregationPeriod);
                 manipulationMode = ManipulationMode.parseManipulation(manipulation);
                 periodMode = PeriodMode.valueOf(periode);
                 fixedPeriod1 = FixedPeriod.parseFixedPeriod(fixedPeriod);
+
             } catch (JEVisException e) {
                 throw new RuntimeException(e);
             }

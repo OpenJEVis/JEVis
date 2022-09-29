@@ -684,7 +684,10 @@ public class ReportWizardDialog {
         if (wizardTyp.equals(ReportWizardDialog.UPDATE) && map != null) {
             for (Map.Entry<String, Map<CellAddress, JEVisObject>> sheetSet : map.entrySet())
                 for (Map.Entry<CellAddress, JEVisObject> dataSet : sheetSet.getValue().entrySet()) {
-                    reportLinkList.add(buildReportLink(dataSet.getValue(), sheetSet.getKey(), dataSet.getKey()));
+                    ReportLink reportLink = buildReportLink(dataSet.getValue(), sheetSet.getKey(), dataSet.getKey());
+                    if (reportLink != null) {
+                        reportLinkList.add(reportLink);
+                    }
                 }
         }
         for (ReportLink reportLink : reportLinkList) {
@@ -697,10 +700,22 @@ public class ReportWizardDialog {
 
     private ReportLink buildReportLink(JEVisObject jeVisObject, String sheet, CellAddress cellAddress) {
 
-        ReportLink reportLink = ReportLink.parseFromJEVisObject(jeVisObject);
-        reportLink.setCellAddress(cellAddress);
-        reportLink.setSheet(sheet);
-        reportLink.setLinkeStaus(ReportLink.Status.FALSE);
+        ReportLink reportLink = null;
+        try {
+            reportLink = ReportLink.parseFromJEVisObject(jeVisObject);
+            reportLink.setCellAddress(cellAddress);
+            reportLink.setSheet(sheet);
+            reportLink.setLinkeStaus(ReportLink.Status.FALSE);
+        } catch (RuntimeException e) {
+            logger.error(jeVisObject, e);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.title"));
+            alert.setHeaderText("JEVis Obejct: " + jeVisObject.getName() + ": " + jeVisObject.getID() +": "+ I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.header"));
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+
+        }
+
 
         return reportLink;
     }
