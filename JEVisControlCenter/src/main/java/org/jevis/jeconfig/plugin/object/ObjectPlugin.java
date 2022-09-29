@@ -296,7 +296,7 @@ public class ObjectPlugin implements Plugin {
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, save, Constants.Plugin.Command.SAVE);
 
-            ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.MINUS, iconSize, iconSize));
+            ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.MINUS_CIRCLE, iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, delete, Constants.Plugin.Command.DELETE);
 
