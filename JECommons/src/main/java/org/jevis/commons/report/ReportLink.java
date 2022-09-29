@@ -248,13 +248,13 @@ public class ReportLink {
         JEVisAttribute jeVisAttribute = jeVisObject.getAttribute("Optional");
         if (jeVisAttribute == null) return;
         if (jeVisAttribute.hasSample()) {
-            if (!jeVisAttribute.getLatestSample().getValueAsBoolean() != optional) {
-                jeVisAttribute.buildSample(dateTime, optional);
-                jeVisAttribute.commit();
+            if (!jeVisAttribute.getLatestSample().getValueAsBoolean().equals(optional)) {
+                JEVisSample sample = jeVisAttribute.buildSample(dateTime, optional);
+                sample.commit();
             }
         } else {
-            jeVisAttribute.buildSample(dateTime, optional);
-            jeVisAttribute.commit();
+            JEVisSample sample = jeVisAttribute.buildSample(dateTime, optional);
+            sample.commit();
         }
 
     }

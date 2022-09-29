@@ -85,8 +85,8 @@ public class ReportWizardDialog {
 
     private Map<String, Map<CellAddress, JEVisObject>> map;
     private JEVisObject allAttributesRootObject;
-    public static final String NEW = "new";
-    public static final String UPDATE = "update";
+    public static final String NEW = "NEW";
+    public static final String UPDATE = "UPDATE";
 
     private final String wizardTyp;
 
@@ -429,7 +429,7 @@ public class ReportWizardDialog {
     }
 
     private void delete(ReportLink reportLink) {
-        logger.debug("Delete: ",reportLink);
+        logger.debug("Delete: ", reportLink);
         Sheet sheet = workbook.getSheet(reportLink.getSheet());
         Cell cell = sheet.getRow(reportLink.getCellAddress().getRow()).getCell(reportLink.getCellAddress().getColumn());
         cell.removeCellComment();
@@ -764,12 +764,6 @@ public class ReportWizardDialog {
             });
         });
 
-        ReportPeriodBox periodModeComboBox = new ReportPeriodBox(FXCollections.observableArrayList(PeriodMode.values()));
-        if (reportLink.getReportAttribute() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
-            periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
-        }
 
         ReportFixedPeriodBox fixedPeriodComboBox = new ReportFixedPeriodBox();
         if (reportLink.getReportAttribute() != null
@@ -778,6 +772,15 @@ public class ReportWizardDialog {
             fixedPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod());
         }
 
+        ReportPeriodBox periodModeComboBox = new ReportPeriodBox(FXCollections.observableArrayList(PeriodMode.values()));
+        if (reportLink.getReportAttribute() != null
+                && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
+                && reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
+            periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
+            if (reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED) || reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED_TO_REPORT_END)) {
+                showFixedPeriodeComboBox(currentRow, fixedPeriodComboBox);
+            }
+        }
         ImageView imageMarkAllPeriod = new ImageView(imgMarkAll);
         imageMarkAllPeriod.fitHeightProperty().set(13);
         imageMarkAllPeriod.fitWidthProperty().set(13);
@@ -941,15 +944,15 @@ public class ReportWizardDialog {
                 Platform.runLater(() -> updateName(reportLink));
 
                 if (newValue == PeriodMode.FIXED || newValue == PeriodMode.FIXED_TO_REPORT_END) {
-                    Platform.runLater(() -> {
-                        gridPane.add(fixedPeriodComboBox, 11, currentRow);
-                    });
+                    showFixedPeriodeComboBox(currentRow, fixedPeriodComboBox);
                 } else if (oldValue == PeriodMode.FIXED || oldValue == PeriodMode.FIXED_TO_REPORT_END) {
 
                     ReportFixedPeriodBox box = null;
                     for (Node node : gridPane.getChildren()) {
-                        if (node instanceof ReportFixedPeriodBox) {
-                            box = (ReportFixedPeriodBox) node;
+                        if (gridPane.getRowIndex(node).equals(currentRow)) {
+                            if (node instanceof ReportFixedPeriodBox) {
+                                box = (ReportFixedPeriodBox) node;
+                            }
                         }
                     }
 
@@ -987,6 +990,12 @@ public class ReportWizardDialog {
         gridPane.add(removeButton, 10, currentRow);
 
 
+    }
+
+    private void showFixedPeriodeComboBox(int currentRow, ReportFixedPeriodBox fixedPeriodComboBox) {
+        Platform.runLater(() -> {
+            gridPane.add(fixedPeriodComboBox, 11, currentRow);
+        });
     }
 
     private void moveNodesGridpane(int targetRowIndex) {
@@ -1110,7 +1119,7 @@ public class ReportWizardDialog {
             map = new TreeMap<>();
             for (String sheetName : sheetList) {
                 if (sheetName.contains("Data")) {
-                    logger.debug("load Excel sheet: ",sheetName);
+                    logger.debug("load Excel sheet: ", sheetName);
                     XSSFSheet sheet = workbook.getSheet(sheetName);
                     map.put(sheet.getSheetName(), new TreeMap<>());
                     for (Map.Entry<CellAddress, XSSFComment> entry : sheet.getCellComments().entrySet()) {
@@ -1118,7 +1127,7 @@ public class ReportWizardDialog {
                         Optional<JEVisObject> jevisobject = listReportLinkObjects.stream().filter(jeVisObject -> jeVisObject.getName().equals(variable)).findFirst();
                         if (jevisobject.isPresent()) {
                             map.get(sheet.getSheetName()).put(entry.getKey(), jevisobject.get());
-                            logger.debug("load DP: ",entry.getKey(),jevisobject.get().getName());
+                            logger.debug("load DP: ", entry.getKey(), jevisobject.get().getName());
                         }
                     }
                 }
@@ -1291,7 +1300,7 @@ public class ReportWizardDialog {
     }
 
     private void addContent(List<ReportLink> links, int number) {
-        logger.debug("Create Sheet Data"+number,links);
+        logger.debug("Create Sheet Data" + number, links);
 
         XSSFDataFormat dataFormatDates = workbook.createDataFormat();
         dataFormatDates.putFormat((short) 165, "YYYY-MM-dd HH:MM:ss");
