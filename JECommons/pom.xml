@@ -201,6 +201,10 @@
             <version>2.1.1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+        </dependency>
         <!-- duplicate?!
         <dependency>
             <groupId>org.apache.commons</groupId>
