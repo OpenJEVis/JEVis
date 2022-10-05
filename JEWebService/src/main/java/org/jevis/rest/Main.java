@@ -19,6 +19,7 @@ import org.jevis.commons.ws.sql.ConnectionFactory;
 import javax.security.sasl.AuthenticationException;
 import java.io.File;
 import java.net.URI;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -64,7 +65,7 @@ public class Main {
                 Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
         ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
 
-        /*
+
         Connection dbConn = ConnectionFactory.getInstance().getConnection();
         if (dbConn.isValid(2000)) {
             logger.info("Database Connection is working");
@@ -72,8 +73,6 @@ public class Main {
             logger.info("Database Connection is NOT working");
             System.exit(1);
         }
-
-         */
 
 
         final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest", "org.jevis.web");
