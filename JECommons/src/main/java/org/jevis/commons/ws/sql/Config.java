@@ -73,6 +73,7 @@ public class Config {
     private static String _jeccFile = "";
     private static String _javaVersion = "0";
     private static String _javaFile = "";
+    private static String _webDir = "";
     private static ConcurrentHashMap<String, JsonJEVisClass> _classCache = new ConcurrentHashMap<>();
 
 
@@ -132,6 +133,10 @@ public class Config {
 
     public static File getFreemarkerDir() {
         return _freemarkerDir;
+    }
+
+    public static String getWebDir() {
+        return _webDir;
     }
 
     public static void setFreemarkerDir(File _freemarkerDir) {
@@ -241,6 +246,7 @@ public class Config {
                     _demoGroup = getParameter(config, "webservice.registration.demogroup", -1);
                     _registratioKey = getParameter(config, "webservice.registration.apikey", UUID.randomUUID().toString());
 
+                    _webDir = getParameter(config, "webservice.webpage", "");
 
                     _fileIsLoaded = true;
                 } else {
