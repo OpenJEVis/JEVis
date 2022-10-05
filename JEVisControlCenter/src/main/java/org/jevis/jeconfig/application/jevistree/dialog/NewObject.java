@@ -134,7 +134,7 @@ public class NewObject {
             }
 
         } else if (createClass.equals(reportClass)) {
-            Platform.runLater(() -> new ReportWizardDialog(newObject));
+            Platform.runLater(() -> new ReportWizardDialog(newObject, ReportWizardDialog.NEW));
         } else if (createClass.equals(calculationClass)) {
             JEVisAttribute div0Att = newObject.getAttribute("DIV0 Handling");
             JEVisAttribute staticValueAtt = newObject.getAttribute("Static Value");

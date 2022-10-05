@@ -10,6 +10,9 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -27,6 +30,7 @@ import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
+import org.jevis.jeconfig.tool.DragResizeMod;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -50,6 +54,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private final ShapeWidget percentWidget = null;
     private final String percentText = "";
     private final AnchorPane anchorPane = new AnchorPane();
+    private final StackPane stackPane = new StackPane();
     private ShapePojo shapeConfig;
     private double blue = 1;
     private double green = 0;
@@ -57,11 +62,17 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private Interval lastInterval = null;
     private Boolean customWorkday = true;
 
+    private double borderWidth = 0;
+
+
+ ;
+
 
     public ShapeWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
     }
+
 
     @Override
     public WidgetPojo createDefaultConfig() {
@@ -105,7 +116,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
             this.sampleHandler.setAutoAggregation(true);
 
             this.sampleHandler.setInterval(interval);
-
+            setIntervallForLastValue(interval);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
 
@@ -116,11 +127,19 @@ public class ShapeWidget extends Widget implements DataModelWidget {
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
                     total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
+                    try {
+                        System.out.println(this.sampleHandler.getJeVisDataSource().getObjects().get(0).getName());
+                    } catch (JEVisException e) {
+                        throw new RuntimeException(e);
+                    }
                     calculateColors(total.get());
 
 
                 } else {
-                    calculateColors(0);
+                    showAlertOverview(true,I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
+                    red = 0.5;
+                    blue = 0.5;
+                    green = 0.5;
                 }
 
             }
@@ -139,6 +158,11 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         } else {
             newColor = minColor - ((value / valueRange) * diffColor);
 
+        }
+        if (newColor > 1) {
+            newColor = 1;
+        } else if (newColor < 0) {
+            newColor = 0;
         }
         return newColor;
     }
@@ -283,7 +307,9 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
 
         anchorPane.setBackground(null);
+        //stackPane.getChildren().add(anchorPane);
         setGraphic(anchorPane);
+
 
 
         try {
@@ -313,11 +339,15 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
         Rectangle rectangle = new Rectangle(xStart, yStart, xWidth, yHeight);
         rectangle.setFill(new Color(red, green, blue, 1));
+        rectangle.setStroke(Color.BLACK);
+        rectangle.setStrokeWidth(this.config.getBorderSize().getBottom());
+        rectangle.setOpacity(this.config.getBackgroundColor().getOpacity());
 
         Ellipse ellipse = new Ellipse(parentWidth / 2, parentHeight / 2, parentWidth / 2, parentHeight / 2);
         ellipse.setFill(new Color(red, green, blue, 1));
-
-
+        ellipse.setStroke(Color.BLACK);
+        ellipse.setStrokeWidth(this.config.getBorderSize().getBottom());
+        ellipse.setOpacity(this.config.getBackgroundColor().getOpacity());
         Pane arrow = new Pane();
 
 
@@ -338,6 +368,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         Platform.runLater(() -> {
             if (shapeConfig != null) {
                 anchorPane.getChildren().setAll(draw(anchorPane.getWidth(), anchorPane.getHeight(), shapeConfig.getShape()));
+                setBorder(null);
             }
         });
 

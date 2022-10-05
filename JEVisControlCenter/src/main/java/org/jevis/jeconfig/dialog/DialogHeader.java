@@ -26,6 +26,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -64,6 +65,31 @@ public class DialogHeader {
     }
 
     public static Node getDialogHeader(ImageView icon, String text) {
+        BorderPane header = new BorderPane();
+//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
+        header.setPadding(new Insets(10, 10, 10, 10));
+        header.getStyleClass().add("dialog-header");
+        Label topTitle = new Label(text);
+        topTitle.setTextFill(Color.web("#0076a3"));
+        topTitle.setFont(Font.font("Cambria", 25));
+
+        //ImageView imageView = ResourceLoader.getImage(icon, 64, 64);
+
+        VBox vboxLeft = new VBox();
+        VBox vboxRight = new VBox();
+        vboxLeft.getChildren().add(topTitle);
+        vboxLeft.setAlignment(Pos.CENTER_LEFT);
+        vboxRight.setAlignment(Pos.CENTER_LEFT);
+        vboxRight.getChildren().add(icon);
+
+        header.setLeft(vboxLeft);
+
+        header.setRight(vboxRight);
+
+        return header;
+    }
+
+    public static Node getDialogHeader(Region icon, String text) {
         BorderPane header = new BorderPane();
 //        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));

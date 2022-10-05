@@ -42,34 +42,36 @@ public enum ChartType {
     }
 
     public static ChartType parseChartType(String chartType) {
-        switch (chartType) {
-            case ("LOGICAL"):
-                return LOGICAL;
-            case ("LINE"):
-                return LINE;
-            case ("BAR"):
-                return BAR;
-            case ("COLUMN"):
-                return COLUMN;
-            case ("BUBBLE"):
-                return BUBBLE;
-            case ("SCATTER"):
-                return SCATTER;
-            case ("PIE"):
-                return PIE;
-            case ("TABLE"):
-                return TABLE;
-            case ("TABLE_V"):
-                return TABLE_V;
-            case ("HEAT_MAP"):
-                return HEAT_MAP;
-            case ("DEFAULT"):
-                return DEFAULT;
-            case ("AREA"):
-                return AREA;
-            default:
-                return LINE;
-        }
+        if (chartType != null) {
+            switch (chartType) {
+                case ("LOGICAL"):
+                    return LOGICAL;
+                case ("LINE"):
+                    return LINE;
+                case ("BAR"):
+                    return BAR;
+                case ("COLUMN"):
+                    return COLUMN;
+                case ("BUBBLE"):
+                    return BUBBLE;
+                case ("SCATTER"):
+                    return SCATTER;
+                case ("PIE"):
+                    return PIE;
+                case ("TABLE"):
+                    return TABLE;
+                case ("TABLE_V"):
+                    return TABLE_V;
+                case ("HEAT_MAP"):
+                    return HEAT_MAP;
+                case ("DEFAULT"):
+                    return DEFAULT;
+                case ("AREA"):
+                    return AREA;
+                default:
+                    return LINE;
+            }
+        } else return LINE;
     }
 
     public static Integer parseChartIndex(ChartType chartType) {
