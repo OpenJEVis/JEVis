@@ -122,7 +122,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
                     total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
                     if (gaugeSettings.isInPercent()) {
-                        gauge.setValue(convertToPercent(total.get(), gaugeSettings.getMaximum(), this.config.getDecimals()));
+                        gauge.setValue(Helper.convertToPercent(total.get(), gaugeSettings.getMaximum(),gaugeSettings.getMinimum() , this.config.getDecimals()));
 
                     } else {
                         gauge.setValue(total.get());
@@ -233,17 +233,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 logger.error(ex);
             }
         }
-    }
-
-
-    private double convertToPercent(double value, double maximum, int decimalPlaces) {
-        BigDecimal bd;
-        if (maximum > 0) {
-            bd = new BigDecimal(value / maximum * 100).setScale(2, RoundingMode.HALF_DOWN);
-            return bd.doubleValue();
-        } else return 0;
-
-
     }
 
 
