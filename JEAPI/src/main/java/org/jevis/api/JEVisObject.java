@@ -144,6 +144,7 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      */
     JEVisObject getParent() throws JEVisException;
 
+
     /**
      * Set the parent JEVisObject.
      *
