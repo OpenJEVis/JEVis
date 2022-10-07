@@ -72,8 +72,8 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         timeFrameBox.setMinWidth(200);
         timeFrameBox.getItems().addAll(timeFrames);
         logger.debug(widget.getClass());
-        if (widget.getClass().equals(GaugeWidget.class) || widget.getClass().equals(LinearGaugeWidget.class) || widget.getClass().equals(ShapeWidget.class) || widget.getClass().equals(ValueWidget.class)) {
-            logger.debug("wiget is gauge");
+        if (widget.getClass().equals(GaugeWidget.class) || widget.getClass().equals(LinearGaugeWidget.class) || widget.getClass().equals(ShapeWidget.class) || widget.getClass().equals(ValueWidget.class) || widget.getClass().equals(BatteryWidget.class)) {
+            logger.debug("widget is gauge");
             timeFrameBox.getItems().add(widget.getControl().getAllTimeFrames().getTimeframe(Period.ZERO.toString(), I18n.getInstance().getString("plugin.graph.dashboard.timeframe.lastValue")));
         }
         alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));

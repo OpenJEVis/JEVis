@@ -19,6 +19,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -207,7 +208,7 @@ public class GaugePojo {
         ColumnConstraints column1 = new ColumnConstraints();
         ColumnConstraints column2 = new ColumnConstraints();
         ColumnConstraints column3 = new ColumnConstraints();
-        column3.setPercentWidth(50);
+        column3.setHgrow(Priority.ALWAYS);
         gridPane.getColumnConstraints().addAll(column1, column2, column3);
         gridPane.setVgap(8);
         gridPane.setHgap(8);
