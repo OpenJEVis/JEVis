@@ -52,6 +52,11 @@ public class JEVisRecycleBinObject implements JEVisObject {
     }
 
     @Override
+    public JEVisObject getParent() throws JEVisException {
+        return null;
+    }
+
+    @Override
     public List<JEVisObject> getChildren() throws JEVisException {
         // System.out.println("RecycleBin.getChilderen: " + Arrays.toString(ds.getDeletedObjects().toArray()));
         // children = ds.getDeletedObjects();
