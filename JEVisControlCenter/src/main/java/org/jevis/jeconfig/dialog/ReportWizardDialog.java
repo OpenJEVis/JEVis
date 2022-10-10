@@ -29,6 +29,7 @@ import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.*;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -174,7 +175,21 @@ public class ReportWizardDialog {
                     List<ReportLink> deleteList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.DELETE)).collect(Collectors.toList());
                     List<ReportLink> newList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.NEW)).collect(Collectors.toList());
                     List<ReportLink> updateList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.UPDATE)).collect(Collectors.toList());
-                    updateList.forEach(reportLink -> reportLink.update());
+                    updateList.forEach(reportLink -> {
+
+                        try {
+                            reportLink.update();
+                        } catch (JEVisException e) {
+                            logger.error(e);
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.title"));
+                            alert.setHeaderText("JEVis Obejct: " + reportLink.getName() + " : " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.header"));
+                            alert.setContentText(e.getMessage());
+                            alert.showAndWait();
+
+                        }
+
+                    });
                     Task updateTask = new Task() {
                         @Override
                         protected Object call() throws Exception {
@@ -710,7 +725,7 @@ public class ReportWizardDialog {
             logger.error(jeVisObject, e);
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.title"));
-            alert.setHeaderText("JEVis Obejct: " + jeVisObject.getName() + ": " + jeVisObject.getID() +": "+ I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.header"));
+            alert.setHeaderText("JEVis Obejct: " + jeVisObject.getName() + ": " + jeVisObject.getID() + ": " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.header"));
             alert.setContentText(e.getMessage());
             alert.showAndWait();
 
@@ -1125,8 +1140,8 @@ public class ReportWizardDialog {
 
 
     public JEVisFile loadTemplate(JEVisFile jeVisFile, List<JEVisObject> listReportLinkObjects) {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jeVisFile.getBytes());
         try {
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jeVisFile.getBytes());
             workbook = new XSSFWorkbook(byteArrayInputStream);
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
                 sheetList.add(workbook.getSheetAt(i).getSheetName());
@@ -1149,7 +1164,12 @@ public class ReportWizardDialog {
             }
             logger.debug(map);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error(e);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.template"));
+            alert.setHeaderText("Template: " + jeVisFile.getFilename() + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.template.header"));
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
         return null;
     }
@@ -1266,7 +1286,7 @@ public class ReportWizardDialog {
         cellStyleValues.setDataFormat((short) 4);
         cellStyleValues.setFont(defaultFont);
 
-        JEVisClass directoryClass = ds.getJEVisClass("Directory");
+        JEVisClass directoryClass = ds.getJEVisClass(JC.Directory.name);
 
         if (directoryClass.getHeirs().contains(allAttributesRootObject.getJEVisClass())) {
             for (JEVisObject sheetObject : allAttributesRootObject.getChildren()) {
