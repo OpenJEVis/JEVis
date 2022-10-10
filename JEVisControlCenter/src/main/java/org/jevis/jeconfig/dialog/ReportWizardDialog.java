@@ -117,6 +117,14 @@ public class ReportWizardDialog {
             }
         } catch (JEVisException e) {
             throw new RuntimeException(e);
+        } catch (IOException | NullPointerException ex) {
+            logger.error(ex);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.template"));
+            alert.setHeaderText(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.template.header"));
+            alert.setContentText(ex.getMessage());
+            alert.showAndWait();
+            return;
         }
 
 
@@ -175,21 +183,6 @@ public class ReportWizardDialog {
                     List<ReportLink> deleteList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.DELETE)).collect(Collectors.toList());
                     List<ReportLink> newList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.NEW)).collect(Collectors.toList());
                     List<ReportLink> updateList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.UPDATE)).collect(Collectors.toList());
-                    updateList.forEach(reportLink -> {
-
-                        try {
-                            reportLink.update();
-                        } catch (JEVisException e) {
-                            logger.error(e);
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.title"));
-                            alert.setHeaderText("JEVis Obejct: " + reportLink.getName() + " : " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.header"));
-                            alert.setContentText(e.getMessage());
-                            alert.showAndWait();
-
-                        }
-
-                    });
                     Task updateTask = new Task() {
                         @Override
                         protected Object call() throws Exception {
@@ -198,7 +191,12 @@ public class ReportWizardDialog {
                                 try {
                                     reportLink.update();
                                 } catch (Exception e) {
-                                    throw new RuntimeException(e);
+                                    logger.error(e);
+                                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                                    alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.title"));
+                                    alert.setHeaderText("JEVis Obejct: " + reportLink.getName() + " : " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.header"));
+                                    alert.setContentText(e.getMessage());
+                                    alert.showAndWait();
                                 } finally {
                                     JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, I18n.getInstance().getString("plugin.object.report.message.finishedlink") + " " + reportLink.getName());
                                     succeeded();
@@ -1139,38 +1137,30 @@ public class ReportWizardDialog {
     }
 
 
-    public JEVisFile loadTemplate(JEVisFile jeVisFile, List<JEVisObject> listReportLinkObjects) {
-        try {
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jeVisFile.getBytes());
-            workbook = new XSSFWorkbook(byteArrayInputStream);
-            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-                sheetList.add(workbook.getSheetAt(i).getSheetName());
-            }
-            map = new TreeMap<>();
-            for (String sheetName : sheetList) {
-                if (sheetName.contains("Data")) {
-                    logger.debug("load Excel sheet: ", sheetName);
-                    XSSFSheet sheet = workbook.getSheet(sheetName);
-                    map.put(sheet.getSheetName(), new TreeMap<>());
-                    for (Map.Entry<CellAddress, XSSFComment> entry : sheet.getCellComments().entrySet()) {
-                        String variable = getVariableFromComment(entry.getValue());
-                        Optional<JEVisObject> jevisobject = listReportLinkObjects.stream().filter(jeVisObject -> jeVisObject.getName().equals(variable)).findFirst();
-                        if (jevisobject.isPresent()) {
-                            map.get(sheet.getSheetName()).put(entry.getKey(), jevisobject.get());
-                            logger.debug("load DP: ", entry.getKey(), jevisobject.get().getName());
-                        }
+    public JEVisFile loadTemplate(JEVisFile jeVisFile, List<JEVisObject> listReportLinkObjects) throws IOException, NullPointerException {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jeVisFile.getBytes());
+        workbook = new XSSFWorkbook(byteArrayInputStream);
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+            sheetList.add(workbook.getSheetAt(i).getSheetName());
+        }
+        map = new TreeMap<>();
+        for (String sheetName : sheetList) {
+            if (sheetName.contains("Data")) {
+                logger.debug("load Excel sheet: ", sheetName);
+                XSSFSheet sheet = workbook.getSheet(sheetName);
+                map.put(sheet.getSheetName(), new TreeMap<>());
+                for (Map.Entry<CellAddress, XSSFComment> entry : sheet.getCellComments().entrySet()) {
+                    String variable = getVariableFromComment(entry.getValue());
+                    Optional<JEVisObject> jevisobject = listReportLinkObjects.stream().filter(jeVisObject -> jeVisObject.getName().equals(variable)).findFirst();
+                    if (jevisobject.isPresent()) {
+                        map.get(sheet.getSheetName()).put(entry.getKey(), jevisobject.get());
+                        logger.debug("load DP: ", entry.getKey(), jevisobject.get().getName());
                     }
                 }
             }
-            logger.debug(map);
-        } catch (IOException e) {
-            logger.error(e);
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.template"));
-            alert.setHeaderText("Template: " + jeVisFile.getFilename() + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.template.header"));
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
         }
+        logger.debug(map);
+
         return null;
     }
 
