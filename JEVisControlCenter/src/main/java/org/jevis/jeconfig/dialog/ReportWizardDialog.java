@@ -326,22 +326,22 @@ public class ReportWizardDialog {
                                 JEVisObject object = reportLinkDirectory.buildObject(variableName, finalReportLinkClass);
                                 object.commit();
 
-                                JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
+                                JEVisAttribute jeVis_id = object.getAttribute(JC.ReportLink.a_JEVisID);
                                 JEVisSample jevisIdSample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
                                 jevisIdSample.commit();
 
-                                JEVisAttribute optionalAttribute = object.getAttribute("Optional");
+                                JEVisAttribute optionalAttribute = object.getAttribute(JC.ReportLink.a_Optional);
                                 JEVisSample sampleOptional = optionalAttribute.buildSample(new DateTime(), rl.isOptional());
                                 sampleOptional.commit();
 
-                                JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
+                                JEVisAttribute templateVariableName = object.getAttribute(JC.ReportLink.a_TemplateVariableName);
                                 JEVisSample templateVariableSample = templateVariableName.buildSample(new DateTime(), variableName);
                                 templateVariableSample.commit();
 
                                 if (reportType == ReportType.STANDARD) {
                                     JEVisObject reportAttribute = object.buildObject("Report Attribute", finalReportAttributeClass);
                                     reportAttribute.commit();
-                                    JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
+                                    JEVisAttribute attribute_name = reportAttribute.getAttribute(JC.ReportAttribute.a_AttributeName);
 
                                     JEVisSample attributeNameSample = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
                                     attributeNameSample.commit();
@@ -349,19 +349,19 @@ public class ReportWizardDialog {
                                     JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", finalReportPeriodConfigurationClass);
                                     reportPeriodConfiguration.commit();
 
-                                    JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
+                                    JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Aggregation);
                                     JEVisSample aggregationSample = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
                                     aggregationSample.commit();
 
-                                    JEVisAttribute manipulationAttribute = reportPeriodConfiguration.getAttribute("Manipulation");
+                                    JEVisAttribute manipulationAttribute = reportPeriodConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Manipulation);
                                     JEVisSample manipulationSample = manipulationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
                                     manipulationSample.commit();
 
-                                    JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
+                                    JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Period);
                                     JEVisSample periodSample = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
                                     periodSample.commit();
 
-                                    JEVisAttribute fixedPeriodAttribute = reportPeriodConfiguration.getAttribute("Fixed Period");
+                                    JEVisAttribute fixedPeriodAttribute = reportPeriodConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_FixedPeriod);
                                     JEVisSample fixedPeriodSample = fixedPeriodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod().toString());
                                     fixedPeriodSample.commit();
                                 }
