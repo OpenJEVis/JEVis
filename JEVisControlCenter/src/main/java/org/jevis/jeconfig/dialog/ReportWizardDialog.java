@@ -29,6 +29,7 @@ import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.*;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -116,6 +117,14 @@ public class ReportWizardDialog {
             }
         } catch (JEVisException e) {
             throw new RuntimeException(e);
+        } catch (IOException | NullPointerException ex) {
+            logger.error(ex);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.template"));
+            alert.setHeaderText(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.template.header"));
+            alert.setContentText(ex.getMessage());
+            alert.showAndWait();
+            return;
         }
 
 
@@ -174,7 +183,6 @@ public class ReportWizardDialog {
                     List<ReportLink> deleteList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.DELETE)).collect(Collectors.toList());
                     List<ReportLink> newList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.NEW)).collect(Collectors.toList());
                     List<ReportLink> updateList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.UPDATE)).collect(Collectors.toList());
-                    updateList.forEach(reportLink -> reportLink.update());
                     Task updateTask = new Task() {
                         @Override
                         protected Object call() throws Exception {
@@ -183,7 +191,12 @@ public class ReportWizardDialog {
                                 try {
                                     reportLink.update();
                                 } catch (Exception e) {
-                                    throw new RuntimeException(e);
+                                    logger.error(e);
+                                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                                    alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.title"));
+                                    alert.setHeaderText("JEVis Obejct: " + reportLink.getName() + " : " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.header"));
+                                    alert.setContentText(e.getMessage());
+                                    alert.showAndWait();
                                 } finally {
                                     JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, I18n.getInstance().getString("plugin.object.report.message.finishedlink") + " " + reportLink.getName());
                                     succeeded();
@@ -313,22 +326,22 @@ public class ReportWizardDialog {
                                 JEVisObject object = reportLinkDirectory.buildObject(variableName, finalReportLinkClass);
                                 object.commit();
 
-                                JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
+                                JEVisAttribute jeVis_id = object.getAttribute(JC.ReportLink.a_JEVisID);
                                 JEVisSample jevisIdSample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
                                 jevisIdSample.commit();
 
-                                JEVisAttribute optionalAttribute = object.getAttribute("Optional");
+                                JEVisAttribute optionalAttribute = object.getAttribute(JC.ReportLink.a_Optional);
                                 JEVisSample sampleOptional = optionalAttribute.buildSample(new DateTime(), rl.isOptional());
                                 sampleOptional.commit();
 
-                                JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
+                                JEVisAttribute templateVariableName = object.getAttribute(JC.ReportLink.a_TemplateVariableName);
                                 JEVisSample templateVariableSample = templateVariableName.buildSample(new DateTime(), variableName);
                                 templateVariableSample.commit();
 
                                 if (reportType == ReportType.STANDARD) {
                                     JEVisObject reportAttribute = object.buildObject("Report Attribute", finalReportAttributeClass);
                                     reportAttribute.commit();
-                                    JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
+                                    JEVisAttribute attribute_name = reportAttribute.getAttribute(JC.ReportAttribute.a_AttributeName);
 
                                     JEVisSample attributeNameSample = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
                                     attributeNameSample.commit();
@@ -336,19 +349,19 @@ public class ReportWizardDialog {
                                     JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", finalReportPeriodConfigurationClass);
                                     reportPeriodConfiguration.commit();
 
-                                    JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
+                                    JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Aggregation);
                                     JEVisSample aggregationSample = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
                                     aggregationSample.commit();
 
-                                    JEVisAttribute manipulationAttribute = reportPeriodConfiguration.getAttribute("Manipulation");
+                                    JEVisAttribute manipulationAttribute = reportPeriodConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Manipulation);
                                     JEVisSample manipulationSample = manipulationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
                                     manipulationSample.commit();
 
-                                    JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
+                                    JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Period);
                                     JEVisSample periodSample = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
                                     periodSample.commit();
 
-                                    JEVisAttribute fixedPeriodAttribute = reportPeriodConfiguration.getAttribute("Fixed Period");
+                                    JEVisAttribute fixedPeriodAttribute = reportPeriodConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_FixedPeriod);
                                     JEVisSample fixedPeriodSample = fixedPeriodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod().toString());
                                     fixedPeriodSample.commit();
                                 }
@@ -710,7 +723,7 @@ public class ReportWizardDialog {
             logger.error(jeVisObject, e);
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.title"));
-            alert.setHeaderText("JEVis Obejct: " + jeVisObject.getName() + ": " + jeVisObject.getID() +": "+ I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.header"));
+            alert.setHeaderText("JEVis Obejct: " + jeVisObject.getName() + ": " + jeVisObject.getID() + ": " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.header"));
             alert.setContentText(e.getMessage());
             alert.showAndWait();
 
@@ -1124,33 +1137,30 @@ public class ReportWizardDialog {
     }
 
 
-    public JEVisFile loadTemplate(JEVisFile jeVisFile, List<JEVisObject> listReportLinkObjects) {
+    public JEVisFile loadTemplate(JEVisFile jeVisFile, List<JEVisObject> listReportLinkObjects) throws IOException, NullPointerException {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jeVisFile.getBytes());
-        try {
-            workbook = new XSSFWorkbook(byteArrayInputStream);
-            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-                sheetList.add(workbook.getSheetAt(i).getSheetName());
-            }
-            map = new TreeMap<>();
-            for (String sheetName : sheetList) {
-                if (sheetName.contains("Data")) {
-                    logger.debug("load Excel sheet: ", sheetName);
-                    XSSFSheet sheet = workbook.getSheet(sheetName);
-                    map.put(sheet.getSheetName(), new TreeMap<>());
-                    for (Map.Entry<CellAddress, XSSFComment> entry : sheet.getCellComments().entrySet()) {
-                        String variable = getVariableFromComment(entry.getValue());
-                        Optional<JEVisObject> jevisobject = listReportLinkObjects.stream().filter(jeVisObject -> jeVisObject.getName().equals(variable)).findFirst();
-                        if (jevisobject.isPresent()) {
-                            map.get(sheet.getSheetName()).put(entry.getKey(), jevisobject.get());
-                            logger.debug("load DP: ", entry.getKey(), jevisobject.get().getName());
-                        }
+        workbook = new XSSFWorkbook(byteArrayInputStream);
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+            sheetList.add(workbook.getSheetAt(i).getSheetName());
+        }
+        map = new TreeMap<>();
+        for (String sheetName : sheetList) {
+            if (sheetName.contains("Data")) {
+                logger.debug("load Excel sheet: ", sheetName);
+                XSSFSheet sheet = workbook.getSheet(sheetName);
+                map.put(sheet.getSheetName(), new TreeMap<>());
+                for (Map.Entry<CellAddress, XSSFComment> entry : sheet.getCellComments().entrySet()) {
+                    String variable = getVariableFromComment(entry.getValue());
+                    Optional<JEVisObject> jevisobject = listReportLinkObjects.stream().filter(jeVisObject -> jeVisObject.getName().equals(variable)).findFirst();
+                    if (jevisobject.isPresent()) {
+                        map.get(sheet.getSheetName()).put(entry.getKey(), jevisobject.get());
+                        logger.debug("load DP: ", entry.getKey(), jevisobject.get().getName());
                     }
                 }
             }
-            logger.debug(map);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+        logger.debug(map);
+
         return null;
     }
 
@@ -1266,7 +1276,7 @@ public class ReportWizardDialog {
         cellStyleValues.setDataFormat((short) 4);
         cellStyleValues.setFont(defaultFont);
 
-        JEVisClass directoryClass = ds.getJEVisClass("Directory");
+        JEVisClass directoryClass = ds.getJEVisClass(JC.Directory.name);
 
         if (directoryClass.getHeirs().contains(allAttributesRootObject.getJEVisClass())) {
             for (JEVisObject sheetObject : allAttributesRootObject.getChildren()) {
