@@ -48,4 +48,14 @@ public class ReportPeriodConfiguration {
     public void setFixedPeriod(FixedPeriod fixedPeriod) {
         this.fixedPeriod = fixedPeriod;
     }
+
+    @Override
+    public String toString() {
+        return "ReportPeriodConfiguration{" +
+                "reportAggregation=" + reportAggregation +
+                ", reportManipulation=" + reportManipulation +
+                ", periodMode=" + periodMode +
+                ", fixedPeriod=" + fixedPeriod +
+                '}';
+    }
 }

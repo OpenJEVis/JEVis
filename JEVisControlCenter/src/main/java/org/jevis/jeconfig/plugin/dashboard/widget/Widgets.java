@@ -32,6 +32,8 @@ public class Widgets {
 
             put(ShapeWidget.WIDGET_ID, new WidgetSelection(ShapeWidget.class.getName(), ShapeWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.shape"), TitleWidget.ICON));
             put(TimeFrameWidget.WIDGET_ID, new WidgetSelection(TimeFrameWidget.class.getName(), TimeFrameWidget.WIDGET_ID, I18n.getInstance().getString("plugin.dashboard.timeframe"), TitleWidget.ICON));
+            put(BatteryWidget.WIDGET_ID, new WidgetSelection(BatteryWidget.class.getName(), BatteryWidget.WIDGET_ID, I18n.getInstance().getString("plugin.dashboard.battery"), TitleWidget.ICON));
+            //put(NetGraphWidget.WIDGET_ID, new WidgetSelection(NetGraphWidget.class.getName(), NetGraphWidget.WIDGET_ID, "NetGraph", TitleWidget.ICON));
 
         }
     };

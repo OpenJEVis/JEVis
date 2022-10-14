@@ -45,6 +45,7 @@ import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.KPIWizard;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
+import org.jevis.jeconfig.dialog.ReportWizardDialog;
 import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
 import org.jevis.jeconfig.tool.AttributeCopy;
 import org.jevis.jeconfig.tool.Calculations;
@@ -105,6 +106,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                             buildExport(),
                             buildImport()
                     );
+                    System.out.println(obj.getJEVisClassName());
 
                     if (obj.getJEVisClassName().equals("Calculation")) {
                         getItems().add(new SeparatorMenuItem());
@@ -122,6 +124,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     } else if (obj.getJEVisClassName().equals("Clean Data") || obj.getJEVisClassName().equals("Math Data")) {
                         getItems().add(new SeparatorMenuItem());
                         getItems().add(buildReCalcClean());
+                    } else if (obj.getJEVisClassName().equals("Periodic Report")) {
+                        getItems().add(buildReportWizzard());
                     }
 
                     if (obj.getAttribute("Value") != null) {
@@ -282,7 +286,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildOCP() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.opc"), ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.opc"), JEConfig.getSVGImage(Icon.WIZARD_HAT, 20, 20));
 
         menu.setOnAction(t -> {
                     OPCBrowser opcEditor = new OPCBrowser(obj);
@@ -565,9 +569,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildDelete(boolean deleteForever) {
         MenuItem menu;
         if (deleteForever) {
-            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.deleteforever"), JEConfig.getSVGImage(Icon.MINUS, 20, 20));
+            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.deleteforever"), JEConfig.getSVGImage(Icon.MINUS_CIRCLE, 20, 20));
         } else {
-            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.delete"), JEConfig.getSVGImage(Icon.MINUS, 20, 20));
+            menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.delete"), JEConfig.getSVGImage(Icon.MINUS_CIRCLE, 20, 20));
         }
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -578,6 +582,17 @@ public class JEVisTreeContextMenu extends ContextMenu {
         });
         return menu;
     }
+    private MenuItem buildReportWizzard() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("plugin.object.report.dialog.wizard"), JEConfig.getSVGImage(Icon.WIZARD_HAT, 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                ReportWizardDialog reportWizardDialog = new ReportWizardDialog(obj, ReportWizardDialog.UPDATE);
+            }
+        });
+        return menu;
+    }
+
 
 
     private MenuItem buildCopyFormat() {

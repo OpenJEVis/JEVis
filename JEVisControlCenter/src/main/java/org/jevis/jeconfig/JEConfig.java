@@ -115,7 +115,6 @@ public class JEConfig extends Application {
     public static Date startDate = new Date();
 
 
-
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
         return prefExpert.getBoolean("show", false);
@@ -242,11 +241,7 @@ public class JEConfig extends Application {
      * @return
      */
     public static String getResource(String file) {
-        //        scene.getStylesheets().addAll(this.getClass().getResource("/org/jevis/jeconfig/css/main.css").toExternalForm());
-
-//        logger.info("get Resouce: " + file);
         return JEConfig.class.getResource("/styles/" + file).toExternalForm();
-//        return JEConfig.class.getResource("/org/jevis/jeconfig/css/" + file).toExternalForm();
 
     }
 
@@ -259,38 +254,12 @@ public class JEConfig extends Application {
     public static Image getImage(String icon) {
         try {
             return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
-//            return new Image(JEConfig.class.getResourceAsStream("/org/jevis/jeconfig/image/" + icon));
         } catch (Exception ex) {
             logger.error("Could not load icon: " + "/icons/" + icon + ": ", ex);
             return new Image(JEConfig.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
         }
     }
 
-    private void checkVersion(JEVisDataSource ds) {
-        /*
-        try {
-            String serverJECCVersion = ((JEVisDataSourceWS) ds).getJEVisCCVersion();
-            if (serverJECCVersion != "0") {
-                DefaultArtifactVersion thisVersion = new DefaultArtifactVersion(JEConfig.class.getPackage().getImplementationVersion());
-                DefaultArtifactVersion serverVersion = new DefaultArtifactVersion(serverJECCVersion);
-                System.out.println("versioncompare: "+thisVersion.compareTo(serverVersion));
-                if (thisVersion.compareTo(serverVersion) < 0) {
-                    System.out.println("There is a newer version");
-                    Notifications.create()
-                            .title("JEVis Control Center Update")
-                            .text("New version " + serverJECCVersion + " is available")
-                            .hideAfter(Duration.INDEFINITE)
-                            .showInformation();
-                } else {
-                    System.out.println("We are up to date");
-                }
-            } else {
-                System.out.println("version error");
-            }
-        }catch (Exception ex){
-            logger.error(ex);
-        }*/
-    }
 
     /**
      * Get an imge in the given size from the common
@@ -324,18 +293,19 @@ public class JEConfig extends Application {
     }
 
 
-    public static Region getSVGImage(String path, double height, double width,String css) {
+    public static Region getSVGImage(String path, double height, double width, String css) {
 
         return getSVGImage(path, height, width, css, 0);
 
     }
+
     public static Region getSVGImage(String path, double height, double width) {
 
         return getSVGImage(path, height, width, Icon.CSS_TOOLBAR, 0);
 
     }
 
-    public static Region getSVGImage(String path, double height, double width,double rotate) {
+    public static Region getSVGImage(String path, double height, double width, double rotate) {
 
         return getSVGImage(path, height, width, Icon.CSS_TOOLBAR, rotate);
 
@@ -383,7 +353,6 @@ public class JEConfig extends Application {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
-//        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
     }
@@ -462,11 +431,7 @@ public class JEConfig extends Application {
                 _config.setLocale(login.getSelectedLocale());
 
                 try {
-                    //login.addLoginMessage(I18n.getInstance().getString("app.login.beginpreload"), true);
-
                     preload(login);
-                    //login.addLoginMessage(checkMarkSymbol, true);
-                    //login.addLoginMessage(I18n.getInstance().getString("app.login.donepreload"));
                     logger.error("done preloading");
 
                     Holidays.setDataSource(_mainDS);
@@ -526,34 +491,11 @@ public class JEConfig extends Application {
                         HiddenConfig.showHiddenConfig();
                         ke.consume();
                     }
-//                    else if (mergePeriods.match(ke) && JEConfig.getExpert()) {
-//                        try {
-//                            JEVisClass data = _mainDS.getJEVisClass("Data");
-//                            List<JEVisObject> objects = _mainDS.getObjects(data, true);
-//                            logger.info("Found {} objects for period merge", objects.size());
-//                            for (JEVisObject jeVisObject : objects) {
-//                                JEVisAttribute valueAttribute = jeVisObject.getAttribute("Value");
-//                                JEVisAttribute periodAttribute = jeVisObject.getAttribute("Period");
-//
-//                                if (valueAttribute != null) {
-//                                    Period inputSampleRate = valueAttribute.getInputSampleRate();
-//                                    logger.info("Object {} : {} found sample rate: {}", jeVisObject.getName(), jeVisObject.getID(), inputSampleRate);
-//                                    DateTime dateTime = new DateTime(2001, 1, 1, 0, 0, 0, 0);
-//                                    JEVisSample newSample = periodAttribute.buildSample(dateTime, inputSampleRate);
-//                                    periodAttribute.addSamples(Collections.singletonList(newSample));
-//                                }
-//                            }
-//                        } catch (JEVisException e) {
-//                            e.printStackTrace();
-//                        }
-//                        ke.consume();
-//                    }
+
                 });
 
-//                GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
 
                 VBox vbox = new VBox();
-                //StackPane dialogContainer = new StackPane();
 
                 BorderPane border = new BorderPane(dialogContainer);
 
@@ -562,7 +504,6 @@ public class JEConfig extends Application {
 
                 menu = new TopMenu(dialogContainer);
 
-//                statusBar = new Statusbar(_mainDS);
                 pluginManager = new PluginManager(_mainDS);
                 pluginManager.setMenuBar(menu);
 
@@ -600,11 +541,6 @@ public class JEConfig extends Application {
                     } catch (Exception ex) {
                         logger.fatal(ex);
                     }
-
-                    //we dont use it anymore for now
-                    //PatchNotesPage patchNotesPage = new PatchNotesPage();
-                    //patchNotesPage.show(primaryStage);
-
 
                     Task preloadCalender = new Task() {
                         @Override
@@ -651,8 +587,6 @@ public class JEConfig extends Application {
         AnchorPane.setLeftAnchor(login, 0.0);
         AnchorPane.setBottomAnchor(login, 0.0);
 
-        //scene.getStylesheets().add("/styles/Styles.css");
-        //scene.getStylesheets().add("/styles/charts.css");
         primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
         primaryStage.setTitle("JEVis Control Center");
 
@@ -703,22 +637,18 @@ public class JEConfig extends Application {
         login.addLoginMessage(I18n.getInstance().getString("app.login.loadingclasses"), false);
         dataSourceWS.preloadClasses();
         login.addLoginMessage(FXLogin.checkMarkSymbol, true);
-        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedclasses"));
 
         login.addLoginMessage(I18n.getInstance().getString("app.login.loadingrelationships"), false);
         dataSourceWS.preloadRelationships();
         login.addLoginMessage(FXLogin.checkMarkSymbol, true);
-        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedrelationships"));
 
         login.addLoginMessage(I18n.getInstance().getString("app.login.loadingobjects"), false);
         dataSourceWS.preloadObjects();
         login.addLoginMessage(FXLogin.checkMarkSymbol, true);
-        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedobjects"));
 
         login.addLoginMessage(I18n.getInstance().getString("app.login.loadingattributes"), false);
         dataSourceWS.preloadAttributes();
         login.addLoginMessage(FXLogin.checkMarkSymbol, true);
-        //login.addLoginMessage(I18n.getInstance().getString("app.login.finishedattributes"));
     }
 
     public static void showError(String message, Exception ex) {
@@ -766,30 +696,7 @@ public class JEConfig extends Application {
             return getOsName().startsWith("Windows");
         }
 
-        //TODO stuff for recognizing different os
-//        public static boolean isUnix()
-//        {
-//            return false;
-//        }
     }
-
-//    /**
-//     * Get the static list of preloader JEVisClasses
-//     *
-//     * @return
-//     */
-//    static public List<JEVisClass> getPreLodedClasses() {
-//        return preLodedClasses;
-//    }
-//
-//    /**
-//     * Get the static list of all root objects for this user
-//     *
-//     * @return
-//     */
-//    static public List<JEVisObject> getPreLodedRootObjects() {
-//        return preLodedRootObjects;
-//    }
 
 
     public TopMenu getMenu() {

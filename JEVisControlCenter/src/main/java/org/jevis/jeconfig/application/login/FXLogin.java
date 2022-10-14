@@ -134,21 +134,16 @@ public class FXLogin extends AnchorPane {
         this.mainStage = stage;
         this.app = app;
 
+        this.messageBox.getStylesheets().add(FXLogin.class.getResource("/styles/LoginMessageBox.css").toExternalForm());
+//
+        this.messageBox.setId("LoginMessageBox");
         this.messageBox.setBorder(null);
         this.messageBox.setPadding(new Insets(0));
-        this.messageBox.setStyle("-fx-background-color: -fx-control-inner-background;");
         this.messageBox.setEditable(false);
         this.messageBox.setMouseTransparent(true);
         this.messageBox.setFocusTraversable(false);
 
-        //this.loginButton.getStyleClass().add("button-raised");
-        //loginButton.setId("ok-button");
 
-
-        //loginButton.setRipplerFill(javafx.scene.paint.Paint.valueOf("#FFFFFF"));
-        //closeButton.getStyleClass().add("button-raised");
-        //closeButton.setButtonType(JFXButton.ButtonType.RAISED);
-        //loginButton.setButtonType(JFXButton.ButtonType.RAISED);
         loginButton.setStyle("-fx-background-color: #4dadf7");
         loginButton.setTextFill(javafx.scene.paint.Paint.valueOf("#FFFFFF"));
         closeButton.setStyle("-fx-background-color: #adb5bd");

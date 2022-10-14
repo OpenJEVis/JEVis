@@ -59,6 +59,11 @@ public class JEVisRootObject implements JEVisObject {
     }
 
     @Override
+    public JEVisObject getParent() throws JEVisException {
+        return null;
+    }
+
+    @Override
     public List<JEVisObject> getChildren() throws JEVisException {
         return children;
     }

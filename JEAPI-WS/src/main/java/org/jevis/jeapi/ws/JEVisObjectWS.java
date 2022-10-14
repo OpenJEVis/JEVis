@@ -217,6 +217,12 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
+    public JEVisObject getParent() throws JEVisException {
+        JEVisObject obj = getParents().isEmpty() ? null : getParents().get(0);
+        return obj;
+    }
+
+    @Override
     public String getJEVisClassName() {
         return this.json.getJevisClass();
     }

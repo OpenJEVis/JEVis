@@ -460,6 +460,11 @@ public class ResourceVirtualSample {
             }
 
             @Override
+            public JEVisObject getParent() throws JEVisException {
+                return null;
+            }
+
+            @Override
             public List<JEVisObject> getChildren() throws JEVisException {
                 return new ArrayList<>();
             }

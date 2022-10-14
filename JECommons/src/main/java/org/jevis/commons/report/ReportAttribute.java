@@ -24,4 +24,12 @@ public class ReportAttribute {
     public void setReportPeriodConfiguration(ReportPeriodConfiguration reportPeriodConfiguration) {
         this.reportPeriodConfiguration = reportPeriodConfiguration;
     }
+
+    @Override
+    public String toString() {
+        return "ReportAttribute{" +
+                "attributeName='" + attributeName + '\'' +
+                ", reportPeriodConfiguration=" + reportPeriodConfiguration +
+                '}';
+    }
 }
