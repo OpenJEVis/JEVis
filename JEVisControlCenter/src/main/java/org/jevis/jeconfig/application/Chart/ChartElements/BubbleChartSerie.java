@@ -19,9 +19,9 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -46,29 +46,29 @@ public class BubbleChartSerie extends XYChartSerie {
     Double maxValue = -Double.MAX_VALUE;
     private double sortCriteria;
 
-    public BubbleChartSerie(ChartSetting chartSetting, ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
-        super(chartSetting, singleRow, showIcons, forecast);
+    public BubbleChartSerie(ChartModel chartModelSetting, ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
+        super(chartModelSetting, singleRow, showIcons, forecast);
     }
 
     public void generateSeriesFromSamples() throws JEVisException {
         timeStampFromFirstSample = DateTime.now();
         timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
-        Color color = ColorHelper.toColor(singleRow.getColor()).deriveColor(0, 1, 1, 0.9);
-        Color brighter = ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor()));
+        Color color = singleRow.getColor().deriveColor(0, 1, 1, 0.9);
+        Color brighter = ColorHelper.colorToBrighter(singleRow.getColor());
 
         List<JEVisSample> samples = new ArrayList<>();
         if (!forecast) {
             this.tableEntry = new TableEntry(getTableEntryName());
             this.valueDataSet.setName(getTableEntryName());
             this.tableEntry.setColor(color);
-            this.valueDataSet.setStyle("strokeColor=" + color + "; fillColor=" + color);
+            this.valueDataSet.setStyle("strokeColor=" + ColorHelper.toRGBCode(color) + "; fillColor=" + ColorHelper.toRGBCode(color));
 
             samples = singleRow.getSamples();
         } else {
             this.tableEntry = new TableEntry(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
             this.valueDataSet.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
             this.tableEntry.setColor(brighter);
-            this.valueDataSet.setStyle("strokeColor=" + brighter + "; fillColor=" + brighter);
+            this.valueDataSet.setStyle("strokeColor=" + ColorHelper.toRGBCode(brighter) + "; fillColor=" + ColorHelper.toRGBCode(brighter));
 
             samples = singleRow.getForecastSamples();
         }
@@ -122,9 +122,9 @@ public class BubbleChartSerie extends XYChartSerie {
                     noteDataSet.add(timestamp, currentValue);
                     noteDataSet.addDataLabel(noteIndex, noteString);
                     if (!forecast) {
-                        noteDataSet.addDataStyle(noteIndex, "strokeColor=" + color + "; fillColor= " + color + ";strokeDashPattern=0");
+                        noteDataSet.addDataStyle(noteIndex, "strokeColor=" + ColorHelper.toRGBCode(color) + "; fillColor= " + ColorHelper.toRGBCode(color) + ";strokeDashPattern=0");
                     } else {
-                        noteDataSet.addDataStyle(noteIndex, "strokeColor=" + brighter + "; fillColor= " + brighter + ";strokeDashPattern=0");
+                        noteDataSet.addDataStyle(noteIndex, "strokeColor=" + ColorHelper.toRGBCode(brighter) + "; fillColor= " + ColorHelper.toRGBCode(brighter) + ";strokeDashPattern=0");
                     }
                     noteIndex++;
                 }
@@ -352,10 +352,10 @@ public class BubbleChartSerie extends XYChartSerie {
     }
 
     public String getTableEntryName() {
-        if (singleRow.getTitle() == null || singleRow.getTitle().equals("")) {
+        if (singleRow.getName() == null || singleRow.getName().equals("")) {
             return singleRow.getObject().getName();
         } else {
-            return singleRow.getTitle();
+            return singleRow.getName();
         }
     }
 

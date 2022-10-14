@@ -13,8 +13,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartData;
+import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -26,18 +26,18 @@ import java.io.IOException;
 
 public class ChartExportImage {
     private static final Logger logger = LogManager.getLogger(ChartExportImage.class);
-    private final AnalysisDataModel model;
+    private final DataModel model;
     private File destinationFile;
     private DateTime minDate = null;
     private DateTime maxDate = null;
     private String formatName;
     private final FileChooser fileChooser;
 
-    public ChartExportImage(AnalysisDataModel model) {
+    public ChartExportImage(DataModel model, String analysisName) {
         this.model = model;
         this.setDates();
 
-        String formattedName = FileNames.fixName(model.getCurrentAnalysis().getName());
+        String formattedName = FileNames.fixName(analysisName);
         fileChooser = new FileChooser();
         fileChooser.setTitle("Image File Destination");
         DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
@@ -59,8 +59,7 @@ public class ChartExportImage {
                 formattedName + "_"
                         + I18n.getInstance().getString("plugin.graph.dialog.export.from") + "_"
                         + fmtDate.print(minDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.to") + "_"
-                        + fmtDate.print(maxDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.created") + "_"
-                        + fmtDate.print(new DateTime()));
+                        + fmtDate.print(maxDate));
 
         FileChooser.ExtensionFilter pngFilter = new FileChooser.ExtensionFilter("Portable Network Graphics Files (*.png)", ".png");
         FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("Joint Photographic Experts Group Files (*.jpg)", ".jpg");
@@ -126,12 +125,14 @@ public class ChartExportImage {
     }
 
     private void setDates() {
-        for (ChartDataRow mdl : model.getSelectedData()) {
-            DateTime startNow = mdl.getSelectedStart();
-            DateTime endNow = mdl.getSelectedEnd();
-            if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
-            if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
-        }
+        model.getChartModels().forEach(chart -> {
+            for (ChartData mdl : chart.getChartData()) {
+                DateTime startNow = mdl.getIntervalStartDateTime();
+                DateTime endNow = mdl.getIntervalEndDateTime();
+                if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
+                if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
+            }
+        });
     }
 
     public File getDestinationFile() {

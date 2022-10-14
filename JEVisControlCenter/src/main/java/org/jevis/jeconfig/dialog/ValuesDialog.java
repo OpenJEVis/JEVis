@@ -14,14 +14,17 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.jevis.jeconfig.plugin.charts.Values;
 import org.jevis.jeconfig.plugin.charts.ValuesSetting;
 import org.jevis.jeconfig.plugin.charts.ValuesTable;
@@ -35,114 +38,118 @@ public class ValuesDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(ValuesDialog.class);
     final NumberFormat nf = NumberFormat.getNumberInstance();
 
-    public ValuesDialog(StackPane dialogContainer, ValuesSetting settings, AnalysisDataModel model) {
+    public ValuesDialog(StackPane dialogContainer, JEVisDataSource ds, ValuesSetting settings, DataModel model) {
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
 
-        this.nf.setMinimumFractionDigits(model.getCharts().getListSettings().get(0).getMinFractionDigits());
-        this.nf.setMaximumFractionDigits(model.getCharts().getListSettings().get(0).getMaxFractionDigits());
+        this.nf.setMinimumFractionDigits(model.getChartModels().get(0).getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(model.getChartModels().get(0).getMaxFractionDigits());
 
         List<Values> data = new ArrayList<>();
 
-        for (ChartDataRow dataRow : model.getSelectedData()) {
-            Values values = new Values(dataRow.getTitle());
+        for (ChartModel chartModel : model.getChartModels()) {
+            for (ChartData chartData : chartModel.getChartData()) {
+                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                Values values = new Values(chartDataRow.getName());
 
-            JEVisAttribute attribute = dataRow.getAttribute();
-            List<JEVisSample> samples = dataRow.getSamples();
+                JEVisAttribute attribute = chartDataRow.getAttribute();
+                List<JEVisSample> samples = chartDataRow.getSamples();
 
-            double min = Double.MAX_VALUE;
-            double max = -Double.MAX_VALUE;
-            double avg = 0.0;
-            double sum = 0.0;
-            long zeroCount = 0;
-            long sampleCount = 0;
+                double min = Double.MAX_VALUE;
+                double max = -Double.MAX_VALUE;
+                double avg = 0.0;
+                double sum = 0.0;
+                long zeroCount = 0;
+                long sampleCount = 0;
 
-            for (JEVisSample sample : samples) {
-                try {
-                    DateTime timestamp = sample.getTimestamp();
+                for (JEVisSample sample : samples) {
+                    try {
+                        DateTime timestamp = sample.getTimestamp();
 
-                    if (DaySchedule.dateCheck(timestamp, settings.getDaySchedule()) == settings.isInside()) {
-                        Double currentValue = sample.getValueAsDouble();
+                        if (DaySchedule.dateCheck(timestamp, settings.getDaySchedule()) == settings.isInside()) {
+                            Double currentValue = sample.getValueAsDouble();
 
-                        min = Math.min(min, currentValue);
-                        max = Math.max(max, currentValue);
-                        sum += currentValue;
+                            min = Math.min(min, currentValue);
+                            max = Math.max(max, currentValue);
+                            sum += currentValue;
 
-                        sampleCount++;
-                        if (currentValue.equals(0d)) zeroCount++;
-                    }
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-            }
-
-            if (dataRow.getManipulationMode().equals(ManipulationMode.CUMULATE)) {
-                avg = max / sampleCount;
-                sum = max;
-            }
-
-            if (!dataRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && sampleCount > 0) {
-                avg = sum / (sampleCount - zeroCount);
-            }
-
-            QuantityUnits qu = new QuantityUnits();
-            boolean isQuantity = qu.isQuantityUnit(dataRow.getUnit());
-
-            if (min == Double.MAX_VALUE || sampleCount == 0) {
-                values.setMin("- " + dataRow.getUnit());
-            } else {
-                values.setMin(nf.format(min) + " " + dataRow.getUnit());
-            }
-
-            if (max == -Double.MAX_VALUE || sampleCount == 0) {
-                values.setMax("- " + dataRow.getUnit());
-            } else {
-                values.setMax(nf.format(max) + " " + dataRow.getUnit());
-            }
-
-            if (sampleCount == 0) {
-                values.setMin("- " + dataRow.getUnit());
-                values.setMax("- " + dataRow.getUnit());
-                values.setAvg("- " + dataRow.getUnit());
-                values.setSum("- " + dataRow.getUnit());
-                values.setCount("-");
-                values.setZeros("-");
-            } else {
-
-                values.setAvg(nf.format(avg) + " " + dataRow.getUnit());
-                values.setCount("" + sampleCount);
-                values.setZeros("" + zeroCount);
-
-                if (isQuantity) {
-                    values.setSum(nf.format(sum) + " " + dataRow.getUnit());
-                } else {
-                    if (qu.isSumCalculable(dataRow.getUnit()) && dataRow.getManipulationMode().equals(ManipulationMode.NONE)) {
-                        try {
-                            JEVisUnit sumUnit = qu.getSumUnit(dataRow.getUnit());
-                            ChartUnits cu = new ChartUnits();
-                            double newScaleFactor = cu.scaleValue(dataRow.getUnit().toString(), sumUnit.toString());
-                            JEVisUnit inputUnit = attribute.getInputUnit();
-                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
-
-                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                                sum = sum * newScaleFactor / dataRow.getTimeFactor();
-                            } else {
-                                sum = sum / dataRow.getScaleFactor() / dataRow.getTimeFactor();
-                            }
-
-                            values.setSum(nf.format(sum) + " " + dataRow.getUnit());
-
-                        } catch (Exception e) {
-                            logger.error("Couldn't calculate periods");
-                            values.setSum("- " + dataRow.getUnit());
+                            sampleCount++;
+                            if (currentValue.equals(0d)) zeroCount++;
                         }
-                    } else {
-                        values.setSum("- " + dataRow.getUnit());
+                    } catch (Exception ex) {
+                        logger.error(ex);
                     }
                 }
-            }
 
-            data.add(values);
+                if (chartDataRow.getManipulationMode().equals(ManipulationMode.CUMULATE)) {
+                    avg = max / sampleCount;
+                    sum = max;
+                }
+
+                if (!chartDataRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && sampleCount > 0) {
+                    avg = sum / (sampleCount - zeroCount);
+                }
+
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(chartDataRow.getUnit());
+
+                if (min == Double.MAX_VALUE || sampleCount == 0) {
+                    values.setMin("- " + chartDataRow.getUnit());
+                } else {
+                    values.setMin(nf.format(min) + " " + chartDataRow.getUnit());
+                }
+
+                if (max == -Double.MAX_VALUE || sampleCount == 0) {
+                    values.setMax("- " + chartDataRow.getUnit());
+                } else {
+                    values.setMax(nf.format(max) + " " + chartDataRow.getUnit());
+                }
+
+                if (sampleCount == 0) {
+                    values.setMin("- " + chartDataRow.getUnit());
+                    values.setMax("- " + chartDataRow.getUnit());
+                    values.setAvg("- " + chartDataRow.getUnit());
+                    values.setSum("- " + chartDataRow.getUnit());
+                    values.setCount("-");
+                    values.setZeros("-");
+                } else {
+
+                    values.setAvg(nf.format(avg) + " " + chartDataRow.getUnit());
+                    values.setCount("" + sampleCount);
+                    values.setZeros("" + zeroCount);
+
+                    if (isQuantity) {
+                        values.setSum(nf.format(sum) + " " + chartDataRow.getUnit());
+                    } else {
+                        if (qu.isSumCalculable(chartDataRow.getUnit()) && chartDataRow.getManipulationMode().equals(ManipulationMode.NONE)) {
+                            try {
+                                JEVisUnit sumUnit = qu.getSumUnit(chartDataRow.getUnit());
+                                ChartUnits cu = new ChartUnits();
+                                double newScaleFactor = cu.scaleValue(chartDataRow.getUnit().toString(), sumUnit.toString());
+                                JEVisUnit inputUnit = attribute.getInputUnit();
+                                JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
+
+                                if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
+                                    sum = sum * newScaleFactor / chartDataRow.getTimeFactor();
+                                } else {
+                                    sum = sum / chartDataRow.getScaleFactor() / chartDataRow.getTimeFactor();
+                                }
+
+                                values.setSum(nf.format(sum) + " " + chartDataRow.getUnit());
+
+                            } catch (Exception e) {
+                                logger.error("Couldn't calculate periods");
+                                values.setSum("- " + chartDataRow.getUnit());
+                            }
+                        } else {
+                            values.setSum("- " + chartDataRow.getUnit());
+                        }
+                    }
+                }
+
+                data.add(values);
+
+            }
         }
 
         ValuesTable baseLoadTable = new ValuesTable(FXCollections.observableList(data));

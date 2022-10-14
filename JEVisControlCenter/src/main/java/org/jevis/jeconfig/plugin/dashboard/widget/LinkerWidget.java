@@ -23,14 +23,13 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.GraphAnalysisLinker;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
-import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -146,8 +145,8 @@ public class LinkerWidget extends Widget {
             widgetConfigDialog.addTab(tab);
 
             try {
-                JEVisClass analysisClass = getDataSource().getJEVisClass(AnalysisDataModel.ANALYSIS_CLASS_NAME);
-                JEVisClass analysisDirClass = getDataSource().getJEVisClass(AnalysisDataModel.ANALYSES_DIRECTORY_CLASS_NAME);
+                JEVisClass analysisClass = getDataSource().getJEVisClass(AnalysesComboBox.ANALYSIS_CLASS_NAME);
+                JEVisClass analysisDirClass = getDataSource().getJEVisClass(AnalysesComboBox.ANALYSES_DIRECTORY_CLASS_NAME);
                 List<JEVisObject> allAnalyses = getDataSource().getObjects(analysisClass, true);
                 List<JEVisObject> allAnalysesDir = getDataSource().getObjects(analysisClass, true);
                 boolean multipleDir = allAnalysesDir.size() > 2;

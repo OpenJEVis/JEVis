@@ -9,8 +9,6 @@ import org.jevis.api.JEVisUser;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
@@ -46,7 +44,6 @@ public class AnalysisLinkButton extends JFXButton {
                     AnalysisRequest analysisRequest = new AnalysisRequest(attribute.getObject(),
                             AggregationPeriod.NONE,
                             ManipulationMode.NONE,
-                            new AnalysisTimeFrame(TimeFrame.CUSTOM),
                             startDateFromSampleRate, timestampFromLastSample);
                     analysisRequest.setAttribute(attribute);
 

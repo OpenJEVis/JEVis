@@ -17,8 +17,8 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.tools.TableViewUtils;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
@@ -31,15 +31,15 @@ public class TableHeader extends TableView<TableEntry> {
     private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 60;
     private final TableColumn<TableEntry, String> nameCol;
     private final TableColumn<TableEntry, Color> colorCol;
-    private final ChartSetting chartSetting;
+    private final ChartModel chartModel;
     private TableColumn<TableEntry, String> periodCol;
     private TableColumn<TableEntry, String> dateCol;
     private TableColumn<TableEntry, String> noteCol;
     private TableViewContextMenuHelper contextMenuHelper;
     private final AlphanumComparator alphanumComparator = new AlphanumComparator();
 
-    public TableHeader(ChartSetting chartSetting, final ObservableList<TableEntry> tableData) {
-        this.chartSetting = chartSetting;
+    public TableHeader(ChartModel chartModel, final ObservableList<TableEntry> tableData) {
+        this.chartModel = chartModel;
         setBorder(null);
         setStyle(
                 ".table-view:focused {" +
@@ -47,7 +47,7 @@ public class TableHeader extends TableView<TableEntry> {
                         "-fx-background-color: transparent, -fx-box-border, -fx-control-inner-background; " +
                         "-fx-background-insets: -1.4,0,1;" +
                         "}");
-        if (chartSetting.getChartType() != ChartType.TABLE) {
+        if (chartModel.getChartType() != ChartType.TABLE) {
             getStylesheets().add(TableHeader.class.getResource("/styles/TableViewNoScrollbar.css").toExternalForm());
             setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
         } else {
@@ -93,7 +93,7 @@ public class TableHeader extends TableView<TableEntry> {
 
         setItems(tableData);
 
-        switch (chartSetting.getChartType()) {
+        switch (chartModel.getChartType()) {
             case BUBBLE:
                 /**
                  * Table Column 2
@@ -270,7 +270,7 @@ public class TableHeader extends TableView<TableEntry> {
     }
 
     private void setColumns() {
-        switch (chartSetting.getChartType()) {
+        switch (chartModel.getChartType()) {
             case LOGICAL:
                 setTableStandard();
                 getColumns().get(2).setVisible(false);
@@ -298,7 +298,7 @@ public class TableHeader extends TableView<TableEntry> {
             case TABLE:
                 setTableStandard();
                 getColumns().get(0).setVisible(false);
-                getColumns().get(1).setVisible(chartSetting.getOrientation() == Orientation.HORIZONTAL);
+                getColumns().get(1).setVisible(chartModel.getOrientation() == Orientation.HORIZONTAL);
                 getColumns().get(2).setVisible(false);
                 getColumns().get(5).setVisible(false);
                 getColumns().get(6).setVisible(false);
@@ -385,10 +385,10 @@ public class TableHeader extends TableView<TableEntry> {
     }
 
     public ChartType getChartType() {
-        return chartSetting.getChartType();
+        return chartModel.getChartType();
     }
 
     public Integer getChartId() {
-        return chartSetting.getId();
+        return chartModel.getChartId();
     }
 }

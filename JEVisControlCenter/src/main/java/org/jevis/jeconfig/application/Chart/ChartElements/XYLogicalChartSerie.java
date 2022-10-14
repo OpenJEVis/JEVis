@@ -7,9 +7,9 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 
@@ -21,8 +21,8 @@ import java.util.TreeMap;
 public class XYLogicalChartSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYLogicalChartSerie.class);
 
-    public XYLogicalChartSerie(ChartSetting chartSetting, ChartDataRow singleRow, Boolean hideShowIcons) throws JEVisException {
-        super(chartSetting, singleRow, hideShowIcons, false);
+    public XYLogicalChartSerie(ChartModel chartModelSetting, ChartDataRow singleRow, Boolean hideShowIcons) throws JEVisException {
+        super(chartModelSetting, singleRow, hideShowIcons, false);
     }
 
     @Override
@@ -32,9 +32,9 @@ public class XYLogicalChartSerie extends XYChartSerie {
 
         this.tableEntry = new TableEntry(getTableEntryName());
         this.valueDataSet.setName(getTableEntryName());
-        this.valueDataSet.setStyle("strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";strokeDashPattern=0");
+        this.valueDataSet.setStyle("strokeColor=" + ColorHelper.toRGBCode(singleRow.getColor()) + "; fillColor= " + ColorHelper.toRGBCode(singleRow.getColor()) + ";strokeDashPattern=0");
 
-        this.tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
+        this.tableEntry.setColor(singleRow.getColor());
 
         List<JEVisSample> samples = singleRow.getSamples();
         List<JEVisSample> modifiedList = getModifiedList(samples);
@@ -76,7 +76,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
                 if (noteString != null && showIcons) {
                     noteDataSet.add(timestamp, value);
                     noteDataSet.addDataLabel(noteIndex, noteString);
-                    noteDataSet.addDataStyle(noteIndex, "strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";strokeDashPattern=0");
+                    noteDataSet.addDataStyle(noteIndex, "strokeColor=" + ColorHelper.toRGBCode(singleRow.getColor()) + "; fillColor= " + ColorHelper.toRGBCode(singleRow.getColor()) + ";strokeDashPattern=0");
                     noteIndex++;
                 }
 

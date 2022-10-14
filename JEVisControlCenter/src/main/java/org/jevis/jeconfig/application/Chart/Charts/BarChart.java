@@ -12,6 +12,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
@@ -19,11 +20,9 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -34,15 +33,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BarChart implements Chart {
     private static final Logger logger = LogManager.getLogger(BarChart.class);
+    private final ChartModel chartModel;
+    private final JEVisDataSource ds;
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(1990, 1, 1, 0, 0, 0));
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
     private String unit;
-    private final AnalysisDataModel analysisDataModel;
-    private final List<ChartDataRow> chartDataRows;
-    private final Boolean hideShowIcons;
-    private final ChartSetting chartSetting;
+    private final List<ChartDataRow> chartDataRows = new ArrayList<>();
     private final List<BarChartSerie> barChartSerieList = new ArrayList<>();
     private javafx.scene.chart.BarChart barChart;
     private final List<Color> hexColors = new ArrayList<>();
@@ -55,13 +53,11 @@ public class BarChart implements Chart {
     private AtomicReference<ManipulationMode> manipulationMode;
     private DateTime nearest;
 
-    public BarChart(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
-        this.analysisDataModel = analysisDataModel;
-        this.chartDataRows = chartDataRows;
-        this.hideShowIcons = analysisDataModel.getShowIcons();
-        this.chartSetting = chartSetting;
+    public BarChart(JEVisDataSource ds, ChartModel chartModel) {
+        this.ds = ds;
+        this.chartModel = chartModel;
 
-        double totalJob = chartDataRows.size();
+        double totalJob = this.chartModel.getChartData().size();
 
         JEConfig.getStatusBar().startProgressJob(org.jevis.jeconfig.application.Chart.Charts.XYChart.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
 
@@ -71,16 +67,16 @@ public class BarChart implements Chart {
     private void init() {
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        chartDataRows.forEach(singleRow -> {
-            if (!singleRow.getSelectedcharts().isEmpty()) {
-                try {
-                    BarChartSerie serie = new BarChartSerie(chartSetting, singleRow, analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() == TimeFrame.CURRENT);
-                    barChartSerieList.add(serie);
-                    hexColors.add(ColorHelper.toColor(singleRow.getColor()));
+        chartModel.getChartData().forEach(chartData -> {
+            ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
 
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
+            try {
+                BarChartSerie serie = new BarChartSerie(chartModel, chartDataRow, true);
+                barChartSerieList.add(serie);
+                hexColors.add(chartData.getColor());
+
+            } catch (JEVisException e) {
+                e.printStackTrace();
             }
         });
 
@@ -94,7 +90,7 @@ public class BarChart implements Chart {
 
         barChart = new javafx.scene.chart.BarChart<>(numberAxis, catAxis);
 
-        barChart.setTitle(chartSetting.getName());
+        barChart.setTitle(chartModel.getChartName());
         barChart.setAnimated(false);
         barChart.setLegendVisible(false);
         barChart.getXAxis().setAutoRanging(true);
@@ -144,13 +140,13 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public ChartSetting getChartSetting() {
-        return chartSetting;
+    public ChartModel getChartModel() {
+        return chartModel;
     }
 
     @Override
     public String getChartName() {
-        return chartSetting.getName();
+        return chartModel.getChartName();
     }
 
     @Override
@@ -160,7 +156,7 @@ public class BarChart implements Chart {
 
     @Override
     public Integer getChartId() {
-        return chartSetting.getId();
+        return chartModel.getChartId();
     }
 
     @Override

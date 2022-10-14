@@ -120,7 +120,7 @@ public class ResourceUserRegistration {
         }
         String auth = httpHeaders.getRequestHeader("registraionapikey").get(0);
         if (auth != null && !auth.isEmpty()) {
-            return auth.equals(Config.getRigestrationAPIKey());
+            return auth.equals(Config.getRegistrationAPIKey());
         }
         return false;
 

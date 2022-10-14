@@ -12,6 +12,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.calculation.CalcJob;
@@ -23,10 +24,11 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.*;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
-import org.jevis.jeconfig.application.tools.ColorHelper;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.plugin.charts.DataSettings;
+import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -45,19 +47,17 @@ public class BubbleChart extends XYChart {
     private final Double nearest = 0d;
     private String xUnit;
     private String yUnit;
+    private final List<Bubble> bubbles = new ArrayList<>();
 
-    public BubbleChart() {
+    public BubbleChart(JEVisDataSource ds) {
+        super(ds);
 
         init();
     }
 
     @Override
-    public void buildChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting) {
-
-        this.analysisDataModel = dataModel;
-        this.chartDataRows = dataRows;
-        this.chartSetting = chartSetting;
-        Double groupingInterval = chartSetting.getGroupingInterval();
+    public void buildChart(ToolBarSettings toolBarSettings, DataSettings dataSettings) {
+        Double groupingInterval = chartModel.getGroupingInterval();
 
         double totalJob = chartDataRows.size();
 
@@ -75,27 +75,36 @@ public class BubbleChart extends XYChart {
 
         JEConfig.getStatusBar().startProgressJob(JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
 
-        this.showRawData = dataModel.getShowRawData();
-        this.showSum = dataModel.getShowSum();
-        this.showL1L2 = dataModel.getShowL1L2();
-        this.regressionType = dataModel.getRegressionType();
-        this.showIcons = dataModel.getShowIcons();
-        this.calcRegression = dataModel.calcRegression();
-        this.polyRegressionDegree = dataModel.getPolyRegressionDegree();
-        this.chartId = chartSetting.getId();
-        this.chartName = chartSetting.getName();
-        this.chartType = chartSetting.getChartType();
-        this.addSeriesOfType = dataModel.getAddSeries();
-        for (ChartDataRow chartDataModel : dataRows) {
-            if (chartDataModel.getAxis() == 1) {
+        this.showRawData = toolBarSettings.isShowRawData();
+        this.showSum = toolBarSettings.isShowSum();
+        this.showL1L2 = toolBarSettings.isShowL1L2();
+        this.regressionType = toolBarSettings.getRegressionType();
+        this.showIcons = toolBarSettings.isShowIcons();
+        this.calcRegression = toolBarSettings.isCalculateRegression();
+        this.polyRegressionDegree = toolBarSettings.getPolyRegressionDegree();
+        this.chartId = chartModel.getChartId();
+        this.chartName = chartModel.getChartName();
+        this.chartType = chartModel.getChartType();
+        for (ChartData chartData : chartModel.getChartData()) {
+            if (chartData.getAxis() == 1) {
                 hasSecondAxis = true;
                 break;
             }
         }
 
+        chartDataRows.clear();
+        for (ChartData chartData : chartModel.getChartData()) {
+            ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+            chartDataRows.add(chartDataRow);
+        }
+
         if (!chartDataRows.isEmpty()) {
             workDays = new WorkDays(chartDataRows.get(0).getObject());
-            workDays.setEnabled(dataModel.isCustomWorkDay());
+            workDays.setEnabled(toolBarSettings.isCustomWorkday());
+            chartDataRows.forEach(chartDataRow -> {
+                chartDataRow.setAggregationPeriod(dataSettings.getAggregationPeriod());
+                chartDataRow.setManipulationMode(dataSettings.getManipulationMode());
+            });
         }
 
         hexColors.clear();
@@ -121,14 +130,14 @@ public class BubbleChart extends XYChart {
         for (ChartDataRow model : chartDataRows) {
             for (JEVisSample sample : model.getSamples()) {
                 try {
-                    if (model.getBubbleType() == BubbleType.X && !sample.getValueAsDouble().equals(0d)) {
+                    if (model.getBubbleType() == BubbleType.X) {
                         xList.add(sample);
                         minX.set(Math.min(minX.get(), sample.getValueAsDouble()));
                         maxX.set(Math.max(maxX.get(), sample.getValueAsDouble()));
                     } else if (model.getBubbleType() == BubbleType.Y && !sample.getValueAsDouble().equals(0d)) {
                         yList.add(sample);
-                        if (!hexColors.contains(ColorHelper.toColor(model.getColor()))) {
-                            hexColors.add(ColorHelper.toColor(model.getColor()));
+                        if (!hexColors.contains(model.getColor())) {
+                            hexColors.add(model.getColor());
                         }
                     }
                 } catch (JEVisException e) {
@@ -157,6 +166,10 @@ public class BubbleChart extends XYChart {
                 startXAxis.set(startXAxis.get() + groupingInterval);
             }
         }
+
+        Map<Double, List<JEVisSample>> xWithSamples = new HashMap<>();
+        Map<Double, List<JEVisSample>> yWithSamples = new HashMap<>();
+
         for (double i = startXAxis.get(); i < maxX.get() + (2 * groupingInterval); i = i + groupingInterval) {
             double upperBound = i + groupingInterval;
             for (JEVisSample sample : xList) {
@@ -170,6 +183,17 @@ public class BubbleChart extends XYChart {
                             modifiedX.put(i, 1.0);
                         }
 
+                        if (xWithSamples.get(i) != null) {
+                            List<JEVisSample> newList = new ArrayList<>(xWithSamples.get(i));
+                            newList.add(sample);
+                            xWithSamples.remove(i);
+                            xWithSamples.put(i, newList);
+                        } else {
+                            List<JEVisSample> newList = new ArrayList<>();
+                            newList.add(sample);
+                            xWithSamples.put(i, newList);
+                        }
+
                         if (yDates.get(i) != null) {
                             List<DateTime> old = yDates.get(i);
                             old.add(xList.get(xList.indexOf(sample)).getTimestamp());
@@ -177,6 +201,26 @@ public class BubbleChart extends XYChart {
                             yDates.put(i, old);
                         } else {
                             yDates.put(i, new ArrayList<>(Collections.singleton(xList.get(xList.indexOf(sample)).getTimestamp())));
+                        }
+
+                        if (yWithSamples.get(i) != null) {
+                            List<JEVisSample> newList = new ArrayList<>(yWithSamples.get(i));
+                            for (JEVisSample ySample : yList) {
+                                if (ySample.getTimestamp().equals(sample.getTimestamp())) {
+                                    newList.add(ySample);
+                                }
+                            }
+
+                            yWithSamples.remove(i);
+                            yWithSamples.put(i, newList);
+                        } else {
+                            List<JEVisSample> newList = new ArrayList<>();
+                            for (JEVisSample ySample : yList) {
+                                if (ySample.getTimestamp().equals(sample.getTimestamp())) {
+                                    newList.add(ySample);
+                                }
+                            }
+                            yWithSamples.put(i, newList);
                         }
                     }
                 } catch (JEVisException e) {
@@ -257,7 +301,6 @@ public class BubbleChart extends XYChart {
             modifiedY.put(entry.getKey(), value);
         }
 
-        List<Bubble> bubbles = new ArrayList<>();
         List<Double> arrayList = new ArrayList<>();
         AtomicReference<Double> maxSize = new AtomicReference<>((double) 0);
         modifiedX.forEach((aInteger, aInteger2) -> {
@@ -265,7 +308,7 @@ public class BubbleChart extends XYChart {
             minY.set(Math.min(minY.get(), modifiedY.get(aInteger)));
             maxY.set(Math.max(maxY.get(), modifiedY.get(aInteger)));
             maxSize.set(Math.max(maxSize.get(), aInteger2.doubleValue()));
-            bubbles.add(new Bubble(aInteger.doubleValue(), modifiedY.get(aInteger), aInteger2.doubleValue()));
+            bubbles.add(new Bubble(xWithSamples.get(aInteger), yWithSamples.get(aInteger), aInteger.doubleValue(), modifiedY.get(aInteger), aInteger2.doubleValue()));
             sampleTreeMap.put(aInteger.doubleValue(), modifiedY.get(aInteger));
             arrayList.add(modifiedY.get(aInteger));
         });
@@ -292,27 +335,18 @@ public class BubbleChart extends XYChart {
         String finalXAxisTitle = xAxisTitle;
         String finalYAxisTitle = yAxisTitle;
         Platform.runLater(() -> {
-            getDateAxis().setName(finalXAxisTitle);
-            getDateAxis().setUnit(xUnit);
-            getDateAxis().setAutoRanging(false);
-            getDateAxis().setMin(startXAxis.get());
-            getDateAxis().setMax(maxX.get() + groupingInterval);
-            getDateAxis().setTickUnit(30);
+            getPrimaryDateAxis().setName(finalXAxisTitle);
+            getPrimaryDateAxis().setUnit(xUnit);
+            getPrimaryDateAxis().setAutoRanging(false);
+            getPrimaryDateAxis().setMin(minX.get() - ((maxX.get() - minX.get()) * 0.25));
+            getPrimaryDateAxis().setMax(maxX.get() + ((maxX.get() - minX.get()) * 0.25));
+            getPrimaryDateAxis().setTickUnit(30);
 
             getY1Axis().setName(finalYAxisTitle);
             getY1Axis().setUnit(yUnit);
             getY1Axis().setAutoRanging(false);
-            if (minY.get() >= 0) {
-                getY1Axis().setMin(minY.get() * 0.75);
-            } else {
-                getY1Axis().setMin(minY.get() * 1.25);
-            }
-
-            if (maxY.get() >= 0) {
-                getY1Axis().setMax(maxY.get() * 1.25);
-            } else {
-                getY1Axis().setMax(maxY.get() * 0.75);
-            }
+            getY1Axis().setMin(minY.get() - ((maxY.get() - minY.get()) * 0.25));
+            getY1Axis().setMax(maxY.get() + ((maxY.get() - minY.get()) * 0.25));
             getY1Axis().setForceZeroInRange(false);
         });
 
@@ -386,9 +420,9 @@ public class BubbleChart extends XYChart {
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
-        XYChartSerie serie = new BubbleChartSerie(chartSetting, singleRow, showIcons, false);
+        XYChartSerie serie = new BubbleChartSerie(chartModel, singleRow, showIcons, false);
 
-        hexColors.add(ColorHelper.toColor(singleRow.getColor()));
+        hexColors.add(singleRow.getColor());
 
         /**
          * check if timestamps are in serie
@@ -443,6 +477,11 @@ public class BubbleChart extends XYChart {
     }
 
     @Override
+    public ChartModel getChartModel() {
+        return chartModel;
+    }
+
+    @Override
     public ObservableList<TableEntry> getTableData() {
         return tableData;
     }
@@ -462,5 +501,9 @@ public class BubbleChart extends XYChart {
 
     public String getxUnit() {
         return xUnit;
+    }
+
+    public List<Bubble> getBubbles() {
+        return bubbles;
     }
 }

@@ -40,8 +40,36 @@ public class QuantityUnits {
     private final JEVisUnit t = new JEVisUnitImp(_t);
     private final Unit _l = NonSI.LITER;
     private final JEVisUnit l = new JEVisUnitImp(_l);
+
+    private final Unit _lpers = NonSI.LITER.divide(SI.SECOND);
+
+    private final JEVisUnit lpers = new JEVisUnitImp(_lpers);
+
+    private final Unit _lpermin = NonSI.LITER.divide(NonSI.MINUTE);
+
+    private final JEVisUnit lpermin = new JEVisUnitImp(_lpermin);
+
+    private final Unit _lperh = NonSI.LITER.divide(NonSI.HOUR);
+
+    private final JEVisUnit lperh = new JEVisUnitImp(_lperh);
     private final Unit _m3 = SI.CUBIC_METRE;
     private final JEVisUnit m3 = new JEVisUnitImp(_m3);
+
+    private final Unit _m3pers = SI.CUBIC_METRE.divide(SI.SECOND);
+
+    private final JEVisUnit m3pers = new JEVisUnitImp(_m3pers);
+
+    private final Unit _m3permin = SI.CUBIC_METRE.divide(NonSI.MINUTE);
+
+    private final JEVisUnit m3permin = new JEVisUnitImp(_m3permin);
+
+    private final Unit _m3perh = SI.CUBIC_METRE.divide(NonSI.HOUR);
+
+    private final JEVisUnit m3perh = new JEVisUnitImp(_m3perh);
+
+    private final Unit _nm3 = SI.CUBIC_METRE.alternate("Nm³");
+
+    private final JEVisUnit nm3 = new JEVisUnitImp(_nm3);
 
     private final Unit _Wh = SI.WATT.times(NonSI.HOUR);
     private final JEVisUnit Wh = new JEVisUnitImp(_Wh);
@@ -81,6 +109,14 @@ public class QuantityUnits {
     private final Unit _kvarh = SI.KILO(_varh);
     private final JEVisUnit kvarh = new JEVisUnitImp(_kvarh, "kvarh", "KILO");
 
+    private final Unit _bar = NonSI.BAR;
+
+    private final JEVisUnit bar = new JEVisUnitImp(_bar);
+
+    private final Unit _atm = NonSI.ATMOSPHERE;
+
+    private final JEVisUnit atm = new JEVisUnitImp(_atm);
+
     private final Unit _eur = Currency.EUR;
     private final Unit _usd = Currency.USD;
     private final Unit _gbp = Currency.GBP;
@@ -105,7 +141,19 @@ public class QuantityUnits {
     private final ArrayList<Unit> unitArrayList;
 
     private final ArrayList<String> stringArrayList;
+    private final List<JEVisUnit> energyPowerUnits;
+
     private final List<JEVisUnit> energyUnits;
+
+    private final List<JEVisUnit> volumeUnits;
+
+    private final List<JEVisUnit> massUnits;
+
+    private final List<JEVisUnit> pressureUnits;
+
+    private final List<JEVisUnit> volumeFlowUnits;
+
+    private final List<JEVisUnit> moneyUnits;
 
     public boolean isQuantityUnit(JEVisUnit unit) {
         for (JEVisUnit jeVisUnit : jeVisUnitArrayList) {
@@ -139,7 +187,14 @@ public class QuantityUnits {
     }
 
     public QuantityUnits() {
-        energyUnits = new ArrayList<>(Arrays.asList(W, kW, MW, GW, va, kva, var, kvar));
+        energyPowerUnits = new ArrayList<>(Arrays.asList(W, kW, MW, GW, va, kva, var, kvar));
+
+        energyUnits = new ArrayList<>(Arrays.asList(W, kW, MW, GW, va, kva, var, kvar, Wh, kWh, MWh, GWh, vah, varh, kvah, kvarh));
+        volumeUnits = new ArrayList<>(Arrays.asList(l, m3, nm3));
+        massUnits = new ArrayList<>(Arrays.asList(mg, g, kg, kkg, t));
+        pressureUnits = new ArrayList<>(Arrays.asList(bar, atm));
+        volumeFlowUnits = new ArrayList<>(Arrays.asList(lpers, lpermin, lperh, m3pers, m3permin, m3perh));
+        moneyUnits = new ArrayList<>(Arrays.asList(eur, usd, gbp, jpy, aud, cad, cny, krw, twd));
 
         stringArrayList = new ArrayList<>(Arrays.asList(
                 mg.getLabel(), g.getLabel(),
@@ -153,7 +208,7 @@ public class QuantityUnits {
         unitArrayList = new ArrayList<>(Arrays.asList(
                 _mg, _g,
                 _kg, _kkg, _t,
-                _l, _m3,
+                _l, _m3, _nm3,
                 _Wh, _kWh, _MWh, _GWh,
                 _vah, _varh, _kvah, _kvarh,
                 _eur, _usd, _gbp, _jpy, _aud, _cad, _cny, _krw, _twd
@@ -162,7 +217,7 @@ public class QuantityUnits {
         jeVisUnitArrayList = new ArrayList<>(Arrays.asList(
                 mg, g,
                 kg, kkg, t,
-                l, m3,
+                l, m3, nm3,
                 Wh, kWh, MWh, GWh,
                 vah, varh, kvah, kvarh,
                 eur, usd, gbp, jpy, aud, cad, cny, krw, twd
@@ -170,7 +225,7 @@ public class QuantityUnits {
     }
 
     public boolean isSumCalculable(JEVisUnit unit) {
-        return energyUnits.contains(unit) || jeVisUnitArrayList.contains(unit);
+        return energyPowerUnits.contains(unit) || jeVisUnitArrayList.contains(unit);
     }
 
     public JEVisUnit getSumUnit(JEVisUnit unit) {
@@ -338,5 +393,53 @@ public class QuantityUnits {
             return true;
         } else return inputUnit.equals(t)
                 && (unit.equals(mg) || unit.equals(g) || unit.equals(kg) || unit.equals(kkg));
+    }
+
+    public boolean isEnergyUnit(JEVisUnit currentUnit) {
+        return energyUnits.contains(currentUnit);
+    }
+
+    public List<JEVisUnit> getEnergyUnits() {
+        return energyUnits;
+    }
+
+    public boolean isVolumeUnit(JEVisUnit currentUnit) {
+        return volumeUnits.contains(currentUnit);
+    }
+
+    public List<JEVisUnit> getVolumeUnits() {
+        return volumeUnits;
+    }
+
+    public boolean isMassUnit(JEVisUnit currentUnit) {
+        return massUnits.contains(currentUnit);
+    }
+
+    public List<JEVisUnit> getMassUnits() {
+        return massUnits;
+    }
+
+    public boolean isPressureUnit(JEVisUnit currentUnit) {
+        return pressureUnits.contains(currentUnit);
+    }
+
+    public List<JEVisUnit> getPressureUnits() {
+        return pressureUnits;
+    }
+
+    public boolean isVolumeFlowUnit(JEVisUnit currentUnit) {
+        return volumeFlowUnits.contains(currentUnit);
+    }
+
+    public List<JEVisUnit> getVolumeFlowUnits() {
+        return volumeFlowUnits;
+    }
+
+    public Boolean isMoneyUnit(JEVisUnit currentUnit) {
+        return moneyUnits.contains(currentUnit);
+    }
+
+    public List<JEVisUnit> getMoneyUnits() {
+        return moneyUnits;
     }
 }

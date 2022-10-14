@@ -38,14 +38,14 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.*;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.ReportAggregationBox;
 import org.jevis.jeconfig.application.control.ReportFixedPeriodBox;
 import org.jevis.jeconfig.application.control.ReportManipulationBox;
 import org.jevis.jeconfig.application.control.ReportPeriodBox;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
-import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 
 public class ReportWizardDialog {
     private static final Logger logger = LogManager.getLogger(ReportWizardDialog.class);
-    Image imgMarkAll = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
+    Image imgMarkAll = ResourceLoader.getImage("jetxee-check-sign-and-cross-sign-3.png");
     Tooltip tooltipMarkAll = new Tooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
     public static final Image taskImage = JEConfig.getImage("Report.png");
 
@@ -596,16 +596,20 @@ public class ReportWizardDialog {
     }
 
     private void openMultiSelect() {
-        List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllObjects();
-        JEVisTreeFilter allAttributeFilter = SelectTargetDialog.buildAllAttributesFilter();
-        allFilter.add(basicFilter);
-        allFilter.add(allAttributeFilter);
+        List<JEVisClass> classes = new ArrayList<>();
 
-        SelectTargetDialog selectionDialog = new SelectTargetDialog(reportWizardDialog.getDialogContainer(), allFilter, basicFilter, null, SelectionMode.MULTIPLE, ds, new ArrayList<>());
+        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+            try {
+                classes.add(ds.getJEVisClass(className));
+            } catch (Exception e) {
+                logger.error("Could not get JEVisClass for {}", className, e);
+            }
+        }
+
+        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, classes, SelectionMode.MULTIPLE, new ArrayList<>(), true);
 
         selectionDialog.setOnDialogClosed(event -> {
-            if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+            if (selectionDialog.getResponse() == Response.OK) {
                 logger.trace("Selection Done");
 
                 selections = selectionDialog.getUserSelection();
@@ -630,16 +634,20 @@ public class ReportWizardDialog {
     }
 
     private void openSingleSelect() {
-        List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllObjects();
-        JEVisTreeFilter allAttributeFilter = SelectTargetDialog.buildAllAttributesFilter();
-        allFilter.add(basicFilter);
-        allFilter.add(allAttributeFilter);
+        List<JEVisClass> classes = new ArrayList<>();
 
-        SelectTargetDialog selectionDialog = new SelectTargetDialog(reportWizardDialog.getDialogContainer(), allFilter, basicFilter, null, SelectionMode.SINGLE, ds, new ArrayList<>());
+        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+            try {
+                classes.add(ds.getJEVisClass(className));
+            } catch (Exception e) {
+                logger.error("Could not get JEVisClass for {}", className, e);
+            }
+        }
+
+        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, classes, SelectionMode.SINGLE, new ArrayList<>(), true);
 
         selectionDialog.setOnDialogClosed(event -> {
-            if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+            if (selectionDialog.getResponse() == Response.OK) {
                 logger.trace("Selection Done");
 
                 selections = selectionDialog.getUserSelection();
@@ -870,11 +878,15 @@ public class ReportWizardDialog {
             targetString.set(reportLink.getjEVisID().toString());
         }
 
-        List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllObjects();
-        JEVisTreeFilter allAttributeFilter = SelectTargetDialog.buildAllAttributesFilter();
-        allFilter.add(basicFilter);
-        allFilter.add(allAttributeFilter);
+        List<JEVisClass> classes = new ArrayList<>();
+
+        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+            try {
+                classes.add(ds.getJEVisClass(className));
+            } catch (Exception e) {
+                logger.error("Could not get JEVisClass for {}", className, e);
+            }
+        }
 
         if (reportLink.getjEVisID() != null) {
             String target = "";
@@ -909,10 +921,10 @@ public class ReportWizardDialog {
                     openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
             }
 
-            SelectTargetDialog selectionDialog = new SelectTargetDialog(reportWizardDialog.getDialogContainer(), allFilter, basicFilter, null, SelectionMode.SINGLE, ds, openList);
+            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, classes, SelectionMode.SINGLE, openList, true);
 
             selectionDialog.setOnDialogClosed(event1 -> {
-                if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                if (selectionDialog.getResponse() == Response.OK) {
                     logger.trace("Selection Done");
 
                     String newTarget = "";

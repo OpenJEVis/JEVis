@@ -8,10 +8,10 @@ import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 
 public class ColorMappingBox extends JFXComboBox<ColorMapping> {
-
-    public ColorMappingBox(ChartSetting chartSetting) {
+    public ColorMappingBox() {
         super(FXCollections.observableArrayList(ColorMapping.values()));
 
         Callback<ListView<ColorMapping>, ListCell<ColorMapping>> callback = new Callback<ListView<ColorMapping>, ListCell<ColorMapping>>() {
@@ -82,12 +82,28 @@ public class ColorMappingBox extends JFXComboBox<ColorMapping> {
 
         setCellFactory(callback);
         setButtonCell(callback.call(null));
+    }
+
+    public ColorMappingBox(ChartSetting chartSetting) {
+        this();
 
         this.getSelectionModel().select(chartSetting.getColorMapping());
 
         this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
                 chartSetting.setColorMapping(newValue);
+            }
+        });
+    }
+
+    public ColorMappingBox(ChartModel chartModel) {
+        this();
+
+        this.getSelectionModel().select(chartModel.getColorMapping());
+
+        this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue == null || newValue != oldValue) {
+                chartModel.setColorMapping(newValue);
             }
         });
     }

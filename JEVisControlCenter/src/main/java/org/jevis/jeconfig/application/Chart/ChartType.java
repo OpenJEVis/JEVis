@@ -16,8 +16,6 @@ public enum ChartType {
                 return AREA;
             case (1):
                 return LOGICAL;
-            case (2):
-                return LINE;
             case (3):
                 return BAR;
             case (4):
@@ -36,6 +34,7 @@ public enum ChartType {
                 return DEFAULT;
             case (11):
                 return TABLE_V;
+            case (2):
             default:
                 return LINE;
         }
@@ -46,8 +45,6 @@ public enum ChartType {
             switch (chartType) {
                 case ("LOGICAL"):
                     return LOGICAL;
-                case ("LINE"):
-                    return LINE;
                 case ("BAR"):
                     return BAR;
                 case ("COLUMN"):
@@ -68,6 +65,7 @@ public enum ChartType {
                     return DEFAULT;
                 case ("AREA"):
                     return AREA;
+                case ("LINE"):
                 default:
                     return LINE;
             }
@@ -107,7 +105,7 @@ public enum ChartType {
         } else return 2;
     }
 
-    public static ObservableList<String> getlistNamesChartTypes() {
+    public static ObservableList<String> getListNamesChartTypes() {
         List<String> tempList = new ArrayList<>();
         for (ChartType ct : ChartType.values()) {
             switch (ct.toString()) {
@@ -146,8 +144,6 @@ public enum ChartType {
                     break;
                 case ("DEFAULT"):
                     tempList.add(I18n.getInstance().getString("plugin.graph.charttype.default.name"));
-                    break;
-                default:
                     break;
             }
         }

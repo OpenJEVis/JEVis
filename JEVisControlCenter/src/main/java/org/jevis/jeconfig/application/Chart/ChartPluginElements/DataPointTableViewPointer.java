@@ -63,8 +63,8 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
             workDays = new WorkDays(chartDataRow.getObject());
             break;
         }
-        this.nf.setMinimumFractionDigits(chart.getChartSetting().getMinFractionDigits());
-        this.nf.setMaximumFractionDigits(chart.getChartSetting().getMaxFractionDigits());
+        this.nf.setMinimumFractionDigits(currentChart.getChartModel().getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(currentChart.getChartModel().getMaxFractionDigits());
 
         this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
