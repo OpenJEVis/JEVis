@@ -553,6 +553,7 @@ public class DataModelDataHandler {
 
                         if (dataPointNode.getManipulationMode() != null) {
                             chartDataRow.setManipulationMode(dataPointNode.getManipulationMode());
+                            //Test
                         }
 
                         if (dataPointNode.getAggregationPeriod() != null) {
