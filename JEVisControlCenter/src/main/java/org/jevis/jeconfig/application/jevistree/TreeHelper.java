@@ -57,6 +57,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.TimeZoneBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PresetDateBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.jevistree.dialog.NewObject;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.methods.AutoLimitSetting;
@@ -64,10 +65,7 @@ import org.jevis.jeconfig.application.jevistree.methods.CalculationMethods;
 import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
-import org.jevis.jeconfig.dialog.CommonDialogs;
-import org.jevis.jeconfig.dialog.FindDialog;
-import org.jevis.jeconfig.dialog.ProgressForm;
-import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.object.attribute.GapFillingEditor;
 import org.jevis.jeconfig.plugin.object.extension.calculation.FormulaBox;
 import org.jevis.jeconfig.plugin.object.extension.calculation.VariablesBox;
@@ -855,7 +853,7 @@ public class TreeHelper {
                     JFXCheckBox auto = new JFXCheckBox("Automatische Festlegung");
 
                     Label presetDateLabel = new Label("Zeitbereich zur Bestimmung");
-                    PresetDateBox presetDateBox = new PresetDateBox();
+                    PresetDateBox presetDateBox = new PresetDateBox(tree.getJEVisDataSource(), null);
                     JFXCheckBox minIsZero = new JFXCheckBox("Untere Grenze ist immer 0");
 
                     Label limit1MinSubLabel = new Label("Toleranz der unteren Grenze [%]");
@@ -1747,11 +1745,11 @@ public class TreeHelper {
             JEVisException {
         logger.debug("Event Create new Input");
 
-        List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
-        JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
-        allFilter.add(allDataFilter);
-        allFilter.add(allAttributesFilter);
+        List<JEVisClass> classes = new ArrayList<>();
+
+        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+            classes.add(calcObject.getDataSource().getJEVisClass(className));
+        }
 
         List<UserSelection> openList = new ArrayList<>();
         TargetHelper th = new TargetHelper(calcObject.getDataSource(), currentTarget);
@@ -1763,10 +1761,10 @@ public class TreeHelper {
                 openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
         }
 
-        SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.MULTIPLE, calcObject.getDataSource(), openList);
+        TreeSelectionDialog selectTargetDialog = new TreeSelectionDialog(dialogContainer, calcObject.getDataSource(), classes, SelectionMode.MULTIPLE, openList, true);
         selectTargetDialog.setOnDialogClosed(event -> {
             try {
-                if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                if (selectTargetDialog.getResponse() == Response.OK) {
                     if (selectTargetDialog.getUserSelection() != null && !selectTargetDialog.getUserSelection().isEmpty()) {
                         JEVisClass cleanDataClass = null;
 
@@ -1775,8 +1773,7 @@ public class TreeHelper {
                         JEVisClass baseDataClass = calcObject.getDataSource().getJEVisClass("Base Data");
                         for (UserSelection us : selectTargetDialog.getUserSelection()) {
                             JEVisObject correspondingCleanObject = null;
-                            if (selectTargetDialog.getSelectedFilter().equals(allDataFilter) && (
-                                    us.getSelectedObject().getJEVisClass().equals(dataClass) || us.getSelectedObject().getJEVisClass().equals(baseDataClass))) {
+                            if ((us.getSelectedObject().getJEVisClass().equals(dataClass) || us.getSelectedObject().getJEVisClass().equals(baseDataClass))) {
                                 List<JEVisObject> children = us.getSelectedObject().getChildren(cleanDataClass, false);
                                 if (!children.isEmpty()) {
                                     correspondingCleanObject = children.get(0);

@@ -21,9 +21,9 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -50,19 +50,19 @@ public class XYChartSerie {
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
     private double sortCriteria;
-    ChartSetting chartSetting;
+    ChartModel chartModel;
 
-    public XYChartSerie(ChartSetting chartSetting, ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
-        this.chartSetting = chartSetting;
+    public XYChartSerie(ChartModel chartModel, ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
+        this.chartModel = chartModel;
         this.singleRow = singleRow;
-        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " " + singleRow.getTitle();
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " " + singleRow.getName();
         this.yAxis = singleRow.getAxis();
         this.showIcons = showIcons;
-        this.valueDataSet = new DoubleDataSet(singleRow.getTitle());
-        this.noteDataSet = new DoubleDataSet(singleRow.getTitle());
+        this.valueDataSet = new DoubleDataSet(singleRow.getName());
+        this.noteDataSet = new DoubleDataSet(singleRow.getName());
         this.forecast = forecast;
-        this.nf.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
-        this.nf.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
+        this.nf.setMinimumFractionDigits(chartModel.getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(chartModel.getMaxFractionDigits());
 
         generateSeriesFromSamples();
     }
@@ -70,8 +70,8 @@ public class XYChartSerie {
     public void generateSeriesFromSamples() throws JEVisException {
         timeStampFromFirstSample = DateTime.now();
         timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
-        Color color = ColorHelper.toColor(singleRow.getColor()).deriveColor(0, 1, 1, 0.9);
-        Color brighter = ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor()));
+        Color color = singleRow.getColor().deriveColor(0, 1, 1, 0.9);
+        Color brighter = ColorHelper.colorToBrighter(singleRow.getColor());
 
         List<JEVisSample> samples = new ArrayList<>();
         if (!forecast) {
@@ -412,10 +412,10 @@ public class XYChartSerie {
     }
 
     public String getTableEntryName() {
-        if (singleRow.getTitle() == null || singleRow.getTitle().equals("")) {
+        if (singleRow.getName() == null || singleRow.getName().equals("")) {
             return singleRow.getObject().getName();
         } else {
-            return singleRow.getTitle();
+            return singleRow.getName();
         }
     }
 

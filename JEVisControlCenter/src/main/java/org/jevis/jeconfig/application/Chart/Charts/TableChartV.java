@@ -21,10 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
+import org.jevis.api.*;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
@@ -38,10 +35,10 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
-import org.jevis.jeconfig.application.tools.ColorHelper;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.plugin.charts.DataSettings;
+import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
@@ -66,23 +63,25 @@ public class TableChartV extends XYChart {
     private final HashMap<TableColumn, String> columnTitles = new HashMap<>();
     private FilteredList<TableSample> filteredList;
 
-    public TableChartV() {
+    public TableChartV(JEVisDataSource ds) {
+        super(ds);
     }
 
     @Override
-    public void createChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting, boolean instant) {
-        if (!instant) {
+    public void createChart(ChartModel chartModel, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
+        this.chartModel = chartModel;
 
+        if (!instant) {
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
                     try {
-                        buildChart(dataModel, dataRows, chartSetting);
+                        buildChart(toolBarSettings, dataSettings);
 
                         tableTopDatePicker.initialize(singleRow, timeStampOfLastSample.get());
                     } catch (Exception e) {
                         this.failed();
-                        logger.error("Could not build chart {}", chartSetting.getName(), e);
+                        logger.error("Could not build chart {}", chartModel.getChartName(), e);
                     } finally {
                         succeeded();
                     }
@@ -92,16 +91,16 @@ public class TableChartV extends XYChart {
 
             JEConfig.getStatusBar().addTask(TableChartV.class.getName(), task, taskImage, true);
         } else {
-            buildChart(dataModel, dataRows, chartSetting);
+            buildChart(toolBarSettings, dataSettings);
         }
     }
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
         this.singleRow = singleRow;
-        TableSerie serie = new TableSerie(chartSetting, singleRow, showIcons);
+        TableSerie serie = new TableSerie(chartModel, singleRow, showIcons);
 
-        getHexColors().add(ColorHelper.toColor(singleRow.getColor()));
+        getHexColors().add(singleRow.getColor());
 
         /**
          * check if timestamps are in serie
@@ -128,9 +127,9 @@ public class TableChartV extends XYChart {
     @Override
     public void addSeriesToChart() {
         this.columnFilter.clear();
-        this.filterEnabledBox.setSelected(chartSetting.getFilterEnabled());
+        this.filterEnabledBox.setSelected(chartModel.isFilterEnabled());
         this.filterEnabledBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            chartSetting.setFilterEnabled(newValue);
+            chartModel.setFilterEnabled(newValue);
             for (Map.Entry<TableColumn, String> entry : columnTitles.entrySet()) {
                 TableColumn<TableSample, String> column = (TableColumn<TableSample, String>) entry.getKey();
                 String columnTitle = entry.getValue();
@@ -565,6 +564,11 @@ public class TableChartV extends XYChart {
     public void setTableHeader(TableHeaderTable tableHeader) {
         this.tableHeader = tableHeader;
         this.tableHeader.getColumns().clear();
+    }
+
+    @Override
+    public ChartModel getChartModel() {
+        return null;
     }
 
     private class TableSample {

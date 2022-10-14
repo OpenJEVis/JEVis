@@ -19,8 +19,6 @@ public class ChartSetting {
 
     private Boolean filterEnabled = false;
 
-    private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
-
     public ChartSetting(String name) {
         this.name = name;
         this.chartType = AREA;
@@ -79,15 +77,6 @@ public class ChartSetting {
     public void setGroupingInterval(Double groupingInterval) {
         this.groupingInterval = groupingInterval;
     }
-
-    public AnalysisTimeFrame getAnalysisTimeFrame() {
-        return analysisTimeFrame;
-    }
-
-    public void setAnalysisTimeFrame(AnalysisTimeFrame analysisTimeFrame) {
-        this.analysisTimeFrame = analysisTimeFrame;
-    }
-
     public Orientation getOrientation() {
         return orientation;
     }

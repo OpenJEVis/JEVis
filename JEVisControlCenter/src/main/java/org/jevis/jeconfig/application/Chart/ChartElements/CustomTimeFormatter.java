@@ -10,7 +10,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -56,6 +58,11 @@ public class CustomTimeFormatter extends AbstractFormatter {
                 dateFormat[i] = DateTimeFormatter.ofPattern(format, I18n.getInstance().getLocale());
             }
         }
+
+        Instant instant = Instant.now();
+        ZoneId systemZone = ZoneId.systemDefault();
+        ZoneOffset currentOffsetForMyZone = systemZone.getRules().getOffset(instant);
+        setTimeZoneOffset(currentOffsetForMyZone);
     }
 
     public String formatHighResString(final Number utcValueSeconds) {

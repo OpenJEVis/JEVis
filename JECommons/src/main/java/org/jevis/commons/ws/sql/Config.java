@@ -315,7 +315,7 @@ public class Config {
         Config._jeccVersion = _jeccVersion;
     }
 
-    public static String getRigestrationAPIKey() {
+    public static String getRegistrationAPIKey() {
 //        readConfigurationFile();
         return _registratioKey;
     }

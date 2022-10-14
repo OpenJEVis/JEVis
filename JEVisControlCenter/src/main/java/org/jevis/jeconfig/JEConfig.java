@@ -216,7 +216,9 @@ public class JEConfig extends Application {
 
     /**
      * Returns the main JEVis Datasource of this JEConfig Try not to use this
-     * because it may disapear
+     * because it may disappear
+     * <p>
+     * Orly???
      *
      * @return
      * @deprecated

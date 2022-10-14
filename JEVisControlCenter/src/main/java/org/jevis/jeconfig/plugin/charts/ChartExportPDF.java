@@ -20,9 +20,10 @@ import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.FileNames;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartData;
+import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -41,20 +42,20 @@ import java.util.UUID;
 
 public class ChartExportPDF {
     private static final Logger logger = LogManager.getLogger(ChartExportPDF.class);
-    private final AnalysisDataModel model;
+    private final DataModel model;
     private final boolean directPrint;
+    private final String formattedName;
     private File destinationFile;
     private DateTime minDate = null;
     private DateTime maxDate = null;
-    private String formatName;
     private FileChooser fileChooser;
 
-    public ChartExportPDF(AnalysisDataModel model, boolean directPrint) {
+    public ChartExportPDF(DataModel model, String analysisName, boolean directPrint) {
         this.model = model;
         this.directPrint = directPrint;
+        this.formattedName = FileNames.fixName(analysisName);
         this.setDates();
         if (!directPrint) {
-            String formattedName = model.getCurrentAnalysis().getName().replaceAll(" ", "_");
             fileChooser = new FileChooser();
             fileChooser.setTitle("PDF File Destination");
             DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
@@ -76,8 +77,7 @@ public class ChartExportPDF {
                     formattedName + "_"
                             + I18n.getInstance().getString("plugin.graph.dialog.export.from") + "_"
                             + fmtDate.print(minDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.to") + "_"
-                            + fmtDate.print(maxDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.created") + "_"
-                            + fmtDate.print(new DateTime()));
+                            + fmtDate.print(maxDate));
 
             FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", ".pdf");
             fileChooser.getExtensionFilters().addAll(pdfFilter);
@@ -91,7 +91,6 @@ public class ChartExportPDF {
                 } else {
                     destinationFile = file;
                 }
-                formatName = fileExtension;
                 JEConfig.setLastPath(file);
             }
         } else {
@@ -123,7 +122,7 @@ public class ChartExportPDF {
                 document.open();
                 document.setPageSize(PageSize.A4.rotate());
                 document.addAuthor("JEVis");
-                document.addTitle(model.getCurrentAnalysis().getName());
+                document.addTitle(formattedName);
                 document.addCreationDate();
 
                 String tmpFileName = UUID.randomUUID().toString();
@@ -137,7 +136,7 @@ public class ChartExportPDF {
                 Font CUSTOM_FONT_HEADER = new Font(Font.FontFamily.TIMES_ROMAN, 16, Font.BOLD | Font.UNDERLINE);
                 Font CUSTOM_FONT_TEXT = new Font(Font.FontFamily.TIMES_ROMAN, 11);
 
-                Paragraph headerParagraph = new Paragraph(model.getCurrentAnalysis().getName());
+                Paragraph headerParagraph = new Paragraph(formattedName);
                 headerParagraph.setFont(CUSTOM_FONT_HEADER);
 
                 PdfPCell cellTitle = new PdfPCell(headerParagraph);
@@ -202,12 +201,14 @@ public class ChartExportPDF {
     }
 
     private void setDates() {
-        for (ChartDataRow mdl : model.getSelectedData()) {
-            DateTime startNow = mdl.getSelectedStart();
-            DateTime endNow = mdl.getSelectedEnd();
-            if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
-            if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
-        }
+        model.getChartModels().forEach(chart -> {
+            for (ChartData mdl : chart.getChartData()) {
+                DateTime startNow = mdl.getIntervalStartDateTime();
+                DateTime endNow = mdl.getIntervalEndDateTime();
+                if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
+                if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
+            }
+        });
     }
 
     public File getDestinationFile() {

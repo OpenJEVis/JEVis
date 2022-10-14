@@ -20,6 +20,7 @@ public class CommonMethods {
     public static List<String> DATA_TYPES = Arrays.asList("Data", "Clean Data", "Base Data", "Math Data", "String Data");
 
     public static JEVisObject getFirstParentalDataObject(JEVisObject jeVisObject) throws JEVisException {
+        if (jeVisObject.getJEVisClassName().equals("Data")) return jeVisObject;
         for (JEVisObject object : jeVisObject.getParents()) {
             if (object.getJEVisClassName().equals("Data")) {
                 return object;

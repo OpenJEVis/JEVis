@@ -56,6 +56,7 @@ import java.util.*;
 public class DashboardControl {
 
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
+    private final StackPane dialogPane;
     private double zoomFactor = 1.0d;
     private final double defaultZoom = 1.0d;
     private final DashBordPlugIn dashBordPlugIn;
@@ -111,6 +112,7 @@ public class DashboardControl {
     public DashboardControl(DashBordPlugIn plugin) {
         this.configManager = new ConfigManager(plugin.getDialogPane(), plugin.getDataSource());
         this.dashBordPlugIn = plugin;
+        this.dialogPane = dashBordPlugIn.getDialogPane();
         this.jevisDataSource = plugin.getDataSource();
 
         //TaskWindow taskWindow = new TaskWindow(runningUpdateTaskList);
@@ -1293,4 +1295,7 @@ public class DashboardControl {
         return configSideProperty;
     }
 
+    public StackPane getDialogPane() {
+        return dialogPane;
+    }
 }

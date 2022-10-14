@@ -1,28 +1,29 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXComboBox;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox;
+import org.jevis.jeconfig.application.Chart.data.AnalysisHandler;
+import org.jevis.jeconfig.plugin.charts.DataSettings;
 
 public class DeleteAnalysisDialog {
     private static final Logger logger = LogManager.getLogger(DeleteAnalysisDialog.class);
     private final JEVisDataSource ds;
-    private final AnalysisDataModel model;
-    private final JFXComboBox<JEVisObject> listAnalysesComboBox;
+    private final DataSettings dataSettings;
+    private final AnalysesComboBox analysesComboBox;
 
-    public DeleteAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, JFXComboBox<JEVisObject> listAnalysesComboBox) {
+    public DeleteAnalysisDialog(JEVisDataSource ds, DataSettings dataSettings, AnalysesComboBox analysesComboBox) {
         this.ds = ds;
-        this.model = model;
-        this.listAnalysesComboBox = listAnalysesComboBox;
+        this.dataSettings = dataSettings;
+        this.analysesComboBox = analysesComboBox;
 
         deleteCurrentAnalysis();
     }
@@ -38,10 +39,19 @@ public class DeleteAnalysisDialog {
         reallyDelete.showAndWait().ifPresent(response -> {
             if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
                 try {
-                    if (ds.getCurrentUser().canDelete(model.getCurrentAnalysis().getID())) {
-                        ds.deleteObject(model.getCurrentAnalysis().getID(), false);
-                        model.updateListAnalyses();
-                        listAnalysesComboBox.getSelectionModel().selectFirst();
+                    if (dataSettings.getCurrentAnalysis().getJEVisClassName().equals("User")) {
+                        JEVisAttribute analysisFileAttribute = ds.getCurrentUser().getUserObject().getAttribute(AnalysisHandler.ANALYSIS_FILE_ATTRIBUTE_NAME);
+                        if (analysisFileAttribute.hasSample()) {
+                            int currentIndex = analysesComboBox.getItems().indexOf(dataSettings.getCurrentAnalysis());
+                            analysisFileAttribute.deleteSamplesBetween(analysisFileAttribute.getTimestampFromLastSample(), analysisFileAttribute.getTimestampFromLastSample());
+
+                            updateAnalysisBox(currentIndex);
+                        }
+                    } else if (ds.getCurrentUser().canDelete(dataSettings.getCurrentAnalysis().getID())) {
+                        int currentIndex = analysesComboBox.getItems().indexOf(dataSettings.getCurrentAnalysis());
+                        ds.deleteObject(dataSettings.getCurrentAnalysis().getID(), false);
+
+                        updateAnalysisBox(currentIndex);
                     } else {
                         Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.dialog.delete.error"), cancel);
                         alert.showAndWait();
@@ -52,5 +62,10 @@ public class DeleteAnalysisDialog {
             }
         });
 
+    }
+
+    private void updateAnalysisBox(int currentIndex) {
+        analysesComboBox.updateListAnalyses();
+        analysesComboBox.getSelectionModel().select(currentIndex - 1);
     }
 }

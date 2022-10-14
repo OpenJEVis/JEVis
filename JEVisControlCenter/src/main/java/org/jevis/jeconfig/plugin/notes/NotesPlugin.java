@@ -32,7 +32,6 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -761,8 +760,7 @@ public class NotesPlugin implements Plugin {
             logger.error("Could not get parallel item for note object {}:{}", noteItem.getName(), noteItem.getID());
         }
 
-        AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
-        return new AnalysisRequest(parallelItem, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+        return new AnalysisRequest(parallelItem, AggregationPeriod.NONE, ManipulationMode.NONE, start, end);
     }
 
     private void initToolBar() {

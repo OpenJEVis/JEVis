@@ -40,17 +40,13 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.filter.BasicCellFilter;
 import org.jevis.jeconfig.application.jevistree.filter.FilterFactory;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.filter.ObjectAttributeFilter;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
-import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -230,136 +226,6 @@ public class JEVisTreeFactory {
         return tree;
     }
 
-    public static JEVisTree buildDefaultWidgetTree(JEVisDataSource ds, WidgetTreePlugin plugin) {
-        TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
-        nameCol.setPrefWidth(500);
-        nameCol.setMinWidth(250);
-
-        BasicCellFilter cellFilter = new BasicCellFilter("Data");
-        ObjectAttributeFilter dataFilter = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
-        ObjectAttributeFilter baseDataFilter = new ObjectAttributeFilter("Base Data", ObjectAttributeFilter.NONE);
-
-        cellFilter.addItemFilter(dataFilter);
-        cellFilter.addItemFilter(baseDataFilter);
-
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_SELECTED, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_NAME, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CHART_TYPE, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_COLOR, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_MANIPULATION, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_AGGREGATION, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CLEANING, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_ENPI, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_UNIT, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_AXIS, dataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CUSTOM_CSS, dataFilter);
-
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_SELECTED, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_NAME, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CHART_TYPE, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_COLOR, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_MANIPULATION, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_AGGREGATION, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CLEANING, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_ENPI, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_UNIT, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_AXIS, baseDataFilter);
-        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CUSTOM_CSS, baseDataFilter);
-        JEVisTree tree = new JEVisTree(ds, cellFilter);
-
-        List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        allFilter.add(cellFilter);
-
-//        WidgetTreePlugin widgetTreePlugin = new WidgetTreePlugin();
-        tree.getColumns().addAll(nameCol);
-        tree.getSortOrder().addAll(nameCol);
-        tree.getPlugins().add(plugin);
-
-        Finder finder = new Finder(tree);
-        SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
-        tree.setSearchFilterBar(searchBar);
-
-
-        return tree;
-    }
-
-
-    public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, AnalysisDataModel analysisDataModel) {
-
-        TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
-        nameCol.setPrefWidth(500);
-        nameCol.setMinWidth(250);
-//        TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
-//        TreeTableColumn<JEVisTreeRow, String> minTS = ColumnFactory.buildDataTS(false);
-//        TreeTableColumn<JEVisTreeRow, String> maxTS = ColumnFactory.buildDataTS(true);
-
-//        idCol.setVisible(false);
-//        minTS.setVisible(false);
-//        maxTS.setVisible(false);
-
-        BasicCellFilter dataBasicFilter = new BasicCellFilter("Data");
-        ObjectAttributeFilter dataObjectFilter = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
-        ObjectAttributeFilter stringDataObjectFilter = new ObjectAttributeFilter("String Data", ObjectAttributeFilter.NONE);
-        ObjectAttributeFilter baseDataObjectFilter = new ObjectAttributeFilter("Base Data", ObjectAttributeFilter.NONE);
-
-        dataBasicFilter.addItemFilter(dataObjectFilter);
-        dataBasicFilter.addItemFilter(stringDataObjectFilter);
-        dataBasicFilter.addItemFilter(baseDataObjectFilter);
-
-        dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, dataObjectFilter);
-        dataBasicFilter.addFilter(ChartTypeColumn.COLUMN_ID, dataObjectFilter);
-        dataBasicFilter.addFilter(NameColumn.COLUMN_ID, dataObjectFilter);
-        dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, dataObjectFilter);
-        dataBasicFilter.addFilter(DateColumn.COLUMN_ID, dataObjectFilter);
-        dataBasicFilter.addFilter(ColorColumn.COLUMN_ID, dataObjectFilter);
-        dataBasicFilter.addFilter(DataProcessorColumn.COLUMN_ID, dataObjectFilter);
-        dataBasicFilter.addFilter(AggregationColumn.COLUMN_ID, dataObjectFilter);
-        dataBasicFilter.addFilter(AxisColumn.COLUMN_ID, dataObjectFilter);
-
-        dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, stringDataObjectFilter);
-        dataBasicFilter.addFilter(ChartTypeColumn.COLUMN_ID, stringDataObjectFilter);
-        dataBasicFilter.addFilter(NameColumn.COLUMN_ID, stringDataObjectFilter);
-        dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, stringDataObjectFilter);
-        dataBasicFilter.addFilter(DateColumn.COLUMN_ID, stringDataObjectFilter);
-        dataBasicFilter.addFilter(ColorColumn.COLUMN_ID, stringDataObjectFilter);
-        dataBasicFilter.addFilter(DataProcessorColumn.COLUMN_ID, stringDataObjectFilter);
-        dataBasicFilter.addFilter(AggregationColumn.COLUMN_ID, stringDataObjectFilter);
-        dataBasicFilter.addFilter(AxisColumn.COLUMN_ID, stringDataObjectFilter);
-
-        dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, baseDataObjectFilter);
-        dataBasicFilter.addFilter(ChartTypeColumn.COLUMN_ID, baseDataObjectFilter);
-        dataBasicFilter.addFilter(NameColumn.COLUMN_ID, baseDataObjectFilter);
-        dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, baseDataObjectFilter);
-        dataBasicFilter.addFilter(DateColumn.COLUMN_ID, baseDataObjectFilter);
-        dataBasicFilter.addFilter(ColorColumn.COLUMN_ID, baseDataObjectFilter);
-        dataBasicFilter.addFilter(DataProcessorColumn.COLUMN_ID, baseDataObjectFilter);
-        dataBasicFilter.addFilter(AggregationColumn.COLUMN_ID, baseDataObjectFilter);
-        dataBasicFilter.addFilter(AxisColumn.COLUMN_ID, baseDataObjectFilter);
-
-        JEVisTree tree = new JEVisTree(ds, dataBasicFilter);
-
-        List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        allFilter.add(dataBasicFilter);
-
-        Finder finder = new Finder(tree);
-        SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder, false);
-        tree.setSearchFilterBar(searchBar);
-
-        TreePlugin bp = new ChartPluginTree(analysisDataModel);
-        //((ChartPluginTree) bp).setData(graphDataModel);
-        tree.getColumns().addAll(nameCol);
-        tree.getSortOrder().addAll(nameCol);
-//                , idCol, minTS, maxTS);
-        tree.getPlugins().add(bp);
-//        addGraphKeys(tree);
-//        addDefaultKeys(tree);
-
-        return tree;
-
-    }
-
     public static JEVisTree buildDefaultMapTree(JEVisDataSource ds) {
         logger.info("build map tree");
         JEVisTree tree = new JEVisTree(ds, FilterFactory.buildDefaultItemFilter());
@@ -372,25 +238,6 @@ public class JEVisTreeFactory {
 
         tree.getPlugins().add(bp);
         return tree;
-
-    }
-
-    public static void addGraphKeys(JEVisTree tree) {
-
-        final KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
-        final KeyCombination showUUID = KeyCodeCombination.keyCombination("Ctrl+U");//For Debugging
-
-        tree.addEventHandler(KeyEvent.KEY_PRESSED, t -> {
-            logger.trace("TreeEvent: {}", t.getCode());
-
-            if (findNode.match(t)) {
-                TreeHelper.EventOpenObject(tree, null);
-            }
-            if (showUUID.match(t)) {
-                logger.info("TRee.UUID: " + tree.getUUID());
-            }
-        });
-
 
     }
 

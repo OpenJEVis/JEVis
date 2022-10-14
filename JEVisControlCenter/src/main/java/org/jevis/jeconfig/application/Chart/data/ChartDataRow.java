@@ -6,7 +6,6 @@ import org.jevis.api.*;
 import org.jevis.commons.alarm.*;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
-import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.constants.GapFillingType;
 import org.jevis.commons.constants.NoteConstants;
@@ -22,39 +21,33 @@ import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.commons.utils.CommonMethods;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import java.util.*;
 
-public class ChartDataRow {
+public class ChartDataRow extends ChartData {
     private static final Logger logger = LogManager.getLogger(ChartDataRow.class);
     private final JEVisDataSource dataSource;
-
-    private String title;
     private DateTime selectedStart;
     private DateTime selectedEnd;
     private JEVisObject object;
     private JEVisAttribute attribute;
-    private ChartType chartType = ChartType.DEFAULT;
-    private String color = "#1FBED6";
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject dataProcessorObject = null;
     private List<JEVisSample> samples = new ArrayList<>();
     private List<JEVisSample> forecastSamples = new ArrayList<>();
     private boolean somethingChanged = true;
-    private JEVisUnit unit;
     private List<Integer> selectedCharts = new ArrayList<>();
-    private Integer axis;
     private Double minValue;
     private Double maxValue;
     private Boolean isEnPI = false;
     private JEVisObject calculationObject;
     private Boolean absolute = false;
-    private BubbleType bubbleType = BubbleType.NONE;
     private boolean isStringData = false;
     private boolean hasForecastData = false;
     private Double scaleFactor = 1d;
@@ -68,15 +61,44 @@ public class ChartDataRow {
     private Map<DateTime, Alarm> alarmMap = new TreeMap<>();
     private boolean customWorkDay = true;
     private String customCSS;
-
-    /**
-     * Maximum number of parallel running getSamples(), not the Dashboard need multiple
-     */
     private JEVisAttribute forecastDataAttribute;
     private String formatString = "yyyy-MM-dd HH:mm:ss";
 
     public ChartDataRow(JEVisDataSource dataSource) {
-        this.dataSource = dataSource;
+        this(dataSource, null);
+    }
+
+    public ChartDataRow(JEVisDataSource ds, ChartData chartData) {
+        this.dataSource = ds;
+
+        if (chartData != null) {
+            setId(chartData.getId());
+            try {
+                setObjectName(ds.getObject(chartData.getId()));
+            } catch (Exception ignored) {
+            }
+            setAttributeString(chartData.getAttributeString());
+            setUnit(chartData.getUnit());
+            setName(chartData.getName());
+            setColor(chartData.getColor());
+            setAxis(chartData.getAxis());
+            setCalculation(chartData.isCalculation());
+            if (isCalculation() && getCalculationId() == -1) {
+                setCalculationId(ChartTools.isObjectCalculated(getObject()));
+            } else {
+                setCalculationId(chartData.getCalculationId());
+            }
+            setBubbleType(chartData.getBubbleType());
+            setChartType(chartData.getChartType());
+            setIntervalStart(chartData.getIntervalStart());
+            setIntervalEnd(chartData.getIntervalEnd());
+            setIntervalEnabled(chartData.isIntervalEnabled());
+            setCss(chartData.getCss());
+
+            setSelectedStart(chartData.getIntervalStartDateTime());
+            setSelectedEnd(chartData.getIntervalEndDateTime());
+
+        }
     }
 
     public String getUnitLabel() {
@@ -88,26 +110,7 @@ public class ChartDataRow {
 
         }
 
-
         return unit;
-    }
-
-    public JEVisUnit getUnit() {
-        try {
-            if (unit == null) {
-                if (getAttribute() != null) {
-                    unit = getAttribute().getDisplayUnit();
-                }
-            }
-        } catch (JEVisException ex) {
-            logger.fatal(ex);
-        }
-        return unit;
-    }
-
-    public void setUnit(JEVisUnit _unit) {
-        somethingChanged = true;
-        this.unit = _unit;
     }
 
     public Map<DateTime, JEVisSample> getNoteSamples() {
@@ -562,8 +565,8 @@ public class ChartDataRow {
      * @throws JEVisException
      */
     public void updateScaleFactor() throws JEVisException {
-        String outputUnit = UnitManager.getInstance().format(unit).replace("·", "");
-        if (outputUnit.equals("")) outputUnit = unit.getLabel();
+        String outputUnit = UnitManager.getInstance().format(getUnit()).replace("·", "");
+        if (outputUnit.equals("")) outputUnit = getUnit().getLabel();
 
         String inputUnit = UnitManager.getInstance().format(attribute.getDisplayUnit()).replace("·", "");
         if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
@@ -573,10 +576,10 @@ public class ChartDataRow {
     }
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) {
-        if (unit != null) {
+        if (getUnit() != null) {
             try {
-                String outputUnit = UnitManager.getInstance().format(unit).replace("·", "");
-                if (outputUnit.equals("")) outputUnit = unit.getLabel();
+                String outputUnit = UnitManager.getInstance().format(getUnit()).replace("·", "");
+                if (outputUnit.equals("")) outputUnit = getUnit().getLabel();
 
                 String inputUnit = UnitManager.getInstance().format(attribute.getDisplayUnit()).replace("·", "");
                 if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
@@ -634,6 +637,9 @@ public class ChartDataRow {
     }
 
     public JEVisObject getDataProcessor() {
+        if (dataProcessorObject == null && getId() != -1) {
+            getObjects();
+        }
         return dataProcessorObject;
     }
 
@@ -658,18 +664,6 @@ public class ChartDataRow {
     public void setManipulationMode(ManipulationMode manipulationMode) {
         somethingChanged = true;
         this.manipulationMode = manipulationMode;
-    }
-
-    public String getTitle() {
-        if (title != null && !title.equals("")) {
-            return title;
-        } else {
-            return getObject().getName();
-        }
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public DateTime getSelectedStart() {
@@ -725,12 +719,30 @@ public class ChartDataRow {
     }
 
     public JEVisObject getObject() {
+        if (object == null && getId() != -1) {
+            getObjects();
+        }
         return object;
     }
 
-    public void setObject(JEVisObject _object) {
-        this.object = _object;
+    private void getObjects() {
+        try {
+            JEVisObject object = dataSource.getObject(getId());
+            if (object.getJEVisClassName().equals("Clean Data")) {
+                dataProcessorObject = object;
+                this.object = CommonMethods.getFirstParentalDataObject(object);
+            } else {
+                this.object = object;
+            }
+        } catch (JEVisException e) {
+            logger.error("No object selected", e);
+        }
     }
+
+//    public void setObject(JEVisObject _object) {
+//        this.setId(_object.getID());
+//        this.object = _object;
+//    }
 
     public JEVisAttribute getAttribute() {
         if (attribute == null || somethingChanged) {
@@ -769,17 +781,6 @@ public class ChartDataRow {
         this.attribute = _attribute;
     }
 
-    public String getColor() {
-        if (color.contains("0x")) {
-            color = color.replace("0x", "#");
-        }
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
     public boolean isSelectable() {
         return getAttribute() != null;
     }
@@ -806,25 +807,16 @@ public class ChartDataRow {
     public String toString() {
         return "ChartDataModel{" +
 
-                " title='" + title + '\'' +
+                " title='" + getName() + '\'' +
                 ", selectedStart=" + selectedStart +
                 ", selectedEnd=" + selectedEnd +
                 ", object=" + object +
                 ", attribute=" + attribute +
-                ", color=" + color +
+                ", color=" + getColor() +
                 ", somethingChanged=" + somethingChanged +
-                ", unit=" + unit +
+                ", unit=" + getUnit() +
                 ", selectedCharts=" + selectedCharts +
                 '}';
-    }
-
-    public Integer getAxis() {
-        if (axis == null) return 0;
-        return axis;
-    }
-
-    public void setAxis(Integer axis) {
-        this.axis = axis;
     }
 
     public Double getMinValue() {
@@ -877,7 +869,6 @@ public class ChartDataRow {
         ChartDataRow newModel = new ChartDataRow(dataSource);
         newModel.setManipulationMode(this.getManipulationMode());
         newModel.setAggregationPeriod(this.getAggregationPeriod());
-        newModel.setObject(this.getObject());
         newModel.setDataProcessor(this.getDataProcessor());
         newModel.setAttribute(this.getAttribute());
         newModel.setSelectedEnd(this.getSelectedEnd());
@@ -886,8 +877,7 @@ public class ChartDataRow {
         newModel.setCalculationObject(getCalculationObject());
         newModel.setAxis(this.getAxis());
         newModel.setColor(this.getColor());
-        newModel.setSelectedCharts(this.getSelectedcharts());
-        newModel.setTitle(this.getTitle());
+        newModel.setName(this.getName());
         newModel.setSamples(this.getSamples());
         newModel.setUnit(this.getUnit());
         newModel.setBubbleType(this.getBubbleType());
@@ -910,14 +900,6 @@ public class ChartDataRow {
 
     public void setAbsolute(Boolean absolute) {
         this.absolute = absolute;
-    }
-
-    public BubbleType getBubbleType() {
-        return bubbleType;
-    }
-
-    public void setBubbleType(BubbleType bubbleType) {
-        this.bubbleType = bubbleType;
     }
 
     public boolean isStringData() {
@@ -989,14 +971,6 @@ public class ChartDataRow {
 
     public void setCustomWorkDay(boolean customWorkDay) {
         this.customWorkDay = customWorkDay;
-    }
-
-    public ChartType getChartType() {
-        return chartType;
-    }
-
-    public void setChartType(ChartType chartType) {
-        this.chartType = chartType;
     }
 
     public Period getPeriod() {

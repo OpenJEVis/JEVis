@@ -22,6 +22,7 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -31,8 +32,8 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.joda.time.DateTime;
@@ -47,11 +48,12 @@ import java.util.stream.Collectors;
 public class HeatMapChart implements Chart {
     private static final Logger logger = LogManager.getLogger(HeatMapChart.class);
     private final WorkDays workDays;
-    private final List<ChartDataRow> chartDataRows;
-    private final ChartSetting chartSetting;
+    private final List<ChartDataRow> chartDataRows = new ArrayList<>();
+    private final ChartModel chartModel;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private final Color backgroundColor;
     private final Color fontColor;
+    private final JEVisDataSource ds;
     private Long ROWS;
     private Long COLS;
 
@@ -67,18 +69,21 @@ public class HeatMapChart implements Chart {
     private List<DateTime> yAxisList;
     private Period period;
 
-    public HeatMapChart(List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
-        this(chartDataRows, chartSetting, null, null);
+    public HeatMapChart(JEVisDataSource ds, ChartModel chartModel) {
+        this(ds, chartModel, null, null);
     }
 
-    public HeatMapChart(List<ChartDataRow> chartDataRows, ChartSetting chartSetting, Color backgroundColor, Color fontColor) {
+    public HeatMapChart(JEVisDataSource ds, ChartModel chartModel, Color backgroundColor, Color fontColor) {
         this.backgroundColor = backgroundColor;
         this.fontColor = fontColor;
 
-        this.chartDataRows = chartDataRows;
-        this.chartSetting = chartSetting;
+        this.ds = ds;
+        this.chartModel = chartModel;
         this.ROWS = 24L;
         this.COLS = 4L;
+
+        chartModel.getChartData().stream().map(chartData -> new ChartDataRow(ds, chartData)).forEach(chartDataRows::add);
+
         this.workDays = new WorkDays(chartDataRows.get(0).getObject());
 
         init();
@@ -92,8 +97,8 @@ public class HeatMapChart implements Chart {
         Period period = new Period(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
         Period inputSampleRate = chartDataRow.getPeriod();
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
-        numberFormat.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
-        numberFormat.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
+        numberFormat.setMinimumFractionDigits(chartModel.getMinFractionDigits());
+        numberFormat.setMaximumFractionDigits(chartModel.getMaxFractionDigits());
 
         HeatMapXY heatMapXY = getHeatMapXY(period, inputSampleRate);
         COLS = heatMapXY.getX();
@@ -191,7 +196,7 @@ public class HeatMapChart implements Chart {
 
         MatrixPane<MatrixChartItem> matrixHeatMap = new MatrixPane<>(matrixItemSeries1);
         matrixHeatMap.setMaxHeight(8192);
-        matrixHeatMap.setColorMapping(chartSetting.getColorMapping());
+        matrixHeatMap.setColorMapping(chartModel.getColorMapping());
         matrixHeatMap.getMatrix().setUseSpacer(false);
         matrixHeatMap.getMatrix().setColsAndRows(COLS.intValue(), ROWS.intValue());
 
@@ -278,7 +283,7 @@ public class HeatMapChart implements Chart {
 
         HBox titleBox = new HBox();
         titleBox.setAlignment(Pos.CENTER);
-        Label titleLabel = new Label(chartSetting.getName());
+        Label titleLabel = new Label(chartModel.getChartName());
         if (fontColor != null) {
             titleLabel.setTextFill(fontColor);
             titleLabel.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(fontColor) + "!important;");
@@ -350,7 +355,7 @@ public class HeatMapChart implements Chart {
 
     @Override
     public String getChartName() {
-        return chartSetting.getName();
+        return chartModel.getChartName();
     }
 
     @Override
@@ -360,7 +365,7 @@ public class HeatMapChart implements Chart {
 
     @Override
     public Integer getChartId() {
-        return chartSetting.getId();
+        return chartModel.getChartId();
     }
 
     @Override
@@ -411,8 +416,8 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public ChartSetting getChartSetting() {
-        return chartSetting;
+    public ChartModel getChartModel() {
+        return chartModel;
     }
 
     @Override

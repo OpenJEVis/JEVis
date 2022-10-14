@@ -14,14 +14,17 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.jevis.jeconfig.plugin.charts.BaseLoad;
 import org.jevis.jeconfig.plugin.charts.BaseLoadSetting;
 import org.jevis.jeconfig.plugin.charts.BaseLoadTable;
@@ -34,169 +37,172 @@ public class BaseLoadDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(BaseLoadDialog.class);
     final NumberFormat nf = NumberFormat.getNumberInstance();
 
-    public BaseLoadDialog(StackPane dialogContainer, BaseLoadSetting settings, AnalysisDataModel model) {
+    public BaseLoadDialog(StackPane dialogContainer, JEVisDataSource ds, BaseLoadSetting settings, DataModel model) {
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
 
-        this.nf.setMinimumFractionDigits(model.getCharts().getListSettings().get(0).getMinFractionDigits());
-        this.nf.setMaximumFractionDigits(model.getCharts().getListSettings().get(0).getMaxFractionDigits());
+        this.nf.setMinimumFractionDigits(model.getChartModels().get(0).getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(model.getChartModels().get(0).getMaxFractionDigits());
 
         List<BaseLoad> data = new ArrayList<>();
         int repeatType = settings.getRepeatType();
 
-        for (ChartDataRow dataRow : model.getSelectedData()) {
-            BaseLoad baseLoad = new BaseLoad(dataRow.getTitle());
+        for (ChartModel chartModel : model.getChartModels()) {
+            for (ChartData chartData : chartModel.getChartData()) {
+                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                BaseLoad baseLoad = new BaseLoad(chartDataRow.getName());
 
-            JEVisAttribute attribute = dataRow.getAttribute();
-            List<JEVisSample> baseLoadSamples = new ArrayList<>();
+                JEVisAttribute attribute = chartDataRow.getAttribute();
+                List<JEVisSample> baseLoadSamples = new ArrayList<>();
 
-            double baseLoadSum = 0.0;
-            if (repeatType == 0) {
-                baseLoadSamples.addAll(attribute.getSamples(settings.getBaseLoadStart(), settings.getBaseLoadEnd()));
-                for (JEVisSample jeVisSample : baseLoadSamples) {
-                    try {
-                        baseLoadSum += jeVisSample.getValueAsDouble();
-                    } catch (Exception e) {
-                        logger.error(e);
-                    }
-                }
-            } else {
-                List<JEVisSample> baseSamples = attribute.getSamples(settings.getResultStart(), settings.getResultEnd());
-
-                for (JEVisSample jeVisSample : baseSamples) {
-                    try {
-                        DateTime ts = jeVisSample.getTimestamp();
-                        switch (repeatType) {
-                            case 1:
-                                //day
-                                if (ts.getHourOfDay() >= settings.getBaseLoadStart().getHourOfDay() && ts.getMinuteOfHour() >= settings.getBaseLoadStart().getMinuteOfHour() && ts.getSecondOfMinute() >= settings.getBaseLoadStart().getSecondOfMinute()
-                                        && ts.getHourOfDay() <= settings.getBaseLoadEnd().getHourOfDay() && ts.getMinuteOfHour() <= settings.getBaseLoadEnd().getMinuteOfHour() && ts.getSecondOfMinute() <= settings.getBaseLoadEnd().getSecondOfMinute()) {
-                                    baseLoadSum += jeVisSample.getValueAsDouble();
-                                    baseLoadSamples.add(jeVisSample);
-                                }
-                                break;
-                            case 2:
-                                //week
-                                if (ts.getDayOfWeek() >= settings.getBaseLoadStart().getDayOfWeek() && ts.getHourOfDay() >= settings.getBaseLoadStart().getHourOfDay() && ts.getMinuteOfHour() >= settings.getBaseLoadStart().getMinuteOfHour() && ts.getSecondOfMinute() >= settings.getBaseLoadStart().getSecondOfMinute()
-                                        && ts.getDayOfWeek() <= settings.getBaseLoadEnd().getDayOfWeek() && ts.getHourOfDay() <= settings.getBaseLoadEnd().getHourOfDay() && ts.getMinuteOfHour() <= settings.getBaseLoadEnd().getMinuteOfHour() && ts.getSecondOfMinute() <= settings.getBaseLoadEnd().getSecondOfMinute()) {
-                                    baseLoadSum += jeVisSample.getValueAsDouble();
-                                    baseLoadSamples.add(jeVisSample);
-                                }
-                                break;
-                            case 3:
-                                //month
-                                if (ts.getDayOfMonth() >= settings.getBaseLoadStart().getDayOfMonth() && ts.getDayOfWeek() >= settings.getBaseLoadStart().getDayOfWeek() && ts.getHourOfDay() >= settings.getBaseLoadStart().getHourOfDay() && ts.getMinuteOfHour() >= settings.getBaseLoadStart().getMinuteOfHour() && ts.getSecondOfMinute() >= settings.getBaseLoadStart().getSecondOfMinute()
-                                        && ts.getDayOfMonth() <= settings.getBaseLoadEnd().getDayOfMonth() && ts.getDayOfWeek() <= settings.getBaseLoadEnd().getDayOfWeek() && ts.getHourOfDay() <= settings.getBaseLoadEnd().getHourOfDay() && ts.getMinuteOfHour() <= settings.getBaseLoadEnd().getMinuteOfHour() && ts.getSecondOfMinute() <= settings.getBaseLoadEnd().getSecondOfMinute()) {
-                                    baseLoadSum += jeVisSample.getValueAsDouble();
-                                    baseLoadSamples.add(jeVisSample);
-                                }
-                                break;
-                            case 4:
-                                //year
-                                if (ts.getMonthOfYear() >= settings.getBaseLoadStart().getMonthOfYear() && ts.getDayOfMonth() >= settings.getBaseLoadStart().getDayOfMonth() && ts.getDayOfWeek() >= settings.getBaseLoadStart().getDayOfWeek() && ts.getHourOfDay() >= settings.getBaseLoadStart().getHourOfDay() && ts.getMinuteOfHour() >= settings.getBaseLoadStart().getMinuteOfHour() && ts.getSecondOfMinute() >= settings.getBaseLoadStart().getSecondOfMinute()
-                                        && ts.getMonthOfYear() <= settings.getBaseLoadEnd().getMonthOfYear() && ts.getDayOfMonth() <= settings.getBaseLoadEnd().getDayOfMonth() && ts.getDayOfWeek() <= settings.getBaseLoadEnd().getDayOfWeek() && ts.getHourOfDay() <= settings.getBaseLoadEnd().getHourOfDay() && ts.getMinuteOfHour() <= settings.getBaseLoadEnd().getMinuteOfHour() && ts.getSecondOfMinute() <= settings.getBaseLoadEnd().getSecondOfMinute()) {
-                                    baseLoadSum += jeVisSample.getValueAsDouble();
-                                    baseLoadSamples.add(jeVisSample);
-                                }
-                                break;
-
-                        }
-                    } catch (Exception e) {
-                        logger.error(e);
-                    }
-                }
-            }
-
-            if (!baseLoadSamples.isEmpty()) {
-                baseLoadSum = baseLoadSum / baseLoadSamples.size();
-            }
-
-            dataRow.setSelectedStart(settings.getResultStart());
-            dataRow.setSelectedEnd(settings.getResultEnd());
-
-            List<JEVisSample> samples = dataRow.getSamples();
-
-            double min = Double.MAX_VALUE;
-            double max = -Double.MAX_VALUE;
-            double avg = 0.0;
-            double sum = 0.0;
-            long zeroCount = 0;
-
-            for (JEVisSample sample : samples) {
-                try {
-                    Double currentValue = sample.getValueAsDouble();
-                    currentValue -= baseLoadSum;
-
-                    min = Math.min(min, currentValue);
-                    max = Math.max(max, currentValue);
-                    sum += currentValue;
-
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-            }
-
-            if (dataRow.getManipulationMode().equals(ManipulationMode.CUMULATE)) {
-                avg = max / samples.size();
-                sum = max;
-            }
-
-            if (!dataRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && samples.size() > 0) {
-                avg = sum / (samples.size() - zeroCount);
-            }
-
-            QuantityUnits qu = new QuantityUnits();
-            boolean isQuantity = qu.isQuantityUnit(dataRow.getUnit());
-
-            if (min == Double.MAX_VALUE || samples.size() == 0) {
-                baseLoad.setMin("- " + dataRow.getUnit());
-            } else {
-                baseLoad.setMin(nf.format(min) + " " + dataRow.getUnit());
-            }
-
-            if (max == -Double.MAX_VALUE || samples.size() == 0) {
-                baseLoad.setMax("- " + dataRow.getUnit());
-            } else {
-                baseLoad.setMax(nf.format(max) + " " + dataRow.getUnit());
-            }
-
-            if (samples.size() == 0) {
-                baseLoad.setAvg("- " + dataRow.getUnit());
-                baseLoad.setSum("- " + dataRow.getUnit());
-            } else {
-
-                baseLoad.setAvg(nf.format(avg) + " " + dataRow.getUnit());
-
-                if (isQuantity) {
-                    baseLoad.setSum(nf.format(sum) + " " + dataRow.getUnit());
-                } else {
-                    if (qu.isSumCalculable(dataRow.getUnit()) && dataRow.getManipulationMode().equals(ManipulationMode.NONE)) {
+                double baseLoadSum = 0.0;
+                if (repeatType == 0) {
+                    baseLoadSamples.addAll(attribute.getSamples(settings.getBaseLoadStart(), settings.getBaseLoadEnd()));
+                    for (JEVisSample jeVisSample : baseLoadSamples) {
                         try {
-                            JEVisUnit sumUnit = qu.getSumUnit(dataRow.getUnit());
-                            ChartUnits cu = new ChartUnits();
-                            double newScaleFactor = cu.scaleValue(dataRow.getUnit().toString(), sumUnit.toString());
-                            JEVisUnit inputUnit = attribute.getInputUnit();
-                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
-
-                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                                sum = sum * newScaleFactor / dataRow.getTimeFactor();
-                            } else {
-                                sum = sum / dataRow.getScaleFactor() / dataRow.getTimeFactor();
-                            }
-
-                            baseLoad.setSum(nf.format(sum) + " " + dataRow.getUnit());
-
+                            baseLoadSum += jeVisSample.getValueAsDouble();
                         } catch (Exception e) {
-                            logger.error("Couldn't calculate periods");
-                            baseLoad.setSum("- " + dataRow.getUnit());
+                            logger.error(e);
                         }
-                    } else {
-                        baseLoad.setSum("- " + dataRow.getUnit());
+                    }
+                } else {
+                    List<JEVisSample> baseSamples = attribute.getSamples(settings.getResultStart(), settings.getResultEnd());
+
+                    for (JEVisSample jeVisSample : baseSamples) {
+                        try {
+                            DateTime ts = jeVisSample.getTimestamp();
+                            switch (repeatType) {
+                                case 1:
+                                    //day
+                                    if (ts.getHourOfDay() >= settings.getBaseLoadStart().getHourOfDay() && ts.getMinuteOfHour() >= settings.getBaseLoadStart().getMinuteOfHour() && ts.getSecondOfMinute() >= settings.getBaseLoadStart().getSecondOfMinute()
+                                            && ts.getHourOfDay() <= settings.getBaseLoadEnd().getHourOfDay() && ts.getMinuteOfHour() <= settings.getBaseLoadEnd().getMinuteOfHour() && ts.getSecondOfMinute() <= settings.getBaseLoadEnd().getSecondOfMinute()) {
+                                        baseLoadSum += jeVisSample.getValueAsDouble();
+                                        baseLoadSamples.add(jeVisSample);
+                                    }
+                                    break;
+                                case 2:
+                                    //week
+                                    if (ts.getDayOfWeek() >= settings.getBaseLoadStart().getDayOfWeek() && ts.getHourOfDay() >= settings.getBaseLoadStart().getHourOfDay() && ts.getMinuteOfHour() >= settings.getBaseLoadStart().getMinuteOfHour() && ts.getSecondOfMinute() >= settings.getBaseLoadStart().getSecondOfMinute()
+                                            && ts.getDayOfWeek() <= settings.getBaseLoadEnd().getDayOfWeek() && ts.getHourOfDay() <= settings.getBaseLoadEnd().getHourOfDay() && ts.getMinuteOfHour() <= settings.getBaseLoadEnd().getMinuteOfHour() && ts.getSecondOfMinute() <= settings.getBaseLoadEnd().getSecondOfMinute()) {
+                                        baseLoadSum += jeVisSample.getValueAsDouble();
+                                        baseLoadSamples.add(jeVisSample);
+                                    }
+                                    break;
+                                case 3:
+                                    //month
+                                    if (ts.getDayOfMonth() >= settings.getBaseLoadStart().getDayOfMonth() && ts.getDayOfWeek() >= settings.getBaseLoadStart().getDayOfWeek() && ts.getHourOfDay() >= settings.getBaseLoadStart().getHourOfDay() && ts.getMinuteOfHour() >= settings.getBaseLoadStart().getMinuteOfHour() && ts.getSecondOfMinute() >= settings.getBaseLoadStart().getSecondOfMinute()
+                                            && ts.getDayOfMonth() <= settings.getBaseLoadEnd().getDayOfMonth() && ts.getDayOfWeek() <= settings.getBaseLoadEnd().getDayOfWeek() && ts.getHourOfDay() <= settings.getBaseLoadEnd().getHourOfDay() && ts.getMinuteOfHour() <= settings.getBaseLoadEnd().getMinuteOfHour() && ts.getSecondOfMinute() <= settings.getBaseLoadEnd().getSecondOfMinute()) {
+                                        baseLoadSum += jeVisSample.getValueAsDouble();
+                                        baseLoadSamples.add(jeVisSample);
+                                    }
+                                    break;
+                                case 4:
+                                    //year
+                                    if (ts.getMonthOfYear() >= settings.getBaseLoadStart().getMonthOfYear() && ts.getDayOfMonth() >= settings.getBaseLoadStart().getDayOfMonth() && ts.getDayOfWeek() >= settings.getBaseLoadStart().getDayOfWeek() && ts.getHourOfDay() >= settings.getBaseLoadStart().getHourOfDay() && ts.getMinuteOfHour() >= settings.getBaseLoadStart().getMinuteOfHour() && ts.getSecondOfMinute() >= settings.getBaseLoadStart().getSecondOfMinute()
+                                            && ts.getMonthOfYear() <= settings.getBaseLoadEnd().getMonthOfYear() && ts.getDayOfMonth() <= settings.getBaseLoadEnd().getDayOfMonth() && ts.getDayOfWeek() <= settings.getBaseLoadEnd().getDayOfWeek() && ts.getHourOfDay() <= settings.getBaseLoadEnd().getHourOfDay() && ts.getMinuteOfHour() <= settings.getBaseLoadEnd().getMinuteOfHour() && ts.getSecondOfMinute() <= settings.getBaseLoadEnd().getSecondOfMinute()) {
+                                        baseLoadSum += jeVisSample.getValueAsDouble();
+                                        baseLoadSamples.add(jeVisSample);
+                                    }
+                                    break;
+
+                            }
+                        } catch (Exception e) {
+                            logger.error(e);
+                        }
                     }
                 }
-            }
 
-            data.add(baseLoad);
+                if (!baseLoadSamples.isEmpty()) {
+                    baseLoadSum = baseLoadSum / baseLoadSamples.size();
+                }
+
+                chartDataRow.setSelectedStart(settings.getResultStart());
+                chartDataRow.setSelectedEnd(settings.getResultEnd());
+
+                List<JEVisSample> samples = chartDataRow.getSamples();
+
+                double min = Double.MAX_VALUE;
+                double max = -Double.MAX_VALUE;
+                double avg = 0.0;
+                double sum = 0.0;
+                long zeroCount = 0;
+
+                for (JEVisSample sample : samples) {
+                    try {
+                        Double currentValue = sample.getValueAsDouble();
+                        currentValue -= baseLoadSum;
+
+                        min = Math.min(min, currentValue);
+                        max = Math.max(max, currentValue);
+                        sum += currentValue;
+
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+                }
+
+                if (chartDataRow.getManipulationMode().equals(ManipulationMode.CUMULATE)) {
+                    avg = max / samples.size();
+                    sum = max;
+                }
+
+                if (!chartDataRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && samples.size() > 0) {
+                    avg = sum / (samples.size() - zeroCount);
+                }
+
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(chartDataRow.getUnit());
+
+                if (min == Double.MAX_VALUE || samples.size() == 0) {
+                    baseLoad.setMin("- " + chartDataRow.getUnit());
+                } else {
+                    baseLoad.setMin(nf.format(min) + " " + chartDataRow.getUnit());
+                }
+
+                if (max == -Double.MAX_VALUE || samples.size() == 0) {
+                    baseLoad.setMax("- " + chartDataRow.getUnit());
+                } else {
+                    baseLoad.setMax(nf.format(max) + " " + chartDataRow.getUnit());
+                }
+
+                if (samples.size() == 0) {
+                    baseLoad.setAvg("- " + chartDataRow.getUnit());
+                    baseLoad.setSum("- " + chartDataRow.getUnit());
+                } else {
+
+                    baseLoad.setAvg(nf.format(avg) + " " + chartDataRow.getUnit());
+
+                    if (isQuantity) {
+                        baseLoad.setSum(nf.format(sum) + " " + chartDataRow.getUnit());
+                    } else {
+                        if (qu.isSumCalculable(chartDataRow.getUnit()) && chartDataRow.getManipulationMode().equals(ManipulationMode.NONE)) {
+                            try {
+                                JEVisUnit sumUnit = qu.getSumUnit(chartDataRow.getUnit());
+                                ChartUnits cu = new ChartUnits();
+                                double newScaleFactor = cu.scaleValue(chartDataRow.getUnit().toString(), sumUnit.toString());
+                                JEVisUnit inputUnit = attribute.getInputUnit();
+                                JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
+
+                                if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
+                                    sum = sum * newScaleFactor / chartDataRow.getTimeFactor();
+                                } else {
+                                    sum = sum / chartDataRow.getScaleFactor() / chartDataRow.getTimeFactor();
+                                }
+
+                                baseLoad.setSum(nf.format(sum) + " " + chartDataRow.getUnit());
+
+                            } catch (Exception e) {
+                                logger.error("Couldn't calculate periods");
+                                baseLoad.setSum("- " + chartDataRow.getUnit());
+                            }
+                        } else {
+                            baseLoad.setSum("- " + chartDataRow.getUnit());
+                        }
+                    }
+                }
+
+                data.add(baseLoad);
+            }
         }
 
         BaseLoadTable baseLoadTable = new BaseLoadTable(FXCollections.observableList(data));

@@ -11,7 +11,6 @@ import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -158,14 +157,7 @@ public class TimeFrameFactory {
                     dateHelper.setWorkDays(wd);
                 }
 
-                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
-                newTimeFrame.setTimeFrame(org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END);
-                newTimeFrame.setId(cpo.getObject().getID());
-                newTimeFrame.setName(cpo.getObject().getName());
-                newTimeFrame.setStart(dateHelper.getStartDate());
-                newTimeFrame.setEnd(dateHelper.getEndDate());
-
-                return new Interval(newTimeFrame.getStart(), newTimeFrame.getEnd());
+                return new Interval(dateHelper.getStartDate(), dateHelper.getEndDate());
             }
 
             @Override
