@@ -26,8 +26,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
-import java.util.Comparator;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * @author br
@@ -40,6 +39,7 @@ public class LanguageEditor implements AttributeEditor {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisSample _newSample;
     private Locale orgLoca = Locale.getDefault();
+
 
     public LanguageEditor(JEVisAttribute att) {
         _attribute = att;
@@ -75,11 +75,15 @@ public class LanguageEditor implements AttributeEditor {
      * Move to a common placed because is also used elsewhere
      **/
     public static  ObservableList<Locale> getEnumList() {
+        List<String> list = Arrays.asList(new String[]{"de", "en","es","fr","hi","zh","ar","bn","ru","pt","ur","ja","tr","ko","uk","th","it"});
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
         try {
             String[] langs = Locale.getISOLanguages();
             for (String lang : langs) {
-                enumList.add(LocaleUtils.toLocale(lang));
+                if (list.contains(lang)) {
+                    System.out.println(lang);
+                    enumList.add(LocaleUtils.toLocale(lang));
+                }
             }
 
         } catch (Exception ex) {

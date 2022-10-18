@@ -15,6 +15,7 @@ import net.sourceforge.jeval.Evaluator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
@@ -113,13 +114,13 @@ public class FormulaBox extends HBox {
             AtomicBoolean hasOutput = new AtomicBoolean(false);
             calcObj.getChildren().forEach(jeVisObject -> {
                 try {
-                    if (jeVisObject.getJEVisClassName().equals("Input")) {
+                    if (jeVisObject.getJEVisClassName().equals(JC.Input.name)) {
                         hasInput.set(true);
                         String inputName = jeVisObject.getName();
 
-                        JEVisAttribute targetAtt = jeVisObject.getAttribute("Input Data");
-                        JEVisAttribute identifyAtt = jeVisObject.getAttribute("Identifier");
-                        JEVisAttribute inputTypeAtt = jeVisObject.getAttribute("Input Data Type");
+                        JEVisAttribute targetAtt = jeVisObject.getAttribute(JC.Input.a_InputData);
+                        JEVisAttribute identifyAtt = jeVisObject.getAttribute(JC.Input.a_Identifier);
+                        JEVisAttribute inputTypeAtt = jeVisObject.getAttribute(JC.Input.a_InputDataType);
 
                         if (targetAtt == null || !targetAtt.hasSample()) {
                             error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.noinputdata")));
@@ -368,14 +369,14 @@ public class FormulaBox extends HBox {
     void setOnOutputAction() {
 
         try {
-            JEVisClass outputClass = this.calcObj.getDataSource().getJEVisClass("Output");
+            JEVisClass outputClass = this.calcObj.getDataSource().getJEVisClass(JC.Output.name);
             List<JEVisObject> outputs = this.calcObj.getChildren(outputClass, true);
             List<UserSelection> openList = new ArrayList<>();
             JEVisObject outputObj = null;
 
             if (!outputs.isEmpty()) {//there can only be one output
                 outputObj = outputs.get(0);
-                JEVisAttribute targetAttribute = outputObj.getAttribute("Output");
+                JEVisAttribute targetAttribute = outputObj.getAttribute(JC.Output.a_Output);
                 JEVisSample targetSample = targetAttribute.getLatestSample();
 
                 if (targetSample != null) {
@@ -408,6 +409,7 @@ public class FormulaBox extends HBox {
                                 try {
                                     if (outputObject == null) {
                                         JEVisObject newObject = this.calcObj.buildObject(CalculationNameFormatter.createVariableName(us.getSelectedObject()), outputClass);
+                                        newObject.setLocalNames(us.getSelectedObject().getLocalNameList());
                                         newObject.commit();
                                         outputObject = newObject;
                                     }
