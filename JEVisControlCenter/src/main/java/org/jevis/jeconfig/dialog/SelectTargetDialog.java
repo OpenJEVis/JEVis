@@ -311,7 +311,6 @@ public class SelectTargetDialog extends JFXDialog {
         return new BasicCellFilter("Data Server");
     }
 
-
     public static JEVisTreeFilter buildAllDataAndCleanDataFilter() {
         BasicCellFilter onlyData = new BasicCellFilter(I18n.getInstance().getString("tree.filter.dataandcleandata"));
         ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);

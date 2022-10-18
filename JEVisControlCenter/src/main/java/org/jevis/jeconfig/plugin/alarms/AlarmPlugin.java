@@ -49,11 +49,10 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
@@ -88,7 +87,7 @@ public class AlarmPlugin implements Plugin {
     private final ToolBar toolBar = new ToolBar();
     private final int iconSize = 20;
     private static Method columnToFitMethod;
-    private final Image checkAllImage = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
+    private final Image checkAllImage = ResourceLoader.getImage("jetxee-check-sign-and-cross-sign-3.png");
     private final DateHelper dateHelper = new DateHelper(DateHelper.TransformType.PREVIEW);
     private final SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private final ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
@@ -776,8 +775,7 @@ public class AlarmPlugin implements Plugin {
         DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
         DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
 
-        AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
-        return new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+        return new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, start, end);
     }
 
     private void initToolBar() {
@@ -1242,7 +1240,7 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.ERROR, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.ERROR, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override

@@ -26,54 +26,57 @@ import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class UserSelection {
 
-    private JEVisObject _obj;
-    private JEVisAttribute _att;
-    private DateTime _startDate;
-    private DateTime _endDate;
-    private SelectionType _type;
+    private final JEVisObject obj;
+    private final SelectionType type;
+    private JEVisAttribute att;
+    private DateTime startDate;
+    private DateTime endDate;
 
     public enum SelectionType {
 
         Object, Attribute, AttributeAndTime
     }
 
-    public UserSelection(SelectionType _type, JEVisObject _obj) {
-        this._obj = _obj;
-        this._type = _type;
+    public UserSelection(SelectionType type, JEVisObject obj) {
+        this.obj = obj;
+        this.type = type;
     }
 
-    public UserSelection(SelectionType type, JEVisAttribute _att, DateTime _startDate, DateTime _endDate) {
-        _type = type;
-        this._att = _att;
-        this._obj = _att.getObject();
-        this._startDate = _startDate;
-        this._endDate = _endDate;
+    public UserSelection(SelectionType type, JEVisAttribute att, DateTime startDate, DateTime endDate) {
+        this.type = type;
+        this.att = att;
+        this.obj = att.getObject();
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public DateTime getEndDate() {
-        return _endDate;
+        return endDate;
     }
 
     public DateTime getStartDate() {
-        return _startDate;
+        return startDate;
     }
 
     public JEVisAttribute getSelectedAttribute() {
-        return _att;
+        return att;
     }
 
     public JEVisObject getSelectedObject() {
-        return _obj;
+        return obj;
+    }
+
+    public SelectionType getType() {
+        return type;
     }
 
     @Override
     public String toString() {
-        return "UserSelection{" + "_obj=" + _obj + ", _att=" + _att + ", _startDate=" + _startDate + ", _endDate=" + _endDate + ", _type=" + _type + '}';
+        return "UserSelection{" + "_obj=" + obj + ", _att=" + att + ", _startDate=" + startDate + ", _endDate=" + endDate + ", _type=" + type + '}';
     }
 
 }

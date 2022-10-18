@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.Chart.data;
 
 import com.ibm.icu.text.DecimalFormat;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.Alarm;
@@ -17,36 +18,49 @@ import org.joda.time.Period;
 import java.util.List;
 
 public class RowNote {
-    private final JEVisObject dataObject;
-    private final Double scaleFactor;
-    private final SimpleStringProperty name;
-    private final SimpleStringProperty note;
-    private final SimpleStringProperty userNote;
-    private final SimpleStringProperty userValue;
-    private final SimpleStringProperty userValueUnit;
-    private final Alarm alarm;
+    private final SimpleStringProperty name = new SimpleStringProperty(this, "name");
+    private final SimpleStringProperty note = new SimpleStringProperty(this, "note");
+    private final SimpleStringProperty userNote = new SimpleStringProperty(this, "userNote");
+    private final SimpleStringProperty userValue = new SimpleStringProperty(this, "userValue");
+    private final SimpleStringProperty userValueUnit = new SimpleStringProperty(this, "userValueUnit");
+    private final SimpleObjectProperty<JEVisSample> ySample = new SimpleObjectProperty<>(this, "ySample");
+    private final SimpleObjectProperty<JEVisSample> xSample = new SimpleObjectProperty<>(this, "xSample");
+    private JEVisObject dataObject;
+    private Double scaleFactor;
+    private Alarm alarm;
     private final DecimalFormat nf = new DecimalFormat();
     private Boolean changed = false;
-    private JEVisSample sample;
 
-    public RowNote(JEVisObject dataObject, JEVisSample sample, JEVisSample userNoteSample, String name, String userNote, String userValue, String userValueUnit, Double scaleFactor, Alarm alarm) {
-        this.name = new SimpleStringProperty(name);
-        this.userNote = new SimpleStringProperty(userNote);
-        this.userValue = new SimpleStringProperty(userValue);
-        this.userValueUnit = new SimpleStringProperty(userValueUnit);
+    public RowNote() {
+        nf.setMaximumSignificantDigits(4);
+        nf.setSignificantDigitsUsed(true);
+    }
+
+    public RowNote(String name, JEVisSample xSample, JEVisSample ySample) {
+        this();
+        this.name.set(name);
+        this.xSample.set(xSample);
+        this.ySample.set(ySample);
+    }
+
+
+    public RowNote(JEVisObject dataObject, JEVisSample ySample, JEVisSample userNoteSample, String name, String userNote, String userValue, String userValueUnit, Double scaleFactor, Alarm alarm) {
+        this();
+        this.name.set(name);
+        this.userNote.set(userNote);
+        this.userValue.set(userValue);
+        this.userValueUnit.set(userValueUnit);
         this.dataObject = dataObject;
         this.scaleFactor = scaleFactor;
-        this.sample = sample;
+        this.ySample.set(ySample);
         this.alarm = alarm;
 
         StringBuilder formattedNote = new StringBuilder();
 
-        nf.setMaximumSignificantDigits(4);
-        nf.setSignificantDigitsUsed(true);
         String note = "";
 
         try {
-            note = sample.getNote();
+            note = ySample.getNote();
             if (userNoteSample != null && !note.contains(NoteConstants.User.USER_NOTES)) {
                 if (!userNoteSample.getValueAsString().isEmpty()) {
                     note += "," + NoteConstants.User.USER_NOTES;
@@ -66,8 +80,8 @@ public class RowNote {
             formattedNote.append(System.getProperty("line.separator"));
 
             try {
-                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
-                JEVisObject object = sample.getAttribute().getObject();
+                JEVisClass cleanDataClass = ySample.getDataSource().getJEVisClass("Clean Data");
+                JEVisObject object = ySample.getAttribute().getObject();
                 if (object.getJEVisClass().equals(cleanDataClass)) {
                     CleanDataObject cleanDataObject = new CleanDataObject(object);
                     List<JsonLimitsConfig> limitsConfig = cleanDataObject.getLimitsConfig();
@@ -96,8 +110,8 @@ public class RowNote {
             formattedNote.append(System.getProperty("line.separator"));
 
             try {
-                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
-                JEVisObject object = sample.getAttribute().getObject();
+                JEVisClass cleanDataClass = ySample.getDataSource().getJEVisClass("Clean Data");
+                JEVisObject object = ySample.getAttribute().getObject();
                 if (object.getJEVisClass().equals(cleanDataClass)) {
                     CleanDataObject cleanDataObject = new CleanDataObject(object);
                     JsonDeltaConfig deltaConfig = cleanDataObject.getDeltaConfig();
@@ -152,8 +166,8 @@ public class RowNote {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.limit"));
             formattedNote.append(System.getProperty("line.separator"));
             try {
-                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
-                JEVisObject object = sample.getAttribute().getObject();
+                JEVisClass cleanDataClass = ySample.getDataSource().getJEVisClass("Clean Data");
+                JEVisObject object = ySample.getAttribute().getObject();
                 if (object.getJEVisClass().equals(cleanDataClass)) {
                     CleanDataObject cleanDataObject = new CleanDataObject(object);
                     List<JsonLimitsConfig> limitsConfig = cleanDataObject.getLimitsConfig();
@@ -174,7 +188,7 @@ public class RowNote {
                         }
                     }
 
-                    DateTime timestamp = sample.getTimestamp();
+                    DateTime timestamp = ySample.getTimestamp();
                     JEVisAttribute rawDataValueAttribute = object.getParents().get(0).getAttribute("Value");
                     JEVisAttribute rawDataPeriodAttribute = object.getParents().get(0).getAttribute("Period");
                     if (!cleanDataObject.getDifferentialRules().isEmpty()) {
@@ -252,8 +266,8 @@ public class RowNote {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.delta2.limit"));
             formattedNote.append(System.getProperty("line.separator"));
             try {
-                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
-                JEVisObject object = sample.getAttribute().getObject();
+                JEVisClass cleanDataClass = ySample.getDataSource().getJEVisClass("Clean Data");
+                JEVisObject object = ySample.getAttribute().getObject();
                 if (object.getJEVisClass().equals(cleanDataClass)) {
                     CleanDataObject cleanDataObject = new CleanDataObject(object);
                     JsonDeltaConfig deltaConfig = cleanDataObject.getDeltaConfig();
@@ -263,7 +277,7 @@ public class RowNote {
                     formattedNote.append(" %");
                     formattedNote.append(System.getProperty("line.separator"));
 
-                    DateTime timestamp = sample.getTimestamp();
+                    DateTime timestamp = ySample.getTimestamp();
                     JEVisAttribute rawDataValueAttribute = object.getParents().get(0).getAttribute("Value");
                     JEVisAttribute rawDataPeriodAttribute = object.getParents().get(0).getAttribute("Period");
                     if (!cleanDataObject.getDifferentialRules().isEmpty()) {
@@ -375,7 +389,7 @@ public class RowNote {
         } catch (Exception e) {
         }
 
-        this.note = new SimpleStringProperty(formattedNote.toString());
+        this.note.set(formattedNote.toString());
     }
 
     public String getName() {
@@ -426,14 +440,6 @@ public class RowNote {
         this.changed = changed;
     }
 
-    public JEVisSample getSample() {
-        return sample;
-    }
-
-    public void setSample(JEVisSample sample) {
-        this.sample = sample;
-    }
-
     public String getUserValue() {
         return userValue.get();
     }
@@ -460,5 +466,29 @@ public class RowNote {
 
     public Double getScaleFactor() {
         return scaleFactor;
+    }
+
+    public JEVisSample getYSample() {
+        return ySample.get();
+    }
+
+    public void setYSample(JEVisSample ySample) {
+        this.ySample.set(ySample);
+    }
+
+    public SimpleObjectProperty<JEVisSample> ySampleProperty() {
+        return ySample;
+    }
+
+    public JEVisSample getXSample() {
+        return xSample.get();
+    }
+
+    public void setXSample(JEVisSample xSample) {
+        this.xSample.set(xSample);
+    }
+
+    public SimpleObjectProperty<JEVisSample> xSampleProperty() {
+        return xSample;
     }
 }

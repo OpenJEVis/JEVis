@@ -8,11 +8,13 @@ import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 
 public class OrientationBox extends JFXComboBox<Orientation> {
 
-    public OrientationBox(ChartSetting chartSetting) {
+    public OrientationBox() {
         super(FXCollections.observableArrayList(Orientation.values()));
+
 
         Callback<ListView<Orientation>, ListCell<Orientation>> callback = new Callback<ListView<Orientation>, ListCell<Orientation>>() {
             @Override
@@ -43,6 +45,10 @@ public class OrientationBox extends JFXComboBox<Orientation> {
 
         setCellFactory(callback);
         setButtonCell(callback.call(null));
+    }
+
+    public OrientationBox(ChartSetting chartSetting) {
+        this();
 
         this.getSelectionModel().select(chartSetting.getOrientation());
 
@@ -53,4 +59,15 @@ public class OrientationBox extends JFXComboBox<Orientation> {
         });
     }
 
+    public OrientationBox(ChartModel chartModel) {
+        this();
+
+        this.getSelectionModel().select(chartModel.getOrientation());
+
+        this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue == null || newValue != oldValue) {
+                chartModel.setOrientation(newValue);
+            }
+        });
+    }
 }

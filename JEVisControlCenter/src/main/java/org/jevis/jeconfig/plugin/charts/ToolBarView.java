@@ -5,67 +5,50 @@
  */
 package org.jevis.jeconfig.plugin.charts;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTimePicker;
 import com.jfoenix.skins.JFXComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-import javafx.util.Callback;
-import javafx.util.converter.LocalTimeStringConverter;
-import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
-import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.NewSelectionDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PresetDateBox;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.Chart;
-import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
-import org.jevis.jeconfig.dialog.*;
-import org.jevis.jeconfig.sample.DaySchedule;
-import org.jevis.jeconfig.tool.NumberSpinner;
+import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
+import org.jevis.jeconfig.dialog.Response;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.FormatStyle;
-import java.util.*;
-import java.util.prefs.Preferences;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author broder
@@ -74,10 +57,10 @@ public class ToolBarView {
 
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
-    private final ChartPlugin chartPlugin;
+    private final DataModel dataModel;
     private final ObjectRelations objectRelations;
-    private AnalysisDataModel model;
-    private final JFXComboBox<JEVisObject> listAnalysesComboBox;
+    private final AnalysesComboBox analysesComboBox;
+    private final ToolBarSettings toolBarSettings = new ToolBarSettings();
     private final SimpleBooleanProperty disabledIcons = new SimpleBooleanProperty(true);
     private ToggleButton save;
     private ToggleButton loadNew;
@@ -90,7 +73,6 @@ public class ToolBarView {
     private ToggleButton reload;
     private ToggleButton delete;
     private ToggleButton autoResize;
-    private ToggleButton select;
     private ToggleButton select2;
     private ToggleButton disableIcons;
     private ToggleButton zoomOut;
@@ -115,7 +97,6 @@ public class ToolBarView {
         return ds;
     }
 
-    private ToggleButton addSeriesRunningMean;
     private Region pauseIcon;
     private Region playIcon;
     private ToggleButton showRawData;
@@ -130,17 +111,32 @@ public class ToolBarView {
     private CheckMenuItem calcBaseLoad;
 
     private CheckMenuItem calcValues;
+    private final ToolBarFunctions toolBarFunctions;
+    private ChartPlugin chartPlugin = null;
 
-    public ToolBarView(AnalysisDataModel model, JEVisDataSource ds, ChartPlugin chartPlugin) {
-        this.model = model;
+    public ToolBarView(DataModel dataModel, JEVisDataSource ds, ChartPlugin chartPlugin) {
+        this.dataModel = dataModel;
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.chartPlugin = chartPlugin;
+        this.toolBarFunctions = new ToolBarFunctions(chartPlugin.getDialogContainer(), ds, chartPlugin.getDataSettings(), toolBarSettings, dataModel);
 
-        listAnalysesComboBox = new JFXComboBox<>(model.getObservableListAnalyses());
-        listAnalysesComboBox.setPrefWidth(300);
+        analysesComboBox = new AnalysesComboBox(ds, dataModel);
+        analysesComboBox.setPrefWidth(300);
 
-        pickerCombo = new PickerCombo(model, null, true);
+        analysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) analysesComboBox.getSkin();
+                if (skin != null) {
+                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+                    if (popupContent != null) {
+                        popupContent.scrollTo(analysesComboBox.getObservableListAnalyses().indexOf(chartPlugin.getDataSettings().getCurrentAnalysis()));
+                    }
+                }
+            });
+        });
+
+        pickerCombo = new PickerCombo(ds, chartPlugin, true);
         presetDateBox = pickerCombo.getPresetDateBox();
         presetDateBox.getStyleClass().add("ToolBarDatePicker");
         pickerDateStart = pickerCombo.getStartDatePicker();
@@ -152,11 +148,34 @@ public class ToolBarView {
         pickerTimeEnd = pickerCombo.getEndTimePicker();
         pickerTimeEnd.getStyleClass().add("ToolBarDatePicker");
 
-        setCellFactoryForComboBox();
-
         createToolbarIcons();
 
         Platform.runLater(() -> setDisableToolBarIcons(true));
+    }
+
+    private void loadNewDialog() {
+
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin.getDialogContainer(), chartPlugin, ds, analysesComboBox.getObservableListAnalyses());
+
+        dialog.setOnDialogClosed(event -> {
+            JEVisHelp.getInstance().deactivatePluginModule();
+            if (dialog.getResponse() == Response.NEW) {
+
+                getChartPluginView().handleRequest(Constants.Plugin.Command.NEW);
+            } else if (dialog.getResponse() == Response.LOAD) {
+
+            }
+
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                Platform.runLater(() -> setDisableToolBarIcons(false));
+            } else {
+                Platform.runLater(() -> setDisableToolBarIcons(true));
+            }
+        });
+
+        Platform.runLater(() -> setDisableToolBarIcons(true));
+        dialog.show();
+        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
     }
 
     private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
@@ -176,10 +195,10 @@ public class ToolBarView {
                     }
                 });
             }
-            model.setTemporary(false);
-            model.setCurrentAnalysis(newValue);
-            model.resetToolbarSettings();
-            model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
+            chartPlugin.setTemporary(false);
+            chartPlugin.getDataSettings().setCurrentAnalysis(newValue);
+            resetToolbarSettings();
+//            chartPlugin.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
             Platform.runLater(this::updateLayout);
             changed = false;
         }
@@ -196,115 +215,12 @@ public class ToolBarView {
         return toolBar;
     }
 
-    private void loadNewDialog() {
-
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin.getDialogContainer(), ds, model);
-
-        dialog.setOnDialogClosed(event -> {
-            JEVisHelp.getInstance().deactivatePluginModule();
-            if (dialog.getResponse() == Response.NEW) {
-
-                getChartPluginView().handleRequest(Constants.Plugin.Command.NEW);
-            } else if (dialog.getResponse() == Response.LOAD) {
-
-                final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
-                if (!previewPref.getBoolean("enabled", true)) {
-                    model.setAnalysisTimeFrameForAllModels(model.getGlobalAnalysisTimeFrame());
-                }
-            }
-
-            if (model.getCurrentAnalysis() != null) {
-                Platform.runLater(() -> setDisableToolBarIcons(false));
-            } else {
-                Platform.runLater(() -> setDisableToolBarIcons(true));
-            }
-        });
-
-        Platform.runLater(() -> setDisableToolBarIcons(true));
-        dialog.show();
-        Platform.runLater(() -> dialog.getFilterInput().requestFocus());
-    }
-
-
     public void addAnalysisComboBoxListener() {
-        listAnalysesComboBox.valueProperty().addListener(analysisComboBoxChangeListener);
+        analysesComboBox.valueProperty().addListener(analysisComboBoxChangeListener);
     }
 
     public void removeAnalysisComboBoxListener() {
-        listAnalysesComboBox.valueProperty().removeListener(analysisComboBoxChangeListener);
-    }
-
-    private void resetZoom() {
-        for (Map.Entry<Integer, Chart> entry : chartPlugin.getAllCharts().entrySet()) {
-            Integer integer = entry.getKey();
-            Chart chart = entry.getValue();
-            if (chart.getChart() != null) {
-                for (de.gsi.chart.plugins.ChartPlugin chartPlugin : chart.getChart().getPlugins()) {
-                    if (chartPlugin instanceof MultiChartZoomer) {
-                        MultiChartZoomer multiChartZoomer = (MultiChartZoomer) chartPlugin;
-                        multiChartZoomer.setFollowUpZoom(false);
-                        Platform.runLater(multiChartZoomer::zoomOrigin);
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    private void addSeriesRunningMean() {
-        model.setAddSeries(ManipulationMode.RUNNING_MEAN);
-    }
-
-    private void setCellFactoryForComboBox() {
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-            @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            if (!model.isMultiSite() && !model.isMultiDir())
-                                setText(obj.getName());
-                            else {
-                                String prefix = "";
-                                if (model.isMultiSite()) {
-                                    prefix += objectRelations.getObjectPath(obj);
-                                }
-                                if (model.isMultiDir()) {
-                                    prefix += objectRelations.getRelativePath(obj);
-                                }
-
-                                setText(prefix + obj.getName());
-                            }
-                        }
-
-                    }
-                };
-            }
-        };
-
-        listAnalysesComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.list")));
-        listAnalysesComboBox.setCellFactory(cellFactory);
-        listAnalysesComboBox.setButtonCell(cellFactory.call(null));
-        listAnalysesComboBox.setId("Graph Analysis List");
-
-        listAnalysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) listAnalysesComboBox.getSkin();
-                if (skin != null) {
-                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-                    if (popupContent != null) {
-                        popupContent.scrollTo(model.getObservableListAnalyses().indexOf(model.getCurrentAnalysis()));
-                    }
-                }
-            });
-        });
-        JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, listAnalysesComboBox);
+        analysesComboBox.valueProperty().removeListener(analysisComboBoxChangeListener);
     }
 
     public void updateLayout() {
@@ -313,18 +229,18 @@ public class ToolBarView {
 
             removeAnalysisComboBoxListener();
 
-            if (model.getCurrentAnalysis() != null) {
-                listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                analysesComboBox.getSelectionModel().select(chartPlugin.getDataSettings().getCurrentAnalysis());
             }
 
-            if (!listAnalysesComboBox.getItems().isEmpty()) {
-                dateHelper.setWorkDays(model.getWorkDays());
+            if (!analysesComboBox.getItems().isEmpty()) {
+                dateHelper.setWorkDays(chartPlugin.getWorkDays());
             }
 
             toolBar.getItems().clear();
             mathOperation.getItems().clear();
 
-            pickerCombo.initialize(model, null, customWorkDay.isSelected());
+            pickerCombo.initialize(customWorkDay.isSelected());
             pickerCombo.updateCellFactory();
 
             Separator sep1 = new Separator();
@@ -334,19 +250,19 @@ public class ToolBarView {
 
             boolean isRegressionPossible = false;
 
-            for (ChartSetting chartSetting : model.getCharts().getListSettings()) {
-                if (chartSetting.getChartType() != ChartType.TABLE && chartSetting.getChartType() != ChartType.HEAT_MAP
-                        && chartSetting.getChartType() != ChartType.BAR && chartSetting.getChartType() != ChartType.PIE) {
+            for (ChartModel chartModel : dataModel.getChartModels()) {
+                if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.HEAT_MAP
+                        && chartModel.getChartType() != ChartType.BAR && chartModel.getChartType() != ChartType.PIE) {
                     isRegressionPossible = true;
                     break;
                 }
             }
 
-            toolBar.getItems().addAll(listAnalysesComboBox,
+            toolBar.getItems().addAll(analysesComboBox,
                     sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                     sep2, reload, zoomOut,
-                    sep3, loadNew, save, delete, select, export, exportImage, printButton,
-                    //sep3, loadNew, save, delete, select, select2, export, exportImage, printButton,
+//                    sep3, loadNew, save, delete, select, export, exportImage, printButton,
+                    sep3, loadNew, save, delete, select2, export, exportImage, printButton,
                     sep4);
 
             if (isRegressionPossible) {
@@ -374,744 +290,51 @@ public class ToolBarView {
         });
     }
 
-    private void hideShowIconsInGraph() {
-        model.setShowIcons(!model.getShowIcons());
-    }
-
-    private void autoResizeInGraph() {
-        model.setAutoResize(!model.getAutoResize());
-    }
-
-    private void showRawDataInGraph() {
-        model.setShowRawData(!model.getShowRawData());
-    }
-
-    private void showSumInGraph() {
-        model.setShowSum(!model.getShowSum());
-    }
-
-    private void showL1L2InGraph() {
-        model.setShowL1L2(!model.getShowL1L2());
-    }
-
-    private void calcRegression() {
-        if (!model.calcRegression()) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-
-            Label polyDegreeLabel = new Label(I18n.getInstance().getString("plugin.graph.toolbar.regression.degree"));
-            NumberSpinner polyDegreeNumberSpinner = new NumberSpinner(new BigDecimal(1), new BigDecimal(1));
-            polyDegreeNumberSpinner.setMin(new BigDecimal(1));
-            polyDegreeNumberSpinner.setMax(new BigDecimal(11));
-
-//            Label regressionTypeLabel = new Label(I18n.getInstance().getString("plugin.graph.toolbar.regression.type"));
-            Label regressionTypeLabel = new Label(I18n.getInstance().getString("dialog.regression.type.poly"));
-//            RegressionBox regressionTypeComboBox = new RegressionBox();
-
-            GridPane gridPane = new GridPane();
-            gridPane.setVgap(4);
-            gridPane.setHgap(4);
-
-            gridPane.add(regressionTypeLabel, 0, 0);
-//            gridPane.add(regressionTypeComboBox, 1, 0);
-
-            gridPane.add(polyDegreeLabel, 0, 1);
-            gridPane.add(polyDegreeNumberSpinner, 1, 1);
-
-//            regressionTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//                if (!newValue.equals(oldValue)) {
-//                    if (newValue.equals(RegressionType.POLY)) {
-//                        gridPane.add(polyDegreeLabel, 0, 1);
-//                        gridPane.add(polyDegreeNumberSpinner, 1, 1);
-//                    } else {
-//                        gridPane.getChildren().removeAll(polyDegreeLabel, polyDegreeNumberSpinner);
-//                    }
-//                }
-//            });
-
-            alert.getDialogPane().setContent(gridPane);
-
-            alert.showAndWait().ifPresent(buttonType -> {
-                if (buttonType.getButtonData().isDefaultButton()) {
-                    model.setPolyRegressionDegree(polyDegreeNumberSpinner.getNumber().toBigInteger().intValue());
-//                    model.setRegressionType(regressionTypeComboBox.getSelectionModel().getSelectedItem());
-                    model.setRegressionType(RegressionType.POLY);
-                    model.setCalcRegression(!model.calcRegression());
+    private void resetZoom() {
+        for (Map.Entry<Integer, Chart> entry : chartPlugin.getAllCharts().entrySet()) {
+            Integer integer = entry.getKey();
+            Chart chart = entry.getValue();
+            if (chart.getChart() != null) {
+                for (de.gsi.chart.plugins.ChartPlugin chartPlugin : chart.getChart().getPlugins()) {
+                    if (chartPlugin instanceof MultiChartZoomer) {
+                        MultiChartZoomer multiChartZoomer = (MultiChartZoomer) chartPlugin;
+                        multiChartZoomer.setFollowUpZoom(false);
+                        Platform.runLater(multiChartZoomer::zoomOrigin);
+                        break;
+                    }
                 }
-            });
-        } else {
-            model.setPolyRegressionDegree(-1);
-            model.setRegressionType(RegressionType.NONE);
-            model.setCalcRegression(!model.calcRegression());
+                break;
+            }
         }
     }
 
-    private void calcFullLoadHours() {
-        Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
-        infoBox.setResizable(true);
-        infoBox.setTitle(I18n.getInstance().getString("dialog.fullloadhours.title"));
-        infoBox.setHeaderText(I18n.getInstance().getString("dialog.fullloadhours.headertext"));
-        TableView<ChartDataRow> fullLoadHours = new TableView<>();
-
-        NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
-        nf.setMinimumFractionDigits(0);
-        nf.setMaximumFractionDigits(0);
-
-        TableColumn<ChartDataRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
-        nameColumn.setSortable(true);
-        nameColumn.setPrefWidth(400);
-        nameColumn.setMinWidth(100);
-        nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getTitle()));
-
-        nameColumn.setCellFactory(new Callback<TableColumn<ChartDataRow, String>, TableCell<ChartDataRow, String>>() {
-            @Override
-            public TableCell<ChartDataRow, String> call(TableColumn<ChartDataRow, String> param) {
-                return new TableCell<ChartDataRow, String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setText("");
-                        setGraphic(null);
-
-                        if (item != null && !empty) {
-                            setText(item);
-                        }
-                    }
-                };
-            }
-        });
-
-
-        TableColumn<ChartDataRow, String> valueColumn = new TableColumn<>(I18n.getInstance().getString("dialog.fullloadhours.title"));
-        valueColumn.setStyle("-fx-alignment: CENTER");
-        valueColumn.setSortable(true);
-        valueColumn.setPrefWidth(125);
-        valueColumn.setMinWidth(75);
-        valueColumn.setCellValueFactory(param -> {
-            Double result = 0d;
-
-            if (param.getValue().getSum() != null && param.getValue().getMax() != null && !param.getValue().getMax().equals(0d)) {
-                result = param.getValue().getSum() / param.getValue().getMax();
-            }
-
-            return new SimpleObjectProperty<>(nf.format(result));
-        });
-
-        valueColumn.setCellFactory(new Callback<TableColumn<ChartDataRow, String>, TableCell<ChartDataRow, String>>() {
-            @Override
-            public TableCell<ChartDataRow, String> call(TableColumn<ChartDataRow, String> param) {
-                return new TableCell<ChartDataRow, String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setText("");
-                        setGraphic(null);
-
-                        if (item != null && !empty) {
-                            setText(item);
-                        }
-                    }
-                };
-            }
-        });
-
-        fullLoadHours.getColumns().addAll(nameColumn, valueColumn);
-        fullLoadHours.getItems().addAll(model.getSelectedData());
-
-        AlphanumComparator ac = new AlphanumComparator();
-        fullLoadHours.getItems().sort((o1, o2) -> ac.compare(o1.getTitle(), o2.getTitle()));
-
-        infoBox.getDialogPane().setContent(fullLoadHours);
-        infoBox.show();
+    public AnalysesComboBox getAnalysesComboBox() {
+        return analysesComboBox;
     }
 
-    private void calcBaseLoad() {
-        JFXDialog infoBox = new JFXDialog();
-        infoBox.setDialogContainer(chartPlugin.getDialogContainer());
-        infoBox.setTransitionType(JFXDialog.DialogTransition.NONE);
-
-        Label baseLoadTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.timeframe"));
-
-        JFXDatePicker baseLoadStartDate = new JFXDatePicker(LocalDate.now());
-        baseLoadStartDate.setPrefWidth(120d);
-
-        JFXTimePicker baseLoadStartTime = new JFXTimePicker(LocalTime.now());
-        baseLoadStartTime.setPrefWidth(100d);
-        baseLoadStartTime.setMaxWidth(100d);
-        baseLoadStartTime.set24HourView(true);
-        baseLoadStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        JFXDatePicker baseLoadEndDate = new JFXDatePicker(LocalDate.now());
-        baseLoadEndDate.setPrefWidth(120d);
-
-        JFXTimePicker baseLoadEndTime = new JFXTimePicker(LocalTime.now());
-        baseLoadEndTime.setPrefWidth(100d);
-        baseLoadEndTime.setMaxWidth(100d);
-        baseLoadEndTime.set24HourView(true);
-        baseLoadEndTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        Label baseLoadBinding = new Label(I18n.getInstance().getString("dialog.baseload.repeatingtimeframe"));
-        ObservableList<Integer> list = FXCollections.observableArrayList(0, 1, 2, 3, 4);
-        JFXComboBox<Integer> boundSpecificBox = new JFXComboBox<>(list);
-
-        Callback<ListView<Integer>, ListCell<Integer>> cellFactoryBoundToSpecificBox = new Callback<javafx.scene.control.ListView<Integer>, ListCell<Integer>>() {
-            @Override
-            public ListCell<Integer> call(javafx.scene.control.ListView<Integer> param) {
-                return new ListCell<Integer>() {
-                    @Override
-                    protected void updateItem(Integer no, boolean empty) {
-                        super.updateItem(no, empty);
-                        if (empty || no == null) {
-                            setText("");
-                        } else {
-                            String text = "";
-                            switch (no) {
-                                case 0:
-                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.boundtospecific.none");
-                                    break;
-                                case 1:
-                                    text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.day");
-                                    break;
-                                case 2:
-                                    text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.week");
-                                    break;
-                                case 3:
-                                    text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.month");
-                                    break;
-                                case 4:
-                                    text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.year");
-                                    break;
-                            }
-                            setText(text);
-                        }
-                    }
-                };
-            }
-        };
-        boundSpecificBox.setCellFactory(cellFactoryBoundToSpecificBox);
-        boundSpecificBox.setButtonCell(cellFactoryBoundToSpecificBox.call(null));
-        boundSpecificBox.getSelectionModel().select(0);
-
-        Label resultTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.resulttimeframe"));
-
-        JFXDatePicker resultStartDate = new JFXDatePicker(pickerDateStart.getValue());
-        resultStartDate.setPrefWidth(120d);
-
-        JFXTimePicker resultStartTime = new JFXTimePicker(pickerTimeStart.getValue());
-        resultStartTime.setPrefWidth(100d);
-        resultStartTime.setMaxWidth(100d);
-        resultStartTime.set24HourView(true);
-        resultStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        JFXDatePicker resultEndDate = new JFXDatePicker(pickerDateEnd.getValue());
-        resultEndDate.setPrefWidth(120d);
-
-        JFXTimePicker resultEndTime = new JFXTimePicker(pickerTimeEnd.getValue());
-        resultEndTime.setPrefWidth(100d);
-        resultEndTime.setMaxWidth(100d);
-        resultEndTime.set24HourView(true);
-        resultEndTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        GridPane gp = new GridPane();
-        gp.setVgap(6);
-        gp.setHgap(6);
-
-        int row = 0;
-        gp.add(baseLoadTimeFrame, 0, row, 4, 1);
-        row++;
-
-        gp.add(baseLoadStartDate, 0, row);
-        gp.add(baseLoadStartTime, 1, row);
-        gp.add(baseLoadEndDate, 2, row);
-        gp.add(baseLoadEndTime, 3, row);
-        row++;
-
-        gp.add(baseLoadBinding, 0, row, 4, 1);
-        row++;
-
-        gp.add(boundSpecificBox, 0, row, 2, 1);
-        row++;
-
-        gp.add(resultTimeFrame, 0, row, 4, 1);
-        row++;
-
-        gp.add(resultStartDate, 0, row);
-        gp.add(resultStartTime, 1, row);
-        gp.add(resultEndDate, 2, row);
-        gp.add(resultEndTime, 3, row);
-
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
-
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
-
-        Separator separator = new Separator(Orientation.HORIZONTAL);
-        separator.setPadding(new Insets(8, 0, 8, 0));
-
-        VBox vBox = new VBox(6, gp, separator, buttonBar);
-        vBox.setPadding(new Insets(12));
-
-        ok.setOnAction(event -> {
-            try {
-                BaseLoadSetting setting = new BaseLoadSetting();
-                setting.setBaseLoadStart(baseLoadStartDate.getValue(), baseLoadStartTime.getValue());
-                setting.setBaseLoadEnd(baseLoadEndDate.getValue(), baseLoadEndTime.getValue());
-                setting.setRepeatType(boundSpecificBox.getSelectionModel().getSelectedItem());
-                setting.setResultStart(resultStartDate.getValue(), resultStartTime.getValue());
-                setting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
-
-                BaseLoadDialog dialog = new BaseLoadDialog(chartPlugin.getDialogContainer(), setting, model);
-
-                dialog.show();
-
-            } catch (Exception e) {
-                logger.error(e);
-            }
-            infoBox.close();
-        });
-
-        cancel.setOnAction(event -> infoBox.close());
-
-        infoBox.setContent(vBox);
-        infoBox.show();
-    }
-
-    private void calcValues() {
-        JFXDialog infoBox = new JFXDialog();
-        infoBox.setDialogContainer(chartPlugin.getDialogContainer());
-        infoBox.setTransitionType(JFXDialog.DialogTransition.NONE);
-
-        final ValuesSetting valuesSetting = new ValuesSetting();
-
-        Label resultTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.resulttimeframe"));
-
-        JFXDatePicker resultStartDate = new JFXDatePicker(pickerDateStart.getValue());
-        resultStartDate.setPrefWidth(120d);
-
-        JFXTimePicker resultStartTime = new JFXTimePicker(pickerTimeStart.getValue());
-        resultStartTime.setPrefWidth(100d);
-        resultStartTime.setMaxWidth(100d);
-        resultStartTime.set24HourView(true);
-        resultStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        JFXDatePicker resultEndDate = new JFXDatePicker(pickerDateEnd.getValue());
-        resultEndDate.setPrefWidth(120d);
-
-        JFXTimePicker resultEndTime = new JFXTimePicker(pickerTimeEnd.getValue());
-        resultEndTime.setPrefWidth(100d);
-        resultEndTime.setMaxWidth(100d);
-        resultEndTime.set24HourView(true);
-        resultEndTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        GridPane gp = new GridPane();
-        gp.setVgap(6);
-        gp.setHgap(6);
-
-        int row = 0;
-
-        gp.add(resultTimeFrame, 0, row, 4, 1);
-        row++;
-
-        gp.add(resultStartDate, 0, row);
-        gp.add(resultStartTime, 1, row);
-        gp.add(resultEndDate, 2, row);
-        gp.add(resultEndTime, 3, row);
-        row++;
-
-        JFXCheckBox insideBox = new JFXCheckBox(I18n.getInstance().getString("graph.dialog.buttons.values.inside"));
-        insideBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> valuesSetting.setInside(t1));
-        insideBox.setSelected(true);
-        gp.add(insideBox, 0, row, 2, 1);
-        row++;
-
-        for (int i = 1; i < 8; i++) {
-            DaySchedule daySchedule = new DaySchedule(i);
-            valuesSetting.getDaySchedule().put(i, daySchedule);
-
-            gp.add(daySchedule.getDayButton(), 0, row);
-            gp.add(daySchedule.getStartVBox(), 1, row);
-            gp.add(daySchedule.getStart(), 2, row);
-            gp.add(daySchedule.getEndVBox(), 3, row);
-            gp.add(daySchedule.getEnd(), 4, row);
-            row++;
-        }
-
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
-
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
-
-        Separator separator = new Separator(Orientation.HORIZONTAL);
-        separator.setPadding(new Insets(8, 0, 8, 0));
-
-        VBox vBox = new VBox(6, gp, separator, buttonBar);
-        vBox.setPadding(new Insets(12));
-
-        ok.setOnAction(event -> {
-            try {
-                valuesSetting.setResultStart(resultStartDate.getValue(), resultStartTime.getValue());
-                valuesSetting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
-
-                ValuesDialog dialog = new ValuesDialog(chartPlugin.getDialogContainer(), valuesSetting, model);
-
-                dialog.show();
-
-            } catch (Exception e) {
-                logger.error(e);
-            }
-            infoBox.close();
-        });
-
-        cancel.setOnAction(event -> infoBox.close());
-
-        infoBox.setContent(vBox);
-        infoBox.show();
-    }
-
-    private void calcHoursAboveBelow() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.entervalue"));
-
-        Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
-        JFXTextField limitField = new JFXTextField();
-
-        DoubleValidator validator = DoubleValidator.getInstance();
-        limitField.textProperty().addListener((observable, oldValue, newValue) -> {
-
-            try {
-                double parsedValue = validator.validate(newValue, I18n.getInstance().getLocale());
-            } catch (Exception e) {
-                limitField.setText(oldValue);
-            }
-        });
-
-        GridPane gridPane = new GridPane();
-        gridPane.setVgap(4);
-        gridPane.setHgap(12);
-
-        gridPane.add(limitLabel, 0, 0);
-        gridPane.add(limitField, 1, 0);
-
-        alert.getDialogPane().setContent(gridPane);
-
-        alert.showAndWait().ifPresent(buttonType -> {
-            if (buttonType.getButtonData().isDefaultButton() && !limitField.getText().isEmpty()) {
-                Task task = new Task() {
-                    @Override
-                    protected Object call() throws Exception {
-                        try {
-                            Double limit = validator.validate(limitField.getText());
-                            TableView<HoursAbove> fullLoadHours = new TableView<>();
-
-                            TableColumn<HoursAbove, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
-                            nameColumn.setSortable(true);
-                            nameColumn.setPrefWidth(400);
-                            nameColumn.setMinWidth(100);
-                            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getChartDataRow().getTitle()));
-
-                            nameColumn.setCellFactory(new Callback<TableColumn<HoursAbove, String>, TableCell<HoursAbove, String>>() {
-                                @Override
-                                public TableCell<HoursAbove, String> call(TableColumn<HoursAbove, String> param) {
-                                    return new TableCell<HoursAbove, String>() {
-                                        @Override
-                                        protected void updateItem(String item, boolean empty) {
-                                            super.updateItem(item, empty);
-                                            setText("");
-                                            setGraphic(null);
-
-                                            if (item != null && !empty) {
-                                                setText(item);
-                                            }
-                                        }
-                                    };
-                                }
-                            });
-
-                            TableColumn<HoursAbove, String> belowColumn = new TableColumn<>(I18n.getInstance().getString("dialog.calchoursabovebelow.below"));
-                            belowColumn.setStyle("-fx-alignment: CENTER");
-                            belowColumn.setSortable(true);
-                            belowColumn.setPrefWidth(200);
-                            belowColumn.setMinWidth(150);
-                            belowColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getBelow()));
-
-                            belowColumn.setCellFactory(new Callback<TableColumn<HoursAbove, String>, TableCell<HoursAbove, String>>() {
-                                @Override
-                                public TableCell<HoursAbove, String> call(TableColumn<HoursAbove, String> param) {
-                                    return new TableCell<HoursAbove, String>() {
-                                        @Override
-                                        protected void updateItem(String item, boolean empty) {
-                                            super.updateItem(item, empty);
-                                            setText("");
-                                            setGraphic(null);
-
-                                            if (item != null && !empty) {
-                                                JFXTextArea jfxTextArea = new JFXTextArea(item);
-                                                jfxTextArea.setWrapText(true);
-                                                setGraphic(jfxTextArea);
-                                            }
-                                        }
-                                    };
-                                }
-                            });
-
-                            TableColumn<HoursAbove, String> aboveColumn = new TableColumn<>(I18n.getInstance().getString("dialog.calchoursabovebelow.above"));
-                            aboveColumn.setStyle("-fx-alignment: CENTER");
-                            aboveColumn.setSortable(true);
-                            aboveColumn.setPrefWidth(200);
-                            aboveColumn.setMinWidth(150);
-                            aboveColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getAbove()));
-
-                            aboveColumn.setCellFactory(new Callback<TableColumn<HoursAbove, String>, TableCell<HoursAbove, String>>() {
-                                @Override
-                                public TableCell<HoursAbove, String> call(TableColumn<HoursAbove, String> param) {
-                                    return new TableCell<HoursAbove, String>() {
-                                        @Override
-                                        protected void updateItem(String item, boolean empty) {
-                                            super.updateItem(item, empty);
-                                            setText("");
-                                            setGraphic(null);
-
-                                            if (item != null && !empty) {
-                                                JFXTextArea jfxTextArea = new JFXTextArea(item);
-                                                jfxTextArea.setWrapText(true);
-                                                setGraphic(jfxTextArea);
-                                            }
-                                        }
-                                    };
-                                }
-                            });
-
-                            fullLoadHours.getColumns().addAll(nameColumn, belowColumn, aboveColumn);
-
-                            List<HoursAbove> hoursAbove = new ArrayList<>();
-                            model.getSelectedData().forEach(chartDataRow -> hoursAbove.add(new HoursAbove(chartDataRow, limit)));
-
-                            AlphanumComparator ac = new AlphanumComparator();
-                            hoursAbove.sort((o1, o2) -> ac.compare(o1.getChartDataRow().getTitle(), o2.getChartDataRow().getTitle()));
-                            fullLoadHours.getItems().addAll(hoursAbove);
-
-                            Platform.runLater(() -> {
-                                Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
-                                infoBox.setResizable(true);
-                                infoBox.setTitle(I18n.getInstance().getString("dialog.calchoursabovebelow.title"));
-                                infoBox.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.headertext") + " " + limit);
-                                infoBox.getDialogPane().setContent(fullLoadHours);
-                                infoBox.show();
-                            });
-
-                        } catch (Exception e) {
-                            this.failed();
-                            logger.error("Could not calculate times", e);
-                        } finally {
-                            succeeded();
-                        }
-                        return null;
-                    }
-                };
-
-                JEConfig.getStatusBar().addTask(ToolBarView.class.getName(), task, JEConfig.getImage("hoursabove.png"), true);
-            }
-        });
-    }
-
-    private void calcSumAboveBelow() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.entervalue"));
-
-        Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
-        JFXTextField limitField = new JFXTextField();
-        DoubleValidator validator = DoubleValidator.getInstance();
-        limitField.textProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                double parsedValue = validator.validate(newValue, I18n.getInstance().getLocale());
-            } catch (Exception e) {
-                limitField.setText(oldValue);
-            }
-        });
-
-        GridPane gridPane = new GridPane();
-        gridPane.setVgap(4);
-        gridPane.setHgap(12);
-
-        gridPane.add(limitLabel, 0, 0);
-        gridPane.add(limitField, 1, 0);
-
-        alert.getDialogPane().setContent(gridPane);
-
-        alert.showAndWait().ifPresent(buttonType -> {
-            if (buttonType.getButtonData().isDefaultButton() && !limitField.getText().isEmpty()) {
-                Task task = new Task() {
-                    @Override
-                    protected Object call() throws Exception {
-                        try {
-                            Double limit = validator.validate(limitField.getText());
-
-                            TableView<SumsAbove> fullLoadHours = new TableView<>();
-
-                            TableColumn<SumsAbove, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
-                            nameColumn.setSortable(true);
-                            nameColumn.setPrefWidth(400);
-                            nameColumn.setMinWidth(100);
-                            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getChartDataRow().getTitle()));
-
-                            nameColumn.setCellFactory(new Callback<TableColumn<SumsAbove, String>, TableCell<SumsAbove, String>>() {
-                                @Override
-                                public TableCell<SumsAbove, String> call(TableColumn<SumsAbove, String> param) {
-                                    return new TableCell<SumsAbove, String>() {
-                                        @Override
-                                        protected void updateItem(String item, boolean empty) {
-                                            super.updateItem(item, empty);
-                                            setText("");
-                                            setGraphic(null);
-
-                                            if (item != null && !empty) {
-                                                setText(item);
-                                            }
-                                        }
-                                    };
-                                }
-                            });
-
-                            TableColumn<SumsAbove, String> belowColumn = new TableColumn<>(I18n.getInstance().getString("dialog.calchoursabovebelow.below"));
-                            belowColumn.setStyle("-fx-alignment: CENTER-RIGHT");
-                            belowColumn.setSortable(true);
-                            belowColumn.setPrefWidth(200);
-                            belowColumn.setMinWidth(150);
-                            belowColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getBelow()));
-
-                            belowColumn.setCellFactory(new Callback<TableColumn<SumsAbove, String>, TableCell<SumsAbove, String>>() {
-                                @Override
-                                public TableCell<SumsAbove, String> call(TableColumn<SumsAbove, String> param) {
-                                    return new TableCell<SumsAbove, String>() {
-                                        @Override
-                                        protected void updateItem(String item, boolean empty) {
-                                            super.updateItem(item, empty);
-                                            setText("");
-                                            setGraphic(null);
-
-                                            if (item != null && !empty) {
-                                                setText(item);
-                                            }
-                                        }
-                                    };
-                                }
-                            });
-
-                            TableColumn<SumsAbove, String> aboveColumn = new TableColumn<>(I18n.getInstance().getString("dialog.calchoursabovebelow.above"));
-                            aboveColumn.setStyle("-fx-alignment: CENTER-RIGHT");
-                            aboveColumn.setSortable(true);
-                            aboveColumn.setPrefWidth(200);
-                            aboveColumn.setMinWidth(150);
-                            aboveColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getAbove()));
-
-                            aboveColumn.setCellFactory(new Callback<TableColumn<SumsAbove, String>, TableCell<SumsAbove, String>>() {
-                                @Override
-                                public TableCell<SumsAbove, String> call(TableColumn<SumsAbove, String> param) {
-                                    return new TableCell<SumsAbove, String>() {
-                                        @Override
-                                        protected void updateItem(String item, boolean empty) {
-                                            super.updateItem(item, empty);
-                                            setText("");
-                                            setGraphic(null);
-
-                                            if (item != null && !empty) {
-                                                setText(item);
-                                            }
-                                        }
-                                    };
-                                }
-                            });
-
-                            fullLoadHours.getColumns().addAll(nameColumn, belowColumn, aboveColumn);
-
-                            List<SumsAbove> hoursAbove = new ArrayList<>();
-                            model.getSelectedData().forEach(chartDataRow -> hoursAbove.add(new SumsAbove(chartDataRow, limit)));
-
-                            AlphanumComparator ac = new AlphanumComparator();
-                            hoursAbove.sort((o1, o2) -> ac.compare(o1.getChartDataRow().getTitle(), o2.getChartDataRow().getTitle()));
-                            fullLoadHours.getItems().addAll(hoursAbove);
-
-                            Platform.runLater(() -> {
-                                Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
-                                infoBox.setResizable(true);
-                                infoBox.setTitle(I18n.getInstance().getString("dialog.calcsumabovebelow.title"));
-                                infoBox.setHeaderText(I18n.getInstance().getString("dialog.calcsumabovebelow.headertext") + " " + limit);
-                                infoBox.getDialogPane().setContent(fullLoadHours);
-                                infoBox.show();
-                            });
-
-                        } catch (Exception e) {
-                            this.failed();
-                            logger.error("Could not calculate times", e);
-                        } finally {
-                            succeeded();
-                        }
-                        return null;
-                    }
-                };
-
-                JEConfig.getStatusBar().addTask(ToolBarView.class.getName(), task, JEConfig.getImage("sumabove.png"), true);
-            }
-        });
-    }
-
-    public JFXComboBox<JEVisObject> getListAnalysesComboBox() {
-        return listAnalysesComboBox;
-    }
-
-    private void changeSettings() {
-        ChartSelectionDialog dia = new ChartSelectionDialog(chartPlugin.getDialogContainer(), ds, model);
+    private void changeSettings2() {
+        NewSelectionDialog dia = new NewSelectionDialog(chartPlugin.getDialogContainer(), ds, dataModel);
 
         dia.setOnDialogClosed(event -> {
             if (dia.getResponse() == Response.OK) {
 
-                model.setCharts(dia.getChartPlugin().getData().getCharts());
-                model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
                 changed = true;
+                chartPlugin.update();
             }
             JEVisHelp.getInstance().deactivatePluginModule();
         });
 
-
         dia.show();
-
-
     }
 
-//    private void changeSettings2() {
-//        NewSelectionDialog dia = new NewSelectionDialog(chartPlugin.getDialogContainer(), ds);
-//
-//        dia.setOnDialogClosed(event -> {
-//            if (dia.getResponse() == Response.OK) {
-//
-//                model.setCharts(dia.getChartPlugin().getData().getCharts());
-//                model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
-//                changed = true;
-//            }
-//            JEVisHelp.getInstance().deactivatePluginModule();
-//        });
-//
-//
-//        dia.show();
-//
-//
-//    }
-
     public void select(JEVisObject obj) {
-        getListAnalysesComboBox().getSelectionModel().select(obj);
+        getAnalysesComboBox().getSelectionModel().select(obj);
     }
 
     public void setDisableToolBarIcons(boolean bool) {
         disabledIcons.set(bool);
 
-        listAnalysesComboBox.setDisable(bool);
+        analysesComboBox.setDisable(bool);
         save.setDisable(bool);
         loadNew.setDisable(bool);
         exportCSV.setDisable(bool);
@@ -1122,7 +345,6 @@ public class ToolBarView {
         runUpdateButton.setDisable(bool);
         delete.setDisable(bool);
         autoResize.setDisable(bool);
-        select.setDisable(bool);
         select2.setDisable(bool);
         showRawData.setDisable(bool);
         showSum.setDisable(bool);
@@ -1143,76 +365,79 @@ public class ToolBarView {
         pickerTimeEnd.setDisable(bool);
     }
 
-    public PickerCombo getPickerCombo() {
-        return pickerCombo;
-    }
-
     private void startToolbarIconListener() {
         reload.selectedProperty().addListener((observable, oldValue, newValue) -> chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD));
 
         runUpdateButton.setOnAction(action -> {
             if (runUpdateButton.isSelected()) {
-                model.setRunUpdate(true);
+                toolBarSettings.setRunUpdate(true);
                 runUpdateButton.setGraphic(pauseIcon);
-                model.setTimer();
+                chartPlugin.setTimer();
             } else {
-                model.setRunUpdate(false);
+                toolBarSettings.setRunUpdate(false);
                 runUpdateButton.setGraphic(playIcon);
-                model.stopTimer();
+                chartPlugin.stopTimer();
             }
         });
 
         exportCSV.setOnAction(action -> {
-            ChartExportCSV ge = null;
-            if (chartPlugin.isZoomed()) {
-                ge = new ChartExportCSV(
-                        ds,
-                        model,
-                        new DateTime(chartPlugin.getxAxisLowerBound().longValue() * 1000),
-                        new DateTime(chartPlugin.getxAxisUpperBound().longValue() * 1000));
-            } else {
-                ge = new ChartExportCSV(
-                        ds,
-                        model,
-                        model.getGlobalAnalysisTimeFrame().getStart(),
-                        model.getGlobalAnalysisTimeFrame().getEnd());
-            }
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                ChartExportCSV ge = null;
+                if (chartPlugin.isZoomed()) {
+                    ge = new ChartExportCSV(
+                            ds,
+                            dataModel,
+                            chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
+                            new DateTime(chartPlugin.getxAxisLowerBound().longValue() * 1000),
+                            new DateTime(chartPlugin.getxAxisUpperBound().longValue() * 1000));
+                } else {
+                    ge = new ChartExportCSV(
+                            ds,
+                            dataModel,
+                            chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
+                            chartPlugin.getDataSettings().getAnalysisTimeFrame().getStart(),
+                            chartPlugin.getDataSettings().getAnalysisTimeFrame().getEnd());
+                }
 
-            try {
-                ge.export();
-            } catch (FileNotFoundException | UnsupportedEncodingException | JEVisException e) {
-                logger.error("Error: could not export to file.", e);
+                try {
+                    ge.export();
+                } catch (FileNotFoundException | UnsupportedEncodingException | JEVisException e) {
+                    logger.error("Error: could not export to file.", e);
+                }
             }
         });
 
         exportImage.setOnAction(action -> {
-            ChartExportImage exportImage = new ChartExportImage(model);
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                ChartExportImage exportImage = new ChartExportImage(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis().getName());
 
-            if (exportImage.getDestinationFile() != null) {
+                if (exportImage.getDestinationFile() != null) {
 
-                exportImage.export(chartPlugin.getvBox());
+                    exportImage.export(chartPlugin.getvBox());
+                }
             }
-
         });
 
         exportPDF.setOnAction(event -> {
-            ChartExportPDF exportPDF = new ChartExportPDF(model, false);
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                ChartExportPDF exportPDF = new ChartExportPDF(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis().getName(), false);
 
-            if (exportPDF.getDestinationFile() != null) {
+                if (exportPDF.getDestinationFile() != null) {
 
-                exportPDF.export(chartPlugin.getvBox());
+                    exportPDF.export(chartPlugin.getvBox());
+                }
             }
         });
 
         printButton.setOnAction(event -> {
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                ChartExportPDF exportPDF = new ChartExportPDF(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis().getName(), true);
 
-            ChartExportPDF exportPDF = new ChartExportPDF(model, true);
+                if (exportPDF.getDestinationFile() != null) {
 
-            if (exportPDF.getDestinationFile() != null) {
-
-                exportPDF.export(chartPlugin.getvBox());
+                    exportPDF.export(chartPlugin.getvBox());
+                }
             }
-
         });
 
         save.setOnAction(action -> chartPlugin.handleRequest(Constants.Plugin.Command.SAVE));
@@ -1223,42 +448,40 @@ public class ToolBarView {
 
         zoomOut.setOnAction(event -> resetZoom());
 
-        select.setOnAction(event -> {
-            changeSettings();
+        select2.setOnAction(event -> {
+            changeSettings2();
         });
-
-//        select2.setOnAction(event -> {
-//            changeSettings2();
-//        });
 
         delete.setOnAction(event -> getChartPluginView().handleRequest(Constants.Plugin.Command.DELETE));
 
-        showRawData.setOnAction(event -> showRawDataInGraph());
+        showRawData.setOnAction(event -> toolBarSettings.setShowRawData(!toolBarSettings.isShowRawData()));
 
-        showSum.setOnAction(event -> showSumInGraph());
+        showSum.setOnAction(event -> toolBarSettings.setShowSum(!toolBarSettings.isShowSum()));
 
-        showL1L2.setOnAction(event -> showL1L2InGraph());
+        showL1L2.setOnAction(event -> toolBarSettings.setShowL1L2(!toolBarSettings.isShowL1L2()));
 
-        calcRegression.setOnAction(event -> calcRegression());
+        calcRegression.setOnAction(event -> toolBarFunctions.calcRegression());
 
-        calcFullLoadHours.setOnAction(event -> calcFullLoadHours());
+        calcFullLoadHours.setOnAction(event -> toolBarFunctions.calcFullLoadHours());
 
-        calcBaseLoad.setOnAction(event -> calcBaseLoad());
+        calcBaseLoad.setOnAction(event -> toolBarFunctions.calcBaseLoad());
 
-        calcValues.setOnAction(event -> calcValues());
+        calcValues.setOnAction(event -> toolBarFunctions.calcValues());
 
-        calcHoursAboveBelow.setOnAction(event -> calcHoursAboveBelow());
+        calcHoursAboveBelow.setOnAction(event -> toolBarFunctions.calcHoursAboveBelow());
 
-        calcSumAboveBelow.setOnAction(event -> calcSumAboveBelow());
+        calcSumAboveBelow.setOnAction(event -> toolBarFunctions.calcSumAboveBelow());
 
-        customWorkDay.setOnAction(event -> customWorkDay());
+        customWorkDay.setOnAction(event -> toolBarSettings.setCustomWorkday(!toolBarSettings.isCustomWorkday()));
 
-        disableIcons.setOnAction(event -> hideShowIconsInGraph());
+        disableIcons.setOnAction(event -> toolBarSettings.setShowIcons(!toolBarSettings.isShowIcons()));
 
-        addSeriesRunningMean.setOnAction(event -> addSeriesRunningMean());
+        autoResize.setOnAction(event -> toolBarSettings.setAutoResize(!toolBarSettings.isAutoResize()));
 
-        autoResize.setOnAction(event -> autoResizeInGraph());
+    }
 
+    public PickerCombo getPickerCombo() {
+        return pickerCombo;
     }
 
     private void createToolbarIcons() {
@@ -1308,7 +531,7 @@ public class ToolBarView {
         Tooltip runUpdateTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.runupdate"));
         runUpdateButton.setTooltip(runUpdateTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
-        runUpdateButton.setSelected(model.getRunUpdate());
+        runUpdateButton.setSelected(toolBarSettings.isRunUpdate());
         runUpdateButton.styleProperty().bind(
                 Bindings
                         .when(runUpdateButton.hoverProperty())
@@ -1328,7 +551,7 @@ public class ToolBarView {
         autoResize = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, iconSize, iconSize));
         Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
         autoResize.setTooltip(autoResizeTip);
-        autoResize.setSelected(model.getAutoResize());
+        autoResize.setSelected(toolBarSettings.isAutoResize());
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(autoResize);
         autoResize.styleProperty().bind(
                 Bindings
@@ -1341,11 +564,6 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        select = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
-        Tooltip selectTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
-        select.setTooltip(selectTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
-
         select2 = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
         Tooltip selectTooltip2 = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
         select2.setTooltip(selectTooltip2);
@@ -1355,7 +573,7 @@ public class ToolBarView {
         Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
         showRawData.setTooltip(showRawDataTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(showRawData);
-        showRawData.setSelected(model.getShowRawData());
+        showRawData.setSelected(toolBarSettings.isShowRawData());
         showRawData.styleProperty().bind(
                 Bindings
                         .when(showRawData.hoverProperty())
@@ -1372,13 +590,13 @@ public class ToolBarView {
         mathOperation.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.mathoperation")));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(mathOperation);
         showSum = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
-        showSum.setSelected(model.getShowSum());
+        showSum.setSelected(toolBarSettings.isShowSum());
 
         showL1L2 = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
-        showL1L2.setSelected(model.getShowL1L2());
+        showL1L2.setSelected(toolBarSettings.isShowL1L2());
 
         calcRegression = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
-        calcRegression.setSelected(model.calcRegression());
+        calcRegression.setSelected(toolBarSettings.isCalculateRegression());
 
         calcFullLoadHours = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcfullloadhours"));
 
@@ -1393,7 +611,7 @@ public class ToolBarView {
         customWorkDay = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, iconSize, iconSize));
         Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
         customWorkDay.setTooltip(customWorkDayTooltip);
-        customWorkDay.setSelected(model.isCustomWorkDay());
+        customWorkDay.setSelected(toolBarSettings.isCustomWorkday());
         customWorkDay.styleProperty().bind(
                 Bindings
                         .when(customWorkDay.hoverProperty())
@@ -1408,7 +626,7 @@ public class ToolBarView {
         disableIcons = new ToggleButton("", JEConfig.getSVGImage(Icon.Warning, iconSize, iconSize));
         Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         disableIcons.setTooltip(disableIconsTooltip);
-        disableIcons.setSelected(model.getShowIcons());
+        disableIcons.setSelected(toolBarSettings.isShowIcons());
         disableIcons.styleProperty().bind(
                 Bindings
                         .when(disableIcons.hoverProperty())
@@ -1419,21 +637,6 @@ public class ToolBarView {
                                 .then("-fx-background-insets: 1 1 1;")
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
-
-        addSeriesRunningMean = new ToggleButton("", JEConfig.getSVGImage(Icon.ALARM, iconSize, iconSize));
-        Tooltip addSeriesRunningMeanTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
-        addSeriesRunningMean.setTooltip(addSeriesRunningMeanTooltip);
-        addSeriesRunningMean.styleProperty().bind(
-                Bindings
-                        .when(addSeriesRunningMean.hoverProperty())
-                        .then(
-                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
-                        .otherwise(Bindings
-                                .when(addSeriesRunningMean.selectedProperty())
-                                .then("-fx-background-insets: 1 1 1;")
-                                .otherwise(
-                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
-
 
         zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, iconSize, iconSize));
         Tooltip zoomOutTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
@@ -1470,10 +673,10 @@ public class ToolBarView {
 //            }
         });
 
-        List<Node> nodes = Arrays.asList(listAnalysesComboBox,
+        List<Node> nodes = Arrays.asList(analysesComboBox,
                 presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                 reload, zoomOut,
-                loadNew, save, delete, select, select2, export, mathOperation, showRawData, exportImage, printButton,
+                loadNew, save, delete, select2, export, mathOperation, showRawData, exportImage, printButton,
                 disableIcons, autoResize, runUpdateButton);
 
         pickerCombo.addListener();
@@ -1482,8 +685,9 @@ public class ToolBarView {
         JEVisHelp.getInstance().addHelpItems(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, nodes);
     }
 
-    private void customWorkDay() {
-        model.setCustomWorkDay(!model.isCustomWorkDay());
+    private void updateWorkdayTimesFromJEVisObject(JEVisObject jeVisObject) {
+        WorkDays wd = new WorkDays(jeVisObject);
+        wd.setEnabled(toolBarSettings.isCustomWorkday());
     }
 
     public ChartPlugin getChartPluginView() {
@@ -1496,6 +700,25 @@ public class ToolBarView {
 
     public void setChanged(Boolean changed) {
         this.changed = changed;
+    }
+
+    public void resetToolbarSettings() {
+        toolBarSettings.setShowIcons(true);
+        toolBarSettings.setShowRawData(false);
+        toolBarSettings.setShowSum(false);
+        toolBarSettings.setShowL1L2(false);
+        toolBarSettings.setCalculateRegression(false);
+        toolBarSettings.setCustomWorkday(true);
+        toolBarSettings.setAutoResize(true);
+        toolBarSettings.setRunUpdate(false);
+        if (chartPlugin.getService().isRunning()) {
+            chartPlugin.getService().cancel();
+            chartPlugin.getService().reset();
+        }
+    }
+
+    public ToolBarSettings getToolBarSettings() {
+        return toolBarSettings;
     }
 
 

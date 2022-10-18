@@ -20,6 +20,7 @@ import org.joda.time.DateTimeZone;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -200,5 +201,23 @@ public class DataMethods extends CommonMethods {
         } catch (JEVisException e) {
             logger.error("Could not delete value samples for {}:{}", jeVisObject.getName(), jeVisObject.getID());
         }
+    }
+
+    public static String getObjectName(JEVisObject jeVisObject) {
+        String name = "";
+        if (jeVisObject != null) {
+            try {
+                List<String> relevantClasses = new ArrayList<>(Arrays.asList("Clean Data", "Math Data", "Forecast Data", "User Data"));
+                if (relevantClasses.contains(jeVisObject.getJEVisClassName())) {
+                    JEVisObject firstParentalDataObject = getFirstParentalDataObject(jeVisObject);
+                    name += firstParentalDataObject.getLocalName(I18n.getInstance().getLocale().getLanguage()) + " \\ ";
+                }
+
+                name += jeVisObject.getLocalName(I18n.getInstance().getLocale().getLanguage());
+            } catch (Exception e) {
+                logger.error("Could not create object name for {}:{}", jeVisObject.getName(), jeVisObject.getID());
+            }
+        }
+        return name;
     }
 }

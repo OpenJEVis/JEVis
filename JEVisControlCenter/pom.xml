@@ -164,11 +164,11 @@
             <artifactId>netty-codec</artifactId>
             <version>4.1.76.Final</version>
         </dependency>
-        <dependency>
-            <groupId>org.mustangproject</groupId>
-            <artifactId>library</artifactId>
-            <version>2.5.0</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.mustangproject</groupId>-->
+        <!--            <artifactId>library</artifactId>-->
+        <!--            <version>2.5.0</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>eu.hansolo</groupId>
             <artifactId>Medusa</artifactId>

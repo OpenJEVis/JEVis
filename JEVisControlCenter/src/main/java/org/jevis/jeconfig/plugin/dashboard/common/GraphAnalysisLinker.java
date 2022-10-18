@@ -9,8 +9,6 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
@@ -45,10 +43,9 @@ public class GraphAnalysisLinker {
     private void openLink() {
         try {
             if (targetIsreachable) {
-                AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                 AnalysisRequest analysisRequest = new AnalysisRequest(
                         this.dataSource.getObject(this.node.getGraphAnalysisObject())
-                        , aggregationPeriod, manipulationMode, analysisTimeFrame
+                        , aggregationPeriod, manipulationMode
                         , interval.getStart(), interval.getEnd());
 
                 JEConfig.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, analysisRequest);

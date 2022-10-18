@@ -5,6 +5,7 @@ import javafx.concurrent.Task;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
@@ -12,10 +13,10 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
-import org.jevis.jeconfig.application.tools.ColorHelper;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.plugin.charts.DataSettings;
+import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
 
 import java.util.Comparator;
 import java.util.List;
@@ -26,23 +27,27 @@ public class TableChart extends XYChart {
     private final TableTopDatePicker tableTopDatePicker = new TableTopDatePicker();
     private TableHeaderTable tableHeader;
 
-    public TableChart() {
+    public TableChart(JEVisDataSource ds) {
+        super(ds);
     }
 
     @Override
-    public void createChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting, boolean instant) {
+    public void createChart(ChartModel chartModel, List<ChartDataRow> dataRows, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
+        this.chartModel = chartModel;
+        this.chartDataRows = dataRows;
+
         if (!instant) {
 
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
                     try {
-                        buildChart(dataModel, dataRows, chartSetting);
+                        buildChart(toolBarSettings, dataSettings);
 
                         tableTopDatePicker.initialize(singleRow, timeStampOfLastSample.get());
                     } catch (Exception e) {
                         this.failed();
-                        logger.error("Could not build chart {}", chartSetting.getName(), e);
+                        logger.error("Could not build chart {}", chartModel.getChartName(), e);
                     } finally {
                         succeeded();
                     }
@@ -52,16 +57,16 @@ public class TableChart extends XYChart {
 
             JEConfig.getStatusBar().addTask(TableChart.class.getName(), task, taskImage, true);
         } else {
-            buildChart(dataModel, dataRows, chartSetting);
+            buildChart(toolBarSettings, dataSettings);
         }
     }
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
         this.singleRow = singleRow;
-        TableSerie serie = new TableSerie(chartSetting, singleRow, showIcons);
+        TableSerie serie = new TableSerie(chartModel, singleRow, showIcons);
 
-        getHexColors().add(ColorHelper.toColor(singleRow.getColor()));
+        getHexColors().add(singleRow.getColor());
 
         /**
          * check if timestamps are in serie
@@ -133,4 +138,8 @@ public class TableChart extends XYChart {
         this.tableHeader = tableHeader;
     }
 
+    @Override
+    public ChartModel getChartModel() {
+        return chartModel;
+    }
 }

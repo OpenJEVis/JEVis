@@ -28,12 +28,16 @@ import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartElements.Bubble;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.Charts.BubbleChart;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.dialog.NoteDialog;
@@ -53,7 +57,9 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
     private static final Logger logger = LogManager.getLogger(DataPointNoteDialog.class);
     private final DoubleValidator validator = DoubleValidator.getInstance();
+    private final java.text.NumberFormat nf = java.text.NumberFormat.getInstance(I18n.getInstance().getLocale());
     private List<XYChartSerie> xyChartSerieList;
+    private org.jevis.jeconfig.application.Chart.Charts.Chart chart;
     private final EventHandler<MouseEvent> noteHandler = event -> {
         if (event.getButton() == MouseButton.SECONDARY) {
             updateTable(event);
@@ -244,8 +250,15 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
     }
 
     public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, ChartPlugin chartPlugin) {
+        this(xyChartSerieList, chartPlugin, null);
+    }
+
+    public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, ChartPlugin chartPlugin, org.jevis.jeconfig.application.Chart.Charts.Chart chart) {
         this.xyChartSerieList = xyChartSerieList;
         this.chartPlugin = chartPlugin;
+        this.chart = chart;
+        this.nf.setMinimumFractionDigits(chart.getChartModel().getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(chart.getChartModel().getMaxFractionDigits());
 
         registerInputEventHandler(MouseEvent.MOUSE_CLICKED, noteHandler);
     }
@@ -374,43 +387,75 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
 
     private void updateTable(final MouseEvent event) {
-
         final Bounds plotAreaBounds = getChart().getPlotArea().getBoundsInLocal();
         final DataPoint dataPoint = findDataPoint(event, plotAreaBounds);
 
         Map<String, RowNote> map = new HashMap<>();
 
         if (dataPoint != null) {
-            Double v = dataPoint.getX() * 1000d;
-            DateTime nearest = new DateTime(v.longValue());
+            boolean isBubbleChart = chart instanceof BubbleChart;
 
-            for (XYChartSerie serie : xyChartSerieList) {
-                if (serie.getSingleRow().getManipulationMode().equals(ManipulationMode.NONE)) {
-                    try {
+            double x = dataPoint.getX();
+            if (!isBubbleChart) {
+                Double v = x * 1000d;
+                DateTime nearest = new DateTime(v.longValue());
 
-                        JEVisSample nearestSample = serie.getSampleMap().get(nearest);
+                for (XYChartSerie serie : xyChartSerieList) {
+                    if (serie.getSingleRow().getManipulationMode().equals(ManipulationMode.NONE)) {
+                        try {
 
-                        String title = "";
-                        title += serie.getSingleRow().getObject().getName();
+                            JEVisSample nearestSample = serie.getSampleMap().get(nearest);
 
-                        JEVisObject dataObject;
-                        if (serie.getSingleRow().getDataProcessor() != null)
-                            dataObject = serie.getSingleRow().getDataProcessor();
-                        else dataObject = serie.getSingleRow().getObject();
+                            String title = "";
+                            title += serie.getSingleRow().getObject().getName();
 
-                        String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
-                        String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
+                            JEVisObject dataObject;
+                            if (serie.getSingleRow().getDataProcessor() != null)
+                                dataObject = serie.getSingleRow().getDataProcessor();
+                            else dataObject = serie.getSingleRow().getObject();
 
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor(), serie.getSingleRow().getAlarms(false).get(nearestSample.getTimestamp()));
+                            String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
+                            String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                        map.put(title, rowNote);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                            RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor(), serie.getSingleRow().getAlarms(false).get(nearestSample.getTimestamp()));
+
+                            map.put(title, rowNote);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            } else {
+                BubbleChart bubbleChart = (BubbleChart) chart;
+                List<Bubble> bubbles = bubbleChart.getBubbles();
+                ChartDataRow chartDataRow = bubbleChart.getChartDataRows().stream().filter(dataRow -> dataRow.getBubbleType() == BubbleType.X).findFirst().orElse(null);
+
+                for (Bubble bubble : bubbles) {
+                    if (bubble.getX() == x) {
+                        for (JEVisSample xSample : bubble.getXSamples()) {
+                            try {
+
+                                JEVisSample ySample = null;
+                                for (JEVisSample sample : bubble.getYSamples()) {
+                                    if (sample.getTimestamp().equals(xSample.getTimestamp())) {
+                                        ySample = sample;
+                                        break;
+                                    }
+                                }
+
+                                String title = xSample.getTimestamp().toString("yyyy-MM-dd HH:mm:ss");
+                                RowNote rowNote = new RowNote(title, xSample, ySample);
+
+                                map.put(title, rowNote);
+                            } catch (Exception e) {
+                                logger.error("Could not create note row for xSample {}", xSample);
+                            }
+                        }
                     }
                 }
             }
 
-            NoteDialog nd = new NoteDialog(map);
+            NoteDialog nd = new NoteDialog(nf, map);
 
             nd.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
@@ -531,7 +576,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                     JEVisUser currentUser = obj.getDataSource().getCurrentUser();
                     //if (obj.getDataSource().getCurrentUser().canWrite(obj.getID())) {
 
-                    JEVisSample sample = entry.getValue().getSample();
+                    JEVisSample sample = entry.getValue().getYSample();
                     DateTime timeStamp = sample.getTimestamp();
                     String newUserNote = entry.getValue().getUserNote();
                     String newUserValue = entry.getValue().getUserValue();

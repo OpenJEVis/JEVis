@@ -19,11 +19,11 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
-import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.ExceptionDialog2;
-import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.dialog.Response;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -384,15 +384,18 @@ public class FormulaBox extends HBox {
                     openList.add(new UserSelection(UserSelection.SelectionType.Attribute, th.getAttribute().get(0), null, null));
                 }
             }
-            List<JEVisTreeFilter> allFilter = new ArrayList<>();
-            JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
-            allFilter.add(basicFilter);
 
-            SelectTargetDialog selectionDialog = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.SINGLE, calcObj.getDataSource(), openList);
+            List<JEVisClass> classes = new ArrayList<>();
+
+            for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+                classes.add(calcObj.getDataSource().getJEVisClass(className));
+            }
+
+            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(dialogContainer, calcObj.getDataSource(), classes, SelectionMode.SINGLE, openList, true);
             final JEVisObject out = outputObj;
             selectionDialog.setOnDialogClosed(event -> {
                 try {
-                    if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                    if (selectionDialog.getResponse() == Response.OK) {
                         for (UserSelection us : selectionDialog.getUserSelection()) {
                             JEVisObject outputObject = out;
                             JEVisAttribute targetAtt = us.getSelectedAttribute();
