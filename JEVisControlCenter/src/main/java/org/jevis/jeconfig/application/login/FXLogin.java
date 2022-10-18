@@ -373,7 +373,7 @@ public class FXLogin extends AnchorPane {
                                 HBox box = new HBox(5);
                                 box.setAlignment(Pos.CENTER_LEFT);
 
-                                Image img = new Image("/icons/" + item.getLanguage() + ".png");
+                                Image img = new Image("/icons/flags2/" + item.getLanguage() + ".png");
                                 ImageView iv = new ImageView(img);
                                 iv.fitHeightProperty().setValue(20);
                                 iv.fitWidthProperty().setValue(20);

@@ -31,6 +31,7 @@ import org.jevis.jeconfig.tool.Layouts;
 import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 public class LocalNameDialog {
 
@@ -55,7 +56,7 @@ public class LocalNameDialog {
 
     public LocalNameDialog(JEVisObject object) {
         this.object = object;
-        this.newName = object.getName();
+        this.newName = object.getLocalName(I18n.getInstance().getLocale().getLanguage());
     }
 
     public Response show() {
@@ -69,26 +70,34 @@ public class LocalNameDialog {
 
         /** build form **/
 
-        Label objNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        JFXTextField objectNameTest = new JFXTextField();
-        objectNameTest.setText(object.getLocalName("default"));
-        objectNameTest.textProperty().addListener((observable, oldValue, newValue) -> {
+
+
+
+        Label objLocalNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
+        JFXTextField objectLocalNameTest = new JFXTextField();
+        Image img = new Image("/icons/flags2/" + I18n.getInstance().getLocale().getLanguage() + ".png");
+        ImageView imageViewFlag = new ImageView(img);
+        imageViewFlag.fitHeightProperty().setValue(20);
+        imageViewFlag.fitWidthProperty().setValue(20);
+        imageViewFlag.setSmooth(true);
+        objectLocalNameTest.setText(object.getLocalName(I18n.getInstance().getLocale().getLanguage()));
+        objectLocalNameTest.textProperty().addListener((observable, oldValue, newValue) -> {
             newName = newValue;
         });
-        objectNameTest.focusedProperty().addListener(new ChangeListener<Boolean>() {
+        objectLocalNameTest.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue ov, Boolean t, Boolean t1) {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        if (objectNameTest.isFocused() && !objectNameTest.getText().isEmpty()) {
-                            objectNameTest.selectAll();
+                        if (objectLocalNameTest.isFocused() && !objectLocalNameTest.getText().isEmpty()) {
+                            objectLocalNameTest.selectAll();
                         }
                     }
                 });
             }
         });
-        Platform.runLater(() -> objectNameTest.requestFocus());
+        Platform.runLater(() -> objectLocalNameTest.requestFocus());
 
 
         object.getLocalNameList().forEach((s, s2) -> {
@@ -166,10 +175,10 @@ public class LocalNameDialog {
         gridPane.setHgap(8);
         Layouts.setAnchor(gridPane, 5);
 
-        gridPane.addRow(0, objNameLabel, objectNameTest);
-        gridPane.add(table, 0, 1, 2, 1);
+        gridPane.addRow(0, objLocalNameLabel,imageViewFlag, objectLocalNameTest);
+        gridPane.add(table, 0, 1, 3, 1);
 
-        GridPane.setHgrow(objectNameTest, Priority.ALWAYS);
+        GridPane.setHgrow(objectLocalNameTest, Priority.ALWAYS);
         GridPane.setHgrow(table, Priority.ALWAYS);
 
 
@@ -186,16 +195,31 @@ public class LocalNameDialog {
                     if (response.getButtonData().getTypeCode().equals(ButtonType.FINISH.getButtonData().getTypeCode())) {
                         this.response = Response.YES;
                         try {
-                            object.setName(newName);
                             Map<String, String> commitLangMap = new HashedMap();
                             translationRows.forEach(translationRow -> {
                                 if (translationRow != null && !translationRow.getName().isEmpty()) {
                                     commitLangMap.put(translationRow.getLanguage(), translationRow.getName());
+
                                 }
 
                             });
+                            if(commitLangMap.containsKey(I18n.getInstance().getLocale().getLanguage())) {
+                                commitLangMap.replace(I18n.getInstance().getLocale().getLanguage(), newName);
+                            }else {
 
+                                commitLangMap.put(I18n.getInstance().getLocale().getLanguage(), newName);
+                            }
                             object.setLocalNames(commitLangMap);
+                            if(!object.getLocalName("en").isEmpty()){
+                                object.setName(object.getLocalName("en"));
+                            }else if(!object.getLocalName("de").isEmpty()){
+                                object.setName(object.getLocalName("de"));
+                            }else {
+                                Optional<String> firstKey = object.getLocalNameList().keySet().stream().findFirst();
+                                if (firstKey.isPresent()) {
+                                    object.setName(object.getLocalName(firstKey.get()));
+                                }
+                            }
                             object.commit();
 
                         } catch (Exception ex) {
@@ -216,9 +240,8 @@ public class LocalNameDialog {
     }
 
     private JFXComboBox<Locale> buildLangBox(Locale selected) {
-        ObservableList<Locale> langList = LanguageEditor.getEnumList();
+        ObservableList<Locale> langList = FXCollections.observableArrayList(I18n.getInstance().getAvailableLang());
         JFXComboBox picker = new JFXComboBox(langList);
-
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
@@ -232,7 +255,7 @@ public class LocalNameDialog {
                             setText(null);
                         } else {
                             try {
-                                Image img = new Image("/icons/flags/" + item.getLanguage() + ".gif");
+                                Image img = new Image("/icons/flags2/" + item.getLanguage() + ".png");
                                 ImageView iv = new ImageView(img);
                                 iv.fitHeightProperty().setValue(20);
                                 iv.fitWidthProperty().setValue(20);
@@ -253,8 +276,9 @@ public class LocalNameDialog {
         picker.setCellFactory(cellFactory);
         picker.setButtonCell(cellFactory.call(null));
 
-        if (selected != null && !selected.equals("emty")) {
-            picker.getSelectionModel().select(selected);
+        if (selected != null && !selected.equals("empty")) {
+          int index =  langList.indexOf(langList.stream().filter(locale -> locale.getLanguage().equals(selected.getLanguage())).findAny().get());
+          picker.getSelectionModel().select(index);
         }
 
         return picker;

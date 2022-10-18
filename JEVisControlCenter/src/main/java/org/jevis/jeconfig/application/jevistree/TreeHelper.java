@@ -44,6 +44,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.export.ExportMaster;
@@ -1781,9 +1782,9 @@ public class TreeHelper {
                             }
 
                             String inputName = CalculationNameFormatter.createVariableName(us.getSelectedObject());
-
-                            JEVisClass inputClass = calcObject.getDataSource().getJEVisClass("Input");
+                            JEVisClass inputClass = calcObject.getDataSource().getJEVisClass(JC.Input.name);
                             JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
+                            newInputObj.setLocalNames(us.getSelectedObject().getLocalNameList());
                             newInputObj.commit();
 
                             DateTime now = new DateTime();

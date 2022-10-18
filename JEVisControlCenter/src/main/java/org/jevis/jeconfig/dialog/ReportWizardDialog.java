@@ -147,7 +147,8 @@ public class ReportWizardDialog {
                         throw new RuntimeException(e);
                     }
                 }).count() == 0) {
-                    reportLinkDirectory = newObject.buildObject("Report Link Directory", reportLinksDirectoryClass);
+                    reportLinkDirectory = newObject.buildObject(I18n.getInstance().getString("tree.treehelper.reportlinkdirectory.name"), reportLinksDirectoryClass);
+                    reportLinkDirectory.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.reportlinkdirectory.name"));
                     reportLinkDirectory.commit();
                 }
                 if (newObject.getChildren().stream().filter(jeVisObject -> {
@@ -157,13 +158,16 @@ public class ReportWizardDialog {
                         throw new RuntimeException(e);
                     }
                 }).count() == 0) {
-                    JEVisObject emailNotification = newObject.buildObject("E-Mail Notification", emailNotificationClass);
+                    JEVisObject emailNotification = newObject.buildObject(I18n.getInstance().getString("tree.treehelper.emailnotification.name"), emailNotificationClass);
+                    emailNotification.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.emailnotification.name"));
                     emailNotification.commit();
                 }
             } else {
-                reportLinkDirectory = newObject.buildObject("Report Link Directory", reportLinksDirectoryClass);
+                reportLinkDirectory = newObject.buildObject(I18n.getInstance().getString("tree.treehelper.reportlinkdirectory.name"), reportLinksDirectoryClass);
+                reportLinkDirectory.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.reportlinkdirectory.name"));
                 reportLinkDirectory.commit();
-                JEVisObject emailNotification = newObject.buildObject("E-Mail Notification", emailNotificationClass);
+                JEVisObject emailNotification = newObject.buildObject(I18n.getInstance().getString("tree.treehelper.emailnotification.name"), emailNotificationClass);
+                emailNotification.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.emailnotification.name"));
                 emailNotification.commit();
             }
 
@@ -246,14 +250,16 @@ public class ReportWizardDialog {
                                                 templateVariableSample.commit();
 
                                                 if (reportType == ReportType.STANDARD) {
-                                                    JEVisObject reportAttribute = object.buildObject("Report Attribute", finalReportAttributeClass);
+                                                    JEVisObject reportAttribute = object.buildObject(I18n.getInstance().getString("tree.treehelper.reportattribute.name"), finalReportAttributeClass);
+                                                    reportAttribute.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.reportattribute.name"));
                                                     reportAttribute.commit();
                                                     JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
 
                                                     JEVisSample attributeNameSample = attribute_name.buildSample(new DateTime(), reportLink.getReportAttribute().getAttributeName());
                                                     attributeNameSample.commit();
 
-                                                    JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", finalReportPeriodConfigurationClass);
+                                                    JEVisObject reportPeriodConfiguration = reportAttribute.buildObject(I18n.getInstance().getString("tree.treehelper.reportperiodconfiguration.name"), finalReportPeriodConfigurationClass);
+                                                    reportPeriodConfiguration.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.reportperiodconfiguration.name"));
                                                     reportPeriodConfiguration.commit();
 
                                                     JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
@@ -339,14 +345,16 @@ public class ReportWizardDialog {
                                 templateVariableSample.commit();
 
                                 if (reportType == ReportType.STANDARD) {
-                                    JEVisObject reportAttribute = object.buildObject("Report Attribute", finalReportAttributeClass);
+                                    JEVisObject reportAttribute = object.buildObject(I18n.getInstance().getString("tree.treehelper.reportattribute.name"), finalReportAttributeClass);
+                                    reportAttribute.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.reportattribute.name"));
                                     reportAttribute.commit();
                                     JEVisAttribute attribute_name = reportAttribute.getAttribute(JC.ReportAttribute.a_AttributeName);
 
                                     JEVisSample attributeNameSample = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
                                     attributeNameSample.commit();
 
-                                    JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", finalReportPeriodConfigurationClass);
+                                    JEVisObject reportPeriodConfiguration = reportAttribute.buildObject(I18n.getInstance().getString("tree.treehelper.reportperiodconfiguration.name"), finalReportPeriodConfigurationClass);
+                                    reportPeriodConfiguration.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.reportperiodconfiguration.name"));
                                     reportPeriodConfiguration.commit();
 
                                     JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Aggregation);

@@ -7,6 +7,9 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.classes.JC;
+import org.jevis.jeconfig.Icon;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.TreeHelper;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
@@ -64,7 +67,7 @@ public class VariablesBox extends FlowPane {
     public void listVariables(JEVisObject obj) {
         getChildren().clear();
 
-        JFXButton addInputButton = new JFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
+        JFXButton addInputButton = new JFXButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 15, 15));
         addInputButton.setOnAction(event -> {
             try {
                 TreeHelper.createCalcInput(dialogContainer, obj, null, this, expression);
@@ -75,7 +78,7 @@ public class VariablesBox extends FlowPane {
         getChildren().add(addInputButton);
 
         try {
-            JEVisClass inputClass = obj.getDataSource().getJEVisClass("Input");
+            JEVisClass inputClass = obj.getDataSource().getJEVisClass(JC.Input.name);
             for (JEVisObject var : obj.getChildren()) {
                 if (var.getJEVisClass().equals(inputClass)) {
                     buildVarButton(var);

@@ -124,7 +124,8 @@ public class NewObject {
             valueAttribute.commit();
 
             if (createClass.equals(dataClass) && isCleanData) {
-                JEVisObject newCleanObject = newObject.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
+                JEVisObject newCleanObject = newObject.buildObject(I18n.getInstance().getString("tree.treehelper.cleandata.name"), cleanDataClass);
+                newCleanObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
                 newCleanObject.commit();
 
                 JEVisAttribute cleanDataValueAttribute = newCleanObject.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());

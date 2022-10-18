@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -527,6 +528,8 @@ public class NodeTreeTable {
                         jevisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
                         setLogIntervalToJEVisObject(node, dataJEVisObject);
                         JEVisObject cleanDataJEVisObject = createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
+                        cleanDataJEVisObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
+                        cleanDataJEVisObject.commit();
                         setLogIntervalToJEVisObject(node, cleanDataJEVisObject);
                     }
                     setTrendIdToJEVisObject(node, dataSourceJEVisObject, dateTime);
