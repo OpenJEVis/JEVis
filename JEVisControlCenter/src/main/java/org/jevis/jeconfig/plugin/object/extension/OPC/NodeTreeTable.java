@@ -276,6 +276,7 @@ public class NodeTreeTable {
                                             getTreeTableRow().getTreeItem().getValue().setSelected(box.isSelected());
 
                                             childrenSetSelected(getTreeTableRow().getTreeItem());
+                                            parentSetSelected(getTreeTableRow().getTreeItem());
                                             opcUATreeTableView.refresh();
 
                                         });
@@ -610,6 +611,15 @@ public class NodeTreeTable {
                 childrenSetSelected(nodeTreeItem.getChildren().get(i));
             }
         }
+    }
+    private void parentSetSelected(TreeItem<Node> nodeTreeItem) {
+        if (nodeTreeItem.getValue().isSelected()) {
+            if (nodeTreeItem.getParent() != null) {
+                nodeTreeItem.getParent().getValue().setSelected(nodeTreeItem.getValue().isSelected());
+                parentSetSelected(nodeTreeItem.getParent());
+            }
+        }
+
     }
 
     /**
