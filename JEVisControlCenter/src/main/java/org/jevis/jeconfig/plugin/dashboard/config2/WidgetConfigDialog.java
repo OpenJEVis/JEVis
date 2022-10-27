@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -12,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.tabs.ChartTab;
+import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.widget.GenericConfigNode;
@@ -95,6 +98,43 @@ public class WidgetConfigDialog extends Alert {
         }
 
     }
+    public ObservableList<ChartData> addGeneralTabsDataModelNetGraph(DataModelDataHandler dataModelDataHandler) {
+        addGeneralTab(dataModelDataHandler);
+
+        if (dataModelDataHandler != null) {
+            this.dataModelDataHandler = dataModelDataHandler;
+
+            chartModel = dataModelDataHandler.getChartModel();
+            ChartTab chartTab = new ChartTab(dialogContainer, dataModelDataHandler.getJeVisDataSource(), chartModel);
+
+            chartTab.setText(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
+            chartTab.setClosable(false);
+            chartTab.setMenuVisible(false);
+            chartTab.setIntervalColumnVisible(false);
+
+            if (widget instanceof ValueWidget) {
+                chartTab.setCommonChartSettingsVisible(false);
+                chartTab.setColorColumnVisible(false);
+                chartTab.setAxisColumnVisible(false);
+                chartTab.setChartTypeColumnVisible(false);
+                chartTab.setCssColumnVisible(false);
+                chartTab.setNameColumnVisible(false);
+            }
+
+            addTab(chartTab);
+            chartTab.getChartTable().getItems().addListener(new ListChangeListener<ChartData>() {
+                @Override
+                public void onChanged(Change<? extends ChartData> c) {
+                    System.out.println("table changed");
+                    System.out.println(c);
+                }
+            });
+            return chartTab.getChartTable().getItems();
+        }
+        return null;
+
+    }
+
 
     public void commitSettings() {
         this.tabPane.getTabs().forEach(tab -> {
