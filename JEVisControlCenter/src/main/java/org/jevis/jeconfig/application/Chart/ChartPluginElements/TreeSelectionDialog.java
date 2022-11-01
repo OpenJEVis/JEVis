@@ -89,7 +89,7 @@ public class TreeSelectionDialog extends JFXDialog {
                 boolean correctChoice = true;
                 List<JEVisObject> incorrectObjects = new ArrayList<>();
                 for (JEVisObject object : treeView.getSelectedObjects()) {
-                    if (!classFilter.contains(object.getJEVisClass())) {
+                    if (!classFilter.isEmpty() && !classFilter.contains(object.getJEVisClass())) {
                         correctChoice = false;
                         incorrectObjects.add(object);
                     }
