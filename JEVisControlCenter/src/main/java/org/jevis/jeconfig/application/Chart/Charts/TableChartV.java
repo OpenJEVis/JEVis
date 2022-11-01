@@ -70,6 +70,7 @@ public class TableChartV extends XYChart {
     @Override
     public void createChart(ChartModel chartModel, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
         this.chartModel = chartModel;
+        this.chartDataRows = new ArrayList<>();
 
         if (!instant) {
             Task task = new Task() {
@@ -248,8 +249,8 @@ public class TableChartV extends XYChart {
                 filterBox.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
                 filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {
-                        String s = columnFilter.get(index);
-                        if (s != null) columnFilter.remove(index, newValue);
+                        String s = columnFilter.get(column);
+                        if (s != null) columnFilter.remove(column);
                         columnFilter.put(column, newValue);
                         refreshTable();
                     }
@@ -452,10 +453,27 @@ public class TableChartV extends XYChart {
             for (Map.Entry<TableColumn, String> entry : columnFilter.entrySet()) {
                 TableColumn<TableSample, String> column = (TableColumn<TableSample, String>) entry.getKey();
                 int columnIndex = tableHeader.getColumns().indexOf(column);
+
                 String columnFilterValue = entry.getValue();
                 if (columnFilterValue == null || columnFilterValue.equals("")) continue;
 
-                String columnValue = tableSample.getColumnValues().get(columnIndex - 1); //TableSample has no date column
+                XYChartSerie serie = xyChartSerieList.get(columnIndex);
+                ChartDataRow chartDataRow = serie.getSingleRow();
+                String columnValue;
+                if (!chartDataRow.isStringData()) {
+                    try {
+                        Number parse = nf.parse(tableSample.getColumnValues().get(columnIndex - 1));
+                        Number parseFilter = nf.parse(columnFilterValue);
+                        columnValue = parse.toString();
+                        columnFilterValue = parseFilter.toString();
+                    } catch (Exception e) {
+                        columnValue = tableSample.getColumnValues().get(columnIndex - 1);
+                        columnFilterValue = entry.getValue();
+                    }
+                } else {
+                    columnValue = tableSample.getColumnValues().get(columnIndex - 1); //TableSample has no date column
+                }
+
                 if (!columnValue.toLowerCase().contains(columnFilterValue.toLowerCase())) {
                     showTableSample = false;
                     break;
@@ -478,7 +496,7 @@ public class TableChartV extends XYChart {
                 Double oldValue = sums.get(xyChartSerieList.indexOf(xyChartSerie));
                 sums.set(xyChartSerieList.indexOf(xyChartSerie), oldValue + jeVisSample.getValueAsDouble());
             }
-        } else if (xyChartSerie.getSingleRow().isStringData()) {
+        } else {
             if (!xyChartSerie.getSingleRow().getUnit().toString().equals("")) {
                 nts.getColumnValues().set(index, jeVisSample.getValueAsString() + " " + xyChartSerie.getSingleRow().getUnit());
             } else {
