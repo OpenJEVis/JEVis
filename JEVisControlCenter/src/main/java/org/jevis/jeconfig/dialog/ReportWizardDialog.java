@@ -18,7 +18,10 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,9 +52,11 @@ import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
-import sun.nio.cs.ext.IBM833;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -78,7 +83,7 @@ public class ReportWizardDialog {
 
     private XSSFWorkbook workbook;
 
-    private List<String> sheetList = new ArrayList<>();
+    private final List<String> sheetList = new ArrayList<>();
     private ReportType reportType = ReportType.STANDARD;
 
     private GridPane gridPane;
@@ -606,7 +611,7 @@ public class ReportWizardDialog {
     private void openMultiSelect() {
         List<JEVisClass> classes = new ArrayList<>();
 
-        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+        for (String className : TreeSelectionDialog.allData) {
             try {
                 classes.add(ds.getJEVisClass(className));
             } catch (Exception e) {
@@ -614,7 +619,7 @@ public class ReportWizardDialog {
             }
         }
 
-        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, classes, SelectionMode.MULTIPLE, new ArrayList<>(), true);
+        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, new ArrayList<>(), SelectionMode.MULTIPLE, new ArrayList<>(), true);
 
         selectionDialog.setOnDialogClosed(event -> {
             if (selectionDialog.getResponse() == Response.OK) {
@@ -644,7 +649,7 @@ public class ReportWizardDialog {
     private void openSingleSelect() {
         List<JEVisClass> classes = new ArrayList<>();
 
-        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+        for (String className : TreeSelectionDialog.allData) {
             try {
                 classes.add(ds.getJEVisClass(className));
             } catch (Exception e) {
@@ -888,7 +893,7 @@ public class ReportWizardDialog {
 
         List<JEVisClass> classes = new ArrayList<>();
 
-        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+        for (String className : TreeSelectionDialog.allData) {
             try {
                 classes.add(ds.getJEVisClass(className));
             } catch (Exception e) {
@@ -904,7 +909,7 @@ public class ReportWizardDialog {
                 target = reportLink.getjEVisID().toString();
             }
             TargetHelper th = new TargetHelper(ds, target);
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
                 logger.info("Target Is valid");
                 setButtonText(target, targetsButton);
             }
@@ -914,7 +919,7 @@ public class ReportWizardDialog {
             TargetHelper th = null;
             if (targetString.get() != null) {
                 th = new TargetHelper(ds, targetString.get());
-                if (th.isValid() && th.targetAccessible()) {
+                if (th.isValid() && th.targetObjectAccessible()) {
                     logger.info("Target Is valid");
                     setButtonText(targetString.get(), targetsButton);
                 }
@@ -997,7 +1002,7 @@ public class ReportWizardDialog {
 
                     ReportFixedPeriodBox box = null;
                     for (Node node : gridPane.getChildren()) {
-                        if (gridPane.getRowIndex(node).equals(currentRow)) {
+                        if (GridPane.getRowIndex(node).equals(currentRow)) {
                             if (node instanceof ReportFixedPeriodBox) {
                                 box = (ReportFixedPeriodBox) node;
                             }
@@ -1100,7 +1105,7 @@ public class ReportWizardDialog {
                 th = new TargetHelper(ds, targetString);
             }
 
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
 
                 StringBuilder bText = new StringBuilder();
 
@@ -1128,7 +1133,7 @@ public class ReportWizardDialog {
                     bText.append("] ");
                     bText.append(obj.getName());
 
-                    if (th.hasAttribute()) {
+                    if (th.isAttribute()) {
 
                         bText.append(" - ");
                         bText.append(th.getAttribute().get(index).getName());

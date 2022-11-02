@@ -32,19 +32,20 @@ public class TargetHelper {
 
     private JEVisAttribute sourceAtt;
 
-    private JEVisDataSource ds;
+    private final JEVisDataSource ds;
     private final static String SEPARATOR = ":";
     private final static String MULTI_SELECT_SEPARATOR = ";";
     private String sourceValue = "";
-    private Boolean isAttribute = false;
+    private final Boolean isAttribute = false;
     private Boolean isObject = false;
-    private List<Boolean> targetIsAccessible = new ArrayList<>();
-    private List<Boolean> isValid = new ArrayList<>();
+    private final List<Boolean> targetObjectIsAccessible = new ArrayList<>();
+    private final List<Boolean> targetAttributeIsAccessible = new ArrayList<>();
+    private final List<Boolean> isValid = new ArrayList<>();
 
-    private List<JEVisObject> targetObject = new ArrayList<>();
-    private List<JEVisAttribute> targetAttribute = new ArrayList<>();
-    private List<Long> targetObjectID = new ArrayList<>();
-    private List<String> targetAttributeString = new ArrayList<>();
+    private final List<JEVisObject> targetObject = new ArrayList<>();
+    private final List<JEVisAttribute> targetAttribute = new ArrayList<>();
+    private final List<Long> targetObjectID = new ArrayList<>();
+    private final List<String> targetAttributeString = new ArrayList<>();
 
     /**
      * Creates an new TargetHelper. It will get the last value of the given
@@ -139,21 +140,26 @@ public class TargetHelper {
                 if (t.contains(SEPARATOR)) {
                     int separator = t.indexOf(":");
                     String objectString = t.substring(0, separator);
+                    boolean validObject = true;
+                    boolean validAttribute = true;
                     try {
                         targetObjectID.add(Long.parseLong(objectString));
                     } catch (Exception ex) {
-                        isValid.add(false);
+                        validObject = false;
                     }
 
                     if ((separator + 1) < t.length()) {
                         targetAttributeString.add(t.substring(separator + 1));
                     } else {
-                        isValid.add(false);
+                        validAttribute = false;
                     }
+
+                    isValid.add(validObject && validAttribute);
 
                 } else {
                     try {
                         targetObjectID.add(Long.parseLong(t));
+                        isValid.add(true);
                     } catch (Exception ex) {
                         isValid.add(false);
                     }
@@ -163,42 +169,40 @@ public class TargetHelper {
             //check if the target Exist
             for (Long objID : targetObjectID) {
                 int index = targetObjectID.indexOf(objID);
-                JEVisObject tar = null;
+                JEVisObject targetObject = null;
+                JEVisAttribute targetAttribute = null;
+                boolean objectAccessible = true;
+                boolean attributeAccessible = true;
                 try {
-                    tar = ds.getObject(objID);
-                    if (tar != null) {
-                        targetObject.add(tar);
+                    targetObject = ds.getObject(objID);
+                    if (targetObject != null) {
+                        this.targetObject.add(targetObject);
                     }
                 } catch (Exception ex) {
-                    targetIsAccessible.add(false);
+                    objectAccessible = false;
                 }
 
-                if (!targetAttributeString.isEmpty() && !targetObject.isEmpty()) {
+                if (targetObject != null && !targetAttributeString.isEmpty()) {
                     try {
-                        JEVisObject obj = targetObject.get(index);
-                        JEVisAttribute att = obj.getAttribute(targetAttributeString.get(index));
-                        if (att != null)
-                            targetAttribute.add(att);
-                        if (att == null) {
-                            isValid.add(false);
-                            targetIsAccessible.add(false);
+                        targetAttribute = targetObject.getAttribute(targetAttributeString.get(index));
+
+                        if (targetAttribute != null) {
+                            this.targetAttribute.add(targetAttribute);
                         } else {
-                            isValid.add(true);
-                            isAttribute = true;
-                            targetIsAccessible.add(true);
+                            attributeAccessible = false;
                         }
                     } catch (Exception ex) {
-                        isValid.add(false);
+                        attributeAccessible = false;
                     }
-                } else {
-                    if (tar != null) {
-                        isObject = true;
-                        isValid.add(true);
-                        targetIsAccessible.add(true);
-                    } else {
+                }
+
+                if (targetObject != null) {
+                    isObject = true;
+                    targetObjectIsAccessible.add(objectAccessible);
+
+                    if (targetAttribute != null) {
                         isObject = false;
-                        isValid.add(false);
-                        targetIsAccessible.add(false);
+                        targetAttributeIsAccessible.add(attributeAccessible);
                     }
                 }
             }
@@ -207,23 +211,42 @@ public class TargetHelper {
 
     public boolean isValid() {
         if (isValid.isEmpty()) return false;
-        boolean isvalid = true;
-        for (boolean b : isValid) if (!b) isvalid = false;
-        return isvalid;
+        boolean isValid = true;
+        for (boolean b : this.isValid)
+            if (!b) {
+                isValid = false;
+                break;
+            }
+        return isValid;
     }
 
-    public boolean targetAccessible() {
-        if (targetIsAccessible.isEmpty()) return false;
-        boolean isaccessible = true;
-        for (boolean b : targetIsAccessible) if (!b) isaccessible = false;
-        return isaccessible;
+    public boolean targetObjectAccessible() {
+        if (targetObjectIsAccessible.isEmpty()) return false;
+        boolean isAccessible = true;
+        for (boolean b : targetObjectIsAccessible)
+            if (!b) {
+                isAccessible = false;
+                break;
+            }
+        return isAccessible;
     }
 
-    public boolean hasAttribute() {
+    public boolean targetAttributeAccessible() {
+        if (targetAttributeIsAccessible.isEmpty()) return false;
+        boolean isAccessible = true;
+        for (boolean b : targetAttributeIsAccessible)
+            if (!b) {
+                isAccessible = false;
+                break;
+            }
+        return isAccessible;
+    }
+
+    public boolean isAttribute() {
         return isAttribute;
     }
 
-    public boolean hasObject() {
+    public boolean isObject() {
         return isObject;
     }
 

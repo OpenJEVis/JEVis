@@ -73,6 +73,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDia
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.Chart;
 import org.jevis.jeconfig.application.Chart.Charts.*;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.*;

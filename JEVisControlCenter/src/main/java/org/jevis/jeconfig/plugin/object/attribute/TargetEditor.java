@@ -135,7 +135,7 @@ public class TargetEditor implements AttributeEditor {
                     th = new TargetHelper(_attribute.getDataSource(), _attribute);
                 }
 
-                if (th.isValid() && th.targetAccessible()) {
+                if (th.isValid() && th.targetObjectAccessible()) {
                     JEVisObject findObj = _attribute.getDataSource().getObject(th.getObject().get(0).getID());
 
                     List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
@@ -164,20 +164,19 @@ public class TargetEditor implements AttributeEditor {
                  * The not so pretty solution to add target specific filter
                  */
                 JEVisSample latestSample = _attribute.getLatestSample();
+                JEVisType attributeType = _attribute.getType();
+                boolean showAttributes = attributeType.getGUIDisplayType().equals("Attribute Target");
+
                 TargetHelper th = null;
                 if (latestSample != null) {
                     th = new TargetHelper(_attribute.getDataSource(), latestSample.getValueAsString());
-                    if (th.isValid() && th.targetAccessible()) {
+                    if (th.isValid() && th.targetObjectAccessible()) {
                         logger.info("Target Is valid");
                         setButtonText();
                     }
                 }
 
                 List<JEVisClass> classes = new ArrayList<>();
-
-                for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
-                    classes.add(_attribute.getDataSource().getJEVisClass(className));
-                }
 
                 List<UserSelection> openList = new ArrayList<>();
                 if (th != null && !th.getAttribute().isEmpty()) {
@@ -191,9 +190,9 @@ public class TargetEditor implements AttributeEditor {
                 }
 
                 if (_attribute.getObject().getJEVisClassName().equals("Alarm Configuration")) {
-                    treeSelectionDialog = new TreeSelectionDialog(dialogContainer, _attribute.getDataSource(), classes, SelectionMode.MULTIPLE, openList, true);
+                    treeSelectionDialog = new TreeSelectionDialog(dialogContainer, _attribute.getDataSource(), classes, SelectionMode.MULTIPLE, openList, showAttributes);
                 } else {
-                    treeSelectionDialog = new TreeSelectionDialog(dialogContainer, _attribute.getDataSource(), classes, SelectionMode.SINGLE, openList, true);
+                    treeSelectionDialog = new TreeSelectionDialog(dialogContainer, _attribute.getDataSource(), classes, SelectionMode.SINGLE, openList, showAttributes);
                 }
 
                 TreeSelectionDialog finalSelectTargetDialog = treeSelectionDialog;
@@ -240,7 +239,7 @@ public class TargetEditor implements AttributeEditor {
                 th = new TargetHelper(_attribute.getDataSource(), _attribute);
             }
 
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
 
                 StringBuilder bText = new StringBuilder();
 
@@ -268,7 +267,7 @@ public class TargetEditor implements AttributeEditor {
                     bText.append("] ");
                     bText.append(obj.getName());
 
-                    if (th.hasAttribute()) {
+                    if (th.isAttribute()) {
 
                         bText.append(" - ");
                         bText.append(th.getAttribute().get(index).getName());

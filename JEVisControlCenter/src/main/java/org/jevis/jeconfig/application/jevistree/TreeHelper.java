@@ -1748,7 +1748,7 @@ public class TreeHelper {
 
         List<JEVisClass> classes = new ArrayList<>();
 
-        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+        for (String className : TreeSelectionDialog.allData) {
             classes.add(calcObject.getDataSource().getJEVisClass(className));
         }
 
@@ -1808,7 +1808,7 @@ public class TreeHelper {
                                 th2 = new TargetHelper(us.getSelectedObject().getDataSource(), correspondingCleanObject, targetAtt);
                             }
 
-                            if (th2.isValid() && th2.targetAccessible()) {
+                            if (th2.isValid() && th2.targetObjectAccessible()) {
                                 logger.info("Target Is valid");
                                 JEVisSample newTarget = aInputData.buildSample(now, th2.getSourceString());
                                 newTarget.commit();
