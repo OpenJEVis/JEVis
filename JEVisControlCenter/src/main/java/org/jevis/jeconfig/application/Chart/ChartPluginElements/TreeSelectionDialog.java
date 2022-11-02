@@ -173,7 +173,7 @@ public class TreeSelectionDialog extends JFXDialog {
 
         box.getChildren().addAll(new TreeViewPath(treeView), treeView, buttonBar);
         VBox.setVgrow(treeView, Priority.ALWAYS);
-        box.setMinHeight(dialogContainer.getHeight() - 40);
+        box.setMinHeight(dialogContainer.getHeight() - 80);
         box.setMinWidth(1024);
 
         this.setContent(box);

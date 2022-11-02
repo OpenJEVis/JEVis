@@ -573,7 +573,8 @@ public class XYChart implements Chart {
             if (xyChartSerie.getSingleRow().isIntervalEnabled()) {
                 isCurrentlyCustomInterval = true;
                 hastCustomIntervals.set(true);
-            }
+                xyChartSerie.setXAxis(secondaryDateAxis);
+            } else xyChartSerie.setXAxis(primaryDateAxis);
 
             ErrorDataSetRenderer rendererY1;
             ErrorDataSetRenderer rendererY2;

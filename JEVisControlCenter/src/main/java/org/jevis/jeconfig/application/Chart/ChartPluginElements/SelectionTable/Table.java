@@ -64,7 +64,7 @@ public class Table extends TableView<ChartData> {
 
         getColumns().setAll(objectNameColumn, nameColumn, chartTypeColumn, colorColumn, unitColumn,
                 intervalEnabledColumn, intervalStartColumn, intervalEndColumn,
-                axisColumn, aggregationPeriodColumn, manipulationModeColumn, mathColumn, cssColumn);
+                bubbleTypeColumn, axisColumn, aggregationPeriodColumn, manipulationModeColumn, mathColumn, cssColumn);
         getSortOrder().setAll(nameColumn);
     }
 
