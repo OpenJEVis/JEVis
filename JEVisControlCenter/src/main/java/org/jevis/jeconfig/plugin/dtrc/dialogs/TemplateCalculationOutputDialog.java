@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.dialog;
+package org.jevis.jeconfig.plugin.dtrc.dialogs;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
@@ -18,6 +18,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
+import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.dtrc.TemplateOutput;
 
 import java.math.BigDecimal;

@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.dialog;
+package org.jevis.jeconfig.plugin.dtrc.dialogs;
 
 import com.jfoenix.controls.*;
 import javafx.application.Platform;
@@ -21,6 +21,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.dtrc.*;
 
 import java.util.ArrayList;

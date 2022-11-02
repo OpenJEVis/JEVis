@@ -102,6 +102,7 @@ public class AccountingPlugin extends TablePlugin {
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
     private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_IN, toolBarIconSize, toolBarIconSize));
     private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton importPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.IMPORT, toolBarIconSize, toolBarIconSize));
     private final BorderPane borderPane = new BorderPane();
     private final StackPane dialogPane = new StackPane(borderPane);
     private final TabPane motherTabPane = new TabPane();
@@ -192,6 +193,7 @@ public class AccountingPlugin extends TablePlugin {
     private final JFXTextField marketLocationNumberField = new JFXTextField();
     private final JFXDatePicker contractDatePicker = new JFXDatePicker();
     private final JFXDatePicker firstRatePicker = new JFXDatePicker();
+
     private final JFXDatePicker periodOfNoticePicker = new JFXDatePicker();
     private final JFXDatePicker contractStartPicker = new JFXDatePicker();
     private final JFXDatePicker contractEndPicker = new JFXDatePicker();
@@ -618,6 +620,33 @@ public class AccountingPlugin extends TablePlugin {
         zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
         zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
 
+        Separator sep5 = new Separator(Orientation.VERTICAL);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(importPDF);
+        importPDF.setTooltip(new Tooltip(I18n.getInstance().getString("jevistree.menu.import")));
+
+        importPDF.setOnAction(actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle(I18n.getInstance().getString("jevistree.menu.import"));
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("PDF", "*.pdf"),
+                    new FileChooser.ExtensionFilter("All Files", "*.*"));
+            File selectedFile = fileChooser.showOpenDialog(null);
+            if (selectedFile != null) {
+                try {
+//                    InputStream inputStream = Files.newInputStream(selectedFile.toPath());
+//                    ZUGFeRDImporter zugFeRDImporter = new ZUGFeRDImporter(inputStream);
+//                    for (Map.Entry<String, byte[]> entry : zugFeRDImporter.getAdditionalData().entrySet()) {
+//                        String s = entry.getKey();
+//                        byte[] bytes = entry.getValue();
+//                    }
+//
+//                    inputStream.close();
+                } catch (Exception ex) {
+                    logger.fatal(ex);
+                }
+            }
+        });
+
         zoomIn.setOnAction(event -> {
             fontSize += 1;
             viewTab.setFontSize(fontSize);
@@ -640,6 +669,7 @@ public class AccountingPlugin extends TablePlugin {
                 sep2, save, newButton, delete,
                 sep3, xlsxButton, printButton,
                 sep4, zoomIn, zoomOut,
+//                sep5, importPDF,
                 JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(AccountingPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
@@ -1151,7 +1181,7 @@ public class AccountingPlugin extends TablePlugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.ACCOUNTING, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.ACCOUNTING, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override
