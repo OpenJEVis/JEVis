@@ -353,7 +353,7 @@ public class OutputView extends Tab {
                                         TargetHelper th = new TargetHelper(ds, templateOutput.getTarget());
 
                                         manSampleButton.setOnAction(event -> {
-                                            if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+                                            if (th.isValid() && th.targetObjectAccessible() && !th.getAttribute().isEmpty()) {
                                                 JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
 
                                                 EnterDataDialog enterDataDialog = new EnterDataDialog(viewDialogContainer, ds);
@@ -767,7 +767,7 @@ public class OutputView extends Tab {
                 TargetHelper th = null;
                 if (templateOutput.getTarget() != null) {
                     th = new TargetHelper(ds, templateOutput.getTarget());
-                    if (th.isValid() && th.targetAccessible()) {
+                    if (th.isValid() && th.targetObjectAccessible()) {
                         logger.info("Target Is valid");
                         setButtonText(templateOutput, targetButton);
                     }
@@ -831,7 +831,7 @@ public class OutputView extends Tab {
                 th = new TargetHelper(ds, templateOutput.getTarget());
             }
 
-            if (th != null && th.isValid() && th.targetAccessible()) {
+            if (th != null && th.isValid() && th.targetObjectAccessible()) {
 
                 StringBuilder bText = new StringBuilder();
 
@@ -859,7 +859,7 @@ public class OutputView extends Tab {
                     bText.append("] ");
                     bText.append(obj.getName());
 
-                    if (th.hasAttribute()) {
+                    if (th.isAttribute()) {
 
                         bText.append(" - ");
                         bText.append(th.getAttribute().get(index).getName());

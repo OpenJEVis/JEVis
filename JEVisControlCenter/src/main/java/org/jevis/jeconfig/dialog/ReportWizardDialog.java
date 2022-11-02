@@ -611,7 +611,7 @@ public class ReportWizardDialog {
     private void openMultiSelect() {
         List<JEVisClass> classes = new ArrayList<>();
 
-        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+        for (String className : TreeSelectionDialog.allData) {
             try {
                 classes.add(ds.getJEVisClass(className));
             } catch (Exception e) {
@@ -649,7 +649,7 @@ public class ReportWizardDialog {
     private void openSingleSelect() {
         List<JEVisClass> classes = new ArrayList<>();
 
-        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+        for (String className : TreeSelectionDialog.allData) {
             try {
                 classes.add(ds.getJEVisClass(className));
             } catch (Exception e) {
@@ -893,7 +893,7 @@ public class ReportWizardDialog {
 
         List<JEVisClass> classes = new ArrayList<>();
 
-        for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+        for (String className : TreeSelectionDialog.allData) {
             try {
                 classes.add(ds.getJEVisClass(className));
             } catch (Exception e) {
@@ -909,7 +909,7 @@ public class ReportWizardDialog {
                 target = reportLink.getjEVisID().toString();
             }
             TargetHelper th = new TargetHelper(ds, target);
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
                 logger.info("Target Is valid");
                 setButtonText(target, targetsButton);
             }
@@ -919,7 +919,7 @@ public class ReportWizardDialog {
             TargetHelper th = null;
             if (targetString.get() != null) {
                 th = new TargetHelper(ds, targetString.get());
-                if (th.isValid() && th.targetAccessible()) {
+                if (th.isValid() && th.targetObjectAccessible()) {
                     logger.info("Target Is valid");
                     setButtonText(targetString.get(), targetsButton);
                 }
@@ -1105,7 +1105,7 @@ public class ReportWizardDialog {
                 th = new TargetHelper(ds, targetString);
             }
 
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
 
                 StringBuilder bText = new StringBuilder();
 
@@ -1133,7 +1133,7 @@ public class ReportWizardDialog {
                     bText.append("] ");
                     bText.append(obj.getName());
 
-                    if (th.hasAttribute()) {
+                    if (th.isAttribute()) {
 
                         bText.append(" - ");
                         bText.append(th.getAttribute().get(index).getName());

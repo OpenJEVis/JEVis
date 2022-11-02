@@ -577,7 +577,7 @@ public class AlarmWizardDialog {
                 target = reportLink.getjEVisID().toString();
             }
             TargetHelper th = new TargetHelper(ds, target);
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
                 logger.info("Target Is valid");
                 setButtonText(target, targetsButton);
             }
@@ -587,7 +587,7 @@ public class AlarmWizardDialog {
             TargetHelper th = null;
             if (targetString.get() != null) {
                 th = new TargetHelper(ds, targetString.get());
-                if (th.isValid() && th.targetAccessible()) {
+                if (th.isValid() && th.targetObjectAccessible()) {
                     logger.info("Target Is valid");
                     setButtonText(targetString.get(), targetsButton);
                 }
@@ -748,7 +748,7 @@ public class AlarmWizardDialog {
                 th = new TargetHelper(ds, targetString);
             }
 
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
 
                 StringBuilder bText = new StringBuilder();
 
@@ -776,7 +776,7 @@ public class AlarmWizardDialog {
                     bText.append("] ");
                     bText.append(obj.getName());
 
-                    if (th.hasAttribute()) {
+                    if (th.isAttribute()) {
 
                         bText.append(" - ");
                         bText.append(th.getAttribute().get(index).getName());

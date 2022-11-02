@@ -145,7 +145,7 @@ public class JEVisCSVParser implements Parser {
                 String target = null;
 
                 TargetHelper targetHelper = new TargetHelper(dp.getDataSource(), targetString);
-                if (targetHelper.isValid() && targetHelper.targetAccessible()) {
+                if (targetHelper.isValid() && targetHelper.targetObjectAccessible()) {
                     target = targetString;
                 } else {
                     logger.warn("DataPoint target error: {}:{}", dp.getName(), dp.getID());

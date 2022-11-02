@@ -12,7 +12,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -300,7 +299,7 @@ public class TablePlugin implements Plugin {
                             try {
                                 if (item.getLatestSample() != null) {
                                     TargetHelper th = new TargetHelper(getDataSource(), item.getLatestSample().getValueAsString());
-                                    if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+                                    if (th.isValid() && th.targetObjectAccessible() && !th.getAttribute().isEmpty()) {
 
                                         JEVisObject firstCleanObject = CommonMethods.getFirstCleanObject(th.getObject().get(0));
                                         if (firstCleanObject != null) {
@@ -320,7 +319,7 @@ public class TablePlugin implements Plugin {
                             gotoButton.setOnAction(event -> {
                                 try {
                                     TargetHelper th = new TargetHelper(ds, item);
-                                    if (th.isValid() && th.targetAccessible()) {
+                                    if (th.isValid() && th.targetObjectAccessible()) {
                                         JEVisObject findObj = ds.getObject(th.getObject().get(0).getID());
                                         JEConfig.openObjectInPlugin(ObjectPlugin.PLUGIN_NAME, findObj);
                                     }
@@ -335,7 +334,7 @@ public class TablePlugin implements Plugin {
                                     TargetHelper th = null;
                                     if (latestSample != null) {
                                         th = new TargetHelper(item.getDataSource(), latestSample.getValueAsString());
-                                        if (th.isValid() && th.targetAccessible()) {
+                                        if (th.isValid() && th.targetObjectAccessible()) {
                                             logger.info("Target Is valid");
                                             setToolTipText(treeButton, item);
                                         }
@@ -426,7 +425,7 @@ public class TablePlugin implements Plugin {
             if (targetSample != null) {
                 try {
                     TargetHelper th = new TargetHelper(getDataSource(), targetSample.getValueAsString());
-                    if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+                    if (th.isValid() && th.targetObjectAccessible() && !th.getAttribute().isEmpty()) {
                         JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
 
                         EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, getDataSource());
@@ -449,7 +448,7 @@ public class TablePlugin implements Plugin {
         try {
             TargetHelper th = new TargetHelper(ds, att);
 
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
 
                 StringBuilder bText = new StringBuilder();
 
@@ -477,7 +476,7 @@ public class TablePlugin implements Plugin {
                     bText.append("] ");
                     bText.append(obj.getName());
 
-                    if (th.hasAttribute()) {
+                    if (th.isAttribute()) {
 
                         bText.append(" - ");
                         bText.append(th.getAttribute().get(index).getName());

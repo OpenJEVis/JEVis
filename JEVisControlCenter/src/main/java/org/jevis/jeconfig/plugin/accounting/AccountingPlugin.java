@@ -1730,7 +1730,7 @@ public class AccountingPlugin extends TablePlugin {
                             JEVisSample latestSample = attribute.getLatestSample();
                             if (latestSample != null) {
                                 TargetHelper th = new TargetHelper(ds, latestSample.getValueAsString());
-                                if (th.isValid() && th.targetAccessible()) {
+                                if (th.isValid() && th.targetObjectAccessible()) {
                                     contractor = th.getObject().get(0);
                                 }
                             }
