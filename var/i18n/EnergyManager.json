@@ -14,13 +14,13 @@
         "de": "Appointment Letter description",
         "ru": "Appointment Letter description",
         "en": "Appointment Letter description",
-        "ar": "رسالة موعد"
+        "ar": "رسالة الموعد"
       },
       "names": {
         "de": "Appointment Letter",
         "ru": "Appointment Letter",
         "en": "Appointment Letter",
-        "ar": "رسالة موعد"
+        "ar": "رسالة الموعد"
       }
     },
     {
@@ -29,7 +29,7 @@
         "de": "EMail description",
         "ru": "EMail description",
         "en": "EMail description",
-        "ar": "EMail"
+        "ar": "E-Mail"
       },
       "names": {
         "de": "EMail",

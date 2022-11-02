@@ -2,55 +2,65 @@
   "jevisclass": "JEVis Channel",
   "names": {
     "de": "JEVis Kanal",
-    "en": "JEVis Channel"
+    "en": "JEVis Channel",
+    "ar": "قناة  JEVis"
   },
   "descriptions": {
     "de": "The class JEVis Channel ",
-    "en": "The class JEVis Channel "
+    "en": "The class JEVis Channel ",
+    "ar": "JE قناة"
   },
   "types": [
     {
       "type": "Last Readout",
       "descriptions": {
         "de": "Datum und Zeit der letzten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
-        "en": "Date and Time of last readout in time zone setup in the server object"
+        "en": "Date and Time of last readout in time zone setup in the server object",
+        "ar": "تاريخ ووقت آخر قراءة في المنطقة الزمنية المحددة في كائن الخادم "
       },
       "names": {
         "de": "Letzte Auslesung",
-        "en": "Last Readout"
+        "en": "Last Readout",
+        "ar": "القراءة الأخيرة "
       }
     },
     {
       "type": "Source Id",
       "descriptions": {
         "de": "Id des auszulesenden Objekts auf dem anderen JEVis Server",
-        "en": "Id of object on the other JEVis Server"
+        "en": "Id of object on the other JEVis Server",
+        "ar": "معرف الكائن المراد قراءته على خادم JEVis الآخر "
       },
       "names": {
         "de": "Quellen Id",
-        "en": "Source Id"
+        "en": "Source Id",
+        "ar": "Id مصدر "
       }
     },
     {
       "type": "Source Attribute",
       "descriptions": {
         "de": "Attribut das ausgelesen werden soll",
-        "en": "Attribute which is read"
+        "en": "Attribute which is read",
+        "ar": "السمة المراد قراءتها "
       },
       "names": {
         "de": "Quellen Attribut",
-        "en": "Source Attribute"
+        "en": "Source Attribute",
+        "ar": "سمات المصادر"
       }
     },
     {
       "type": "Target Id",
       "descriptions": {
         "de": "Zielobject auf dem momentan Server",
-        "en": "Target object on the current server"
+        "en": "Target object on the current server",
+        "ar": "الهدف على الخادم الحالي"
       },
       "names": {
         "de": "Ziel Id",
-        "en": "Target Id"
+        "en": "Target Id",
+        "ar": "Id هدف"
       }
     }
   ]

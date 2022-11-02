@@ -11,7 +11,7 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Dieses Kapitel beeinhaltet planungsrelevante Themen",
+        "de": "Dieses Kapitel beinhaltet planungsrelevante Themen",
         "ru": "Content description",
         "en": "Content description",
         "ar": "المحتوى"
@@ -44,13 +44,13 @@
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
         "en": "Date of Creation description",
-        "ar": "تاريخ الانشاء"
+        "ar": "تاريخ الإنشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation",
-        "ar": "تاريخ الانشاء"
+        "ar": "تاريخ الإنشاء"
       }
     },
     {

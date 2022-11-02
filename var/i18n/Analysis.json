@@ -72,33 +72,39 @@
       "type": "Number of Charts per Screen",
       "descriptions": {
         "de": "Definiert die Anzahl der Diagramme einer Analyse, die auf einem Bildschirm untereinander dargestellt werden",
-        "en": "Defines the number of diagrams of an analysis that are displayed one below the other on a screen"
+        "en": "Defines the number of diagrams of an analysis that are displayed one below the other on a screen",
+        "ar": "يحدد عدد الرسوم التخطيطية للتحليل التي يتم عرضها واحدة أسفل الأخرى على الشاشة"
       },
       "names": {
         "de": "Anzahl Diagramme pro Bildschirm",
-        "en": "Number of Charts per Screen"
+        "en": "Number of Charts per Screen",
+        "ar": "عدد الرسوم البيانية لكل شاشة"
       }
     },
     {
       "type": "Number of Horizontal Pies",
       "descriptions": {
         "de": "Definiert die Anzahl an Kuchendiagrammen einer Analyse, die nebeneinander dargestellt werden",
-        "en": "Defines the number of pie charts of an analysis that are displayed side by side"
+        "en": "Defines the number of pie charts of an analysis that are displayed side by side",
+        "ar": "يحدد عدد المخططات الدائرية للتحليل التي يتم عرضها جنبًا إلى جنب"
       },
       "names": {
         "de": "Anzahl horizontaler Kuchen",
-        "en": "Number of Horizontal Pies"
+        "en": "Number of Horizontal Pies",
+        "ar": "عدد الأقراص الأفقية"
       }
     },
     {
       "type": "Number of Horizontal Tables",
       "descriptions": {
         "de": "Definiert die Anzahl an Tabellen einer Analyse, die nebeneinander dargestellt werden",
-        "en": "Defines the number of tables of an analysis that are displayed side by side"
+        "en": "Defines the number of tables of an analysis that are displayed side by side",
+        "ar": "يحدد عدد جداول التحليل التي يتم عرضها جنبًا إلى جنب"
       },
       "names": {
         "de": "Anzahl horizontaler Tabellen",
-        "en": "Number of Horizontal Tables"
+        "en": "Number of Horizontal Tables",
+        "ar": "عدد الجداول الأفقية"
       }
     }
   ]

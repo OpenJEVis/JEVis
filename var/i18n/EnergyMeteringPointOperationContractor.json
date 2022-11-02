@@ -6,7 +6,7 @@
     "uk": "Вимірювальний пункт експлуатації контрактного партнера",
     "en": "Energy Metering Point Operation Contractor",
     "th": "คู่สัญญาการดำเนินการจุดการวัด",
-    "ar": "مشغل متر"
+    "ar": "مقاول عمليات تشغيل نقاط قياس الطاقة"
   },
   "descriptions": {
     "de": "Die Klasse Messstellenbetriebsvertragspartner definiert die Basisattribute für Messstellenbetriebsvertragspartner",
