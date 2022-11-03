@@ -387,7 +387,7 @@ public class FormulaBox extends HBox {
 
             List<JEVisClass> classes = new ArrayList<>();
 
-            for (String className : TreeSelectionDialog.allDataAndCleanDataClasses) {
+            for (String className : TreeSelectionDialog.allData) {
                 classes.add(calcObj.getDataSource().getJEVisClass(className));
             }
 
@@ -404,7 +404,7 @@ public class FormulaBox extends HBox {
                             }
                             TargetHelper th = new TargetHelper(this.calcObj.getDataSource(), us.getSelectedObject(), targetAtt);
 
-                            if (th.isValid() && th.targetAccessible()) {
+                            if (th.isValid() && th.targetObjectAccessible()) {
 
                                 /**
                                  *  Create an new target Object if not exists

@@ -164,22 +164,6 @@ public class XYChart implements Chart {
         this.nf.setMinimumFractionDigits(this.chartModel.getMinFractionDigits());
         this.nf.setMaximumFractionDigits(this.chartModel.getMaxFractionDigits());
 
-        double totalJob = chartDataRows.size();
-
-        if (showRawData) {
-            totalJob *= 4;
-        }
-
-        if (showSum) {
-            totalJob += 1;
-        }
-
-        if (calcRegression) {
-            totalJob += 1;
-        }
-
-        JEConfig.getStatusBar().startProgressJob(JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
-
         this.showRawData = toolBarSettings.isShowRawData();
         this.showSum = toolBarSettings.isShowSum();
         this.showL1L2 = toolBarSettings.isShowL1L2();
@@ -202,6 +186,23 @@ public class XYChart implements Chart {
         if (chartDataRows.isEmpty()) {
             chartModel.getChartData().forEach(chartData -> chartDataRows.add(new ChartDataRow(ds, chartData)));
         }
+
+        double totalJob = chartDataRows.size();
+
+        if (showRawData) {
+            totalJob *= 4;
+        }
+
+        if (showSum) {
+            totalJob += 1;
+        }
+
+        if (calcRegression) {
+            totalJob += 1;
+        }
+
+        JEConfig.getStatusBar().startProgressJob(JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
+
 
         if (!chartDataRows.isEmpty()) {
             workDays = new WorkDays(chartDataRows.get(0).getObject());
@@ -572,7 +573,8 @@ public class XYChart implements Chart {
             if (xyChartSerie.getSingleRow().isIntervalEnabled()) {
                 isCurrentlyCustomInterval = true;
                 hastCustomIntervals.set(true);
-            }
+                xyChartSerie.setXAxis(secondaryDateAxis);
+            } else xyChartSerie.setXAxis(primaryDateAxis);
 
             ErrorDataSetRenderer rendererY1;
             ErrorDataSetRenderer rendererY2;

@@ -25,7 +25,7 @@ import java.util.List;
 public class NewSelectionDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(NewSelectionDialog.class);
     private final JEVisDataSource ds;
-    private final DataModel newDataModel;
+    private final DataModel dataModel;
     private Response response = Response.CANCEL;
 
     public NewSelectionDialog(StackPane dialogContainer, JEVisDataSource ds, DataModel dataModel) {
@@ -33,7 +33,7 @@ public class NewSelectionDialog extends JFXDialog {
 
         this.setDialogContainer(dialogContainer);
         this.ds = ds;
-        this.newDataModel = dataModel;
+        this.dataModel = dataModel;
 
         VBox mainBox = new VBox();
         mainBox.setPadding(new Insets(12));
@@ -41,23 +41,22 @@ public class NewSelectionDialog extends JFXDialog {
 
         TabPane tabPane = new TabPane();
 
-        if (newDataModel.getChartModels().isEmpty()) {
+        if (this.dataModel.getChartModels().isEmpty()) {
             ChartModel chartModel = new ChartModel();
             chartModel.setChartId(0);
             chartModel.setChartName(I18n.getInstance().getString("graph.title"));
-            newDataModel.getChartModels().add(chartModel);
+            this.dataModel.getChartModels().add(chartModel);
         }
 
-        CommonSettingTab commonSettingTab = new CommonSettingTab(newDataModel);
+        CommonSettingTab commonSettingTab = new CommonSettingTab(this.dataModel);
 
         tabPane.getTabs().add(commonSettingTab);
 
-        for (ChartModel chartModel : newDataModel.getChartModels()) {
+        for (ChartModel chartModel : this.dataModel.getChartModels()) {
             ChartTab chartTab = new ChartTab(dialogContainer, ds, chartModel);
-            chartTab.setAggregationPeriodColumnVisible(false);
-            chartTab.setManipulationModeColumnVisible(false);
+            chartTab.setClosable(true);
 
-            chartTab.setOnClosed(event -> newDataModel.getChartModels().remove(chartModel));
+            chartTab.setOnClosed(event -> this.dataModel.getChartModels().remove(chartModel));
 
             tabPane.getTabs().add(chartTab);
         }
@@ -69,10 +68,9 @@ public class NewSelectionDialog extends JFXDialog {
             if (newTab == addTab) {
                 ChartModel chartModel = new ChartModel();
                 chartModel.setChartName(getNextChartName());
-                newDataModel.getChartModels().add(chartModel);
+                chartModel.setChartId(getNextChartId());
+                this.dataModel.getChartModels().add(chartModel);
                 ChartTab newChartTab = new ChartTab(getDialogContainer(), ds, chartModel);
-                newChartTab.setAggregationPeriodColumnVisible(false);
-                newChartTab.setManipulationModeColumnVisible(false);
 
                 tabPane.getTabs().add(tabPane.getTabs().size() - 1, newChartTab);
                 tabPane.getSelectionModel().select(tabPane.getTabs().size() - 2);
@@ -101,7 +99,7 @@ public class NewSelectionDialog extends JFXDialog {
         buttonBar.setAlignment(Pos.CENTER_RIGHT);
 
         mainBox.getChildren().addAll(tabPane, buttonBar);
-        mainBox.setMinHeight(960);
+        mainBox.setMinHeight(dialogContainer.getHeight() - 120);
         mainBox.setMinWidth(1024);
 
         VBox.setVgrow(tabPane, Priority.ALWAYS);
@@ -109,28 +107,39 @@ public class NewSelectionDialog extends JFXDialog {
         this.setContent(mainBox);
     }
 
+    private int getNextChartId() {
+        int id = 0;
+        for (ChartModel chartModel : dataModel.getChartModels()) {
+            id = Math.max(id, chartModel.getChartId());
+        }
+
+        id++;
+
+        return id;
+    }
+
 
     private String getNextChartName() {
         List<String> oldNames = new ArrayList<>();
-        for (ChartModel chartModel : newDataModel.getChartModels()) {
+        for (ChartModel chartModel : dataModel.getChartModels()) {
             oldNames.add(chartModel.getChartName());
         }
 
         String newName = I18n.getInstance().getString("graph.title");
         int i = 1;
-        boolean found = false;
+
         while (oldNames.contains(newName)) {
             for (String s : oldNames) {
                 if (s.equals(newName)) {
-                    found = true;
                     i++;
+
+                    if (newName.contains(" ")) {
+                        newName = newName.substring(0, newName.lastIndexOf(" "));
+                    }
+                    newName += " " + i;
                 }
             }
 
-        }
-
-        if (found) {
-            newName += " " + i;
         }
 
         return newName;

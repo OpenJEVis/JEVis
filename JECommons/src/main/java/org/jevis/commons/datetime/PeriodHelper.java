@@ -257,7 +257,7 @@ public class PeriodHelper {
                 String targetString = objectWithCustomScheduleAttribute.getAttribute(CUSTOM_SCHEDULE_OBJECT_ATTRIBUTE).getLatestSample().getValueAsString();
                 TargetHelper th = new TargetHelper(objectWithCustomScheduleAttribute.getDataSource(), targetString);
 
-                if (th.targetAccessible())
+                if (th.targetObjectAccessible())
                     cpo = new CustomPeriodObject(th.getObject().get(0), new ObjectHandler(objectWithCustomScheduleAttribute.getDataSource()));
             } catch (JEVisException e) {
                 logger.error("Could not get Target Object.");

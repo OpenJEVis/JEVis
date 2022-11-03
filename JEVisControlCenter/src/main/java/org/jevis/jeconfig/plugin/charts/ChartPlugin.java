@@ -73,6 +73,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDia
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.Chart;
 import org.jevis.jeconfig.application.Chart.Charts.*;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.*;
@@ -627,18 +628,18 @@ public class ChartPlugin implements Plugin {
                     bp.setCenter(scrollPane);
                 }
 
-                if (chart.getChartType() != ChartType.PIE && chart.getChartType() != ChartType.HEAT_MAP
-                        && chart.getChartType() != ChartType.LOGICAL && chart != null) {
+                if (chartModel.getChartType() != ChartType.PIE && chartModel.getChartType() != ChartType.HEAT_MAP
+                        && chartModel.getChartType() != ChartType.LOGICAL && chart != null) {
                     TableHeader tableHeader = new TableHeader(chartModel, chart.getTableData());
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
-                    if (chart.getChartType() != ChartType.TABLE && chart.getChartType() != ChartType.TABLE_V) {
+                    if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.TABLE_V) {
                         bp.setTop(tableHeader);
-                    } else if (chart.getChartType() == ChartType.TABLE) {
+                    } else if (chartModel.getChartType() == ChartType.TABLE) {
                         TableChart tableChart = (TableChart) chart;
                         bp.setTop(tableChart.getTopPicker());
 
-                    } else if (chart.getChartType() == ChartType.TABLE_V) {
+                    } else if (chartModel.getChartType() == ChartType.TABLE_V) {
                         TableChartV tableChart = (TableChartV) chart;
 
                         Label titleLabel = new Label(chartModel.getChartName());
@@ -660,7 +661,7 @@ public class ChartPlugin implements Plugin {
                         VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
                         bp.setCenter(vBox);
                     }
-                } else if (chart.getChartType() != ChartType.LOGICAL) {
+                } else if (chartModel.getChartType() != ChartType.LOGICAL) {
                     bp.setTop(null);
                 }
 
@@ -679,7 +680,7 @@ public class ChartPlugin implements Plugin {
 
                 Separator sep = new Separator();
                 sep.setOrientation(Orientation.HORIZONTAL);
-                if (chart.getChartType() == ChartType.PIE) {
+                if (chartModel.getChartType() == ChartType.PIE) {
 
                     if (pieFrames.isEmpty()) {
                         HBox hBox = new HBox();
@@ -706,7 +707,7 @@ public class ChartPlugin implements Plugin {
                                 sep));
                         currentPieFrame++;
                     }
-                } else if (chart.getChartType() == ChartType.TABLE) {
+                } else if (chartModel.getChartType() == ChartType.TABLE) {
 
                     if (tableFrames.isEmpty()) {
                         HBox hBox = new HBox();
@@ -749,7 +750,7 @@ public class ChartPlugin implements Plugin {
             Chart chart = allCharts.get(chartId);
             if (chart instanceof XYChart) {
                 XYChart xyChart = (XYChart) chart;
-                if (xyChart.getChartType() != ChartType.LOGICAL) {
+                if (chartModel.getChartType() != ChartType.LOGICAL) {
                     xyChart.createChart(chartModel, getToolBarView().getToolBarSettings(), getDataSettings());
                 }
             }

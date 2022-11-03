@@ -55,12 +55,15 @@ public class ChartTab extends Tab {
     private final List<JEVisClass> allDataClasses = new ArrayList<>();
     private final List<Color> usedColors = new ArrayList<>();
     private final int iconSize = 12;
-    private final ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, this.iconSize, this.iconSize));
-    private final ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+    private final ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, this.iconSize, this.iconSize));
+    private final Button copyButton = new Button("", JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize));
+    private final ToggleButton deleteButton = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
     private final Label orientationLabel = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.orientation"));
     private final OrientationBox orientationBox;
     private final Label labelColorMapping = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.colormapping"));
     private final ColorMappingBox colorMappingBox;
+    private final Label chartNameLabel = new Label(I18n.getInstance().getString("graph.title"));
+    private final JFXTextField chartNameSecondTextField = new JFXTextField();
     private ChartModel chartModel;
     private final ChangeListener<BigDecimal> groupingIntervalChangeListener = (observable, oldValue, newValue) -> {
         if (chartModel != null && !newValue.equals(oldValue)) {
@@ -87,7 +90,7 @@ public class ChartTab extends Tab {
         this.ds = ds;
         this.chartModel = chartModel;
         this.dialogContainer = dialogContainer;
-        this.tableMenu = new ToolBar(newB, delete);
+        this.tableMenu = new ToolBar(newButton, copyButton, deleteButton);
         this.chartTable = new Table(dialogContainer, chartModel);
         boolean hasCustomIntervalEnabled = chartModel.getChartData().stream().anyMatch(ChartData::isIntervalEnabled);
         setIntervalStartColumnVisible(hasCustomIntervalEnabled);
@@ -127,6 +130,8 @@ public class ChartTab extends Tab {
             }
         });
 
+        chartNameSecondTextField.textProperty().bindBidirectional(chartModel.chartNameProperty());
+
         chartTypeComboBox = new ChartTypeComboBox(chartModel);
         chartTypeComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, s, t1) -> {
             ChartType chartType = ChartType.parseChartType(t1.intValue());
@@ -139,7 +144,7 @@ public class ChartTab extends Tab {
         if (gi == null) {
             gi = 30d;
         }
-        groupingInterval = new NumberSpinner(new BigDecimal(gi), new BigDecimal(0.1));
+        groupingInterval = new NumberSpinner(new BigDecimal(gi), new BigDecimal("0.1"));
 
         colorMappingBox = new ColorMappingBox(chartModel);
 
@@ -162,7 +167,11 @@ public class ChartTab extends Tab {
         VBox.setVgrow(chartSettings, Priority.ALWAYS);
         VBox.setVgrow(chartTable, Priority.ALWAYS);
 
-        newB.setOnAction(actionEvent -> {
+        newButton.setOnAction(actionEvent -> {
+            boolean isHeatMap = chartModel.getChartType() == ChartType.HEAT_MAP;
+            if (isHeatMap && chartModel.getChartData().size() > 0) {
+                return;
+            }
 
             List<JEVisClass> filterClasses = new ArrayList<>();
             filterClasses.add(dataClass);
@@ -170,7 +179,12 @@ public class ChartTab extends Tab {
             filterClasses.add(mathDataClass);
             filterClasses.add(baseDataClass);
 
-            TreeSelectionDialog selectTargetDialog = new TreeSelectionDialog(dialogContainer, ds, filterClasses, SelectionMode.MULTIPLE);
+            TreeSelectionDialog selectTargetDialog;
+            if (!isHeatMap) {
+                selectTargetDialog = new TreeSelectionDialog(dialogContainer, ds, filterClasses, SelectionMode.MULTIPLE);
+            } else {
+                selectTargetDialog = new TreeSelectionDialog(dialogContainer, ds, filterClasses, SelectionMode.SINGLE);
+            }
 
             selectTargetDialog.setOnDialogClosed(event -> {
                 try {
@@ -197,7 +211,16 @@ public class ChartTab extends Tab {
             selectTargetDialog.show();
         });
 
-        delete.setOnAction(actionEvent -> {
+        copyButton.setOnAction(event -> {
+            ChartData selectedItem = chartTable.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                ChartData copiedData = selectedItem.clone();
+                chartModel.getChartData().add(copiedData);
+                chartTable.getItems().add(copiedData);
+            }
+        });
+
+        deleteButton.setOnAction(actionEvent -> {
             ObservableList<ChartData> selectedItems = chartTable.getSelectionModel().getSelectedItems();
             chartModel.getChartData().removeAll(selectedItems);
             chartTable.getItems().removeAll(selectedItems);
@@ -215,6 +238,10 @@ public class ChartTab extends Tab {
 
         int row = 0;
         chartSettings.getChildren().clear();
+
+        chartSettings.add(chartNameLabel, 0, row);
+        chartSettings.add(chartNameSecondTextField, 1, row);
+        row++;
 
         chartSettings.add(labelChartType, 0, row);
         chartSettings.add(chartTypeComboBox, 1, row);
@@ -244,11 +271,126 @@ public class ChartTab extends Tab {
             chartSettings.add(labelGroupingInterval, 0, row);
             chartSettings.add(groupingInterval, 1, row);
 
-            setBubbleTypeColumnVisible(true);
-
             row++;
-        } else {
-            setBubbleTypeColumnVisible(false);
+        }
+
+        switch (chartModel.getChartType()) {
+            default:
+            case LINE:
+            case AREA:
+            case COLUMN:
+            case SCATTER:
+                setChartTypeColumnVisible(true);
+                setColorColumnVisible(true);
+                setUnitColumnVisible(true);
+                setIntervalColumnVisible(true);
+                setIntervalStartColumnVisible(true);
+                setIntervalEndColumnVisible(true);
+                setAxisColumnVisible(true);
+                setBubbleTypeColumnVisible(false);
+                setAggregationPeriodColumnVisible(false);
+                setManipulationModeColumnVisible(false);
+                setMathColumnVisible(true);
+                setCssColumnVisible(false);
+                break;
+            case LOGICAL:
+                setChartTypeColumnVisible(false);
+                setColorColumnVisible(true);
+                setUnitColumnVisible(true);
+                setIntervalColumnVisible(true);
+                setIntervalStartColumnVisible(true);
+                setIntervalEndColumnVisible(true);
+                setAxisColumnVisible(true);
+                setBubbleTypeColumnVisible(false);
+                setAggregationPeriodColumnVisible(false);
+                setManipulationModeColumnVisible(false);
+                setMathColumnVisible(false);
+                setCssColumnVisible(false);
+                break;
+            case BAR:
+                setChartTypeColumnVisible(false);
+                setColorColumnVisible(true);
+                setUnitColumnVisible(true);
+                setIntervalColumnVisible(false);
+                setIntervalStartColumnVisible(false);
+                setIntervalEndColumnVisible(false);
+                setAxisColumnVisible(false);
+                setBubbleTypeColumnVisible(false);
+                setAggregationPeriodColumnVisible(false);
+                setManipulationModeColumnVisible(false);
+                setMathColumnVisible(true);
+                setCssColumnVisible(false);
+                break;
+            case BUBBLE:
+                setChartTypeColumnVisible(false);
+                setColorColumnVisible(true);
+                setUnitColumnVisible(true);
+                setIntervalColumnVisible(false);
+                setIntervalStartColumnVisible(false);
+                setIntervalEndColumnVisible(false);
+                setAxisColumnVisible(false);
+                setBubbleTypeColumnVisible(true);
+                setAggregationPeriodColumnVisible(false);
+                setManipulationModeColumnVisible(false);
+                setMathColumnVisible(true);
+                setCssColumnVisible(false);
+                break;
+            case PIE:
+                setChartTypeColumnVisible(false);
+                setColorColumnVisible(true);
+                setUnitColumnVisible(true);
+                setIntervalColumnVisible(false);
+                setIntervalStartColumnVisible(false);
+                setIntervalEndColumnVisible(false);
+                setAxisColumnVisible(false);
+                setBubbleTypeColumnVisible(false);
+                setAggregationPeriodColumnVisible(false);
+                setManipulationModeColumnVisible(false);
+                setMathColumnVisible(true);
+                setCssColumnVisible(false);
+                break;
+            case TABLE:
+                setChartTypeColumnVisible(false);
+                setColorColumnVisible(false);
+                setUnitColumnVisible(true);
+                setIntervalColumnVisible(false);
+                setIntervalStartColumnVisible(false);
+                setIntervalEndColumnVisible(false);
+                setAxisColumnVisible(false);
+                setBubbleTypeColumnVisible(false);
+                setAggregationPeriodColumnVisible(false);
+                setManipulationModeColumnVisible(false);
+                setMathColumnVisible(true);
+                setCssColumnVisible(false);
+                break;
+            case HEAT_MAP:
+                setChartTypeColumnVisible(false);
+                setColorColumnVisible(false);
+                setUnitColumnVisible(true);
+                setIntervalColumnVisible(false);
+                setIntervalStartColumnVisible(false);
+                setIntervalEndColumnVisible(false);
+                setAxisColumnVisible(false);
+                setBubbleTypeColumnVisible(false);
+                setAggregationPeriodColumnVisible(false);
+                setManipulationModeColumnVisible(false);
+                setMathColumnVisible(true);
+                setCssColumnVisible(false);
+                break;
+            case TABLE_V:
+                setChartTypeColumnVisible(false);
+                setColorColumnVisible(false);
+                setUnitColumnVisible(true);
+                setIntervalColumnVisible(false);
+                setIntervalStartColumnVisible(false);
+                setIntervalEndColumnVisible(false);
+                setAxisColumnVisible(false);
+                setBubbleTypeColumnVisible(false);
+                setAggregationPeriodColumnVisible(false);
+                setManipulationModeColumnVisible(false);
+                setMathColumnVisible(true);
+                setCssColumnVisible(true);
+                break;
         }
     }
 

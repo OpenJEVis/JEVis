@@ -34,9 +34,9 @@ import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.Response;
-import org.jevis.jeconfig.dialog.TemplateCalculationFormulaDialog;
-import org.jevis.jeconfig.dialog.TemplateCalculationInputDialog;
-import org.jevis.jeconfig.dialog.TemplateCalculationOutputDialog;
+import org.jevis.jeconfig.plugin.dtrc.dialogs.TemplateCalculationFormulaDialog;
+import org.jevis.jeconfig.plugin.dtrc.dialogs.TemplateCalculationInputDialog;
+import org.jevis.jeconfig.plugin.dtrc.dialogs.TemplateCalculationOutputDialog;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 

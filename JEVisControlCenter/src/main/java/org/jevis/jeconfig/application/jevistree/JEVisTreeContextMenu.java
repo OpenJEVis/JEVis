@@ -170,7 +170,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                         try {
                             if (object.getAttribute("Output").hasSample()) {
                                 TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute("Output"));
-                                if ((targetHelper.hasObject() || targetHelper.hasAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
+                                if ((targetHelper.isObject() || targetHelper.isAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
                                     foundTarget.set(true);
 
                                     List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);
@@ -209,7 +209,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                             if (object.getAttribute(attributeName).hasSample()) {
                                 TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute(attributeName));
-                                if ((targetHelper.hasObject() || targetHelper.hasAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
+                                if ((targetHelper.isObject() || targetHelper.isAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
                                     logger.error("found target");
                                     foundTarget.set(true);
                                     List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);

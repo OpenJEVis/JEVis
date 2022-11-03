@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.dialog;
+package org.jevis.jeconfig.plugin.dtrc.dialogs;
 
 import com.jfoenix.controls.*;
 import javafx.collections.transformation.FilteredList;
@@ -16,6 +16,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.dtrc.RCTemplate;
 import org.jevis.jeconfig.plugin.dtrc.TemplateFormula;
 import org.jevis.jeconfig.plugin.dtrc.TemplateInput;

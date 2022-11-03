@@ -47,7 +47,9 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
 
                     JEVisTreeViewItem jeVisTreeViewItem = new JEVisTreeViewItem(object);
                     FilterableTreeItem rootItem = new FilterableTreeItem(jeVisTreeViewItem);
-                    if (selectedObjects.contains(object)) selectedFilterableTreeItems.add(rootItem);
+                    if (selectedObjects.contains(object)) {
+                        selectedFilterableTreeItems.add(rootItem);
+                    }
 
                     addChildren(rootItem);
 
@@ -67,6 +69,9 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
 
         for (FilterableTreeItem filterableTreeItem : selectedFilterableTreeItems) {
             expandTreeView(filterableTreeItem);
+        }
+
+        for (FilterableTreeItem filterableTreeItem : selectedFilterableTreeItems) {
             getSelectionModel().select(filterableTreeItem);
         }
     }
@@ -113,7 +118,9 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
                 FilterableTreeItem childItem = new FilterableTreeItem(jeVisTreeViewItem);
                 rootItem.getInternalChildren().add(childItem);
 
-                if (selectedObjects.contains(jeVisObject)) selectedFilterableTreeItems.add(rootItem);
+                if (selectedObjects.contains(jeVisObject)) {
+                    selectedFilterableTreeItems.add(childItem);
+                }
 
                 addChildren(childItem);
             }
@@ -127,7 +134,9 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
                     FilterableTreeItem attributeItem = new FilterableTreeItem(jeVisTreeViewItem);
                     rootItem.getInternalChildren().add(attributeItem);
 
-                    if (selectedAttributes.contains(attribute)) selectedFilterableTreeItems.add(attributeItem);
+                    if (selectedAttributes.contains(attribute)) {
+                        selectedFilterableTreeItems.add(attributeItem);
+                    }
                 }
             }
         }
