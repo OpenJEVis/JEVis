@@ -293,4 +293,29 @@ public class ChartData {
     public SimpleStringProperty cssProperty() {
         return css;
     }
+
+    @Override
+    public ChartData clone() {
+        ChartData newData = new ChartData();
+
+        newData.setId(this.getId());
+        newData.setAttributeString(this.getAttributeString());
+        newData.setUnit(this.getUnit());
+        newData.setObjectName(this.getObjectName());
+        newData.setName(this.getName());
+        newData.setColor(this.getColor());
+        newData.setAxis(this.getAxis());
+        newData.setCalculation(this.isCalculation());
+        newData.setCalculationId(this.getCalculationId());
+        newData.setBubbleType(this.getBubbleType());
+        newData.setChartType(this.getChartType());
+        newData.setAggregationPeriod(this.getAggregationPeriod());
+        newData.setManipulationMode(this.getManipulationMode());
+        newData.setIntervalEnabled(this.isIntervalEnabled());
+        newData.setIntervalStart(this.getIntervalStart());
+        newData.setIntervalEnd(this.getIntervalEnd());
+        newData.setCss(this.getCss());
+
+        return newData;
+    }
 }

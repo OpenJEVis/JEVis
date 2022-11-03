@@ -197,7 +197,7 @@ public class MeterPlugin extends TablePlugin {
                         JEVisAttribute jeVisAttribute = registerTableRow.getAttributeMap().get(type);
                         try {
                             TargetHelper th = new TargetHelper(ds, jeVisAttribute);
-                            if (th.isValid() && th.targetAccessible()) {
+                            if (th.isValid() && th.targetObjectAccessible()) {
                                 JEVisAttribute att = th.getObject().get(0).getAttribute("Value");
                                 if (att != null) {
                                     if (att.hasSample()) {
@@ -224,7 +224,7 @@ public class MeterPlugin extends TablePlugin {
                         JEVisAttribute jeVisAttribute = registerTableRow.getAttributeMap().get(type);
                         try {
                             TargetHelper th = new TargetHelper(ds, jeVisAttribute);
-                            if (th.isValid() && th.targetAccessible()) {
+                            if (th.isValid() && th.targetObjectAccessible()) {
                                 JEVisAttribute att = th.getObject().get(0).getAttribute("Value");
                                 JEVisAttribute periodAtt = th.getObject().get(0).getAttribute("Period");
 

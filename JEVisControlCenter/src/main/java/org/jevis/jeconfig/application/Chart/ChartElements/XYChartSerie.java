@@ -2,6 +2,7 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
 import com.ibm.icu.text.NumberFormat;
+import de.gsi.chart.axes.Axis;
 import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -51,6 +52,8 @@ public class XYChartSerie {
     Double maxValue = -Double.MAX_VALUE;
     private double sortCriteria;
     ChartModel chartModel;
+
+    Axis xAxis;
 
     public XYChartSerie(ChartModel chartModel, ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.chartModel = chartModel;
@@ -461,5 +464,13 @@ public class XYChartSerie {
 
     public double getSortCriteria() {
         return sortCriteria;
+    }
+
+    public Axis getXAxis() {
+        return xAxis;
+    }
+
+    public void setXAxis(Axis xAxis) {
+        this.xAxis = xAxis;
     }
 }

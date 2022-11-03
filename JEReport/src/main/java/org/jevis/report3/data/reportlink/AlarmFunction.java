@@ -49,7 +49,7 @@ public class AlarmFunction implements ReportData {
             alarmLinkName = functionObject.getAttribute("Alarm Link").getLatestSample().getValueAsString();
 
             TargetHelper th = new TargetHelper(functionObject.getDataSource(), functionObject.getAttribute("Alarm Link"));
-            if (th.hasObject()) {
+            if (th.isObject()) {
                 if (!th.getObject().isEmpty()) {
                     alarmObj = th.getObject().get(0);
                 }

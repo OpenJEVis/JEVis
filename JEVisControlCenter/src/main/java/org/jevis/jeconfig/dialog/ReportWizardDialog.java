@@ -609,6 +609,15 @@ public class ReportWizardDialog {
     }
 
     private void openMultiSelect() {
+        List<JEVisClass> classes = new ArrayList<>();
+
+        for (String className : TreeSelectionDialog.allData) {
+            try {
+                classes.add(ds.getJEVisClass(className));
+            } catch (Exception e) {
+                logger.error("Could not get JEVisClass for {}", className, e);
+            }
+        }
 
         TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, new ArrayList<>(), SelectionMode.MULTIPLE, new ArrayList<>(), true);
 
@@ -638,8 +647,17 @@ public class ReportWizardDialog {
     }
 
     private void openSingleSelect() {
+        List<JEVisClass> classes = new ArrayList<>();
 
-        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, new ArrayList<>(), SelectionMode.SINGLE, new ArrayList<>(), true);
+        for (String className : TreeSelectionDialog.allData) {
+            try {
+                classes.add(ds.getJEVisClass(className));
+            } catch (Exception e) {
+                logger.error("Could not get JEVisClass for {}", className, e);
+            }
+        }
+
+        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, classes, SelectionMode.SINGLE, new ArrayList<>(), true);
 
         selectionDialog.setOnDialogClosed(event -> {
             if (selectionDialog.getResponse() == Response.OK) {
@@ -873,6 +891,16 @@ public class ReportWizardDialog {
             targetString.set(reportLink.getjEVisID().toString());
         }
 
+        List<JEVisClass> classes = new ArrayList<>();
+
+        for (String className : TreeSelectionDialog.allData) {
+            try {
+                classes.add(ds.getJEVisClass(className));
+            } catch (Exception e) {
+                logger.error("Could not get JEVisClass for {}", className, e);
+            }
+        }
+
         if (reportLink.getjEVisID() != null) {
             String target = "";
             if (reportLink.getReportAttribute() != null) {
@@ -881,7 +909,7 @@ public class ReportWizardDialog {
                 target = reportLink.getjEVisID().toString();
             }
             TargetHelper th = new TargetHelper(ds, target);
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
                 logger.info("Target Is valid");
                 setButtonText(target, targetsButton);
             }
@@ -891,7 +919,7 @@ public class ReportWizardDialog {
             TargetHelper th = null;
             if (targetString.get() != null) {
                 th = new TargetHelper(ds, targetString.get());
-                if (th.isValid() && th.targetAccessible()) {
+                if (th.isValid() && th.targetObjectAccessible()) {
                     logger.info("Target Is valid");
                     setButtonText(targetString.get(), targetsButton);
                 }
@@ -906,7 +934,7 @@ public class ReportWizardDialog {
                     openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
             }
 
-            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, new ArrayList<>(), SelectionMode.SINGLE, openList, true);
+            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, classes, SelectionMode.SINGLE, openList, true);
 
             selectionDialog.setOnDialogClosed(event1 -> {
                 if (selectionDialog.getResponse() == Response.OK) {
@@ -1077,7 +1105,7 @@ public class ReportWizardDialog {
                 th = new TargetHelper(ds, targetString);
             }
 
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
 
                 StringBuilder bText = new StringBuilder();
 
@@ -1105,7 +1133,7 @@ public class ReportWizardDialog {
                     bText.append("] ");
                     bText.append(obj.getName());
 
-                    if (th.hasAttribute()) {
+                    if (th.isAttribute()) {
 
                         bText.append(" - ");
                         bText.append(th.getAttribute().get(index).getName());
