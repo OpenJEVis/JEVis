@@ -27,6 +27,7 @@ import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.DataTypeBox;
 import org.jevis.jeconfig.application.control.DayBox;
@@ -621,7 +622,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
         JEVisSample sample = null;
         try {
             sample = valueAttribute.buildSample(ts, newVal, I18n.getInstance().getString("menu.file.import.manual") + " " + DateTime.now());
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not build sample with value {} and ts {}", newVal, ts, e);
         }
         if (sample != null) {
@@ -631,12 +632,23 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                 Alert ok = new Alert(Alert.AlertType.INFORMATION, message);
                 ok.setResizable(true);
                 Platform.runLater(ok::showAndWait);
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.resetdependencies"));
+                confirm.setOnCloseRequest(dialogEvent -> {
+                    if (confirm.getResult() == ButtonType.OK) {
+                        List<JEVisObject> parentObject = new ArrayList<>();
+                        parentObject.add(valueAttribute.getObject());
+                        CommonMethods.cleanDependentObjects(parentObject, ts);
+                    }
+                });
+                ok.setOnCloseRequest(dialogEvent -> {
+                    confirm.show();
+                });
 
                 Platform.runLater(() -> doubleField.setText(""));
                 newSampleProperty.setValue(sample);
                 loadLastValue();
 
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not commit sample {}", sample, e);
             }
         }

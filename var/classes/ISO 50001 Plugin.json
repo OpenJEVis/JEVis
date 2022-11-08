@@ -1,15 +1,15 @@
 {
-  "name": "ISO5001 Browser Plugin",
+  "name": "ISO 50001 Plugin",
   "description": "",
   "unique": true,
   "relationships": [
     {
-      "start": "ISO5001 Browser Plugin",
+      "start": "ISO 50001 Plugin",
       "end": "Control Center",
       "type": 3
     },
     {
-      "start": "ISO5001 Browser Plugin",
+      "start": "ISO 50001 Plugin",
       "end": "Control Center Plugin",
       "type": 0
     }

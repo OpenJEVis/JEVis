@@ -56,7 +56,7 @@ public class ChartTab extends Tab {
     private final List<Color> usedColors = new ArrayList<>();
     private final int iconSize = 12;
     private final ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, this.iconSize, this.iconSize));
-    private final Button copyButton = new Button("", JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize));
+    private final ToggleButton copyButton = new ToggleButton("", JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize));
     private final ToggleButton deleteButton = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
     private final Label orientationLabel = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.orientation"));
     private final OrientationBox orientationBox;
@@ -133,6 +133,10 @@ public class ChartTab extends Tab {
         chartNameSecondTextField.textProperty().bindBidirectional(chartModel.chartNameProperty());
 
         chartTypeComboBox = new ChartTypeComboBox(chartModel);
+        List<String> disabledItems = new ArrayList<>();
+        disabledItems.add(ChartType.getListNamesChartTypes().get(ChartType.parseChartIndex(ChartType.DEFAULT)));
+        chartTypeComboBox.setDisabledItems(disabledItems);
+
         chartTypeComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, s, t1) -> {
             ChartType chartType = ChartType.parseChartType(t1.intValue());
             chartModel.setChartType(chartType);
@@ -274,6 +278,8 @@ public class ChartTab extends Tab {
             row++;
         }
 
+        boolean isCustomPeriodEnabled = chartModel.getChartData().stream().anyMatch(ChartData::isIntervalEnabled);
+
         switch (chartModel.getChartType()) {
             default:
             case LINE:
@@ -284,8 +290,13 @@ public class ChartTab extends Tab {
                 setColorColumnVisible(true);
                 setUnitColumnVisible(true);
                 setIntervalColumnVisible(true);
-                setIntervalStartColumnVisible(true);
-                setIntervalEndColumnVisible(true);
+                if (isCustomPeriodEnabled) {
+                    setIntervalStartColumnVisible(true);
+                    setIntervalEndColumnVisible(true);
+                } else {
+                    setIntervalStartColumnVisible(false);
+                    setIntervalEndColumnVisible(false);
+                }
                 setAxisColumnVisible(true);
                 setBubbleTypeColumnVisible(false);
                 setAggregationPeriodColumnVisible(false);
@@ -298,8 +309,13 @@ public class ChartTab extends Tab {
                 setColorColumnVisible(true);
                 setUnitColumnVisible(true);
                 setIntervalColumnVisible(true);
-                setIntervalStartColumnVisible(true);
-                setIntervalEndColumnVisible(true);
+                if (isCustomPeriodEnabled) {
+                    setIntervalStartColumnVisible(true);
+                    setIntervalEndColumnVisible(true);
+                } else {
+                    setIntervalStartColumnVisible(false);
+                    setIntervalEndColumnVisible(false);
+                }
                 setAxisColumnVisible(true);
                 setBubbleTypeColumnVisible(false);
                 setAggregationPeriodColumnVisible(false);
@@ -312,8 +328,13 @@ public class ChartTab extends Tab {
                 setColorColumnVisible(true);
                 setUnitColumnVisible(true);
                 setIntervalColumnVisible(false);
-                setIntervalStartColumnVisible(false);
-                setIntervalEndColumnVisible(false);
+                if (isCustomPeriodEnabled) {
+                    setIntervalStartColumnVisible(true);
+                    setIntervalEndColumnVisible(true);
+                } else {
+                    setIntervalStartColumnVisible(false);
+                    setIntervalEndColumnVisible(false);
+                }
                 setAxisColumnVisible(false);
                 setBubbleTypeColumnVisible(false);
                 setAggregationPeriodColumnVisible(false);

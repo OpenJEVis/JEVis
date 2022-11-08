@@ -76,8 +76,11 @@ public class Table extends TableView<ChartData> {
         column.setCellFactory(SelectionTableCell.forTableColumn(dialogContainer));
         column.setEditable(true);
         column.setOnEditCommit(chartDataJEVisObjectCellEditEvent -> {
-            (chartDataJEVisObjectCellEditEvent.getTableView().getItems().get(chartDataJEVisObjectCellEditEvent.getTablePosition().getRow()))
-                    .setId(chartDataJEVisObjectCellEditEvent.getNewValue().getID());
+            ChartData chartData = chartDataJEVisObjectCellEditEvent.getTableView().getItems().get(chartDataJEVisObjectCellEditEvent.getTablePosition().getRow());
+
+            JEVisObject newObject = chartDataJEVisObjectCellEditEvent.getNewValue();
+            chartData.setId(newObject.getID());
+            chartData.setObjectName(newObject);
         });
 
         return column;
@@ -185,7 +188,7 @@ public class Table extends TableView<ChartData> {
     }
 
     private TableColumn<ChartData, BubbleType> buildBubbleTypeColumn() {
-        TableColumn<ChartData, BubbleType> column = new TableColumn<>(I18n.getInstance().getString("graph.table.charttype"));
+        TableColumn<ChartData, BubbleType> column = new TableColumn<>(I18n.getInstance().getString("plugin.graph.charttype.bubble.name"));
         column.setMinWidth(130);
         column.setStyle("-fx-alignment: CENTER;");
         column.setCellValueFactory(new PropertyValueFactory<>("bubbleType"));
