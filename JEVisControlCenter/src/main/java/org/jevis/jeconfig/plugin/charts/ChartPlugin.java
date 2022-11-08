@@ -73,7 +73,6 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDia
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Charts.Chart;
 import org.jevis.jeconfig.application.Chart.Charts.*;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.*;
@@ -105,14 +104,8 @@ public class ChartPlugin implements Plugin {
     private final DataModel dataModel;
     private final StringProperty name = new SimpleStringProperty("Graph");
     private final StringProperty id = new SimpleStringProperty("*NO_ID*");
-    private JEVisDataSource ds;
-    private ToolBar toolBar;
     private final String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
-    private boolean firstStart = true;
     private final ScrollPane sp = new ScrollPane();
-    private Double xAxisLowerBound;
-    private Double xAxisUpperBound;
-    private boolean zoomed = false;
     private final VBox vBox = new VBox();
     private final BorderPane border = new BorderPane(sp);
     private final StackPane dialogContainer = new StackPane(border);
@@ -120,6 +113,12 @@ public class ChartPlugin implements Plugin {
     private final HashMap<Integer, Chart> allCharts = new HashMap<>();
     private final Image taskImage = JEConfig.getImage("Analysis.png");
     private final DataSettings dataSettings;
+    private JEVisDataSource ds;
+    private ToolBar toolBar;
+    private boolean firstStart = true;
+    private Double xAxisLowerBound;
+    private Double xAxisUpperBound;
+    private boolean zoomed = false;
     private Boolean temporary = false;
     private WorkDays workDays;
     private Long finalSeconds = 60L;
@@ -247,6 +246,8 @@ public class ChartPlugin implements Plugin {
             JFXButton loadAnalysis = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"), JEConfig.getSVGImage(Icon.FOLDER_OPEN, 32, 32));
             loadAnalysis.setStyle(style);
             loadAnalysis.setAlignment(Pos.CENTER);
+
+            Platform.runLater(() -> toolBarView.getAnalysesComboBox().updateListAnalyses());
 
             newAnalysis.setOnAction(event -> handleRequest(Constants.Plugin.Command.NEW));
 
@@ -1267,7 +1268,12 @@ public class ChartPlugin implements Plugin {
     @Override
     public void openObject(Object object) {
         try {
+            if (firstStart) {
+                Platform.runLater(() -> toolBarView.getAnalysesComboBox().updateListAnalyses());
+            }
+
             firstStart = false;
+
             if (object instanceof AnalysisRequest) {
 
                 /**
@@ -1375,12 +1381,12 @@ public class ChartPlugin implements Plugin {
         return xAxisLowerBound;
     }
 
-    public Double getxAxisUpperBound() {
-        return xAxisUpperBound;
-    }
-
     public void setxAxisLowerBound(Double xAxisLowerBound) {
         this.xAxisLowerBound = xAxisLowerBound;
+    }
+
+    public Double getxAxisUpperBound() {
+        return xAxisUpperBound;
     }
 
     public void setxAxisUpperBound(Double xAxisUpperBound) {

@@ -87,7 +87,7 @@ public class BubbleChart extends XYChart {
         this.chartType = chartModel.getChartType();
         for (ChartData chartData : chartModel.getChartData()) {
             if (chartData.getAxis() == 1) {
-                hasSecondAxis = true;
+                hasSecondYAxis = true;
                 break;
             }
         }
