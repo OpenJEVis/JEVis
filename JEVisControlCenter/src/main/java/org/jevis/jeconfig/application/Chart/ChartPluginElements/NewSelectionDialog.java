@@ -50,8 +50,6 @@ public class NewSelectionDialog extends JFXDialog {
 
         CommonSettingTab commonSettingTab = new CommonSettingTab(this.dataModel);
 
-        tabPane.getTabs().add(commonSettingTab);
-
         for (ChartModel chartModel : this.dataModel.getChartModels()) {
             ChartTab chartTab = new ChartTab(dialogContainer, ds, chartModel);
             chartTab.setClosable(true);
@@ -62,7 +60,7 @@ public class NewSelectionDialog extends JFXDialog {
         }
 
         Tab addTab = new Tab();
-        addTab.setGraphic(JEConfig.getSVGImage(Icon.PLUS, 8, 10));
+        addTab.setGraphic(JEConfig.getSVGImage(Icon.PLUS, 12, 12));
         addTab.setClosable(false);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
             if (newTab == addTab) {
@@ -71,13 +69,15 @@ public class NewSelectionDialog extends JFXDialog {
                 chartModel.setChartId(getNextChartId());
                 this.dataModel.getChartModels().add(chartModel);
                 ChartTab newChartTab = new ChartTab(getDialogContainer(), ds, chartModel);
+                newChartTab.setOnClosed(event -> this.dataModel.getChartModels().remove(chartModel));
 
-                tabPane.getTabs().add(tabPane.getTabs().size() - 1, newChartTab);
-                tabPane.getSelectionModel().select(tabPane.getTabs().size() - 2);
+                tabPane.getTabs().add(tabPane.getTabs().size() - 2, newChartTab);
+                tabPane.getSelectionModel().select(tabPane.getTabs().size() - 3);
             }
         });
 
         tabPane.getTabs().add(addTab);
+        tabPane.getTabs().add(commonSettingTab);
 
         JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {

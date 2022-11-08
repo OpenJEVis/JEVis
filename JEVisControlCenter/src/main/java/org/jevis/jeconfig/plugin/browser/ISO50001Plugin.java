@@ -13,9 +13,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.scene.Node;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
@@ -40,20 +40,25 @@ import java.net.URI;
 /**
  * @author fs
  */
-public class ISO50001Browser implements Plugin {
-    private static final Logger logger = LogManager.getLogger(ISO50001Browser.class);
-    private StringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.isobrowser"));
-    private StringProperty id = new SimpleStringProperty("*NO_ID*");
+public class ISO50001Plugin implements Plugin {
+    private static final Logger logger = LogManager.getLogger(ISO50001Plugin.class);
+    public static String PLUGIN_NAME = "ISO 50001 Plugin";
+    protected final BorderPane borderPane = new BorderPane();
+    protected final StackPane dialogContainer = new StackPane(borderPane);
+    protected final String title;
+    private final StringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.isobrowser"));
+    private final StringProperty id = new SimpleStringProperty("*NO_ID*");
+    private final StringProperty urlProperty = new SimpleStringProperty();
+    private final String tooltip = I18n.getInstance().getString("pluginmanager.iso50001.tooltip");
     private JEVisDataSource ds;
-    private BorderPane contentPane = new BorderPane();
     private WebEngine webEngine;
     private Region icon = new Region();
-    private StringProperty urlProperty = new SimpleStringProperty();
-    private String tooltip = I18n.getInstance().getString("pluginmanager.iso50001.tooltip");
 
-    public ISO50001Browser(JEVisDataSource ds) {
+    public ISO50001Plugin(JEVisDataSource ds, String title) {
         this.ds = ds;
-        icon = JEConfig.getSVGImage(Icon.LOYTEC_BROWSER, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        this.title = title;
+        this.icon = JEConfig.getSVGImage(Icon.LOYTEC_BROWSER, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
+
         try {
             final String username = ds.getCurrentUser().getAccountName();
             final String password = JEConfig.userpassword;
@@ -77,7 +82,7 @@ public class ISO50001Browser implements Plugin {
                 ex.printStackTrace();
             }
 
-            contentPane.setCenter(page);
+            borderPane.setCenter(page);
             webEngine = page.getEngine();
             webEngine.setJavaScriptEnabled(true);
 
@@ -96,56 +101,52 @@ public class ISO50001Browser implements Plugin {
                 }
             });
 
-            webEngine.documentProperty().addListener(new ChangeListener<Document>() {
-                                                         @Override
-                                                         public void changed(ObservableValue<? extends Document> observable, Document oldValue, Document doc) {
-                                                             if (doc != null && !logedIn.getValue()) {
+            webEngine.documentProperty().addListener((observable, oldValue, doc) -> {
+                        if (doc != null && !logedIn.getValue()) {
 
-                                                                 HTMLFormElement form = (HTMLFormElement) doc.getElementById("form-login");
+                            HTMLFormElement form = (HTMLFormElement) doc.getElementById("form-login");
 
-                                                                 NodeList nodes = form.getElementsByTagName("input");
-                                                                 logger.info("form: " + form);
-                                                                 for (int i = 0; i < form.getElements().getLength(); i++) {
-                                                                     try {
-                                                                         org.w3c.dom.Node node = nodes.item(i);
-                                                                         if (node != null) {
-                                                                             logger.info("Node.name: " + "  - " + node);
-                                                                             HTMLInputElement input = (HTMLInputElement) node;
-                                                                             if (input.getId() != null) {
-                                                                                 switch (input.getId()) {
-                                                                                     case "input-username":
-                                                                                         input.setValue(username);
-                                                                                         break;
-                                                                                     case "input-password":
-                                                                                         input.setValue(password);
-                                                                                         break;
-                                                                                 }
+                            NodeList nodes = form.getElementsByTagName("input");
+                            logger.info("form: " + form);
+                            for (int i = 0; i < form.getElements().getLength(); i++) {
+                                try {
+                                    org.w3c.dom.Node node = nodes.item(i);
+                                    if (node != null) {
+                                        logger.info("Node.name: " + "  - " + node);
+                                        HTMLInputElement input = (HTMLInputElement) node;
+                                        if (input.getId() != null) {
+                                            switch (input.getId()) {
+                                                case "input-username":
+                                                    input.setValue(username);
+                                                    break;
+                                                case "input-password":
+                                                    input.setValue(password);
+                                                    break;
+                                            }
 
-                                                                             }
-                                                                         }
+                                        }
+                                    }
 
-                                                                     } catch (NullPointerException nex) {
-                                                                         nex.printStackTrace();
-                                                                     }
-                                                                 }
+                                } catch (NullPointerException nex) {
+                                    nex.printStackTrace();
+                                }
+                            }
 
-                                                                 webEngine.executeScript("setLanguage(\"german\")");
-                                                                 NodeList nodesSelect = form.getElementsByTagName("select");
-                                                                 try {
-                                                                     org.w3c.dom.Node node = nodesSelect.item(0);
-                                                                     HTMLSelectElement select = (HTMLSelectElement) node;
-                                                                     select.setSelectedIndex(1);
+                            webEngine.executeScript("setLanguage(\"german\")");
+                            NodeList nodesSelect = form.getElementsByTagName("select");
+                            try {
+                                org.w3c.dom.Node node = nodesSelect.item(0);
+                                HTMLSelectElement select = (HTMLSelectElement) node;
+                                select.setSelectedIndex(1);
 
-                                                                 } catch (NullPointerException nex) {
-                                                                     nex.printStackTrace();
-                                                                 }
+                            } catch (NullPointerException nex) {
+                                nex.printStackTrace();
+                            }
 
-                                                                 logedIn.setValue(Boolean.TRUE);
-                                                                 webEngine.executeScript("login()");
-                                                             }
-
-                                                         }
-                                                     }
+                            logedIn.setValue(Boolean.TRUE);
+                            webEngine.executeScript("login()");
+                        }
+                    }
             );
 
         } catch (Exception ex) {
@@ -252,8 +253,7 @@ public class ISO50001Browser implements Plugin {
 
     @Override
     public Node getContentNode() {
-
-        return contentPane;
+        return dialogContainer;
     }
 
     @Override

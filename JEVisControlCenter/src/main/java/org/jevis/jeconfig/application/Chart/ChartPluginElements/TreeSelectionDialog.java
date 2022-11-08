@@ -307,19 +307,10 @@ public class TreeSelectionDialog extends JFXDialog {
                                  final TreeSelectionDialog treeSelectionDialog) {
         if (treeSelectionDialog != null) {
             treeSelectionDialog.getTreeView().select(cell.getItem());
-        }
-        cell.setText(null);
+            treeSelectionDialog.show();
 
-        if (graphic != null) {
-            hbox.getChildren().setAll(graphic, treeSelectionDialog);
-            cell.setGraphic(hbox);
-        } else {
-            cell.setGraphic(treeSelectionDialog);
+            treeSelectionDialog.requestFocus();
         }
-
-        // requesting focus so that key input can immediately go into the
-        // TextField (see RT-28132)
-        treeSelectionDialog.requestFocus();
     }
 
     public static void cancelEdit(Cell<JEVisObject> cell, Node graphic) {
@@ -338,14 +329,7 @@ public class TreeSelectionDialog extends JFXDialog {
             if (cell.isEditing()) {
                 if (treeSelectionDialog != null) {
                     treeSelectionDialog.getTreeView().select(cell.getItem());
-                }
-                cell.setText(null);
-
-                if (graphic != null) {
-                    hbox.getChildren().setAll(graphic, treeSelectionDialog);
-                    cell.setGraphic(hbox);
-                } else {
-                    cell.setGraphic(treeSelectionDialog);
+                    treeSelectionDialog.show();
                 }
             } else {
                 cell.setText(getItemText(cell));

@@ -5,13 +5,12 @@ import javafx.scene.control.Cell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import org.jevis.commons.chart.BubbleType;
-import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 
 public class BubbleTypeComboBox extends DisabledItemsComboBox<String> {
 
     public BubbleTypeComboBox(BubbleType bubbleType) {
-        super(ChartType.getListNamesChartTypes());
+        super(BubbleType.getListNamesBubbleTypes());
 
         this.getSelectionModel().select(BubbleType.parseBubbleIndex(bubbleType));
 

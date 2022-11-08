@@ -22,6 +22,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
     private final List<JEVisObject> selectedObjects = new ArrayList<>();
     private final List<JEVisAttribute> selectedAttributes = new ArrayList<>();
     private final List<FilterableTreeItem> selectedFilterableTreeItems = new ArrayList<>();
+    private final List<FilterableTreeItem> allFilterableTreeItems = new ArrayList<>();
 
     public JEVisTreeView(JEVisDataSource ds, SelectionMode selectionMode, List<UserSelection> selection, boolean showAttributes) {
         this.showAttributes = showAttributes;
@@ -47,6 +48,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
 
                     JEVisTreeViewItem jeVisTreeViewItem = new JEVisTreeViewItem(object);
                     FilterableTreeItem rootItem = new FilterableTreeItem(jeVisTreeViewItem);
+                    allFilterableTreeItems.add(rootItem);
                     if (selectedObjects.contains(object)) {
                         selectedFilterableTreeItems.add(rootItem);
                     }
@@ -98,9 +100,12 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
     }
 
     public void select(JEVisObject object) {
-        getChildren().forEach(node -> {
+        FilterableTreeItem selectedItem = allFilterableTreeItems.stream().filter(filterableTreeItem -> filterableTreeItem.getValue().getObject().equals(object)).findFirst().orElse(null);
 
-        });
+        if (selectedItem != null) {
+            expandTreeView(selectedItem);
+            getSelectionModel().select(selectedItem);
+        }
     }
 
     private void addChildren(FilterableTreeItem rootItem) throws JEVisException {
@@ -118,6 +123,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
                 FilterableTreeItem childItem = new FilterableTreeItem(jeVisTreeViewItem);
                 rootItem.getInternalChildren().add(childItem);
 
+                allFilterableTreeItems.add(childItem);
                 if (selectedObjects.contains(jeVisObject)) {
                     selectedFilterableTreeItems.add(childItem);
                 }
@@ -134,6 +140,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
                     FilterableTreeItem attributeItem = new FilterableTreeItem(jeVisTreeViewItem);
                     rootItem.getInternalChildren().add(attributeItem);
 
+                    allFilterableTreeItems.add(attributeItem);
                     if (selectedAttributes.contains(attribute)) {
                         selectedFilterableTreeItems.add(attributeItem);
                     }
