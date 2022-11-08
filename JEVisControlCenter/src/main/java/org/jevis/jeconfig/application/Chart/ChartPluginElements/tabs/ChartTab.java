@@ -546,4 +546,8 @@ public class ChartTab extends Tab {
     public void setMenuVisible(boolean visible) {
         chartTable.setTableMenuButtonVisible(visible);
     }
+
+    public Table getChartTable() {
+        return chartTable;
+    }
 }
