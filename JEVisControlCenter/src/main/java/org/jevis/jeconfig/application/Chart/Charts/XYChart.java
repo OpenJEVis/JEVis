@@ -1,4 +1,3 @@
-
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import com.ibm.icu.text.DecimalFormat;
@@ -42,7 +41,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.regression.*;
-import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -62,18 +60,23 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.jevis.commons.dataprocessing.ManipulationMode.RUNNING_MEAN;
 
 public class XYChart implements Chart {
+    public static final Image taskImage = JEConfig.getImage("Analysis.png");
     private static final Logger logger = LogManager.getLogger(XYChart.class);
+    public static String JOB_NAME = "Create series";
+    final JEVisDataSource ds;
+    private final List<Color> hexColors = new ArrayList<>();
+    private final List<String> unitY1 = new ArrayList<>();
+    private final List<String> unitY2 = new ArrayList<>();
+    private final StringBuilder regressionFormula = new StringBuilder();
     int polyRegressionDegree;
     RegressionType regressionType;
     Boolean calcRegression = false;
     Boolean showIcons = true;
-    final JEVisDataSource ds;
     DefaultDateAxis primaryDateAxis = new DefaultDateAxis();
     List<ChartDataRow> chartDataRows;
     Boolean showRawData = false;
     Boolean showSum = false;
     CustomNumericAxis y1Axis = new CustomNumericAxis();
-    private final List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     DateTime now = DateTime.now();
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(now);
@@ -87,24 +90,19 @@ public class XYChart implements Chart {
     Double maxValue = -Double.MAX_VALUE;
     boolean asDuration = false;
     String chartName;
-    private final List<String> unitY1 = new ArrayList<>();
-    private final List<String> unitY2 = new ArrayList<>();
     List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    private Region areaChartRegion;
-    private Period period;
     ManipulationMode addSeriesOfType;
     AtomicBoolean addManipulationToTitle;
     AtomicReference<ManipulationMode> manipulationMode;
     Boolean[] changedBoth;
-    private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
     WorkDays workDays = new WorkDays(null);
-    boolean hasSecondAxis = false;
-    private final StringBuilder regressionFormula = new StringBuilder();
-    public static final Image taskImage = JEConfig.getImage("Analysis.png");
-    public static String JOB_NAME = "Create series";
+    boolean hasSecondYAxis = false;
     DefaultDateAxis secondaryDateAxis = new DefaultDateAxis();
     NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
     ChartModel chartModel;
+    private Region areaChartRegion;
+    private Period period;
+    private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
 
     public XYChart(JEVisDataSource ds) {
         this.ds = ds;
@@ -176,15 +174,15 @@ public class XYChart implements Chart {
         this.chartType = this.chartModel.getChartType();
         this.addSeriesOfType = dataSettings.getManipulationMode();
 
-        for (ChartData chartDataModel : chartModel.getChartData()) {
-            if (chartDataModel.getAxis() == 1) {
-                hasSecondAxis = true;
-                break;
-            }
-        }
-
         if (chartDataRows.isEmpty()) {
             chartModel.getChartData().forEach(chartData -> chartDataRows.add(new ChartDataRow(ds, chartData)));
+        }
+
+        for (ChartDataRow chartDataRow : chartDataRows) {
+            if (chartDataRow.getAxis() == 1) {
+                hasSecondYAxis = true;
+                break;
+            }
         }
 
         double totalJob = chartDataRows.size();
@@ -645,16 +643,26 @@ public class XYChart implements Chart {
             }
 
             if (showSum && index < xyChartSerieList.size() - 2) {
-                rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
-                rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
+                if (xyChartSerie.getyAxis() == 0) {
+                    rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
+                    rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
+                } else {
+                    rendererY2.getDatasets().add(xyChartSerie.getValueDataSet());
+                    rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
+                }
                 trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
-            } else if (!hasSecondAxis || xyChartSerie.getyAxis() == 0) {
+            } else if (!hasSecondYAxis && xyChartSerie.getyAxis() == 0) {
                 rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
                 rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
                 trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             } else {
-                rendererY2.getDatasets().add(xyChartSerie.getValueDataSet());
-                rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
+                if (xyChartSerie.getyAxis() == 0) {
+                    rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
+                    rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
+                } else {
+                    rendererY2.getDatasets().add(xyChartSerie.getValueDataSet());
+                    rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
+                }
             }
 
             if (showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
@@ -693,7 +701,7 @@ public class XYChart implements Chart {
             allRenderer.add(rendererLineX2Y1);
         }
 
-        if (hasSecondAxis) {
+        if (hasSecondYAxis) {
             allRenderer.add(rendererAreaY2);
             allRenderer.add(rendererLogicalY2);
             allRenderer.add(rendererColumnY2);
@@ -1099,11 +1107,6 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public void setRegion(Region region) {
-        areaChartRegion = region;
-    }
-
-    @Override
     public ObservableList<TableEntry> getTableData() {
         return tableData;
     }
@@ -1398,6 +1401,11 @@ public class XYChart implements Chart {
     @Override
     public Region getRegion() {
         return areaChartRegion;
+    }
+
+    @Override
+    public void setRegion(Region region) {
+        areaChartRegion = region;
     }
 
     @Override
