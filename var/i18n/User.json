@@ -56,6 +56,17 @@
       }
     },
     {
+      "type": "Favorite Analyses",
+      "descriptions": {
+        "de": "Speicherort der favorisierten Analysen",
+        "en": "File destination of favorite analyses"
+      },
+      "names": {
+        "de": "Favorisierte Analysen",
+        "en": "Favorite Analyses"
+      }
+    },
+    {
       "type": "First Name",
       "descriptions": {
         "de": "Vorname des Benutzers",
