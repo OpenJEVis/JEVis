@@ -72,9 +72,6 @@ import java.util.prefs.Preferences;
  */
 public class TopMenu extends MenuBar {
     private static final Logger logger = LogManager.getLogger(TopMenu.class);
-    private final List<MenuItem> items = new ArrayList<>();
-    private final StackPane dialogContainer;
-    private SimpleObjectProperty<Plugin> activePlugin = new SimpleObjectProperty<>();
     private static final String stylesString = "/styles/Styles.css";
     private static final String chartString = "/styles/charts.css";
     private static final String standardString = "/styles/Standard.css";
@@ -87,6 +84,9 @@ public class TopMenu extends MenuBar {
     private static final List<String> allThemes = Arrays.asList(stylesString, chartString, standardString, darkString, amberString,
             greenString, indigoString, redString, whiteString);
     private static String activeTheme;
+    private final List<MenuItem> items = new ArrayList<>();
+    private final StackPane dialogContainer;
+    private final SimpleObjectProperty<Plugin> activePlugin = new SimpleObjectProperty<>();
 
     public TopMenu(StackPane dialogContainer) {
         super();
@@ -157,6 +157,8 @@ public class TopMenu extends MenuBar {
 
                     favoriteAnalysisHandler.getFavoriteAnalysesList().add(favoriteAnalysis);
                     favoriteAnalysisHandler.saveDataModel();
+
+                    Platform.runLater(this::updateLayout);
                 }
             });
 
@@ -191,8 +193,8 @@ public class TopMenu extends MenuBar {
 
                     DataSettings dataSettings = new DataSettings();
 
-                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(JEConfig.getDataSource(), analysisObject);
-                    analysisTimeFrame.setTimeFrame(favoriteAnalysis.getTimeFrame());
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(JEConfig.getDataSource(), analysisObject, favoriteAnalysis.getTimeFrame());
+
                     if (favoriteAnalysis.getTimeFrame() == TimeFrame.CUSTOM) {
                         analysisTimeFrame.setStart(new DateTime(favoriteAnalysis.getStart()));
                         analysisTimeFrame.setEnd(new DateTime(favoriteAnalysis.getEnd()));
@@ -203,8 +205,14 @@ public class TopMenu extends MenuBar {
                     dataSettings.setManipulationMode(favoriteAnalysis.getManipulationMode());
 
                     name += ", " + TimeFrame.getTranslationName(analysisTimeFrame.getTimeFrame());
-                    name += ", " + AggregationPeriod.getListNamesAggregationPeriods().get(AggregationPeriod.parseAggregationIndex(favoriteAnalysis.getAggregationPeriod()));
-                    name += ", " + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode()));
+
+                    if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.NONE) {
+                        name += ", " + AggregationPeriod.getListNamesAggregationPeriods().get(AggregationPeriod.parseAggregationIndex(favoriteAnalysis.getAggregationPeriod()));
+                    }
+
+                    if (favoriteAnalysis.getManipulationMode() != ManipulationMode.NONE) {
+                        name += ", " + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode()));
+                    }
 
                     MenuItem favoriteAnalysisMenuItem = new MenuItem(name);
                     favoriteAnalysisMenuItem.setOnAction(event -> chartPlugin.openObject(analysisObject, dataSettings));

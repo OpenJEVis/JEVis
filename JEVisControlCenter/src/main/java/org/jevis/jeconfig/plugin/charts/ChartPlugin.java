@@ -525,6 +525,7 @@ public class ChartPlugin implements Plugin {
 
         allCharts.forEach((integer, chart) -> {
             if (chart.getChart() != null) {
+                chart.getChart().getPlugins().forEach(chartPlugin -> chartPlugin.getChartChildren().clear());
                 chart.getChart().getPlugins().clear();
                 chart.getChart().getRenderers().clear();
                 chart.getChart().getAllDatasets().clear();
@@ -1325,12 +1326,14 @@ public class ChartPlugin implements Plugin {
 
                     analysisHandler.saveDataModel(ds.getCurrentUser().getUserObject(), dataModel, toolBarView.getToolBarSettings(), dataSettings);
 
+                    Platform.runLater(() -> getToolBarView().getAnalysesComboBox().updateListAnalyses());
+
                     dataSettings.setCurrentAnalysis(ds.getCurrentUser().getUserObject());
 
                     update();
 
-                    toolBarView.getPickerCombo().updateCellFactory();
-                    toolBarView.getAnalysesComboBox().updateListAnalyses();
+                    Platform.runLater(() -> toolBarView.getPickerCombo().updateCellFactory());
+
 
                 }
 
@@ -1356,6 +1359,7 @@ public class ChartPlugin implements Plugin {
             getDataSettings().setAggregationPeriod(dataSettings.getAggregationPeriod());
             getDataSettings().setAnalysisTimeFrame(dataSettings.getAnalysisTimeFrame());
 
+            getDataSettings().setCurrentAnalysis(null);
             getDataSettings().setCurrentAnalysis(object);
 
             Platform.runLater(() -> toolBarView.setChanged(false));

@@ -37,8 +37,9 @@ public class AnalysisTimeFrame {
     private long id = -1;
     private DataModel dataModel;
 
-    public AnalysisTimeFrame(JEVisDataSource ds, JEVisObject currentAnalysis) {
+    public AnalysisTimeFrame(JEVisDataSource ds, JEVisObject currentAnalysis, TimeFrame timeFrame) {
         this.ds = ds;
+        this.timeFrame = timeFrame;
         if (currentAnalysis != null) {
             this.workDays = new WorkDays(currentAnalysis);
         } else {
@@ -46,6 +47,8 @@ public class AnalysisTimeFrame {
         }
 
         this.dateHelper.setWorkDays(workDays);
+
+        updateDates();
     }
 
     public AnalysisTimeFrame(JEVisDataSource ds, ChartPlugin chartPlugin) {
@@ -168,7 +171,7 @@ public class AnalysisTimeFrame {
 
     private void updateDates() {
 
-        if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+        if (chartPlugin != null && chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
             dateHelper.setWorkDays(new WorkDays(chartPlugin.getDataSettings().getCurrentAnalysis()));
         } else if (currentAnalysis != null) {
             dateHelper.setWorkDays(new WorkDays(currentAnalysis));

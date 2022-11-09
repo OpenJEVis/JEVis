@@ -47,14 +47,15 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
     private static final Logger logger = LogManager.getLogger(DataPointTableViewPointer.class);
     private final org.jevis.jeconfig.application.Chart.Charts.XYChart currentChart;
     private final List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActiveCharts;
+    private final List<XYChartSerie> xyChartSerieList;
+    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
+    boolean plotArea = true;
     private DateTime timestampFromFirstSample = null;
     private boolean asDuration = false;
-    boolean plotArea = true;
-    private final List<XYChartSerie> xyChartSerieList;
     private WorkDays workDays;
-    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
     public DataPointTableViewPointer(org.jevis.jeconfig.application.Chart.Charts.Chart chart, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive) {
+        super();
         this.currentChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) chart;
         this.notActiveCharts = notActive;
         this.asDuration = this.currentChart.isAsDuration();
@@ -194,56 +195,60 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
 
     private void updateTable(final MouseEvent event) {
-        final Bounds areaBounds;
-        if (plotArea)
-            areaBounds = getChart().getPlotArea().getBoundsInLocal();
-        else {
-            areaBounds = getChart().getBoundsInLocal();
-        }
+        try {
+            final Bounds areaBounds;
+            if (plotArea)
+                areaBounds = getChart().getPlotArea().getBoundsInLocal();
+            else {
+                areaBounds = getChart().getBoundsInLocal();
+            }
 
-        if (!areaBounds.contains(event.getX(), event.getY())) {
-            return;
-        }
+            if (!areaBounds.contains(event.getX(), event.getY())) {
+                return;
+            }
 
-        final Point2D mouseLocation = getLocationInPlotArea(event);
+            final Point2D mouseLocation = getLocationInPlotArea(event);
 
-        if (mouseLocation != null && currentChart.getChartType() != ChartType.BUBBLE) {
+            if (mouseLocation != null && currentChart.getChartType() != ChartType.BUBBLE) {
 
-            updateTable(mouseLocation);
+                updateTable(mouseLocation);
 
-            if (!notActiveCharts.isEmpty()) {
-                for (org.jevis.jeconfig.application.Chart.Charts.Chart chart : notActiveCharts) {
-                    if (chart.getChart() != null && !chart.getChartType().equals(ChartType.PIE)
-                            && !chart.getChartType().equals(ChartType.BAR)
-                            && !chart.getChartType().equals(ChartType.TABLE)) {
-                        chart.getChart().getPlugins().forEach(chartPlugin -> {
-                            if (chartPlugin instanceof DataPointTableViewPointer) {
-                                ((DataPointTableViewPointer) chartPlugin).updateTable(mouseLocation);
-                            }
-                        });
-                    } else if (chart.getChartType().equals(ChartType.TABLE)) {
-                        final DataPoint dataPoint = findNearestDataPointWithinPickingDistance(getChart(), mouseLocation, null);
-                        if (dataPoint == null) continue;
+                if (!notActiveCharts.isEmpty()) {
+                    for (org.jevis.jeconfig.application.Chart.Charts.Chart chart : notActiveCharts) {
+                        if (chart.getChart() != null && !chart.getChartType().equals(ChartType.PIE)
+                                && !chart.getChartType().equals(ChartType.BAR)
+                                && !chart.getChartType().equals(ChartType.TABLE)) {
+                            chart.getChart().getPlugins().forEach(chartPlugin -> {
+                                if (chartPlugin instanceof DataPointTableViewPointer) {
+                                    ((DataPointTableViewPointer) chartPlugin).updateTable(mouseLocation);
+                                }
+                            });
+                        } else if (chart.getChartType().equals(ChartType.TABLE)) {
+                            final DataPoint dataPoint = findNearestDataPointWithinPickingDistance(getChart(), mouseLocation, null);
+                            if (dataPoint == null) continue;
 
-                        Double v = dataPoint.getX() * 1000d;
-                        DateTime nearest = new DateTime(v.longValue());
+                            Double v = dataPoint.getX() * 1000d;
+                            DateTime nearest = new DateTime(v.longValue());
 
-                        TableChart tableChart = (TableChart) chart;
-                        tableChart.updateTable(null, nearest);
-                        tableChart.setBlockDatePickerEvent(true);
-                        TableTopDatePicker tableTopDatePicker = tableChart.getTableTopDatePicker();
-                        JFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
-                        Platform.runLater(() -> {
-                            datePicker.getSelectionModel().select(nearest);
-                            tableChart.setBlockDatePickerEvent(false);
-                        });
+                            TableChart tableChart = (TableChart) chart;
+                            tableChart.updateTable(null, nearest);
+                            tableChart.setBlockDatePickerEvent(true);
+                            TableTopDatePicker tableTopDatePicker = tableChart.getTableTopDatePicker();
+                            JFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                            Platform.runLater(() -> {
+                                datePicker.getSelectionModel().select(nearest);
+                                tableChart.setBlockDatePickerEvent(false);
+                            });
+                        }
                     }
                 }
+            } else {
+                final DataPoint dataPoint = findNearestDataPointWithinPickingDistance(getChart(), mouseLocation, null);
+                Double v = dataPoint.getX();
+                updateTable(v);
             }
-        } else {
-            final DataPoint dataPoint = findNearestDataPointWithinPickingDistance(getChart(), mouseLocation, null);
-            Double v = dataPoint.getX();
-            updateTable(v);
+        } catch (Exception e) {
+            logger.error("Error while updating table", e);
         }
     }
 
