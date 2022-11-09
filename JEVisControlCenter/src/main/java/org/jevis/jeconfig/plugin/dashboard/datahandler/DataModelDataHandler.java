@@ -63,6 +63,7 @@ public class DataModelDataHandler {
     private TimeFrame timeFrame;
     private final PeriodComparator periodComparator = new PeriodComparator();
     private WorkDays wd;
+    private Interval forcedZeroInterval;
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, JsonNode configNode, String id) {
         this.jeVisDataSource = jeVisDataSource;
@@ -277,7 +278,6 @@ public class DataModelDataHandler {
             }
         }
 
-
         try {
             LastPeriod lastPeriod = new LastPeriod(Period.parse(this.forcedPeriod));
             return lastPeriod;
@@ -294,10 +294,13 @@ public class DataModelDataHandler {
             TimeFrame timeFrame = getTimeFrameFactory();
             if (timeFrame != null) {
                 interval = timeFrame.getInterval(interval.getEnd());
+                if (interval.getEndMillis() - interval.getStartMillis() == 0) {
+                    this.setForcedZeroInterval(interval);
+                    interval = dashboardControl.getActiveTimeFrame().getInterval(interval.getEnd());
+                }
             } else {
-                logger.error("Widget DataModel is not configured using selected.");
+                logger.error("Widget DataModel is not configured, using selected.");
             }
-
         }
 
         this.setDuration(interval);
@@ -369,6 +372,10 @@ public class DataModelDataHandler {
                 logger.error(ex);
             }
         }
+    }
+
+    private void setForcedZeroInterval(Interval interval) {
+        this.forcedZeroInterval = interval;
     }
 
     public Interval getDuration() {
@@ -476,6 +483,13 @@ public class DataModelDataHandler {
             chartDataModel.setSelectedStart(start);
             chartDataModel.setSelectedEnd(end);
             chartDataModel.getSamples();
+
+            if (forcedZeroInterval != null) {
+                List<JEVisSample> samples = chartDataModel.getSamples();
+                if (!samples.isEmpty()) {
+                    chartDataModel.setSamples(samples.subList(samples.size() - 1, samples.size()));
+                }
+            }
             logger.debug("New samples for: {} = {}", chartDataModel.getObject().getID(), chartDataModel.getSamples().size());
         });
 

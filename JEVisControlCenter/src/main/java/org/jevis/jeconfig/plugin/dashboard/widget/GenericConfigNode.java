@@ -24,8 +24,6 @@ import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 
-import java.time.Period;
-
 public class GenericConfigNode extends Tab implements ConfigTab {
     private static final Logger logger = LogManager.getLogger(GenericConfigNode.class);
     private final Label nameLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.title"));
@@ -71,14 +69,11 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         timeFrameBox.setPrefWidth(200);
         timeFrameBox.setMinWidth(200);
         timeFrameBox.getItems().addAll(timeFrames);
-        logger.debug(widget.getClass());
-        if (widget.getClass().equals(GaugeWidget.class) || widget.getClass().equals(LinearGaugeWidget.class) || widget.getClass().equals(ShapeWidget.class) || widget.getClass().equals(ValueWidget.class) || widget.getClass().equals(BatteryWidget.class)) {
-            logger.debug("widget is gauge");
-            timeFrameBox.getItems().add(widget.getControl().getAllTimeFrames().getTimeframe(Period.ZERO.toString(), I18n.getInstance().getString("plugin.graph.dashboard.timeframe.lastValue")));
-        }
+
         alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
         alignmentBox.setPrefWidth(200);
         alignmentBox.setMinWidth(200);
+
         Callback<ListView<Pos>, ListCell<Pos>> cellFactory = new Callback<ListView<Pos>, ListCell<Pos>>() {
             @Override
             public ListCell<Pos> call(ListView<Pos> param) {
