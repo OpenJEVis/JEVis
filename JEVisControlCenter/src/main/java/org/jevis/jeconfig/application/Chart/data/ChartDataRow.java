@@ -992,7 +992,7 @@ public class ChartDataRow extends ChartData {
                 }
             }
 
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

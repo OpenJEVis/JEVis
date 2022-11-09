@@ -351,7 +351,7 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
                             CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
-                                    this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
+                                    this.getDataHandler().getDuration().getStart(), this.getDataHandler().getDuration().getEnd(), true);
 
                             for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 

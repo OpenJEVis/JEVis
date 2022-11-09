@@ -63,6 +63,7 @@ public class DataModelDataHandler {
     private TimeFrame timeFrame;
     private final PeriodComparator periodComparator = new PeriodComparator();
     private WorkDays wd;
+    private Interval forcedZeroInterval;
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, JsonNode configNode, String id) {
         this.jeVisDataSource = jeVisDataSource;
@@ -277,7 +278,6 @@ public class DataModelDataHandler {
             }
         }
 
-
         try {
             LastPeriod lastPeriod = new LastPeriod(Period.parse(this.forcedPeriod));
             return lastPeriod;
@@ -294,13 +294,16 @@ public class DataModelDataHandler {
             TimeFrame timeFrame = getTimeFrameFactory();
             if (timeFrame != null) {
                 interval = timeFrame.getInterval(interval.getEnd());
+                if (interval.getEndMillis() - interval.getStartMillis() == 0) {
+                    this.setForcedZeroInterval(interval);
+                    interval = dashboardControl.getActiveTimeFrame().getInterval(interval.getEnd());
+                }
             } else {
-                logger.error("Widget DataModel is not configured using selected.");
+                logger.error("Widget DataModel is not configured, using selected.");
             }
-
         }
 
-        this.durationProperty.setValue(interval);
+        this.setDuration(interval);
 
         for (ChartDataRow chartDataRow : getDataModel()) {
             try {
@@ -371,11 +374,19 @@ public class DataModelDataHandler {
         }
     }
 
-    public Interval getDurationProperty() {
+    private void setForcedZeroInterval(Interval interval) {
+        this.forcedZeroInterval = interval;
+    }
+
+    public Interval getDuration() {
         return durationProperty.get();
     }
 
-    public ObjectProperty<Interval> durationPropertyProperty() {
+    public void setDuration(Interval durationProperty) {
+        this.durationProperty.set(durationProperty);
+    }
+
+    public ObjectProperty<Interval> durationProperty() {
         return durationProperty;
     }
 
@@ -449,11 +460,9 @@ public class DataModelDataHandler {
     public void update() {
         logger.debug("Update Samples: {}", this.durationProperty.getValue());
         this.chartDataRows.forEach(chartDataModel -> {
-//            System.out.println("Set autoAggrigate: " + chartDataModel.getObject().getName() + " b: " + autoAggregation);
-//            chartDataModel.setAbsolute(autoAggregation);
-            DateTime start = this.durationProperty.getValue().getStart();
 
-            DateTime end = this.durationProperty.getValue().getEnd();
+            DateTime start = getDuration().getStart();
+            DateTime end = getDuration().getEnd();
 
             if (chartDataModel.getAggregationPeriod() != AggregationPeriod.NONE
                     && chartDataModel.getAggregationPeriod() != AggregationPeriod.MINUTELY
@@ -474,6 +483,13 @@ public class DataModelDataHandler {
             chartDataModel.setSelectedStart(start);
             chartDataModel.setSelectedEnd(end);
             chartDataModel.getSamples();
+
+            if (forcedZeroInterval != null) {
+                List<JEVisSample> samples = chartDataModel.getSamples();
+                if (!samples.isEmpty()) {
+                    chartDataModel.setSamples(samples.subList(samples.size() - 1, samples.size()));
+                }
+            }
             logger.debug("New samples for: {} = {}", chartDataModel.getObject().getID(), chartDataModel.getSamples().size());
         });
 

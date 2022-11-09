@@ -25,7 +25,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.calculation.CalcInputObject;
@@ -127,7 +126,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
             widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setAutoAggregation(true);
             this.sampleHandler.setInterval(interval);
-            setIntervallForLastValue(interval);
+//            setIntervalForLastValue(interval);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
@@ -168,30 +167,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
         //updateLayout();
         updateText();
         logger.debug("Value.updateData.done: {}", this.getConfig().getTitle());
-    }
-    private void setIntervallForLastValue(Interval interval) {
-        if (this.getDataHandler().getTimeFrameFactory() != null) {
-            if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory()) && sampleHandler != null) {
-                sampleHandler.durationPropertyProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
-                sampleHandler.update();
-                if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
-                    Interval interval1 = null;
-                    try {
-                        interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
-                        sampleHandler.durationPropertyProperty().setValue(interval1);
-                    } catch (JEVisException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-
-
-            } else {
-                this.sampleHandler.setInterval(interval);
-            }
-        } else {
-            this.sampleHandler.setInterval(interval);
-        }
-
     }
 
     private void updateText() {
@@ -512,7 +487,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
                             CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
-                                    this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
+                                    this.getDataHandler().getDuration().getStart(), this.getDataHandler().getDuration().getEnd(), true);
 
                             for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 
@@ -577,18 +552,15 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public ObjectNode toNode() {
 
         ObjectNode dashBoardNode = super.createDefaultNode();
-        dashBoardNode
-                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        dashBoardNode.set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
 
 
         if (limit != null) {
-            dashBoardNode
-                    .set(LIMIT_NODE_NAME, limit.toJSON());
+            dashBoardNode.set(LIMIT_NODE_NAME, limit.toJSON());
         }
 
         if (percent != null) {
-            dashBoardNode
-                    .set(PERCENT_NODE_NAME, percent.toJSON());
+            dashBoardNode.set(PERCENT_NODE_NAME, percent.toJSON());
         }
 
 

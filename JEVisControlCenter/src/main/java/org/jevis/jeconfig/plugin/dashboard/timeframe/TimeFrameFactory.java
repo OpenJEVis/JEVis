@@ -53,11 +53,11 @@ public class TimeFrameFactory {
         list.add(fiveYears());
         list.add(tenYears());
 
-
         list.add(new LastPeriod(new Period("PT24H"), I18n.getInstance().getString("plugin.dashboard.timefactory.pt24h")));
         list.add(new LastPeriod(new Period("P7D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p7d")));
         list.add(new LastPeriod(new Period("P30D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p30d")));
         list.add(new LastPeriod(new Period("P365D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p365d")));
+        list.add(new LastPeriod(Period.ZERO, I18n.getInstance().getString("plugin.dashboard.timefactory.lastValue")));
 
         if (this.ds != null) {
             try {
@@ -87,7 +87,7 @@ public class TimeFrameFactory {
                     }
                 }
             } catch (Exception ex) {
-                logger.error("error while loading Custom TimeFactorys: ", ex);
+                logger.error("error while loading Custom TimeFactories: ", ex);
             }
         }
 

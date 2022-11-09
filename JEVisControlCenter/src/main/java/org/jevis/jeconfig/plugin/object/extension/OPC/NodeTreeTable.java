@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -44,7 +45,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -90,7 +90,6 @@ public class NodeTreeTable {
     public static final String LOG_MODE = "trendMode";
     public static final String LOG_INTERVAL = "POLL";
     private final String mode;
-
 
 
     public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, String backNetRootFolder, StackPane dialogContainer, String mode) {
@@ -526,10 +525,22 @@ public class NodeTreeTable {
                     JEVisAttribute jevisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
                     if (dataJEVisObject != null && jevisAttributeTarget != null) {
                         dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
+                        JEVisAttribute dataPeriodAttribute = dataJEVisObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                        if (dataPeriodAttribute != null) {
+                            //TODO: get period from linx
+                            JEVisSample sample = dataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), Period.minutes(15));
+                            sample.commit();
+                        }
                         jevisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
                         setLogIntervalToJEVisObject(node, dataJEVisObject);
                         JEVisObject cleanDataJEVisObject = createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
                         cleanDataJEVisObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
+                        JEVisAttribute cleanDataPeriodAttribute = cleanDataJEVisObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                        if (cleanDataPeriodAttribute != null) {
+                            //TODO: get period from linx
+                            JEVisSample sample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), Period.minutes(15));
+                            sample.commit();
+                        }
                         cleanDataJEVisObject.commit();
                         setLogIntervalToJEVisObject(node, cleanDataJEVisObject);
                     }
@@ -539,7 +550,7 @@ public class NodeTreeTable {
             for (TreeItem<Node> nodeChild : node.getChildren()) {
                 createTrendDataTree(nodeChild, dataSourceJEVisObject, dateTime, dataJEVisObject);
             }
-        }catch (JEVisException e){
+        } catch (JEVisException e) {
             e.printStackTrace();
         }
     }

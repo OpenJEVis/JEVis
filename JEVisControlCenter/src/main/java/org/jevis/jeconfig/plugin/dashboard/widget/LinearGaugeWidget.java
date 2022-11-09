@@ -17,7 +17,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,21 +36,19 @@ import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.CalcMethods;
-import org.jevis.jeconfig.TopMenu;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
-import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -144,13 +145,13 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     private void setIntervallForLastValue(Interval interval) {
         if (this.getDataHandler().getTimeFrameFactory() != null) {
             if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory()) && sampleHandler != null) {
-                sampleHandler.durationPropertyProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
+                sampleHandler.durationProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
                 sampleHandler.update();
                 if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
                     Interval interval1 = null;
                     try {
                         interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
-                        sampleHandler.durationPropertyProperty().setValue(interval1);
+                        sampleHandler.durationProperty().setValue(interval1);
                     } catch (JEVisException e) {
                         throw new RuntimeException(e);
                     }
@@ -353,7 +354,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                             CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
-                                    this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
+                                    this.getDataHandler().getDuration().getStart(), this.getDataHandler().getDuration().getEnd(), true);
 
                             for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 
