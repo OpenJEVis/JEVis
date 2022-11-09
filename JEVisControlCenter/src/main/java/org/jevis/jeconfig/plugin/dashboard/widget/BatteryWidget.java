@@ -138,13 +138,13 @@ public class BatteryWidget extends Widget implements DataModelWidget {
     private void setIntervallForLastValue(Interval interval) {
         if (this.getDataHandler().getTimeFrameFactory() != null) {
             if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory()) && sampleHandler != null) {
-                sampleHandler.durationPropertyProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
+                sampleHandler.durationProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
                 sampleHandler.update();
                 if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
                     Interval interval1 = null;
                     try {
                         interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
-                        sampleHandler.durationPropertyProperty().setValue(interval1);
+                        sampleHandler.durationProperty().setValue(interval1);
                     } catch (JEVisException e) {
                         throw new RuntimeException(e);
                     }
@@ -314,7 +314,7 @@ public class BatteryWidget extends Widget implements DataModelWidget {
                             CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
-                                    this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
+                                    this.getDataHandler().getDuration().getStart(), this.getDataHandler().getDuration().getEnd(), true);
 
                             for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 
