@@ -631,7 +631,7 @@ public abstract class Widget extends Region {
     public Interval getCurrentInterval(Interval interval) {
         if (sampleHandler != null) {
             sampleHandler.setInterval(interval);
-            return new Interval(sampleHandler.getDurationProperty().getStart(), sampleHandler.getDurationProperty().getEnd());
+            return new Interval(sampleHandler.getDuration().getStart(), sampleHandler.getDuration().getEnd());
         } else {
             return null;
         }

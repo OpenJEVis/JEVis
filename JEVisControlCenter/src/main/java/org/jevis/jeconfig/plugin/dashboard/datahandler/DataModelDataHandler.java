@@ -300,7 +300,7 @@ public class DataModelDataHandler {
 
         }
 
-        this.durationProperty.setValue(interval);
+        this.setDuration(interval);
 
         for (ChartDataRow chartDataRow : getDataModel()) {
             try {
@@ -371,11 +371,15 @@ public class DataModelDataHandler {
         }
     }
 
-    public Interval getDurationProperty() {
+    public Interval getDuration() {
         return durationProperty.get();
     }
 
-    public ObjectProperty<Interval> durationPropertyProperty() {
+    public void setDuration(Interval durationProperty) {
+        this.durationProperty.set(durationProperty);
+    }
+
+    public ObjectProperty<Interval> durationProperty() {
         return durationProperty;
     }
 
@@ -449,11 +453,9 @@ public class DataModelDataHandler {
     public void update() {
         logger.debug("Update Samples: {}", this.durationProperty.getValue());
         this.chartDataRows.forEach(chartDataModel -> {
-//            System.out.println("Set autoAggrigate: " + chartDataModel.getObject().getName() + " b: " + autoAggregation);
-//            chartDataModel.setAbsolute(autoAggregation);
-            DateTime start = this.durationProperty.getValue().getStart();
 
-            DateTime end = this.durationProperty.getValue().getEnd();
+            DateTime start = getDuration().getStart();
+            DateTime end = getDuration().getEnd();
 
             if (chartDataModel.getAggregationPeriod() != AggregationPeriod.NONE
                     && chartDataModel.getAggregationPeriod() != AggregationPeriod.MINUTELY
