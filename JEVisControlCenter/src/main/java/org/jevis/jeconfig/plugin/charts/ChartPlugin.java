@@ -101,6 +101,7 @@ public class ChartPlugin implements Plugin {
     private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
     private final ToolBarView toolBarView;
     private final AnalysisHandler analysisHandler = new AnalysisHandler();
+    private final FavoriteAnalysisHandler favoriteAnalysisHandler = new FavoriteAnalysisHandler();
     private final DataModel dataModel;
     private final StringProperty name = new SimpleStringProperty("Graph");
     private final StringProperty id = new SimpleStringProperty("*NO_ID*");
@@ -1342,6 +1343,29 @@ public class ChartPlugin implements Plugin {
         }
     }
 
+    public void openObject(JEVisObject object, DataSettings dataSettings) {
+        try {
+            if (firstStart) {
+                Platform.runLater(() -> toolBarView.getAnalysesComboBox().updateListAnalyses());
+            }
+
+            firstStart = false;
+            dataModel.reset();
+
+            getDataSettings().setManipulationMode(dataSettings.getManipulationMode());
+            getDataSettings().setAggregationPeriod(dataSettings.getAggregationPeriod());
+            getDataSettings().setAnalysisTimeFrame(dataSettings.getAnalysisTimeFrame());
+
+            getDataSettings().setCurrentAnalysis(object);
+
+            Platform.runLater(() -> toolBarView.setChanged(false));
+            Platform.runLater(() -> toolBarView.setDisableToolBarIcons(false));
+
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+    }
+
     private void setupMouseMoved(Chart cv, List<Chart> notActive) {
 
         DataPointTableViewPointer dataPointTableViewPointer = new DataPointTableViewPointer(cv, notActive);
@@ -1580,5 +1604,9 @@ public class ChartPlugin implements Plugin {
 
     public AnalysisHandler getAnalysisHandler() {
         return analysisHandler;
+    }
+
+    public FavoriteAnalysisHandler getFavoriteAnalysisHandler() {
+        return favoriteAnalysisHandler;
     }
 }
