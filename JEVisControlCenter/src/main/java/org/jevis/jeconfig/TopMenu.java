@@ -132,7 +132,7 @@ public class TopMenu extends MenuBar {
     }
 
     private Menu createPluginMenu() {
-        Menu pluginMenu = new Menu(getActivePlugin().getName());
+        Menu pluginMenu = new Menu(I18n.getInstance().getString("menu.plugins.chart.favorites"));
 
         if (getActivePlugin() != null && getActivePlugin() instanceof ChartPlugin) {
             ChartPlugin chartPlugin = (ChartPlugin) getActivePlugin();
@@ -206,12 +206,22 @@ public class TopMenu extends MenuBar {
 
                     name += ", " + TimeFrame.getTranslationName(analysisTimeFrame.getTimeFrame());
 
-                    if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.NONE) {
-                        name += ", " + AggregationPeriod.getListNamesAggregationPeriods().get(AggregationPeriod.parseAggregationIndex(favoriteAnalysis.getAggregationPeriod()));
-                    }
-
-                    if (favoriteAnalysis.getManipulationMode() != ManipulationMode.NONE) {
-                        name += ", " + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode()));
+                    if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.NONE && favoriteAnalysis.getManipulationMode() != ManipulationMode.NONE) {
+                        if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.CUSTOM) {
+                            name += "(" + AggregationPeriod.getListNamesAggregationPeriods().get(AggregationPeriod.parseAggregationIndex(favoriteAnalysis.getAggregationPeriod()))
+                                    + ", " + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode())) + ")";
+                        } else {
+                            name += "(" + new DateTime(favoriteAnalysis.getStart()).toString("yyyy-MM-dd HH:mm:ss") + " - " + new DateTime(favoriteAnalysis.getEnd()).toString("yyyy-MM-dd HH:mm:ss")
+                                    + ", " + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode())) + ")";
+                        }
+                    } else if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.NONE) {
+                        if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.CUSTOM) {
+                            name += "(" + AggregationPeriod.getListNamesAggregationPeriods().get(AggregationPeriod.parseAggregationIndex(favoriteAnalysis.getAggregationPeriod())) + ")";
+                        } else {
+                            name += "(" + new DateTime(favoriteAnalysis.getStart()).toString("yyyy-MM-dd HH:mm:ss") + " - " + new DateTime(favoriteAnalysis.getEnd()).toString("yyyy-MM-dd HH:mm:ss") + ")";
+                        }
+                    } else if (favoriteAnalysis.getManipulationMode() != ManipulationMode.NONE) {
+                        name += "(" + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode())) + ")";
                     }
 
                     MenuItem favoriteAnalysisMenuItem = new MenuItem(name);
