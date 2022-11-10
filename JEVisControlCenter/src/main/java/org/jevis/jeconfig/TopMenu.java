@@ -19,16 +19,23 @@
  */
 package org.jevis.jeconfig;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.Level;
@@ -38,8 +45,6 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
@@ -142,9 +147,24 @@ public class TopMenu extends MenuBar {
             MenuItem addAnalysisToFavorites = new MenuItem(I18n.getInstance().getString("menu.plugins.chart.addfavorite"));
 
             addAnalysisToFavorites.setOnAction(event -> {
+
                 JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectionModel().getSelectedItem();
                 DataSettings dataSettings = chartPlugin.getDataSettings();
+
                 if (selectedAnalysis != null) {
+                    JFXDialog confirmationDialog = new JFXDialog();
+                    confirmationDialog.setDialogContainer(dialogContainer);
+                    confirmationDialog.setOverlayClose(false);
+
+                    final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
+                    ok.setDefaultButton(true);
+                    final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
+                    cancel.setOnAction(actionEvent -> confirmationDialog.close());
+
+                    HBox buttonBar = new HBox(6, cancel, ok);
+                    buttonBar.setAlignment(Pos.CENTER_RIGHT);
+                    buttonBar.setPadding(new Insets(12));
+
                     FavoriteAnalysis favoriteAnalysis = new FavoriteAnalysis();
                     favoriteAnalysis.setId(selectedAnalysis.getID());
                     favoriteAnalysis.setAggregationPeriod(dataSettings.getAggregationPeriod());
@@ -155,10 +175,25 @@ public class TopMenu extends MenuBar {
                         favoriteAnalysis.setEnd(dataSettings.getAnalysisTimeFrame().getEnd().toString());
                     }
 
-                    favoriteAnalysisHandler.getFavoriteAnalysesList().add(favoriteAnalysis);
-                    favoriteAnalysisHandler.saveDataModel();
+                    String suggestedName = favoriteAnalysis.createName(JEConfig.getDataSource());
+                    JFXTextField favoriteName = new JFXTextField();
+                    favoriteName.setMinWidth(450);
+                    favoriteName.textProperty().bindBidirectional(favoriteAnalysis.nameProperty());
+                    favoriteName.setText(suggestedName);
+                    favoriteName.selectAll();
 
-                    Platform.runLater(this::updateLayout);
+                    ok.setOnAction(actionEvent -> {
+                        favoriteAnalysisHandler.getFavoriteAnalysesList().add(favoriteAnalysis);
+                        favoriteAnalysisHandler.saveDataModel();
+                        Platform.runLater(this::updateLayout);
+                    });
+
+                    VBox content = new VBox(6, favoriteName, buttonBar);
+                    content.setPadding(new Insets(15));
+
+                    confirmationDialog.setContent(content);
+
+                    confirmationDialog.show();
                 }
             });
 
@@ -189,7 +224,6 @@ public class TopMenu extends MenuBar {
             for (FavoriteAnalysis favoriteAnalysis : favoriteAnalysisHandler.getFavoriteAnalysesList()) {
                 try {
                     JEVisObject analysisObject = JEConfig.getDataSource().getObject(favoriteAnalysis.getId());
-                    String name = analysisObject.getLocalName(I18n.getInstance().getLocale().getLanguage());
 
                     DataSettings dataSettings = new DataSettings();
 
@@ -204,27 +238,7 @@ public class TopMenu extends MenuBar {
                     dataSettings.setAggregationPeriod(favoriteAnalysis.getAggregationPeriod());
                     dataSettings.setManipulationMode(favoriteAnalysis.getManipulationMode());
 
-                    name += ", " + TimeFrame.getTranslationName(analysisTimeFrame.getTimeFrame());
-
-                    if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.NONE && favoriteAnalysis.getManipulationMode() != ManipulationMode.NONE) {
-                        if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.CUSTOM) {
-                            name += "(" + AggregationPeriod.getListNamesAggregationPeriods().get(AggregationPeriod.parseAggregationIndex(favoriteAnalysis.getAggregationPeriod()))
-                                    + ", " + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode())) + ")";
-                        } else {
-                            name += "(" + new DateTime(favoriteAnalysis.getStart()).toString("yyyy-MM-dd HH:mm:ss") + " - " + new DateTime(favoriteAnalysis.getEnd()).toString("yyyy-MM-dd HH:mm:ss")
-                                    + ", " + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode())) + ")";
-                        }
-                    } else if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.NONE) {
-                        if (favoriteAnalysis.getAggregationPeriod() != AggregationPeriod.CUSTOM) {
-                            name += "(" + AggregationPeriod.getListNamesAggregationPeriods().get(AggregationPeriod.parseAggregationIndex(favoriteAnalysis.getAggregationPeriod())) + ")";
-                        } else {
-                            name += "(" + new DateTime(favoriteAnalysis.getStart()).toString("yyyy-MM-dd HH:mm:ss") + " - " + new DateTime(favoriteAnalysis.getEnd()).toString("yyyy-MM-dd HH:mm:ss") + ")";
-                        }
-                    } else if (favoriteAnalysis.getManipulationMode() != ManipulationMode.NONE) {
-                        name += "(" + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode())) + ")";
-                    }
-
-                    MenuItem favoriteAnalysisMenuItem = new MenuItem(name);
+                    MenuItem favoriteAnalysisMenuItem = new MenuItem(favoriteAnalysis.getName());
                     favoriteAnalysisMenuItem.setOnAction(event -> chartPlugin.openObject(analysisObject, dataSettings));
 
                     analysisItems.add(favoriteAnalysisMenuItem);
