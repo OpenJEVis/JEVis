@@ -41,6 +41,8 @@ import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
+import org.jevis.jeconfig.dialog.SaveAnalysisDialog;
+import org.jevis.jeconfig.tool.dwdbrowser.DWDBrowser;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
@@ -178,6 +180,14 @@ public class ToolBarView {
         Platform.runLater(() -> dialog.getFilterInput().requestFocus());
     }
 
+    private void changeAnalysis(JEVisObject newValue) {
+        chartPlugin.setTemporary(false);
+        chartPlugin.getDataSettings().setCurrentAnalysis(newValue);
+        resetToolbarSettings();
+        Platform.runLater(this::updateLayout);
+        changed = false;
+    }
+
     private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
@@ -273,198 +283,23 @@ public class ToolBarView {
         });
     }
 
-    private void resetZoom() {
-        for (Map.Entry<Integer, Chart> entry : chartPlugin.getAllCharts().entrySet()) {
-            Integer integer = entry.getKey();
-            Chart chart = entry.getValue();
-            if (chart.getChart() != null) {
-                for (de.gsi.chart.plugins.ChartPlugin chartPlugin : chart.getChart().getPlugins()) {
-                    if (chartPlugin instanceof MultiChartZoomer) {
-                        MultiChartZoomer multiChartZoomer = (MultiChartZoomer) chartPlugin;
-                        multiChartZoomer.setFollowUpZoom(false);
-                        Platform.runLater(multiChartZoomer::zoomOrigin);
-                        break;
-                    }
-                }
-                break;
-            }
+    public ToolBar getToolbar() {
+        if (toolBar == null) {
+            toolBar = new ToolBar();
+            toolBar.setId("ObjectPlugin.Toolbar");
+
+            updateLayout();
         }
+
+        return toolBar;
     }
 
-    public AnalysesComboBox getAnalysesComboBox() {
-        return analysesComboBox;
+    public void addAnalysisComboBoxListener() {
+        analysesComboBox.valueProperty().addListener(analysisComboBoxChangeListener);
     }
 
-    private void changeSettings2() {
-        NewSelectionDialog dia = new NewSelectionDialog(chartPlugin.getDialogContainer(), ds, dataModel);
-
-        dia.setOnDialogClosed(event -> {
-            if (dia.getResponse() == Response.OK) {
-
-                changed = true;
-                chartPlugin.update();
-            }
-            JEVisHelp.getInstance().deactivatePluginModule();
-        });
-
-        dia.show();
-    }
-
-    public void select(JEVisObject obj) {
-        getAnalysesComboBox().getSelectionModel().select(obj);
-    }
-
-    public void setDisableToolBarIcons(boolean bool) {
-        disabledIcons.set(bool);
-
-        analysesComboBox.setDisable(bool);
-        save.setDisable(bool);
-        loadNew.setDisable(bool);
-        exportCSV.setDisable(bool);
-        exportImage.setDisable(bool);
-        exportPDF.setDisable(bool);
-        printButton.setDisable(bool);
-        reload.setDisable(bool);
-        runUpdateButton.setDisable(bool);
-        delete.setDisable(bool);
-        autoResize.setDisable(bool);
-        select2.setDisable(bool);
-        showRawData.setDisable(bool);
-        showSum.setDisable(bool);
-        showL1L2.setDisable(bool);
-        calcRegression.setDisable(bool);
-        calcFullLoadHours.setDisable(bool);
-        calcHoursAboveBelow.setDisable(bool);
-        calcSumAboveBelow.setDisable(bool);
-        calcBaseLoad.setDisable(bool);
-        calcValues.setDisable(bool);
-        customWorkDay.setDisable(bool);
-        disableIcons.setDisable(bool);
-        zoomOut.setDisable(bool);
-        presetDateBox.setDisable(bool);
-        pickerDateStart.setDisable(bool);
-        pickerDateEnd.setDisable(bool);
-        pickerTimeStart.setDisable(bool);
-        pickerTimeEnd.setDisable(bool);
-    }
-
-    private void startToolbarIconListener() {
-        reload.selectedProperty().addListener((observable, oldValue, newValue) -> chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD));
-
-        runUpdateButton.setOnAction(action -> {
-            if (runUpdateButton.isSelected()) {
-                toolBarSettings.setRunUpdate(true);
-                runUpdateButton.setGraphic(pauseIcon);
-                chartPlugin.setTimer();
-            } else {
-                toolBarSettings.setRunUpdate(false);
-                runUpdateButton.setGraphic(playIcon);
-                chartPlugin.stopTimer();
-            }
-        });
-
-        exportCSV.setOnAction(action -> {
-            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
-                ChartExportCSV ge = null;
-                if (chartPlugin.isZoomed()) {
-                    ge = new ChartExportCSV(
-                            ds,
-                            dataModel,
-                            chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
-                            new DateTime(chartPlugin.getxAxisLowerBound().longValue() * 1000),
-                            new DateTime(chartPlugin.getxAxisUpperBound().longValue() * 1000));
-                } else {
-                    ge = new ChartExportCSV(
-                            ds,
-                            dataModel,
-                            chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
-                            chartPlugin.getDataSettings().getAnalysisTimeFrame().getStart(),
-                            chartPlugin.getDataSettings().getAnalysisTimeFrame().getEnd());
-                }
-
-                try {
-                    ge.export();
-                } catch (FileNotFoundException | UnsupportedEncodingException | JEVisException e) {
-                    logger.error("Error: could not export to file.", e);
-                }
-            }
-        });
-
-        exportImage.setOnAction(action -> {
-            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
-                ChartExportImage exportImage = new ChartExportImage(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis().getName());
-
-                if (exportImage.getDestinationFile() != null) {
-
-                    exportImage.export(chartPlugin.getvBox());
-                }
-            }
-        });
-
-        exportPDF.setOnAction(event -> {
-            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
-                ChartExportPDF exportPDF = new ChartExportPDF(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis().getName(), false);
-
-                if (exportPDF.getDestinationFile() != null) {
-
-                    exportPDF.export(chartPlugin.getvBox());
-                }
-            }
-        });
-
-        printButton.setOnAction(event -> {
-            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
-                ChartExportPDF exportPDF = new ChartExportPDF(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis().getName(), true);
-
-                if (exportPDF.getDestinationFile() != null) {
-
-                    exportPDF.export(chartPlugin.getvBox());
-                }
-            }
-        });
-
-        save.setOnAction(action -> chartPlugin.handleRequest(Constants.Plugin.Command.SAVE));
-
-        loadNew.setOnAction(event -> {
-            loadNewDialog();
-        });
-
-        zoomOut.setOnAction(event -> resetZoom());
-
-        select2.setOnAction(event -> {
-            changeSettings2();
-        });
-
-        delete.setOnAction(event -> getChartPluginView().handleRequest(Constants.Plugin.Command.DELETE));
-
-        showRawData.setOnAction(event -> toolBarSettings.setShowRawData(!toolBarSettings.isShowRawData()));
-
-        showSum.setOnAction(event -> toolBarSettings.setShowSum(!toolBarSettings.isShowSum()));
-
-        showL1L2.setOnAction(event -> toolBarSettings.setShowL1L2(!toolBarSettings.isShowL1L2()));
-
-        calcRegression.setOnAction(event -> toolBarFunctions.calcRegression());
-
-        calcFullLoadHours.setOnAction(event -> toolBarFunctions.calcFullLoadHours());
-
-        calcBaseLoad.setOnAction(event -> toolBarFunctions.calcBaseLoad());
-
-        calcValues.setOnAction(event -> toolBarFunctions.calcValues());
-
-        calcHoursAboveBelow.setOnAction(event -> toolBarFunctions.calcHoursAboveBelow());
-
-        calcSumAboveBelow.setOnAction(event -> toolBarFunctions.calcSumAboveBelow());
-
-        customWorkDay.setOnAction(event -> toolBarSettings.setCustomWorkday(!toolBarSettings.isCustomWorkday()));
-
-        disableIcons.setOnAction(event -> toolBarSettings.setShowIcons(!toolBarSettings.isShowIcons()));
-
-        autoResize.setOnAction(event -> toolBarSettings.setAutoResize(!toolBarSettings.isAutoResize()));
-
-    }
-
-    public PickerCombo getPickerCombo() {
-        return pickerCombo;
+    public void removeAnalysisComboBoxListener() {
+        analysesComboBox.valueProperty().removeListener(analysisComboBoxChangeListener);
     }
 
     private void createToolbarIcons() {
@@ -667,6 +502,201 @@ public class ToolBarView {
 
         JEVisHelp.getInstance().addHelpItems(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, nodes);
     }
+
+    private void resetZoom() {
+        for (Map.Entry<Integer, Chart> entry : chartPlugin.getAllCharts().entrySet()) {
+            Integer integer = entry.getKey();
+            Chart chart = entry.getValue();
+            if (chart.getChart() != null) {
+                for (de.gsi.chart.plugins.ChartPlugin chartPlugin : chart.getChart().getPlugins()) {
+                    if (chartPlugin instanceof MultiChartZoomer) {
+                        MultiChartZoomer multiChartZoomer = (MultiChartZoomer) chartPlugin;
+                        multiChartZoomer.setFollowUpZoom(false);
+                        Platform.runLater(multiChartZoomer::zoomOrigin);
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    public AnalysesComboBox getAnalysesComboBox() {
+        return analysesComboBox;
+    }
+
+    private void changeSettings2() {
+        NewSelectionDialog dia = new NewSelectionDialog(chartPlugin.getDialogContainer(), ds, dataModel);
+
+        dia.setOnDialogClosed(event -> {
+            if (dia.getResponse() == Response.OK) {
+
+                changed = true;
+                chartPlugin.update();
+            }
+            JEVisHelp.getInstance().deactivatePluginModule();
+        });
+
+        dia.show();
+    }
+
+    public void select(JEVisObject obj) {
+        getAnalysesComboBox().getSelectionModel().select(obj);
+    }
+
+    public void setDisableToolBarIcons(boolean bool) {
+        disabledIcons.set(bool);
+
+        analysesComboBox.setDisable(bool);
+        save.setDisable(bool);
+        loadNew.setDisable(bool);
+        exportCSV.setDisable(bool);
+        exportImage.setDisable(bool);
+        exportPDF.setDisable(bool);
+        printButton.setDisable(bool);
+        reload.setDisable(bool);
+        runUpdateButton.setDisable(bool);
+        delete.setDisable(bool);
+        autoResize.setDisable(bool);
+        select2.setDisable(bool);
+        showRawData.setDisable(bool);
+        showSum.setDisable(bool);
+        showL1L2.setDisable(bool);
+        calcRegression.setDisable(bool);
+        calcFullLoadHours.setDisable(bool);
+        calcHoursAboveBelow.setDisable(bool);
+        calcSumAboveBelow.setDisable(bool);
+        calcBaseLoad.setDisable(bool);
+        calcValues.setDisable(bool);
+        customWorkDay.setDisable(bool);
+        disableIcons.setDisable(bool);
+        zoomOut.setDisable(bool);
+        presetDateBox.setDisable(bool);
+        pickerDateStart.setDisable(bool);
+        pickerDateEnd.setDisable(bool);
+        pickerTimeStart.setDisable(bool);
+        pickerTimeEnd.setDisable(bool);
+    }
+
+    private void startToolbarIconListener() {
+        reload.selectedProperty().addListener((observable, oldValue, newValue) -> chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD));
+
+        runUpdateButton.setOnAction(action -> {
+            if (runUpdateButton.isSelected()) {
+                toolBarSettings.setRunUpdate(true);
+                runUpdateButton.setGraphic(pauseIcon);
+                chartPlugin.setTimer();
+            } else {
+                toolBarSettings.setRunUpdate(false);
+                runUpdateButton.setGraphic(playIcon);
+                chartPlugin.stopTimer();
+            }
+        });
+
+        exportCSV.setOnAction(action -> {
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                ChartExportCSV ge = null;
+                if (chartPlugin.isZoomed()) {
+                    ge = new ChartExportCSV(
+                            ds,
+                            dataModel,
+                            chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
+                            new DateTime(chartPlugin.getxAxisLowerBound().longValue() * 1000),
+                            new DateTime(chartPlugin.getxAxisUpperBound().longValue() * 1000));
+                } else {
+                    ge = new ChartExportCSV(
+                            ds,
+                            dataModel,
+                            chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
+                            chartPlugin.getDataSettings().getAnalysisTimeFrame().getStart(),
+                            chartPlugin.getDataSettings().getAnalysisTimeFrame().getEnd());
+                }
+
+                try {
+                    ge.export();
+                } catch (FileNotFoundException | UnsupportedEncodingException | JEVisException e) {
+                    logger.error("Error: could not export to file.", e);
+                }
+            }
+        });
+
+        exportImage.setOnAction(action -> {
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                ChartExportImage exportImage = new ChartExportImage(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis().getName());
+
+                if (exportImage.getDestinationFile() != null) {
+
+                    exportImage.export(chartPlugin.getvBox());
+                }
+            }
+        });
+
+        exportPDF.setOnAction(event -> {
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                ChartExportPDF exportPDF = new ChartExportPDF(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis().getName(), false);
+
+                if (exportPDF.getDestinationFile() != null) {
+
+                    exportPDF.export(chartPlugin.getvBox());
+                }
+            }
+        });
+
+        printButton.setOnAction(event -> {
+            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
+                ChartExportPDF exportPDF = new ChartExportPDF(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis().getName(), true);
+
+                if (exportPDF.getDestinationFile() != null) {
+
+                    exportPDF.export(chartPlugin.getvBox());
+                }
+            }
+        });
+
+        save.setOnAction(action -> chartPlugin.handleRequest(Constants.Plugin.Command.SAVE));
+
+        loadNew.setOnAction(event -> {
+            loadNewDialog();
+        });
+
+        zoomOut.setOnAction(event -> resetZoom());
+
+        select2.setOnAction(event -> {
+            changeSettings2();
+        });
+
+        delete.setOnAction(event -> getChartPluginView().handleRequest(Constants.Plugin.Command.DELETE));
+
+        showRawData.setOnAction(event -> toolBarSettings.setShowRawData(!toolBarSettings.isShowRawData()));
+
+        showSum.setOnAction(event -> toolBarSettings.setShowSum(!toolBarSettings.isShowSum()));
+
+        showL1L2.setOnAction(event -> toolBarSettings.setShowL1L2(!toolBarSettings.isShowL1L2()));
+
+        calcRegression.setOnAction(event -> toolBarFunctions.calcRegression());
+
+        calcFullLoadHours.setOnAction(event -> toolBarFunctions.calcFullLoadHours());
+
+        calcBaseLoad.setOnAction(event -> toolBarFunctions.calcBaseLoad());
+
+        calcValues.setOnAction(event -> toolBarFunctions.calcValues());
+
+        calcHoursAboveBelow.setOnAction(event -> toolBarFunctions.calcHoursAboveBelow());
+
+        calcSumAboveBelow.setOnAction(event -> toolBarFunctions.calcSumAboveBelow());
+
+        customWorkDay.setOnAction(event -> toolBarSettings.setCustomWorkday(!toolBarSettings.isCustomWorkday()));
+
+        disableIcons.setOnAction(event -> toolBarSettings.setShowIcons(!toolBarSettings.isShowIcons()));
+
+        autoResize.setOnAction(event -> toolBarSettings.setAutoResize(!toolBarSettings.isAutoResize()));
+
+    }
+
+    public PickerCombo getPickerCombo() {
+        return pickerCombo;
+    }
+
 
     private void updateWorkdayTimesFromJEVisObject(JEVisObject jeVisObject) {
         WorkDays wd = new WorkDays(jeVisObject);

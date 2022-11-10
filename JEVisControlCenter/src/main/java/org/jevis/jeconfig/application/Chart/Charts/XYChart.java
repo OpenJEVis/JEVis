@@ -91,9 +91,8 @@ public class XYChart implements Chart {
     boolean asDuration = false;
     String chartName;
     List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    ManipulationMode addSeriesOfType;
-    AtomicBoolean addManipulationToTitle;
-    AtomicReference<ManipulationMode> manipulationMode;
+    Boolean addManipulationToTitle;
+    ManipulationMode manipulationMode;
     Boolean[] changedBoth;
     WorkDays workDays = new WorkDays(null);
     boolean hasSecondYAxis = false;
@@ -172,7 +171,6 @@ public class XYChart implements Chart {
         this.chartId = this.chartModel.getChartId();
         this.chartName = this.chartModel.getChartName();
         this.chartType = this.chartModel.getChartType();
-        this.addSeriesOfType = dataSettings.getManipulationMode();
 
         if (chartDataRows.isEmpty()) {
             chartModel.getChartData().forEach(chartData -> chartDataRows.add(new ChartDataRow(ds, chartData)));
@@ -219,8 +217,14 @@ public class XYChart implements Chart {
 
         generatePeriod();
 
-        addManipulationToTitle = new AtomicBoolean(false);
-        manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
+        addManipulationToTitle = false;
+        manipulationMode = dataSettings.getManipulationMode();
+
+        asDuration = dataSettings.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
+                || dataSettings.getManipulationMode().equals(ManipulationMode.SORTED_MAX);
+
+        addManipulationToTitle = (dataSettings.getManipulationMode().equals(RUNNING_MEAN)
+                || dataSettings.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN));
 
         ChartDataRow sumModelY1 = null;
         ChartDataRow sumModelY2 = null;
@@ -960,36 +964,7 @@ public class XYChart implements Chart {
             changedBoth[1] = true;
         }
 
-        /**
-         * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
-         */
-
-        checkManipulation(singleRow);
         return serie;
-    }
-
-    void checkManipulation(ChartDataRow singleRow) throws JEVisException {
-        asDuration = singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
-                || singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MAX);
-
-        addManipulationToTitle.set(singleRow.getManipulationMode().equals(RUNNING_MEAN)
-                || singleRow.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN));
-
-        manipulationMode.set(singleRow.getManipulationMode());
-
-        if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
-            ManipulationMode oldMode = singleRow.getManipulationMode();
-            singleRow.setManipulationMode(addSeriesOfType);
-            XYChartSerie serie2 = new XYChartSerie(chartModel, singleRow, showIcons, false);
-
-            hexColors.add(singleRow.getColor().darker());
-
-            chart.getDatasets().add(serie2.getValueDataSet());
-
-            tableData.add(serie2.getTableEntry());
-
-            singleRow.setManipulationMode(oldMode);
-        }
     }
 
     @Override
@@ -1182,7 +1157,7 @@ public class XYChart implements Chart {
 
     String getUpdatedChartName() {
         String newName = chartName;
-        switch (manipulationMode.get()) {
+        switch (manipulationMode) {
             case CENTRIC_RUNNING_MEAN:
                 String centricrunningmean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
                 if (!newName.contains(centricrunningmean))
@@ -1347,7 +1322,7 @@ public class XYChart implements Chart {
                     }
                 }
 
-                if (manipulationMode.get().equals(ManipulationMode.CUMULATE)) {
+                if (manipulationMode == ManipulationMode.CUMULATE) {
                     avg = max / samples.size();
                     sum = max;
                 }
