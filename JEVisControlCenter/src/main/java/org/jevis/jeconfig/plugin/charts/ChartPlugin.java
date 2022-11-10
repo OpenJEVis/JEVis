@@ -431,12 +431,6 @@ public class ChartPlugin implements Plugin {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
                     SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(dialogContainer, ds, dataSettings, this, toolBarView);
-//                    saveAnalysisDialog.setOnDialogClosed(jfxDialogEvent -> {
-//                        if (saveAnalysisDialog.getResponse() == Response.OK) {
-//                            update();
-//                        }
-//                    });
-
                     saveAnalysisDialog.show();
                     break;
                 case Constants.Plugin.Command.DELETE:

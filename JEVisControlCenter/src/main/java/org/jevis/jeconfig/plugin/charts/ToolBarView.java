@@ -105,12 +105,12 @@ public class ToolBarView {
     private CheckMenuItem showSum;
     private CheckMenuItem showL1L2;
     private CheckMenuItem calcRegression;
-    private CheckMenuItem calcFullLoadHours;
-    private CheckMenuItem calcHoursAboveBelow;
-    private CheckMenuItem calcSumAboveBelow;
-    private CheckMenuItem calcBaseLoad;
+    private MenuItem calcFullLoadHours;
+    private MenuItem calcHoursAboveBelow;
+    private MenuItem calcSumAboveBelow;
+    private MenuItem calcBaseLoad;
 
-    private CheckMenuItem calcValues;
+    private MenuItem calcValues;
     private final ToolBarFunctions toolBarFunctions;
     private ChartPlugin chartPlugin = null;
 
@@ -191,37 +191,20 @@ public class ToolBarView {
                 alert.showAndWait().ifPresent(buttonType -> {
                     if (buttonType.equals(ButtonType.OK)) {
                         changed = false;
-                        getChartPluginView().handleRequest(Constants.Plugin.Command.SAVE);
+
+                        SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(chartPlugin.getDialogContainer(), getDs(), chartPlugin.getDataSettings(), chartPlugin, this);
+                        saveAnalysisDialog.setOnDialogClosed(jfxDialogEvent -> changeAnalysis(newValue));
+
+                        saveAnalysisDialog.show();
+                    } else {
+                        changeAnalysis(newValue);
                     }
                 });
+            } else {
+                changeAnalysis(newValue);
             }
-            chartPlugin.setTemporary(false);
-            chartPlugin.getDataSettings().setCurrentAnalysis(newValue);
-            resetToolbarSettings();
-//            chartPlugin.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
-            Platform.runLater(this::updateLayout);
-            changed = false;
         }
     };
-
-    public ToolBar getToolbar() {
-        if (toolBar == null) {
-            toolBar = new ToolBar();
-            toolBar.setId("ObjectPlugin.Toolbar");
-
-            updateLayout();
-        }
-
-        return toolBar;
-    }
-
-    public void addAnalysisComboBoxListener() {
-        analysesComboBox.valueProperty().addListener(analysisComboBoxChangeListener);
-    }
-
-    public void removeAnalysisComboBoxListener() {
-        analysesComboBox.valueProperty().removeListener(analysisComboBoxChangeListener);
-    }
 
     public void updateLayout() {
 
