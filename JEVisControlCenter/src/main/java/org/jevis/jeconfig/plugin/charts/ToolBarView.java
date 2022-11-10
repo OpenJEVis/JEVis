@@ -42,7 +42,6 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.dialog.SaveAnalysisDialog;
-import org.jevis.jeconfig.tool.dwdbrowser.DWDBrowser;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
