@@ -20,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.FileNames;
@@ -300,6 +301,12 @@ public class ChartExportCSV {
                 if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                     currentUnit = chartDataRow.getUnit().getLabel();
                 }
+
+                QuantityUnits qu = new QuantityUnits();
+                if (!qu.isQuantityUnit(chartDataRow.getUnit()) && qu.isSumCalculable(chartDataRow.getUnit())) {
+                    currentUnit += " (∑ ->" + qu.getSumUnit(chartDataRow.getUnit()).getLabel() + ")";
+                }
+
                 unitHeader.setCellValue(currentUnit);
                 columnIndex++;
 
@@ -364,7 +371,6 @@ public class ChartExportCSV {
             dateHeaderCell.setCellValue(DATE);
             columnIndex++;
             for (ChartData chartData : chartModel.getChartData()) {
-                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
                 columnIndex++;
 
                 if (withUserNotes) {
@@ -483,10 +489,11 @@ public class ChartExportCSV {
                             }
                         }
                     }
-                    columnIndex++;
-
-                    if (withUserNotes) columnIndex++;
                 }
+
+                columnIndex++;
+
+                if (withUserNotes) columnIndex++;
             }
         }
 
@@ -583,6 +590,12 @@ public class ChartExportCSV {
                     logger.error("Could not get unit.", e);
                 }
             }
+
+            QuantityUnits qu = new QuantityUnits();
+            if (!qu.isQuantityUnit(chartDataRow.getUnit()) && qu.isSumCalculable(chartDataRow.getUnit())) {
+                currentUnit += " (∑ ->" + qu.getSumUnit(chartDataRow.getUnit()).getLabel() + ")";
+            }
+
             unitHeader.setCellValue(currentUnit);
             columnIndex++;
 
@@ -816,6 +829,11 @@ public class ChartExportCSV {
             if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                 currentUnit = chartDataRow.getUnit().getLabel();
             }
+
+            QuantityUnits qu = new QuantityUnits();
+            if (!qu.isQuantityUnit(chartDataRow.getUnit()) && qu.isSumCalculable(chartDataRow.getUnit())) {
+                currentUnit += " (∑ ->" + qu.getSumUnit(chartDataRow.getUnit()).getLabel() + ")";
+            }
             header.append(currentUnit);
             header.append(COL_SEP);
 
@@ -1037,6 +1055,12 @@ public class ChartExportCSV {
                 if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                     currentUnit = chartDataRow.getUnit().getLabel();
                 }
+
+                QuantityUnits qu = new QuantityUnits();
+                if (!qu.isQuantityUnit(chartDataRow.getUnit()) && qu.isSumCalculable(chartDataRow.getUnit())) {
+                    currentUnit += " (∑ ->" + qu.getSumUnit(chartDataRow.getUnit()).getLabel() + ")";
+                }
+
                 sb.append(currentUnit);
                 sb.append(COL_SEP);
 
