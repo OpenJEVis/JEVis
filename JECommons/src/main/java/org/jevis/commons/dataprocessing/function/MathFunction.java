@@ -129,8 +129,8 @@ public class MathFunction implements ProcessFunction {
                 for (JsonSample smp : allSamples) {
                     Double currentValue = Double.parseDouble(smp.getValue());
                     value += currentValue;
-                    min = Math.min(min, currentValue);
-                    max = Math.max(max, currentValue);
+                    min = java.lang.Math.min(min, currentValue);
+                    max = java.lang.Math.max(max, currentValue);
                     listMedian.add(currentValue);
 
                     if (!hasSamples) hasSamples = true;
@@ -173,8 +173,8 @@ public class MathFunction implements ProcessFunction {
                     for (JsonSample sample : samplesInPeriod) {
                         Double currentValue = Double.parseDouble(sample.getValue());
                         value += currentValue;
-                        min = Math.min(min, currentValue);
-                        max = Math.max(max, currentValue);
+                        min = java.lang.Math.min(min, currentValue);
+                        max = java.lang.Math.max(max, currentValue);
                         listMedian.add(currentValue);
 
                         if (!hasSamples) hasSamples = true;

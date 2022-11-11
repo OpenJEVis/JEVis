@@ -77,6 +77,8 @@ public class ChartDataRow extends ChartData {
             } catch (Exception ignored) {
             }
             setAttributeString(chartData.getAttributeString());
+            setAggregationPeriod(chartData.getAggregationPeriod());
+            setManipulationMode(chartData.getManipulationMode());
             setUnit(chartData.getUnit());
             setName(chartData.getName());
             setColor(chartData.getColor());
