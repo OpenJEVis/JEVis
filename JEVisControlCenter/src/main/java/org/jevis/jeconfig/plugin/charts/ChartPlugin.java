@@ -563,6 +563,9 @@ public class ChartPlugin implements Plugin {
                         chartData.setIntervalStart(dataSettings.getAnalysisTimeFrame().getStart());
                         chartData.setIntervalEnd(dataSettings.getAnalysisTimeFrame().getEnd());
                     }
+
+                    chartData.setAggregationPeriod(dataSettings.getAggregationPeriod());
+                    chartData.setManipulationMode(dataSettings.getManipulationMode());
                 });
 
                 if (chartModel.getChartType().equals(ChartType.LOGICAL)) {
