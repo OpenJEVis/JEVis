@@ -617,7 +617,7 @@ public class ChartPlugin implements Plugin {
                 } else if (chart != null) {
                     ScrollPane scrollPane = new ScrollPane();
 
-                    TableHeader tableHeader = new TableHeader(chartModel, chart.getTableData());
+                    TableHeader tableHeader = new TableHeader(chartModel, chart);
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
                     scrollPane.setContent(tableHeader);
@@ -630,7 +630,7 @@ public class ChartPlugin implements Plugin {
 
                 if (chartModel.getChartType() != ChartType.PIE && chartModel.getChartType() != ChartType.HEAT_MAP
                         && chartModel.getChartType() != ChartType.LOGICAL && chart != null) {
-                    TableHeader tableHeader = new TableHeader(chartModel, chart.getTableData());
+                    TableHeader tableHeader = new TableHeader(chartModel, chart);
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
                     if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.TABLE_V) {

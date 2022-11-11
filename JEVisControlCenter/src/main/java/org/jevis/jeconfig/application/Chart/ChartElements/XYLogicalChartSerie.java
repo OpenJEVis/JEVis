@@ -27,8 +27,6 @@ public class XYLogicalChartSerie extends XYChartSerie {
 
     @Override
     public void generateSeriesFromSamples() throws JEVisException {
-        setMinValue(Double.MAX_VALUE);
-        setMaxValue(-Double.MAX_VALUE);
 
         this.tableEntry = new TableEntry(getTableEntryName());
         this.valueDataSet.setName(getTableEntryName());
@@ -64,8 +62,8 @@ public class XYLogicalChartSerie extends XYChartSerie {
                 DateTime dateTime = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
 
-                setMinValue(Math.min(minValue, value));
-                setMaxValue(Math.max(maxValue, value));
+                minValue.minCheck(dateTime, value);
+                maxValue.maxCheck(dateTime, value);
 
                 long timestamp = dateTime.getMillis();
 
