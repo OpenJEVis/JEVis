@@ -8,28 +8,28 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.paint.Color;
+import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 
 /**
  * @author broder
  */
 public class TableEntry {
 
-    private final SimpleStringProperty date = new SimpleStringProperty("-");
-    private final SimpleStringProperty value = new SimpleStringProperty("-");
-    private final SimpleStringProperty name = new SimpleStringProperty("-");
-    //        this.color = new SimpleStringProperty("-");
-    private final SimpleObjectProperty<Color> color = new SimpleObjectProperty<>(Color.BLUE);
-    private final SimpleStringProperty min = new SimpleStringProperty();
-    private final SimpleStringProperty max = new SimpleStringProperty();
-    private final SimpleStringProperty avg = new SimpleStringProperty();
-    private final SimpleStringProperty enpi = new SimpleStringProperty();
-    private final SimpleStringProperty sum = new SimpleStringProperty();
-    private final SimpleStringProperty note = new SimpleStringProperty();
-    private final SimpleStringProperty period = new SimpleStringProperty();
-    private final SimpleStringProperty xValue = new SimpleStringProperty("-");
-    private final SimpleStringProperty yValue = new SimpleStringProperty("-");
-    private final SimpleStringProperty standardDeviation = new SimpleStringProperty("-");
-    private final SimpleStringProperty variance = new SimpleStringProperty("-");
+    private final SimpleStringProperty date = new SimpleStringProperty(this, "date", "-");
+    private final SimpleStringProperty value = new SimpleStringProperty(this, "value", "-");
+    private final SimpleStringProperty name = new SimpleStringProperty(this, "name", "-");
+    private final SimpleObjectProperty<Color> color = new SimpleObjectProperty<>(this, "color", Color.BLUE);
+    private final SimpleObjectProperty<ValueWithDateTime> min = new SimpleObjectProperty<>(this, "min", new ValueWithDateTime(0d));
+    private final SimpleObjectProperty<ValueWithDateTime> max = new SimpleObjectProperty<>(this, "max", new ValueWithDateTime(0d));
+    private final SimpleStringProperty avg = new SimpleStringProperty(this, "avg", "-");
+    private final SimpleStringProperty enpi = new SimpleStringProperty(this, "enpi", "-");
+    private final SimpleStringProperty sum = new SimpleStringProperty(this, "sum", "-");
+    private final SimpleStringProperty note = new SimpleStringProperty(this, "note", "");
+    private final SimpleStringProperty period = new SimpleStringProperty(this, "period", "-");
+    private final SimpleStringProperty xValue = new SimpleStringProperty(this, "xValue", "-");
+    private final SimpleStringProperty yValue = new SimpleStringProperty(this, "yValue", "-");
+    private final SimpleStringProperty standardDeviation = new SimpleStringProperty(this, "standardDeviation", "-");
+    private final SimpleStringProperty variance = new SimpleStringProperty(this, "variance", "-");
 
     public TableEntry(String name) {
         setName(name);
@@ -91,27 +91,27 @@ public class TableEntry {
         this.color.set(name);
     }
 
-    public String getMin() {
+    public ValueWithDateTime getMin() {
         return min.get();
     }
 
-    public void setMin(String min) {
+    public void setMin(ValueWithDateTime min) {
         this.min.set(min);
     }
 
-    public SimpleStringProperty minProperty() {
+    public SimpleObjectProperty<ValueWithDateTime> minProperty() {
         return min;
     }
 
-    public String getMax() {
+    public ValueWithDateTime getMax() {
         return max.get();
     }
 
-    public void setMax(String max) {
+    public void setMax(ValueWithDateTime max) {
         this.max.set(max);
     }
 
-    public SimpleStringProperty maxProperty() {
+    public SimpleObjectProperty<ValueWithDateTime> maxProperty() {
         return max;
     }
 
@@ -213,5 +213,10 @@ public class TableEntry {
 
     public SimpleStringProperty varianceProperty() {
         return variance;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof TableEntry && getName().equals(((TableEntry) obj).getName()));
     }
 }

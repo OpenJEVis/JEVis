@@ -4,6 +4,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
@@ -45,4 +46,6 @@ public interface Chart {
     List<ChartDataRow> getChartDataRows();
 
     ChartModel getChartModel();
+
+    List<XYChartSerie> getXyChartSerieList();
 }

@@ -51,8 +51,8 @@ public class ChartDataRow extends ChartData {
     private boolean hasForecastData = false;
     private Double scaleFactor = 1d;
     private Double timeFactor = 1d;
-    private Double min = 0d;
-    private Double max = 0d;
+    private ValueWithDateTime min = new ValueWithDateTime(0d);
+    private ValueWithDateTime max = new ValueWithDateTime(0d);
     private Double avg = 0d;
     private Double sum = 0d;
     private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
@@ -821,16 +821,17 @@ public class ChartDataRow extends ChartData {
     }
 
     public void calcMinAndMax() {
-        min = Double.MAX_VALUE;
-        max = -Double.MAX_VALUE;
+        min.setValue(Double.MAX_VALUE);
+        max.setValue(-Double.MAX_VALUE);
         avg = 0d;
         sum = 0d;
 
         for (JEVisSample sample : getSamples()) {
             try {
+                DateTime ts = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
-                min = Math.min(min, value);
-                max = Math.max(max, value);
+                min.minCheck(ts, value);
+                max.maxCheck(ts, value);
                 sum += value;
             } catch (Exception e) {
                 logger.error("Could not calculate min and max.");
@@ -942,19 +943,19 @@ public class ChartDataRow extends ChartData {
         this.timeFactor = timeFactor;
     }
 
-    public Double getMin() {
+    public ValueWithDateTime getMin() {
         return min;
     }
 
-    public void setMin(Double min) {
+    public void setMin(ValueWithDateTime min) {
         this.min = min;
     }
 
-    public Double getMax() {
+    public ValueWithDateTime getMax() {
         return max;
     }
 
-    public void setMax(Double max) {
+    public void setMax(ValueWithDateTime max) {
         this.max = max;
     }
 

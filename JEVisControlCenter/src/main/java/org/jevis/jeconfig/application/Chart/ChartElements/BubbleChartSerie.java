@@ -22,6 +22,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -42,8 +43,6 @@ public class BubbleChartSerie extends XYChartSerie {
     TreeMap<DateTime, JEVisSample> sampleMap;
     DateTime timeStampFromFirstSample = DateTime.now();
     DateTime timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
-    Double minValue = Double.MAX_VALUE;
-    Double maxValue = -Double.MAX_VALUE;
     private double sortCriteria;
 
     public BubbleChartSerie(ChartModel chartModelSetting, ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
@@ -74,6 +73,8 @@ public class BubbleChartSerie extends XYChartSerie {
         }
 
         JEVisUnit unit = singleRow.getUnit();
+        minValue.setUnit(unit);
+        maxValue.setUnit(unit);
 
         valueDataSet.clearData();
 
@@ -95,22 +96,19 @@ public class BubbleChartSerie extends XYChartSerie {
 
         sampleMap = new TreeMap<>();
 
-        double min = Double.MAX_VALUE;
-        double max = -Double.MAX_VALUE;
         double avg = 0.0;
         Double sum = 0.0;
         long zeroCount = 0;
 
         int noteIndex = 0;
-        for (int i = 0, size = samples.size(); i < size; i++) {
-            JEVisSample sample = samples.get(i);
+        for (JEVisSample sample : samples) {
             try {
 
                 DateTime dateTime = sample.getTimestamp();
                 Double currentValue = sample.getValueAsDouble();
 
-                min = Math.min(min, currentValue);
-                max = Math.max(max, currentValue);
+                minValue.minCheck(dateTime, currentValue);
+                maxValue.maxCheck(dateTime, currentValue);
                 sum += currentValue;
 
                 Double timestamp = dateTime.getMillis() / 1000d;
@@ -137,16 +135,16 @@ public class BubbleChartSerie extends XYChartSerie {
         }
 
         if (singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE)) {
-            avg = max / samples.size();
-            sum = max;
+            avg = maxValue.getValue() / samples.size();
+            sum = maxValue.getValue();
         }
 
-        updateTableEntry(samples, unit, min, max, avg, sum, zeroCount);
+        updateTableEntry(samples, unit, minValue, maxValue, avg, sum, zeroCount);
 
         JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
 
-    public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, double min, double max, double avg, Double sum, long zeroCount) throws JEVisException {
+    public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, ValueWithDateTime min, ValueWithDateTime max, double avg, Double sum, long zeroCount) throws JEVisException {
 
         DateTime firstTS = null;
         DateTime secondTS = null;
@@ -195,18 +193,6 @@ public class BubbleChartSerie extends XYChartSerie {
             sortCriteria = avg;
         }
 
-        if (min == Double.MAX_VALUE || samples.size() == 0) {
-            Platform.runLater(() -> tableEntry.setMin("- " + getUnit()));
-        } else {
-            Platform.runLater(() -> tableEntry.setMin(nf.format(min) + " " + getUnit()));
-        }
-
-        if (max == -Double.MAX_VALUE || samples.size() == 0) {
-            Platform.runLater(() -> tableEntry.setMax("- " + getUnit()));
-        } else {
-            Platform.runLater(() -> tableEntry.setMax(nf.format(max) + " " + getUnit()));
-        }
-
         if (samples.size() == 0) {
             Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
             Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
@@ -252,39 +238,15 @@ public class BubbleChartSerie extends XYChartSerie {
                 JEConfig.getStatusBar().addTask(XYChart.class.getName(), task, XYChart.taskImage, true);
             }
             if (isQuantity) {
-//                tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + getUnit());
                 Double finalSum = sum;
                 Platform.runLater(() -> tableEntry.setSum(nf.format(finalSum) + " " + getUnit()));
             } else {
                 if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                     try {
-//                        Period period = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
-//                        if (period.getMonths() < 1 && period.getYears() < 1) {
-//                            long periodMillis = period.toStandardDuration().getMillis();
-//                            long hourMillis = Period.hours(1).toStandardDuration().getMillis();
-//                            Double factor = (double) hourMillis / (double) periodMillis;
-//                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
                         sum = sum / singleRow.getScaleFactor();
                         Double finalSum1 = sum;
                         Platform.runLater(() -> tableEntry.setSum(nf.format(finalSum1) + " " + qu.getSumUnit(unit)));
-//                        } else {
-//                            double periodMillis = 0.0;
 
-//                            if (period.getMonths() == 1) {
-//                                periodMillis = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
-//                            } else if (period.getMonths() == 3) {
-//                                periodMillis = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
-//                            } else if (period.getYears() == 1) {
-//                                periodMillis = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
-//                            }
-
-//                            long hourMillis = Period.hours(1).toStandardDuration().getMillis();
-//                            Double factor = (double) hourMillis / periodMillis;
-//                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
-//                            sum = sum / singleRow.getScaleFactor();
-//                            Double finalSum2 = sum;
-//                            Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum2) + " " + qu.getSumUnit(unit)));
-//                        }
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");
                         Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
@@ -305,13 +267,6 @@ public class BubbleChartSerie extends XYChartSerie {
         Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()), singleRow.getAlarms(false).get(sample.getTimestamp()));
 
         return note.getNoteAsString();
-//        if (note.getNote() != null && hideShowIcons) {
-//            if (sample.getNote().contains("Zeros")) {
-//                return null;
-//            }
-//            note.getNote().setVisible(true);
-//            return note.getNoteAsString();
-//        } else return null;
     }
 
     public DoubleDataSet getValueDataSet() {
@@ -378,22 +333,6 @@ public class BubbleChartSerie extends XYChartSerie {
                 (int) (color.getRed() * 255),
                 (int) (color.getGreen() * 255),
                 (int) (color.getBlue() * 255));
-    }
-
-    public Double getMinValue() {
-        return minValue;
-    }
-
-    public void setMinValue(Double minValue) {
-        this.minValue = minValue;
-    }
-
-    public Double getMaxValue() {
-        return maxValue;
-    }
-
-    public void setMaxValue(Double maxValue) {
-        this.maxValue = maxValue;
     }
 
     public Integer getyAxis() {
