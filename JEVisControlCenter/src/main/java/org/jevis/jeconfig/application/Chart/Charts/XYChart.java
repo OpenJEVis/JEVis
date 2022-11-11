@@ -203,10 +203,6 @@ public class XYChart implements Chart {
         if (!chartDataRows.isEmpty()) {
             workDays = new WorkDays(chartDataRows.get(0).getObject());
             workDays.setEnabled(toolBarSettings.isCustomWorkday());
-            chartDataRows.forEach(chartDataRow -> {
-                chartDataRow.setAggregationPeriod(dataSettings.getAggregationPeriod());
-                chartDataRow.setManipulationMode(dataSettings.getManipulationMode());
-            });
         }
 
         hexColors.clear();

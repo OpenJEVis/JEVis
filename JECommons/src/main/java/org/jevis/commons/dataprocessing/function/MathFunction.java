@@ -206,6 +206,7 @@ public class MathFunction implements ProcessFunction {
                     JsonSample jsonSample = new JsonSample();
                     jsonSample.setTs(dateTime.toString());
                     jsonSample.setValue(value.toString());
+                    result.add(jsonSample);
 
                     logger.info("Result is: {} : {} {}", dateTime, value, UnitManager.getInstance().format(unit));
                 }
