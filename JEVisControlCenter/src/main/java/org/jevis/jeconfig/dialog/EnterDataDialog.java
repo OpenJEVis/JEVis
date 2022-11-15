@@ -285,7 +285,8 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
                                     } else {
                                         boolean hasError = false;
-                                        DateTime prevTs = ts.minus(new Period(periodAttribute.getLatestSample().getValueAsString()));
+                                        Period periodForDate = CleanDataObject.getPeriodForDate(periodAttribute.getObject(), ts);
+                                        DateTime prevTs = ts.minus(periodForDate);
                                         List<JEVisSample> previousSample = valueAttribute.getSamples(prevTs, prevTs);
                                         Double prevValue = newVal;
                                         try {

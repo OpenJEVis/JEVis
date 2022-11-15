@@ -212,7 +212,7 @@ public class ResourceSample {
                     // allow user to read its own user attributes
                 }
             } else {
-                ds.getUserManager().canWrite(obj);
+                ds.getUserManager().canRead(obj);
             }
 
             DateTime ts = null;
