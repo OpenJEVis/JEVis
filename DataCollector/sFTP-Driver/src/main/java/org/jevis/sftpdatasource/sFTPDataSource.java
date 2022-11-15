@@ -16,6 +16,8 @@ import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,7 +155,23 @@ public class sFTPDataSource implements DataSource {
 
             for (String fileName : fileNames) {
                 logger.info("FileInputName: {}", fileName);
-                answerList.add(_channel.get(fileName));
+                InputStream get = _channel.get(fileName);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                byte[] buffer = new byte[1024];
+                int len;
+                try {
+                    while ((len = get.read(buffer)) > 1) {
+                        baos.write(buffer, 0, len);
+                    }
+                    baos.flush();
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+
+                InputStream answer = new ByteArrayInputStream(baos.toByteArray());
+
+                answerList.add(answer);
             }
 
             _channel.exit();
