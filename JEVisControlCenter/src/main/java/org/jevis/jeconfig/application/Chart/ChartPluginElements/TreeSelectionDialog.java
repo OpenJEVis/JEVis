@@ -36,6 +36,7 @@ import java.util.List;
 public class TreeSelectionDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(TreeSelectionDialog.class);
     public static List<String> allData = new ArrayList<>(Arrays.asList("Data", "Base Data"));
+    public static List<String> allCleanData = new ArrayList<>(Arrays.asList("Data", "Clean Data", "Base Data", "Math Data", "Forecast Data"));
     public static List<String> alarms = new ArrayList<>(Collections.singletonList("Alarm Configuration"));
     public static List<String> analyses = new ArrayList<>(Collections.singletonList("Analysis"));
     public static List<String> calculations = new ArrayList<>(Arrays.asList("Calculation", "Input", "Output"));
@@ -187,7 +188,9 @@ public class TreeSelectionDialog extends JFXDialog {
         try {
             List<JEVisClass> classes = new ArrayList<>();
             for (String className : allData) {
-                classes.add(item.getDataSource().getJEVisClass(className));
+                JEVisClass jeVisClass = item.getDataSource().getJEVisClass(className);
+                classes.add(jeVisClass);
+                classes.addAll(jeVisClass.getHeirs());
             }
 
             treeSelectionDialog = new TreeSelectionDialog(dialogContainer, item.getDataSource(), classes, SelectionMode.SINGLE, Collections.singletonList(userSelection), false);
