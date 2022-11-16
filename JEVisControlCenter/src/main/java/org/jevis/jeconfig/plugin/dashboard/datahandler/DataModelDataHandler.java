@@ -236,8 +236,9 @@ public class DataModelDataHandler {
     public List<DateTime> getMaxTimeStamps() {
         List<DateTime> dateTimes = new ArrayList<>();
         for (ChartDataRow chartDataRow : this.chartDataRows) {
+            List<JEVisSample> samples = chartDataRow.getSamples();
             try {
-                dateTimes.add(chartDataRow.getSamples().get(chartDataRow.getSamples().size() - 1).getTimestamp());
+                dateTimes.add(samples.get(samples.size() - 1).getTimestamp());
             } catch (Exception ex) {
 
             }
@@ -482,15 +483,14 @@ public class DataModelDataHandler {
 
             chartDataModel.setSelectedStart(start);
             chartDataModel.setSelectedEnd(end);
-            chartDataModel.getSamples();
+            List<JEVisSample> samples = chartDataModel.getSamples();
 
             if (forcedZeroInterval != null) {
-                List<JEVisSample> samples = chartDataModel.getSamples();
                 if (!samples.isEmpty()) {
                     chartDataModel.setSamples(samples.subList(samples.size() - 1, samples.size()));
                 }
             }
-            logger.debug("New samples for: {} = {}", chartDataModel.getObject().getID(), chartDataModel.getSamples().size());
+            logger.debug("New samples for: {} = {}", chartDataModel.getObject().getID(), samples.size());
         });
 
         this.lastUpdate.setValue(new DateTime());

@@ -152,7 +152,7 @@ public class ToolBarFunctions {
             Double result = 0d;
 
             if (param.getValue().getSum() != null && param.getValue().getMax() != null && !param.getValue().getMax().equals(0d)) {
-                result = param.getValue().getSum() / param.getValue().getMax();
+                result = param.getValue().getSum() / param.getValue().getMax().getValue();
             }
 
             return new SimpleObjectProperty<>(nf.format(result));

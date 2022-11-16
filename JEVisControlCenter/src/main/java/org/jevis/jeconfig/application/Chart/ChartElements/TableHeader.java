@@ -17,14 +17,18 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.SelectionTable.ValueWithDateTimeFieldTableCell;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.Chart;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.tools.TableViewUtils;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
 
 import java.util.Collections;
+import java.util.List;
 
 public class TableHeader extends TableView<TableEntry> {
     private final double VALUE_COLUMNS_PREF_SIZE = 200;
@@ -32,14 +36,22 @@ public class TableHeader extends TableView<TableEntry> {
     private final TableColumn<TableEntry, String> nameCol;
     private final TableColumn<TableEntry, Color> colorCol;
     private final ChartModel chartModel;
+    private final AlphanumComparator alphanumComparator = new AlphanumComparator();
     private TableColumn<TableEntry, String> periodCol;
     private TableColumn<TableEntry, String> dateCol;
     private TableColumn<TableEntry, String> noteCol;
     private TableViewContextMenuHelper contextMenuHelper;
-    private final AlphanumComparator alphanumComparator = new AlphanumComparator();
+    private List<XYChartSerie> xyChartSerieList;
+
+    public TableHeader(ChartModel chartModel, Chart chart) {
+        this(chartModel, chart.getTableData());
+
+        xyChartSerieList = chart.getXyChartSerieList();
+    }
 
     public TableHeader(ChartModel chartModel, final ObservableList<TableEntry> tableData) {
         this.chartModel = chartModel;
+
         setBorder(null);
         setStyle(
                 ".table-view:focused {" +
@@ -195,8 +207,9 @@ public class TableHeader extends TableView<TableEntry> {
                 /**
                  * Table Column 6
                  */
-                TableColumn<TableEntry, String> minCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.min"));
-                minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
+                TableColumn<TableEntry, ValueWithDateTime> minCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.min"));
+                minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, ValueWithDateTime>("min"));
+                minCol.setCellFactory(ValueWithDateTimeFieldTableCell.forTableColumn());
                 minCol.setStyle("-fx-alignment: CENTER-RIGHT");
                 minCol.setSortable(true);
                 minCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
@@ -205,8 +218,9 @@ public class TableHeader extends TableView<TableEntry> {
                 /**
                  * Table Column 7
                  */
-                TableColumn<TableEntry, String> maxCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.max"));
-                maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
+                TableColumn<TableEntry, ValueWithDateTime> maxCol = new TableColumn<TableEntry, ValueWithDateTime>(I18n.getInstance().getString("plugin.graph.table.max"));
+                maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, ValueWithDateTime>("max"));
+                maxCol.setCellFactory(ValueWithDateTimeFieldTableCell.forTableColumn());
                 maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
                 maxCol.setSortable(true);
                 maxCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
@@ -363,10 +377,29 @@ public class TableHeader extends TableView<TableEntry> {
 
                         if (!empty && item != null) {
                             StackPane stackPane = new StackPane();
-                            stackPane.setBackground(
-                                    new Background(
-                                            new BackgroundFill(item, CornerRadii.EMPTY, Insets.EMPTY)));
-//                            }
+                            stackPane.setBackground(new Background(new BackgroundFill(item, CornerRadii.EMPTY, Insets.EMPTY)));
+
+                            stackPane.setOnMouseClicked(mouseEvent -> {
+                                if (mouseEvent.getClickCount() == 2 && xyChartSerieList != null) {
+                                    TableEntry tableEntry = (TableEntry) getTableRow().getItem();
+                                    if (!xyChartSerieList.isEmpty()) {
+                                        XYChartSerie serie = xyChartSerieList.stream().filter(xyChartSerie -> xyChartSerie.getTableEntry().equals(tableEntry)).findFirst().orElse(null);
+
+                                        if (serie != null) {
+                                            boolean isShown = !serie.isShownInRenderer();
+                                            serie.setShownInRenderer(isShown);
+
+                                            if (!isShown) {
+                                                stackPane.setBackground(new Background(new BackgroundFill(
+                                                        item.deriveColor(item.getRed(), item.getBlue(), item.getGreen(), 0.4)
+                                                        , CornerRadii.EMPTY, Insets.EMPTY)));
+                                            } else {
+                                                stackPane.setBackground(new Background(new BackgroundFill(item, CornerRadii.EMPTY, Insets.EMPTY)));
+                                            }
+                                        }
+                                    }
+                                }
+                            });
 
                             setText(null);
                             setGraphic(stackPane);
@@ -390,5 +423,9 @@ public class TableHeader extends TableView<TableEntry> {
 
     public Integer getChartId() {
         return chartModel.getChartId();
+    }
+
+    public void setXyChartSerieList(List<XYChartSerie> xyChartSerieList) {
+        this.xyChartSerieList = xyChartSerieList;
     }
 }

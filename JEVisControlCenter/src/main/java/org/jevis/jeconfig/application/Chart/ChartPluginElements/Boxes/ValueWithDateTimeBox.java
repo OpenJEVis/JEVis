@@ -6,46 +6,60 @@ import javafx.scene.control.Cell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
+import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
 
-public class ValueBox extends HBox {
+public class ValueWithDateTimeBox extends HBox {
     private final static NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
-    public ValueBox(JEVisSample sample) {
+    public ValueWithDateTimeBox(ValueWithDateTime value) {
         this.setSpacing(6);
 
         JFXTextField valueField = new JFXTextField();
-        JFXTextField unitField = new JFXTextField();
 
-        if (sample != null) {
+        if (value != null) {
             try {
-                valueField.setText(nf.format(sample.getValueAsDouble()));
-                Tooltip timestampTooltip = new Tooltip(sample.getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
-                valueField.setTooltip(timestampTooltip);
-                unitField.setText(sample.getUnit().getLabel());
+                String text = nf.format(value.getValue());
+                StringBuilder stringBuilder = new StringBuilder();
+                for (DateTime dateTime : value.getDateTime()) {
+                    if (value.getDateTime().indexOf(dateTime) > 0) stringBuilder.append("\n");
+                    stringBuilder.append(dateTime.toString("yyyy-MM-dd HH:mm:ss"));
+                }
+                Tooltip timeStampTooltip = new Tooltip(stringBuilder.toString());
+                valueField.setTooltip(timeStampTooltip);
+                if (value.getUnit() != null && !value.getUnit().getLabel().equals("")) {
+                    text += " " + value.getUnit().getLabel();
+                }
+
+                valueField.setText(text);
             } catch (Exception ignored) {
             }
         }
 
-        this.getChildren().setAll(valueField, unitField);
+        this.getChildren().setAll(valueField);
 
         this.setMinWidth(40);
     }
 
-    private static String getItemText(Cell<JEVisSample> cell) {
+    private static String getItemText(Cell<ValueWithDateTime> cell) {
         try {
-            return nf.format(cell.getItem().getValueAsDouble()) + " " + cell.getItem().getUnit().getLabel();
+            String text = nf.format(cell.getItem().getValue());
+            if (cell.getItem().getUnit() != null && !cell.getItem().getUnit().getLabel().equals("")) {
+                text += " " + cell.getItem().getUnit().getLabel();
+            }
+
+            return text;
         } catch (Exception ignored) {
         }
         return "";
     }
 
-    public static ValueBox createComboBox(final Cell<JEVisSample> cell) {
-        JEVisSample item = cell.getItem();
-        final ValueBox valueBox = new ValueBox(item);
+    public static ValueWithDateTimeBox createComboBox(final Cell<ValueWithDateTime> cell) {
+        ValueWithDateTime item = cell.getItem();
+        final ValueWithDateTimeBox valueBox = new ValueWithDateTimeBox(item);
 
         // Use onAction here rather than onKeyReleased (with check for Enter),
         // as otherwise we encounter RT-34685
@@ -63,10 +77,10 @@ public class ValueBox extends HBox {
         return valueBox;
     }
 
-    public static void startEdit(final Cell<JEVisSample> cell,
+    public static void startEdit(final Cell<ValueWithDateTime> cell,
                                  final HBox hbox,
                                  final Node graphic,
-                                 final ValueBox valueBox) {
+                                 final ValueWithDateTimeBox valueBox) {
         if (valueBox != null) {
 //            valueBox.getSelectionModel().select(cell.getItem());
         }
@@ -84,13 +98,18 @@ public class ValueBox extends HBox {
         valueBox.requestFocus();
     }
 
-    public static void cancelEdit(Cell<JEVisSample> cell, Node graphic) {
+    public static void cancelEdit(Cell<ValueWithDateTime> cell, Node graphic) {
         cell.setText(getItemText(cell));
         cell.setGraphic(graphic);
 
         if (!cell.isEmpty() && cell.getItem() != null) {
             try {
-                Tooltip timeStampTooltip = new Tooltip(cell.getItem().getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
+                StringBuilder stringBuilder = new StringBuilder();
+                for (DateTime dateTime : cell.getItem().getDateTime()) {
+                    if (cell.getItem().getDateTime().indexOf(dateTime) > 0) stringBuilder.append("\n");
+                    stringBuilder.append(dateTime.toString("yyyy-MM-dd HH:mm:ss"));
+                }
+                Tooltip timeStampTooltip = new Tooltip(stringBuilder.toString());
                 cell.setTooltip(timeStampTooltip);
             } catch (Exception ignored) {
             }
@@ -98,12 +117,12 @@ public class ValueBox extends HBox {
         }
     }
 
-    public static void updateItem(final Cell<JEVisSample> cell,
+    public static void updateItem(final Cell<ValueWithDateTime> cell,
                                   final HBox hbox,
                                   final Node graphic,
-                                  final ValueBox valueBox) {
+                                  final ValueWithDateTimeBox valueBox) {
         if (cell.isEmpty()) {
-            cell.setText(null);
+            cell.setText("-");
             cell.setGraphic(null);
         } else {
             if (cell.isEditing()) {
@@ -122,7 +141,12 @@ public class ValueBox extends HBox {
                 cell.setText(getItemText(cell));
                 cell.setGraphic(graphic);
                 try {
-                    Tooltip timeStampTooltip = new Tooltip(cell.getItem().getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (DateTime dateTime : cell.getItem().getDateTime()) {
+                        if (cell.getItem().getDateTime().indexOf(dateTime) > 0) stringBuilder.append("\n");
+                        stringBuilder.append(dateTime.toString("yyyy-MM-dd HH:mm:ss"));
+                    }
+                    Tooltip timeStampTooltip = new Tooltip(stringBuilder.toString());
                     cell.setTooltip(timeStampTooltip);
                 } catch (Exception ignored) {
                 }

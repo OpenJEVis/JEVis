@@ -58,6 +58,7 @@ public class FavoriteAnalysisHandler {
             ObjectNode favoriteAnalysisModel = JsonNodeFactory.instance.objectNode();
 
             favoriteAnalysisModel.put("id", favoriteAnalysis.getId());
+            favoriteAnalysisModel.put("name", favoriteAnalysis.getName());
             favoriteAnalysisModel.put("timeFrame", favoriteAnalysis.getTimeFrame().toString());
             if (favoriteAnalysis.getTimeFrame() == TimeFrame.CUSTOM) {
                 favoriteAnalysisModel.put("start", favoriteAnalysis.getStart());

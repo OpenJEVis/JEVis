@@ -43,6 +43,7 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.regression.*;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.DataSettings;
 import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
@@ -90,10 +91,8 @@ public class XYChart implements Chart {
     Double maxValue = -Double.MAX_VALUE;
     boolean asDuration = false;
     String chartName;
-    List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    ManipulationMode addSeriesOfType;
-    AtomicBoolean addManipulationToTitle;
-    AtomicReference<ManipulationMode> manipulationMode;
+    Boolean addManipulationToTitle;
+    ManipulationMode manipulationMode;
     Boolean[] changedBoth;
     WorkDays workDays = new WorkDays(null);
     boolean hasSecondYAxis = false;
@@ -103,6 +102,7 @@ public class XYChart implements Chart {
     private Region areaChartRegion;
     private Period period;
     private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
+    List<XYChartSerie> xyChartSerieList = new ArrayList<>();
 
     public XYChart(JEVisDataSource ds) {
         this.ds = ds;
@@ -172,7 +172,6 @@ public class XYChart implements Chart {
         this.chartId = this.chartModel.getChartId();
         this.chartName = this.chartModel.getChartName();
         this.chartType = this.chartModel.getChartType();
-        this.addSeriesOfType = dataSettings.getManipulationMode();
 
         if (chartDataRows.isEmpty()) {
             chartModel.getChartData().forEach(chartData -> chartDataRows.add(new ChartDataRow(ds, chartData)));
@@ -205,10 +204,6 @@ public class XYChart implements Chart {
         if (!chartDataRows.isEmpty()) {
             workDays = new WorkDays(chartDataRows.get(0).getObject());
             workDays.setEnabled(toolBarSettings.isCustomWorkday());
-            chartDataRows.forEach(chartDataRow -> {
-                chartDataRow.setAggregationPeriod(dataSettings.getAggregationPeriod());
-                chartDataRow.setManipulationMode(dataSettings.getManipulationMode());
-            });
         }
 
         hexColors.clear();
@@ -219,8 +214,14 @@ public class XYChart implements Chart {
 
         generatePeriod();
 
-        addManipulationToTitle = new AtomicBoolean(false);
-        manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
+        addManipulationToTitle = false;
+        manipulationMode = dataSettings.getManipulationMode();
+
+        asDuration = dataSettings.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
+                || dataSettings.getManipulationMode().equals(ManipulationMode.SORTED_MAX);
+
+        addManipulationToTitle = (dataSettings.getManipulationMode().equals(RUNNING_MEAN)
+                || dataSettings.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN));
 
         ChartDataRow sumModelY1 = null;
         ChartDataRow sumModelY2 = null;
@@ -644,40 +645,46 @@ public class XYChart implements Chart {
 
             if (showSum && index < xyChartSerieList.size() - 2) {
                 if (xyChartSerie.getyAxis() == 0) {
-                    rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
+                    xyChartSerie.addValueDataSetRenderer(rendererY1);
+
                     rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
                 } else {
-                    rendererY2.getDatasets().add(xyChartSerie.getValueDataSet());
+                    xyChartSerie.addValueDataSetRenderer(rendererY2);
+
                     rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
                 }
                 trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             } else if (!hasSecondYAxis && xyChartSerie.getyAxis() == 0) {
-                rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
+                xyChartSerie.addValueDataSetRenderer(rendererY1);
+
                 rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
                 trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             } else {
                 if (xyChartSerie.getyAxis() == 0) {
-                    rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
+                    xyChartSerie.addValueDataSetRenderer(rendererY1);
+
                     rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
                 } else {
-                    rendererY2.getDatasets().add(xyChartSerie.getValueDataSet());
+                    xyChartSerie.addValueDataSetRenderer(rendererY2);
+
                     rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
                 }
             }
 
             if (showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
                 if (xyChartSerie.getSingleRow().getSamples().size() <= 60) {
-                    columnChartLabelRenderer.getDatasets().addAll(xyChartSerie.getValueDataSet());
+                    xyChartSerie.addValueDataSetRenderer(columnChartLabelRenderer);
                 }
-                labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
+                xyChartSerie.addNoteDataSetRenderer(labelledMarkerRenderer);
             } else if (showIcons) {
-                labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
+                xyChartSerie.addNoteDataSetRenderer(labelledMarkerRenderer);
             } else if (chartType != null && chartType.equals(ChartType.COLUMN)) {
                 if (xyChartSerie.getSingleRow().getSamples().size() <= 60) {
-                    columnChartLabelRenderer.getDatasets().addAll(xyChartSerie.getValueDataSet());
+                    xyChartSerie.addValueDataSetRenderer(columnChartLabelRenderer);
                 }
             }
 
+            xyChartSerie.setShownInRenderer(true);
             tableData.add(xyChartSerie.getTableEntry());
         }
 
@@ -960,36 +967,7 @@ public class XYChart implements Chart {
             changedBoth[1] = true;
         }
 
-        /**
-         * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
-         */
-
-        checkManipulation(singleRow);
         return serie;
-    }
-
-    void checkManipulation(ChartDataRow singleRow) throws JEVisException {
-        asDuration = singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
-                || singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MAX);
-
-        addManipulationToTitle.set(singleRow.getManipulationMode().equals(RUNNING_MEAN)
-                || singleRow.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN));
-
-        manipulationMode.set(singleRow.getManipulationMode());
-
-        if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
-            ManipulationMode oldMode = singleRow.getManipulationMode();
-            singleRow.setManipulationMode(addSeriesOfType);
-            XYChartSerie serie2 = new XYChartSerie(chartModel, singleRow, showIcons, false);
-
-            hexColors.add(singleRow.getColor().darker());
-
-            chart.getDatasets().add(serie2.getValueDataSet());
-
-            tableData.add(serie2.getTableEntry());
-
-            singleRow.setManipulationMode(oldMode);
-        }
     }
 
     @Override
@@ -1182,7 +1160,7 @@ public class XYChart implements Chart {
 
     String getUpdatedChartName() {
         String newName = chartName;
-        switch (manipulationMode.get()) {
+        switch (manipulationMode) {
             case CENTRIC_RUNNING_MEAN:
                 String centricrunningmean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
                 if (!newName.contains(centricrunningmean))
@@ -1321,8 +1299,8 @@ public class XYChart implements Chart {
         xyChartSerieList.forEach(serie -> {
             try {
 
-                double min = Double.MAX_VALUE;
-                double max = -Double.MAX_VALUE;
+                ValueWithDateTime min = new ValueWithDateTime(Double.MAX_VALUE);
+                ValueWithDateTime max = new ValueWithDateTime(-Double.MAX_VALUE);
                 double avg = 0.0;
                 Double sum = 0.0;
                 long zeroCount = 0;
@@ -1330,16 +1308,19 @@ public class XYChart implements Chart {
                 List<JEVisSample> samples = serie.getSingleRow().getSamples();
                 List<JEVisSample> newList = new ArrayList<>();
                 JEVisUnit unit = serie.getSingleRow().getUnit();
+                min.setUnit(unit);
+                max.setUnit(unit);
 
                 for (JEVisSample smp : samples) {
                     if ((smp.getTimestamp().equals(lower) || smp.getTimestamp().isAfter(lower)) && (smp.getTimestamp().isBefore(upper) || smp.getTimestamp().equals(upper))) {
 
                         newList.add(smp);
+                        DateTime ts = smp.getTimestamp();
                         Double currentValue = smp.getValueAsDouble();
 
                         if (!smp.getNote().contains("Zeros")) {
-                            min = Math.min(min, currentValue);
-                            max = Math.max(max, currentValue);
+                            min.minCheck(ts, currentValue);
+                            max.maxCheck(ts, currentValue);
                             sum += currentValue;
                         } else {
                             zeroCount++;
@@ -1347,18 +1328,16 @@ public class XYChart implements Chart {
                     }
                 }
 
-                if (manipulationMode.get().equals(ManipulationMode.CUMULATE)) {
-                    avg = max / samples.size();
-                    sum = max;
+                if (manipulationMode == ManipulationMode.CUMULATE) {
+                    avg = max.getValue() / samples.size();
+                    sum = max.getValue();
                 }
 
-                double finalMin = min;
-                double finalMax = max;
                 Double finalSum = sum;
                 long finalZeroCount = zeroCount;
                 double finalAvg = avg;
                 try {
-                    serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount, true);
+                    serie.updateTableEntry(newList, unit, min, max, finalAvg, finalSum, finalZeroCount, true);
                 } catch (JEVisException e) {
                     logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
                 }

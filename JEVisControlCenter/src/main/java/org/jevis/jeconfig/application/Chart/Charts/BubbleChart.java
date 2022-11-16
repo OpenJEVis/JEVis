@@ -33,7 +33,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BubbleChart extends XYChart {
@@ -113,8 +112,8 @@ public class BubbleChart extends XYChart {
 
         changedBoth = new Boolean[]{false, false};
 
-        addManipulationToTitle = new AtomicBoolean(false);
-        manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
+        addManipulationToTitle = false;
+        manipulationMode = ManipulationMode.NONE;
 
         List<JEVisSample> xList = new ArrayList<>();
         List<JEVisSample> yList = new ArrayList<>();
@@ -438,11 +437,6 @@ public class BubbleChart extends XYChart {
             changedBoth[1] = true;
         }
 
-        /**
-         * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
-         */
-
-        checkManipulation(singleRow);
         return serie;
     }
 

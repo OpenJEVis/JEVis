@@ -431,12 +431,6 @@ public class ChartPlugin implements Plugin {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
                     SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(dialogContainer, ds, dataSettings, this, toolBarView);
-//                    saveAnalysisDialog.setOnDialogClosed(jfxDialogEvent -> {
-//                        if (saveAnalysisDialog.getResponse() == Response.OK) {
-//                            update();
-//                        }
-//                    });
-
                     saveAnalysisDialog.show();
                     break;
                 case Constants.Plugin.Command.DELETE:
@@ -525,6 +519,7 @@ public class ChartPlugin implements Plugin {
 
         allCharts.forEach((integer, chart) -> {
             if (chart.getChart() != null) {
+                chart.getChart().getPlugins().forEach(chartPlugin -> chartPlugin.getChartChildren().clear());
                 chart.getChart().getPlugins().clear();
                 chart.getChart().getRenderers().clear();
                 chart.getChart().getAllDatasets().clear();
@@ -568,6 +563,9 @@ public class ChartPlugin implements Plugin {
                         chartData.setIntervalStart(dataSettings.getAnalysisTimeFrame().getStart());
                         chartData.setIntervalEnd(dataSettings.getAnalysisTimeFrame().getEnd());
                     }
+
+                    chartData.setAggregationPeriod(dataSettings.getAggregationPeriod());
+                    chartData.setManipulationMode(dataSettings.getManipulationMode());
                 });
 
                 if (chartModel.getChartType().equals(ChartType.LOGICAL)) {
@@ -619,7 +617,7 @@ public class ChartPlugin implements Plugin {
                 } else if (chart != null) {
                     ScrollPane scrollPane = new ScrollPane();
 
-                    TableHeader tableHeader = new TableHeader(chartModel, chart.getTableData());
+                    TableHeader tableHeader = new TableHeader(chartModel, chart);
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
                     scrollPane.setContent(tableHeader);
@@ -632,7 +630,7 @@ public class ChartPlugin implements Plugin {
 
                 if (chartModel.getChartType() != ChartType.PIE && chartModel.getChartType() != ChartType.HEAT_MAP
                         && chartModel.getChartType() != ChartType.LOGICAL && chart != null) {
-                    TableHeader tableHeader = new TableHeader(chartModel, chart.getTableData());
+                    TableHeader tableHeader = new TableHeader(chartModel, chart);
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
                     if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.TABLE_V) {
@@ -1325,12 +1323,14 @@ public class ChartPlugin implements Plugin {
 
                     analysisHandler.saveDataModel(ds.getCurrentUser().getUserObject(), dataModel, toolBarView.getToolBarSettings(), dataSettings);
 
+                    Platform.runLater(() -> getToolBarView().getAnalysesComboBox().updateListAnalyses());
+
                     dataSettings.setCurrentAnalysis(ds.getCurrentUser().getUserObject());
 
                     update();
 
-                    toolBarView.getPickerCombo().updateCellFactory();
-                    toolBarView.getAnalysesComboBox().updateListAnalyses();
+                    Platform.runLater(() -> toolBarView.getPickerCombo().updateCellFactory());
+
 
                 }
 
@@ -1356,6 +1356,7 @@ public class ChartPlugin implements Plugin {
             getDataSettings().setAggregationPeriod(dataSettings.getAggregationPeriod());
             getDataSettings().setAnalysisTimeFrame(dataSettings.getAnalysisTimeFrame());
 
+            getDataSettings().setCurrentAnalysis(null);
             getDataSettings().setCurrentAnalysis(object);
 
             Platform.runLater(() -> toolBarView.setChanged(false));

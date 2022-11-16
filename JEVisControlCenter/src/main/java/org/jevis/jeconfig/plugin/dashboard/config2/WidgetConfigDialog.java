@@ -82,7 +82,7 @@ public class WidgetConfigDialog extends Alert {
             ChartTab chartTab = new ChartTab(dialogContainer, dataModelDataHandler.getJeVisDataSource(), chartModel);
             chartTab.setText(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
             chartTab.setClosable(false);
-            chartTab.setMenuVisible(false);
+            chartTab.setMenuVisible(true);
             chartTab.setIntervalColumnVisible(false);
 
             if (widget instanceof ValueWidget) {
@@ -92,6 +92,8 @@ public class WidgetConfigDialog extends Alert {
                 chartTab.setChartTypeColumnVisible(false);
                 chartTab.setCssColumnVisible(false);
                 chartTab.setNameColumnVisible(false);
+                chartTab.setAggregationPeriodColumnVisible(true);
+                chartTab.setManipulationModeColumnVisible(true);
             }
 
             addTab(chartTab);

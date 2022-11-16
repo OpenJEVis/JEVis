@@ -11,10 +11,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -189,8 +186,10 @@ public class AnalysesComboBox extends JFXComboBox<String> {
         }
 
         try {
-            if (ds.getCurrentUser().getUserObject().getAttribute(ANALYSIS_FILE_ATTRIBUTE_NAME).hasSample()) {
-                getAnalyses().add(ds.getCurrentUser().getUserObject());
+            JEVisObject userObject = ds.getCurrentUser().getUserObject();
+            JEVisAttribute analysisFileAttribute = userObject.getAttribute(ANALYSIS_FILE_ATTRIBUTE_NAME);
+            if (analysisFileAttribute != null && analysisFileAttribute.hasSample()) {
+                getAnalyses().add(userObject);
             }
         } catch (Exception e) {
             logger.error("Error while checking temp analysis attribute", e);

@@ -32,6 +32,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -418,6 +419,11 @@ public class HeatMapChart implements Chart {
     @Override
     public ChartModel getChartModel() {
         return chartModel;
+    }
+
+    @Override
+    public List<XYChartSerie> getXyChartSerieList() {
+        return null;
     }
 
     @Override

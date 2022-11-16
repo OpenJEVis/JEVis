@@ -19,16 +19,23 @@
  */
 package org.jevis.jeconfig;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.Level;
@@ -38,8 +45,6 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
@@ -72,9 +77,6 @@ import java.util.prefs.Preferences;
  */
 public class TopMenu extends MenuBar {
     private static final Logger logger = LogManager.getLogger(TopMenu.class);
-    private final List<MenuItem> items = new ArrayList<>();
-    private final StackPane dialogContainer;
-    private SimpleObjectProperty<Plugin> activePlugin = new SimpleObjectProperty<>();
     private static final String stylesString = "/styles/Styles.css";
     private static final String chartString = "/styles/charts.css";
     private static final String standardString = "/styles/Standard.css";
@@ -87,6 +89,9 @@ public class TopMenu extends MenuBar {
     private static final List<String> allThemes = Arrays.asList(stylesString, chartString, standardString, darkString, amberString,
             greenString, indigoString, redString, whiteString);
     private static String activeTheme;
+    private final List<MenuItem> items = new ArrayList<>();
+    private final StackPane dialogContainer;
+    private final SimpleObjectProperty<Plugin> activePlugin = new SimpleObjectProperty<>();
 
     public TopMenu(StackPane dialogContainer) {
         super();
@@ -132,7 +137,7 @@ public class TopMenu extends MenuBar {
     }
 
     private Menu createPluginMenu() {
-        Menu pluginMenu = new Menu(getActivePlugin().getName());
+        Menu pluginMenu = new Menu(I18n.getInstance().getString("menu.plugins.chart.favorites"));
 
         if (getActivePlugin() != null && getActivePlugin() instanceof ChartPlugin) {
             ChartPlugin chartPlugin = (ChartPlugin) getActivePlugin();
@@ -144,7 +149,21 @@ public class TopMenu extends MenuBar {
             addAnalysisToFavorites.setOnAction(event -> {
                 JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectedAnalysis();
                 DataSettings dataSettings = chartPlugin.getDataSettings();
+
                 if (selectedAnalysis != null) {
+                    JFXDialog confirmationDialog = new JFXDialog();
+                    confirmationDialog.setDialogContainer(dialogContainer);
+                    confirmationDialog.setOverlayClose(false);
+
+                    final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
+                    ok.setDefaultButton(true);
+                    final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
+                    cancel.setOnAction(actionEvent -> confirmationDialog.close());
+
+                    HBox buttonBar = new HBox(6, cancel, ok);
+                    buttonBar.setAlignment(Pos.CENTER_RIGHT);
+                    buttonBar.setPadding(new Insets(12));
+
                     FavoriteAnalysis favoriteAnalysis = new FavoriteAnalysis();
                     favoriteAnalysis.setId(selectedAnalysis.getID());
                     favoriteAnalysis.setAggregationPeriod(dataSettings.getAggregationPeriod());
@@ -155,8 +174,25 @@ public class TopMenu extends MenuBar {
                         favoriteAnalysis.setEnd(dataSettings.getAnalysisTimeFrame().getEnd().toString());
                     }
 
-                    favoriteAnalysisHandler.getFavoriteAnalysesList().add(favoriteAnalysis);
-                    favoriteAnalysisHandler.saveDataModel();
+                    String suggestedName = favoriteAnalysis.createName(JEConfig.getDataSource());
+                    JFXTextField favoriteName = new JFXTextField();
+                    favoriteName.setMinWidth(450);
+                    favoriteName.textProperty().bindBidirectional(favoriteAnalysis.nameProperty());
+                    favoriteName.setText(suggestedName);
+                    favoriteName.selectAll();
+
+                    ok.setOnAction(actionEvent -> {
+                        favoriteAnalysisHandler.getFavoriteAnalysesList().add(favoriteAnalysis);
+                        favoriteAnalysisHandler.saveDataModel();
+                        Platform.runLater(this::updateLayout);
+                    });
+
+                    VBox content = new VBox(6, favoriteName, buttonBar);
+                    content.setPadding(new Insets(15));
+
+                    confirmationDialog.setContent(content);
+
+                    confirmationDialog.show();
                 }
             });
 
@@ -187,12 +223,11 @@ public class TopMenu extends MenuBar {
             for (FavoriteAnalysis favoriteAnalysis : favoriteAnalysisHandler.getFavoriteAnalysesList()) {
                 try {
                     JEVisObject analysisObject = JEConfig.getDataSource().getObject(favoriteAnalysis.getId());
-                    String name = analysisObject.getLocalName(I18n.getInstance().getLocale().getLanguage());
 
                     DataSettings dataSettings = new DataSettings();
 
-                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(JEConfig.getDataSource(), analysisObject);
-                    analysisTimeFrame.setTimeFrame(favoriteAnalysis.getTimeFrame());
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(JEConfig.getDataSource(), analysisObject, favoriteAnalysis.getTimeFrame());
+
                     if (favoriteAnalysis.getTimeFrame() == TimeFrame.CUSTOM) {
                         analysisTimeFrame.setStart(new DateTime(favoriteAnalysis.getStart()));
                         analysisTimeFrame.setEnd(new DateTime(favoriteAnalysis.getEnd()));
@@ -202,11 +237,7 @@ public class TopMenu extends MenuBar {
                     dataSettings.setAggregationPeriod(favoriteAnalysis.getAggregationPeriod());
                     dataSettings.setManipulationMode(favoriteAnalysis.getManipulationMode());
 
-                    name += ", " + TimeFrame.getTranslationName(analysisTimeFrame.getTimeFrame());
-                    name += ", " + AggregationPeriod.getListNamesAggregationPeriods().get(AggregationPeriod.parseAggregationIndex(favoriteAnalysis.getAggregationPeriod()));
-                    name += ", " + ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(favoriteAnalysis.getManipulationMode()));
-
-                    MenuItem favoriteAnalysisMenuItem = new MenuItem(name);
+                    MenuItem favoriteAnalysisMenuItem = new MenuItem(favoriteAnalysis.getName());
                     favoriteAnalysisMenuItem.setOnAction(event -> chartPlugin.openObject(analysisObject, dataSettings));
 
                     analysisItems.add(favoriteAnalysisMenuItem);

@@ -28,6 +28,7 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
@@ -246,6 +247,11 @@ public class PieChart implements Chart {
     @Override
     public ChartModel getChartModel() {
         return chartModel;
+    }
+
+    @Override
+    public List<XYChartSerie> getXyChartSerieList() {
+        return null;
     }
 
 
