@@ -146,7 +146,6 @@ public class AnalysesComboBox extends JFXComboBox<String> {
             } catch (JEVisException e) {
                 logger.error("Error: could not create new analyses directory", e);
             }
-
         }
         try {
             getAnalyses().clear();
