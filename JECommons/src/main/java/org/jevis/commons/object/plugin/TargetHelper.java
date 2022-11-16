@@ -36,7 +36,7 @@ public class TargetHelper {
     private final static String SEPARATOR = ":";
     private final static String MULTI_SELECT_SEPARATOR = ";";
     private String sourceValue = "";
-    private final Boolean isAttribute = false;
+    private Boolean isAttribute = false;
     private Boolean isObject = false;
     private final List<Boolean> targetObjectIsAccessible = new ArrayList<>();
     private final List<Boolean> targetAttributeIsAccessible = new ArrayList<>();
@@ -197,11 +197,11 @@ public class TargetHelper {
                 }
 
                 if (targetObject != null) {
-                    isObject = true;
+                    this.isObject = true;
                     targetObjectIsAccessible.add(objectAccessible);
 
                     if (targetAttribute != null) {
-                        isObject = false;
+                        this.isAttribute = true;
                         targetAttributeIsAccessible.add(attributeAccessible);
                     }
                 }
