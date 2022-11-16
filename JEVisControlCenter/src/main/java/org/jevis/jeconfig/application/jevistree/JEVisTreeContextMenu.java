@@ -38,6 +38,7 @@ import org.jevis.api.*;
 import org.jevis.commons.export.TreeExporterDelux;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
@@ -161,71 +162,49 @@ public class JEVisTreeContextMenu extends ContextMenu {
             AtomicBoolean foundTarget = new AtomicBoolean(false);
             JEVisDataSource ds = obj.getDataSource();
 
-            if (tree.getCalculationIDs().contains(obj.getID())) {
-                logger.error("target is a calculation");
+            if (tree.getCalculationIDs().get(obj.getID()) != null) {
+                logger.info("target is a calculation");
                 try {
+                    JEVisObject calculationObject = ds.getObject(tree.getCalculationIDs().get(obj.getID()));
                     JEVisClass outputClass = ds.getJEVisClass("Output");
 
-                    ds.getObjects(outputClass, false).forEach(object -> {
+                    for (JEVisObject object : calculationObject.getChildren(outputClass, false)) {
                         try {
                             if (object.getAttribute("Output").hasSample()) {
                                 TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute("Output"));
                                 if ((targetHelper.isObject() || targetHelper.isAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
+                                    logger.info("found target");
                                     foundTarget.set(true);
 
-                                    List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);
+                                    List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
                                     toOpen.add(object);
                                     TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                                    break;
                                 }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    });
+                    }
 
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             } else {
-                logger.error("target is not a calculation");
+                logger.info("target is not a calculation");
                 try {
-                    JEVisClass loytecOutput = ds.getJEVisClass("Loytec XML-DL Channel");
-                    JEVisClass vida350Target = ds.getJEVisClass("VIDA350 Channel");
-
-                    List<JEVisObject> objects = new ArrayList<>();
-                    objects.addAll(ds.getObjects(loytecOutput, true));
-                    objects.addAll(ds.getObjects(vida350Target, true));
-
-                    objects.forEach(object -> {
-                        try {
-                            String attributeName = "NOTFOUND";
-                            if (object.getJEVisClassName().equals("Loytec XML-DL Channel")) {
-                                attributeName = "Target ID";
-                            } else if (object.getJEVisClassName().equals("VIDA350 Channel")) {
-                                attributeName = "Target";
-                            }
-
-
-                            if (object.getAttribute(attributeName).hasSample()) {
-                                TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute(attributeName));
-                                if ((targetHelper.isObject() || targetHelper.isAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
-                                    logger.error("found target");
-                                    foundTarget.set(true);
-                                    List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(object);
-                                    toOpen.add(object);
-                                    TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
-                                }
-                            }
-                        } catch (JEVisException e) {
-                            e.printStackTrace();
-                        }
-                    });
-
+                    if (tree.getTargetAndChannel().get(obj.getID()) != null) {
+                        JEVisObject object = ds.getObject(tree.getTargetAndChannel().get(obj.getID()));
+                        logger.info("found target");
+                        foundTarget.set(true);
+                        List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
+                        toOpen.add(object);
+                        TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                    }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-
             }
 
             if (!foundTarget.get()) {
@@ -582,6 +561,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         });
         return menu;
     }
+
     private MenuItem buildReportWizzard() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("plugin.object.report.dialog.wizard"), JEConfig.getSVGImage(Icon.WIZARD_HAT, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
@@ -592,7 +572,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
         });
         return menu;
     }
-
 
 
     private MenuItem buildCopyFormat() {

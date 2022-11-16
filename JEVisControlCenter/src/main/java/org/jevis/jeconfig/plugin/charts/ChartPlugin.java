@@ -442,10 +442,23 @@ public class ChartPlugin implements Plugin {
                     new NewAnalysisDialog(dialogContainer, ds, dataModel, this, toolBarView.getChanged());
                     break;
                 case Constants.Plugin.Command.RELOAD:
+                    try {
+                        for (ChartModel chartModel : dataModel.getChartModels()) {
+                            for (ChartData chartData : chartModel.getChartData()) {
+                                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                                ds.reloadAttribute(chartDataRow.getAttribute());
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error while reloading attributes", e);
+                    }
+
                     JEVisObject currentAnalysis = dataSettings.getCurrentAnalysis();
                     ManipulationMode currentManipulationMode = dataSettings.getManipulationMode();
                     AggregationPeriod currentAggregationPeriod = dataSettings.getAggregationPeriod();
                     AnalysisTimeFrame currentTimeframe = dataSettings.getAnalysisTimeFrame();
+                    currentTimeframe.updateDates();
+
                     toolBarView.getAnalysesComboBox().updateListAnalyses();
 
                     dataSettings.setManipulationMode(currentManipulationMode);
@@ -1289,6 +1302,7 @@ public class ChartPlugin implements Plugin {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(ds, this, TimeFrame.CUSTOM);
                     analysisTimeFrame.setStart(analysisRequest.getStartDate());
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
+                    dataSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
                     dataSettings.setCurrentAnalysis(analysisRequest.getObject());
 
