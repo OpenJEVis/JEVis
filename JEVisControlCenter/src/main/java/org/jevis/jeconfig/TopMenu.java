@@ -184,6 +184,7 @@ public class TopMenu extends MenuBar {
                     ok.setOnAction(actionEvent -> {
                         favoriteAnalysisHandler.getFavoriteAnalysesList().add(favoriteAnalysis);
                         favoriteAnalysisHandler.saveDataModel();
+                        confirmationDialog.close();
                         Platform.runLater(this::updateLayout);
                     });
 
