@@ -1289,6 +1289,7 @@ public class ChartPlugin implements Plugin {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(ds, this, TimeFrame.CUSTOM);
                     analysisTimeFrame.setStart(analysisRequest.getStartDate());
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
+                    dataSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
                     dataSettings.setCurrentAnalysis(analysisRequest.getObject());
 
