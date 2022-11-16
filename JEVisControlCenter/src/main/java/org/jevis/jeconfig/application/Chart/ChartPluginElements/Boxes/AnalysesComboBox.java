@@ -1,11 +1,14 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.skins.JFXComboBoxListViewSkin;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
-import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -22,7 +25,7 @@ import java.util.List;
 
 import static org.jevis.jeconfig.application.Chart.data.AnalysisHandler.ANALYSIS_FILE_ATTRIBUTE_NAME;
 
-public class AnalysesComboBox extends JFXComboBox<JEVisObject> {
+public class AnalysesComboBox extends JFXComboBox<String> {
     public static final String ORGANIZATION_CLASS_NAME = "Organization";
     public static final String ANALYSES_DIRECTORY_CLASS_NAME = "Analyses Directory";
     public static final String BUILDING_CLASS_NAME = "Building";
@@ -35,70 +38,87 @@ public class AnalysesComboBox extends JFXComboBox<JEVisObject> {
     private Boolean multiSite = null;
     private Boolean multiDir = null;
 
+    private final SimpleListProperty<JEVisObject> analyses = new SimpleListProperty<>(this, "analyses", FXCollections.observableArrayList(new ArrayList<>()));
+    private final SimpleObjectProperty<JEVisObject> selectedAnalysis = new SimpleObjectProperty<>(this, "selectedAnalysis", null);
+
     public AnalysesComboBox(JEVisDataSource ds, DataModel dataModel) {
         super();
         this.ds = ds;
         this.dataModel = dataModel;
         this.objectRelations = new ObjectRelations(ds);
+        this.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.list")));
+        this.setId("Graph Analysis List");
 
-        setCellFactoryForComboBox();
+        JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, this);
+
+        this.analyses.addListener((observable, oldValue, newValue) -> createNameList(newValue));
+
+        this.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            int selectedIndex = newValue.intValue();
+
+            if (selectedIndex > -1 && analyses.size() > selectedIndex) {
+                setSelectedAnalysis(analyses.get(selectedIndex));
+
+                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) getSkin();
+                if (skin != null) {
+                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+                    if (popupContent != null) {
+                        Platform.runLater(() -> popupContent.scrollTo(selectedIndex));
+                    }
+                }
+            }
+        });
+
+        this.selectedAnalysisProperty().addListener((observable, oldValue, newValue) -> {
+            int selectedIndex = analyses.indexOf(newValue);
+
+            if (selectedIndex > -1 && analyses.size() > selectedIndex) {
+                getSelectionModel().select(selectedIndex);
+            }
+        });
+    }
+
+    private void createNameList(ObservableList<JEVisObject> changedList) {
+        getItems().clear();
+        List<String> nameList = new ArrayList<>();
+        for (JEVisObject obj : changedList) {
+            String name = "";
+            try {
+                if (obj.getJEVisClassName().equals(ANALYSIS_CLASS_NAME)) {
+                    if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds))
+                        name = obj.getName();
+                    else {
+                        String prefix = "";
+                        if (ChartTools.isMultiSite(ds)) {
+                            prefix += objectRelations.getObjectPath(obj);
+                        }
+                        if (ChartTools.isMultiDir(ds)) {
+                            prefix += objectRelations.getRelativePath(obj);
+                        }
+
+                        name = prefix + obj.getName();
+                    }
+                } else {
+                    if (obj.getJEVisClassName().equals(USER_CLASS_NAME)) {
+                        name = I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("could not get JEVisClassName", e);
+            }
+
+            if (!name.equals("")) {
+                nameList.add(name);
+            }
+        }
+
+        getItems().addAll(nameList);
     }
 
 
     public ObservableList<JEVisObject> getObservableListAnalyses() {
-        if (getItems().isEmpty()) updateListAnalyses();
-        return getItems();
-    }
-
-
-    private void setCellFactoryForComboBox() {
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-            @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            try {
-                                if (obj.getJEVisClassName().equals(ANALYSIS_CLASS_NAME)) {
-                                    if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds))
-                                        setText(obj.getName());
-                                    else {
-                                        String prefix = "";
-                                        if (ChartTools.isMultiSite(ds)) {
-                                            prefix += objectRelations.getObjectPath(obj);
-                                        }
-                                        if (ChartTools.isMultiDir(ds)) {
-                                            prefix += objectRelations.getRelativePath(obj);
-                                        }
-
-                                        setText(prefix + obj.getName());
-                                    }
-                                } else {
-                                    if (obj.getJEVisClassName().equals(USER_CLASS_NAME)) {
-                                        setText(I18n.getInstance().getString("plugin.graph.analysis.tempanalysis"));
-                                    }
-                                }
-                            } catch (Exception e) {
-                                logger.error("could not get JEVisClassName", e);
-                            }
-                        }
-
-                    }
-                };
-            }
-        };
-
-        setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.list")));
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
-        setId("Graph Analysis List");
-
-        JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, this);
+        if (analyses.isEmpty()) updateListAnalyses();
+        return analyses;
     }
 
     public void updateListAnalyses() {
@@ -126,11 +146,10 @@ public class AnalysesComboBox extends JFXComboBox<JEVisObject> {
             } catch (JEVisException e) {
                 logger.error("Error: could not create new analyses directory", e);
             }
-
         }
         try {
-            getItems().clear();
-            getItems().addAll(ds.getObjects(ds.getJEVisClass(ANALYSIS_CLASS_NAME), false));
+            getAnalyses().clear();
+            getAnalyses().addAll(ds.getObjects(ds.getJEVisClass(ANALYSIS_CLASS_NAME), false));
 
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis", e);
@@ -138,9 +157,9 @@ public class AnalysesComboBox extends JFXComboBox<JEVisObject> {
 
         AlphanumComparator ac = new AlphanumComparator();
         if (!ChartTools.isMultiDir(ds) && !ChartTools.isMultiSite(ds))
-            getItems().sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+            getAnalyses().sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
         else {
-            getItems().sort((o1, o2) -> {
+            getAnalyses().sort((o1, o2) -> {
 
                 String prefix1 = "";
                 String prefix2 = "";
@@ -169,11 +188,34 @@ public class AnalysesComboBox extends JFXComboBox<JEVisObject> {
             JEVisObject userObject = ds.getCurrentUser().getUserObject();
             JEVisAttribute analysisFileAttribute = userObject.getAttribute(ANALYSIS_FILE_ATTRIBUTE_NAME);
             if (analysisFileAttribute != null && analysisFileAttribute.hasSample()) {
-                getItems().add(userObject);
+                getAnalyses().add(userObject);
             }
         } catch (Exception e) {
             logger.error("Error while checking temp analysis attribute", e);
         }
     }
 
+    public ObservableList<JEVisObject> getAnalyses() {
+        return analyses.get();
+    }
+
+    public void setAnalyses(ObservableList<JEVisObject> analyses) {
+        this.analyses.set(analyses);
+    }
+
+    public SimpleListProperty<JEVisObject> analysesProperty() {
+        return analyses;
+    }
+
+    public JEVisObject getSelectedAnalysis() {
+        return selectedAnalysis.get();
+    }
+
+    public void setSelectedAnalysis(JEVisObject selectedAnalysis) {
+        this.selectedAnalysis.set(selectedAnalysis);
+    }
+
+    public SimpleObjectProperty<JEVisObject> selectedAnalysisProperty() {
+        return selectedAnalysis;
+    }
 }

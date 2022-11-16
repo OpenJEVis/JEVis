@@ -581,7 +581,7 @@ public class TableChartV extends XYChart {
 
     @Override
     public ChartModel getChartModel() {
-        return null;
+        return chartModel;
     }
 
     private class TableSample {

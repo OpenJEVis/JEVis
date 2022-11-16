@@ -14,6 +14,6 @@ public class ColumnChart extends org.jevis.jeconfig.application.Chart.Charts.XYC
 
     @Override
     public ChartModel getChartModel() {
-        return null;
+        return chartModel;
     }
 }
