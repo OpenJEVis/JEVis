@@ -71,10 +71,10 @@ public class HeatMapChart implements Chart {
     private Period period;
 
     public HeatMapChart(JEVisDataSource ds, ChartModel chartModel) {
-        this(ds, chartModel, null, null);
+        this(ds, chartModel, new ArrayList<>(), null, null);
     }
 
-    public HeatMapChart(JEVisDataSource ds, ChartModel chartModel, Color backgroundColor, Color fontColor) {
+    public HeatMapChart(JEVisDataSource ds, ChartModel chartModel, List<ChartDataRow> chartDataRows, Color backgroundColor, Color fontColor) {
         this.backgroundColor = backgroundColor;
         this.fontColor = fontColor;
 
@@ -83,9 +83,11 @@ public class HeatMapChart implements Chart {
         this.ROWS = 24L;
         this.COLS = 4L;
 
-        chartModel.getChartData().stream().map(chartData -> new ChartDataRow(ds, chartData)).forEach(chartDataRows::add);
+        if (chartDataRows.isEmpty()) {
+            chartModel.getChartData().stream().map(chartData -> new ChartDataRow(ds, chartData)).forEach(this.chartDataRows::add);
+        } else this.chartDataRows.addAll(chartDataRows);
 
-        this.workDays = new WorkDays(chartDataRows.get(0).getObject());
+        this.workDays = new WorkDays(this.chartDataRows.get(0).getObject());
 
         init();
     }
