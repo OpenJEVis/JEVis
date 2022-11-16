@@ -169,7 +169,7 @@ public class AnalysisTimeFrame {
         } else return false;
     }
 
-    private void updateDates() {
+    public void updateDates() {
 
         if (chartPlugin != null && chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
             dateHelper.setWorkDays(new WorkDays(chartPlugin.getDataSettings().getCurrentAnalysis()));
