@@ -23,10 +23,6 @@
             <version>1.15.3</version>
         </dependency>
         <dependency>
-            <groupId>org.jevis.commons</groupId>
-            <artifactId>JECommons</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jevis</groupId>
             <artifactId>JEAPI-WS</artifactId>
             <type>jar</type>
