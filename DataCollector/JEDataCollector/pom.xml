@@ -123,14 +123,6 @@
             <version>2.0.3</version>
         </dependency>
         <dependency>
-            <groupId>org.jevis.api</groupId>
-            <artifactId>jeapi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jevis.commons</groupId>
-            <artifactId>JECommons</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jevis</groupId>
             <artifactId>JEAPI-WS</artifactId>
         </dependency>
