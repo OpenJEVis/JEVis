@@ -122,7 +122,6 @@ public class RangingValueEditor implements AttributeEditor {
         }
 
         TabPane tabPane = new TabPane();
-        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         JFXDialog dialog = new JFXDialog();
         dialog.setDialogContainer(dialogContainer);
@@ -149,8 +148,8 @@ public class RangingValueEditor implements AttributeEditor {
                 addedTab.setOnClosed(event -> this.rangingValues.get().getRangingValues().remove(rangingValue));
                 fillTab(addedTab, rangingValue);
 
-                tabPane.getTabs().add(tabPane.getTabs().size() - 2, addedTab);
-                tabPane.getSelectionModel().select(tabPane.getTabs().size() - 3);
+                tabPane.getTabs().add(tabPane.getTabs().size() - 1, addedTab);
+                tabPane.getSelectionModel().select(tabPane.getTabs().size() - 2);
             }
         });
 
@@ -257,6 +256,7 @@ public class RangingValueEditor implements AttributeEditor {
 
     private void createDefaultConfig() {
         getRangingValues().reset();
+        getRangingValues().getRangingValues().add(new RangingValue());
     }
 
     @Override
