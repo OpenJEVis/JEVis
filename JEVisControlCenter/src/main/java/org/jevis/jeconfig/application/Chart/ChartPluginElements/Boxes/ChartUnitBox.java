@@ -38,6 +38,7 @@ public class ChartUnitBox extends JFXComboBox<JEVisUnit> {
         boolean isMassUnit = qu.isMassUnit(currentUnit);
         boolean isPressureUnit = qu.isPressureUnit(currentUnit);
         boolean isVolumeFlowUnit = qu.isVolumeFlowUnit(currentUnit);
+        boolean isMassFlowUnit = qu.isMassFlowUnit(currentUnit);
         boolean isMoneyUnit = qu.isMoneyUnit(currentUnit);
 
         if (isEnergyUnit) {
@@ -49,19 +50,27 @@ public class ChartUnitBox extends JFXComboBox<JEVisUnit> {
         }
 
         if (isMassUnit) {
-            proNames.addAll(qu.getVolumeUnits());
+            proNames.addAll(qu.getMassUnits());
         }
 
         if (isPressureUnit) {
-            proNames.addAll(qu.getVolumeUnits());
+            proNames.addAll(qu.getPressureUnits());
         }
 
         if (isVolumeFlowUnit) {
-            proNames.addAll(qu.getVolumeUnits());
+            proNames.addAll(qu.getVolumeFlowUnits());
+        }
+
+        if (isMassFlowUnit) {
+            proNames.addAll(qu.getMassFlowUnits());
         }
 
         if (isMoneyUnit) for (MoneyUnit mu : MoneyUnit.values()) {
             proNames.addAll(qu.getVolumeUnits());
+        }
+
+        if (proNames.isEmpty() && currentUnit != null && !currentUnit.getLabel().equals("")) {
+            proNames.add(currentUnit);
         }
 
         setItems(FXCollections.observableArrayList(proNames));
