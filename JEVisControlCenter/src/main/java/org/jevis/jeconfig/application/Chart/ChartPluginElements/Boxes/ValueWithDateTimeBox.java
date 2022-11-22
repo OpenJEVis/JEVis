@@ -23,6 +23,11 @@ public class ValueWithDateTimeBox extends HBox {
         if (value != null) {
             try {
                 String text = nf.format(value.getValue());
+
+                if (value.getValue() == Double.MAX_VALUE || value.getValue() == -Double.MAX_VALUE) {
+                    text = "-";
+                }
+
                 StringBuilder stringBuilder = new StringBuilder();
                 for (DateTime dateTime : value.getDateTime()) {
                     if (value.getDateTime().indexOf(dateTime) > 0) stringBuilder.append("\n");
@@ -37,7 +42,7 @@ public class ValueWithDateTimeBox extends HBox {
                 valueField.setText(text);
             } catch (Exception ignored) {
             }
-        }
+        } else valueField.setText("-");
 
         this.getChildren().setAll(valueField);
 
@@ -46,7 +51,14 @@ public class ValueWithDateTimeBox extends HBox {
 
     private static String getItemText(Cell<ValueWithDateTime> cell) {
         try {
-            String text = nf.format(cell.getItem().getValue());
+
+
+            String text = "-";
+
+            if (cell.getItem() != null && cell.getItem().getValue() != Double.MAX_VALUE && cell.getItem().getValue() != -Double.MAX_VALUE) {
+                text = nf.format(cell.getItem().getValue());
+            }
+
             if (cell.getItem().getUnit() != null && !cell.getItem().getUnit().getLabel().equals("")) {
                 text += " " + cell.getItem().getUnit().getLabel();
             }
