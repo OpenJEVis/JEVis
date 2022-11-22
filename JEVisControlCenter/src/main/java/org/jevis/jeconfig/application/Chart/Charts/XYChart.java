@@ -343,15 +343,20 @@ public class XYChart implements Chart {
                     }
                 }
 
+                List<JEVisSample> samples = new ArrayList<>();
+                sampleMap.forEach((key, value) -> samples.add(value));
+                y1SumSerie.getSingleRow().setSamples(samples);
                 y1SumSerie.setValueDataSet(dataSets.get(0));
 
                 ValueWithDateTime minVWD = new ValueWithDateTime(min);
                 minVWD.setUnit(unit);
                 sumEntry.setMin(minVWD);
+                y1SumSerie.setMinValue(minVWD);
 
                 ValueWithDateTime maxVWD = new ValueWithDateTime(max);
                 maxVWD.setUnit(unit);
                 sumEntry.setMax(maxVWD);
+                y1SumSerie.setMaxValue(maxVWD);
 
                 avg = sum / sampleMap.size();
                 sumEntry.setAvg(nf.format(avg) + " " + unit.getLabel());
@@ -434,15 +439,20 @@ public class XYChart implements Chart {
                     }
                 }
 
+                List<JEVisSample> samples = new ArrayList<>();
+                sampleMap.forEach((key, value) -> samples.add(value));
+                y2SumSerie.getSingleRow().setSamples(samples);
                 y2SumSerie.setValueDataSet(dataSets.get(0));
 
                 ValueWithDateTime minVWD = new ValueWithDateTime(min);
                 minVWD.setUnit(unit);
                 sumEntry.setMin(minVWD);
+                y2SumSerie.setMinValue(minVWD);
 
                 ValueWithDateTime maxVWD = new ValueWithDateTime(max);
                 maxVWD.setUnit(unit);
                 sumEntry.setMax(maxVWD);
+                y2SumSerie.setMaxValue(maxVWD);
 
                 avg = sum / sampleMap.size();
                 sumEntry.setAvg(nf.format(avg) + " " + unit.getLabel());
