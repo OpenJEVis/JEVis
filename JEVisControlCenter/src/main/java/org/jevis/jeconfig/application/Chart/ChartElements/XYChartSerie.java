@@ -39,9 +39,10 @@ import java.util.TreeMap;
 
 public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
-    public final String FINISHED_SERIE;
-    final boolean forecast;
     final NumberFormat nf = NumberFormat.getNumberInstance();
+    private final SimpleBooleanProperty shownInRenderer = new SimpleBooleanProperty();
+    public String FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " ";
+    boolean forecast = false;
     Integer yAxis;
     DoubleDataSet valueDataSet;
     DoubleDataSet noteDataSet;
@@ -51,18 +52,20 @@ public class XYChartSerie {
     TreeMap<DateTime, JEVisSample> sampleMap;
     DateTime timeStampFromFirstSample = DateTime.now();
     DateTime timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
-    private final SimpleBooleanProperty shownInRenderer = new SimpleBooleanProperty();
     ValueWithDateTime minValue = new ValueWithDateTime(Double.MAX_VALUE);
     ChartModel chartModel;
     Axis xAxis;
     ValueWithDateTime maxValue = new ValueWithDateTime(-Double.MAX_VALUE);
     private double sortCriteria;
+    private double avg;
 
+    public XYChartSerie() {
+    }
 
     public XYChartSerie(ChartModel chartModel, ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.chartModel = chartModel;
         this.singleRow = singleRow;
-        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " " + singleRow.getName();
+        this.FINISHED_SERIE += singleRow.getName();
         this.yAxis = singleRow.getAxis();
         this.showIcons = showIcons;
         this.valueDataSet = new DoubleDataSet(singleRow.getName());
@@ -120,7 +123,7 @@ public class XYChartSerie {
 
         sampleMap = new TreeMap<>();
 
-        double avg = 0.0;
+        avg = 0.0;
         double sum = 0.0;
         long zeroCount = 0;
 
@@ -252,6 +255,7 @@ public class XYChartSerie {
 
         if (!singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && samples.size() > 0) {
             avg = sum / (samples.size() - zeroCount);
+            this.avg = avg;
             sortCriteria = avg;
         }
 
@@ -368,8 +372,16 @@ public class XYChartSerie {
         return valueDataSet;
     }
 
+    public void setValueDataSet(DoubleDataSet dataSet) {
+        valueDataSet = dataSet;
+    }
+
     public DoubleDataSet getNoteDataSet() {
         return noteDataSet;
+    }
+
+    public void setNoteDataSet(DoubleDataSet dataSet) {
+        this.noteDataSet = dataSet;
     }
 
     public TableEntry getTableEntry() {
@@ -491,5 +503,17 @@ public class XYChartSerie {
                 renderer.getDatasets().remove(this.getNoteDataSet());
             }
         });
+    }
+
+    public double getAvg() {
+        return avg;
+    }
+
+    public void setTableEntry(TableEntry tableEntry) {
+        this.tableEntry = tableEntry;
+    }
+
+    public void setSampleMap(TreeMap<DateTime, JEVisSample> sampleMap) {
+        this.sampleMap = sampleMap;
     }
 }

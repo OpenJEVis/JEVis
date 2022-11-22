@@ -1039,6 +1039,8 @@ public class ChartPlugin implements Plugin {
                 return new BarChart(ds, chartModel);
             case COLUMN:
                 return new ColumnChart(ds);
+            case STACKED_COLUMN:
+                return new StackedColumnChart(ds);
             case BUBBLE:
                 return new BubbleChart(ds);
             case SCATTER:
@@ -1053,6 +1055,8 @@ public class ChartPlugin implements Plugin {
                 return new HeatMapChart(ds, chartModel);
             case AREA:
                 return new AreaChart(ds);
+            case STACKED_AREA:
+                return new StackedAreaChart(ds);
         }
     }
 
@@ -1216,10 +1220,12 @@ public class ChartPlugin implements Plugin {
                  * Area, Line and Scatter use same listeners -> no break
                  */
                 case AREA:
+                case STACKED_AREA:
                 case LINE:
                 case SCATTER:
                 case LOGICAL:
                 case COLUMN:
+                case STACKED_COLUMN:
                 case BUBBLE:
                     setupNoteDialog(cv);
 
