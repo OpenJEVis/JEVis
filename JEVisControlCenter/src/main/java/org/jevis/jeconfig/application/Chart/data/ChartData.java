@@ -29,11 +29,8 @@ public class ChartData {
     private final SimpleObjectProperty<ChartType> chartType = new SimpleObjectProperty<>(this, "chartType", ChartType.AREA);
     private final SimpleObjectProperty<AggregationPeriod> aggregationPeriod = new SimpleObjectProperty<>(this, "aggregationPeriod", AggregationPeriod.NONE);
     private final SimpleObjectProperty<ManipulationMode> manipulationMode = new SimpleObjectProperty<>(this, "manipulationMode", ManipulationMode.NONE);
-
     private final SimpleBooleanProperty intervalEnabled = new SimpleBooleanProperty(this, "intervalEnabled", false);
-
     private final SimpleStringProperty intervalStart = new SimpleStringProperty(this, "intervalStart", DateTime.now().withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).toString());
-
     private final SimpleStringProperty intervalEnd = new SimpleStringProperty(this, "intervalEnd", DateTime.now().toString());
     private final SimpleStringProperty css = new SimpleStringProperty(this, "css", "");
 
