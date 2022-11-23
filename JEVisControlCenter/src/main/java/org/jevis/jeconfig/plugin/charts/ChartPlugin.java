@@ -205,7 +205,7 @@ public class ChartPlugin implements Plugin {
             if (t1 != null && !t1.equals(jeVisObject)) {
 
                 dataSettings.setWorkDays(new WorkDays(t1));
-                analysisHandler.loadDataModel(t1, getToolBarView().getToolBarSettings(), getDataSettings(), dataModel);
+                analysisHandler.loadDataModel(t1, dataModel);
 
                 update();
             }
