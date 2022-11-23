@@ -180,8 +180,8 @@ public class SaveAnalysisDialog extends JFXDialog {
                     chartPlugin.getAnalysisHandler().saveDataModel(newAnalysisObject, chartPlugin.getDataModel(), toolBarView.getToolBarSettings(), dataSettings);
                     toolBarView.setChanged(false);
 
-                    dataSettings.setCurrentAnalysis(newAnalysisObject);
                     analysesComboBox.updateListAnalyses();
+                    dataSettings.setCurrentAnalysis(newAnalysisObject);
 
                     toolBarView.updateLayout();
 
@@ -213,8 +213,8 @@ public class SaveAnalysisDialog extends JFXDialog {
                         chartPlugin.getAnalysisHandler().saveDataModel(currentAnalysis.get(), chartPlugin.getDataModel(), toolBarView.getToolBarSettings(), dataSettings);
                         toolBarView.setChanged(false);
 
-                        dataSettings.setCurrentAnalysis(currentAnalysis.get());
                         analysesComboBox.updateListAnalyses();
+                        dataSettings.setCurrentAnalysis(currentAnalysis.get());
                         toolBarView.updateLayout();
 
                         response = Response.OK;
