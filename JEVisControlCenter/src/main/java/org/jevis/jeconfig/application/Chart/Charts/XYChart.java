@@ -269,8 +269,16 @@ public class XYChart implements Chart {
         if (chartModel.getChartType() == ChartType.STACKED_AREA || chartModel.getChartType() == ChartType.STACKED_COLUMN
                 || chartModel.getChartData().stream().anyMatch(chartData -> chartData.getChartType() == ChartType.STACKED_AREA || chartData.getChartType() == ChartType.STACKED_COLUMN)) {
 
-            boolean hasY1 = xyChartSerieList.stream().anyMatch(xyChartSerie -> xyChartSerie.getSingleRow().getAxis() == 0);
-            boolean hasY2 = xyChartSerieList.stream().anyMatch(xyChartSerie -> xyChartSerie.getSingleRow().getAxis() == 1);
+            boolean hasY1 = xyChartSerieList.stream().anyMatch(chartSerie -> chartSerie.getSingleRow().getAxis() == 0 &&
+                    (((chartModel.getChartType() == ChartType.STACKED_AREA || chartModel.getChartType() == ChartType.STACKED_COLUMN)
+                            && chartSerie.getSingleRow().getChartType() == ChartType.DEFAULT)
+                            || chartSerie.getSingleRow().getChartType() == ChartType.STACKED_AREA
+                            || chartSerie.getSingleRow().getChartType() == ChartType.STACKED_COLUMN));
+            boolean hasY2 = xyChartSerieList.stream().anyMatch(chartSerie -> chartSerie.getSingleRow().getAxis() == 1 &&
+                    (((chartModel.getChartType() == ChartType.STACKED_AREA || chartModel.getChartType() == ChartType.STACKED_COLUMN)
+                            && chartSerie.getSingleRow().getChartType() == ChartType.DEFAULT)
+                            || chartSerie.getSingleRow().getChartType() == ChartType.STACKED_AREA
+                            || chartSerie.getSingleRow().getChartType() == ChartType.STACKED_COLUMN));
 
             if (hasY1) {
                 List<XYChartSerie> y1Series = xyChartSerieList.stream().filter(serie -> serie.getSingleRow().getAxis() == 0 && (serie.getSingleRow().getChartType() == ChartType.DEFAULT ||
