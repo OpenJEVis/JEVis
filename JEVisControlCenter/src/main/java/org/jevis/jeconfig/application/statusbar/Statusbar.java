@@ -399,24 +399,40 @@ public class Statusbar extends ToolBar {
         //TODO implement notification
         root.getChildren().setAll(userIcon, this.userName, spacerLeft, progressbox, spacer, versionLabel, versionNumber, spacer2, this.conBox, this.onlineInfo);
 
-        String sinfo = "";
+        StringBuilder builder = new StringBuilder(I18n.getInstance().getString("statusbar.tooltips.status.connection"));
+        builder.append("\n");
 
         for (JEVisOption opt : _ds.getConfiguration()) {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
                 for (JEVisOption dsOption : opt.getOptions()) {
-                    sinfo += dsOption.getKey() + ": " + dsOption.getValue() + "\n";
+                    if (dsOption.equals(CommonOptions.DataSource.HOST)) {
+                        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.host"))
+                                .append(dsOption.getKey()).append(" : ")
+                                .append(dsOption.getValue()).append("\n");
+                    } else if (dsOption.equals(CommonOptions.DataSource.PORT)) {
+                        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.host"))
+                                .append(dsOption.getKey()).append(" : ")
+                                .append(dsOption.getValue()).append("\n");
+                    } else if (dsOption.equals(CommonOptions.DataSource.LOCALE)) {
+                        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.host"))
+                                .append(dsOption.getKey()).append(" : ")
+                                .append(dsOption.getValue()).append("\n");
+                    } else if (dsOption.equals(CommonOptions.DataSource.SSLTRUST)) {
+                        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.host"))
+                                .append(dsOption.getKey()).append(" : ")
+                                .append(dsOption.getValue()).append("\n");
+                    }
                 }
             }
         }
 
 
-        NumberFormat numberFormate = DecimalFormat.getNumberInstance(java.util.Locale.getDefault());
+        NumberFormat numberFormate = DecimalFormat.getNumberInstance(I18n.getInstance().getLocale());
         double memNumber = ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024);
 
-        sinfo += "\nMemory usage: " + numberFormate.format(memNumber) + " mb";
+        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.memoryusage")).append(numberFormate.format(memNumber)).append(" Mb");
 
-        Tooltip serverTip = new Tooltip("Connection Info:\n"
-                + sinfo);
+        Tooltip serverTip = new Tooltip(builder.toString());
         this.onlineInfo.setTooltip(serverTip);
 
         HBox.setHgrow(root, Priority.ALWAYS);
@@ -461,7 +477,7 @@ public class Statusbar extends ToolBar {
                                 @Override
                                 public void run() {
 //                                    logger.info("still online");
-                                    Statusbar.this.onlineInfo.setText("Online");
+                                    Statusbar.this.onlineInfo.setText(I18n.getInstance().getString("statusbar.tooltips.status.online"));
                                     Statusbar.this.onlineInfo.setTextFill(Color.BLACK);
                                     Statusbar.this.conBox.getChildren().setAll(Statusbar.this.connectIcon);
 
@@ -477,7 +493,7 @@ public class Statusbar extends ToolBar {
                                 @Override
                                 public void run() {
 //                                    logger.info("whaa were are offline");
-                                    Statusbar.this.onlineInfo.setText("Offline");
+                                    Statusbar.this.onlineInfo.setText(I18n.getInstance().getString("statusbar.tooltips.status.offline"));
                                     Statusbar.this.onlineInfo.setTextFill(Color.web("#D62748"));//red
                                     Statusbar.this.conBox.getChildren().setAll(Statusbar.this.notConnectIcon);
 
