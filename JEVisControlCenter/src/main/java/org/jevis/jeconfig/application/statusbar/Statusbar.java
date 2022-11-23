@@ -407,19 +407,19 @@ public class Statusbar extends ToolBar {
                 for (JEVisOption dsOption : opt.getOptions()) {
                     if (dsOption.equals(CommonOptions.DataSource.HOST)) {
                         builder.append(I18n.getInstance().getString("statusbar.tooltips.status.host"))
-                                .append(dsOption.getKey()).append(" : ")
+                                .append(" : ")
                                 .append(dsOption.getValue()).append("\n");
                     } else if (dsOption.equals(CommonOptions.DataSource.PORT)) {
                         builder.append(I18n.getInstance().getString("statusbar.tooltips.status.port"))
-                                .append(dsOption.getKey()).append(" : ")
+                                .append(" : ")
                                 .append(dsOption.getValue()).append("\n");
                     } else if (dsOption.equals(CommonOptions.DataSource.LOCALE)) {
                         builder.append(I18n.getInstance().getString("statusbar.tooltips.status.locale"))
-                                .append(dsOption.getKey()).append(" : ")
+                                .append(" : ")
                                 .append(dsOption.getValue()).append("\n");
                     } else if (dsOption.equals(CommonOptions.DataSource.SSLTRUST)) {
                         builder.append(I18n.getInstance().getString("statusbar.tooltips.status.ssltrust"))
-                                .append(dsOption.getKey()).append(" : ")
+                                .append(" : ")
                                 .append(dsOption.getValue()).append("\n");
                     }
                 }
@@ -427,11 +427,11 @@ public class Statusbar extends ToolBar {
         }
 
 
-        NumberFormat numberFormate = DecimalFormat.getNumberInstance(I18n.getInstance().getLocale());
+        NumberFormat nf = DecimalFormat.getNumberInstance(I18n.getInstance().getLocale());
         double memNumber = ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024);
 
-        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.memoryusage")).append(" ")
-                .append(numberFormate.format(memNumber)).append(" Mb");
+        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.memoryusage")).append(" : ")
+                .append(nf.format(memNumber)).append(" Mb");
 
         Tooltip serverTip = new Tooltip(builder.toString());
         this.onlineInfo.setTooltip(serverTip);
