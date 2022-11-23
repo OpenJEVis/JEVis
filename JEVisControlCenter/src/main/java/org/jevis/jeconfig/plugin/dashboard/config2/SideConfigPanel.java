@@ -27,6 +27,8 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.dashboard.controls.FontPostureBox;
+import org.jevis.jeconfig.plugin.dashboard.controls.FontWeightBox;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
@@ -38,17 +40,22 @@ public class SideConfigPanel extends GridPane {
     private boolean isUpdating = false;
     private final double iconSize = 16;
 
-    private final JFXComboBox<Integer> layerComboBox = new JFXComboBox();
+    private final JFXComboBox<Integer> layerComboBox = new JFXComboBox<>();
     private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
     private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
     private final JFXCheckBox showShadowField = new JFXCheckBox();
     private final JFXCheckBox showValueField = new JFXCheckBox();
     private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
+    private final FontWeightBox fontWeightBox = new FontWeightBox();
+    private final FontPostureBox fontPostureBox = new FontPostureBox();
+    private final JFXCheckBox fontUnderlined = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.controls.underline"));
     private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
     private final Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
     private final Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
     private final Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
     private final Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
+    private final Label fontWeightLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontweight"));
+    private final Label fontPostureLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontposture"));
     private final Label precisionLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.precision"));
     private final Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
     private final Label widthLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.width"));
@@ -142,6 +149,9 @@ public class SideConfigPanel extends GridPane {
             showShadowField.setSelected(widget.getConfig().getShowShadow());
             showValueField.setSelected(widget.getConfig().getShowValue());
             fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
+            fontWeightBox.getSelectionModel().select(widget.getConfig().getFontWeight());
+            fontPostureBox.getSelectionModel().select(widget.getConfig().getFontPosture());
+            fontUnderlined.setSelected(widget.getConfig().getFontUnderlined());
             widthText.setText(widget.getConfig().getSize().getWidth() + "");
             xPosText.setText(widget.getConfig().getxPosition() + "");
             yPosText.setText(widget.getConfig().getyPosition() + "");
@@ -264,21 +274,44 @@ public class SideConfigPanel extends GridPane {
 
         fontSizeSpinner.setMaxWidth(80);
         precisionSpinner.setMaxWidth(80);
+        int row = 0;
+        gp.add(fColorLabel, 0, row);
+        gp.add(fColorPicker, 1, row);
+        row++;
 
-        gp.add(fColorLabel, 0, 0);
-        gp.add(fColorPicker, 1, 0);
-        gp.add(bgColorLabel, 0, 1);
-        gp.add(bgColorPicker, 1, 1);
-        gp.add(shadowLabel, 0, 2);
-        gp.add(showShadowField, 1, 2);
-        gp.add(fontSizeLabel, 0, 3);
-        gp.add(fontSizeSpinner, 1, 3);
-        gp.add(precisionLabel, 0, 4);
-        gp.add(precisionSpinner, 1, 4);
-        gp.add(showValueLabel, 0, 5);
-        gp.add(showValueField, 1, 5);
-        gp.add(alignmentLabel, 0, 6);
-        gp.add(alignmentBox, 1, 6);
+        gp.add(bgColorLabel, 0, row);
+        gp.add(bgColorPicker, 1, row);
+        row++;
+
+        gp.add(shadowLabel, 0, row);
+        gp.add(showShadowField, 1, row);
+        row++;
+
+        gp.add(fontSizeLabel, 0, row);
+        gp.add(fontSizeSpinner, 1, row);
+        row++;
+
+        gp.add(fontWeightLabel, 0, row);
+        gp.add(fontWeightBox, 1, row);
+        row++;
+
+        gp.add(fontPostureLabel, 0, row);
+        gp.add(fontPostureBox, 1, row);
+        row++;
+
+        gp.add(fontUnderlined, 1, row);
+        row++;
+
+        gp.add(precisionLabel, 0, row);
+        gp.add(precisionSpinner, 1, row);
+        row++;
+
+        gp.add(showValueLabel, 0, row);
+        gp.add(showValueField, 1, row);
+        row++;
+
+        gp.add(alignmentLabel, 0, row);
+        gp.add(alignmentBox, 1, row);
         //gp.add(equalizeDataModelButton, 0, 7, 2, 1);
 
         titledPane.setContent(gp);
@@ -298,6 +331,24 @@ public class SideConfigPanel extends GridPane {
         fontSizeSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!isUpdating) {
                 control.fontSizeSelected(newValue);
+            }
+        });
+
+        fontWeightBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!isUpdating) {
+                control.fontWeightSelected(newValue);
+            }
+        });
+
+        fontPostureBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!isUpdating) {
+                control.fontPostureSelected(newValue);
+            }
+        });
+
+        fontUnderlined.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!isUpdating) {
+                control.fontUnderlinedSelected(newValue);
             }
         });
 

@@ -655,7 +655,10 @@ public class ToolBarView {
 
         showRawData.setOnAction(event -> toolBarSettings.setShowRawData(!toolBarSettings.isShowRawData()));
 
-        showSum.setOnAction(event -> toolBarSettings.setShowSum(!toolBarSettings.isShowSum()));
+        showSum.setOnAction(event -> {
+            toolBarSettings.setShowSum(!toolBarSettings.isShowSum());
+            chartPlugin.update();
+        });
 
         showL1L2.setOnAction(event -> toolBarSettings.setShowL1L2(!toolBarSettings.isShowL1L2()));
 
