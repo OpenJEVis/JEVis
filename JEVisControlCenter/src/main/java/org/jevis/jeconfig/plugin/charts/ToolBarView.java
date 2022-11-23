@@ -519,6 +519,9 @@ public class ToolBarView {
 
                 changed = true;
                 chartPlugin.update();
+            } else if (dia.getResponse() == Response.CANCEL) {
+                changed = false;
+                chartPlugin.getAnalysisHandler().restoreDataModel(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis());
             }
             JEVisHelp.getInstance().deactivatePluginModule();
         });

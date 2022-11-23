@@ -139,7 +139,7 @@ public class AnalysisHandler {
 
     }
 
-    public void loadDataModel(JEVisObject analysisObject, ToolBarSettings toolBarSettings, DataSettings dataSettings, DataModel dataModel) {
+    public void loadDataModel(JEVisObject analysisObject, DataModel dataModel) {
         dataModel.reset();
 
         try {
@@ -236,5 +236,9 @@ public class AnalysisHandler {
 
             dataModel.getChartModels().add(chartModel);
         }
+    }
+
+    public void restoreDataModel(DataModel dataModel, JEVisObject currentAnalysis) {
+        loadDataModel(currentAnalysis, dataModel);
     }
 }
