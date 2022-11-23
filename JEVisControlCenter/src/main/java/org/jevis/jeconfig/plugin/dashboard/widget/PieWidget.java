@@ -92,7 +92,6 @@ public class PieWidget extends Widget implements DataModelWidget {
         List<Legend.LegendItem> legendItemList = new ArrayList<>();
         List<Color> colors = new ArrayList<>();
 
-
         /** data Update **/
         AtomicDouble total = new AtomicDouble(0);
         for (ChartDataRow dataModel : this.sampleHandler.getDataModel()) {
@@ -206,8 +205,8 @@ public class PieWidget extends Widget implements DataModelWidget {
                 this.legend.setBackground(bgColorTrans);
                 this.borderPane.setBackground(bgColor);
                 this.borderPane.setMaxWidth(this.config.getSize().getWidth());
-                this.nf.setMinimumFractionDigits(0);
-                this.nf.setMaximumFractionDigits(2);
+                this.nf.setMinimumFractionDigits(this.config.getDecimals());
+                this.nf.setMaximumFractionDigits(this.config.getDecimals());
                 this.layout();
             } catch (Exception ex) {
                 logger.error(ex);
