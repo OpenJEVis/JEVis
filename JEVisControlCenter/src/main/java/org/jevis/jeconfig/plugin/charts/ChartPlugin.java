@@ -23,7 +23,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextArea;
-import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
@@ -1529,10 +1528,11 @@ public class ChartPlugin implements Plugin {
                 Platform.runLater(() -> logicalChart.getChart().setTitle(null));
             }
 
-            logicalChart.getChartDataRows().get(0).setColor(ColorTable.color_list[subCharts.indexOf(logicalChart)]);
-            logicalChart.getChartDataRows().get(0).calcMinAndMax();
-            double min = logicalChart.getMinValue();
-            double max = logicalChart.getMaxValue();
+            ChartDataRow chartDataRow = logicalChart.getChartDataRows().get(0);
+            chartDataRow.setColor(ColorTable.color_list[subCharts.indexOf(logicalChart)]);
+            chartDataRow.calcMinAndMax();
+            double min = chartDataRow.getMin().getValue();
+            double max = chartDataRow.getMax().getValue();
             minValue = Math.min(minValue, min);
             maxValue = Math.max(maxValue, max);
         }
@@ -1543,13 +1543,8 @@ public class ChartPlugin implements Plugin {
 
         if (!minValue.equals(Double.MAX_VALUE) && !maxValue.equals(-Double.MAX_VALUE)) {
             for (LogicalChart logicalChart : subCharts) {
-                for (Axis axis : logicalChart.getChart().getAxes()) {
-                    if (axis.getSide().isVertical()) {
-                        axis.setAutoRanging(false);
-                    } else {
-                        axis.set(minValue, maxValue);
-                    }
-                }
+                logicalChart.getY1Axis().setAutoRanging(false);
+                logicalChart.getY1Axis().set(minValue, maxValue);
             }
         }
 
