@@ -37,6 +37,7 @@ public class ChartDataRow extends ChartData {
     private DateTime selectedEnd;
     private JEVisObject object;
     private JEVisAttribute attribute;
+    private Period period;
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject dataProcessorObject = null;
@@ -906,6 +907,7 @@ public class ChartDataRow extends ChartData {
         newModel.setScaleFactor(this.getScaleFactor());
         newModel.setCustomWorkDay(this.isCustomWorkDay());
         newModel.setChartType(this.getChartType());
+        newModel.setPeriod(this.getPeriod());
         newModel.setSomethingChanged(false);
 
         return newModel;
@@ -995,29 +997,37 @@ public class ChartDataRow extends ChartData {
     }
 
     public Period getPeriod() {
-        Period p = Period.ZERO;
-        JEVisObject object = null;
-        if (dataProcessorObject != null) {
-            object = this.dataProcessorObject;
-        } else {
-            object = this.object;
-        }
-
-        try {
-            JEVisAttribute periodAttribute = object.getAttribute("Period");
-            if (periodAttribute != null) {
-                JEVisSample latestSample = periodAttribute.getLatestSample();
-
-                if (latestSample != null) {
-                    p = new Period(latestSample.getValueAsString());
-                }
+        if (period == null) {
+            Period p = Period.ZERO;
+            JEVisObject object = null;
+            if (dataProcessorObject != null) {
+                object = this.dataProcessorObject;
+            } else {
+                object = this.object;
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                JEVisAttribute periodAttribute = object.getAttribute("Period");
+                if (periodAttribute != null) {
+                    JEVisSample latestSample = periodAttribute.getLatestSample();
+
+                    if (latestSample != null) {
+                        p = new Period(latestSample.getValueAsString());
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            period = p;
         }
 
-        return p;
+        return period;
+    }
+
+    public void setPeriod(Period period) {
+        this.period = period;
     }
 
     public String getCustomCSS() {
