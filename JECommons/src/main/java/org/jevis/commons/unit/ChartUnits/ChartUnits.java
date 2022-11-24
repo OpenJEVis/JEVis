@@ -16,7 +16,7 @@ public class ChartUnits {
         Unit _mg = SI.GRAM.divide(1000);
         Unit _g = SI.GRAM;
         Unit _kg = SI.KILOGRAM;
-        Unit _kkg = SI.KILOGRAM.times(1000);
+        Unit _kkg = SI.KILOGRAM.alternate("kkg").times(1000);
         Unit _t = NonSI.METRIC_TON;
 
         Unit _l = NonSI.LITER;
@@ -31,6 +31,14 @@ public class ChartUnits {
         Unit _cubicMeterPerSecond = SI.CUBIC_METRE.divide(SI.SECOND);
         Unit _cubicMeterPerMinute = SI.CUBIC_METRE.divide(NonSI.MINUTE);
         Unit _cubicMeterPerHour = SI.CUBIC_METRE.divide(NonSI.HOUR);
+
+        Unit _kgPerSecond = SI.KILOGRAM.divide(SI.SECOND);
+        Unit _kgPerMinute = SI.KILOGRAM.divide(NonSI.MINUTE);
+        Unit _kgPerHour = SI.KILOGRAM.divide(NonSI.HOUR);
+
+        Unit _tPerSecond = NonSI.METRIC_TON.divide(SI.SECOND);
+        Unit _tPerMinute = NonSI.METRIC_TON.divide(NonSI.MINUTE);
+        Unit _tPerHour = NonSI.METRIC_TON.divide(NonSI.HOUR);
 
         Unit _bar = NonSI.BAR;
         Unit _atm = NonSI.ATMOSPHERE;
@@ -74,6 +82,14 @@ public class ChartUnits {
         final JEVisUnit cubicMeterPerSecond = new JEVisUnitImp(_cubicMeterPerSecond);
         final JEVisUnit cubicMeterPerMinute = new JEVisUnitImp(_cubicMeterPerMinute);
         final JEVisUnit cubicMeterPerHour = new JEVisUnitImp(_cubicMeterPerHour);
+
+        final JEVisUnit kgPerSecond = new JEVisUnitImp(_kgPerSecond);
+        final JEVisUnit kgPerMinute = new JEVisUnitImp(_kgPerMinute);
+        final JEVisUnit kgPerHour = new JEVisUnitImp(_kgPerHour);
+
+        final JEVisUnit tPerSecond = new JEVisUnitImp(_tPerSecond);
+        final JEVisUnit tPerMinute = new JEVisUnitImp(_tPerMinute);
+        final JEVisUnit tPerHour = new JEVisUnitImp(_tPerHour);
 
         final JEVisUnit bar = new JEVisUnitImp(_bar);
         final JEVisUnit atm = new JEVisUnitImp(_atm);
@@ -191,6 +207,24 @@ public class ChartUnits {
                     break;
                 case "m³/h":
                     result = cubicMeterPerHour;
+                    break;
+                case "kg/s":
+                    result = kgPerSecond;
+                    break;
+                case "kg/min":
+                    result = kgPerMinute;
+                    break;
+                case "kg/h":
+                    result = kgPerHour;
+                    break;
+                case "t/s":
+                    result = tPerSecond;
+                    break;
+                case "t/min":
+                    result = tPerMinute;
+                    break;
+                case "t/h":
+                    result = tPerHour;
                     break;
                 case "bar":
                     result = bar;
@@ -691,6 +725,120 @@ public class ChartUnits {
                         factor = 3600d;
                         break;
                     case "l/min":
+                        factor = 60d;
+                        break;
+                }
+                break;
+            case "t/s":
+                switch (inputUnit) {
+                    case "t/min":
+                        factor = 1d / 60D;
+                        break;
+                    case "t/h":
+                        factor = 1d / 3600d;
+                        break;
+                    case "kg/s":
+                        factor = 1d / 1000d;
+                        break;
+                    case "kg/min":
+                        factor = 1d / 60000d;
+                        break;
+                    case "kg/h":
+                        factor = 1d / 3600000;
+                        break;
+                }
+                break;
+            case "t/min":
+                switch (inputUnit) {
+                    case "t/s":
+                        factor = 60d;
+                        break;
+                    case "t/h":
+                        factor = 1d / 60d;
+                        break;
+                    case "kg/s":
+                        factor = 1000d * 60d;
+                        break;
+                    case "kg/min":
+                        factor = 1000d;
+                        break;
+                    case "kg/h":
+                        factor = 1000d / 60d;
+                        break;
+                }
+                break;
+            case "t/h":
+                switch (inputUnit) {
+                    case "t/s":
+                        factor = 60d * 60d;
+                        break;
+                    case "t/min":
+                        factor = 1d / 60d;
+                        break;
+                    case "kg/s":
+                        factor = 1000d / 3600d;
+                        break;
+                    case "kg/min":
+                        factor = 1000d / 60d;
+                        break;
+                    case "kg/h":
+                        factor = 1000d;
+                        break;
+                }
+                break;
+            case "kg/s":
+                switch (inputUnit) {
+                    case "t/s":
+                        factor = 1d / 1000d;
+                        break;
+                    case "t/min":
+                        factor = 60d / 1000d;
+                        break;
+                    case "t/h":
+                        factor = 3600d / 10000;
+                        break;
+                    case "kg/min":
+                        factor = 60d;
+                        break;
+                    case "kg/h":
+                        factor = 3600d;
+                        break;
+                }
+                break;
+            case "kg/min":
+                switch (inputUnit) {
+                    case "t/s":
+                        factor = 1d / 60000d;
+                        break;
+                    case "t/min":
+                        factor = 1d / 1000d;
+                        break;
+                    case "t/h":
+                        factor = 60d / 1000d;
+                        break;
+                    case "kg/s":
+                        factor = 1 / 60d;
+                        break;
+                    case "kg/h":
+                        factor = 60d;
+                        break;
+                }
+                break;
+            case "kg/h":
+                switch (inputUnit) {
+                    case "t/s":
+                        factor = 1d / 3600000d;
+                        break;
+                    case "t/min":
+                        factor = 1d / 60000d;
+                        break;
+                    case "t/h":
+                        factor = 1d / 1000d;
+                        break;
+                    case "kg/s":
+                        factor = 3600d;
+                        break;
+                    case "kg/min":
                         factor = 60d;
                         break;
                 }

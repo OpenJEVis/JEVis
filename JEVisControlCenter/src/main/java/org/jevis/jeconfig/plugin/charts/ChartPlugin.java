@@ -23,7 +23,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextArea;
-import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
@@ -101,6 +100,7 @@ public class ChartPlugin implements Plugin {
     private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
     private final ToolBarView toolBarView;
     private final AnalysisHandler analysisHandler = new AnalysisHandler();
+    private final FavoriteAnalysisHandler favoriteAnalysisHandler = new FavoriteAnalysisHandler();
     private final DataModel dataModel;
     private final StringProperty name = new SimpleStringProperty("Graph");
     private final StringProperty id = new SimpleStringProperty("*NO_ID*");
@@ -205,7 +205,7 @@ public class ChartPlugin implements Plugin {
             if (t1 != null && !t1.equals(jeVisObject)) {
 
                 dataSettings.setWorkDays(new WorkDays(t1));
-                analysisHandler.loadDataModel(t1, getToolBarView().getToolBarSettings(), getDataSettings(), dataModel);
+                analysisHandler.loadDataModel(t1, dataModel);
 
                 update();
             }
@@ -430,12 +430,6 @@ public class ChartPlugin implements Plugin {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
                     SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(dialogContainer, ds, dataSettings, this, toolBarView);
-//                    saveAnalysisDialog.setOnDialogClosed(jfxDialogEvent -> {
-//                        if (saveAnalysisDialog.getResponse() == Response.OK) {
-//                            update();
-//                        }
-//                    });
-
                     saveAnalysisDialog.show();
                     break;
                 case Constants.Plugin.Command.DELETE:
@@ -447,10 +441,23 @@ public class ChartPlugin implements Plugin {
                     new NewAnalysisDialog(dialogContainer, ds, dataModel, this, toolBarView.getChanged());
                     break;
                 case Constants.Plugin.Command.RELOAD:
+                    try {
+                        for (ChartModel chartModel : dataModel.getChartModels()) {
+                            for (ChartData chartData : chartModel.getChartData()) {
+                                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                                ds.reloadAttribute(chartDataRow.getAttribute());
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error while reloading attributes", e);
+                    }
+
                     JEVisObject currentAnalysis = dataSettings.getCurrentAnalysis();
                     ManipulationMode currentManipulationMode = dataSettings.getManipulationMode();
                     AggregationPeriod currentAggregationPeriod = dataSettings.getAggregationPeriod();
                     AnalysisTimeFrame currentTimeframe = dataSettings.getAnalysisTimeFrame();
+                    currentTimeframe.updateDates();
+
                     toolBarView.getAnalysesComboBox().updateListAnalyses();
 
                     dataSettings.setManipulationMode(currentManipulationMode);
@@ -524,6 +531,7 @@ public class ChartPlugin implements Plugin {
 
         allCharts.forEach((integer, chart) -> {
             if (chart.getChart() != null) {
+                chart.getChart().getPlugins().forEach(chartPlugin -> chartPlugin.getChartChildren().clear());
                 chart.getChart().getPlugins().clear();
                 chart.getChart().getRenderers().clear();
                 chart.getChart().getAllDatasets().clear();
@@ -567,6 +575,9 @@ public class ChartPlugin implements Plugin {
                         chartData.setIntervalStart(dataSettings.getAnalysisTimeFrame().getStart());
                         chartData.setIntervalEnd(dataSettings.getAnalysisTimeFrame().getEnd());
                     }
+
+                    chartData.setAggregationPeriod(dataSettings.getAggregationPeriod());
+                    chartData.setManipulationMode(dataSettings.getManipulationMode());
                 });
 
                 if (chartModel.getChartType().equals(ChartType.LOGICAL)) {
@@ -618,7 +629,7 @@ public class ChartPlugin implements Plugin {
                 } else if (chart != null) {
                     ScrollPane scrollPane = new ScrollPane();
 
-                    TableHeader tableHeader = new TableHeader(chartModel, chart.getTableData());
+                    TableHeader tableHeader = new TableHeader(chartModel, chart);
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
                     scrollPane.setContent(tableHeader);
@@ -631,7 +642,7 @@ public class ChartPlugin implements Plugin {
 
                 if (chartModel.getChartType() != ChartType.PIE && chartModel.getChartType() != ChartType.HEAT_MAP
                         && chartModel.getChartType() != ChartType.LOGICAL && chart != null) {
-                    TableHeader tableHeader = new TableHeader(chartModel, chart.getTableData());
+                    TableHeader tableHeader = new TableHeader(chartModel, chart);
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
                     if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.TABLE_V) {
@@ -1027,6 +1038,8 @@ public class ChartPlugin implements Plugin {
                 return new BarChart(ds, chartModel);
             case COLUMN:
                 return new ColumnChart(ds);
+            case STACKED_COLUMN:
+                return new StackedColumnChart(ds);
             case BUBBLE:
                 return new BubbleChart(ds);
             case SCATTER:
@@ -1041,6 +1054,8 @@ public class ChartPlugin implements Plugin {
                 return new HeatMapChart(ds, chartModel);
             case AREA:
                 return new AreaChart(ds);
+            case STACKED_AREA:
+                return new StackedAreaChart(ds);
         }
     }
 
@@ -1204,10 +1219,12 @@ public class ChartPlugin implements Plugin {
                  * Area, Line and Scatter use same listeners -> no break
                  */
                 case AREA:
+                case STACKED_AREA:
                 case LINE:
                 case SCATTER:
                 case LOGICAL:
                 case COLUMN:
+                case STACKED_COLUMN:
                 case BUBBLE:
                     setupNoteDialog(cv);
 
@@ -1290,6 +1307,7 @@ public class ChartPlugin implements Plugin {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(ds, this, TimeFrame.CUSTOM);
                     analysisTimeFrame.setStart(analysisRequest.getStartDate());
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
+                    dataSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
                     dataSettings.setCurrentAnalysis(analysisRequest.getObject());
 
@@ -1324,18 +1342,44 @@ public class ChartPlugin implements Plugin {
 
                     analysisHandler.saveDataModel(ds.getCurrentUser().getUserObject(), dataModel, toolBarView.getToolBarSettings(), dataSettings);
 
+                    Platform.runLater(() -> getToolBarView().getAnalysesComboBox().updateListAnalyses());
+
                     dataSettings.setCurrentAnalysis(ds.getCurrentUser().getUserObject());
 
                     update();
 
-                    toolBarView.getPickerCombo().updateCellFactory();
-                    toolBarView.getAnalysesComboBox().updateListAnalyses();
+                    Platform.runLater(() -> toolBarView.getPickerCombo().updateCellFactory());
+
 
                 }
 
                 Platform.runLater(() -> toolBarView.setDisableToolBarIcons(false));
             }
 
+
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+    }
+
+    public void openObject(JEVisObject object, DataSettings dataSettings) {
+        try {
+            if (firstStart) {
+                Platform.runLater(() -> toolBarView.getAnalysesComboBox().updateListAnalyses());
+            }
+
+            firstStart = false;
+            dataModel.reset();
+
+            getDataSettings().setManipulationMode(dataSettings.getManipulationMode());
+            getDataSettings().setAggregationPeriod(dataSettings.getAggregationPeriod());
+            getDataSettings().setAnalysisTimeFrame(dataSettings.getAnalysisTimeFrame());
+
+            getDataSettings().setCurrentAnalysis(null);
+            getDataSettings().setCurrentAnalysis(object);
+
+            Platform.runLater(() -> toolBarView.setChanged(false));
+            Platform.runLater(() -> toolBarView.setDisableToolBarIcons(false));
 
         } catch (Exception ex) {
             logger.error(ex);
@@ -1484,10 +1528,11 @@ public class ChartPlugin implements Plugin {
                 Platform.runLater(() -> logicalChart.getChart().setTitle(null));
             }
 
-            logicalChart.getChartDataRows().get(0).setColor(ColorTable.color_list[subCharts.indexOf(logicalChart)]);
-            logicalChart.getChartDataRows().get(0).calcMinAndMax();
-            double min = logicalChart.getMinValue();
-            double max = logicalChart.getMaxValue();
+            ChartDataRow chartDataRow = logicalChart.getChartDataRows().get(0);
+            chartDataRow.setColor(ColorTable.color_list[subCharts.indexOf(logicalChart)]);
+            chartDataRow.calcMinAndMax();
+            double min = chartDataRow.getMin().getValue();
+            double max = chartDataRow.getMax().getValue();
             minValue = Math.min(minValue, min);
             maxValue = Math.max(maxValue, max);
         }
@@ -1498,13 +1543,8 @@ public class ChartPlugin implements Plugin {
 
         if (!minValue.equals(Double.MAX_VALUE) && !maxValue.equals(-Double.MAX_VALUE)) {
             for (LogicalChart logicalChart : subCharts) {
-                for (Axis axis : logicalChart.getChart().getAxes()) {
-                    if (axis.getSide().isVertical()) {
-                        axis.setAutoRanging(false);
-                    } else {
-                        axis.set(minValue, maxValue);
-                    }
-                }
+                logicalChart.getY1Axis().setAutoRanging(false);
+                logicalChart.getY1Axis().set(minValue, maxValue);
             }
         }
 
@@ -1580,5 +1620,9 @@ public class ChartPlugin implements Plugin {
 
     public AnalysisHandler getAnalysisHandler() {
         return analysisHandler;
+    }
+
+    public FavoriteAnalysisHandler getFavoriteAnalysisHandler() {
+        return favoriteAnalysisHandler;
     }
 }

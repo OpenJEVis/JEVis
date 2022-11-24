@@ -134,7 +134,7 @@ public class ColumnFactory {
                                                                   icon = getClassIcon(jeVisObject.getJEVisClass(), 18, 18);
 
                                                                   try {
-                                                                      if (jevisTree.getCalculationIDs().contains(jeVisObject.getID())) {
+                                                                      if (jevisTree.getCalculationIDs().get(jeVisObject.getID()) != null) {
                                                                           {
                                                                               if (!classIconCache.containsKey("Fake_Virtual_DataPoints")) {
                                                                                   classIconCache.put("Fake_Virtual_DataPoints", JEConfig.getImage("virt_data.png"));

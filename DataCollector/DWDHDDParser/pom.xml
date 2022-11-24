@@ -12,10 +12,7 @@
     <artifactId>DWDHDDParser</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.jevis.api</groupId>
-            <artifactId>jeapi</artifactId>
-        </dependency>
+
     </dependencies>
 
     <properties>

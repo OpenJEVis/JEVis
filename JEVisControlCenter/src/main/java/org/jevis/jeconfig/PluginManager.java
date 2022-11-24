@@ -66,7 +66,7 @@ public class PluginManager {
     private final JEVisDataSource _ds;
     private final Number _tabPosOld = 0;
     private final AnchorPane toolbar = new AnchorPane();
-    private final SimpleObjectProperty selectedPluginProperty = new SimpleObjectProperty();
+    private final SimpleObjectProperty<Plugin> selectedPluginProperty = new SimpleObjectProperty<>();
     private TopMenu menu;
     private final TabPane tabPane = new TabPane();
 
@@ -350,6 +350,8 @@ public class PluginManager {
                 } catch (Exception ex) {
                     logger.error("Error while switching plugin: {}", ex, ex);
                 }
+
+                menu.setPlugin(newValue);
             }
 
         }));
@@ -369,8 +371,7 @@ public class PluginManager {
     }
 
     Plugin getSelectedPlugin() {
-        return (Plugin) this.selectedPluginProperty.getValue();
-//        return _plugins.get(_tabPos.intValue());
+        return this.selectedPluginProperty.getValue();
     }
 
     public Node getToolbar() {

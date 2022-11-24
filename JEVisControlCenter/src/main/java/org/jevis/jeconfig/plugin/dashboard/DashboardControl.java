@@ -22,6 +22,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
@@ -1227,6 +1229,30 @@ public class DashboardControl {
     public void fontSizeSelected(double size) {
         selectedWidgets.forEach(widget -> {
             widget.getConfig().setFontSize(size);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void fontWeightSelected(FontWeight fontWeight) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontWeight(fontWeight);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void fontPostureSelected(FontPosture fontPosture) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontPosture(fontPosture);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void fontUnderlinedSelected(Boolean underlined) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontUnderlined(underlined);
             widget.updateConfig();
             requestViewUpdate(widget);
         });

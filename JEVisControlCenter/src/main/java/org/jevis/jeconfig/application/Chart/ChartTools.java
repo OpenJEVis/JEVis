@@ -22,7 +22,7 @@ public class ChartTools {
     public static long isObjectCalculated(JEVisObject object) {
         try {
             return getCalculationMap(object.getDataSource(), object).get(object.getID());
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not find calculation for object {}:{}", object.getName(), object.getID(), e);
         }
 

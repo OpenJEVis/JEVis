@@ -11,10 +11,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>org.jevis.commons</groupId>
-            <artifactId>JECommons</artifactId>
-        </dependency>
+
     </dependencies>
     <parent>
         <groupId>org.jevis.datacollector</groupId>

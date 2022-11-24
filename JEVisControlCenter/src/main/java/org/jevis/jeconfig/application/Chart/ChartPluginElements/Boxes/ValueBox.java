@@ -3,6 +3,7 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 import com.jfoenix.controls.JFXTextField;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import org.jevis.api.JEVisSample;
@@ -22,6 +23,8 @@ public class ValueBox extends HBox {
         if (sample != null) {
             try {
                 valueField.setText(nf.format(sample.getValueAsDouble()));
+                Tooltip timestampTooltip = new Tooltip(sample.getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
+                valueField.setTooltip(timestampTooltip);
                 unitField.setText(sample.getUnit().getLabel());
             } catch (Exception ignored) {
             }
@@ -84,6 +87,15 @@ public class ValueBox extends HBox {
     public static void cancelEdit(Cell<JEVisSample> cell, Node graphic) {
         cell.setText(getItemText(cell));
         cell.setGraphic(graphic);
+
+        if (!cell.isEmpty() && cell.getItem() != null) {
+            try {
+                Tooltip timeStampTooltip = new Tooltip(cell.getItem().getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
+                cell.setTooltip(timeStampTooltip);
+            } catch (Exception ignored) {
+            }
+
+        }
     }
 
     public static void updateItem(final Cell<JEVisSample> cell,
@@ -109,6 +121,11 @@ public class ValueBox extends HBox {
             } else {
                 cell.setText(getItemText(cell));
                 cell.setGraphic(graphic);
+                try {
+                    Tooltip timeStampTooltip = new Tooltip(cell.getItem().getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
+                    cell.setTooltip(timeStampTooltip);
+                } catch (Exception ignored) {
+                }
             }
         }
     }

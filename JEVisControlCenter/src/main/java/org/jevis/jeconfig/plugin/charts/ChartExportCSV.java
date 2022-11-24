@@ -20,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.FileNames;
@@ -37,7 +38,6 @@ import javax.measure.unit.Unit;
 import java.io.*;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ChartExportCSV {
     private static final Logger logger = LogManager.getLogger(ChartExportCSV.class);
@@ -59,18 +59,18 @@ public class ChartExportCSV {
     private final DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private final DataModel model;
     private final JEVisDataSource ds;
-    private Boolean xlsx = false;
-    private boolean needSave = false;
-    private File destinationFile;
     private final DateTime minDate;
     private final DateTime maxDate;
     private final List<ChartModel> chartModels;
     private final ObservableList<Locale> choices = FXCollections.observableArrayList(Locale.getAvailableLocales());
+    private final AlphanumComparator ac = new AlphanumComparator();
+    private Boolean xlsx = false;
+    private boolean needSave = false;
+    private File destinationFile;
     private Boolean multipleCharts = false;
     private Locale selectedLocale;
     private NumberFormat numberFormat;
     private Boolean withUserNotes = false;
-    private final AlphanumComparator ac = new AlphanumComparator();
 
     public ChartExportCSV(JEVisDataSource ds, DataModel model, String analysisName, DateTime xAxisLowerBound, DateTime xAxisUpperBound) {
         this.NAME = I18n.getInstance().getString("plugin.graph.export.text.name");
@@ -301,6 +301,12 @@ public class ChartExportCSV {
                 if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                     currentUnit = chartDataRow.getUnit().getLabel();
                 }
+
+                QuantityUnits qu = new QuantityUnits();
+                if (!qu.isQuantityUnit(chartDataRow.getUnit()) && qu.isSumCalculable(chartDataRow.getUnit())) {
+                    currentUnit += " (∑ ->" + qu.getSumUnit(chartDataRow.getUnit()).getLabel() + ")";
+                }
+
                 unitHeader.setCellValue(currentUnit);
                 columnIndex++;
 
@@ -333,6 +339,7 @@ public class ChartExportCSV {
 
             for (ChartData chartData : chartModel.getChartData()) {
                 ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                chartDataRow.calcMinAndMax();
                 for (int i = 0; i < 4; i++) {
                     Cell valueCell = getOrCreateCell(sheet, i + 4, columnIndex);
                     switch (i) {
@@ -364,7 +371,6 @@ public class ChartExportCSV {
             dateHeaderCell.setCellValue(DATE);
             columnIndex++;
             for (ChartData chartData : chartModel.getChartData()) {
-                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
                 columnIndex++;
 
                 if (withUserNotes) {
@@ -483,10 +489,11 @@ public class ChartExportCSV {
                             }
                         }
                     }
-                    columnIndex++;
-
-                    if (withUserNotes) columnIndex++;
                 }
+
+                columnIndex++;
+
+                if (withUserNotes) columnIndex++;
             }
         }
 
@@ -495,7 +502,7 @@ public class ChartExportCSV {
             workbook.write(fileOutputStream);
             workbook.close();
             fileOutputStream.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -529,7 +536,14 @@ public class ChartExportCSV {
         Cell nameHeaderCell = getOrCreateCell(sheet, 0, 0);
         nameHeaderCell.setCellValue(NAME);
 
-        List<ChartDataRow> chartDataRows = chartModels.stream().flatMap(chart -> chart.getChartData().stream()).map(chartData -> new ChartDataRow(ds, chartData)).collect(Collectors.toList());
+        List<ChartDataRow> chartDataRows = new ArrayList<>();
+        for (ChartModel chart : chartModels) {
+            for (ChartData chartData : chart.getChartData()) {
+                ChartDataRow dataRow = new ChartDataRow(ds, chartData);
+                dataRow.calcMinAndMax();
+                chartDataRows.add(dataRow);
+            }
+        }
 
         int columnIndex = 1;
         for (ChartDataRow chartDataRow : chartDataRows) {
@@ -576,6 +590,12 @@ public class ChartExportCSV {
                     logger.error("Could not get unit.", e);
                 }
             }
+
+            QuantityUnits qu = new QuantityUnits();
+            if (!qu.isQuantityUnit(chartDataRow.getUnit()) && qu.isSumCalculable(chartDataRow.getUnit())) {
+                currentUnit += " (∑ ->" + qu.getSumUnit(chartDataRow.getUnit()).getLabel() + ")";
+            }
+
             unitHeader.setCellValue(currentUnit);
             columnIndex++;
 
@@ -738,21 +758,32 @@ public class ChartExportCSV {
             workbook.write(fileOutputStream);
             workbook.close();
             fileOutputStream.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void writeFile(File file, String text) throws FileNotFoundException, UnsupportedEncodingException {
-        PrintWriter writer;
-        writer = new PrintWriter(file, "UTF-8");
-        writer.println(text);
-        writer.close();
+    private void writeFile(File file, String text) {
+        try {
+            PrintWriter writer;
+            writer = new PrintWriter(file, "UTF-8");
+            writer.println(text);
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private String createCSVString() throws JEVisException {
         final StringBuilder sb = new StringBuilder();
-        List<ChartDataRow> chartDataRows = chartModels.stream().flatMap(chart -> chart.getChartData().stream()).map(chartData -> new ChartDataRow(ds, chartData)).collect(Collectors.toList());
+        List<ChartDataRow> chartDataRows = new ArrayList<>();
+        for (ChartModel chart : chartModels) {
+            for (ChartData chartData : chart.getChartData()) {
+                ChartDataRow dataRow = new ChartDataRow(ds, chartData);
+                dataRow.calcMinAndMax();
+                chartDataRows.add(dataRow);
+            }
+        }
 
         /**
          * Building the header
@@ -797,6 +828,11 @@ public class ChartExportCSV {
             String currentUnit = UnitManager.getInstance().format(chartDataRow.getUnit());
             if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                 currentUnit = chartDataRow.getUnit().getLabel();
+            }
+
+            QuantityUnits qu = new QuantityUnits();
+            if (!qu.isQuantityUnit(chartDataRow.getUnit()) && qu.isSumCalculable(chartDataRow.getUnit())) {
+                currentUnit += " (∑ ->" + qu.getSumUnit(chartDataRow.getUnit()).getLabel() + ")";
             }
             header.append(currentUnit);
             header.append(COL_SEP);
@@ -1019,6 +1055,12 @@ public class ChartExportCSV {
                 if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                     currentUnit = chartDataRow.getUnit().getLabel();
                 }
+
+                QuantityUnits qu = new QuantityUnits();
+                if (!qu.isQuantityUnit(chartDataRow.getUnit()) && qu.isSumCalculable(chartDataRow.getUnit())) {
+                    currentUnit += " (∑ ->" + qu.getSumUnit(chartDataRow.getUnit()).getLabel() + ")";
+                }
+
                 sb.append(currentUnit);
                 sb.append(COL_SEP);
 
@@ -1052,6 +1094,7 @@ public class ChartExportCSV {
                 }
                 for (ChartData chartData : chartModel.getChartData()) {
                     ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                    chartDataRow.calcMinAndMax();
                     switch (i) {
                         case 0:
                             row.append(numberFormat.format(chartDataRow.getMin()));

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum ChartType {
-    AREA, LOGICAL, LINE, BAR, COLUMN, BUBBLE, SCATTER, PIE, TABLE, HEAT_MAP, DEFAULT, TABLE_V;
+    AREA, LOGICAL, LINE, BAR, COLUMN, BUBBLE, SCATTER, PIE, TABLE, HEAT_MAP, DEFAULT, TABLE_V, STACKED_AREA, STACKED_COLUMN;
 
     public static ChartType parseChartType(Integer chartTypeIndex) {
         switch (chartTypeIndex) {
@@ -34,6 +34,10 @@ public enum ChartType {
                 return DEFAULT;
             case (11):
                 return TABLE_V;
+            case (12):
+                return STACKED_AREA;
+            case (13):
+                return STACKED_COLUMN;
             case (2):
             default:
                 return LINE;
@@ -65,6 +69,10 @@ public enum ChartType {
                     return DEFAULT;
                 case ("AREA"):
                     return AREA;
+                case ("STACKED_AREA"):
+                    return STACKED_AREA;
+                case ("STACKED_COLUMN"):
+                    return STACKED_COLUMN;
                 case ("LINE"):
                 default:
                     return LINE;
@@ -99,6 +107,10 @@ public enum ChartType {
                     return 10;
                 case ("TABLE_V"):
                     return 11;
+                case ("STACKED_AREA"):
+                    return 12;
+                case ("STACKED_COLUMN"):
+                    return 13;
                 default:
                     return 2;
             }
@@ -145,6 +157,13 @@ public enum ChartType {
                 case ("DEFAULT"):
                     tempList.add(I18n.getInstance().getString("plugin.graph.charttype.default.name"));
                     break;
+                case ("STACKED_AREA"):
+                    tempList.add(I18n.getInstance().getString("plugin.graph.charttype.stackedarea.name"));
+                    break;
+                case ("STACKED_COLUMN"):
+                    tempList.add(I18n.getInstance().getString("plugin.graph.charttype.stackedcolumn.name"));
+                    break;
+
             }
         }
         return FXCollections.observableArrayList(tempList);

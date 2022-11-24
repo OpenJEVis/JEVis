@@ -20,8 +20,6 @@ public class LogicalChart extends XYChart {
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
         XYLogicalChartSerie serie = new XYLogicalChartSerie(chartModel, singleRow, showIcons);
-        setMinValue(Math.min(minValue, serie.getMinValue()));
-        setMaxValue(Math.max(maxValue, serie.getMaxValue()));
 
         getHexColors().add(singleRow.getColor());
 
@@ -39,11 +37,6 @@ public class LogicalChart extends XYChart {
             changedBoth[1] = true;
         }
 
-        /**
-         * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
-         */
-
-        checkManipulation(singleRow);
         return serie;
     }
 

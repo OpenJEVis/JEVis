@@ -427,7 +427,7 @@ public class LoadAnalysisDialog extends JFXDialog {
         loadButton.setOnAction(event -> {
             response = Response.LOAD;
 
-            chartPlugin.getDataSettings().setAggregationPeriod(AggregationPeriod.parseAggregation(aggregationBox.getSelectionModel().getSelectedItem()));
+            chartPlugin.getDataSettings().setAggregationPeriod(AggregationPeriod.parseAggregationIndex(aggregationBox.getSelectionModel().getSelectedIndex()));
             chartPlugin.getDataSettings().setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
             AnalysisTimeFrame analysisTimeFrame = presetDateBox.getSelectionModel().getSelectedItem();
             if (analysisTimeFrame == null && comboBoxCustomPeriods.getSelectionModel().getSelectedIndex() > 0) {

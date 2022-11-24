@@ -117,11 +117,6 @@ public class TableChartV extends XYChart {
             changedBoth[1] = true;
         }
 
-        /**
-         * check if there is a manipulation for changing the x-axis values into duration instead of concrete timestamps
-         */
-
-        checkManipulation(singleRow);
         return serie;
     }
 
@@ -586,7 +581,7 @@ public class TableChartV extends XYChart {
 
     @Override
     public ChartModel getChartModel() {
-        return null;
+        return chartModel;
     }
 
     private class TableSample {

@@ -90,7 +90,10 @@ public class NewSelectionDialog extends JFXDialog {
         });
 
         JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setOnAction(event -> this.close());
+        cancel.setOnAction(event -> {
+            response = Response.CANCEL;
+            this.close();
+        });
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);

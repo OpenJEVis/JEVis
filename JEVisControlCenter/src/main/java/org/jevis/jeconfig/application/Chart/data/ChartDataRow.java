@@ -20,6 +20,7 @@ import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.Chart.ChartTools;
@@ -36,6 +37,7 @@ public class ChartDataRow extends ChartData {
     private DateTime selectedEnd;
     private JEVisObject object;
     private JEVisAttribute attribute;
+    private Period period;
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject dataProcessorObject = null;
@@ -43,8 +45,6 @@ public class ChartDataRow extends ChartData {
     private List<JEVisSample> forecastSamples = new ArrayList<>();
     private boolean somethingChanged = true;
     private List<Integer> selectedCharts = new ArrayList<>();
-    private Double minValue;
-    private Double maxValue;
     private Boolean isEnPI = false;
     private JEVisObject calculationObject;
     private Boolean absolute = false;
@@ -52,8 +52,8 @@ public class ChartDataRow extends ChartData {
     private boolean hasForecastData = false;
     private Double scaleFactor = 1d;
     private Double timeFactor = 1d;
-    private Double min = 0d;
-    private Double max = 0d;
+    private ValueWithDateTime min = new ValueWithDateTime(0d);
+    private ValueWithDateTime max = new ValueWithDateTime(0d);
     private Double avg = 0d;
     private Double sum = 0d;
     private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
@@ -78,6 +78,8 @@ public class ChartDataRow extends ChartData {
             } catch (Exception ignored) {
             }
             setAttributeString(chartData.getAttributeString());
+            setAggregationPeriod(chartData.getAggregationPeriod());
+            setManipulationMode(chartData.getManipulationMode());
             setUnit(chartData.getUnit());
             setName(chartData.getName());
             setColor(chartData.getColor());
@@ -457,6 +459,10 @@ public class ChartDataRow extends ChartData {
         return samples;
     }
 
+    public void setSamples(List<JEVisSample> samples) {
+        this.samples = samples;
+    }
+
     private void applyUserData(List<JEVisSample> unmodifiedSamples) {
         try {
             //TODO make aggregation check for congruent data periods of clean data row and user data row
@@ -549,10 +555,6 @@ public class ChartDataRow extends ChartData {
 
     public void setForecastSamples(List<JEVisSample> forecastSamples) {
         this.forecastSamples = forecastSamples;
-    }
-
-    public void setSamples(List<JEVisSample> samples) {
-        this.samples = samples;
     }
 
     /**
@@ -819,26 +821,46 @@ public class ChartDataRow extends ChartData {
                 '}';
     }
 
-    public Double getMinValue() {
-        return minValue;
-    }
-
-    public Double getMaxValue() {
-        return maxValue;
-    }
-
     public void calcMinAndMax() {
-        minValue = Double.MAX_VALUE;
-        maxValue = -Double.MAX_VALUE;
+        min.setValue(Double.MAX_VALUE);
+        max.setValue(-Double.MAX_VALUE);
+        avg = 0d;
+        sum = 0d;
 
-        samples.forEach(sample -> {
+        for (JEVisSample sample : getSamples()) {
             try {
-                minValue = Math.min(minValue, sample.getValueAsDouble());
-                maxValue = Math.max(maxValue, sample.getValueAsDouble());
-            } catch (JEVisException e) {
+                DateTime ts = sample.getTimestamp();
+                Double value = sample.getValueAsDouble();
+                min.minCheck(ts, value);
+                max.maxCheck(ts, value);
+                sum += value;
+            } catch (Exception e) {
                 logger.error("Could not calculate min and max.");
             }
-        });
+        }
+        QuantityUnits qu = new QuantityUnits();
+        if (getSamples().size() > 0) {
+            avg = sum / getSamples().size();
+        }
+
+        if (!qu.isQuantityUnit(getUnit()) && qu.isSumCalculable(getUnit()) && getManipulationMode().equals(ManipulationMode.NONE)) {
+            try {
+                JEVisUnit sumUnit = qu.getSumUnit(getUnit());
+                ChartUnits cu = new ChartUnits();
+                double newScaleFactor = cu.scaleValue(getUnit().toString(), sumUnit.toString());
+                JEVisUnit inputUnit = getAttribute().getInputUnit();
+                JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
+
+                if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
+                    sum = sum * newScaleFactor / getTimeFactor();
+                } else {
+                    sum = sum / getScaleFactor() / getTimeFactor();
+                }
+            } catch (Exception e) {
+                logger.error("Couldn't calculate sum");
+            }
+        }
+
     }
 
     public Boolean getEnPI() {
@@ -885,6 +907,7 @@ public class ChartDataRow extends ChartData {
         newModel.setScaleFactor(this.getScaleFactor());
         newModel.setCustomWorkDay(this.isCustomWorkDay());
         newModel.setChartType(this.getChartType());
+        newModel.setPeriod(this.getPeriod());
         newModel.setSomethingChanged(false);
 
         return newModel;
@@ -894,12 +917,12 @@ public class ChartDataRow extends ChartData {
         return absolute;
     }
 
-    public JEVisAttribute getForecastDataAttribute() {
-        return forecastDataAttribute;
-    }
-
     public void setAbsolute(Boolean absolute) {
         this.absolute = absolute;
+    }
+
+    public JEVisAttribute getForecastDataAttribute() {
+        return forecastDataAttribute;
     }
 
     public boolean isStringData() {
@@ -910,6 +933,10 @@ public class ChartDataRow extends ChartData {
         return scaleFactor;
     }
 
+    public void setScaleFactor(Double scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
+
     public Double getTimeFactor() {
         return timeFactor;
     }
@@ -918,19 +945,19 @@ public class ChartDataRow extends ChartData {
         this.timeFactor = timeFactor;
     }
 
-    public Double getMin() {
+    public ValueWithDateTime getMin() {
         return min;
     }
 
-    public void setMin(Double min) {
+    public void setMin(ValueWithDateTime min) {
         this.min = min;
     }
 
-    public Double getMax() {
+    public ValueWithDateTime getMax() {
         return max;
     }
 
-    public void setMax(Double max) {
+    public void setMax(ValueWithDateTime max) {
         this.max = max;
     }
 
@@ -948,10 +975,6 @@ public class ChartDataRow extends ChartData {
 
     public void setSum(Double sum) {
         this.sum = sum;
-    }
-
-    public void setScaleFactor(Double scaleFactor) {
-        this.scaleFactor = scaleFactor;
     }
 
     public boolean equals(ChartDataRow obj) {
@@ -974,29 +997,37 @@ public class ChartDataRow extends ChartData {
     }
 
     public Period getPeriod() {
-        Period p = Period.ZERO;
-        JEVisObject object = null;
-        if (dataProcessorObject != null) {
-            object = this.dataProcessorObject;
-        } else {
-            object = this.object;
-        }
-
-        try {
-            JEVisAttribute periodAttribute = object.getAttribute("Period");
-            if (periodAttribute != null) {
-                JEVisSample latestSample = periodAttribute.getLatestSample();
-
-                if (latestSample != null) {
-                    p = new Period(latestSample.getValueAsString());
-                }
+        if (period == null) {
+            Period p = Period.ZERO;
+            JEVisObject object = null;
+            if (dataProcessorObject != null) {
+                object = this.dataProcessorObject;
+            } else {
+                object = this.object;
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                JEVisAttribute periodAttribute = object.getAttribute("Period");
+                if (periodAttribute != null) {
+                    JEVisSample latestSample = periodAttribute.getLatestSample();
+
+                    if (latestSample != null) {
+                        p = new Period(latestSample.getValueAsString());
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            period = p;
         }
 
-        return p;
+        return period;
+    }
+
+    public void setPeriod(Period period) {
+        this.period = period;
     }
 
     public String getCustomCSS() {
@@ -1009,5 +1040,9 @@ public class ChartDataRow extends ChartData {
 
     public String getFormatString() {
         return formatString;
+    }
+
+    public void setFormatString(String formatString) {
+        this.formatString = formatString;
     }
 }

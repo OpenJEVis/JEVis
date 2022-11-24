@@ -121,7 +121,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
             DataSettings dataSettings = new DataSettings();
             dataSettings.setCurrentAnalysis(control.getActiveDashboard().getDashboardObject());
 
-            ChartModel chartModel = new ChartModel();
+            ChartModel chartModel = this.sampleHandler.getChartModel();
             chartModel.setMinFractionDigits(getConfig().getDecimals());
             chartModel.setMaxFractionDigits(getConfig().getDecimals());
 
@@ -168,7 +168,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
                     Platform.runLater(() -> {
                         this.legend.getItems().clear();
-                        this.heatMapChart = new HeatMapChart(getDataSource(), chartModel, getConfig().getBackgroundColor(), getConfig().getFontColor());
+                        this.heatMapChart = new HeatMapChart(getDataSource(), chartModel, sampleHandler.getDataModel(), getConfig().getBackgroundColor(), getConfig().getFontColor());
                         this.heatMapChart.getRegion().setPrefSize(getConfig().getSize().getWidth() - 20, getConfig().getSize().getHeight());
                         this.borderPane.setCenter(this.heatMapChart.getRegion());
                     });

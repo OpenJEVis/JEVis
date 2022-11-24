@@ -411,7 +411,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 this.label.setTextFill(this.config.getFontColor());
                 this.label.setContentDisplay(ContentDisplay.CENTER);
                 this.label.setAlignment(this.config.getTitlePosition());
-
+                Font font = Font.font(this.label.getFont().getFamily(), this.getConfig().getFontWeight(), this.getConfig().getFontPosture(), this.config.getFontSize());
+                this.label.setFont(font);
+                this.label.setUnderline(this.getConfig().getFontUnderlined());
             });
         });
     }

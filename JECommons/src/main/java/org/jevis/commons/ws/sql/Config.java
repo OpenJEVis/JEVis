@@ -146,7 +146,7 @@ public class Config {
 
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (_classCache.isEmpty()) {
-            logger.info("initialize class cache");
+            logger.info("initializing class cache");
             try {
                 //        Gson gson = new GsonBuilder().create();
 
@@ -175,7 +175,7 @@ public class Config {
                 }
 
                 JEVisClassHelper.completeClasses(_classCache);
-                logger.info("Done");
+                logger.info("initialized class cache");
             } catch (Exception ex) {
                 logger.error("Error while caching classes", ex);
             }

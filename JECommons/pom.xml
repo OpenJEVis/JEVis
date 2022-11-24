@@ -133,7 +133,7 @@
         <dependency>
             <groupId>org.mariuszgromada.math</groupId>
             <artifactId>MathParser.org-mXparser</artifactId>
-            <version>5.0.2</version>
+            <version>5.0.7</version>
         </dependency>
         <!--<dependency>-->
         <!--<groupId>pl.pragmatists</groupId>-->
