@@ -77,10 +77,10 @@ public class RangingValueEditor implements AttributeEditor {
         initialized = true;
     }
 
-    public void jsonToModel(String jsonString) {
+    public void jsonToModel(String jsonString, RangingValues rangingValues) {
         try {
             JsonNode jsonNode = this.mapper.readTree(jsonString);
-            this.mapper.readerForUpdating(getRangingValues()).treeToValue(jsonNode, RangingValues.class);
+            this.mapper.readerForUpdating(rangingValues).treeToValue(jsonNode, RangingValues.class);
         } catch (Exception e) {
             logger.error("Could not parse json model", e);
         }
@@ -113,7 +113,7 @@ public class RangingValueEditor implements AttributeEditor {
     private void show() throws JEVisException {
         if (lastSample != null && !lastSample.getValueAsString().isEmpty()) {
             try {
-                jsonToModel(lastSample.getValueAsString());
+                jsonToModel(lastSample.getValueAsString(), getRangingValues());
             } catch (Exception e) {
                 logger.error("Could not parse Json: {}", lastSample.getValueAsString(), e);
             }
