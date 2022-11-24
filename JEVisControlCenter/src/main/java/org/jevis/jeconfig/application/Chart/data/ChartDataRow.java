@@ -1041,4 +1041,8 @@ public class ChartDataRow extends ChartData {
     public String getFormatString() {
         return formatString;
     }
+
+    public void setFormatString(String formatString) {
+        this.formatString = formatString;
+    }
 }

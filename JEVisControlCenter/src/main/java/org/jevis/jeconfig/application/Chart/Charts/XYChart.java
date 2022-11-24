@@ -287,6 +287,7 @@ public class XYChart implements Chart {
                 String name = "~" + I18n.getInstance().getString("plugin.graph.chart.header.stacked.y1");
                 TableEntry sumEntry = new TableEntry(name);
                 sumEntry.setColor(Color.BLACK);
+                sumEntry.setPeriod(y1Series.get(0).getTableEntry().getPeriod());
                 y1SumSerie = new XYChartSerie();
                 ChartDataRow chartDataRow = new ChartDataRow(ds, new ChartData());
                 JEVisUnit unit = y1Series.get(0).getSingleRow().getUnit();
@@ -295,6 +296,7 @@ public class XYChart implements Chart {
                 chartDataRow.setUnit(unit);
                 chartDataRow.setAxis(0);
                 chartDataRow.setPeriod(y1Series.get(0).getSingleRow().getPeriod());
+                chartDataRow.setFormatString(y1Series.get(0).getSingleRow().getFormatString());
                 chartDataRow.setSomethingChanged(false);
                 y1SumSerie.setSingleRow(chartDataRow);
                 DoubleDataSet noteDataSet = new DoubleDataSet(name);
@@ -384,6 +386,7 @@ public class XYChart implements Chart {
                 String name = "~" + I18n.getInstance().getString("plugin.graph.chart.header.stacked.y2");
                 TableEntry sumEntry = new TableEntry(name);
                 sumEntry.setColor(Color.BLACK);
+                sumEntry.setPeriod(y2Series.get(0).getTableEntry().getPeriod());
                 y2SumSerie = new XYChartSerie();
                 ChartDataRow chartDataRow = new ChartDataRow(ds, new ChartData());
                 JEVisUnit unit = y2Series.get(0).getSingleRow().getUnit();
@@ -392,6 +395,7 @@ public class XYChart implements Chart {
                 chartDataRow.setUnit(unit);
                 chartDataRow.setAxis(1);
                 chartDataRow.setPeriod(y2Series.get(0).getSingleRow().getPeriod());
+                chartDataRow.setFormatString(y2Series.get(0).getSingleRow().getFormatString());
                 chartDataRow.setSomethingChanged(false);
                 y2SumSerie.setSingleRow(chartDataRow);
                 DoubleDataSet noteDataSet = new DoubleDataSet(name);
