@@ -209,7 +209,7 @@ public class PluginManager {
                                     } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
                                     } else if (plugObj.getJEVisClassName().equals(ISO50001Plugin.PLUGIN_NAME)) {
-                                        _plugins.add(new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
+                                        _plugins.add(new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")));
                                     } else if (plugObj.getJEVisClassName().equals(AccountingPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
                                     } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {

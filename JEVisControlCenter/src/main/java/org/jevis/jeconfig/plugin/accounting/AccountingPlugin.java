@@ -1112,12 +1112,6 @@ public class AccountingPlugin extends TablePlugin {
                     protected Object call() throws Exception {
                         try {
                             this.updateTitle(I18n.getInstance().getString("plugin.accounting.load"));
-                            if (initialized) {
-                                ds.clearCache();
-                                ds.preload();
-                            } else {
-                                initialized = true;
-                            }
 
                             JEVisObject selectedItem = configComboBox.getSelectionModel().getSelectedItem();
                             List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
