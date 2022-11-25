@@ -783,7 +783,8 @@ public class XYChart implements Chart {
                 && (chartModel.getChartData().stream().noneMatch(chartData -> chartData.getChartType() == ChartType.STACKED_AREA || chartData.getChartType() == ChartType.STACKED_COLUMN))) {
             xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getSortCriteria));
         } else {
-            xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getAvg).reversed());
+            AlphanumComparator ac = new AlphanumComparator();
+            xyChartSerieList.sort((o1, o2) -> ac.compare(o1.getTableEntryName(), o2.getTableEntryName()));
         }
         AtomicBoolean hastCustomIntervals = new AtomicBoolean(false);
 
