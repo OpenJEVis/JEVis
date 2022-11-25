@@ -307,8 +307,8 @@ public class XYChart implements Chart {
 
                 y1SumSerie.setTableEntry(sumEntry);
                 y1SumSerie.setSampleMap(sampleMap);
-
-                y1Series.sort(Comparator.comparingDouble(XYChartSerie::getAvg));
+                AlphanumComparator ac = new AlphanumComparator();
+                y1Series.sort((o1, o2) -> ac.compare(o1.getTableEntryName(), o2.getTableEntryName()));
                 List<XYChartSerie> otherSeries = y1Series.stream().filter(y1Serie -> y1Series.indexOf(y1Serie) > 0).collect(Collectors.toList());
                 List<DoubleDataSet> dataSets = new ArrayList<>();
                 for (XYChartSerie serie : y1Series) {
@@ -404,7 +404,8 @@ public class XYChart implements Chart {
                 y2SumSerie.setTableEntry(sumEntry);
                 y2SumSerie.setSampleMap(sampleMap);
 
-                y2Series.sort(Comparator.comparingDouble(XYChartSerie::getAvg));
+                AlphanumComparator ac = new AlphanumComparator();
+                y2Series.sort((o1, o2) -> ac.compare(o1.getTableEntryName(), o2.getTableEntryName()));
                 List<XYChartSerie> otherSeries = y2Series.stream().filter(xyChartSerie -> y2Series.indexOf(xyChartSerie) > 0).collect(Collectors.toList());
                 List<DoubleDataSet> dataSets = new ArrayList<>();
                 for (XYChartSerie serie : y2Series) {
