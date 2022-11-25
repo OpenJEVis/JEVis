@@ -790,7 +790,7 @@ public class XYChart implements Chart {
             xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getSortCriteria));
         } else {
             AlphanumComparator ac = new AlphanumComparator();
-            xyChartSerieList.sort((o1, o2) -> ac.compare(o2.getTableEntryName(), o1.getTableEntryName()));
+            xyChartSerieList.sort((o1, o2) -> ac.compare(o1.getTableEntryName(), o2.getTableEntryName()));
         }
         AtomicBoolean hastCustomIntervals = new AtomicBoolean(false);
 
