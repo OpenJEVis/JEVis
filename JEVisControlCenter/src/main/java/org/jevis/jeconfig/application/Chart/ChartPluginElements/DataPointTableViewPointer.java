@@ -196,14 +196,14 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
     private void updateTable(final MouseEvent event) {
         try {
-            final Bounds areaBounds;
+            Bounds areaBounds = null;
             if (plotArea)
                 areaBounds = getChart().getPlotArea().getBoundsInLocal();
-            else {
+            else if (getChart() != null) {
                 areaBounds = getChart().getBoundsInLocal();
             }
 
-            if (!areaBounds.contains(event.getX(), event.getY())) {
+            if (areaBounds == null || !areaBounds.contains(event.getX(), event.getY())) {
                 return;
             }
 

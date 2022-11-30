@@ -108,21 +108,21 @@ public class XYChart implements Chart {
     private XYChartSerie y1SumSerie;
     private XYChartSerie y2SumSerie;
 
-    public XYChart(JEVisDataSource ds) {
+    public XYChart(JEVisDataSource ds, ChartModel chartModel) {
         this.ds = ds;
+        this.chartModel = chartModel;
         init();
     }
 
-    public void createChart(ChartModel chartModel, ToolBarSettings toolBarSettings, DataSettings dataSettings) {
-        this.createChart(chartModel, toolBarSettings, dataSettings, false);
+    public void createChart(ToolBarSettings toolBarSettings, DataSettings dataSettings) {
+        this.createChart(toolBarSettings, dataSettings, false);
     }
 
-    public void createChart(ChartModel chartModel, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
-        this.createChart(chartModel, new ArrayList<>(), toolBarSettings, dataSettings, instant);
+    public void createChart(ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
+        this.createChart(new ArrayList<>(), toolBarSettings, dataSettings, instant);
     }
 
-    public void createChart(ChartModel chartModel, List<ChartDataRow> chartDataRows, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
-        this.chartModel = chartModel;
+    public void createChart(List<ChartDataRow> chartDataRows, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
         this.chartDataRows = chartDataRows;
         if (!instant) {
 

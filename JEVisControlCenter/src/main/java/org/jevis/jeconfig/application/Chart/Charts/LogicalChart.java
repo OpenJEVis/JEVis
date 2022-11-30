@@ -13,8 +13,8 @@ import org.jevis.jeconfig.application.Chart.data.ChartModel;
 public class LogicalChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LogicalChart.class);
 
-    public LogicalChart(JEVisDataSource ds) {
-        super(ds);
+    public LogicalChart(JEVisDataSource ds, ChartModel chartModel) {
+        super(ds, chartModel);
     }
 
     @Override

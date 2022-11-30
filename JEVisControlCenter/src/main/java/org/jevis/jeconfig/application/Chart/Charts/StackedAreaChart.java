@@ -9,8 +9,8 @@ public class StackedAreaChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(StackedAreaChart.class);
 
 
-    public StackedAreaChart(JEVisDataSource ds) {
-        super(ds);
+    public StackedAreaChart(JEVisDataSource ds, ChartModel chartModel) {
+        super(ds, chartModel);
     }
 
     @Override
