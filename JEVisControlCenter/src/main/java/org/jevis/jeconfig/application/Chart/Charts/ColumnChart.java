@@ -8,8 +8,8 @@ import org.jevis.jeconfig.application.Chart.data.ChartModel;
 public class ColumnChart extends org.jevis.jeconfig.application.Chart.Charts.XYChart {
     private static final Logger logger = LogManager.getLogger(ColumnChart.class);
 
-    public ColumnChart(JEVisDataSource ds) {
-        super(ds);
+    public ColumnChart(JEVisDataSource ds, ChartModel chartModel) {
+        super(ds, chartModel);
     }
 
     @Override

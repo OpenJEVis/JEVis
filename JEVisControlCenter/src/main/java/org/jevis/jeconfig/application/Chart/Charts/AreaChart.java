@@ -9,8 +9,8 @@ public class AreaChart extends org.jevis.jeconfig.application.Chart.Charts.XYCha
     private static final Logger logger = LogManager.getLogger(AreaChart.class);
 
 
-    public AreaChart(JEVisDataSource ds) {
-        super(ds);
+    public AreaChart(JEVisDataSource ds, ChartModel chartModel) {
+        super(ds, chartModel);
     }
 
     @Override

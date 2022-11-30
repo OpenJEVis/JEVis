@@ -4,7 +4,6 @@
 
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.JFXTextField;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
@@ -57,7 +56,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
     private static final Logger logger = LogManager.getLogger(DataPointNoteDialog.class);
     private final DoubleValidator validator = DoubleValidator.getInstance();
-    private final java.text.NumberFormat nf = java.text.NumberFormat.getInstance(I18n.getInstance().getLocale());
+    private final java.text.NumberFormat nf;
     private List<XYChartSerie> xyChartSerieList;
     private org.jevis.jeconfig.application.Chart.Charts.Chart chart;
     private final EventHandler<MouseEvent> noteHandler = event -> {
@@ -69,7 +68,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
     private ChartPlugin chartPlugin;
 
     public DataPointNoteDialog(JEVisAttribute att, SampleTable table) {
-        NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
+        this.nf = java.text.NumberFormat.getInstance(I18n.getInstance().getLocale());
         Dialog<ButtonType> dialog = new Dialog<>();
 
         final ButtonType ok = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
@@ -155,7 +154,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
     }
 
     public DataPointNoteDialog(JEVisAttribute att, DateTime[] minMax) {
-
+        this.nf = java.text.NumberFormat.getInstance(I18n.getInstance().getLocale());
         Dialog<ButtonType> dialog = new Dialog<>();
 
         final ButtonType ok = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
@@ -257,6 +256,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
         this.xyChartSerieList = xyChartSerieList;
         this.chartPlugin = chartPlugin;
         this.chart = chart;
+        this.nf = java.text.NumberFormat.getInstance(I18n.getInstance().getLocale());
         this.nf.setMinimumFractionDigits(chart.getChartModel().getMinFractionDigits());
         this.nf.setMaximumFractionDigits(chart.getChartModel().getMaxFractionDigits());
 

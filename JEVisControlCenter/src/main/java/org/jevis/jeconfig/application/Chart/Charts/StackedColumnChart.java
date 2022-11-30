@@ -8,8 +8,8 @@ import org.jevis.jeconfig.application.Chart.data.ChartModel;
 public class StackedColumnChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(StackedColumnChart.class);
 
-    public StackedColumnChart(JEVisDataSource ds) {
-        super(ds);
+    public StackedColumnChart(JEVisDataSource ds, ChartModel chartModel) {
+        super(ds, chartModel);
     }
 
     @Override

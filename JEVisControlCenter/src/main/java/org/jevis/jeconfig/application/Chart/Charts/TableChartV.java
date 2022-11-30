@@ -63,13 +63,12 @@ public class TableChartV extends XYChart {
     private final HashMap<TableColumn, String> columnTitles = new HashMap<>();
     private FilteredList<TableSample> filteredList;
 
-    public TableChartV(JEVisDataSource ds) {
-        super(ds);
+    public TableChartV(JEVisDataSource ds, ChartModel chartModel) {
+        super(ds, chartModel);
     }
 
     @Override
-    public void createChart(ChartModel chartModel, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
-        this.chartModel = chartModel;
+    public void createChart(ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
         this.chartDataRows = new ArrayList<>();
 
         if (!instant) {

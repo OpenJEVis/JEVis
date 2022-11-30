@@ -27,13 +27,12 @@ public class TableChart extends XYChart {
     private final TableTopDatePicker tableTopDatePicker = new TableTopDatePicker();
     private TableHeaderTable tableHeader;
 
-    public TableChart(JEVisDataSource ds) {
-        super(ds);
+    public TableChart(JEVisDataSource ds, ChartModel chartModel) {
+        super(ds, chartModel);
     }
 
     @Override
-    public void createChart(ChartModel chartModel, List<ChartDataRow> dataRows, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
-        this.chartModel = chartModel;
+    public void createChart(List<ChartDataRow> dataRows, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
         this.chartDataRows = dataRows;
 
         if (!instant) {
