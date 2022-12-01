@@ -5,8 +5,8 @@ import org.jevis.jeconfig.application.Chart.data.ChartModel;
 
 public class ScatterChart extends XYChart {
 
-    public ScatterChart(JEVisDataSource ds) {
-        super(ds);
+    public ScatterChart(JEVisDataSource ds, ChartModel chartModel) {
+        super(ds, chartModel);
     }
 
     @Override

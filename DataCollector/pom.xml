@@ -62,7 +62,6 @@
         <module>DWDHDDParser</module>
         <module>DWDWDParser</module>
         <module>JEVisDataServer</module>
-        <module>DWDDriver</module>
     </modules>
    
 </project>
