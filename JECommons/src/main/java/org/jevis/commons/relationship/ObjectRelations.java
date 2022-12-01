@@ -7,6 +7,9 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ObjectRelations {
     private static final Logger logger = LogManager.getLogger(ObjectRelations.class);
     private final JEVisDataSource ds;
@@ -68,32 +71,41 @@ public class ObjectRelations {
     public String getRelativePath(JEVisObject object) {
 
         StringBuilder s = new StringBuilder();
-        JEVisObject primaryParent = getPrimaryParent(object);
+        JEVisObject primaryParent = getPrimaryBuildingParent(object);
+        List<JEVisObject> objectList = new ArrayList<>();
 
-        try {
-            for (JEVisObject parent : object.getParents()) {
-                if (!parent.equals(primaryParent)) {
-                    s.append(parent.getName());
-                    s.append(" \\ ");
-                    s.append(getRelativePath(parent));
-                }
-            }
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        createAnalysesDirectoryList(objectList, primaryParent, object);
+
+        for (int i = objectList.size() - 1; i > 0; i--) {
+            s.append(objectList.get(i).getName());
+            s.append(" \\ ");
         }
 
         return s.toString();
     }
 
-    public JEVisObject getPrimaryParent(JEVisObject object) {
+    private void createAnalysesDirectoryList(List<JEVisObject> objects, JEVisObject primaryParent, JEVisObject object) {
+        try {
+            for (JEVisObject parent : object.getParents()) {
+                if (!parent.equals(primaryParent)) {
+                    objects.add(parent);
+                    createAnalysesDirectoryList(objects, primaryParent, parent);
+                } else break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public JEVisObject getPrimaryBuildingParent(JEVisObject object) {
         JEVisObject primaryParent = null;
         try {
             for (JEVisObject dir : object.getParents()) {
                 if (dir.getJEVisClassName().equals("Building")) {
-                    primaryParent = object;
+                    primaryParent = dir;
                     break;
                 } else {
-                    primaryParent = getPrimaryParent(dir);
+                    primaryParent = getPrimaryBuildingParent(dir);
                 }
             }
         } catch (JEVisException e) {
