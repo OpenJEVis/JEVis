@@ -7,6 +7,7 @@ package org.jevis.jeconfig.plugin.charts;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import com.jfoenix.skins.JFXComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -41,6 +42,7 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.dialog.SaveAnalysisDialog;
+import org.jevis.jeconfig.tool.dwdbrowser.DWDBrowser;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
@@ -123,6 +125,18 @@ public class ToolBarView {
 
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
         analysesComboBox.setPrefWidth(300);
+
+        analysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) analysesComboBox.getSkin();
+                if (skin != null) {
+                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+                    if (popupContent != null) {
+                        popupContent.scrollTo(analysesComboBox.getObservableListAnalyses().indexOf(chartPlugin.getDataSettings().getCurrentAnalysis()));
+                    }
+                }
+            });
+        });
 
         pickerCombo = new PickerCombo(ds, chartPlugin, true);
         presetDateBox = pickerCombo.getPresetDateBox();
@@ -262,7 +276,7 @@ public class ToolBarView {
             }
 
 //            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
-            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
 
             addAnalysisComboBoxListener();
             setDisableToolBarIcons(disabledIcons.get());
@@ -451,30 +465,14 @@ public class ToolBarView {
         infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
         testButton = new ToggleButton("X");
         testButton.setOnAction(actionEvent -> {
-//            try {
-//                List<JEVisClass> classFilter = new ArrayList<>();
-//                classFilter.add(ds.getJEVisClass("Data"));
-//                classFilter.add(ds.getJEVisClass("Clean Data"));
-//                classFilter.add(ds.getJEVisClass("Math Data"));
-//                classFilter.add(ds.getJEVisClass("Base Data"));
-//
-//                TreeSelectionDialog selectionDialog = new TreeSelectionDialog(getChartPluginView().getDialogContainer(), ds, classFilter, SelectionMode.SINGLE);
-//
-//                selectionDialog.setOnDialogClosed(jfxDialogEvent -> {
-//                    StringBuilder stringBuilder = new StringBuilder();
-//
-//
-//                    for (JEVisObject object : selectionDialog.getTreeView().getSelectedObjects()) {
-//                        stringBuilder.append("\n").append(object.getName());
-//                    }
-//                    Alert selectionShow = new Alert(Alert.AlertType.INFORMATION, "Selected Objects: " + stringBuilder);
-//                    selectionShow.show();
-//                });
-//
-//                selectionDialog.show();
-//            } catch (Exception e) {
-//                logger.error("Error while testing", e);
-//            }
+            try {
+                DWDBrowser dwdBrowser = new DWDBrowser(chartPlugin.getDialogContainer(), ds);
+                dwdBrowser.show();
+
+
+            } catch (Exception e) {
+                logger.error("Error while testing", e);
+            }
         });
 
         List<Node> nodes = Arrays.asList(analysesComboBox,
@@ -519,9 +517,6 @@ public class ToolBarView {
 
                 changed = true;
                 chartPlugin.update();
-            } else if (dia.getResponse() == Response.CANCEL) {
-                changed = false;
-                chartPlugin.getAnalysisHandler().restoreDataModel(dataModel, chartPlugin.getDataSettings().getCurrentAnalysis());
             }
             JEVisHelp.getInstance().deactivatePluginModule();
         });
@@ -658,10 +653,7 @@ public class ToolBarView {
 
         showRawData.setOnAction(event -> toolBarSettings.setShowRawData(!toolBarSettings.isShowRawData()));
 
-        showSum.setOnAction(event -> {
-            toolBarSettings.setShowSum(!toolBarSettings.isShowSum());
-            chartPlugin.update();
-        });
+        showSum.setOnAction(event -> toolBarSettings.setShowSum(!toolBarSettings.isShowSum()));
 
         showL1L2.setOnAction(event -> toolBarSettings.setShowL1L2(!toolBarSettings.isShowL1L2()));
 

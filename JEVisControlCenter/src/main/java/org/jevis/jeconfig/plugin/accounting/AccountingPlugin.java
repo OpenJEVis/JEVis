@@ -1222,10 +1222,6 @@ public class AccountingPlugin extends TablePlugin {
     }
 
     public void initGUI() throws JEVisException {
-
-        viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(0, 2);
-        viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(2, viewTab.getIntervalSelector().getTimeFactoryBox().getItems().size());
-
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {

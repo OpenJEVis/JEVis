@@ -3,10 +3,7 @@ package org.jevis.jeconfig.plugin.dtrc;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXListCell;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
@@ -34,6 +31,8 @@ import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.Response;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dtrc.dialogs.TemplateCalculationFormulaDialog;
 import org.jevis.jeconfig.plugin.dtrc.dialogs.TemplateCalculationInputDialog;
 import org.jevis.jeconfig.plugin.dtrc.dialogs.TemplateCalculationOutputDialog;
@@ -68,11 +67,11 @@ public class TRCPlugin implements Plugin {
     private final FlowPane configFormulaInputs = new FlowPane(4, 4);
     private final GridPane configOutputs = new GridPane();
     private final Tab configurationTab = new Tab(I18n.getInstance().getString("graph.tabs.configuration"));
+    private final Tab intervalSelectionTab = new Tab(I18n.getInstance().getString("plugin.trc.tabs.intervalselection"));
     private final TabPane tabPane = new TabPane();
-    private OutputView viewTab;
     private final ObjectMapper mapper = new ObjectMapper();
     private final TemplateHandler templateHandler = new TemplateHandler();
-
+    private OutputView viewTab;
     private boolean initialized = false;
     private JFXComboBox<JEVisObject> trcs;
     private StackPane dialogStackPane;
@@ -533,7 +532,7 @@ public class TRCPlugin implements Plugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.GAUGE, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.GAUGE, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override
@@ -570,6 +569,7 @@ public class TRCPlugin implements Plugin {
         viewTab.showInputs(true);
 
         configurationTab.setClosable(false);
+        intervalSelectionTab.setClosable(false);
 
         if (templateHandler.getRcTemplate() != null) {
             viewTab.updateViewInputFlowPane();
@@ -607,7 +607,21 @@ public class TRCPlugin implements Plugin {
 
         configurationTab.setContent(dialogStackPane);
 
-        tabPane.getTabs().setAll(viewTab, configurationTab);
+        VBox intervalSelectionVBox = new VBox(6);
+        TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
+        for (TimeFrame timeFrame : timeFrameFactory.getAll()) {
+            JFXCheckBox checkBox = new JFXCheckBox(timeFrame.getListName());
+            Boolean isSelected = templateHandler.getRcTemplate().getIntervalSelectorConfiguration().get(timeFrame.getID());
+            if (isSelected != null) {
+                checkBox.setSelected(isSelected);
+            } else checkBox.setSelected(true);
+
+            checkBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateHandler.getRcTemplate().getIntervalSelectorConfiguration().put(timeFrame.getID(), t1));
+
+            intervalSelectionVBox.getChildren().add(checkBox);
+        }
+
+        tabPane.getTabs().setAll(viewTab, configurationTab, intervalSelectionTab);
 
         borderPane.setCenter(tabPane);
 

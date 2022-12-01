@@ -19,4 +19,14 @@ public class RangingValues {
     public void reset() {
         this.rangingValues.clear();
     }
+
+    public Double getValue(Double determinationValue) {
+        for (RangingValue rangingValue : rangingValues) {
+            if (determinationValue >= rangingValue.getFrom() && determinationValue < rangingValue.getTo()) {
+                return rangingValue.getValue();
+            }
+        }
+
+        return null;
+    }
 }

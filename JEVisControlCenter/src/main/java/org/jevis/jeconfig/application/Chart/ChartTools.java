@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.commons.utils.CommonMethods;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,14 +95,23 @@ public class ChartTools {
         return false;
     }
 
-    public static boolean isMultiDir(JEVisDataSource ds) {
+    public static boolean isMultiDir(JEVisDataSource ds, JEVisObject obj) {
         if (ds != null) {
             boolean is = false;
             try {
-                JEVisClass directoryClass = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
-                List<JEVisObject> objects = ds.getObjects(directoryClass, true);
-                if (objects.size() > 1) {
-                    is = true;
+                JEVisClass analysisDirectoryClass = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
+                if (obj != null) {
+                    ObjectRelations objectRelations = new ObjectRelations(ds);
+                    JEVisObject primaryParent = objectRelations.getPrimaryBuildingParent(obj);
+                    List<JEVisObject> objects = CommonMethods.getChildrenRecursive(primaryParent, analysisDirectoryClass);
+                    if (objects.size() > 1) {
+                        is = true;
+                    }
+                } else {
+                    List<JEVisObject> objects = ds.getObjects(analysisDirectoryClass, true);
+                    if (objects.size() > 1) {
+                        is = true;
+                    }
                 }
             } catch (Exception ignored) {
             }
@@ -109,6 +119,10 @@ public class ChartTools {
         }
 
         return false;
+    }
+
+    public static boolean isMultiDir(JEVisDataSource ds) {
+        return isMultiDir(ds, null);
     }
 
     static class Calculation {
