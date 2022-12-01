@@ -154,7 +154,7 @@ public class NewObject {
 
 
         } else if (createClass.equals(dwdServer)) {
-            Platform.runLater(() -> new DWDWizardDialog(newObject));
+//            Platform.runLater(() -> new DWDWizardDialog(newObject));
         }
 
     }
