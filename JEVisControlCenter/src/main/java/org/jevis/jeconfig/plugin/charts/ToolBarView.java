@@ -42,7 +42,6 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.dialog.SaveAnalysisDialog;
-import org.jevis.jeconfig.tool.dwdbrowser.DWDBrowser;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
@@ -276,7 +275,7 @@ public class ToolBarView {
             }
 
 //            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
-            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
+            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
             addAnalysisComboBoxListener();
             setDisableToolBarIcons(disabledIcons.get());
@@ -466,9 +465,9 @@ public class ToolBarView {
         testButton = new ToggleButton("X");
         testButton.setOnAction(actionEvent -> {
             try {
-                DWDBrowser dwdBrowser = new DWDBrowser(chartPlugin.getDialogContainer(), ds);
-                dwdBrowser.show();
-
+//                DWDBrowser dwdBrowser = new DWDBrowser(chartPlugin.getDialogContainer(), ds);
+//                dwdBrowser.show();
+//
 
             } catch (Exception e) {
                 logger.error("Error while testing", e);
