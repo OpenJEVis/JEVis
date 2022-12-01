@@ -76,7 +76,7 @@ public class ObjectRelations {
 
         createAnalysesDirectoryList(objectList, primaryParent, object);
 
-        for (int i = objectList.size() - 1; i > 0; i--) {
+        for (int i = objectList.size() - 2; i > -1; i--) {
             s.append(objectList.get(i).getName());
             s.append(" \\ ");
         }
