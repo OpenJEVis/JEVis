@@ -102,7 +102,7 @@ public class ChartTools {
                 JEVisClass analysisDirectoryClass = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
                 if (obj != null) {
                     ObjectRelations objectRelations = new ObjectRelations(ds);
-                    JEVisObject primaryParent = objectRelations.getPrimaryBuildingParent(obj);
+                    JEVisObject primaryParent = objectRelations.getPrimaryParent(obj);
                     List<JEVisObject> objects = CommonMethods.getChildrenRecursive(primaryParent, analysisDirectoryClass);
                     if (objects.size() > 1) {
                         is = true;

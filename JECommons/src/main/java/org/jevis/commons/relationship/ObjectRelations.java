@@ -71,7 +71,7 @@ public class ObjectRelations {
     public String getRelativePath(JEVisObject object) {
 
         StringBuilder s = new StringBuilder();
-        JEVisObject primaryParent = getPrimaryBuildingParent(object);
+        JEVisObject primaryParent = getPrimaryParent(object);
         List<JEVisObject> objectList = new ArrayList<>();
 
         createAnalysesDirectoryList(objectList, primaryParent, object);
@@ -97,15 +97,15 @@ public class ObjectRelations {
         }
     }
 
-    public JEVisObject getPrimaryBuildingParent(JEVisObject object) {
+    public JEVisObject getPrimaryParent(JEVisObject object) {
         JEVisObject primaryParent = null;
         try {
             for (JEVisObject dir : object.getParents()) {
-                if (dir.getJEVisClassName().equals("Building")) {
+                if (dir.getJEVisClassName().equals("Building") || dir.getJEVisClassName().equals("Organization")) {
                     primaryParent = dir;
                     break;
                 } else {
-                    primaryParent = getPrimaryBuildingParent(dir);
+                    primaryParent = getPrimaryParent(dir);
                 }
             }
         } catch (JEVisException e) {
