@@ -1112,12 +1112,6 @@ public class AccountingPlugin extends TablePlugin {
                     protected Object call() throws Exception {
                         try {
                             this.updateTitle(I18n.getInstance().getString("plugin.accounting.load"));
-                            if (initialized) {
-                                ds.clearCache();
-                                ds.preload();
-                            } else {
-                                initialized = true;
-                            }
 
                             JEVisObject selectedItem = configComboBox.getSelectionModel().getSelectedItem();
                             List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
@@ -1228,10 +1222,6 @@ public class AccountingPlugin extends TablePlugin {
     }
 
     public void initGUI() throws JEVisException {
-
-        viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(0, 2);
-        viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(2, viewTab.getIntervalSelector().getTimeFactoryBox().getItems().size());
-
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {

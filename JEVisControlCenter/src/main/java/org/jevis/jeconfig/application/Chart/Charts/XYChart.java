@@ -108,21 +108,21 @@ public class XYChart implements Chart {
     private XYChartSerie y1SumSerie;
     private XYChartSerie y2SumSerie;
 
-    public XYChart(JEVisDataSource ds) {
+    public XYChart(JEVisDataSource ds, ChartModel chartModel) {
         this.ds = ds;
+        this.chartModel = chartModel;
         init();
     }
 
-    public void createChart(ChartModel chartModel, ToolBarSettings toolBarSettings, DataSettings dataSettings) {
-        this.createChart(chartModel, toolBarSettings, dataSettings, false);
+    public void createChart(ToolBarSettings toolBarSettings, DataSettings dataSettings) {
+        this.createChart(toolBarSettings, dataSettings, false);
     }
 
-    public void createChart(ChartModel chartModel, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
-        this.createChart(chartModel, new ArrayList<>(), toolBarSettings, dataSettings, instant);
+    public void createChart(ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
+        this.createChart(new ArrayList<>(), toolBarSettings, dataSettings, instant);
     }
 
-    public void createChart(ChartModel chartModel, List<ChartDataRow> chartDataRows, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
-        this.chartModel = chartModel;
+    public void createChart(List<ChartDataRow> chartDataRows, ToolBarSettings toolBarSettings, DataSettings dataSettings, boolean instant) {
         this.chartDataRows = chartDataRows;
         if (!instant) {
 
@@ -269,16 +269,25 @@ public class XYChart implements Chart {
         if (chartModel.getChartType() == ChartType.STACKED_AREA || chartModel.getChartType() == ChartType.STACKED_COLUMN
                 || chartModel.getChartData().stream().anyMatch(chartData -> chartData.getChartType() == ChartType.STACKED_AREA || chartData.getChartType() == ChartType.STACKED_COLUMN)) {
 
-            boolean hasY1 = xyChartSerieList.stream().anyMatch(xyChartSerie -> xyChartSerie.getSingleRow().getAxis() == 0);
-            boolean hasY2 = xyChartSerieList.stream().anyMatch(xyChartSerie -> xyChartSerie.getSingleRow().getAxis() == 1);
+            boolean hasY1 = xyChartSerieList.stream().anyMatch(chartSerie -> chartSerie.getSingleRow().getAxis() == 0 &&
+                    (((chartModel.getChartType() == ChartType.STACKED_AREA || chartModel.getChartType() == ChartType.STACKED_COLUMN)
+                            && chartSerie.getSingleRow().getChartType() == ChartType.DEFAULT)
+                            || chartSerie.getSingleRow().getChartType() == ChartType.STACKED_AREA
+                            || chartSerie.getSingleRow().getChartType() == ChartType.STACKED_COLUMN));
+            boolean hasY2 = xyChartSerieList.stream().anyMatch(chartSerie -> chartSerie.getSingleRow().getAxis() == 1 &&
+                    (((chartModel.getChartType() == ChartType.STACKED_AREA || chartModel.getChartType() == ChartType.STACKED_COLUMN)
+                            && chartSerie.getSingleRow().getChartType() == ChartType.DEFAULT)
+                            || chartSerie.getSingleRow().getChartType() == ChartType.STACKED_AREA
+                            || chartSerie.getSingleRow().getChartType() == ChartType.STACKED_COLUMN));
 
             if (hasY1) {
                 List<XYChartSerie> y1Series = xyChartSerieList.stream().filter(serie -> serie.getSingleRow().getAxis() == 0 && (serie.getSingleRow().getChartType() == ChartType.DEFAULT ||
                         serie.getSingleRow().getChartType() == ChartType.STACKED_AREA || serie.getSingleRow().getChartType() == ChartType.STACKED_COLUMN)).collect(Collectors.toList());
 
-                String name = "~" + I18n.getInstance().getString("plugin.graph.table.sum") + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1");
+                String name = "~" + I18n.getInstance().getString("plugin.graph.chart.header.stacked.y1");
                 TableEntry sumEntry = new TableEntry(name);
                 sumEntry.setColor(Color.BLACK);
+                sumEntry.setPeriod(y1Series.get(0).getTableEntry().getPeriod());
                 y1SumSerie = new XYChartSerie();
                 ChartDataRow chartDataRow = new ChartDataRow(ds, new ChartData());
                 JEVisUnit unit = y1Series.get(0).getSingleRow().getUnit();
@@ -286,6 +295,8 @@ public class XYChart implements Chart {
                 chartDataRow.setChartType(ChartType.LINE);
                 chartDataRow.setUnit(unit);
                 chartDataRow.setAxis(0);
+                chartDataRow.setPeriod(y1Series.get(0).getSingleRow().getPeriod());
+                chartDataRow.setFormatString(y1Series.get(0).getSingleRow().getFormatString());
                 chartDataRow.setSomethingChanged(false);
                 y1SumSerie.setSingleRow(chartDataRow);
                 DoubleDataSet noteDataSet = new DoubleDataSet(name);
@@ -299,8 +310,8 @@ public class XYChart implements Chart {
 
                 y1SumSerie.setTableEntry(sumEntry);
                 y1SumSerie.setSampleMap(sampleMap);
-
-                y1Series.sort(Comparator.comparingDouble(XYChartSerie::getAvg));
+                AlphanumComparator ac = new AlphanumComparator();
+                y1Series.sort((o1, o2) -> ac.compare(o2.getTableEntryName(), o1.getTableEntryName()));
                 List<XYChartSerie> otherSeries = y1Series.stream().filter(y1Serie -> y1Series.indexOf(y1Serie) > 0).collect(Collectors.toList());
                 List<DoubleDataSet> dataSets = new ArrayList<>();
                 for (XYChartSerie serie : y1Series) {
@@ -372,9 +383,10 @@ public class XYChart implements Chart {
                 List<XYChartSerie> y2Series = xyChartSerieList.stream().filter(serie -> serie.getSingleRow().getAxis() == 1 && (serie.getSingleRow().getChartType() == ChartType.DEFAULT ||
                         serie.getSingleRow().getChartType() == ChartType.STACKED_AREA || serie.getSingleRow().getChartType() == ChartType.STACKED_COLUMN)).collect(Collectors.toList());
 
-                String name = "~" + I18n.getInstance().getString("plugin.graph.table.sum") + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2");
+                String name = "~" + I18n.getInstance().getString("plugin.graph.chart.header.stacked.y2");
                 TableEntry sumEntry = new TableEntry(name);
                 sumEntry.setColor(Color.BLACK);
+                sumEntry.setPeriod(y2Series.get(0).getTableEntry().getPeriod());
                 y2SumSerie = new XYChartSerie();
                 ChartDataRow chartDataRow = new ChartDataRow(ds, new ChartData());
                 JEVisUnit unit = y2Series.get(0).getSingleRow().getUnit();
@@ -382,6 +394,8 @@ public class XYChart implements Chart {
                 chartDataRow.setChartType(ChartType.LINE);
                 chartDataRow.setUnit(unit);
                 chartDataRow.setAxis(1);
+                chartDataRow.setPeriod(y2Series.get(0).getSingleRow().getPeriod());
+                chartDataRow.setFormatString(y2Series.get(0).getSingleRow().getFormatString());
                 chartDataRow.setSomethingChanged(false);
                 y2SumSerie.setSingleRow(chartDataRow);
                 DoubleDataSet noteDataSet = new DoubleDataSet(name);
@@ -396,7 +410,8 @@ public class XYChart implements Chart {
                 y2SumSerie.setTableEntry(sumEntry);
                 y2SumSerie.setSampleMap(sampleMap);
 
-                y2Series.sort(Comparator.comparingDouble(XYChartSerie::getAvg));
+                AlphanumComparator ac = new AlphanumComparator();
+                y2Series.sort((o1, o2) -> ac.compare(o2.getTableEntryName(), o1.getTableEntryName()));
                 List<XYChartSerie> otherSeries = y2Series.stream().filter(xyChartSerie -> y2Series.indexOf(xyChartSerie) > 0).collect(Collectors.toList());
                 List<DoubleDataSet> dataSets = new ArrayList<>();
                 for (XYChartSerie serie : y2Series) {
@@ -774,7 +789,8 @@ public class XYChart implements Chart {
                 && (chartModel.getChartData().stream().noneMatch(chartData -> chartData.getChartType() == ChartType.STACKED_AREA || chartData.getChartType() == ChartType.STACKED_COLUMN))) {
             xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getSortCriteria));
         } else {
-            xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getAvg).reversed());
+            AlphanumComparator ac = new AlphanumComparator();
+            xyChartSerieList.sort((o1, o2) -> ac.compare(o1.getTableEntryName(), o2.getTableEntryName()));
         }
         AtomicBoolean hastCustomIntervals = new AtomicBoolean(false);
 

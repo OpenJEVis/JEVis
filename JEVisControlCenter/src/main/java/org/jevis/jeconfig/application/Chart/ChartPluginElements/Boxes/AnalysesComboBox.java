@@ -85,14 +85,14 @@ public class AnalysesComboBox extends JFXComboBox<String> {
             String name = "";
             try {
                 if (obj.getJEVisClassName().equals(ANALYSIS_CLASS_NAME)) {
-                    if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds))
+                    if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
                         name = obj.getName();
                     else {
                         String prefix = "";
                         if (ChartTools.isMultiSite(ds)) {
                             prefix += objectRelations.getObjectPath(obj);
                         }
-                        if (ChartTools.isMultiDir(ds)) {
+                        if (ChartTools.isMultiDir(ds, obj)) {
                             prefix += objectRelations.getRelativePath(obj);
                         }
 
@@ -167,7 +167,7 @@ public class AnalysesComboBox extends JFXComboBox<String> {
                 if (ChartTools.isMultiSite(ds)) {
                     prefix1 += objectRelations.getObjectPath(o1);
                 }
-                if (ChartTools.isMultiDir(ds)) {
+                if (ChartTools.isMultiDir(ds, o1)) {
                     prefix1 += objectRelations.getRelativePath(o1);
                 }
                 prefix1 += o1.getName();
@@ -175,7 +175,7 @@ public class AnalysesComboBox extends JFXComboBox<String> {
                 if (ChartTools.isMultiSite(ds)) {
                     prefix2 += objectRelations.getObjectPath(o2);
                 }
-                if (ChartTools.isMultiDir(ds)) {
+                if (ChartTools.isMultiDir(ds, o2)) {
                     prefix2 += objectRelations.getRelativePath(o2);
                 }
                 prefix2 += o2.getName();

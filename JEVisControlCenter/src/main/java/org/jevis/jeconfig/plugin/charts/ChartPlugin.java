@@ -23,7 +23,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextArea;
-import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
@@ -206,7 +205,7 @@ public class ChartPlugin implements Plugin {
             if (t1 != null && !t1.equals(jeVisObject)) {
 
                 dataSettings.setWorkDays(new WorkDays(t1));
-                analysisHandler.loadDataModel(t1, getToolBarView().getToolBarSettings(), getDataSettings(), dataModel);
+                analysisHandler.loadDataModel(t1, dataModel);
 
                 update();
             }
@@ -758,16 +757,14 @@ public class ChartPlugin implements Plugin {
             }
         }
 
-        for (ChartModel chartModel : dataModel.getChartModels()) {
-            int chartId = chartModel.getChartId();
-            Chart chart = allCharts.get(chartId);
-            if (chart instanceof XYChart) {
-                XYChart xyChart = (XYChart) chart;
-                if (chartModel.getChartType() != ChartType.LOGICAL) {
-                    xyChart.createChart(chartModel, getToolBarView().getToolBarSettings(), getDataSettings());
+        allCharts.forEach((key, value) -> {
+            if (value instanceof XYChart) {
+                XYChart xyChart = (XYChart) value;
+                if (xyChart.getChartType() != ChartType.LOGICAL) {
+                    xyChart.createChart(getToolBarView().getToolBarSettings(), getDataSettings());
                 }
             }
-        }
+        });
 
         Task task = new Task() {
             @Override
@@ -1031,32 +1028,32 @@ public class ChartPlugin implements Plugin {
 
         switch (chartModel.getChartType()) {
             case LOGICAL:
-                return new LogicalChart(ds);
+                return new LogicalChart(ds, chartModel);
             default:
             case LINE:
-                return new LineChart(ds);
+                return new LineChart(ds, chartModel);
             case BAR:
                 return new BarChart(ds, chartModel);
             case COLUMN:
-                return new ColumnChart(ds);
+                return new ColumnChart(ds, chartModel);
             case STACKED_COLUMN:
-                return new StackedColumnChart(ds);
+                return new StackedColumnChart(ds, chartModel);
             case BUBBLE:
-                return new BubbleChart(ds);
+                return new BubbleChart(ds, chartModel);
             case SCATTER:
-                return new ScatterChart(ds);
+                return new ScatterChart(ds, chartModel);
             case PIE:
                 return new PieChart(ds, chartModel);
             case TABLE:
-                return new TableChart(ds);
+                return new TableChart(ds, chartModel);
             case TABLE_V:
-                return new TableChartV(ds);
+                return new TableChartV(ds, chartModel);
             case HEAT_MAP:
                 return new HeatMapChart(ds, chartModel);
             case AREA:
-                return new AreaChart(ds);
+                return new AreaChart(ds, chartModel);
             case STACKED_AREA:
-                return new StackedAreaChart(ds);
+                return new StackedAreaChart(ds, chartModel);
         }
     }
 
@@ -1463,35 +1460,6 @@ public class ChartPlugin implements Plugin {
         return toolBarView;
     }
 
-//    public void setCurrentAnalysis(JEVisObject currentAnalysis) {
-//        if (this.currentAnalysis != null && !this.currentAnalysis.equals(currentAnalysis)) {
-//            if (getTemporary()) {
-//                try {
-////                    ds.deleteObject(this.currentAnalysis.getID());
-//                    updateListAnalyses();
-//                } catch (Exception e) {
-//                    logger.error("Could not delete temporary analysis", e);
-//                }
-//            }
-//        }
-//        this.currentAnalysis = currentAnalysis;
-//
-//        if (currentAnalysis != null) {
-//            try {
-//                ds.reloadAttribute(currentAnalysis.getAttribute(DATA_MODEL_ATTRIBUTE_NAME));
-//            } catch (Exception ex) {
-//                logger.error(ex);
-//            }
-//
-//            if (observableListAnalyses.isEmpty()) {
-//                updateListAnalyses();
-//            }
-//            if (!getTemporary()) {
-//                getAnalysisModel();
-//            }
-//        }
-//    }
-
     private void createLogicalCharts(BorderPane bp, ChartModel chartModel) {
         List<LogicalChart> subCharts = new ArrayList<>();
         VBox vboxSubs = new VBox();
@@ -1514,7 +1482,7 @@ public class ChartPlugin implements Plugin {
             });
 
             LogicalChart logicalChart = (LogicalChart) subView;
-            logicalChart.createChart(chartModel, dataRows, getToolBarView().getToolBarSettings(), getDataSettings(), true);
+            logicalChart.createChart(dataRows, getToolBarView().getToolBarSettings(), getDataSettings(), true);
             subCharts.add(logicalChart);
         }
 
@@ -1529,10 +1497,11 @@ public class ChartPlugin implements Plugin {
                 Platform.runLater(() -> logicalChart.getChart().setTitle(null));
             }
 
-            logicalChart.getChartDataRows().get(0).setColor(ColorTable.color_list[subCharts.indexOf(logicalChart)]);
-            logicalChart.getChartDataRows().get(0).calcMinAndMax();
-            double min = logicalChart.getMinValue();
-            double max = logicalChart.getMaxValue();
+            ChartDataRow chartDataRow = logicalChart.getChartDataRows().get(0);
+            chartDataRow.setColor(ColorTable.color_list[subCharts.indexOf(logicalChart)]);
+            chartDataRow.calcMinAndMax();
+            double min = chartDataRow.getMin().getValue();
+            double max = chartDataRow.getMax().getValue();
             minValue = Math.min(minValue, min);
             maxValue = Math.max(maxValue, max);
         }
@@ -1543,18 +1512,13 @@ public class ChartPlugin implements Plugin {
 
         if (!minValue.equals(Double.MAX_VALUE) && !maxValue.equals(-Double.MAX_VALUE)) {
             for (LogicalChart logicalChart : subCharts) {
-                for (Axis axis : logicalChart.getChart().getAxes()) {
-                    if (axis.getSide().isVertical()) {
-                        axis.setAutoRanging(false);
-                    } else {
-                        axis.set(minValue, maxValue);
-                    }
-                }
+                logicalChart.getY1Axis().setAutoRanging(false);
+                logicalChart.getY1Axis().set(minValue, maxValue);
             }
         }
 
         bp.setCenter(vboxSubs);
-        subCharts.forEach(logicalChart -> allCharts.put((chartModel.getChartId() * 10) + subCharts.indexOf(logicalChart), logicalChart));
+        subCharts.forEach(logicalChart -> allCharts.put(((chartModel.getChartId() + 1) * 10) + subCharts.indexOf(logicalChart), logicalChart));
     }
 
     public WorkDays getWorkDays() {

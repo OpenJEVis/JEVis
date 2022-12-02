@@ -59,13 +59,22 @@ public class ISO50001Plugin implements Plugin {
         this.title = title;
         this.icon = JEConfig.getSVGImage(Icon.LOYTEC_BROWSER, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
 
+
+    }
+
+    @Override
+    public String getClassName() {
+        return "ISO5001 Browser Plugin";
+    }
+
+    @Override
+    public void setHasFocus() {
         try {
             final String username = ds.getCurrentUser().getAccountName();
             final String password = JEConfig.userpassword;
 
-            final BooleanProperty logedIn = new SimpleBooleanProperty(false);
+            final BooleanProperty loggedIn = new SimpleBooleanProperty(false);
             final WebView page = new WebView();
-
             try {
                 for (JEVisOption opt : ds.getConfiguration()) {
                     if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
@@ -102,7 +111,7 @@ public class ISO50001Plugin implements Plugin {
             });
 
             webEngine.documentProperty().addListener((observable, oldValue, doc) -> {
-                        if (doc != null && !logedIn.getValue()) {
+                        if (doc != null && !loggedIn.getValue()) {
 
                             HTMLFormElement form = (HTMLFormElement) doc.getElementById("form-login");
 
@@ -143,7 +152,7 @@ public class ISO50001Plugin implements Plugin {
                                 nex.printStackTrace();
                             }
 
-                            logedIn.setValue(Boolean.TRUE);
+                            loggedIn.setValue(Boolean.TRUE);
                             webEngine.executeScript("login()");
                         }
                     }
@@ -152,17 +161,6 @@ public class ISO50001Plugin implements Plugin {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
-    }
-
-    @Override
-    public String getClassName() {
-        return "ISO5001 Browser Plugin";
-    }
-
-    @Override
-    public void setHasFocus() {
-//        webEngine.load("http://10.1.1.55:6735/JEWebService/v1/login");
         webEngine.load(urlProperty.getValue());
     }
 

@@ -34,6 +34,7 @@ import org.jevis.jeconfig.tool.NumberSpinner;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ChartTab extends Tab {
     private static final Logger logger = LogManager.getLogger(ChartTab.class);
@@ -201,9 +202,11 @@ public class ChartTab extends Tab {
                             chartData.setObjectName(object);
                             chartData.setAttributeString("Value");
                             chartData.setUnit(object.getAttribute("Value").getDisplayUnit());
-                            chartData.setColor(ColorTable.getNextColor(usedColors));
+                            Color nextColor = ColorTable.getNextColor(usedColors);
+                            chartData.setColor(nextColor);
                             chartData.setChartType(ChartType.DEFAULT);
 
+                            usedColors.add(nextColor);
                             chartModel.getChartData().add(chartData);
                             chartTable.getItems().add(chartData);
                         }
@@ -226,6 +229,8 @@ public class ChartTab extends Tab {
 
         deleteButton.setOnAction(actionEvent -> {
             ObservableList<ChartData> selectedItems = chartTable.getSelectionModel().getSelectedItems();
+            usedColors.removeAll(selectedItems.stream().map(ChartData::getColor).collect(Collectors.toList()));
+
             chartModel.getChartData().removeAll(selectedItems);
             chartTable.getItems().removeAll(selectedItems);
 

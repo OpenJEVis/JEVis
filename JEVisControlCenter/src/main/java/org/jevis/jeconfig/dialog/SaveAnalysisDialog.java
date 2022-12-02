@@ -74,14 +74,14 @@ public class SaveAnalysisDialog extends JFXDialog {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds))
+                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
                                 setText(obj.getName());
                             else {
                                 String prefix = "";
                                 if (ChartTools.isMultiSite(ds)) {
                                     prefix += objectRelations.getObjectPath(obj);
                                 }
-                                if (ChartTools.isMultiDir(ds)) {
+                                if (ChartTools.isMultiDir(ds, obj)) {
                                     prefix += objectRelations.getRelativePath(obj);
                                 }
 
@@ -180,8 +180,8 @@ public class SaveAnalysisDialog extends JFXDialog {
                     chartPlugin.getAnalysisHandler().saveDataModel(newAnalysisObject, chartPlugin.getDataModel(), toolBarView.getToolBarSettings(), dataSettings);
                     toolBarView.setChanged(false);
 
-                    dataSettings.setCurrentAnalysis(newAnalysisObject);
                     analysesComboBox.updateListAnalyses();
+                    dataSettings.setCurrentAnalysis(newAnalysisObject);
 
                     toolBarView.updateLayout();
 
@@ -213,8 +213,8 @@ public class SaveAnalysisDialog extends JFXDialog {
                         chartPlugin.getAnalysisHandler().saveDataModel(currentAnalysis.get(), chartPlugin.getDataModel(), toolBarView.getToolBarSettings(), dataSettings);
                         toolBarView.setChanged(false);
 
-                        dataSettings.setCurrentAnalysis(currentAnalysis.get());
                         analysesComboBox.updateListAnalyses();
+                        dataSettings.setCurrentAnalysis(currentAnalysis.get());
                         toolBarView.updateLayout();
 
                         response = Response.OK;
