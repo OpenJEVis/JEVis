@@ -15,6 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
+import jfxtras.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -53,8 +54,8 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private final StackPane stackPane = new StackPane();
     private ShapePojo shapeConfig;
     private double blue = 1;
-    private double green = 0;
-    private double red = 0;
+    private double green = 1;
+    private double red = 1;
     private Interval lastInterval = null;
     private Boolean customWorkday = true;
 
@@ -75,11 +76,14 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.titlewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 5));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 4, control.getActiveDashboard().xGridInterval * 4));
         widgetPojo.setShowShadow(true);
-        widgetPojo.setBackgroundColor(Color.TRANSPARENT);
+        widgetPojo.setBackgroundColor(Color.BLACK);
         widgetPojo.setFontColorSecondary(Color.BLACK);
         widgetPojo.setBorderSize(BorderWidths.EMPTY);
+        //this.config.setBackgroundColor(control.getActiveDashboard().getBackgroundColor());
+        //System.out.println(this.config.getBackgroundColor());
+
 
         return widgetPojo;
 
@@ -148,11 +152,13 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     }
 
     private double calcColor(double minColor, double maxColor, double valueRange, double value, double diffColor) {
+        System.out.println("value : "+value);
         double newColor;
+        round(value, valueRange, 1);
         if (minColor < maxColor) {
-            newColor = minColor + ((value / valueRange) * diffColor);
+            newColor = minColor + ((round(value,valueRange,shapeConfig.getStepDistance())) * diffColor);
         } else {
-            newColor = minColor - ((value / valueRange) * diffColor);
+            newColor = minColor - ((round(value,valueRange,shapeConfig.getStepDistance())) * diffColor);
 
         }
         if (newColor > 1) {
@@ -160,9 +166,21 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         } else if (newColor < 0) {
             newColor = 0;
         }
+        System.out.println("return value:" +newColor);
         return newColor;
     }
+    private double round(double value, double valueRange, double steprange) {
 
+        if (steprange == 0) {
+            return value/valueRange;
+        }else {
+            int roundValue = (int) (value / steprange);
+            return (roundValue*steprange)/valueRange;
+        }
+
+
+
+    }
     private void calculateColors(double value) {
 
         double valueRange = (shapeConfig.getMaxValue() - (shapeConfig.getMinValue()));
@@ -234,12 +252,14 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     public void openConfig() {
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
-        sampleHandler.setAutoAggregation(true);
-
-        logger.debug("Value.openConfig() [{}] limit ={}", config.getUuid(), shapeConfig);
         if (shapeConfig != null) {
             widgetConfigDialog.addTab(shapeConfig.getConfigTab());
         }
+
+        sampleHandler.setAutoAggregation(true);
+
+        logger.debug("Value.openConfig() [{}] limit ={}", config.getUuid(), shapeConfig);
+
 
         widgetConfigDialog.requestFirstTabFocus();
 
@@ -335,16 +355,17 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
         Rectangle rectangle = new Rectangle(xStart, yStart, xWidth, yHeight);
         rectangle.setFill(new Color(red, green, blue, 1));
-        rectangle.setStroke(Color.BLACK);
-        rectangle.setStrokeWidth(this.config.getBorderSize().getBottom());
+        //rectangle.setStroke(Color.BLACK);
+        //rectangle.setStrokeWidth(this.config.getBorderSize().getBottom());
         rectangle.setOpacity(this.config.getBackgroundColor().getOpacity());
 
         Ellipse ellipse = new Ellipse(parentWidth / 2, parentHeight / 2, parentWidth / 2, parentHeight / 2);
         ellipse.setFill(new Color(red, green, blue, 1));
-        ellipse.setStroke(Color.BLACK);
-        ellipse.setStrokeWidth(this.config.getBorderSize().getBottom());
+        //ellipse.setStroke(Color.BLACK);
+        //ellipse.setStrokeWidth(this.config.getBorderSize().getBottom());
         ellipse.setOpacity(this.config.getBackgroundColor().getOpacity());
         Pane arrow = new Pane();
+        arrow.setOpacity(this.config.getBackgroundColor().getOpacity());
 
 
         switch (shape) {
