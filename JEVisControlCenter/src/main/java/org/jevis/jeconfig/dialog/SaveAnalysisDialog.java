@@ -74,14 +74,14 @@ public class SaveAnalysisDialog extends JFXDialog {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds))
+                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
                                 setText(obj.getName());
                             else {
                                 String prefix = "";
                                 if (ChartTools.isMultiSite(ds)) {
                                     prefix += objectRelations.getObjectPath(obj);
                                 }
-                                if (ChartTools.isMultiDir(ds)) {
+                                if (ChartTools.isMultiDir(ds, obj)) {
                                     prefix += objectRelations.getRelativePath(obj);
                                 }
 

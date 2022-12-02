@@ -109,10 +109,9 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
         Platform.runLater(() -> {
             String widgetUUID = "-1";
             AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
-            //try {
             widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setAutoAggregation(true);
-            setIntervallForLastValue(interval);
+            this.sampleHandler.setInterval(interval);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
@@ -126,7 +125,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                 if (!results.isEmpty()) {
                     total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
                     if (gaugeSettings.isInPercent()) {
-                        gauge.setValue(Helper.convertToPercent(total.get(), gaugeSettings.getMaximum(),gaugeSettings.getMinimum(), this.config.getDecimals()));
+                        gauge.setValue(Helper.convertToPercent(total.get(), gaugeSettings.getMaximum(), gaugeSettings.getMinimum(), this.config.getDecimals()));
 
                     } else {
                         gauge.setValue(total.get());
@@ -135,7 +134,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
                 } else {
                     gauge.setValue(0);
-                    showAlertOverview(true,I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
+                    showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
                 }
 
             }
@@ -251,7 +250,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     public void updateConfig() {
         System.out.println(gaugeSettings);
         logger.debug("UpdateConfig");
-        gauge.setPrefSize(config.getSize().getWidth(),config.getSize().getHeight());
+        gauge.setPrefSize(config.getSize().getWidth(), config.getSize().getHeight());
         Platform.runLater(() -> {
             try {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));

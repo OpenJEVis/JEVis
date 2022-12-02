@@ -48,8 +48,8 @@ public class BubbleChart extends XYChart {
     private String yUnit;
     private final List<Bubble> bubbles = new ArrayList<>();
 
-    public BubbleChart(JEVisDataSource ds) {
-        super(ds);
+    public BubbleChart(JEVisDataSource ds, ChartModel chartModel) {
+        super(ds, chartModel);
 
         init();
     }

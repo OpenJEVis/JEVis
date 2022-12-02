@@ -141,10 +141,18 @@ public class TemplateHandler {
             formulasArrayNode.add(formulaNode);
         });
 
+        ArrayNode intervalConfiguration = JsonNodeFactory.instance.arrayNode();
+        this.rcTemplate.getIntervalSelectorConfiguration().forEach((s, aBoolean) -> {
+            ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
+            objectNode.put(s, aBoolean);
+            intervalConfiguration.add(objectNode);
+        });
+
 
         dataHandlerNode.set("templateInputs", templateInputsArrayNode);
         dataHandlerNode.set("templateOutputs", templateOutputsArrayNode);
         dataHandlerNode.set("templateFormulas", formulasArrayNode);
+        dataHandlerNode.set("intervalSelectorConfiguration", intervalConfiguration);
 
         dataHandlerNode.set("type", JsonNodeFactory.instance.textNode(TYPE));
 

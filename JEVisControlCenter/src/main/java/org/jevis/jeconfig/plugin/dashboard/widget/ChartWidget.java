@@ -135,7 +135,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
             if (isOnlyTable) {
                 Platform.runLater(() -> {
-                    TableChartV tableChart = new TableChartV(getDataSource());
+                    TableChartV tableChart = new TableChartV(getDataSource(), chartModel);
                     tableChart.showRowSums(true);
 
                     Label titleLabel = new Label(chartModel.getChartName());
@@ -151,7 +151,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
                     this.xyChart = tableChart;
 //                    chartModel.setShowSum_NOEVENT(true);
-                    this.xyChart.createChart(chartModel, this.sampleHandler.getDataModel(), toolBarSettings, dataSettings, true);
+                    this.xyChart.createChart(this.sampleHandler.getDataModel(), toolBarSettings, dataSettings, true);
 
                     VBox vBox = new VBox(hBox, tableHeaderTable);
                     VBox.setVgrow(hBox, Priority.NEVER);
@@ -174,8 +174,8 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     });
                 } else {
                     Platform.runLater(() -> {
-                        this.xyChart = new XYChart(getDataSource());
-                        this.xyChart.createChart(chartModel, this.sampleHandler.getDataModel(), toolBarSettings, dataSettings, true);
+                        this.xyChart = new XYChart(getDataSource(), chartModel);
+                        this.xyChart.createChart(this.sampleHandler.getDataModel(), toolBarSettings, dataSettings, true);
 
                         this.borderPane.setCenter(this.xyChart.getChart());
                     });

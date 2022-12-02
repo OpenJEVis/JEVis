@@ -120,7 +120,7 @@ public class GaugePojo {
                 minimum = jsonNode.get("minimum").asDouble();
             }
             if (jsonNode.has("inPercent")) {
-                minimum = jsonNode.get("inPercent").asDouble();
+                inPercent = jsonNode.get("inPercent").asBoolean();
             }
             if (jsonNode.has("showTitle")) {
                 showTitle = jsonNode.get("showTitle").asBoolean(true);
@@ -271,8 +271,8 @@ public class GaugePojo {
         gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showValue")), jfxCheckBoxShowValue);
         gridPane.addRow(3, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent")), jfxCheckBoxInPercent);
 
-        gridPane.addRow(4, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), minTextField);
-        gridPane.addRow(5, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), maxTextField);
+        gridPane.addRow(4, new Label(I18n.getInstance().getString("plugin.dashboard.min")), minTextField);
+        gridPane.addRow(5, new Label(I18n.getInstance().getString("plugin.dashboard.max")), maxTextField);
         gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 6, 3, 1);
 
     }
