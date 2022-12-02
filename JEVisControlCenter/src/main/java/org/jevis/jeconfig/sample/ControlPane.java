@@ -19,10 +19,7 @@ import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
@@ -91,12 +88,14 @@ public class ControlPane extends GridPane {
         this.attribute = attribute;
 
         JEVisObject rawDataParent = attribute.getObject();
+        JEVisDataSource ds = null;
         try {
             rawDataParent = getRawDataParent(attribute.getObject());
+            ds = attribute.getDataSource();
         } catch (JEVisException e) {
             e.printStackTrace();
         }
-        processorField = new ProcessorBox(rawDataParent, attribute.getObject());
+        processorField = new ProcessorBox(ds, attribute.getObject().getID());
 //        HBox reloadBox = new HBox(reloadLabel,reloadButton);
 //        reloadBox.setAlignment(Pos.BASELINE_LEFT);
 

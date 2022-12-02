@@ -24,6 +24,7 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.GraphAnalysisLinker;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
@@ -158,9 +159,21 @@ public class LinkerWidget extends Widget {
                         String prefix1 = "";
                         String prefix2 = "";
 
-                        prefix1 = objectRelations.getObjectPath(o1) + o1.getName();
+                        if (ChartTools.isMultiSite(getDataSource())) {
+                            prefix1 += objectRelations.getObjectPath(o1);
+                        }
+                        if (ChartTools.isMultiDir(getDataSource(), o1)) {
+                            prefix1 += objectRelations.getRelativePath(o1);
+                        }
+                        prefix1 += o1.getName();
 
-                        prefix2 = objectRelations.getObjectPath(o2) + o2.getName();
+                        if (ChartTools.isMultiSite(getDataSource())) {
+                            prefix2 += objectRelations.getObjectPath(o2);
+                        }
+                        if (ChartTools.isMultiDir(getDataSource(), o2)) {
+                            prefix2 += objectRelations.getRelativePath(o2);
+                        }
+                        prefix2 += o2.getName();
 
                         return ac.compare(prefix1, prefix2);
                     });
@@ -176,10 +189,15 @@ public class LinkerWidget extends Widget {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (!multipleDir)
+                            if (!ChartTools.isMultiSite(getDataSource()) && !ChartTools.isMultiDir(getDataSource(), obj))
                                 setText(obj.getName());
                             else {
-                                String prefix = objectRelations.getObjectPath(obj);
+                                String prefix = "";
+                                if (ChartTools.isMultiSite(getDataSource()))
+                                    prefix += objectRelations.getObjectPath(obj);
+                                if (ChartTools.isMultiDir(getDataSource(), obj)) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
 
                                 setText(prefix + obj.getName());
                             }

@@ -35,11 +35,11 @@ public class AnalysesComboBox extends JFXComboBox<String> {
     private final JEVisDataSource ds;
     private final DataModel dataModel;
     private final ObjectRelations objectRelations;
-    private Boolean multiSite = null;
-    private Boolean multiDir = null;
-
     private final SimpleListProperty<JEVisObject> analyses = new SimpleListProperty<>(this, "analyses", FXCollections.observableArrayList(new ArrayList<>()));
     private final SimpleObjectProperty<JEVisObject> selectedAnalysis = new SimpleObjectProperty<>(this, "selectedAnalysis", null);
+    private boolean updating = false;
+    private Boolean multiSite = null;
+    private Boolean multiDir = null;
 
     public AnalysesComboBox(JEVisDataSource ds, DataModel dataModel) {
         super();
@@ -53,11 +53,19 @@ public class AnalysesComboBox extends JFXComboBox<String> {
 
         this.analyses.addListener((observable, oldValue, newValue) -> createNameList(newValue));
 
-        this.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            int selectedIndex = newValue.intValue();
+        this.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, t1) -> {
+            this.updating = true;
+            setSelectedAnalysis(analyses.get(t1.intValue()));
+            this.updating = false;
+        });
+
+        this.selectedAnalysisProperty().addListener((observable, oldValue, newValue) -> {
+            int selectedIndex = analyses.indexOf(newValue);
 
             if (selectedIndex > -1 && analyses.size() > selectedIndex) {
-                setSelectedAnalysis(analyses.get(selectedIndex));
+                if (!updating) {
+                    getSelectionModel().select(selectedIndex);
+                }
 
                 JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) getSkin();
                 if (skin != null) {
@@ -66,14 +74,6 @@ public class AnalysesComboBox extends JFXComboBox<String> {
                         Platform.runLater(() -> popupContent.scrollTo(selectedIndex));
                     }
                 }
-            }
-        });
-
-        this.selectedAnalysisProperty().addListener((observable, oldValue, newValue) -> {
-            int selectedIndex = analyses.indexOf(newValue);
-
-            if (selectedIndex > -1 && analyses.size() > selectedIndex) {
-                getSelectionModel().select(selectedIndex);
             }
         });
     }
@@ -125,6 +125,7 @@ public class AnalysesComboBox extends JFXComboBox<String> {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
         multiDir = null;
         multiSite = null;
+        JEVisObject selectedAnalysis = selectedAnalysisProperty().get();
 
         try {
             JEVisClass analysesDirectory = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
@@ -192,6 +193,14 @@ public class AnalysesComboBox extends JFXComboBox<String> {
             }
         } catch (Exception e) {
             logger.error("Error while checking temp analysis attribute", e);
+        }
+
+        if (selectedAnalysis != null) {
+            int selectedIndex = analyses.indexOf(selectedAnalysis);
+
+            if (selectedIndex > -1 && analyses.size() > selectedIndex) {
+                getSelectionModel().select(selectedIndex);
+            }
         }
     }
 
