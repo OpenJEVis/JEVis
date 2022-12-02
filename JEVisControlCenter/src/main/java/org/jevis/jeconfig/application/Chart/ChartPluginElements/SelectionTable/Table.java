@@ -8,6 +8,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.BubbleType;
@@ -22,6 +23,7 @@ public class Table extends TableView<ChartData> {
 
     private final TableColumn<ChartData, JEVisObject> objectNameColumn;
     private final TableColumn<ChartData, String> nameColumn;
+    private final TableColumn<ChartData, Long> processorObjectColumn;
     private final TableColumn<ChartData, ChartType> chartTypeColumn;
     private final TableColumn<ChartData, Color> colorColumn;
     private final TableColumn<ChartData, JEVisUnit> unitColumn;
@@ -38,17 +40,20 @@ public class Table extends TableView<ChartData> {
     private final TableColumn<ChartData, String> cssColumn;
     private final StackPane dialogContainer;
     private final ChartModel chartModel;
+    private final JEVisDataSource ds;
 
-    public Table(StackPane dialogContainer, ChartModel chartModel) {
+    public Table(StackPane dialogContainer, JEVisDataSource ds, ChartModel chartModel) {
         super();
         this.dialogContainer = dialogContainer;
         this.chartModel = chartModel;
+        this.ds = ds;
 
         setTableMenuButtonVisible(true);
         setEditable(true);
 
         objectNameColumn = buildObjectNameColumn();
         nameColumn = buildNameColumn();
+        processorObjectColumn = buildProcessorObjectColumn();
         chartTypeColumn = buildChartTypeColumn();
         colorColumn = buildColorColumn();
         unitColumn = buildUnitColumn();
@@ -62,7 +67,7 @@ public class Table extends TableView<ChartData> {
         mathColumn = buildMathColumn();
         cssColumn = buildCssColumn();
 
-        getColumns().setAll(objectNameColumn, nameColumn, chartTypeColumn, colorColumn, unitColumn,
+        getColumns().setAll(objectNameColumn, nameColumn, processorObjectColumn, chartTypeColumn, colorColumn, unitColumn,
                 intervalEnabledColumn, intervalStartColumn, intervalEndColumn,
                 bubbleTypeColumn, axisColumn, aggregationPeriodColumn, manipulationModeColumn, mathColumn, cssColumn);
         getSortOrder().setAll(nameColumn);
@@ -96,6 +101,30 @@ public class Table extends TableView<ChartData> {
         column.setOnEditCommit(chartDataStringCellEditEvent -> {
             (chartDataStringCellEditEvent.getTableView().getItems().get(chartDataStringCellEditEvent.getTablePosition().getRow()))
                     .setName(chartDataStringCellEditEvent.getNewValue());
+        });
+
+        return column;
+    }
+
+    private TableColumn<ChartData, Long> buildProcessorObjectColumn() {
+        TableColumn<ChartData, Long> column = new TableColumn<>(I18n.getInstance().getString("graph.table.cleaning"));
+        column.setMinWidth(250);
+        column.setStyle("-fx-alignment: CENTER;");
+        column.setCellValueFactory(new PropertyValueFactory<>("id"));
+        column.setCellFactory(ProcessorTableCell.forTableColumn(ds));
+        column.setEditable(true);
+        column.setOnEditCommit(chartDataJEVisObjectCellEditEvent -> {
+            ChartData chartData = chartDataJEVisObjectCellEditEvent.getTableView().getItems().get(chartDataJEVisObjectCellEditEvent.getTablePosition().getRow());
+
+            try {
+                JEVisObject newObject = ds.getObject(chartDataJEVisObjectCellEditEvent.getNewValue());
+
+                chartData.setId(newObject.getID());
+                chartData.setObjectName(newObject);
+//                refresh();
+            } catch (Exception e) {
+
+            }
         });
 
         return column;
@@ -252,6 +281,10 @@ public class Table extends TableView<ChartData> {
 
     public TableColumn<ChartData, String> getNameColumn() {
         return nameColumn;
+    }
+
+    public TableColumn<ChartData, Long> getProcessorObjectColumn() {
+        return processorObjectColumn;
     }
 
     public TableColumn<ChartData, ChartType> getChartTypeColumn() {
