@@ -105,7 +105,7 @@ public class NetGraphTableFactory {
         };
 
 
-        TableColumn<NetGraphDataRow, Double> column = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.net.min"));
+        TableColumn<NetGraphDataRow, Double> column = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.min"));
         column.setId("min");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
