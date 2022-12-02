@@ -270,12 +270,12 @@ public class LinearGaugePojo {
         jfxTextFieldMinValue = new JFXTextField();
         jfxTextFieldMinValue.setText(String.valueOf(minimum));
 
-        gridPane.addRow(4, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), jfxTextFieldMinValue);
+        gridPane.addRow(4, new Label(I18n.getInstance().getString("plugin.dashboard.min")), jfxTextFieldMinValue);
 
         jfxTextFieldMaxValue = new JFXTextField();
         jfxTextFieldMaxValue.setText(String.valueOf(maximum));
 
-        gridPane.addRow(5, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), jfxTextFieldMaxValue);
+        gridPane.addRow(5, new Label(I18n.getInstance().getString("plugin.dashboard.max")), jfxTextFieldMaxValue);
 
 
         colorPickerAdvValueIndicator = new ColorPickerAdv();

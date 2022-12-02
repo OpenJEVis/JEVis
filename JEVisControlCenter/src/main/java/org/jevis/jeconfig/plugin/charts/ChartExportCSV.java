@@ -628,10 +628,10 @@ public class ChartExportCSV {
                 Cell valueCell = getOrCreateCell(sheet, i + 4, columnIndex);
                 switch (i) {
                     case 0:
-                        valueCell.setCellValue(numberFormat.format(chartDataRow.getMin()));
+                        valueCell.setCellValue(numberFormat.format(chartDataRow.getMin().getValue()));
                         break;
                     case 1:
-                        valueCell.setCellValue(numberFormat.format(chartDataRow.getMax()));
+                        valueCell.setCellValue(numberFormat.format(chartDataRow.getMax().getValue()));
                         break;
                     case 2:
                         valueCell.setCellValue(numberFormat.format(chartDataRow.getAvg()));
@@ -865,11 +865,11 @@ public class ChartExportCSV {
             for (ChartDataRow chartDataRow : chartDataRows) {
                 switch (i) {
                     case 0:
-                        header.append(numberFormat.format(chartDataRow.getMin()));
+                        header.append(numberFormat.format(chartDataRow.getMin().getValue()));
                         header.append(COL_SEP);
                         break;
                     case 1:
-                        header.append(numberFormat.format(chartDataRow.getMax()));
+                        header.append(numberFormat.format(chartDataRow.getMax().getValue()));
                         header.append(COL_SEP);
                         break;
                     case 2:
