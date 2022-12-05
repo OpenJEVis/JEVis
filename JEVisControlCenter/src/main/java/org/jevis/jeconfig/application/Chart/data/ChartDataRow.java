@@ -1045,4 +1045,13 @@ public class ChartDataRow extends ChartData {
     public void setFormatString(String formatString) {
         this.formatString = formatString;
     }
+
+    @Override
+    public String getName() {
+        if (super.getName() == null || super.getName().equals("")) {
+            return getObject().getName();
+        } else {
+            return super.getName();
+        }
+    }
 }
