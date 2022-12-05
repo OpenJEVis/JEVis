@@ -258,7 +258,6 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         setGraphPluginView(chartPlugin);
         setAxisMode(zoomMode);
         setCurrentChart(currentChart);
-        setChart(currentChart.getChart());
         setNotActive(notActive);
         setAnimated(animated);
         setZoomCursor(Cursor.CROSSHAIR);

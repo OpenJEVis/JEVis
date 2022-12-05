@@ -176,8 +176,8 @@ public class ShapePojo {
 
         gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.shape")), jfxComboBox);
 
-        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), jfxTextFieldMinValue, colorPickerAdvMin);
-        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), jfxTextFieldMaxValue, colorPickerAdvMax);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.min")), jfxTextFieldMinValue, colorPickerAdvMin);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.max")), jfxTextFieldMaxValue, colorPickerAdvMax);
         gridPane.addRow(3,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.stepdistance")),jfxTextFieldStepDistance);
 
 
