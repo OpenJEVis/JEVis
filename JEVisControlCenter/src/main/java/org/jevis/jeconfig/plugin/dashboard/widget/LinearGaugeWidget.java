@@ -178,15 +178,12 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
 
             if (!gaugeSettings.isShowTitle()) {
-                System.out.println("disable title");
                 gauge.setTitle("");
             }
             if (!gaugeSettings.isShowUnit()) {
-                System.out.println("disable unit");
                 gauge.setUnit("");
             }
             if (!gaugeSettings.isShowValue()) {
-                System.out.println("diable value");
                 gauge.setValueColor(Color.valueOf("#ffffff00"));
             }
         }
@@ -248,7 +245,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateConfig() {
-        System.out.println(gaugeSettings);
         logger.debug("UpdateConfig");
         gauge.setPrefSize(config.getSize().getWidth(), config.getSize().getHeight());
         Platform.runLater(() -> {
@@ -268,7 +264,6 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
         if (gauge != null) {
             if (gaugeSettings != null) {
                 logger.debug("update Skin");
-                System.out.println("updateskin");
 
 
                 gauge.setBarColor(gaugeSettings.getColorValueIndicator());
@@ -287,7 +282,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                     gauge.setUnit(displayedUnit.getValue());
                 }
                 logger.debug((gauge.getMaxValue() - gauge.getMinValue()) / 10);
-                gauge.setMajorTickSpace((gauge.getMaxValue() - gauge.getMinValue()) / 10);
+                gauge.setMajorTickSpace(gaugeSettings.getMajorTickStep());
             }
         }
 
