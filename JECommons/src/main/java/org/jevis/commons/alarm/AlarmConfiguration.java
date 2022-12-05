@@ -108,7 +108,7 @@ public class AlarmConfiguration {
 
     public void setChecked(Boolean checked) {
         try {
-            if (ds.getCurrentUser().canWrite(object.getID())) {
+            if (ds.getCurrentUser().canWrite(object.getID()) || ds.getCurrentUser().canExecute(object.getID())) {
                 JEVisAttribute checkedAttribute = object.getAttribute(ALARM_CHECKED);
                 if (checkedAttribute != null) {
                     JEVisSample sample = checkedAttribute.buildSample(new DateTime(), checked);
