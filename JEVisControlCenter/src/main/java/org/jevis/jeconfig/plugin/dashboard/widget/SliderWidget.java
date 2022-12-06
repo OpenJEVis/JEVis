@@ -152,6 +152,7 @@ public class SliderWidget extends Widget implements DataModelWidget {
             slider.setMaxValue(minMaxPojo.getMaximum());
             slider.setMinValue(minMaxPojo.getMinimum());
             slider.setDecimals(config.getDecimals());
+            slider.setForegroundBaseColor(config.getFontColor());
         });
 
 
