@@ -145,6 +145,7 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
         Platform.runLater(() -> {
             minusPlus.setDecimals(config.getDecimals());
             minusPlus.setIncrement(incrementPojo.getIncrement());
+            minusPlus.setForegroundBaseColor(config.getFontColor());
         });
 
 
