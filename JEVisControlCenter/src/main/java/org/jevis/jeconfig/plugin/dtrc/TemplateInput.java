@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.dtrc;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -9,8 +10,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class TemplateInput extends TemplateSelected {
     private static final Logger logger = LogManager.getLogger(TemplateInput.class);
@@ -21,8 +21,14 @@ public class TemplateInput extends TemplateSelected {
     private String variableName;
     private String variableType;
     private String templateFormula;
+    @JsonIgnore
+    private final Map<DateTime, Double> resultMap = new HashMap<>();
     private String filter;
     private Boolean group;
+    private String dependency;
+    private double sum = 0d;
+    private double min = Double.MAX_VALUE;
+    private double max = -Double.MAX_VALUE;
 
     public TemplateInput() {
         id = UUID.randomUUID().toString();
@@ -76,6 +82,14 @@ public class TemplateInput extends TemplateSelected {
         this.templateFormula = templateFormula;
     }
 
+    public String getDependency() {
+        return dependency;
+    }
+
+    public void setDependency(String dependency) {
+        this.dependency = dependency;
+    }
+
     public String getFilter() {
         return filter;
     }
@@ -92,11 +106,94 @@ public class TemplateInput extends TemplateSelected {
         this.group = group;
     }
 
+    public Map<DateTime, Double> getResultMap() {
+        return resultMap;
+    }
+
     public void buildVariableName(JEVisClass jeVisClass, JEVisType jeVisType) {
         try {
             setVariableName(CalculationNameFormatter.createVariableName(jeVisClass, jeVisType));
         } catch (JEVisException e) {
             logger.error("Could not create variable name", e);
+        }
+    }
+
+    public void CreateValues(JEVisDataSource ds, DateTime start, DateTime end) {
+        try {
+            resultMap.clear();
+
+            if (!getAttributeName().equals("name")) {
+                JEVisAttribute attribute = ds.getObject(getObjectID()).getAttribute(getAttributeName());
+                String returnValue = "-";
+
+                if (getVariableType() == null
+                        || (getVariableType() != null
+                        && (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())
+                        || getVariableType().equals(InputVariableType.MIN.toString()) || getVariableType().equals(InputVariableType.MAX.toString())))) {
+
+                    QuantityUnits quantityUnits = new QuantityUnits();
+                    boolean isQuantity = quantityUnits.isQuantityUnit(attribute.getInputUnit());
+                    isQuantity = quantityUnits.isQuantityIfCleanData(attribute, isQuantity);
+
+                    List<JEVisSample> samples = attribute.getSamples(start, end);
+
+                    sum = 0d;
+                    min = Double.MAX_VALUE;
+                    max = -Double.MAX_VALUE;
+
+                    for (JEVisSample jeVisSample : samples) {
+                        Double d = jeVisSample.getValueAsDouble();
+                        sum += d;
+                        min = Math.min(min, d);
+                        max = Math.max(max, d);
+                    }
+
+                    if (!isQuantity || getVariableType().equals(InputVariableType.AVG.toString()))
+                        sum = sum / samples.size();
+
+                    if (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())) {
+                        resultMap.put(start, sum);
+                    } else if (getVariableType().equals(InputVariableType.MIN.toString())) {
+                        resultMap.put(start, min);
+                    } else if (getVariableType().equals(InputVariableType.MAX.toString())) {
+                        resultMap.put(start, max);
+                    }
+                } else if (getVariableType() != null
+                        && getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
+                    List<JEVisSample> samples = attribute.getSamples(new DateTime(1990, 1, 1, 0, 0, 0), end);
+                    List<JEVisSample> filteredList = new ArrayList<>();
+
+                    for (int i = samples.size() - 1; i > -1; i--) {
+                        JEVisSample sample = samples.get(i);
+                        filteredList.add(sample);
+                        if (sample.getTimestamp().isBefore(start)) {
+                            break;
+                        }
+                    }
+
+                    for (JEVisSample sample : filteredList) {
+                        resultMap.put(sample.getTimestamp(), sample.getValueAsDouble());
+                    }
+
+                } else if (getVariableType() != null
+                        && getVariableType().equals(InputVariableType.LAST.toString())) {
+                    JEVisSample sample = attribute.getLatestSample();
+                    resultMap.put(start, sample.getValueAsDouble());
+                } else if (getVariableType() != null
+                        && getVariableType().equals(InputVariableType.YEARLY_VALUE.toString())) {
+                    DateTime ydt = new DateTime(start.getYear(), 1, 1, 0, 0, 0, 0);
+                    List<JEVisSample> samples = attribute.getSamples(ydt, ydt.plusYears(1).minusMillis(1));
+                    JEVisSample sample = samples.get(samples.size() - 1);
+                    LocalDate ld = new LocalDate(start.getYear(), 1, 1);
+                    int daysOfYear = Days.daysBetween(ld, ld.plusYears(1)).getDays();
+                    int daysOfInterval = Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays();
+                    double value = sample.getValueAsDouble() / daysOfYear * daysOfInterval;
+
+                    resultMap.put(ydt, value);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not get template input value for {}", getVariableName(), e);
         }
     }
 
