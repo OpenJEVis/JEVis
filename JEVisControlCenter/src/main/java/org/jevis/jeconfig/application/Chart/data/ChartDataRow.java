@@ -80,7 +80,9 @@ public class ChartDataRow extends ChartData {
             setAttributeString(chartData.getAttributeString());
             setAggregationPeriod(chartData.getAggregationPeriod());
             setManipulationMode(chartData.getManipulationMode());
-            setUnit(chartData.getUnit());
+            setUnitPrefix(chartData.getUnitPrefix());
+            setUnitFormula(chartData.getUnitFormula());
+            setUnitLabel(chartData.getUnitLabel());
             setName(chartData.getName());
             setColor(chartData.getColor());
             setAxis(chartData.getAxis());
@@ -101,18 +103,6 @@ public class ChartDataRow extends ChartData {
             setSelectedEnd(chartData.getIntervalEndDateTime());
 
         }
-    }
-
-    public String getUnitLabel() {
-        JEVisUnit jUnit = getUnit();
-
-        String unit = UnitManager.getInstance().format(jUnit);
-        if (jUnit != null && jUnit.getLabel() != null && !jUnit.getLabel().isEmpty()) {
-            unit = UnitManager.getInstance().format(jUnit.getLabel());
-
-        }
-
-        return unit;
     }
 
     public Map<DateTime, JEVisSample> getNoteSamples() {
@@ -901,7 +891,9 @@ public class ChartDataRow extends ChartData {
         newModel.setColor(this.getColor());
         newModel.setName(this.getName());
         newModel.setSamples(this.getSamples());
-        newModel.setUnit(this.getUnit());
+        newModel.setUnitPrefix(this.getUnitPrefix());
+        newModel.setUnitLabel(this.getUnitLabel());
+        newModel.setUnitFormula(this.getUnitFormula());
         newModel.setBubbleType(this.getBubbleType());
         newModel.setAbsolute(this.getAbsolute());
         newModel.setScaleFactor(this.getScaleFactor());

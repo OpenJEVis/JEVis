@@ -222,7 +222,7 @@ public class SaveAnalysisDialog extends JFXDialog {
                     dialogOverwrite.close();
                 });
 
-                dialogOverwrite.showAndWait();
+                dialogOverwrite.show();
             }
             close();
         });
