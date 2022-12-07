@@ -26,9 +26,11 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -43,10 +45,7 @@ import org.mariuszgromada.math.mxparser.Expression;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OutputView extends Tab {
@@ -390,25 +389,140 @@ public class OutputView extends Tab {
                                 result.setText(NO_RESULT);
 
                                 String formulaString = formula.getFormula();
+                                Double calculate = 0d;
                                 logger.debug("Start of formula creation: " + formulaString);
 
                                 boolean isText = false;
+                                List<DateTime> allTimestamps = new ArrayList<>();
+                                List<TemplateInput> textTypeInputs = new ArrayList<>();
+                                List<TemplateInput> valueTypeInputs = new ArrayList<>();
+                                List<TemplateInput> oneValueTypeInputs = new ArrayList<>();
+                                List<TemplateInput> dependencyInputs = new ArrayList<>();
                                 for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
                                     if (formula.getInputIds().contains(templateInput.getId())) {
-                                        if (templateInput.getVariableType().equals(InputVariableType.STRING.toString())) {
+                                        if (templateInput.getVariableType().equals(InputVariableType.STRING.toString()) || templateInput.getAttributeName().equals("Name")) {
                                             isText = true;
-                                        }
+                                            formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
+                                        } else if (templateInput.getVariableType().equals(InputVariableType.AVG.toString())
+                                                || templateInput.getVariableType().equals(InputVariableType.MIN.toString())
+                                                || templateInput.getVariableType().equals(InputVariableType.MAX.toString())
+                                                || templateInput.getVariableType().equals(InputVariableType.SUM.toString())) {
+                                            templateInput.CreateValues(ds, start, end);
 
-                                        if (templateInput.getVariableType().equals(InputVariableType.RANGING_VALUE.toString())) {
+                                            templateInput.getResultMap().forEach((dateTime, aDouble) -> {
+                                                if (!allTimestamps.contains(dateTime)) allTimestamps.add(dateTime);
+                                            });
+
+                                            valueTypeInputs.add(templateInput);
+                                        } else if (templateInput.getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
+                                            templateInput.CreateValues(ds, start, end);
+
+                                            templateInput.getResultMap().forEach((dateTime, aDouble) -> {
+                                                if (!allTimestamps.contains(dateTime)) allTimestamps.add(dateTime);
+                                            });
+
+                                            oneValueTypeInputs.add(templateInput);
+
+                                            if (templateInput.getDependency() != null) {
+                                                TemplateInput dependencyInput = templateHandler.getRcTemplate().getTemplateInputs().stream().filter(ti -> ti.getId().equals(templateInput.getDependency())).findFirst().orElse(null);
+                                                if (dependencyInput != null) {
+                                                    dependencyInput.CreateValues(ds, start, end);
+                                                    dependencyInputs.add(dependencyInput);
+                                                }
+                                            }
+                                        } else if (templateInput.getVariableType().equals(InputVariableType.LAST.toString())) {
+                                            templateInput.CreateValues(ds, start, end);
+
+                                            templateInput.getResultMap().forEach((dateTime, aDouble) -> {
+                                                if (!allTimestamps.contains(dateTime)) allTimestamps.add(dateTime);
+                                            });
+
+                                            oneValueTypeInputs.add(templateInput);
+                                        } else if (templateInput.getVariableType().equals(InputVariableType.YEARLY_VALUE.toString())) {
+                                            templateInput.CreateValues(ds, start, end);
+
+                                            templateInput.getResultMap().forEach((dateTime, aDouble) -> {
+                                                if (!allTimestamps.contains(dateTime)) allTimestamps.add(dateTime);
+                                            });
+
+                                            oneValueTypeInputs.add(templateInput);
+                                        } else if (templateInput.getVariableType().equals(InputVariableType.RANGING_VALUE.toString())) {
 
                                             String rangingValueDeterminationId = templateInput.getRangingValueDetermination();
                                             Double rangingValueDetermination = templateHandler.getRcTemplate().getTemplateInputs().stream().filter(determinationInput -> rangingValueDeterminationId.equals(determinationInput.getId())).findFirst().map(determinationInput -> Double.parseDouble(determinationInput.getValue(ds, start, end))).orElse(null);
 
                                             formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end, rangingValueDetermination));
-                                        } else {
-                                            formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end));
                                         }
                                     }
+                                }
+
+                                dependencyInputs.forEach(dependencyInput -> dependencyInput.getResultMap().forEach((dateTime, aDouble) -> {
+                                    if (!allTimestamps.contains(dateTime)) allTimestamps.add(dateTime);
+                                }));
+
+                                allTimestamps.sort(Comparator.naturalOrder());
+
+                                for (TemplateInput oneValueTypeInput : oneValueTypeInputs) {
+                                    if (oneValueTypeInput.getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
+                                        List<ValueWithDateTime> valuesWithDateTimes = new ArrayList<>();
+                                        oneValueTypeInput.getResultMap().forEach((dateTime, aDouble) -> valuesWithDateTimes.add(new ValueWithDateTime(dateTime, aDouble)));
+                                        valuesWithDateTimes.sort(Comparator.comparing(o -> o.getDateTime().get(0)));
+                                        ValueWithDateTime lastValue = valuesWithDateTimes.get(0);
+
+                                        for (DateTime ts : allTimestamps) {
+                                            if (!oneValueTypeInput.getResultMap().containsKey(ts)) {
+                                                oneValueTypeInput.getResultMap().put(ts, lastValue.getValue());
+                                            } else {
+                                                lastValue = new ValueWithDateTime(ts, oneValueTypeInput.getResultMap().get(ts));
+                                            }
+                                        }
+                                    } else if (oneValueTypeInput.getVariableType().equals(InputVariableType.LAST.toString())) {
+                                        Double d = oneValueTypeInput.getResultMap().entrySet().stream().findFirst().map(Map.Entry::getValue).orElse(null);
+                                        if (d != null) {
+                                            for (DateTime ts : allTimestamps) {
+                                                oneValueTypeInput.getResultMap().put(ts, d);
+                                            }
+                                        }
+                                    } else if (oneValueTypeInput.getVariableType().equals(InputVariableType.YEARLY_VALUE.toString())) {
+                                        Double d = oneValueTypeInput.getResultMap().entrySet().stream().findFirst().map(Map.Entry::getValue).orElse(null);
+                                        if (d != null) {
+                                            d = d / allTimestamps.size();
+
+                                            for (DateTime ts : allTimestamps) {
+                                                oneValueTypeInput.getResultMap().put(ts, d);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Map<DateTime, Double> allResults = new HashMap<>();
+                                for (DateTime ts : allTimestamps) {
+                                    String s = formulaString;
+                                    for (TemplateInput valueTypeInput : valueTypeInputs) {
+                                        s = formulaString.replace(valueTypeInput.getVariableName(), String.valueOf(valueTypeInput.getResultMap().get(ts)));
+                                    }
+
+                                    for (TemplateInput oneValueTypeInput : oneValueTypeInputs) {
+                                        s = formulaString.replace(oneValueTypeInput.getVariableName(), String.valueOf(oneValueTypeInput.getResultMap().get(ts)));
+                                    }
+
+                                    Expression expression = new Expression(s);
+                                    Double d = expression.calculate();
+                                    if (!d.isNaN()) {
+                                        allResults.put(ts, d);
+                                    }
+                                }
+
+                                //TODO check quantity or not
+                                for (Map.Entry<DateTime, Double> entry : allResults.entrySet()) {
+                                    Double aDouble = entry.getValue();
+                                    calculate += aDouble;
+                                }
+
+                                QuantityUnits qu = new QuantityUnits();
+
+                                if (!qu.isQuantityUnit(templateOutput.getUnit())) {
+                                    calculate = calculate / allResults.size();
                                 }
 
                                 logger.debug("Formula after input replacement: " + formulaString);
@@ -429,8 +543,10 @@ public class OutputView extends Tab {
 
                                 if (!isText) {
                                     try {
-                                        Expression expression = new Expression(formulaString);
-                                        Double calculate = expression.calculate();
+                                        if (calculate == 0d) {
+                                            Expression expression = new Expression(formulaString);
+                                            calculate = expression.calculate();
+                                        }
                                         if (!calculate.isNaN()) {
                                             resultMap.put(formula.getId(), calculate);
                                         }
