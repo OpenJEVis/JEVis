@@ -1,9 +1,14 @@
 package org.jevis.jeconfig.plugin.dtrc;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.object.plugin.RangingValues;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.joda.time.DateTime;
@@ -14,7 +19,7 @@ import java.util.*;
 
 public class TemplateInput extends TemplateSelected {
     private static final Logger logger = LogManager.getLogger(TemplateInput.class);
-
+    private final ObjectMapper mapper = new ObjectMapper();
     private String id;
     private String objectClass;
     private String attributeName;
@@ -25,13 +30,17 @@ public class TemplateInput extends TemplateSelected {
     private final Map<DateTime, Double> resultMap = new HashMap<>();
     private String filter;
     private Boolean group;
+    private String rangingValueDetermination;
     private String dependency;
     private double sum = 0d;
     private double min = Double.MAX_VALUE;
     private double max = -Double.MAX_VALUE;
 
     public TemplateInput() {
-        id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID().toString();
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
     public String getId() {
@@ -198,6 +207,10 @@ public class TemplateInput extends TemplateSelected {
     }
 
     public String getValue(JEVisDataSource ds, DateTime start, DateTime end) {
+        return this.getValue(ds, start, end, null);
+    }
+
+    public String getValue(JEVisDataSource ds, DateTime start, DateTime end, Double determinationValue) {
         try {
             if (!getAttributeName().equals("name")) {
                 JEVisAttribute attribute = ds.getObject(getObjectID()).getAttribute(getAttributeName());
@@ -252,6 +265,22 @@ public class TemplateInput extends TemplateSelected {
                         && getVariableType().equals(InputVariableType.STRING.toString())) {
                     JEVisSample latestSample = attribute.getLatestSample();
                     returnValue = latestSample.getValueAsString();
+                } else if (getVariableType() != null
+                        && getVariableType().equals(InputVariableType.RANGING_VALUE.toString()) && determinationValue != null) {
+                    JEVisSample latestSample = attribute.getLatestSample();
+                    RangingValues rangingValues = new RangingValues();
+                    try {
+                        JsonNode jsonNode = this.mapper.readTree(latestSample.getValueAsString());
+                        this.mapper.readerForUpdating(rangingValues).treeToValue(jsonNode, RangingValues.class);
+                    } catch (Exception e) {
+                        logger.error("Could not parse json model", e);
+                    }
+
+                    Double value = rangingValues.getValue(determinationValue);
+
+                    if (value != null) {
+                        returnValue = String.valueOf(value);
+                    }
                 }
 
                 if (returnValue.equals("NaN") || returnValue.equals("")) returnValue = "0";
@@ -284,5 +313,13 @@ public class TemplateInput extends TemplateSelected {
         setVariableType(input.getVariableType());
         setFilter(input.getFilter());
         setGroup(input.getGroup());
+    }
+
+    public String getRangingValueDetermination() {
+        return rangingValueDetermination;
+    }
+
+    public void setRangingValueDetermination(String rangingValueDetermination) {
+        this.rangingValueDetermination = rangingValueDetermination;
     }
 }

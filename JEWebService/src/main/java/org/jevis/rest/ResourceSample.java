@@ -63,9 +63,9 @@ public class ResourceSample {
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
     private final ObjectMapper objectMapper = new ObjectMapper();
     /**
-     * List of classes which can be updated with the execute permission
+     * List of classes which can be updated with execute permission
      **/
-    String[] executeClasses = new String[]{"Data Notes", "User Data", "Clean Data"};
+    String[] executeClasses = new String[]{"Data Notes", "User Data", "Alarm Configuration", "Clean Data"};
     public final List<String> executeUpdateExceptions = Arrays.asList(executeClasses);
     private SQLDataSource ds = null;
     private List<JsonSample> list;
@@ -482,10 +482,10 @@ public class ResourceSample {
                     // If user can write -> OK
                     // If user can execute and only Note changed -> OK
                     int result = 0;
-                    if (canWrite || (canExecute && (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")))) {
+                    if (canWrite || (canExecute && (object.getJevisClass().equals(this.executeUpdateExceptions.get(0)) || object.getJevisClass().equals(this.executeUpdateExceptions.get(1))))) {
                         logger.debug("canWrite import");
                         result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-                    } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(2))) {
+                    } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(3))) {
                         /** update notes but not samples **/
                         logger.debug("canExecute Sample: {}-{} for: {}", id, att, ds.getCurrentUser().getAccountName());
                         for (JsonSample jsonSample : samples) {
@@ -506,6 +506,9 @@ public class ResourceSample {
                             logger.debug("Add Notes: {}", sampleList);
                             result += ds.setSamples(id, attribute, type.getPrimitiveType(), sampleList);
                         }
+                    } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(2)) && attribute.equals("Alarm Checked")) {
+                        logger.debug("canWrite alarm configuration:alarm checked");
+                        result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
                     }
 
                     ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE, String.format("%s:%s|%s|%s", id, attribute, result, Samples.getDuration(samples)));

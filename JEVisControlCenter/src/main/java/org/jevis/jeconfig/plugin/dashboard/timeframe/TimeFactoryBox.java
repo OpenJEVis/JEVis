@@ -1,15 +1,15 @@
 package org.jevis.jeconfig.plugin.dashboard.timeframe;
 
-import com.jfoenix.controls.JFXComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 
-public class TimeFactoryBox extends JFXComboBox<TimeFrame> {
+public class TimeFactoryBox extends DisabledItemsComboBox<TimeFrame> {
 
 
     private final TimeFrame offTimeFrame = emptyTimeFrame();

@@ -5,13 +5,9 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.dialog.*;
 import org.joda.time.DateTime;
@@ -116,12 +112,18 @@ public class NewObject {
         JEVisClass reportClass = newObject.getDataSource().getJEVisClass("Periodic Report");
         JEVisClass calculationClass = newObject.getDataSource().getJEVisClass("Calculation");
         JEVisClass createClass = newObject.getJEVisClass();
+        JEVisClass dwdServer = newObject.getDataSource().getJEVisClass("DWD Server");
 
         if (createClass.equals(dataClass) || createClass.equals(cleanDataClass)) {
             JEVisAttribute valueAttribute = newObject.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             valueAttribute.setInputSampleRate(Period.minutes(15));
             valueAttribute.setDisplaySampleRate(Period.minutes(15));
             valueAttribute.commit();
+
+            JEVisAttribute periodAttribute = newObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+            Period p = Period.minutes(15);
+            JEVisSample dataObjectPeriodSample = periodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), p.toString());
+            dataObjectPeriodSample.commit();
 
             if (createClass.equals(dataClass) && isCleanData) {
                 JEVisObject newCleanObject = newObject.buildObject(I18n.getInstance().getString("tree.treehelper.cleandata.name"), cleanDataClass);
@@ -132,6 +134,10 @@ public class NewObject {
                 cleanDataValueAttribute.setInputSampleRate(Period.minutes(15));
                 cleanDataValueAttribute.setDisplaySampleRate(Period.minutes(15));
                 cleanDataValueAttribute.commit();
+
+                JEVisAttribute cleanDataPeriodAttribute = newCleanObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                JEVisSample cleanDataObjectPeriodSample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), p.toString());
+                cleanDataObjectPeriodSample.commit();
             }
 
         } else if (createClass.equals(reportClass)) {
@@ -147,6 +153,8 @@ public class NewObject {
             allZeroAtt.buildSample(ts, 0).commit();
 
 
+        } else if (createClass.equals(dwdServer)) {
+//            Platform.runLater(() -> new DWDWizardDialog(newObject));
         }
 
     }

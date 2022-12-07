@@ -115,6 +115,9 @@ public class TemplateCalculationInputDialog extends JFXDialog {
                                 case FORMULA:
                                     setText(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
                                     break;
+                                case RANGING_VALUE:
+                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.rangingvalue"));
+                                    break;
                             }
                         }
                     }

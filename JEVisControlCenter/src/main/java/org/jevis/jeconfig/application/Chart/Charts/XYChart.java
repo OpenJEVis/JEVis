@@ -31,6 +31,8 @@ import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
+import org.jevis.commons.unit.ChartUnits.ChartUnits;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
@@ -284,16 +286,22 @@ public class XYChart implements Chart {
                 List<XYChartSerie> y1Series = xyChartSerieList.stream().filter(serie -> serie.getSingleRow().getAxis() == 0 && (serie.getSingleRow().getChartType() == ChartType.DEFAULT ||
                         serie.getSingleRow().getChartType() == ChartType.STACKED_AREA || serie.getSingleRow().getChartType() == ChartType.STACKED_COLUMN)).collect(Collectors.toList());
 
-                String name = "~" + I18n.getInstance().getString("plugin.graph.table.sum") + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1");
+                String name = "~" + I18n.getInstance().getString("plugin.graph.chart.header.stacked.y1");
                 TableEntry sumEntry = new TableEntry(name);
                 sumEntry.setColor(Color.BLACK);
+                ChartDataRow firstY1Row = y1Series.get(0).getSingleRow();
+                sumEntry.setPeriod(y1Series.get(0).getTableEntry().getPeriod());
                 y1SumSerie = new XYChartSerie();
                 ChartDataRow chartDataRow = new ChartDataRow(ds, new ChartData());
-                JEVisUnit unit = y1Series.get(0).getSingleRow().getUnit();
+                JEVisUnit unit = firstY1Row.getUnit();
                 chartDataRow.setColor(Color.BLACK);
                 chartDataRow.setChartType(ChartType.LINE);
                 chartDataRow.setUnit(unit);
                 chartDataRow.setAxis(0);
+                chartDataRow.setScaleFactor(firstY1Row.getScaleFactor());
+                chartDataRow.setTimeFactor(firstY1Row.getTimeFactor());
+                chartDataRow.setPeriod(firstY1Row.getPeriod());
+                chartDataRow.setFormatString(firstY1Row.getFormatString());
                 chartDataRow.setSomethingChanged(false);
                 y1SumSerie.setSingleRow(chartDataRow);
                 DoubleDataSet noteDataSet = new DoubleDataSet(name);
@@ -369,7 +377,35 @@ public class XYChart implements Chart {
                 avg = sum / sampleMap.size();
                 sumEntry.setAvg(nf.format(avg) + " " + unit.getLabel());
 
-                sumEntry.setSum(nf.format(sum) + " " + unit.getLabel());
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(unit);
+                if (isQuantity) {
+                    sumEntry.setSum(nf.format(sum) + " " + unit.getLabel());
+                } else {
+                    if (qu.isSumCalculable(unit) && y1SumSerie.getSingleRow().getManipulationMode().equals(ManipulationMode.NONE)) {
+                        try {
+                            JEVisUnit sumUnit = qu.getSumUnit(unit);
+                            ChartUnits cu = new ChartUnits();
+                            double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
+                            JEVisUnit inputUnit = firstY1Row.getAttribute().getInputUnit();
+                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
+
+                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
+                                sum = sum * newScaleFactor / y1SumSerie.getSingleRow().getTimeFactor();
+                            } else {
+                                sum = sum / y1SumSerie.getSingleRow().getScaleFactor() / y1SumSerie.getSingleRow().getTimeFactor();
+                            }
+
+                            Double finalSum1 = sum;
+                            sumEntry.setSum(nf.format(finalSum1) + " " + sumUnit.getLabel());
+                        } catch (Exception e) {
+                            logger.error("Couldn't calculate periods");
+                            sumEntry.setSum("- " + unit.getLabel());
+                        }
+                    } else {
+                        sumEntry.setSum("- " + unit.getLabel());
+                    }
+                }
 
                 for (XYChartSerie xyChartSerie : y1Series) {
                     xyChartSerie.setValueDataSet(dataSets.get(y1Series.indexOf(xyChartSerie)));
@@ -380,16 +416,22 @@ public class XYChart implements Chart {
                 List<XYChartSerie> y2Series = xyChartSerieList.stream().filter(serie -> serie.getSingleRow().getAxis() == 1 && (serie.getSingleRow().getChartType() == ChartType.DEFAULT ||
                         serie.getSingleRow().getChartType() == ChartType.STACKED_AREA || serie.getSingleRow().getChartType() == ChartType.STACKED_COLUMN)).collect(Collectors.toList());
 
-                String name = "~" + I18n.getInstance().getString("plugin.graph.table.sum") + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2");
+                String name = "~" + I18n.getInstance().getString("plugin.graph.chart.header.stacked.y2");
                 TableEntry sumEntry = new TableEntry(name);
                 sumEntry.setColor(Color.BLACK);
+                ChartDataRow firstY2Row = y2Series.get(0).getSingleRow();
+                sumEntry.setPeriod(y2Series.get(0).getTableEntry().getPeriod());
                 y2SumSerie = new XYChartSerie();
                 ChartDataRow chartDataRow = new ChartDataRow(ds, new ChartData());
-                JEVisUnit unit = y2Series.get(0).getSingleRow().getUnit();
+                JEVisUnit unit = firstY2Row.getUnit();
                 chartDataRow.setColor(Color.BLACK);
                 chartDataRow.setChartType(ChartType.LINE);
                 chartDataRow.setUnit(unit);
                 chartDataRow.setAxis(1);
+                chartDataRow.setScaleFactor(firstY2Row.getScaleFactor());
+                chartDataRow.setTimeFactor(firstY2Row.getTimeFactor());
+                chartDataRow.setPeriod(firstY2Row.getPeriod());
+                chartDataRow.setFormatString(firstY2Row.getFormatString());
                 chartDataRow.setSomethingChanged(false);
                 y2SumSerie.setSingleRow(chartDataRow);
                 DoubleDataSet noteDataSet = new DoubleDataSet(name);
@@ -466,7 +508,36 @@ public class XYChart implements Chart {
                 avg = sum / sampleMap.size();
                 sumEntry.setAvg(nf.format(avg) + " " + unit.getLabel());
 
-                sumEntry.setSum(nf.format(sum) + " " + unit.getLabel());
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(unit);
+                if (isQuantity) {
+                    sumEntry.setSum(nf.format(sum) + " " + unit.getLabel());
+                } else {
+                    if (qu.isSumCalculable(unit) && y2SumSerie.getSingleRow().getManipulationMode().equals(ManipulationMode.NONE)) {
+                        try {
+                            JEVisUnit sumUnit = qu.getSumUnit(unit);
+                            ChartUnits cu = new ChartUnits();
+                            double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
+                            JEVisUnit inputUnit = firstY2Row.getAttribute().getInputUnit();
+                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
+
+                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
+                                sum = sum * newScaleFactor / y2SumSerie.getSingleRow().getTimeFactor();
+                            } else {
+                                sum = sum / y2SumSerie.getSingleRow().getScaleFactor() / y2SumSerie.getSingleRow().getTimeFactor();
+                            }
+
+                            Double finalSum1 = sum;
+                            sumEntry.setSum(nf.format(finalSum1) + " " + sumUnit.getLabel());
+                        } catch (Exception e) {
+                            logger.error("Couldn't calculate periods");
+                            sumEntry.setSum("- " + unit.getLabel());
+                        }
+                    } else {
+                        sumEntry.setSum("- " + unit.getLabel());
+                    }
+                }
+
 
                 for (XYChartSerie xyChartSerie : y2Series) {
                     xyChartSerie.setValueDataSet(dataSets.get(y2Series.indexOf(xyChartSerie)));

@@ -36,12 +36,14 @@ public class ShapePojo {
 
     private double maxValue = 100;
 
-    private HBox min;
-    private HBox max;
+    private double increment = 0;
+
 
     private JFXTextField jfxTextFieldMinValue;
 
     private JFXTextField jfxTextFieldMaxValue;
+
+    private JFXTextField jfxTextFieldStepDistance;
 
     private ColorPickerAdv colorPickerAdvMax;
 
@@ -74,6 +76,9 @@ public class ShapePojo {
             }
             if (jsonNode.has("minValue")) {
                 minValue = jsonNode.get("minValue").doubleValue();
+            }
+            if (jsonNode.has("increment")) {
+                increment = jsonNode.get("increment").asDouble(0);
             }
         }
 
@@ -132,8 +137,6 @@ public class ShapePojo {
                 ", maxColor=" + maxColor +
                 ", minValue=" + minValue +
                 ", maxValue=" + maxValue +
-                ", min=" + min +
-                ", max=" + max +
                 '}';
     }
 
@@ -167,11 +170,15 @@ public class ShapePojo {
         jfxTextFieldMinValue = new JFXTextField();
         jfxTextFieldMinValue.setText(String.valueOf(minValue));
 
+        jfxTextFieldStepDistance = new JFXTextField();
+        jfxTextFieldStepDistance.setText(String.valueOf(increment));
+
 
         gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.shape")), jfxComboBox);
 
-        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), jfxTextFieldMinValue, colorPickerAdvMin);
-        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), jfxTextFieldMaxValue, colorPickerAdvMax);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.min")), jfxTextFieldMinValue, colorPickerAdvMin);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.max")), jfxTextFieldMaxValue, colorPickerAdvMax);
+        gridPane.addRow(3,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.stepdistance")),jfxTextFieldStepDistance);
 
 
         tab.setContent(gridPane);
@@ -190,7 +197,17 @@ public class ShapePojo {
         dataNode.put("minColor", minColor.toString());
         dataNode.put("minValue", minValue);
 
+        dataNode.put("increment", increment);
+
         return dataNode;
+    }
+
+    public double getStepDistance() {
+        return increment;
+    }
+
+    public void setStepDistance(double stepDistance) {
+        this.increment = stepDistance;
     }
 
     private class ShapeTab extends Tab implements ConfigTab {
@@ -211,6 +228,8 @@ public class ShapePojo {
 
                 maxColor = (colorPickerAdvMax.getValue());
                 minColor = (colorPickerAdvMin.getValue());
+
+                increment = Double.parseDouble(jfxTextFieldStepDistance.getText());
 
             } catch (Exception e) {
                 e.printStackTrace();

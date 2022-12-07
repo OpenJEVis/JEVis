@@ -92,7 +92,7 @@ public class ChartTab extends Tab {
         this.chartModel = chartModel;
         this.dialogContainer = dialogContainer;
         this.tableMenu = new ToolBar(newButton, copyButton, deleteButton);
-        this.chartTable = new Table(dialogContainer, chartModel);
+        this.chartTable = new Table(dialogContainer, ds, chartModel);
         boolean hasCustomIntervalEnabled = chartModel.getChartData().stream().anyMatch(ChartData::isIntervalEnabled);
         setIntervalStartColumnVisible(hasCustomIntervalEnabled);
         setIntervalEndColumnVisible(hasCustomIntervalEnabled);
@@ -104,6 +104,8 @@ public class ChartTab extends Tab {
         chartSettings.setHgap(7);
         chartSettings.setVgap(7);
         chartSettings.setPadding(new Insets(4, 4, 4, 4));
+
+        chartModel.getChartData().stream().map(ChartData::getColor).forEach(usedColors::add);
 
         Label nameLabel = new Label();
         nameLabel.textProperty().bind(chartModel.chartNameProperty());
@@ -180,8 +182,6 @@ public class ChartTab extends Tab {
 
             List<JEVisClass> filterClasses = new ArrayList<>();
             filterClasses.add(dataClass);
-            filterClasses.add(cleanDataClass);
-            filterClasses.add(mathDataClass);
             filterClasses.add(baseDataClass);
 
             TreeSelectionDialog selectTargetDialog;
@@ -195,9 +195,14 @@ public class ChartTab extends Tab {
                 try {
                     if (selectTargetDialog.getResponse() == Response.OK) {
 
-                        for (JEVisObject object : selectTargetDialog.getTreeView().getSelectedObjects()) {
-
+                        for (JEVisObject dataObject : selectTargetDialog.getTreeView().getSelectedObjects()) {
+                            JEVisObject cleanDataObject = dataObject.getChildren(cleanDataClass, true).stream().findFirst().orElse(null);
                             ChartData chartData = new ChartData();
+                            JEVisObject object = dataObject;
+                            if (cleanDataObject != null) {
+                                object = cleanDataObject;
+                            }
+
                             chartData.setId(object.getID());
                             chartData.setObjectName(object);
                             chartData.setAttributeString("Value");
@@ -498,6 +503,10 @@ public class ChartTab extends Tab {
 
     public void setNameColumnVisible(boolean visible) {
         chartTable.getNameColumn().setVisible(visible);
+    }
+
+    public void setProcessorObjectColumnVisible(boolean visible) {
+        chartTable.getProcessorObjectColumn().setVisible(visible);
     }
 
     public void setChartTypeColumnVisible(boolean visible) {

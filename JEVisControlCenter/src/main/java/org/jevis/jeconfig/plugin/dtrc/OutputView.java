@@ -51,9 +51,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OutputView extends Tab {
     private static final Logger logger = LogManager.getLogger(OutputView.class);
     private static final String NO_RESULT = I18n.getInstance().getString("plugin.dtrc.noresult");
+    private static final Insets INSETS = new Insets(12);
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
-    private StackPane contractsDialogContainer;
-    private StackPane viewDialogContainer;
     private final JEVisDataSource ds;
     private final JFXDatePicker startDate = new JFXDatePicker(LocalDate.now());
     private final JFXDatePicker endDate = new JFXDatePicker(LocalDate.now());
@@ -65,15 +64,16 @@ public class OutputView extends Tab {
     private final SimpleBooleanProperty showDatePicker = new SimpleBooleanProperty(true);
     private final VBox viewVBox;
     private final GridPane viewInputs = new GridPane();
-    private SelectionTemplate selectionTemplate;
     private final IntervalSelector intervalSelector;
     private final ConcurrentHashMap<String, Double> resultMap = new ConcurrentHashMap<>();
-    private static final Insets INSETS = new Insets(12);
     private final AlphanumComparator alphanumComparator = new AlphanumComparator();
     private final ObjectRelations objectRelations;
     private final GridPane headerGP = new GridPane();
     private final HBox dateBox;
     private final DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
+    private StackPane contractsDialogContainer;
+    private StackPane viewDialogContainer;
+    private SelectionTemplate selectionTemplate;
     private GridPane contractsGP;
     private Label timeframeField;
     private double fontSize = 12d;
@@ -446,6 +446,12 @@ public class OutputView extends Tab {
                                             });
 
                                             oneValueTypeInputs.add(templateInput);
+                                        } else if (templateInput.getVariableType().equals(InputVariableType.RANGING_VALUE.toString())) {
+
+                                            String rangingValueDeterminationId = templateInput.getRangingValueDetermination();
+                                            Double rangingValueDetermination = templateHandler.getRcTemplate().getTemplateInputs().stream().filter(determinationInput -> rangingValueDeterminationId.equals(determinationInput.getId())).findFirst().map(determinationInput -> Double.parseDouble(determinationInput.getValue(ds, start, end))).orElse(null);
+
+                                            formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end, rangingValueDetermination));
                                         }
                                     }
                                 }
