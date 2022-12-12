@@ -23,6 +23,7 @@ import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
@@ -34,10 +35,15 @@ import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.accounting.SelectionTemplate;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
+import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
+import org.jevis.jeconfig.plugin.object.attribute.RangingValueEditor;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mariuszgromada.math.mxparser.Expression;
@@ -218,6 +224,17 @@ public class OutputView extends Tab {
         //Sort outputs by formula
         List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
         final List<TemplateFormula> templateFormulas = templateHandler.getRcTemplate().getTemplateFormulas();
+        final Map<String, Boolean> intervalConfiguration = templateHandler.getRcTemplate().getIntervalSelectorConfiguration();
+
+        List<TimeFrame> inactiveTimeFrames = new ArrayList<>();
+        for (TimeFrame item : intervalSelector.getTimeFactoryBox().getItems()) {
+            Boolean aBoolean = intervalConfiguration.get(item.getID());
+            if (aBoolean == null || !aBoolean) {
+                inactiveTimeFrames.add(item);
+            }
+        }
+        intervalSelector.getTimeFactoryBox().getItems().removeAll(inactiveTimeFrames);
+        intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
 
         List<TemplateOutput> separatorOutputs = new ArrayList<>();
 
@@ -318,9 +335,6 @@ public class OutputView extends Tab {
             @Override
             protected Void call() {
 
-                DateTime start = getStart();
-                DateTime end = getEnd();
-
                 for (TemplateOutput templateOutput : outputs) {
                     if (!templateOutput.getSeparator()) {
                         try {
@@ -352,16 +366,41 @@ public class OutputView extends Tab {
                                         TargetHelper th = new TargetHelper(ds, templateOutput.getTarget());
 
                                         manSampleButton.setOnAction(event -> {
-                                            if (th.isValid() && th.targetObjectAccessible() && !th.getAttribute().isEmpty()) {
-                                                JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
+                                            try {
+                                                JEVisAttribute attribute = th.getAttribute().get(0);
+                                                if (th.isValid() && th.targetObjectAccessible() && !th.getAttribute().isEmpty()) {
 
-                                                EnterDataDialog enterDataDialog = new EnterDataDialog(viewDialogContainer, ds);
-                                                enterDataDialog.setShowDetailedTarget(false);
-                                                enterDataDialog.setTarget(false, th.getAttribute().get(0));
-                                                enterDataDialog.setSample(lastValue);
-                                                enterDataDialog.setShowValuePrompt(true);
 
-                                                enterDataDialog.show();
+                                                    JEVisSample lastValue = attribute.getLatestSample();
+                                                    String guiDisplayType = attribute.getType().getGUIDisplayType();
+
+                                                    if (attribute.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.STRING
+                                                            && guiDisplayType.equalsIgnoreCase(GUIConstants.RANGING_VALUE.getId())) {
+                                                        AttributeEditor editor = new RangingValueEditor(viewDialogContainer, attribute);
+                                                        Label editorLabel = new Label(I18nWS.getInstance().getAttributeName(attribute));
+                                                        VBox editorLabelVBox = new VBox(editorLabel);
+                                                        editorLabelVBox.setAlignment(Pos.CENTER);
+
+                                                        HBox content = new HBox(6, editorLabelVBox, editor.getEditor());
+
+                                                        JFXDialog dialog = new JFXDialog();
+                                                        dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
+                                                        dialog.setOverlayClose(false);
+                                                        dialog.setContent(content);
+
+                                                        dialog.show();
+                                                    } else {
+                                                        EnterDataDialog enterDataDialog = new EnterDataDialog(viewDialogContainer, ds);
+                                                        enterDataDialog.setShowDetailedTarget(false);
+                                                        enterDataDialog.setTarget(false, attribute);
+                                                        enterDataDialog.setSample(lastValue);
+                                                        enterDataDialog.setShowValuePrompt(true);
+
+                                                        enterDataDialog.show();
+                                                    }
+                                                }
+                                            } catch (Exception e) {
+                                                logger.error("Could not determin attribute type and gui display type", e);
                                             }
                                         });
 
@@ -386,7 +425,44 @@ public class OutputView extends Tab {
 
                             if (formula != null) {
 
+                                DateTime start = getStart();
+                                DateTime end = getEnd();
+
                                 result.setText(NO_RESULT);
+                                if (formula.getTimeRestrictionEnabled()) {
+                                    TimeFrame fixedTimeFrame = null;
+                                    TimeFrame reducingTimeFrame = null;
+
+                                    for (TimeFrame timeFrame : intervalSelector.getTimeFactoryBox().getItems()) {
+                                        if (formula.getFixedTimeFrame().equals(timeFrame.getID())) {
+                                            fixedTimeFrame = timeFrame;
+                                        } else if (formula.getReducingTimeFrame().equals(timeFrame.getID())) {
+                                            reducingTimeFrame = timeFrame;
+                                        }
+                                    }
+
+                                    if (fixedTimeFrame != null && reducingTimeFrame != null) {
+                                        start = fixedTimeFrame.getInterval(getStart()).getStart();
+                                        end = getEnd();
+
+                                        Period p = null;
+                                        try {
+                                            p = new Period(reducingTimeFrame.getID());
+                                        } catch (Exception ignored) {
+                                        }
+
+                                        DateTime previousEndDate = null;
+                                        if (p != null) {
+                                            previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
+                                        } else {
+                                            previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart()).toDuration());
+                                        }
+
+                                        if (previousEndDate.isAfter(start)) {
+                                            end = previousEndDate;
+                                        }
+                                    }
+                                }
 
                                 String formulaString = formula.getFormula();
                                 Double calculate = 0d;
@@ -448,8 +524,12 @@ public class OutputView extends Tab {
                                             oneValueTypeInputs.add(templateInput);
                                         } else if (templateInput.getVariableType().equals(InputVariableType.RANGING_VALUE.toString())) {
 
-                                            String rangingValueDeterminationId = templateInput.getRangingValueDetermination();
-                                            Double rangingValueDetermination = templateHandler.getRcTemplate().getTemplateInputs().stream().filter(determinationInput -> rangingValueDeterminationId.equals(determinationInput.getId())).findFirst().map(determinationInput -> Double.parseDouble(determinationInput.getValue(ds, start, end))).orElse(null);
+                                            String rangingValueDeterminationId = templateInput.getDependency();
+                                            DateTime finalStart = start;
+                                            DateTime finalEnd = end;
+                                            Double rangingValueDetermination = templateHandler.getRcTemplate().getTemplateInputs().stream().filter(determinationInput -> rangingValueDeterminationId.equals(determinationInput.getId())).findFirst().map(determinationInput -> Double.parseDouble(determinationInput.getValue(ds, finalStart, finalEnd))).orElse(null);
+
+                                            if (!allTimestamps.contains(start)) allTimestamps.add(start);
 
                                             formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end, rangingValueDetermination));
                                         }

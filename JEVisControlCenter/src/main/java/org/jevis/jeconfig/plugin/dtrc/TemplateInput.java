@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.plugin.dtrc;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -30,7 +30,6 @@ public class TemplateInput extends TemplateSelected {
     private final Map<DateTime, Double> resultMap = new HashMap<>();
     private String filter;
     private Boolean group;
-    private String rangingValueDetermination;
     private String dependency;
     private double sum = 0d;
     private double min = Double.MAX_VALUE;
@@ -315,11 +314,5 @@ public class TemplateInput extends TemplateSelected {
         setGroup(input.getGroup());
     }
 
-    public String getRangingValueDetermination() {
-        return rangingValueDetermination;
-    }
 
-    public void setRangingValueDetermination(String rangingValueDetermination) {
-        this.rangingValueDetermination = rangingValueDetermination;
-    }
 }

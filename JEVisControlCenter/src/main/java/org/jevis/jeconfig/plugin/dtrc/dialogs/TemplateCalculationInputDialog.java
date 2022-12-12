@@ -417,7 +417,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
             dependencyBox.setVisible(false);
             formulaLabel.setVisible(true);
             formulaBox.setVisible(true);
-        } else if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
+        } else if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.RANGING_VALUE.toString())) {
             inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
             dependencyLabel.setVisible(true);
             dependencyBox.setVisible(true);
@@ -442,7 +442,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
                     dependencyLabel.setVisible(false);
                     dependencyBox.setVisible(false);
                 });
-            } else if (newValue.equals(InputVariableType.NON_PERIODIC)) {
+            } else if (newValue.equals(InputVariableType.RANGING_VALUE)) {
                 Platform.runLater(() -> {
                     formulaLabel.setVisible(false);
                     formulaBox.setVisible(false);

@@ -11,6 +11,9 @@ public class TemplateFormula {
     private String formula = "";
     private List<String> inputIds = new ArrayList<>();
     private String output = "";
+    private Boolean timeRestrictionEnabled = false;
+    private String fixedTimeFrame;
+    private String reducingTimeFrame;
 
     public TemplateFormula() {
         id = UUID.randomUUID().toString();
@@ -54,6 +57,30 @@ public class TemplateFormula {
 
     public void setOutput(String output) {
         this.output = output;
+    }
+
+    public Boolean getTimeRestrictionEnabled() {
+        return timeRestrictionEnabled;
+    }
+
+    public void setTimeRestrictionEnabled(Boolean timeRestrictionEnabled) {
+        this.timeRestrictionEnabled = timeRestrictionEnabled;
+    }
+
+    public String getFixedTimeFrame() {
+        return fixedTimeFrame;
+    }
+
+    public void setFixedTimeFrame(String fixedTimeFrame) {
+        this.fixedTimeFrame = fixedTimeFrame;
+    }
+
+    public String getReducingTimeFrame() {
+        return reducingTimeFrame;
+    }
+
+    public void setReducingTimeFrame(String reducingTimeFrame) {
+        this.reducingTimeFrame = reducingTimeFrame;
     }
 
     @Override
