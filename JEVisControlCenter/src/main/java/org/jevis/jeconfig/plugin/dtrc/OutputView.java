@@ -234,10 +234,7 @@ public class OutputView extends Tab {
                 inactiveTimeFrames.add(item);
             }
         }
-        TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
-        ObservableList<TimeFrame> all = timeFrameFactory.getAll();
-        all.removeAll(inactiveTimeFrames);
-        intervalSelector.getTimeFactoryBox().setItems(all);
+        intervalSelector.getTimeFactoryBox().getItems().removeAll(inactiveTimeFrames);
         intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
 
         List<TemplateOutput> separatorOutputs = new ArrayList<>();
