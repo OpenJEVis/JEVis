@@ -40,6 +40,7 @@ import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.accounting.SelectionTemplate;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.attribute.RangingValueEditor;
 import org.joda.time.DateTime;
@@ -441,24 +442,26 @@ public class OutputView extends Tab {
                                         }
                                     }
 
-                                    if (fixedTimeFrame != null && reducingTimeFrame != null) {
+                                    if (fixedTimeFrame != null && reducingTimeFrame != null && !fixedTimeFrame.equals(TimeFrameFactory.NONE)) {
                                         start = fixedTimeFrame.getInterval(getStart()).getStart();
                                         end = getEnd();
 
                                         Period p = null;
-                                        try {
-                                            p = new Period(reducingTimeFrame.getID());
-                                        } catch (Exception ignored) {
-                                        }
-
                                         DateTime previousEndDate = null;
-                                        if (p != null) {
-                                            previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
-                                        } else {
-                                            previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart()).toDuration());
+                                        if (!reducingTimeFrame.equals(TimeFrameFactory.NONE)) {
+                                            try {
+                                                p = new Period(reducingTimeFrame.getID());
+                                            } catch (Exception ignored) {
+                                            }
+
+                                            if (p != null) {
+                                                previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
+                                            } else {
+                                                previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart()).toDuration());
+                                            }
                                         }
 
-                                        if (previousEndDate.isAfter(start)) {
+                                        if (previousEndDate != null && previousEndDate.isAfter(start)) {
                                             end = previousEndDate;
                                         }
                                     }
@@ -483,7 +486,7 @@ public class OutputView extends Tab {
                                                 || templateInput.getVariableType().equals(InputVariableType.MIN.toString())
                                                 || templateInput.getVariableType().equals(InputVariableType.MAX.toString())
                                                 || templateInput.getVariableType().equals(InputVariableType.SUM.toString())) {
-                                            templateInput.CreateValues(ds, start, end);
+                                            templateInput.CreateValues(ds, intervalSelector, start, end);
 
                                             templateInput.getResultMap().forEach((dateTime, aDouble) -> {
                                                 if (!allTimestamps.contains(dateTime)) allTimestamps.add(dateTime);
@@ -491,7 +494,7 @@ public class OutputView extends Tab {
 
                                             valueTypeInputs.add(templateInput);
                                         } else if (templateInput.getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
-                                            templateInput.CreateValues(ds, start, end);
+                                            templateInput.CreateValues(ds, intervalSelector, start, end);
 
                                             templateInput.getResultMap().forEach((dateTime, aDouble) -> {
                                                 if (!allTimestamps.contains(dateTime)) allTimestamps.add(dateTime);
@@ -502,12 +505,12 @@ public class OutputView extends Tab {
                                             if (templateInput.getDependency() != null) {
                                                 TemplateInput dependencyInput = templateHandler.getRcTemplate().getTemplateInputs().stream().filter(ti -> ti.getId().equals(templateInput.getDependency())).findFirst().orElse(null);
                                                 if (dependencyInput != null) {
-                                                    dependencyInput.CreateValues(ds, start, end);
+                                                    dependencyInput.CreateValues(ds, intervalSelector, start, end);
                                                     dependencyInputs.add(dependencyInput);
                                                 }
                                             }
                                         } else if (templateInput.getVariableType().equals(InputVariableType.LAST.toString())) {
-                                            templateInput.CreateValues(ds, start, end);
+                                            templateInput.CreateValues(ds, intervalSelector, start, end);
 
                                             templateInput.getResultMap().forEach((dateTime, aDouble) -> {
                                                 if (!allTimestamps.contains(dateTime)) allTimestamps.add(dateTime);
@@ -515,7 +518,7 @@ public class OutputView extends Tab {
 
                                             oneValueTypeInputs.add(templateInput);
                                         } else if (templateInput.getVariableType().equals(InputVariableType.YEARLY_VALUE.toString())) {
-                                            templateInput.CreateValues(ds, start, end);
+                                            templateInput.CreateValues(ds, intervalSelector, start, end);
 
                                             templateInput.getResultMap().forEach((dateTime, aDouble) -> {
                                                 if (!allTimestamps.contains(dateTime)) allTimestamps.add(dateTime);
@@ -576,6 +579,7 @@ public class OutputView extends Tab {
                                 }
 
                                 Map<DateTime, Double> allResults = new HashMap<>();
+
                                 for (DateTime ts : allTimestamps) {
                                     String s = formulaString;
                                     for (TemplateInput valueTypeInput : valueTypeInputs) {
@@ -593,7 +597,6 @@ public class OutputView extends Tab {
                                     }
                                 }
 
-                                //TODO check quantity or not
                                 for (Map.Entry<DateTime, Double> entry : allResults.entrySet()) {
                                     Double aDouble = entry.getValue();
                                     calculate += aDouble;
@@ -619,7 +622,26 @@ public class OutputView extends Tab {
                                     }
                                 }
 
+                                boolean needsCalculation = false;
+                                for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
+                                    if (formula.getInputIds().contains(templateInput.getId())
+                                            && formulaString.contains(templateInput.getVariableName())) {
+
+                                        Double value = templateInput.getResultMap().entrySet().stream().findFirst().map(Map.Entry::getValue).orElse(null);
+
+                                        if (value != null) {
+                                            needsCalculation = true;
+                                            formulaString = formulaString.replace(templateInput.getVariableName(), String.valueOf(value));
+                                        }
+                                    }
+                                }
+
                                 logger.debug("Finished formula after formula input replacement: " + formulaString);
+
+                                if (needsCalculation || formulaString.contains("if(")) {
+                                    Expression expression = new Expression(formulaString);
+                                    calculate = expression.calculate();
+                                }
 
                                 if (!isText) {
                                     try {

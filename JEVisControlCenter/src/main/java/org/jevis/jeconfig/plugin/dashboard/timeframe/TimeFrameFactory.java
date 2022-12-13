@@ -25,6 +25,47 @@ import java.util.List;
  */
 public class TimeFrameFactory {
 
+    public static final TimeFrame NONE = new TimeFrame() {
+        @Override
+        public String getListName() {
+            return I18n.getInstance().getString("dialog.regression.type.none");
+        }
+
+        @Override
+        public Interval nextPeriod(Interval interval, int addAmount) {
+            return null;
+        }
+
+        @Override
+        public Interval previousPeriod(Interval interval, int addAmount) {
+            return null;
+        }
+
+        @Override
+        public String format(Interval interval) {
+            return null;
+        }
+
+        @Override
+        public Interval getInterval(DateTime dateTime) {
+            return null;
+        }
+
+        @Override
+        public String getID() {
+            return "NONE";
+        }
+
+        @Override
+        public boolean hasNextPeriod(Interval interval) {
+            return false;
+        }
+
+        @Override
+        public boolean hasPreviousPeriod(Interval interval) {
+            return false;
+        }
+    };
     private static final Logger logger = LogManager.getLogger(TimeFrameFactory.class);
     private final ObservableList<TimeFrame> list = FXCollections.observableArrayList();
     private JEVisDataSource ds;

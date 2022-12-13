@@ -8,12 +8,16 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.RangingValues;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
+import org.joda.time.Period;
 
 import java.util.*;
 
@@ -21,6 +25,7 @@ public class TemplateInput extends TemplateSelected {
     private static final Logger logger = LogManager.getLogger(TemplateInput.class);
     private final ObjectMapper mapper = new ObjectMapper();
     private String id;
+    private Boolean quantity = false;
     private String objectClass;
     private String attributeName;
     private String variableName;
@@ -34,6 +39,9 @@ public class TemplateInput extends TemplateSelected {
     private double sum = 0d;
     private double min = Double.MAX_VALUE;
     private double max = -Double.MAX_VALUE;
+    private Boolean timeRestrictionEnabled = false;
+    private String fixedTimeFrame;
+    private String reducingTimeFrame;
 
     public TemplateInput() {
         this.id = UUID.randomUUID().toString();
@@ -48,6 +56,14 @@ public class TemplateInput extends TemplateSelected {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Boolean isQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Boolean isQuantity) {
+        quantity = isQuantity;
     }
 
     public String getObjectClass() {
@@ -114,6 +130,30 @@ public class TemplateInput extends TemplateSelected {
         this.group = group;
     }
 
+    public Boolean getTimeRestrictionEnabled() {
+        return timeRestrictionEnabled;
+    }
+
+    public void setTimeRestrictionEnabled(Boolean timeRestrictionEnabled) {
+        this.timeRestrictionEnabled = timeRestrictionEnabled;
+    }
+
+    public String getFixedTimeFrame() {
+        return fixedTimeFrame;
+    }
+
+    public void setFixedTimeFrame(String fixedTimeFrame) {
+        this.fixedTimeFrame = fixedTimeFrame;
+    }
+
+    public String getReducingTimeFrame() {
+        return reducingTimeFrame;
+    }
+
+    public void setReducingTimeFrame(String reducingTimeFrame) {
+        this.reducingTimeFrame = reducingTimeFrame;
+    }
+
     public Map<DateTime, Double> getResultMap() {
         return resultMap;
     }
@@ -126,9 +166,46 @@ public class TemplateInput extends TemplateSelected {
         }
     }
 
-    public void CreateValues(JEVisDataSource ds, DateTime start, DateTime end) {
+    public void CreateValues(JEVisDataSource ds, IntervalSelector intervalSelector, DateTime start, DateTime end) {
         try {
             resultMap.clear();
+
+            if (getTimeRestrictionEnabled()) {
+                TimeFrame fixedTimeFrame = null;
+                TimeFrame reducingTimeFrame = null;
+
+                for (TimeFrame timeFrame : intervalSelector.getTimeFactoryBox().getItems()) {
+                    if (getFixedTimeFrame().equals(timeFrame.getID())) {
+                        fixedTimeFrame = timeFrame;
+                    } else if (getReducingTimeFrame().equals(timeFrame.getID())) {
+                        reducingTimeFrame = timeFrame;
+                    }
+                }
+
+                if (fixedTimeFrame != null && reducingTimeFrame != null && !fixedTimeFrame.equals(TimeFrameFactory.NONE)) {
+                    start = fixedTimeFrame.getInterval(start).getStart();
+                    end = end;
+
+                    Period p = null;
+                    DateTime previousEndDate = null;
+                    if (!reducingTimeFrame.equals(TimeFrameFactory.NONE)) {
+                        try {
+                            p = new Period(reducingTimeFrame.getID());
+                        } catch (Exception ignored) {
+                        }
+
+                        if (p != null) {
+                            previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
+                        } else {
+                            previousEndDate = end.minus(reducingTimeFrame.getInterval(start).toDuration());
+                        }
+                    }
+
+                    if (previousEndDate != null && previousEndDate.isAfter(start)) {
+                        end = previousEndDate;
+                    }
+                }
+            }
 
             if (!getAttributeName().equals("name")) {
                 JEVisAttribute attribute = ds.getObject(getObjectID()).getAttribute(getAttributeName());
@@ -138,10 +215,6 @@ public class TemplateInput extends TemplateSelected {
                         || (getVariableType() != null
                         && (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())
                         || getVariableType().equals(InputVariableType.MIN.toString()) || getVariableType().equals(InputVariableType.MAX.toString())))) {
-
-                    QuantityUnits quantityUnits = new QuantityUnits();
-                    boolean isQuantity = quantityUnits.isQuantityUnit(attribute.getInputUnit());
-                    isQuantity = quantityUnits.isQuantityIfCleanData(attribute, isQuantity);
 
                     List<JEVisSample> samples = attribute.getSamples(start, end);
 
@@ -156,7 +229,7 @@ public class TemplateInput extends TemplateSelected {
                         max = Math.max(max, d);
                     }
 
-                    if (!isQuantity || getVariableType().equals(InputVariableType.AVG.toString()))
+                    if (!isQuantity() || getVariableType().equals(InputVariableType.AVG.toString()))
                         sum = sum / samples.size();
 
                     if (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())) {

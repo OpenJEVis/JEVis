@@ -93,6 +93,7 @@ public class TemplateHandler {
             ObjectNode inputNode = JsonNodeFactory.instance.objectNode();
             inputNode.put("objectClass", templateInput.getObjectClass());
             inputNode.put("id", templateInput.getId());
+            inputNode.put("quantity", templateInput.isQuantity());
             inputNode.put("attributeName", templateInput.getAttributeName());
             inputNode.put("variableName", templateInput.getVariableName());
             inputNode.put("variableType", templateInput.getVariableType());
@@ -100,6 +101,9 @@ public class TemplateHandler {
             inputNode.put("dependency", templateInput.getDependency());
             inputNode.put("filter", templateInput.getFilter());
             inputNode.put("group", templateInput.getGroup());
+            inputNode.put("timeRestrictionEnabled", templateInput.getTimeRestrictionEnabled());
+            inputNode.put("fixedTimeFrame", templateInput.getFixedTimeFrame());
+            inputNode.put("reducingTimeFrame", templateInput.getReducingTimeFrame());
 
             templateInputsArrayNode.add(inputNode);
         });

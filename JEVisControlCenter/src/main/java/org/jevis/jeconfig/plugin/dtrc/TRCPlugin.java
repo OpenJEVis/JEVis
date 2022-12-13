@@ -659,8 +659,8 @@ public class TRCPlugin implements Plugin {
 
         addInputButton.setOnAction(event -> {
             TemplateInput templateInput = new TemplateInput();
-
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
+            List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput, allowedTimeFrames);
             templateCalculationInputDialog.show();
 
             templateCalculationInputDialog.setOnDialogClosed(event1 -> {
@@ -779,6 +779,7 @@ public class TRCPlugin implements Plugin {
 
         formulaButton.setOnAction(event -> {
             List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
+            allowedTimeFrames.add(0, TimeFrameFactory.NONE);
             TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula, allowedTimeFrames);
             templateCalculationFormulaDialog.show();
 
@@ -813,7 +814,9 @@ public class TRCPlugin implements Plugin {
         inputButton.setMnemonicParsing(false);
 
         inputButton.setOnAction(event -> {
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
+            List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
+            allowedTimeFrames.add(0, TimeFrameFactory.NONE);
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput, allowedTimeFrames);
             templateCalculationInputDialog.show();
 
             templateCalculationInputDialog.setOnDialogClosed(event1 -> {
