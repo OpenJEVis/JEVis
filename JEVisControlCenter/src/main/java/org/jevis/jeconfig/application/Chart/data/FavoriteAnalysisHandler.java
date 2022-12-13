@@ -16,6 +16,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.joda.time.DateTime;
@@ -90,6 +91,8 @@ public class FavoriteAnalysisHandler {
                 JEVisFile file = favoriteAnalysesFileAttribute.getLatestSample().getValueAsFile();
                 JsonNode jsonNode = mapper.readTree(file.getBytes());
                 jsonToModel(jsonNode);
+                AlphanumComparator alphanumComparator = new AlphanumComparator();
+                getFavoriteAnalysesList().sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
             }
         } catch (Exception e) {
             logger.error("Could not read favorite analyses file", e);
