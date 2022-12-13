@@ -234,7 +234,7 @@ public class OutputView extends Tab {
                 inactiveTimeFrames.add(item);
             }
         }
-        intervalSelector.getTimeFactoryBox().getItems().removeAll(inactiveTimeFrames);
+        intervalSelector.getTimeFactoryBox().setDisabledItems(inactiveTimeFrames);
         intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
 
         List<TemplateOutput> separatorOutputs = new ArrayList<>();
