@@ -157,6 +157,13 @@ public class Table extends TableView<ChartData> {
         column.setCellValueFactory(new PropertyValueFactory<>("unit"));
         column.setCellFactory(UnitTableCell.forTableColumn());
         column.setEditable(true);
+        column.setOnEditCommit(chartDataJEVisObjectCellEditEvent -> {
+            ChartData chartData = chartDataJEVisObjectCellEditEvent.getTableView().getItems().get(chartDataJEVisObjectCellEditEvent.getTablePosition().getRow());
+
+            JEVisUnit newUnit = chartDataJEVisObjectCellEditEvent.getNewValue();
+            chartData.setUnit(newUnit);
+        });
+
         return column;
     }
 

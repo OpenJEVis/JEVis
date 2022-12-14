@@ -1,5 +1,9 @@
 package org.jevis.jeconfig.plugin.dtrc;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.MapSerializer;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +15,10 @@ public class RCTemplate {
     private List<TemplateInput> templateFormulaInputs = new ArrayList<>();
     private List<TemplateOutput> templateOutputs = new ArrayList<>();
     private List<TemplateFormula> templateFormulas = new ArrayList<>();
+    @JsonSerialize(keyUsing = MapSerializer.class)
+    @JsonProperty("intervalSelectorConfiguration")
     private Map<String, Boolean> intervalSelectorConfiguration = new HashMap<>();
+
 
     public List<TemplateInput> getTemplateInputs() {
         return templateInputs;
@@ -44,7 +51,6 @@ public class RCTemplate {
     public void setTemplateFormulaInputs(List<TemplateInput> templateFormulaInputs) {
         this.templateFormulaInputs = templateFormulaInputs;
     }
-
 
     public Map<String, Boolean> getIntervalSelectorConfiguration() {
         return intervalSelectorConfiguration;

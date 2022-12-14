@@ -32,6 +32,8 @@ public class NewSelectionDialog extends JFXDialog {
         super();
 
         this.setDialogContainer(dialogContainer);
+        this.setTransitionType(DialogTransition.NONE);
+        this.setOverlayClose(false);
         this.ds = ds;
         this.dataModel = dataModel;
 

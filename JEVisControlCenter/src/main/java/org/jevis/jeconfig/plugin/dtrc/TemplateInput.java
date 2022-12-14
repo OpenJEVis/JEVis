@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.dtrc;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,28 +8,40 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.RangingValues;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
+import org.joda.time.Period;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class TemplateInput extends TemplateSelected {
     private static final Logger logger = LogManager.getLogger(TemplateInput.class);
     private final ObjectMapper mapper = new ObjectMapper();
     private String id;
+    private Boolean quantity = false;
     private String objectClass;
     private String attributeName;
     private String variableName;
     private String variableType;
     private String templateFormula;
+    @JsonIgnore
+    private final Map<DateTime, Double> resultMap = new HashMap<>();
     private String filter;
     private Boolean group;
-    private String rangingValueDetermination;
+    private String dependency;
+    private double sum = 0d;
+    private double min = Double.MAX_VALUE;
+    private double max = -Double.MAX_VALUE;
+    private Boolean timeRestrictionEnabled = false;
+    private String fixedTimeFrame;
+    private String reducingTimeFrame;
 
     public TemplateInput() {
         this.id = UUID.randomUUID().toString();
@@ -43,6 +56,14 @@ public class TemplateInput extends TemplateSelected {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Boolean isQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Boolean isQuantity) {
+        quantity = isQuantity;
     }
 
     public String getObjectClass() {
@@ -85,6 +106,14 @@ public class TemplateInput extends TemplateSelected {
         this.templateFormula = templateFormula;
     }
 
+    public String getDependency() {
+        return dependency;
+    }
+
+    public void setDependency(String dependency) {
+        this.dependency = dependency;
+    }
+
     public String getFilter() {
         return filter;
     }
@@ -101,11 +130,151 @@ public class TemplateInput extends TemplateSelected {
         this.group = group;
     }
 
+    public Boolean getTimeRestrictionEnabled() {
+        return timeRestrictionEnabled;
+    }
+
+    public void setTimeRestrictionEnabled(Boolean timeRestrictionEnabled) {
+        this.timeRestrictionEnabled = timeRestrictionEnabled;
+    }
+
+    public String getFixedTimeFrame() {
+        return fixedTimeFrame;
+    }
+
+    public void setFixedTimeFrame(String fixedTimeFrame) {
+        this.fixedTimeFrame = fixedTimeFrame;
+    }
+
+    public String getReducingTimeFrame() {
+        return reducingTimeFrame;
+    }
+
+    public void setReducingTimeFrame(String reducingTimeFrame) {
+        this.reducingTimeFrame = reducingTimeFrame;
+    }
+
+    public Map<DateTime, Double> getResultMap() {
+        return resultMap;
+    }
+
     public void buildVariableName(JEVisClass jeVisClass, JEVisType jeVisType) {
         try {
             setVariableName(CalculationNameFormatter.createVariableName(jeVisClass, jeVisType));
         } catch (JEVisException e) {
             logger.error("Could not create variable name", e);
+        }
+    }
+
+    public void CreateValues(JEVisDataSource ds, IntervalSelector intervalSelector, DateTime start, DateTime end) {
+        try {
+            resultMap.clear();
+
+            if (getTimeRestrictionEnabled()) {
+                TimeFrame fixedTimeFrame = null;
+                TimeFrame reducingTimeFrame = null;
+
+                for (TimeFrame timeFrame : intervalSelector.getTimeFactoryBox().getItems()) {
+                    if (getFixedTimeFrame().equals(timeFrame.getID())) {
+                        fixedTimeFrame = timeFrame;
+                    } else if (getReducingTimeFrame().equals(timeFrame.getID())) {
+                        reducingTimeFrame = timeFrame;
+                    }
+                }
+
+                if (fixedTimeFrame != null && reducingTimeFrame != null && !fixedTimeFrame.equals(TimeFrameFactory.NONE)) {
+                    start = fixedTimeFrame.getInterval(start).getStart();
+                    end = end;
+
+                    Period p = null;
+                    DateTime previousEndDate = null;
+                    if (!reducingTimeFrame.equals(TimeFrameFactory.NONE)) {
+                        try {
+                            p = new Period(reducingTimeFrame.getID());
+                        } catch (Exception ignored) {
+                        }
+
+                        if (p != null) {
+                            previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
+                        } else {
+                            previousEndDate = end.minus(reducingTimeFrame.getInterval(start).toDuration());
+                        }
+                    }
+
+                    if (previousEndDate != null && previousEndDate.isAfter(start)) {
+                        end = previousEndDate;
+                    }
+                }
+            }
+
+            if (!getAttributeName().equals("name")) {
+                JEVisAttribute attribute = ds.getObject(getObjectID()).getAttribute(getAttributeName());
+                String returnValue = "-";
+
+                if (getVariableType() == null
+                        || (getVariableType() != null
+                        && (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())
+                        || getVariableType().equals(InputVariableType.MIN.toString()) || getVariableType().equals(InputVariableType.MAX.toString())))) {
+
+                    List<JEVisSample> samples = attribute.getSamples(start, end);
+
+                    sum = 0d;
+                    min = Double.MAX_VALUE;
+                    max = -Double.MAX_VALUE;
+
+                    for (JEVisSample jeVisSample : samples) {
+                        Double d = jeVisSample.getValueAsDouble();
+                        sum += d;
+                        min = Math.min(min, d);
+                        max = Math.max(max, d);
+                    }
+
+                    if (!isQuantity() || getVariableType().equals(InputVariableType.AVG.toString()))
+                        sum = sum / samples.size();
+
+                    if (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())) {
+                        resultMap.put(start, sum);
+                    } else if (getVariableType().equals(InputVariableType.MIN.toString())) {
+                        resultMap.put(start, min);
+                    } else if (getVariableType().equals(InputVariableType.MAX.toString())) {
+                        resultMap.put(start, max);
+                    }
+                } else if (getVariableType() != null
+                        && getVariableType().equals(InputVariableType.NON_PERIODIC.toString())) {
+                    List<JEVisSample> samples = attribute.getSamples(new DateTime(1990, 1, 1, 0, 0, 0), end);
+                    List<JEVisSample> filteredList = new ArrayList<>();
+
+                    for (int i = samples.size() - 1; i > -1; i--) {
+                        JEVisSample sample = samples.get(i);
+                        filteredList.add(sample);
+                        if (sample.getTimestamp().isBefore(start)) {
+                            break;
+                        }
+                    }
+
+                    for (JEVisSample sample : filteredList) {
+                        resultMap.put(sample.getTimestamp(), sample.getValueAsDouble());
+                    }
+
+                } else if (getVariableType() != null
+                        && getVariableType().equals(InputVariableType.LAST.toString())) {
+                    JEVisSample sample = attribute.getLatestSample();
+                    resultMap.put(start, sample.getValueAsDouble());
+                } else if (getVariableType() != null
+                        && getVariableType().equals(InputVariableType.YEARLY_VALUE.toString())) {
+                    DateTime ydt = new DateTime(start.getYear(), 1, 1, 0, 0, 0, 0);
+                    List<JEVisSample> samples = attribute.getSamples(ydt, ydt.plusYears(1).minusMillis(1));
+                    JEVisSample sample = samples.get(samples.size() - 1);
+                    LocalDate ld = new LocalDate(start.getYear(), 1, 1);
+                    int daysOfYear = Days.daysBetween(ld, ld.plusYears(1)).getDays();
+                    int daysOfInterval = Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays();
+                    double value = sample.getValueAsDouble() / daysOfYear * daysOfInterval;
+
+                    resultMap.put(ydt, value);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not get template input value for {}", getVariableName(), e);
         }
     }
 
@@ -218,11 +387,5 @@ public class TemplateInput extends TemplateSelected {
         setGroup(input.getGroup());
     }
 
-    public String getRangingValueDetermination() {
-        return rangingValueDetermination;
-    }
 
-    public void setRangingValueDetermination(String rangingValueDetermination) {
-        this.rangingValueDetermination = rangingValueDetermination;
-    }
 }

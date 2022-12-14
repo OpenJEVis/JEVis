@@ -18,6 +18,9 @@ public class ChartData {
 
     private final SimpleLongProperty id = new SimpleLongProperty(this, "id", -1);
     private final SimpleStringProperty attributeString = new SimpleStringProperty(this, "attribute", "");
+    private final SimpleStringProperty unitPrefix = new SimpleStringProperty(this, "unitPrefix", new JEVisUnitImp(Unit.ONE).getPrefix().toString());
+    private final SimpleStringProperty unitLabel = new SimpleStringProperty(this, "unitLabel", new JEVisUnitImp(Unit.ONE).getLabel());
+    private final SimpleStringProperty unitFormula = new SimpleStringProperty(this, "unitFormula", new JEVisUnitImp(Unit.ONE).getFormula());
     private final SimpleObjectProperty<JEVisUnit> unit = new SimpleObjectProperty<>(this, "unit", new JEVisUnitImp(Unit.ONE));
     private final SimpleObjectProperty<JEVisObject> objectName = new SimpleObjectProperty<>(this, "objectName");
     private final SimpleStringProperty name = new SimpleStringProperty(this, "name", "");
@@ -61,26 +64,69 @@ public class ChartData {
         return attributeString;
     }
 
+    public String getUnitPrefix() {
+        return unitPrefix.get();
+    }
+
+    public void setUnitPrefix(String unitPrefix) {
+        this.unitPrefix.set(unitPrefix);
+    }
+
+    public SimpleStringProperty unitPrefixProperty() {
+        return unitPrefix;
+    }
+
+    public String getUnitLabel() {
+        return unitLabel.get();
+    }
+
+    public void setUnitLabel(String unitLabel) {
+        this.unitLabel.set(unitLabel);
+    }
+
+    public SimpleStringProperty unitLabelProperty() {
+        return unitLabel;
+    }
+
+    public String getUnitFormula() {
+        return unitFormula.get();
+    }
+
+    public void setUnitFormula(String unitFormula) {
+        this.unitFormula.set(unitFormula);
+    }
+
+    public SimpleStringProperty unitFormulaProperty() {
+        return unitFormula;
+    }
+
     public JEVisUnit getUnit() {
-        return unit.get();
+        JEVisUnitImp jeVisUnitImp = new JEVisUnitImp(getUnitFormula(), getUnitLabel(), getUnitPrefix());
+        return jeVisUnitImp;
     }
 
     public void setUnit(JEVisUnit unit) {
-        this.unit.set(unit);
+        unitPrefix.set(unit.getPrefix().toString());
+        unitFormula.set(unit.getFormula());
+        unitLabel.set(unit.getLabel());
     }
 
     public void setUnit(String unitString) {
         UnitFormat unitFormat = UnitFormat.getInstance();
         try {
             Unit u = (Unit) unitFormat.parseObject(unitString);
-            this.unit.set(new JEVisUnitImp(u));
+            JEVisUnitImp jeVisUnitImp = new JEVisUnitImp(u);
+            this.unit.set(jeVisUnitImp);
+            this.unitPrefix.set(jeVisUnitImp.getPrefix().toString());
+            this.unitFormula.set(jeVisUnitImp.getFormula());
+            this.unitLabel.set(jeVisUnitImp.getLabel());
         } catch (Exception e) {
-            this.unit.set(new JEVisUnitImp("", unitString, "NONE"));
+            JEVisUnitImp jeVisUnitImp = new JEVisUnitImp(Unit.ONE);
+            this.unit.set(jeVisUnitImp);
+            this.unitPrefix.set(jeVisUnitImp.getPrefix().toString());
+            this.unitFormula.set(jeVisUnitImp.getFormula());
+            this.unitLabel.set(jeVisUnitImp.getLabel());
         }
-    }
-
-    public SimpleObjectProperty<JEVisUnit> unitProperty() {
-        return unit;
     }
 
     public JEVisObject getObjectName() {

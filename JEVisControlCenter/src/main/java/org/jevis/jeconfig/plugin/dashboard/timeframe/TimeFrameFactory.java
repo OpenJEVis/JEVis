@@ -25,6 +25,47 @@ import java.util.List;
  */
 public class TimeFrameFactory {
 
+    public static final TimeFrame NONE = new TimeFrame() {
+        @Override
+        public String getListName() {
+            return I18n.getInstance().getString("dialog.regression.type.none");
+        }
+
+        @Override
+        public Interval nextPeriod(Interval interval, int addAmount) {
+            return null;
+        }
+
+        @Override
+        public Interval previousPeriod(Interval interval, int addAmount) {
+            return null;
+        }
+
+        @Override
+        public String format(Interval interval) {
+            return null;
+        }
+
+        @Override
+        public Interval getInterval(DateTime dateTime) {
+            return null;
+        }
+
+        @Override
+        public String getID() {
+            return "NONE";
+        }
+
+        @Override
+        public boolean hasNextPeriod(Interval interval) {
+            return false;
+        }
+
+        @Override
+        public boolean hasPreviousPeriod(Interval interval) {
+            return false;
+        }
+    };
     private static final Logger logger = LogManager.getLogger(TimeFrameFactory.class);
     private final ObservableList<TimeFrame> list = FXCollections.observableArrayList();
     private JEVisDataSource ds;
@@ -37,6 +78,19 @@ public class TimeFrameFactory {
     public TimeFrame getTimeframe(String periode, String name) {
         LastPeriod lastPeriod = new LastPeriod(new Period(periode), name);
         return lastPeriod;
+    }
+
+    public List<TimeFrame> getReduced() {
+        List<TimeFrame> reducedList = new ArrayList<>();
+        reducedList.add(day());
+        reducedList.add(week());
+        reducedList.add(month());
+        reducedList.add(year());
+        reducedList.add(threeYears());
+        reducedList.add(fiveYears());
+        reducedList.add(tenYears());
+
+        return reducedList;
     }
 
     public ObservableList<TimeFrame> getAll() {

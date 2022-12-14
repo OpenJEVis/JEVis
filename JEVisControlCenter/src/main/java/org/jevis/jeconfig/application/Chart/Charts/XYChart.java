@@ -332,8 +332,11 @@ public class XYChart implements Chart {
                         List<Double> otherYs = new ArrayList<>();
 
                         for (XYChartSerie otherSerie : otherSeries) {
-                            double otherY = otherSerie.getValueDataSet().get(DataSet.DIM_Y, i);
-                            otherYs.add(otherY);
+                            try {
+                                double otherY = otherSerie.getValueDataSet().get(DataSet.DIM_Y, i);
+                                otherYs.add(otherY);
+                            } catch (Exception ignored) {
+                            }
                         }
 
                         for (Double aDouble : otherYs) {
@@ -463,8 +466,11 @@ public class XYChart implements Chart {
                         List<Double> otherYs = new ArrayList<>();
 
                         for (XYChartSerie otherSerie : otherSeries) {
-                            double otherY = otherSerie.getValueDataSet().get(DataSet.DIM_Y, i);
-                            otherYs.add(otherY);
+                            try {
+                                double otherY = otherSerie.getValueDataSet().get(DataSet.DIM_Y, i);
+                                otherYs.add(otherY);
+                            } catch (Exception ignored) {
+                            }
                         }
 
                         for (Double aDouble : otherYs) {

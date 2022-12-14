@@ -22,6 +22,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.dialog.Response;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dtrc.*;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class TemplateCalculationInputDialog extends JFXDialog {
     private final AlphanumComparator ac = new AlphanumComparator();
     private Response response = Response.CANCEL;
 
-    public TemplateCalculationInputDialog(StackPane dialogContainer, JEVisDataSource ds, RCTemplate rcTemplate, TemplateInput templateInput) {
+    public TemplateCalculationInputDialog(StackPane dialogContainer, JEVisDataSource ds, RCTemplate rcTemplate, TemplateInput templateInput, List<TimeFrame> allowedTimeFrames) {
         super();
 
         setDialogContainer(dialogContainer);
@@ -128,6 +129,11 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         inputVariableTypeJFXComboBox.setCellFactory(inputVariableTypeJFXComboBoxCellFactory);
         inputVariableTypeJFXComboBox.setButtonCell(inputVariableTypeJFXComboBoxCellFactory.call(null));
         GridPane.setHgrow(inputVariableTypeJFXComboBox, Priority.ALWAYS);
+
+        Label isQuantitylabel = new Label("Quantity");
+        JFXCheckBox isQuantityCheckBox = new JFXCheckBox();
+        isQuantityCheckBox.setSelected(templateInput.isQuantity());
+        isQuantityCheckBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateInput.setQuantity(t1));
 
         Label limiterLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
         GridPane.setHgrow(limiterLabel, Priority.ALWAYS);
@@ -385,14 +391,115 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         formulaBox.setCellFactory(formulaCellFactory);
         formulaBox.setButtonCell(formulaCellFactory.call(null));
 
-        if (templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
+        Label dependencyLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.dependencylabel"));
+        JFXComboBox<TemplateInput> dependencyBox = new JFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateInputs()));
+        TemplateInput noneInput = new TemplateInput();
+        noneInput.setVariableName(I18n.getInstance().getString("dialog.regression.type.none"));
+        dependencyBox.getItems().add(0, noneInput);
+        Callback<ListView<TemplateInput>, ListCell<TemplateInput>> dependencyCellFactory = new Callback<ListView<TemplateInput>, ListCell<TemplateInput>>() {
+            @Override
+            public ListCell<TemplateInput> call(ListView<TemplateInput> param) {
+                return new JFXListCell<TemplateInput>() {
+                    @Override
+                    protected void updateItem(TemplateInput obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(obj.getVariableName());
+                        }
+                    }
+                };
+            }
+        };
+
+        dependencyBox.setCellFactory(dependencyCellFactory);
+        dependencyBox.setButtonCell(dependencyCellFactory.call(null));
+
+        Label timeRestrictionsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.timerestictions"));
+        JFXCheckBox timeRestrictionEnabledCheckBox = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
+        timeRestrictionEnabledCheckBox.setSelected(templateInput.getTimeRestrictionEnabled());
+        timeRestrictionEnabledCheckBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateInput.setTimeRestrictionEnabled(t1));
+
+        JFXComboBox<TimeFrame> fixedTimeFrameBox = new JFXComboBox<>();
+        Callback<ListView<TimeFrame>, ListCell<TimeFrame>> fixedTimeFrameJFXComboBoxCellFactory = new Callback<ListView<TimeFrame>, ListCell<TimeFrame>>() {
+            @Override
+            public ListCell<TimeFrame> call(ListView<TimeFrame> param) {
+                return new JFXListCell<TimeFrame>() {
+                    @Override
+                    protected void updateItem(TimeFrame obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(obj.getListName());
+                        }
+                    }
+                };
+            }
+        };
+
+        fixedTimeFrameBox.setCellFactory(fixedTimeFrameJFXComboBoxCellFactory);
+        fixedTimeFrameBox.setButtonCell(fixedTimeFrameJFXComboBoxCellFactory.call(null));
+
+        fixedTimeFrameBox.getItems().setAll(allowedTimeFrames);
+        if (templateInput.getFixedTimeFrame() != null) {
+            TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateInput.getFixedTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
+            fixedTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
+        }
+        fixedTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateInput.setFixedTimeFrame(t1.getID()));
+
+        JFXComboBox<TimeFrame> reducingTimeFrameBox = new JFXComboBox<>();
+        Callback<ListView<TimeFrame>, ListCell<TimeFrame>> reducingTimeFrameJFXComboBoxCellFactory = new Callback<ListView<TimeFrame>, ListCell<TimeFrame>>() {
+            @Override
+            public ListCell<TimeFrame> call(ListView<TimeFrame> param) {
+                return new JFXListCell<TimeFrame>() {
+                    @Override
+                    protected void updateItem(TimeFrame obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(obj.getListName());
+                        }
+                    }
+                };
+            }
+        };
+
+        reducingTimeFrameBox.setCellFactory(reducingTimeFrameJFXComboBoxCellFactory);
+        reducingTimeFrameBox.setButtonCell(reducingTimeFrameJFXComboBoxCellFactory.call(null));
+
+        reducingTimeFrameBox.getItems().setAll(allowedTimeFrames);
+        if (templateInput.getReducingTimeFrame() != null) {
+            TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateInput.getReducingTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
+            reducingTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
+        }
+        reducingTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateInput.setReducingTimeFrame(t1.getID()));
+
+        HBox timeRestrictionsBox = new HBox(6, timeRestrictionEnabledCheckBox, fixedTimeFrameBox, reducingTimeFrameBox);
+
+        if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
             inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
+            dependencyLabel.setVisible(false);
+            dependencyBox.setVisible(false);
+            formulaLabel.setVisible(true);
+            formulaBox.setVisible(true);
+        } else if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.RANGING_VALUE.toString())) {
+            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
+            dependencyLabel.setVisible(true);
+            dependencyBox.setVisible(true);
             formulaLabel.setVisible(false);
             formulaBox.setVisible(false);
         } else if (templateInput.getVariableType() != null) {
             inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
-            formulaLabel.setVisible(true);
-            formulaBox.setVisible(true);
+            dependencyLabel.setVisible(false);
+            dependencyBox.setVisible(false);
+            formulaLabel.setVisible(false);
+            formulaBox.setVisible(false);
         } else {
             inputVariableTypeJFXComboBox.getSelectionModel().selectFirst();
         }
@@ -403,11 +510,22 @@ public class TemplateCalculationInputDialog extends JFXDialog {
                 Platform.runLater(() -> {
                     formulaLabel.setVisible(true);
                     formulaBox.setVisible(true);
+                    dependencyLabel.setVisible(false);
+                    dependencyBox.setVisible(false);
+                });
+            } else if (newValue.equals(InputVariableType.RANGING_VALUE)) {
+                Platform.runLater(() -> {
+                    formulaLabel.setVisible(false);
+                    formulaBox.setVisible(false);
+                    dependencyLabel.setVisible(true);
+                    dependencyBox.setVisible(true);
                 });
             } else {
                 Platform.runLater(() -> {
                     formulaLabel.setVisible(false);
                     formulaBox.setVisible(false);
+                    dependencyLabel.setVisible(false);
+                    dependencyBox.setVisible(false);
                 });
             }
         });
@@ -419,6 +537,13 @@ public class TemplateCalculationInputDialog extends JFXDialog {
             else {
                 formulaBox.getSelectionModel().selectFirst();
             }
+        } else if (templateInput.getDependency() != null) {
+            TemplateInput selectedInput = dependencyBox.getItems().stream().filter(ti -> ti.getId().equals(templateInput.getDependency())).findFirst().orElse(null);
+            if (selectedInput != null)
+                dependencyBox.getSelectionModel().select(selectedInput);
+            else {
+                dependencyBox.getSelectionModel().selectFirst();
+            }
         } else {
             formulaBox.getSelectionModel().selectFirst();
         }
@@ -428,6 +553,14 @@ public class TemplateCalculationInputDialog extends JFXDialog {
                 templateInput.setTemplateFormula(newValue.getId());
             } else {
                 templateInput.setTemplateFormula(null);
+            }
+        });
+
+        dependencyBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.getId().equals(none.getId())) {
+                templateInput.setDependency(newValue.getId());
+            } else {
+                templateInput.setDependency(null);
             }
         });
 
@@ -475,8 +608,16 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         gridPane.add(inputVariableTypeJFXComboBox, 1, row);
         row++;
 
+        gridPane.add(isQuantitylabel, 0, row);
+        gridPane.add(isQuantityCheckBox, 1, row);
+        row++;
+
         gridPane.add(formulaLabel, 0, row);
         gridPane.add(formulaBox, 1, row);
+        row++;
+
+        gridPane.add(dependencyLabel, 0, row);
+        gridPane.add(dependencyBox, 1, row);
         row++;
 
         gridPane.add(limiterLabel, 0, row);
@@ -486,12 +627,21 @@ public class TemplateCalculationInputDialog extends JFXDialog {
         gridPane.add(groupCheckBox, 0, row, 2, 1);
         row++;
 
-        gridPane.add(new Label("UUID: " + templateInput.getId()), 0, row);
-        row++;
-
         Separator separator2 = new Separator(Orientation.HORIZONTAL);
         separator2.setPadding(new Insets(8, 0, 8, 0));
         gridPane.add(separator2, 0, row, 3, 1);
+        row++;
+
+        gridPane.add(timeRestrictionsLabel, 0, row, 1, 1);
+        gridPane.add(timeRestrictionsBox, 1, row, 2, 1);
+        row++;
+
+        gridPane.add(new Label("UUID: " + templateInput.getId()), 0, row, 3, 1);
+        row++;
+
+        Separator separator3 = new Separator(Orientation.HORIZONTAL);
+        separator3.setPadding(new Insets(8, 0, 8, 0));
+        gridPane.add(separator3, 0, row, 3, 1);
         row++;
 
         gridPane.add(buttonBar, 1, row, 3, 1);

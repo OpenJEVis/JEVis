@@ -36,6 +36,8 @@ import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 
+import java.text.NumberFormat;
+
 public class RangingValueEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(RangingValueEditor.class);
     private final static String TYPE = "RangingValuesHandler";
@@ -203,9 +205,11 @@ public class RangingValueEditor implements AttributeEditor {
         JFXTextField toField = new JFXTextField();
         JFXTextField valueField = new JFXTextField();
 
-        fromField.setText(String.valueOf(rangingValue.getFrom()));
-        toField.setText(String.valueOf(rangingValue.getFrom()));
-        valueField.setText(String.valueOf(rangingValue.getFrom()));
+        NumberFormat numberFormat = NumberFormat.getInstance(I18n.getInstance().getLocale());
+
+        fromField.setText(numberFormat.format(rangingValue.getFrom()));
+        toField.setText(numberFormat.format(rangingValue.getTo()));
+        valueField.setText(numberFormat.format(rangingValue.getValue()));
 
         fromField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {

@@ -93,12 +93,17 @@ public class TemplateHandler {
             ObjectNode inputNode = JsonNodeFactory.instance.objectNode();
             inputNode.put("objectClass", templateInput.getObjectClass());
             inputNode.put("id", templateInput.getId());
+            inputNode.put("quantity", templateInput.isQuantity());
             inputNode.put("attributeName", templateInput.getAttributeName());
             inputNode.put("variableName", templateInput.getVariableName());
             inputNode.put("variableType", templateInput.getVariableType());
             inputNode.put("templateFormula", templateInput.getTemplateFormula());
+            inputNode.put("dependency", templateInput.getDependency());
             inputNode.put("filter", templateInput.getFilter());
             inputNode.put("group", templateInput.getGroup());
+            inputNode.put("timeRestrictionEnabled", templateInput.getTimeRestrictionEnabled());
+            inputNode.put("fixedTimeFrame", templateInput.getFixedTimeFrame());
+            inputNode.put("reducingTimeFrame", templateInput.getReducingTimeFrame());
 
             templateInputsArrayNode.add(inputNode);
         });
@@ -132,6 +137,9 @@ public class TemplateHandler {
             formulaNode.put("name", templateFormula.getName());
             formulaNode.put("formula", templateFormula.getFormula());
             formulaNode.put("output", templateFormula.getOutput());
+            formulaNode.put("timeRestrictionEnabled", templateFormula.getTimeRestrictionEnabled());
+            formulaNode.put("fixedTimeFrame", templateFormula.getFixedTimeFrame());
+            formulaNode.put("reducingTimeFrame", templateFormula.getReducingTimeFrame());
 
             ArrayNode inputIdsArrayNode = JsonNodeFactory.instance.arrayNode();
             templateFormula.getInputIds().forEach(id -> inputIdsArrayNode.add(JsonNodeFactory.instance.textNode(id)));
@@ -141,13 +149,7 @@ public class TemplateHandler {
             formulasArrayNode.add(formulaNode);
         });
 
-        ArrayNode intervalConfiguration = JsonNodeFactory.instance.arrayNode();
-        this.rcTemplate.getIntervalSelectorConfiguration().forEach((s, aBoolean) -> {
-            ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
-            objectNode.put(s, aBoolean);
-            intervalConfiguration.add(objectNode);
-        });
-
+        ObjectNode intervalConfiguration = mapper.valueToTree(this.rcTemplate.getIntervalSelectorConfiguration());
 
         dataHandlerNode.set("templateInputs", templateInputsArrayNode);
         dataHandlerNode.set("templateOutputs", templateOutputsArrayNode);

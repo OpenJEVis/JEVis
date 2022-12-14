@@ -61,7 +61,9 @@ public class AnalysisHandler {
                 chartDataNode.put("attributeString", chartData.getAttributeString());
 
                 if (chartData.getUnit() != null) {
-                    chartDataNode.put("unit", chartData.getUnit().getFormula());
+                    chartDataNode.put("unitPrefix", chartData.getUnit().getPrefix().toString());
+                    chartDataNode.put("unitFormula", chartData.getUnit().getFormula());
+                    chartDataNode.put("unitLabel", chartData.getUnit().getLabel());
                 }
 
                 chartDataNode.put("name", chartData.getName());
