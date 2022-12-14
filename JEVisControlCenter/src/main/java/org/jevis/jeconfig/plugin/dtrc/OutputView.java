@@ -624,6 +624,7 @@ public class OutputView extends Tab {
 
                                 logger.debug("Formula after input replacement: " + formulaString);
 
+                                boolean needsCalculation = false;
                                 for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateFormulaInputs()) {
                                     if (formula.getInputIds().contains(templateInput.getTemplateFormula())) {
 
@@ -633,10 +634,11 @@ public class OutputView extends Tab {
                                         } else {
                                             formulaString = formulaString.replace(templateInput.getVariableName(), "0");
                                         }
+
+                                        needsCalculation = true;
                                     }
                                 }
 
-                                boolean needsCalculation = false;
                                 for (TemplateInput templateInput : templateHandler.getRcTemplate().getTemplateInputs()) {
                                     if (formula.getInputIds().contains(templateInput.getId())
                                             && formulaString.contains(templateInput.getVariableName())) {
