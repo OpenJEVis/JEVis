@@ -123,6 +123,9 @@ public class OutputView extends Tab {
         endTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         intervalSelector = new IntervalSelector(ds, startDate, startTime, endDate, endTime);
+        intervalSelector.getTimeFactoryBox().getItems().clear();
+        TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
+        intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrameFactory.getReduced());
         intervalSelector.updateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 requestUpdate();
@@ -227,16 +230,6 @@ public class OutputView extends Tab {
         final List<TemplateFormula> templateFormulas = templateHandler.getRcTemplate().getTemplateFormulas();
         final Map<String, Boolean> intervalConfiguration = templateHandler.getRcTemplate().getIntervalSelectorConfiguration();
 
-        List<TimeFrame> inactiveTimeFrames = new ArrayList<>();
-        for (TimeFrame item : intervalSelector.getTimeFactoryBox().getItems()) {
-            Boolean aBoolean = intervalConfiguration.get(item.getID());
-            if (aBoolean == null || !aBoolean) {
-                inactiveTimeFrames.add(item);
-            }
-        }
-        intervalSelector.getTimeFactoryBox().getItems().removeAll(inactiveTimeFrames);
-        intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
-
         List<TemplateOutput> separatorOutputs = new ArrayList<>();
 
         List<TemplateOutput> noInputOutputs = new ArrayList<>();
@@ -304,6 +297,27 @@ public class OutputView extends Tab {
         createOutputs(noInputOutputs);
         createOutputs(sortedList);
 
+        TimeFrame lastSelectedTimeFrame = intervalSelector.getTimeFactoryBox().getSelectionModel().getSelectedItem();
+        List<TimeFrame> inactiveTimeFrames = new ArrayList<>();
+        for (TimeFrame item : intervalSelector.getTimeFactoryBox().getItems()) {
+            Boolean aBoolean = intervalConfiguration.get(item.getID());
+            if (aBoolean == null || !aBoolean) {
+                inactiveTimeFrames.add(item);
+            }
+        }
+        TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
+        for (TimeFrame timeFrame : timeFrameFactory.getReduced()) {
+            if (!intervalSelector.getTimeFactoryBox().getItems().contains(timeFrame)) {
+                intervalSelector.getTimeFactoryBox().getItems().add(timeFrame);
+            }
+        }
+        intervalSelector.getTimeFactoryBox().getItems().removeAll(inactiveTimeFrames);
+
+        if (intervalSelector.getTimeFactoryBox().getItems().contains(lastSelectedTimeFrame)) {
+            intervalSelector.getTimeFactoryBox().getSelectionModel().select(lastSelectedTimeFrame);
+        } else {
+            intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
+        }
     }
 
     public void sortMultiInputFormulaOutputs(List<TemplateOutput> multiInputFormulaOutputs) {

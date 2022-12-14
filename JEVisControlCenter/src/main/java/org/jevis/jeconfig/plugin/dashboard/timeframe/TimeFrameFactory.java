@@ -80,6 +80,19 @@ public class TimeFrameFactory {
         return lastPeriod;
     }
 
+    public List<TimeFrame> getReduced() {
+        List<TimeFrame> reducedList = new ArrayList<>();
+        reducedList.add(day());
+        reducedList.add(week());
+        reducedList.add(month());
+        reducedList.add(year());
+        reducedList.add(threeYears());
+        reducedList.add(fiveYears());
+        reducedList.add(tenYears());
+
+        return reducedList;
+    }
+
     public ObservableList<TimeFrame> getAll() {
         if (!list.isEmpty()) {
             return list;
