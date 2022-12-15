@@ -29,8 +29,10 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -469,7 +471,37 @@ public class OutputView extends Tab {
                                             }
 
                                             if (p != null) {
-                                                previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
+                                                DateTime minusPeriodToDate = PeriodHelper.minusPeriodToDate(end, p);
+
+                                                boolean followUp = false;
+
+                                                if (p.equals(Period.years(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withMonthOfYear(12);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.months(1))) {
+                                                    int lastDayOfMonth = minusPeriodToDate.dayOfMonth().getMaximumValue();
+                                                    minusPeriodToDate = minusPeriodToDate.withDayOfMonth(lastDayOfMonth);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.days(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withHourOfDay(23);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.hours(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withMinuteOfHour(59);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.minutes(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withSecondOfMinute(59);
+                                                    followUp = true;
+                                                }
+
+                                                previousEndDate = minusPeriodToDate;
                                             } else {
                                                 previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart()).toDuration());
                                             }
@@ -1206,17 +1238,26 @@ public class OutputView extends Tab {
 
         objects.sort((o1, o2) -> {
 
-            String relativePathO1 = objectRelations.getRelativePath(o1);
-            String objectPathO1 = objectRelations.getObjectPath(o1);
+            String prefix1 = "";
+            String prefix2 = "";
 
-            String o1Name = objectPathO1 + relativePathO1 + TRCPlugin.getRealName(o1);
+            if (ChartTools.isMultiSite(ds)) {
+                prefix1 += objectRelations.getObjectPath(o1);
+            }
+            if (ChartTools.isMultiDir(ds, o1)) {
+                prefix1 += objectRelations.getRelativePath(o1);
+            }
+            prefix1 += o1.getName();
 
-            String relativePathO2 = objectRelations.getRelativePath(o1);
-            String objectPathO2 = objectRelations.getObjectPath(o1);
+            if (ChartTools.isMultiSite(ds)) {
+                prefix2 += objectRelations.getObjectPath(o2);
+            }
+            if (ChartTools.isMultiDir(ds, o2)) {
+                prefix2 += objectRelations.getRelativePath(o2);
+            }
+            prefix2 += o2.getName();
 
-            String o2Name = objectPathO2 + relativePathO2 + TRCPlugin.getRealName(o2);
-
-            return alphanumComparator.compare(o1Name, o2Name);
+            return alphanumComparator.compare(prefix1, prefix2);
         });
 
         JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
@@ -1234,13 +1275,27 @@ public class OutputView extends Tab {
                             setText(null);
                         } else {
                             try {
-                                String objectPath = objectRelations.getObjectPath(obj);
-                                String relativePath = objectRelations.getRelativePath(obj);
-                                if (!obj.getJEVisClassName().equals("Clean Data")) {
-                                    setText(objectPath + relativePath + obj.getName());
-                                } else {
-                                    setText(objectPath + relativePath + TRCPlugin.getRealName(obj));
+                                String name = "";
+                                JEVisObject correctObject = obj;
+                                if (obj.getJEVisClassName().equals("Clean Data")) {
+                                    correctObject = CommonMethods.getFirstParentalDataObject(obj);
                                 }
+
+                                if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, correctObject))
+                                    name = correctObject.getName();
+                                else {
+                                    String prefix = "";
+                                    if (ChartTools.isMultiSite(ds)) {
+                                        prefix += objectRelations.getObjectPath(correctObject);
+                                    }
+                                    if (ChartTools.isMultiDir(ds, correctObject)) {
+                                        prefix += objectRelations.getRelativePath(correctObject);
+                                    }
+
+                                    name = prefix + correctObject.getName();
+                                }
+
+                                setText(name);
                             } catch (JEVisException e) {
                                 logger.error("Could not get JEVisClass of object {}:{}", obj.getName(), obj.getID(), e);
                             }
