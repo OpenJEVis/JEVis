@@ -471,7 +471,37 @@ public class OutputView extends Tab {
                                             }
 
                                             if (p != null) {
-                                                previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
+                                                DateTime minusPeriodToDate = PeriodHelper.minusPeriodToDate(end, p);
+
+                                                boolean followUp = false;
+
+                                                if (p.equals(Period.years(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withMonthOfYear(12);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.months(1))) {
+                                                    int lastDayOfMonth = minusPeriodToDate.dayOfMonth().getMaximumValue();
+                                                    minusPeriodToDate = minusPeriodToDate.withDayOfMonth(lastDayOfMonth);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.days(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withHourOfDay(23);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.hours(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withMinuteOfHour(59);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.minutes(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withSecondOfMinute(59);
+                                                    followUp = true;
+                                                }
+
+                                                previousEndDate = minusPeriodToDate;
                                             } else {
                                                 previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart()).toDuration());
                                             }
