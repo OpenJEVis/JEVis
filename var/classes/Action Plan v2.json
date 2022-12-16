@@ -1,0 +1,41 @@
+{
+  "name": "Action Plan v2",
+  "description": "Action plan",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Action Plan v2",
+      "end": "Action Plan Directory2",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Custom Status",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action Plan2"
+    },
+    {
+      "name": "Custom Fields",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action Plan v2"
+    },
+    {
+      "name": "Custom Medium",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action Plan v2"
+    }
+  ]
+}
+
+
+
