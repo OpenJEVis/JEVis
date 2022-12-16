@@ -1,0 +1,12 @@
+{
+  "name": "Action Directory",
+  "description": "Action Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Action",
+      "end": "Action Directory",
+      "type": 3
+    }
+  ]
+}
