@@ -39,7 +39,8 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.accounting.AccountingPlugin;
-import org.jevis.jeconfig.plugin.alarms.*;
+import org.jevis.jeconfig.plugin.action.ActionPlugin;
+import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
@@ -175,6 +176,7 @@ public class PluginManager {
                         new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")),
                         new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")),
                         new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")),
+                        new AccountingPlugin(this._ds, "Actions"),
                         new TRCPlugin(this._ds)
                 ));
             } else {
@@ -214,6 +216,7 @@ public class PluginManager {
                                     }
                                 }
                             }
+
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -221,6 +224,7 @@ public class PluginManager {
                         ex.printStackTrace();
                     }
                 }
+                _plugins.add(new ActionPlugin(this._ds, "Actions"));
                 this._plugins.addAll(enabledPlugins);
 
             }
