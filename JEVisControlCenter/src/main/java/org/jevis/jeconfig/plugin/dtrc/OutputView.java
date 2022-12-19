@@ -498,7 +498,6 @@ public class OutputView extends Tab {
 
                                                 if (followUp || p.equals(Period.minutes(1))) {
                                                     minusPeriodToDate = minusPeriodToDate.withSecondOfMinute(59);
-                                                    followUp = true;
                                                 }
 
                                                 previousEndDate = minusPeriodToDate;
@@ -509,6 +508,9 @@ public class OutputView extends Tab {
 
                                         if (previousEndDate != null && previousEndDate.isAfter(start)) {
                                             end = previousEndDate;
+                                        } else if (previousEndDate != null && (previousEndDate.isBefore(start) || previousEndDate.equals(start))) {
+                                            start = start.plusSeconds(1);
+                                            end = start;
                                         }
                                     }
                                 }
@@ -697,7 +699,7 @@ public class OutputView extends Tab {
                                             Expression expression = new Expression(formulaString);
                                             calculate = expression.calculate();
                                         }
-                                        if (!calculate.isNaN()) {
+                                        if (!calculate.isNaN() && !calculate.isInfinite()) {
                                             resultMap.put(formula.getId(), calculate);
                                         }
                                         if (templateOutput.getUnit() != null) {
