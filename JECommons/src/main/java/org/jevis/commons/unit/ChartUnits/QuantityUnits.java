@@ -408,7 +408,7 @@ public class QuantityUnits {
     }
 
     public boolean isEnergyUnit(JEVisUnit currentUnit) {
-        return energyUnits.contains(currentUnit);
+        return energyUnits.contains(currentUnit) || energyUnits.stream().anyMatch(jeVisUnit -> jeVisUnit.getLabel().equals(currentUnit.getLabel()));
     }
 
     public List<JEVisUnit> getEnergyUnits() {
@@ -416,7 +416,7 @@ public class QuantityUnits {
     }
 
     public boolean isVolumeUnit(JEVisUnit currentUnit) {
-        return volumeUnits.contains(currentUnit);
+        return volumeUnits.contains(currentUnit) || volumeUnits.stream().anyMatch(jeVisUnit -> jeVisUnit.getLabel().equals(currentUnit.getLabel()));
     }
 
     public List<JEVisUnit> getVolumeUnits() {
@@ -424,7 +424,7 @@ public class QuantityUnits {
     }
 
     public boolean isMassUnit(JEVisUnit currentUnit) {
-        return massUnits.contains(currentUnit);
+        return massUnits.contains(currentUnit) || massUnits.stream().anyMatch(jeVisUnit -> jeVisUnit.getLabel().equals(currentUnit.getLabel()));
     }
 
     public List<JEVisUnit> getMassUnits() {
@@ -432,7 +432,7 @@ public class QuantityUnits {
     }
 
     public boolean isPressureUnit(JEVisUnit currentUnit) {
-        return pressureUnits.contains(currentUnit);
+        return pressureUnits.contains(currentUnit) || pressureUnits.stream().anyMatch(jeVisUnit -> jeVisUnit.getLabel().equals(currentUnit.getLabel()));
     }
 
     public List<JEVisUnit> getPressureUnits() {
@@ -440,7 +440,7 @@ public class QuantityUnits {
     }
 
     public boolean isVolumeFlowUnit(JEVisUnit currentUnit) {
-        return volumeFlowUnits.contains(currentUnit);
+        return volumeFlowUnits.contains(currentUnit) || volumeFlowUnits.stream().anyMatch(jeVisUnit -> jeVisUnit.getLabel().equals(currentUnit.getLabel()));
     }
 
     public List<JEVisUnit> getVolumeFlowUnits() {
@@ -448,7 +448,7 @@ public class QuantityUnits {
     }
 
     public boolean isMassFlowUnit(JEVisUnit currentUnit) {
-        return massFlowUnits.contains(currentUnit);
+        return massFlowUnits.contains(currentUnit) || massFlowUnits.stream().anyMatch(jeVisUnit -> jeVisUnit.getLabel().equals(currentUnit.getLabel()));
     }
 
     public List<JEVisUnit> getMassFlowUnits() {
@@ -456,7 +456,7 @@ public class QuantityUnits {
     }
 
     public Boolean isMoneyUnit(JEVisUnit currentUnit) {
-        return moneyUnits.contains(currentUnit);
+        return moneyUnits.contains(currentUnit) || moneyUnits.stream().anyMatch(jeVisUnit -> jeVisUnit.getLabel().equals(currentUnit.getLabel()));
     }
 
     public List<JEVisUnit> getMoneyUnits() {

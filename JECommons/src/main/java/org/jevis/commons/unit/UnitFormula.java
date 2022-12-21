@@ -39,7 +39,7 @@ public class UnitFormula {
         inputFormula = formula;
 //        logger.info("----------------------new Part: " + formula);
         if (isValid(formula)) {
-            String folularWithoutPuncnation = formula;
+            String formulaWithoutPunctuation = formula;
             if (hasSubParts(formula)) {
 
                 int lastPart = 0;
@@ -49,16 +49,16 @@ public class UnitFormula {
                     UnitFormula upart = getNextSubPart(formula, range[0] + 1, range[1] - 1);
                     _parts.add(upart);
 //                    logger.info("remove: " + upart.getInputFormula());
-                    folularWithoutPuncnation = StringUtils.replace(folularWithoutPuncnation, upart.getInputFormula(), upart.getUnit().toString());
+                    formulaWithoutPunctuation = StringUtils.replace(formulaWithoutPunctuation, upart.getInputFormula(), upart.getUnit().toString());
                 }
 
             }
-            if (parseFunction(folularWithoutPuncnation)) {
+            if (parseFunction(formulaWithoutPunctuation)) {
 //                logger.info("Build complex unit: ");
-                _unit = buildUnit(folularWithoutPuncnation);
+                _unit = buildUnit(formulaWithoutPunctuation);
             } else {
-//                logger.info("Build simple unitfrom: " + folularWithoutPuncnation);
-                _unit = Unit.valueOf(folularWithoutPuncnation);
+//                logger.info("Build simple unitfrom: " + formulaWithoutPunctuation);
+                _unit = Unit.valueOf(formulaWithoutPunctuation);
             }
 
         } else {
@@ -129,7 +129,7 @@ public class UnitFormula {
     public static final String LABEL = "=";
 
     private Function _function = Function.NONE;
-    private List<UnitFormula> _parts = new ArrayList<UnitFormula>();
+    private final List<UnitFormula> _parts = new ArrayList<UnitFormula>();
 
     private int _lastPart = 0;
     private Unit _unit = Unit.ONE;
@@ -173,13 +173,10 @@ public class UnitFormula {
         try {
             Integer i = Integer.parseInt(prefixString);
 
-            switch (i) {
-                case 1000:
-                    return Prefix.KILO;
-                default:
-                    return Prefix.NUMBER;
-
+            if (i == 1000) {
+                return Prefix.KILO;
             }
+            return Prefix.NUMBER;
 
         } catch (NumberFormatException nfe) {
             return Prefix.NOTANUMBER;
