@@ -166,9 +166,9 @@ public class PieWidget extends Widget implements DataModelWidget {
         Platform.runLater(() -> {
             try {
                 this.chart.getData().clear();
+                this.legend.getItems().clear();
                 this.legend.getItems().setAll(legendItemList);
                 this.chart.getData().setAll(series);
-                applyColors(colors);
                 this.chart.setStartAngle(180);
                 this.chart.setLabelLineLength(15d);
                 this.chart.setClockwise(false);
@@ -178,6 +178,7 @@ public class PieWidget extends Widget implements DataModelWidget {
                 this.chart.requestLayout();
 
                 updateConfig();
+                applyColors(colors);
                 showProgressIndicator(false);
             } catch (Exception ex) {
                 logger.error(ex);
@@ -311,10 +312,11 @@ public class PieWidget extends Widget implements DataModelWidget {
             Color currentColor = colors.get(i);
             String hexColor = ColorHelper.toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
-            Node node = this.chart.lookup(preIdent + ".chart-pie");
-            node.setStyle("-fx-pie-color: " + hexColor + ";");
+            Node node = chart.lookup(preIdent + ".chart-pie");
 
-//            System.out.println(preIdent + ".chart-pie " + "-fx-pie-color: " + hexColor + ";" + " color: " + currentColor.toString());
+            if (node != null) {
+                node.setStyle("-fx-pie-color: " + hexColor + ";");
+            }
         }
     }
 
