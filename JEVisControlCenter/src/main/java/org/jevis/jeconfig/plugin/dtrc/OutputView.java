@@ -341,7 +341,7 @@ public class OutputView extends Tab {
         multiInputFormulaOutputs.sort((o1, o2) -> {
             List<TemplateOutput> templateOutputs1 = map.get(o1);
             List<TemplateOutput> templateOutputs2 = map.get(o2);
-            if (templateOutputs1.contains(o2)) return 1;
+            if (templateOutputs1.size() == 0 || templateOutputs1.contains(o2)) return 1;
             if (templateOutputs1.contains(o2) && templateOutputs2.contains(o2)) return 0;
             else return -1;
         });
@@ -355,7 +355,11 @@ public class OutputView extends Tab {
                 for (TemplateOutput templateOutput : outputs) {
                     if (!templateOutput.getSeparator()) {
                         try {
-                            logger.debug("Output creation for {} with variable name {}", templateOutput.getName(), templateOutput.getVariableName());
+                            if (templateOutput.getName() != null) {
+                                logger.debug("Output creation for {}", templateOutput.getName());
+                            } else if (templateOutput.getVariableName() != null) {
+                                logger.debug("Output creation for output with variable name {}", templateOutput.getVariableName());
+                            }
 
                             Label label = new Label(templateOutput.getName());
                             if (templateOutput.getNameBold()) {
@@ -375,6 +379,7 @@ public class OutputView extends Tab {
                             HBox hBox = new HBox(label, result);
 
                             if (templateOutput.getLink()) {
+                                logger.debug("Found linked output, creating Manual Data Button");
                                 JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
                                 manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
 
@@ -417,7 +422,7 @@ public class OutputView extends Tab {
                                                     }
                                                 }
                                             } catch (Exception e) {
-                                                logger.error("Could not determin attribute type and gui display type", e);
+                                                logger.error("Could not determine attribute type and gui display type", e);
                                             }
                                         });
 
@@ -441,6 +446,7 @@ public class OutputView extends Tab {
                             TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
 
                             if (formula != null) {
+                                logger.debug("Found formula named {} with formula {}", formula.getName(), formula.getFormula());
 
                                 DateTime start = getStart();
                                 DateTime end = getEnd();
@@ -517,7 +523,7 @@ public class OutputView extends Tab {
 
                                 String formulaString = formula.getFormula();
                                 Double calculate = 0d;
-                                logger.debug("Start of formula creation: " + formulaString);
+                                logger.debug("Start of formula creation starting with string " + formulaString);
 
                                 boolean isText = false;
                                 List<DateTime> allTimestamps = new ArrayList<>();
@@ -701,6 +707,7 @@ public class OutputView extends Tab {
                                         }
                                         if (!calculate.isNaN() && !calculate.isInfinite()) {
                                             resultMap.put(formula.getId(), calculate);
+                                            logger.debug("added value of {} to result map", calculate);
                                         }
                                         if (templateOutput.getUnit() != null) {
                                             result.setText(nf.format(calculate) + " " + templateOutput.getUnit());
