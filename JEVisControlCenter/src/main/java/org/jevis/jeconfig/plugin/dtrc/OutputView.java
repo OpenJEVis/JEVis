@@ -35,6 +35,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -378,6 +379,11 @@ public class OutputView extends Tab {
 
                             HBox hBox = new HBox(label, result);
 
+                            if (templateOutput.getShowTooltip()) {
+                                Tooltip tooltip = new Tooltip(templateOutput.getTooltip());
+                                Tooltip.install(hBox, tooltip);
+                            }
+
                             if (templateOutput.getLink()) {
                                 logger.debug("Found linked output, creating Manual Data Button");
                                 JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
@@ -591,6 +597,19 @@ public class OutputView extends Tab {
                                             formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end, rangingValueDetermination));
                                         }
                                     }
+                                }
+
+                                if (formula.getInputIds().size() == 1 && templateOutput.getShowAnalysisLink()) {
+                                    TemplateInput correspondingInput = templateHandler.getRcTemplate().getTemplateInputs().stream().filter(templateInput -> templateInput.getId().equals(formula.getInputIds().get(0))).findFirst().orElse(null);
+
+                                    if (!correspondingInput.getAttributeName().equals("name")) {
+                                        JEVisAttribute attribute = ds.getObject(correspondingInput.getObjectID()).getAttribute(correspondingInput.getAttributeName());
+                                        AnalysisLinkButton analysisLinkButton = new AnalysisLinkButton(attribute);
+                                        analysisLinkButton.getAnalysisRequest().setStartDate(start);
+                                        analysisLinkButton.getAnalysisRequest().setEndDate(end);
+                                        hBox.getChildren().add(analysisLinkButton);
+                                    }
+
                                 }
 
                                 dependencyInputs.forEach(dependencyInput -> dependencyInput.getResultMap().forEach((dateTime, aDouble) -> {
