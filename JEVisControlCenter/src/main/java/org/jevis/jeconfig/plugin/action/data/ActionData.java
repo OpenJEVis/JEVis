@@ -26,7 +26,6 @@ public class ActionData {
     private final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date", "Erstellt", (new DateTime()));
     private final SimpleObjectProperty<DateTime> plannedDate = new SimpleObjectProperty<>("Planned Date", "Umsetzung", (new DateTime()));
     private final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date", "Abgeschlossen", null);
-    //anhang, als file link
     private final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", "Anhang", "");
     private final SimpleStringProperty title = new SimpleStringProperty("Title", I18n.getInstance().getString("plugin.action.title"), "");
     private final SimpleBooleanProperty isNeedAdditionalMeters = new SimpleBooleanProperty("Additional Meter", "Zusätzliche Messtechnik notwendig?", false);
@@ -47,22 +46,14 @@ public class ActionData {
     private final SimpleStringProperty mediaTags = new SimpleStringProperty("Medium Tags", "Medium", "Strom");
     private final SimpleStringProperty noteCorrection = new SimpleStringProperty("Correction", "Korrekturmaßnahmen", "");
     private final SimpleStringProperty noteFollowUpAction = new SimpleStringProperty("Follow Action", "Folgemaßnahmen", "");
-    private final SimpleStringProperty noteAlternativeMeasures = new SimpleStringProperty(
-            "Alternative Measures", "Alternativmaßnahmen (falls die Einsparmaßnahme sich als nicht umsetzbar herausstellt)"
-            , "");
-    private final SimpleStringProperty responsible = new SimpleStringProperty("Responsible", "Verantwortlichkeit"
-            , "");
-    private final SimpleStringProperty noteBetroffenerProzess = new SimpleStringProperty("Affected Process Note", I18n.getInstance().getString("plugin.action.affectedprocess")
-            , "");
-    private final SimpleStringProperty noteEnergiefluss = new SimpleStringProperty(
-            "Energy Flow Note", "Maßnahmenbeschreibung"
-            , "");
-    private final SimpleStringProperty noteBewertet = new SimpleStringProperty(
-            "Evaluation Note", I18n.getInstance().getString("plugin.action.noteBewertet")
-            , "");
-    private final SimpleStringProperty enpiAfter = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiafter"), "");
-    private final SimpleStringProperty enpiBefore = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabefore"), "");
-    private final SimpleStringProperty enpiChange = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabechange"), "");
+    private final SimpleStringProperty noteAlternativeMeasures = new SimpleStringProperty("Alternative Measures", "Alternativmaßnahmen", "");
+    private final SimpleStringProperty responsible = new SimpleStringProperty("Responsible", "Verantwortlichkeit", "");
+    private final SimpleStringProperty noteBetroffenerProzess = new SimpleStringProperty("Affected Process Note", I18n.getInstance().getString("plugin.action.affectedprocess"), "");
+    private final SimpleStringProperty noteEnergiefluss = new SimpleStringProperty("Energy Flow Note", "Maßnahmenbeschreibung", "");
+    private final SimpleStringProperty noteBewertet = new SimpleStringProperty("Evaluation Note", I18n.getInstance().getString("plugin.action.noteBewertet"), "");
+    private final SimpleStringProperty enpiAfter = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiafter"), "23,50 Wh/kg");
+    private final SimpleStringProperty enpiBefore = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabefore"), "20,50 Wh/kg");
+    private final SimpleStringProperty enpiChange = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabechange"), "3,50 Wh/kg");
     private final SimpleStringProperty distributor = new SimpleStringProperty("Distributor", I18n.getInstance().getString("plugin.action.distributor"), "");
     private SimpleStringProperty investment = new SimpleStringProperty("Investment", I18n.getInstance().getString("plugin.action.investment"), "");
     private SimpleStringProperty savingyear = new SimpleStringProperty("Saving Year", I18n.getInstance().getString("plugin.action.savingyear"), "");
@@ -122,6 +113,8 @@ public class ActionData {
         registerChanges(noteBetroffenerProzess);
         registerChanges(title);
 
+        registerChanges(savingyear);
+        registerChanges(investment);
         valueChanged.set(false);
     }
 
@@ -177,6 +170,8 @@ public class ActionData {
                         AttributeFactory.commitAttribute(noteBewertet, object, now);
                         AttributeFactory.commitAttribute(noteEnergiefluss, object, now);
                         AttributeFactory.commitAttribute(noteBetroffenerProzess, object, now);
+                        AttributeFactory.commitAttribute(investment, object, now);
+                        AttributeFactory.commitAttribute(savingyear, object, now);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

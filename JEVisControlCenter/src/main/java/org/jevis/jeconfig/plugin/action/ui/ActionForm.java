@@ -472,6 +472,10 @@ public class ActionForm extends Dialog {
 
         f_Investment.textProperty().bindBidirectional(data.investmentProperty());
         f_savingYear.textProperty().bindBidirectional(data.savingyearProperty());
+        f_enpiAfter.textProperty().bindBidirectional(data.enpiAfterProperty());
+        f_enpiBefore.textProperty().bindBidirectional(data.enpiBeforeProperty());
+        f_enpiChange.textProperty().bindBidirectional(data.enpiChangeProperty());
+
 
         /*
         for (String s : data.statusTagsProperty().getValue().split(";")) {
@@ -489,12 +493,15 @@ public class ActionForm extends Dialog {
             }
         });
 
-
+        System.out.println("To check Media: " + data.mediaTagsProperty().getValue());
         for (String s : data.mediaTagsProperty().getValue().split(";")) {
+            System.out.println("-aktivate: " + s);
             f_mediaTags.getCheckModel().check(s);
         }
+
         f_mediaTags.checkModelProperty().addListener((observable, oldValue, newValue) -> {
             data.mediaTagsProperty().set(ActionPlan.listToString(f_mediaTags.getCheckModel().getCheckedItems()));
+            System.out.println("Media to check: " + ActionPlan.listToString(f_mediaTags.getCheckModel().getCheckedItems()));
         });
 
         for (String s : data.fieldTagsProperty().getValue().split(";")) {
@@ -544,6 +551,7 @@ public class ActionForm extends Dialog {
         f_ActionNr.setOnAction(event -> {
             // data.actionNrProperty().set(Integer.parseInt(fActionNr.getText()));
         });
+
 
     }
 

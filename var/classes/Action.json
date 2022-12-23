@@ -265,6 +265,22 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Action"
+    },
+    {
+      "name": "Investment",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Saving Year",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
     }
   ]
 }
