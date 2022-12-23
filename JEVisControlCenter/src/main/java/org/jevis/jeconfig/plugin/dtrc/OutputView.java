@@ -344,7 +344,8 @@ public class OutputView extends Tab {
             List<TemplateOutput> templateOutputs2 = map.get(o2);
             if (templateOutputs1.size() == 0 || templateOutputs1.contains(o2)) return 1;
             if (templateOutputs1.contains(o2) && templateOutputs2.contains(o2)) return 0;
-            else return -1;
+
+            return -1;
         });
     }
 
