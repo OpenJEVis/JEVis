@@ -343,8 +343,8 @@ public class OutputView extends Tab {
             List<TemplateOutput> templateOutputs1 = map.get(o1);
             List<TemplateOutput> templateOutputs2 = map.get(o2);
             if (templateOutputs1.size() == 0) return -1;
-            if (templateOutputs1.contains(o2)) return 1;
-            if (templateOutputs1.contains(o2) && templateOutputs2.contains(o2)) return 0;
+            if (templateOutputs1.contains(o2) && templateOutputs2.contains(o1)) return 0;
+            else if (templateOutputs1.contains(o2)) return 1;
 
             return -1;
         });
