@@ -3,10 +3,7 @@ package org.jevis.jeconfig.plugin.dtrc;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXListCell;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
@@ -34,15 +31,19 @@ import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.Response;
-import org.jevis.jeconfig.dialog.TemplateCalculationFormulaDialog;
-import org.jevis.jeconfig.dialog.TemplateCalculationInputDialog;
-import org.jevis.jeconfig.dialog.TemplateCalculationOutputDialog;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.dtrc.dialogs.TemplateCalculationFormulaDialog;
+import org.jevis.jeconfig.plugin.dtrc.dialogs.TemplateCalculationInputDialog;
+import org.jevis.jeconfig.plugin.dtrc.dialogs.TemplateCalculationOutputDialog;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 public class TRCPlugin implements Plugin {
@@ -68,14 +69,15 @@ public class TRCPlugin implements Plugin {
     private final FlowPane configFormulaInputs = new FlowPane(4, 4);
     private final GridPane configOutputs = new GridPane();
     private final Tab configurationTab = new Tab(I18n.getInstance().getString("graph.tabs.configuration"));
+    private final Tab intervalSelectionTab = new Tab(I18n.getInstance().getString("plugin.trc.tabs.intervalselection"));
     private final TabPane tabPane = new TabPane();
-    private OutputView viewTab;
     private final ObjectMapper mapper = new ObjectMapper();
     private final TemplateHandler templateHandler = new TemplateHandler();
-
+    private OutputView viewTab;
     private boolean initialized = false;
     private JFXComboBox<JEVisObject> trcs;
     private StackPane dialogStackPane;
+    private final Map<String, JFXCheckBox> intervalSelectorMap = new HashMap<>();
 
     public TRCPlugin(JEVisDataSource ds) {
         this.ds = ds;
@@ -117,31 +119,6 @@ public class TRCPlugin implements Plugin {
             logger.error("Could not get name from plugin class", e);
         }
         return I18n.getInstance().getString("plugin.dtrc.title");
-    }
-
-    private boolean isMultiSite() {
-
-        try {
-            JEVisClass measurementInstrumentDirectoryClass = ds.getJEVisClass("Dynamic Result Calculation Directory");
-            List<JEVisObject> objects = ds.getObjects(measurementInstrumentDirectoryClass, true);
-
-            List<JEVisObject> buildingParents = new ArrayList<>();
-            for (JEVisObject jeVisObject : objects) {
-                JEVisObject buildingParent = objectRelations.getBuildingParent(jeVisObject);
-                if (!buildingParents.contains(buildingParent)) {
-                    buildingParents.add(buildingParent);
-
-                    if (buildingParents.size() > 1) {
-                        return true;
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-
-        }
-
-        return false;
     }
 
     private void initToolBar() {
@@ -261,6 +238,14 @@ public class TRCPlugin implements Plugin {
         trcs.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 templateHandler.setTemplateObject(newValue);
+
+                TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
+                for (TimeFrame timeFrame : timeFrameFactory.getAll()) {
+                    Boolean isSelected = templateHandler.getRcTemplate().getIntervalSelectorConfiguration().get(timeFrame.getID());
+                    if (isSelected != null) {
+                        Platform.runLater(() -> intervalSelectorMap.get(timeFrame.getID()).setSelected(isSelected));
+                    } else Platform.runLater(() -> intervalSelectorMap.get(timeFrame.getID()).setSelected(false));
+                }
 
                 updateFormulas();
                 updateInputs();
@@ -533,7 +518,7 @@ public class TRCPlugin implements Plugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.GAUGE, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.GAUGE, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override
@@ -570,6 +555,7 @@ public class TRCPlugin implements Plugin {
         viewTab.showInputs(true);
 
         configurationTab.setClosable(false);
+        intervalSelectionTab.setClosable(false);
 
         if (templateHandler.getRcTemplate() != null) {
             viewTab.updateViewInputFlowPane();
@@ -607,7 +593,22 @@ public class TRCPlugin implements Plugin {
 
         configurationTab.setContent(dialogStackPane);
 
-        tabPane.getTabs().setAll(viewTab, configurationTab);
+        VBox intervalSelectionVBox = new VBox(6);
+        intervalSelectionVBox.setPadding(new Insets(15));
+        TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
+        for (TimeFrame timeFrame : timeFrameFactory.getAll()) {
+            JFXCheckBox checkBox = new JFXCheckBox(timeFrame.getListName());
+            checkBox.setSelected(false);
+            intervalSelectorMap.put(timeFrame.getID(), checkBox);
+
+            checkBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateHandler.getRcTemplate().getIntervalSelectorConfiguration().put(timeFrame.getID(), t1));
+
+            intervalSelectionVBox.getChildren().add(checkBox);
+        }
+
+        intervalSelectionTab.setContent(intervalSelectionVBox);
+
+        tabPane.getTabs().setAll(viewTab, configurationTab, intervalSelectionTab);
 
         borderPane.setCenter(tabPane);
 
@@ -618,8 +619,8 @@ public class TRCPlugin implements Plugin {
 
         addFormulaButton.setOnAction(event -> {
             TemplateFormula templateFormula = new TemplateFormula();
-
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula);
+            List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula, allowedTimeFrames);
             templateCalculationFormulaDialog.show();
             templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
                 if (templateCalculationFormulaDialog.getResponse() == Response.OK) {
@@ -658,8 +659,8 @@ public class TRCPlugin implements Plugin {
 
         addInputButton.setOnAction(event -> {
             TemplateInput templateInput = new TemplateInput();
-
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
+            List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput, allowedTimeFrames);
             templateCalculationInputDialog.show();
 
             templateCalculationInputDialog.setOnDialogClosed(event1 -> {
@@ -777,7 +778,9 @@ public class TRCPlugin implements Plugin {
         }
 
         formulaButton.setOnAction(event -> {
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula);
+            List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
+            allowedTimeFrames.add(0, TimeFrameFactory.NONE);
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula, allowedTimeFrames);
             templateCalculationFormulaDialog.show();
 
             templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
@@ -811,7 +814,9 @@ public class TRCPlugin implements Plugin {
         inputButton.setMnemonicParsing(false);
 
         inputButton.setOnAction(event -> {
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput);
+            List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
+            allowedTimeFrames.add(0, TimeFrameFactory.NONE);
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput, allowedTimeFrames);
             templateCalculationInputDialog.show();
 
             templateCalculationInputDialog.setOnDialogClosed(event1 -> {

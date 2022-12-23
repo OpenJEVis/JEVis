@@ -16,23 +16,23 @@ import javafx.scene.text.TextAlignment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 
 import java.util.List;
 
 public class ColumnChartLabelRenderer extends LabelledMarkerRenderer {
     private static final Logger logger = LogManager.getLogger(ColumnChartLabelRenderer.class);
 
-    private final ChartSetting chartSetting;
+    private final ChartModel chartModelSetting;
     private final List<XYChartSerie> xyChartSerieList;
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
-    public ColumnChartLabelRenderer(ChartSetting chartSetting, List<XYChartSerie> xyChartSerieList) {
+    public ColumnChartLabelRenderer(ChartModel chartModelSetting, List<XYChartSerie> xyChartSerieList) {
         super();
-        this.chartSetting = chartSetting;
+        this.chartModelSetting = chartModelSetting;
         this.xyChartSerieList = xyChartSerieList;
-        this.nf.setMaximumFractionDigits(chartSetting.getMinFractionDigits());
-        this.nf.setMinimumFractionDigits(chartSetting.getMaxFractionDigits());
+        this.nf.setMaximumFractionDigits(chartModelSetting.getMinFractionDigits());
+        this.nf.setMinimumFractionDigits(chartModelSetting.getMaxFractionDigits());
     }
 
     @Override

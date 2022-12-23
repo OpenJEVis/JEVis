@@ -197,7 +197,7 @@ public class MeterPlugin extends TablePlugin {
                         JEVisAttribute jeVisAttribute = registerTableRow.getAttributeMap().get(type);
                         try {
                             TargetHelper th = new TargetHelper(ds, jeVisAttribute);
-                            if (th.isValid() && th.targetAccessible()) {
+                            if (th.isValid() && th.targetObjectAccessible()) {
                                 JEVisAttribute att = th.getObject().get(0).getAttribute("Value");
                                 if (att != null) {
                                     if (att.hasSample()) {
@@ -224,7 +224,7 @@ public class MeterPlugin extends TablePlugin {
                         JEVisAttribute jeVisAttribute = registerTableRow.getAttributeMap().get(type);
                         try {
                             TargetHelper th = new TargetHelper(ds, jeVisAttribute);
-                            if (th.isValid() && th.targetAccessible()) {
+                            if (th.isValid() && th.targetObjectAccessible()) {
                                 JEVisAttribute att = th.getObject().get(0).getAttribute("Value");
                                 JEVisAttribute periodAtt = th.getObject().get(0).getAttribute("Period");
 
@@ -361,7 +361,7 @@ public class MeterPlugin extends TablePlugin {
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
 
-        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip")));
+        reload.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.reload.progress.tooltip")));
         save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.save.tooltip")));
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.new.tooltip")));
         replaceButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.replace.tooltip")));

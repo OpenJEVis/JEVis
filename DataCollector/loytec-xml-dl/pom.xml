@@ -90,10 +90,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jevis.commons</groupId>
-            <artifactId>JECommons</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jevis</groupId>
             <artifactId>SOAPDataSource</artifactId>
         </dependency>

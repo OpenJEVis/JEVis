@@ -419,7 +419,7 @@ public class DataServerTable extends AlarmTable {
                     try {
                         th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
 
-                        if (!th.hasObject()) {
+                        if (!th.isObject()) {
                             logger.error("DP has no valid target: {}:{} in '{}'", lastSampleTarget.getAttribute().getName(), lastSampleTarget);
                             continue;
                         }

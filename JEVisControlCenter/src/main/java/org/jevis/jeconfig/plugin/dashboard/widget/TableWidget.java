@@ -111,7 +111,7 @@ public class TableWidget extends Widget implements DataModelWidget {
                 if (!results.isEmpty()) {
 
                     tableDatas.add(new TableData(
-                            chartDataModel.getTitle(),
+                            chartDataModel.getName(),
                             this.nf.format(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, chartDataModel)),
                             chartDataModel.getUnitLabel()));
 

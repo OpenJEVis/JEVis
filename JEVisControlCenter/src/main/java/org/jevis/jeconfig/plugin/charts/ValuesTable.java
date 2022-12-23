@@ -129,7 +129,7 @@ public class ValuesTable extends TableView<Values> {
         /**
          * Table Column 6
          */
-        TableColumn<Values, String> zerosCountCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount") + " 0");
+        TableColumn<Values, String> zerosCountCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.attribute.overview.zerovalues"));
         zerosCountCol.setCellValueFactory(new PropertyValueFactory<Values, String>("zeros"));
         zerosCountCol.setStyle("-fx-alignment: CENTER-RIGHT");
         zerosCountCol.setSortable(true);

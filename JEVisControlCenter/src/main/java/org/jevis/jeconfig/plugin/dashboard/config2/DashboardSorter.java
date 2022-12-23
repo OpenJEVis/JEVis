@@ -8,13 +8,10 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.jevis.jeconfig.application.Chart.data.AnalysisDataModel.BUILDING_CLASS_NAME;
-import static org.jevis.jeconfig.application.Chart.data.AnalysisDataModel.ORGANIZATION_CLASS_NAME;
 
 /**
  * Sort lists of dashboard objects
@@ -35,7 +32,7 @@ public class DashboardSorter {
         boolean multipleDirectories = false;
 
         try {
-            JEVisClass analysesDirectory = ds.getJEVisClass(AnalysisDataModel.ANALYSES_DIRECTORY_CLASS_NAME);
+            JEVisClass analysesDirectory = ds.getJEVisClass(AnalysesComboBox.ANALYSES_DIRECTORY_CLASS_NAME);
             listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
 
             if (listAnalysesDirectories.size() > 1) {
@@ -55,8 +52,8 @@ public class DashboardSorter {
 
                 try {
                     JEVisObject secondParent1 = o1.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = ds.getJEVisClass(BUILDING_CLASS_NAME);
-                    JEVisClass organisationClass = ds.getJEVisClass(ORGANIZATION_CLASS_NAME);
+                    JEVisClass buildingClass = ds.getJEVisClass(AnalysesComboBox.BUILDING_CLASS_NAME);
+                    JEVisClass organisationClass = ds.getJEVisClass(AnalysesComboBox.ORGANIZATION_CLASS_NAME);
 
                     if (secondParent1.getJEVisClass().equals(buildingClass)) {
                         try {
@@ -82,8 +79,8 @@ public class DashboardSorter {
 
                 try {
                     JEVisObject secondParent2 = o2.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = ds.getJEVisClass(BUILDING_CLASS_NAME);
-                    JEVisClass organisationClass = ds.getJEVisClass(ORGANIZATION_CLASS_NAME);
+                    JEVisClass buildingClass = ds.getJEVisClass(AnalysesComboBox.BUILDING_CLASS_NAME);
+                    JEVisClass organisationClass = ds.getJEVisClass(AnalysesComboBox.ORGANIZATION_CLASS_NAME);
 
                     if (secondParent2.getJEVisClass().equals(buildingClass)) {
                         try {

@@ -32,7 +32,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <minimizeJar>true</minimizeJar>
+                            <minimizeJar>false</minimizeJar>
                             <artifactSet>
                                 <excludes>
                                     <exclude>classworlds:classworlds</exclude>
@@ -43,7 +43,6 @@
                                     <exclude>org.jevis:JEVisCore</exclude>
                                     <exclude>org.controlsfx</exclude>
                                     <exclude>org.aopalliance</exclude>
-                                    <exclude>org.apache</exclude>
                                     <exclude>org.glassfish</exclude>
                                     <exclude>org.ietf</exclude>
                                     <exclude>org.jcp</exclude>
@@ -62,7 +61,6 @@
                                     <exclude>commons-lang</exclude>
                                     <exclude>commons-io</exclude>
                                     <exclude>com.google.inject</exclude>
-                                    <exclude>org.apache.httpcomponents</exclude>
                                     <exclude>org.apache.commons</exclude>
                                     <exclude>commons-cli</exclude>
                                     <exclude>javax.inject</exclude>
@@ -96,10 +94,6 @@
         <dependency>
             <groupId>org.jevis</groupId>
             <artifactId>HTTPDataSource</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jevis.commons</groupId>
-            <artifactId>JECommons</artifactId>
         </dependency>
     </dependencies>
 </project>

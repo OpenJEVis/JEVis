@@ -45,8 +45,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -104,8 +102,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
             this.sampleHandler.setAutoAggregation(true);
 
-
-            setIntervallForLastValue(interval);
+            this.sampleHandler.setInterval(interval);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
 
@@ -122,7 +119,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
                     total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
                     if (gaugeSettings.isInPercent()) {
-                        gauge.setValue(Helper.convertToPercent(total.get(), gaugeSettings.getMaximum(),gaugeSettings.getMinimum() , this.config.getDecimals()));
+                        gauge.setValue(Helper.convertToPercent(total.get(), gaugeSettings.getMaximum(), gaugeSettings.getMinimum(), this.config.getDecimals()));
 
                     } else {
                         gauge.setValue(total.get());
@@ -131,36 +128,11 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
                 } else {
                     gauge.setValue(0);
-                    showAlertOverview(true,I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
+                    showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
                 }
 
             }
         });
-    }
-
-    private void setIntervallForLastValue(Interval interval) {
-        if (this.getDataHandler().getTimeFrameFactory() != null) {
-            if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory()) && sampleHandler != null) {
-                sampleHandler.durationPropertyProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
-                sampleHandler.update();
-                if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
-                    Interval interval1 = null;
-                    try {
-                        interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
-                        sampleHandler.durationPropertyProperty().setValue(interval1);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-
-
-            } else {
-                this.sampleHandler.setInterval(interval);
-            }
-        } else {
-            this.sampleHandler.setInterval(interval);
-        }
-
     }
 
     private void updateText() {
@@ -340,7 +312,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                             CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
-                                    this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
+                                    this.getDataHandler().getDuration().getStart(), this.getDataHandler().getDuration().getEnd(), true);
 
                             for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 
@@ -413,11 +385,6 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             dashBoardNode
                     .set(GAUGE_DESIGN_NODE_NAME, gaugeSettings.toJSON());
         }
-
-//        if (percent != null) {
-//            dashBoardNode
-//                    .set(PERCENT_NODE_NAME, percent.toJSON());
-//        }
 
 
         return dashBoardNode;

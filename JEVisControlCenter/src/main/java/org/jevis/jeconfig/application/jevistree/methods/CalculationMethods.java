@@ -91,7 +91,7 @@ public class CalculationMethods extends CommonMethods {
         List<JEVisObject> allCleanData = new ArrayList<>();
         for (JEVisObject data : foundCalcTarget) {
             try {
-                allCleanData.addAll(data.getChildren(cleanDataClass, false));
+                allCleanData.addAll(org.jevis.commons.utils.CommonMethods.getAllChildrenRecursive(data));
             } catch (Exception e) {
                 e.printStackTrace();
             }

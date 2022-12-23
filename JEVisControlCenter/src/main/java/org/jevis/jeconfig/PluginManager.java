@@ -39,10 +39,11 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.accounting.AccountingPlugin;
+import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
 import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
-import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
+import org.jevis.jeconfig.plugin.browser.ISO50001Plugin;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dtrc.TRCPlugin;
@@ -67,7 +68,7 @@ public class PluginManager {
     private final JEVisDataSource _ds;
     private final Number _tabPosOld = 0;
     private final AnchorPane toolbar = new AnchorPane();
-    private final SimpleObjectProperty selectedPluginProperty = new SimpleObjectProperty();
+    private final SimpleObjectProperty<Plugin> selectedPluginProperty = new SimpleObjectProperty<>();
     private TopMenu menu;
     private final TabPane tabPane = new TabPane();
 
@@ -100,7 +101,7 @@ public class PluginManager {
 
 
 //        plugins.add(new SCADAPlugin(_ds));
-        plugins.add(new ISO50001Browser(this._ds));
+        plugins.add(new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")));
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(this._ds, I18n.getInstance().getString("plugin.classes.title")));
         plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(this._ds, I18n.getInstance().getString("plugin.units.title")));
         plugins.add(new MapViewPlugin(this._ds, I18n.getInstance().getString("plugin.map.title")));
@@ -175,6 +176,7 @@ public class PluginManager {
                         new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")),
                         new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")),
                         new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")),
+                        new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")),
                         new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")),
                         new AccountingPlugin(this._ds, "Actions"),
                         new TRCPlugin(this._ds)
@@ -209,6 +211,8 @@ public class PluginManager {
                                         _plugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
                                     } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
+                                    } else if (plugObj.getJEVisClassName().equals(ISO50001Plugin.PLUGIN_NAME)) {
+                                        _plugins.add(new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")));
                                     } else if (plugObj.getJEVisClassName().equals(AccountingPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
                                     } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
@@ -351,6 +355,8 @@ public class PluginManager {
                 } catch (Exception ex) {
                     logger.error("Error while switching plugin: {}", ex, ex);
                 }
+
+                menu.setPlugin(newValue);
             }
 
         }));
@@ -370,8 +376,7 @@ public class PluginManager {
     }
 
     Plugin getSelectedPlugin() {
-        return (Plugin) this.selectedPluginProperty.getValue();
-//        return _plugins.get(_tabPos.intValue());
+        return this.selectedPluginProperty.getValue();
     }
 
     public Node getToolbar() {

@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -89,7 +90,6 @@ public class NodeTreeTable {
     public static final String LOG_MODE = "trendMode";
     public static final String LOG_INTERVAL = "POLL";
     private final String mode;
-
 
 
     public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, String backNetRootFolder, StackPane dialogContainer, String mode) {
@@ -275,6 +275,7 @@ public class NodeTreeTable {
                                             getTreeTableRow().getTreeItem().getValue().setSelected(box.isSelected());
 
                                             childrenSetSelected(getTreeTableRow().getTreeItem());
+                                            parentSetSelected(getTreeTableRow().getTreeItem());
                                             opcUATreeTableView.refresh();
 
                                         });
@@ -524,9 +525,23 @@ public class NodeTreeTable {
                     JEVisAttribute jevisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
                     if (dataJEVisObject != null && jevisAttributeTarget != null) {
                         dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
+                        JEVisAttribute dataPeriodAttribute = dataJEVisObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                        if (dataPeriodAttribute != null) {
+                            //TODO: get period from linx
+                            JEVisSample sample = dataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), Period.minutes(15));
+                            sample.commit();
+                        }
                         jevisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
                         setLogIntervalToJEVisObject(node, dataJEVisObject);
                         JEVisObject cleanDataJEVisObject = createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
+                        cleanDataJEVisObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
+                        JEVisAttribute cleanDataPeriodAttribute = cleanDataJEVisObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                        if (cleanDataPeriodAttribute != null) {
+                            //TODO: get period from linx
+                            JEVisSample sample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), Period.minutes(15));
+                            sample.commit();
+                        }
+                        cleanDataJEVisObject.commit();
                         setLogIntervalToJEVisObject(node, cleanDataJEVisObject);
                     }
                     setTrendIdToJEVisObject(node, dataSourceJEVisObject, dateTime);
@@ -535,7 +550,7 @@ public class NodeTreeTable {
             for (TreeItem<Node> nodeChild : node.getChildren()) {
                 createTrendDataTree(nodeChild, dataSourceJEVisObject, dateTime, dataJEVisObject);
             }
-        }catch (JEVisException e){
+        } catch (JEVisException e) {
             e.printStackTrace();
         }
     }
@@ -607,6 +622,15 @@ public class NodeTreeTable {
                 childrenSetSelected(nodeTreeItem.getChildren().get(i));
             }
         }
+    }
+    private void parentSetSelected(TreeItem<Node> nodeTreeItem) {
+        if (nodeTreeItem.getValue().isSelected()) {
+            if (nodeTreeItem.getParent() != null) {
+                nodeTreeItem.getParent().getValue().setSelected(nodeTreeItem.getValue().isSelected());
+                parentSetSelected(nodeTreeItem.getParent());
+            }
+        }
+
     }
 
     /**

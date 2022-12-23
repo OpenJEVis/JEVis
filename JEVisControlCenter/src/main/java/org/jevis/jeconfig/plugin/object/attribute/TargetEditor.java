@@ -24,11 +24,11 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.TreeHelper;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
-import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.dialog.SelectTargetDialog.MODE;
 import org.joda.time.DateTime;
 
@@ -135,7 +135,7 @@ public class TargetEditor implements AttributeEditor {
                     th = new TargetHelper(_attribute.getDataSource(), _attribute);
                 }
 
-                if (th.isValid() && th.targetAccessible()) {
+                if (th.isValid() && th.targetObjectAccessible()) {
                     JEVisObject findObj = _attribute.getDataSource().getObject(th.getObject().get(0).getID());
 
                     List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
@@ -157,47 +157,48 @@ public class TargetEditor implements AttributeEditor {
     public EventHandler<ActionEvent> getTreeButtonActionEventEventHandler() {
         return t -> {
             try {
-                SelectTargetDialog selectTargetDialog = null;
+                TreeSelectionDialog treeSelectionDialog = null;
 
                 /**
                  * TODO:
                  * The not so pretty solution to add target specific filter
                  */
                 JEVisSample latestSample = _attribute.getLatestSample();
+                JEVisType attributeType = _attribute.getType();
+                boolean showAttributes = attributeType.getGUIDisplayType().equals("Attribute Target");
+
                 TargetHelper th = null;
                 if (latestSample != null) {
                     th = new TargetHelper(_attribute.getDataSource(), latestSample.getValueAsString());
-                    if (th.isValid() && th.targetAccessible()) {
+                    if (th.isValid() && th.targetObjectAccessible()) {
                         logger.info("Target Is valid");
                         setButtonText();
                     }
                 }
 
-                List<JEVisTreeFilter> allFilter = new ArrayList<>();
-                JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
-                JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
-                allFilter.add(allDataFilter);
-                allFilter.add(allAttributesFilter);
+                List<JEVisClass> classes = new ArrayList<>();
 
                 List<UserSelection> openList = new ArrayList<>();
                 if (th != null && !th.getAttribute().isEmpty()) {
-                    for (JEVisAttribute att : th.getAttribute())
+                    for (JEVisAttribute att : th.getAttribute()) {
                         openList.add(new UserSelection(UserSelection.SelectionType.Attribute, att, null, null));
+                    }
                 } else if (th != null && !th.getObject().isEmpty()) {
-                    for (JEVisObject obj : th.getObject())
+                    for (JEVisObject obj : th.getObject()) {
                         openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
+                    }
                 }
 
                 if (_attribute.getObject().getJEVisClassName().equals("Alarm Configuration")) {
-                    selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.MULTIPLE, _attribute.getDataSource(), openList);
+                    treeSelectionDialog = new TreeSelectionDialog(dialogContainer, _attribute.getDataSource(), classes, SelectionMode.MULTIPLE, openList, showAttributes);
                 } else {
-                    selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, _attribute.getDataSource(), openList);
+                    treeSelectionDialog = new TreeSelectionDialog(dialogContainer, _attribute.getDataSource(), classes, SelectionMode.SINGLE, openList, showAttributes);
                 }
 
-                SelectTargetDialog finalSelectTargetDialog = selectTargetDialog;
-                selectTargetDialog.setOnDialogClosed(event -> {
+                TreeSelectionDialog finalSelectTargetDialog = treeSelectionDialog;
+                treeSelectionDialog.setOnDialogClosed(event -> {
                     try {
-                        if (finalSelectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                        if (finalSelectTargetDialog.getResponse() == Response.OK) {
                             logger.trace("Selection Done");
 
                             String newTarget = "";
@@ -221,7 +222,7 @@ public class TargetEditor implements AttributeEditor {
                         logger.catching(ex);
                     }
                 });
-                selectTargetDialog.show();
+                treeSelectionDialog.show();
 
             } catch (Exception ex) {
                 logger.catching(ex);
@@ -238,7 +239,7 @@ public class TargetEditor implements AttributeEditor {
                 th = new TargetHelper(_attribute.getDataSource(), _attribute);
             }
 
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
 
                 StringBuilder bText = new StringBuilder();
 
@@ -266,7 +267,7 @@ public class TargetEditor implements AttributeEditor {
                     bText.append("] ");
                     bText.append(obj.getName());
 
-                    if (th.hasAttribute()) {
+                    if (th.isAttribute()) {
 
                         bText.append(" - ");
                         bText.append(th.getAttribute().get(index).getName());

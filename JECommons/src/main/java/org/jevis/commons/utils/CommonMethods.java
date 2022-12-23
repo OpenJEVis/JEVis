@@ -20,6 +20,7 @@ public class CommonMethods {
     public static List<String> DATA_TYPES = Arrays.asList("Data", "Clean Data", "Base Data", "Math Data", "String Data");
 
     public static JEVisObject getFirstParentalDataObject(JEVisObject jeVisObject) throws JEVisException {
+        if (jeVisObject.getJEVisClassName().equals("Data")) return jeVisObject;
         for (JEVisObject object : jeVisObject.getParents()) {
             if (object.getJEVisClassName().equals("Data")) {
                 return object;
@@ -337,27 +338,38 @@ public class CommonMethods {
         return size;
     }
 
-    public static void clearDependentData(DateTime from, List<JEVisObject> objects) throws Exception {
+    public static void cleanDependentObjects(List<JEVisObject> objects, DateTime from) {
+
         List<JEVisObject> dependentObjects = new ArrayList<>();
-        JEVisDataSource ds = objects.get(0).getDataSource();
 
-        for (JEVisObject child : objects) {
+        try {
+            JEVisDataSource ds = objects.get(0).getDataSource();
 
-            dependentObjects.add(child);
+            Map<JEVisObject, List<JEVisObject>> calculationMap = createCalculationMap(ds);
 
-            try {
-                for (JEVisObject object : getAllChildrenRecursive(child)) {
-                    if (!dependentObjects.contains(object)) {
-                        dependentObjects.add(object);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error(e);
-            }
+            dependentObjects.addAll(getAllDependentObjects(calculationMap, objects));
+
+        } catch (Exception e) {
+            logger.error(e);
         }
 
-        Map<JEVisObject, List<JEVisObject>> targetAndCalculation = new HashMap<>();
-        List<JEVisObject> dependentCalculations = new ArrayList<>();
+        if (!dependentObjects.isEmpty()) {
+            for (JEVisObject dependency : dependentObjects) {
+                logger.info("deleting samples from {}:{} starting with {}", dependency.getName(), dependency.getID(), from.toString());
+
+                try {
+                    JEVisAttribute value = dependency.getAttribute("Value");
+                    DateTime lastSampleTS = value.getTimestampFromLastSample();
+                    value.deleteSamplesBetween(from, lastSampleTS);
+                } catch (Exception e) {
+                    logger.error("Could not delete samples from {}:{}:Value", dependency.getName(), dependency.getID());
+                }
+            }
+        }
+    }
+
+    private static Map<JEVisObject, List<JEVisObject>> createCalculationMap(JEVisDataSource ds) throws JEVisException {
+        Map<JEVisObject, List<JEVisObject>> map = new HashMap<>();
 
         JEVisClass calculation = ds.getJEVisClass("Calculation");
         JEVisClass outputClass = ds.getJEVisClass("Output");
@@ -365,8 +377,10 @@ public class CommonMethods {
 
         for (JEVisObject calculationObj : ds.getObjects(calculation, true)) {
             try {
-                List<JEVisObject> outputs = calculationObj.getChildren(inputClass, true);
+                List<JEVisObject> inputs = calculationObj.getChildren(inputClass, true);
+                List<JEVisObject> outputs = calculationObj.getChildren(outputClass, true);
 
+                JEVisObject key = null;
                 if (outputs != null && !outputs.isEmpty()) {
                     for (JEVisObject output : outputs) {
                         JEVisAttribute targetAttribute = output.getAttribute("Output");
@@ -374,27 +388,68 @@ public class CommonMethods {
                             try {
                                 TargetHelper th = new TargetHelper(ds, targetAttribute);
                                 if (th.getObject() != null && !th.getObject().isEmpty()) {
-                                    JEVisObject id = th.getObject().get(0);
-                                    if (targetAndCalculation.get(id) == null) {
-                                        List<JEVisObject> objectIds = new ArrayList<>();
-                                        objectIds.add(calculationObj);
-                                        targetAndCalculation.put(id, objectIds);
-                                    } else {
-                                        List<JEVisObject> list = new ArrayList<>(targetAndCalculation.remove(id));
-                                        list.add(calculationObj);
-                                        targetAndCalculation.put(id, list);
-                                    }
+                                    key = th.getObject().get(0);
+
                                 }
                             } catch (Exception ignored) {
                             }
                         }
                     }
                 }
+
+                List<JEVisObject> value = new ArrayList<>();
+                if (key != null && inputs != null && !inputs.isEmpty()) {
+                    for (JEVisObject input : inputs) {
+                        JEVisAttribute targetAttribute = input.getAttribute("Input Data");
+                        if (targetAttribute != null) {
+                            try {
+                                TargetHelper th = new TargetHelper(ds, targetAttribute);
+                                if (th.getObject() != null && !th.getObject().isEmpty()) {
+                                    value.add(th.getObject().get(0));
+                                }
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+
+                    if (!value.isEmpty()) {
+                        map.put(key, value);
+                    }
+                }
             } catch (Exception ignored) {
             }
         }
 
+        return map;
+    }
 
+    private static List<JEVisObject> getAllDependentObjects(Map<JEVisObject, List<JEVisObject>> calculationMap, List<JEVisObject> objects) {
+        List<JEVisObject> dependentObjects = new ArrayList<>();
+
+        for (JEVisObject object : objects) {
+
+            try {
+                dependentObjects.addAll(getAllChildrenRecursive(object));
+            } catch (Exception e) {
+                logger.error(e);
+            }
+
+            for (Map.Entry<JEVisObject, List<JEVisObject>> entry : calculationMap.entrySet()) {
+                JEVisObject key = entry.getKey();
+                List<JEVisObject> value = entry.getValue();
+
+                List<JEVisObject> calculationDependencies = new ArrayList<>();
+                if (value.stream().anyMatch(dependentObjects::contains)) {
+                    calculationDependencies.add(key);
+                }
+
+                if (!calculationDependencies.isEmpty()) {
+                    dependentObjects.addAll(getAllDependentObjects(calculationMap, calculationDependencies));
+                }
+            }
+        }
+
+        return dependentObjects;
     }
 
     public static List<JEVisObject> getChildrenRecursive(JEVisObject firstObject, JEVisClass jeVisClass) throws JEVisException {

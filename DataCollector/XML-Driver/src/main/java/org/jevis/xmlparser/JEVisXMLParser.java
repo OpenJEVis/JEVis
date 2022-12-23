@@ -116,7 +116,7 @@ public class JEVisXMLParser implements Parser {
                 String targetString = DatabaseHelper.getObjectAsString(dp, targetType);
                 String target = null;
                 TargetHelper targetHelper = new TargetHelper(dp.getDataSource(), targetString);
-                if (targetHelper.isValid() && targetHelper.targetAccessible()) {
+                if (targetHelper.isValid() && targetHelper.targetObjectAccessible()) {
                     target = targetString;
                 } else {
                     logger.info("DataPoint target error: {}", datapointID);

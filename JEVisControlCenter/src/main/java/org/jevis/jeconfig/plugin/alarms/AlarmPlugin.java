@@ -6,10 +6,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -17,8 +14,6 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -49,11 +44,10 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
@@ -67,44 +61,20 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.ALARM_CONFIG;
 import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.LIMITS_CONFIGURATION;
 
 public class AlarmPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(AlarmPlugin.class);
-    private static int ROWS_PER_PAGE = 25;
     public static String PLUGIN_NAME = "Alarm Plugin";
     public static String ALARM_CONFIG_CLASS = "Alarm Configuration";
-    private final JEVisDataSource ds;
-    private final String title;
-    private final BorderPane borderPane = new BorderPane();
-    private final StackPane dialogContainer = new StackPane(borderPane);
-    private final ToolBar toolBar = new ToolBar();
-    private final int iconSize = 20;
+    private static int ROWS_PER_PAGE = 25;
     private static Method columnToFitMethod;
-    private final Image checkAllImage = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
-    private final DateHelper dateHelper = new DateHelper(DateHelper.TransformType.PREVIEW);
-    private final SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
-    private final ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
-    private final List<Task<List<AlarmRow>>> runningUpdateTaskList = new ArrayList<>();
-    private final Pagination pagination = new Pagination();
-    int showCheckedAlarms = 0;
-    private boolean init = false;
-    private final List<Future<?>> futures = new ArrayList<>();
-    private final Image taskImage = JEConfig.getImage("alarm_icon.png");
-
-    private final Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
-        @Override
-        public int compare(AlarmRow o1, AlarmRow o2) {
-            return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1, o2);
-        }
-    };
 
     static {
         try {
@@ -115,34 +85,37 @@ public class AlarmPlugin implements Plugin {
         }
     }
 
+    private final JEVisDataSource ds;
+    private final String title;
+    private final BorderPane borderPane = new BorderPane();
+    private final StackPane dialogContainer = new StackPane(borderPane);
+    private final ToolBar toolBar = new ToolBar();
+    private final int iconSize = 20;
+    private final Image checkAllImage = ResourceLoader.getImage("jetxee-check-sign-and-cross-sign-3.png");
+    private final DateHelper dateHelper = new DateHelper(DateHelper.TransformType.PREVIEW);
+    private final SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
+    private final ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
+    private final List<Task<List<AlarmRow>>> runningUpdateTaskList = new ArrayList<>();
+    private final Pagination pagination = new Pagination();
+    private final SimpleIntegerProperty showCheckedAlarms = new SimpleIntegerProperty(this, "showCheckedAlarms", 0);
+    private final List<Future<?>> futures = new ArrayList<>();
+    private final Image taskImage = JEConfig.getImage("alarm_icon.png");
+
+    private final Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
+        @Override
+        public int compare(AlarmRow o1, AlarmRow o2) {
+            return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1, o2);
+        }
+    };
     private final List<AlarmRow> data = new ArrayList<>();
     private final TableView<AlarmRow> tableView = new TableView<>();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+    private final JFXDatePicker startDatePicker = new JFXDatePicker();
+    private final JFXDatePicker endDatePicker = new JFXDatePicker();
+    private boolean init = false;
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame = TimeFrame.TODAY;
-    private final JFXDatePicker startDatePicker = new JFXDatePicker();
-    private final JFXDatePicker endDatePicker = new JFXDatePicker();
-    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
-    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
-    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
-    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
 
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -185,6 +158,17 @@ public class AlarmPlugin implements Plugin {
         this.borderPane.setCenter(pagination);
     }
 
+    public static void autoFitTable(TableView<AlarmRow> tableView) {
+        for (TableColumn<AlarmRow, ?> column : tableView.getColumns()) {
+            try {
+                if (tableView.getSkin() != null) {
+                    columnToFitMethod.invoke(tableView.getSkin(), column, -1);
+                }
+            } catch (Exception e) {
+            }
+        }
+    }    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+
     private Node createPage(int pageIndex) {
         int numOfPages = 1;
         if (data.size() % ROWS_PER_PAGE == 0) {
@@ -198,18 +182,230 @@ public class AlarmPlugin implements Plugin {
         tableView.setItems(FXCollections.observableArrayList(data.subList(fromIndex, toIndex)));
 
         return tableView;
+    }    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
+
+    private void initToolBar() {
+        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
+        reload.setTooltip(reloadTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+
+        reload.setOnAction(event -> {
+
+            final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
+            Service<Void> service = new Service<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() {
+                            updateMessage(loading);
+                            try {
+                                ds.clearCache();
+                                ds.preload();
+
+                                updateList();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
+                    };
+                }
+            };
+            ProgressDialog pd = new ProgressDialog(service);
+            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
+            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
+            pd.getDialogPane().setContent(null);
+
+            service.start();
+
+        });
+
+        Separator sep1 = new Separator(Orientation.VERTICAL);
+        Separator sep2 = new Separator(Orientation.VERTICAL);
+        Separator sep3 = new Separator(Orientation.VERTICAL);
+
+        if (start != null) {
+            startDatePicker.valueProperty().removeListener(startDateChangeListener);
+            startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        }
+
+
+        if (end != null) {
+            endDatePicker.valueProperty().removeListener(endDateChangeListener);
+            endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        }
+
+
+        startDatePicker.valueProperty().addListener(startDateChangeListener);
+        endDatePicker.valueProperty().addListener(endDateChangeListener);
+
+        JFXComboBox<String> filterBox = new JFXComboBox<>();
+        String showOnlyUncheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showunchecked");
+        String showOnlyCheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showchecked");
+        String showAllAlarms = I18n.getInstance().getString("plugin.alarm.label.showall");
+        filterBox.getItems().addAll(showOnlyUncheckedAlarms, showOnlyCheckedAlarms, showAllAlarms);
+        filterBox.getSelectionModel().select(showCheckedAlarms.get());
+
+        filterBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                showCheckedAlarms.set(newValue.intValue());
+                updateList();
+            }
+        });
+
+        Separator sep4 = new Separator(Orientation.VERTICAL);
+
+        ToggleButton checkAll = new ToggleButton(I18n.getInstance().getString("plugin.alarm.checkall"), JEConfig.getSVGImage(Icon.CHECK, iconSize, iconSize));
+        checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkAll);
+        checkAll.setOnMouseClicked(event -> {
+            getAllAlarmConfigs().forEach(alarmConfiguration -> alarmConfiguration.setChecked(true));
+            reload.fire();
+        });
+
+        ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+        ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+
+        timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
+        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
+        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
+        filterBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.filter.tooltip")));
+        checkAll.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.checkall.tooltip")));
+
+        Separator sep5 = new Separator(Orientation.VERTICAL);
+
+        Label labelNORPP = new Label(I18n.getInstance().getString("plugin.alarm.label.alarmsperpage"));
+        VBox norppVBox = new VBox(labelNORPP);
+        norppVBox.setAlignment(Pos.CENTER);
+
+        NumberSpinner spinnerNORPP = new NumberSpinner(new BigDecimal(35), new BigDecimal(1));
+        VBox vBoxSpinner = new VBox(spinnerNORPP);
+        vBoxSpinner.setAlignment(Pos.CENTER);
+
+        spinnerNORPP.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                ROWS_PER_PAGE = newValue.intValue();
+                createPage(pagination.getCurrentPageIndex());
+            }
+        });
+
+        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, filterBox, sep4, checkAll, sep5, norppVBox, vBoxSpinner);
+        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+
+        JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+
+
+    }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+            Platform.runLater(this::initToolBar);
+        }
+    };
+
+    private void updateList() {
+
+        Platform.runLater(this::initToolBar);
+
+        if (init) {
+            restartExecutor();
+        } else {
+            init = true;
+        }
+
+        data.clear();
+
+        List<AlarmConfiguration> alarms = getAllAlarmConfigs();
+        JEConfig.getStatusBar().startProgressJob("AlarmConfigs", alarms.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
+
+        alarms.forEach(alarmConfiguration -> {
+            Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
+
+                @Override
+                protected List<AlarmRow> call() {
+                    List<AlarmRow> list = new ArrayList<>();
+                    try {
+                        Platform.runLater(() -> this.updateTitle("Loading Alarm '" + alarmConfiguration.getName() + "'"));
+                        JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
+                        list.addAll(getAlarmRow(fileLog, alarmConfiguration));
+                        this.succeeded();
+                    } catch (Exception e) {
+                        logger.error(e);
+                        this.failed();
+                    } finally {
+                        this.done();
+                        data.addAll(list);
+
+                        JEConfig.getStatusBar().progressProgressJob(
+                                "AlarmConfigs",
+                                1,
+                                I18n.getInstance().getString("plugin.alarms.message.finishedalarmconfig") + " " + alarmConfiguration.getName());
+                    }
+
+                    return list;
+                }
+            };
+
+            JEConfig.getStatusBar().addTask("AlarmConfigs", task, taskImage, true);//,
+
+
+            this.runningUpdateTaskList.add(task);
+        });
+
+        Task task = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    checkForRunningTasks();
+                } catch (Exception e) {
+                    failed();
+                } finally {
+                    succeeded();
+                }
+
+                return null;
+            }
+        };
+
+
+        JEConfig.getStatusBar().addTask(AlarmPlugin.class.getName(), task, taskImage, true);
     }
 
-    public static void autoFitTable(TableView<AlarmRow> tableView) {
-        for (TableColumn<AlarmRow, ?> column : tableView.getColumns()) {
-            try {
-                if (tableView.getSkin() != null) {
-                    columnToFitMethod.invoke(tableView.getSkin(), column, -1);
-                }
-            } catch (Exception e) {
+    private void checkForRunningTasks() throws InterruptedException {
+        AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
+        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
+        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
+            String s = entry.getValue();
+            if (s.equals("AlarmConfigs")) {
+                hasActiveChartTasks.set(true);
+                break;
             }
         }
-    }
+        if (!hasActiveChartTasks.get()) {
+            JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
+            data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+
+            Platform.runLater(() -> {
+                createPage(0);
+                autoFitTable(tableView);
+            });
+        } else {
+            Thread.sleep(500);
+            checkForRunningTasks();
+        }
+    }    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+            Platform.runLater(this::initToolBar);
+        }
+    };
 
     private void restartExecutor() {
         try {
@@ -771,128 +967,36 @@ public class AlarmPlugin implements Plugin {
         return name;
     }
 
-
     private Object getAnalysisRequest(AlarmRow alarmRow, JEVisObject item) {
         DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
         DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
 
-        AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
-        return new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+        return new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, start, end);
     }
 
-    private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
-        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
-        reload.setTooltip(reloadTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+    private List<AlarmConfiguration> getAllAlarmConfigs() {
+        List<AlarmConfiguration> list = new ArrayList<>();
+        try {
+            JEVisClass alarmConfigClass = ds.getJEVisClass(ALARM_CONFIG_CLASS);
+            List<JEVisObject> allObjects = ds.getObjects(alarmConfigClass, true);
+            for (JEVisObject object : allObjects) {
+                AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, object);
 
-        reload.setOnAction(event -> {
-
-            final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
-            Service<Void> service = new Service<Void>() {
-                @Override
-                protected Task<Void> createTask() {
-                    return new Task<Void>() {
-                        @Override
-                        protected Void call() {
-                            updateMessage(loading);
-                            try {
-                                ds.clearCache();
-                                ds.preload();
-
-                                updateList();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            return null;
-                        }
-                    };
+                if (alarmConfiguration.isEnabled()) {
+                    if (showCheckedAlarms.get() == 0 && !alarmConfiguration.isChecked()) {
+                        list.add(alarmConfiguration);
+                    } else if (showCheckedAlarms.get() == 1 && alarmConfiguration.isChecked()) {
+                        list.add(alarmConfiguration);
+                    } else if (showCheckedAlarms.get() == 2) {
+                        list.add(alarmConfiguration);
+                    }
                 }
-            };
-            ProgressDialog pd = new ProgressDialog(service);
-            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
-            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
-            pd.getDialogPane().setContent(null);
-
-            service.start();
-
-        });
-
-        Separator sep1 = new Separator(Orientation.VERTICAL);
-        Separator sep2 = new Separator(Orientation.VERTICAL);
-        Separator sep3 = new Separator(Orientation.VERTICAL);
-
-        if (start != null) {
-            startDatePicker.valueProperty().removeListener(startDateChangeListener);
-            startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
 
-
-        if (end != null) {
-            endDatePicker.valueProperty().removeListener(endDateChangeListener);
-            endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
-        }
-
-
-        startDatePicker.valueProperty().addListener(startDateChangeListener);
-        endDatePicker.valueProperty().addListener(endDateChangeListener);
-
-        JFXComboBox<String> filterBox = new JFXComboBox<>();
-        String showOnlyUncheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showunchecked");
-        String showOnlyCheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showchecked");
-        String showAllAlarms = I18n.getInstance().getString("plugin.alarm.label.showall");
-        filterBox.getItems().addAll(showOnlyUncheckedAlarms, showOnlyCheckedAlarms, showAllAlarms);
-        filterBox.getSelectionModel().select(showCheckedAlarms);
-
-        filterBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                showCheckedAlarms = newValue.intValue();
-                updateList();
-            }
-        });
-
-        Separator sep4 = new Separator(Orientation.VERTICAL);
-
-        ToggleButton checkAll = new ToggleButton(I18n.getInstance().getString("plugin.alarm.checkall"), JEConfig.getSVGImage(Icon.CHECK, iconSize, iconSize));
-        checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkAll);
-        checkAll.setOnMouseClicked(event -> {
-            getAllAlarmConfigs().forEach(alarmConfiguration -> alarmConfiguration.setChecked(true));
-            reload.fire();
-        });
-
-        ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-        ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
-
-        timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
-        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
-        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
-        filterBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.filter.tooltip")));
-        checkAll.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.checkall.tooltip")));
-
-        Separator sep5 = new Separator(Orientation.VERTICAL);
-
-        Label labelNORPP = new Label(I18n.getInstance().getString("plugin.alarm.label.alarmsperpage"));
-        VBox norppVBox = new VBox(labelNORPP);
-        norppVBox.setAlignment(Pos.CENTER);
-
-        NumberSpinner spinnerNORPP = new NumberSpinner(new BigDecimal(35), new BigDecimal(1));
-        VBox vBoxSpinner = new VBox(spinnerNORPP);
-        vBoxSpinner.setAlignment(Pos.CENTER);
-
-        spinnerNORPP.numberProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                ROWS_PER_PAGE = newValue.intValue();
-                createPage(pagination.getCurrentPageIndex());
-            }
-        });
-
-        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, filterBox, sep4, checkAll, sep5, norppVBox, vBoxSpinner);
-        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-
-        JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
-
-
+        return list;
     }
 
     private JFXComboBox<TimeFrame> getTimeFrameComboBox() {
@@ -1105,78 +1209,9 @@ public class AlarmPlugin implements Plugin {
         return dialogContainer;
     }
 
-    private void updateList() {
-
-        Platform.runLater(this::initToolBar);
-
-        if (init) {
-            restartExecutor();
-        } else {
-            init = true;
-        }
-
-        data.clear();
-
-        List<AlarmConfiguration> alarms = getAllAlarmConfigs();
-        JEConfig.getStatusBar().startProgressJob("AlarmConfigs", alarms.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
-
-        alarms.forEach(alarmConfiguration -> {
-            Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
-
-                @Override
-                protected List<AlarmRow> call() {
-                    List<AlarmRow> list = new ArrayList<>();
-                    try {
-                        Platform.runLater(() -> this.updateTitle("Loading Alarm '" + alarmConfiguration.getName() + "'"));
-                        JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
-                        list.addAll(getAlarmRow(fileLog, alarmConfiguration));
-                        this.succeeded();
-                    } catch (Exception e) {
-                        logger.error(e);
-                        this.failed();
-                    } finally {
-                        this.done();
-                        data.addAll(list);
-
-                        JEConfig.getStatusBar().progressProgressJob(
-                                "AlarmConfigs",
-                                1,
-                                I18n.getInstance().getString("plugin.alarms.message.finishedalarmconfig") + " " + alarmConfiguration.getName());
-                    }
-
-                    return list;
-                }
-            };
-            //JEConfig.getStatusBar().addTask(task,JEConfig.getImage("alarm_icon.png"));//,
-            JEConfig.getStatusBar().addTask(AlarmPlugin.class.getName(), task, taskImage, true);//,
 
 
-            /** check if all Jobs are done/failed to set statusbar **/
-            EventHandler<WorkerStateEvent> doneEvent = event -> {
-                if (allJobsDone(futures)) {
-                    JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
-                    data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
 
-                    Platform.runLater(() -> {
-                        createPage(0);
-                        autoFitTable(tableView);
-                    });
-                }
-            };
-
-            task.setOnSucceeded(doneEvent);
-            task.setOnFailed(doneEvent);
-
-            this.runningUpdateTaskList.add(task);
-            //this.executor.execute(task);
-        });
-
-        /**
-         futures = runningUpdateTaskList.stream()
-         .map(r -> executor.submit(r))
-         .collect(Collectors.toList());
-         **/
-    }
 
     private synchronized boolean allJobsDone(List<Future<?>> futures) {
         boolean allDone = true;
@@ -1215,34 +1250,11 @@ public class AlarmPlugin implements Plugin {
         return list;
     }
 
-    private List<AlarmConfiguration> getAllAlarmConfigs() {
-        List<AlarmConfiguration> list = new ArrayList<>();
-        try {
-            JEVisClass alarmConfigClass = ds.getJEVisClass(ALARM_CONFIG_CLASS);
-            List<JEVisObject> allObjects = ds.getObjects(alarmConfigClass, true);
-            for (JEVisObject object : allObjects) {
-                AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, object);
 
-                if (alarmConfiguration.isEnabled()) {
-                    if (showCheckedAlarms == 0 && !alarmConfiguration.isChecked()) {
-                        list.add(alarmConfiguration);
-                    } else if (showCheckedAlarms == 1 && alarmConfiguration.isChecked()) {
-                        list.add(alarmConfiguration);
-                    } else if (showCheckedAlarms == 2) {
-                        list.add(alarmConfiguration);
-                    }
-                }
-            }
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
-
-        return list;
-    }
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.ERROR, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.ERROR, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override
@@ -1278,4 +1290,6 @@ public class AlarmPlugin implements Plugin {
     public SimpleBooleanProperty hasAlarmsProperty() {
         return hasAlarms;
     }
+
+
 }

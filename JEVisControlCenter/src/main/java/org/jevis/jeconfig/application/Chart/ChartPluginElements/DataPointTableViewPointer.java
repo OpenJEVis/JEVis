@@ -8,6 +8,7 @@ import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.JFXComboBox;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
+import de.gsi.chart.axes.Axis;
 import de.gsi.chart.plugins.AbstractDataFormattingPlugin;
 import de.gsi.dataset.DataSet;
 import javafx.application.Platform;
@@ -46,14 +47,15 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
     private static final Logger logger = LogManager.getLogger(DataPointTableViewPointer.class);
     private final org.jevis.jeconfig.application.Chart.Charts.XYChart currentChart;
     private final List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActiveCharts;
+    private final List<XYChartSerie> xyChartSerieList;
+    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
+    boolean plotArea = true;
     private DateTime timestampFromFirstSample = null;
     private boolean asDuration = false;
-    boolean plotArea = true;
-    private final List<XYChartSerie> xyChartSerieList;
     private WorkDays workDays;
-    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
     public DataPointTableViewPointer(org.jevis.jeconfig.application.Chart.Charts.Chart chart, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive) {
+        super();
         this.currentChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) chart;
         this.notActiveCharts = notActive;
         this.asDuration = this.currentChart.isAsDuration();
@@ -63,8 +65,8 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
             workDays = new WorkDays(chartDataRow.getObject());
             break;
         }
-        this.nf.setMinimumFractionDigits(chart.getChartSetting().getMinFractionDigits());
-        this.nf.setMaximumFractionDigits(chart.getChartSetting().getMaxFractionDigits());
+        this.nf.setMinimumFractionDigits(currentChart.getChartModel().getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(currentChart.getChartModel().getMaxFractionDigits());
 
         this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
@@ -88,34 +90,25 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         });
     }
 
-    private DataPoint findDataPoint(final MouseEvent event, final Bounds plotAreaBounds) {
-        if (!plotAreaBounds.contains(event.getX(), event.getY())) {
-            return null;
-        }
-
-        final Point2D mouseLocation = getLocationInPlotArea(event);
-        DataPoint nearestDataPoint = null;
-
-        Chart chart = getChart();
-        return findNearestDataPointWithinPickingDistance(chart, mouseLocation);
-    }
-
-    private DataPoint findNearestDataPointWithinPickingDistance(final Chart chart, final Point2D mouseLocation) {
+    private DataPoint findNearestDataPointWithinPickingDistance(final Chart chart, final Point2D mouseLocation, Axis axis) {
         DataPoint nearestDataPoint = null;
         if (!(chart instanceof XYChart)) {
             return null;
         }
+
         final XYChart xyChart = (XYChart) chart;
-        // final double xValue = toDataPoint(xyChart.getYAxis(),
-        // mouseLocation).getXValue().doubleValue();
-        // TODO: iterate through all axes, renderer and datasets
-        final double xValue = xyChart.getXAxis().getValueForDisplay(mouseLocation.getX());
+        Axis xAxis;
+        if (axis != null) {
+            xAxis = axis;
+        } else {
+            xAxis = xyChart.getXAxis();
+        }
+
+        final double xValue = xAxis.getValueForDisplay(mouseLocation.getX());
 
         for (final DataPointTableViewPointer.DataPoint dataPoint : findNeighborPoints(xyChart, xValue)) {
-            // Point2D displayPoint = toDisplayPoint(chart.getYAxis(),
-            // (X)dataPoint.x , dataPoint.y);
             if (getChart().getFirstAxis(Orientation.HORIZONTAL) != null) {
-                final double x = xyChart.getXAxis().getDisplayPosition(dataPoint.x);
+                final double x = xAxis.getDisplayPosition(dataPoint.x);
                 final double y = xyChart.getYAxis().getDisplayPosition(dataPoint.y);
                 final Point2D displayPoint = new Point2D(x, y);
                 dataPoint.distanceFromMouse = displayPoint.distance(mouseLocation);
@@ -202,56 +195,76 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
 
     private void updateTable(final MouseEvent event) {
-        final Bounds areaBounds;
-        if (plotArea)
-            areaBounds = getChart().getPlotArea().getBoundsInLocal();
-        else {
-            areaBounds = getChart().getBoundsInLocal();
-        }
-        final DataPoint dataPoint = findDataPoint(event, areaBounds);
-
-        if (dataPoint != null && currentChart.getChartType() != ChartType.BUBBLE) {
-            Double v = dataPoint.getX() * 1000d;
-            DateTime nearest = new DateTime(v.longValue());
-
-            updateTable(nearest);
-
-            if (!notActiveCharts.isEmpty()) {
-                notActiveCharts.forEach(chart -> {
-                    if (chart.getChart() != null && !chart.getChartType().equals(ChartType.PIE)
-                            && !chart.getChartType().equals(ChartType.BAR)
-                            && !chart.getChartType().equals(ChartType.TABLE)) {
-                        chart.getChart().getPlugins().forEach(chartPlugin -> {
-                            if (chartPlugin instanceof DataPointTableViewPointer) {
-                                ((DataPointTableViewPointer) chartPlugin).updateTable(nearest);
-                            }
-                        });
-                    } else if (chart.getChartType().equals(ChartType.TABLE)) {
-
-                        TableChart tableChart = (TableChart) chart;
-                        tableChart.updateTable(null, nearest);
-                        tableChart.setBlockDatePickerEvent(true);
-                        TableTopDatePicker tableTopDatePicker = tableChart.getTableTopDatePicker();
-                        JFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
-                        Platform.runLater(() -> {
-                            datePicker.getSelectionModel().select(nearest);
-                            tableChart.setBlockDatePickerEvent(false);
-                        });
-                    }
-                });
+        try {
+            Bounds areaBounds = null;
+            if (plotArea)
+                areaBounds = getChart().getPlotArea().getBoundsInLocal();
+            else if (getChart() != null) {
+                areaBounds = getChart().getBoundsInLocal();
             }
-        } else if (dataPoint != null) {
-            Double v = dataPoint.getX();
-            updateTable(v);
+
+            if (areaBounds == null || !areaBounds.contains(event.getX(), event.getY())) {
+                return;
+            }
+
+            final Point2D mouseLocation = getLocationInPlotArea(event);
+
+            if (mouseLocation != null && currentChart.getChartType() != ChartType.BUBBLE) {
+
+                updateTable(mouseLocation);
+
+                if (!notActiveCharts.isEmpty()) {
+                    for (org.jevis.jeconfig.application.Chart.Charts.Chart chart : notActiveCharts) {
+                        if (chart.getChart() != null && !chart.getChartType().equals(ChartType.PIE)
+                                && !chart.getChartType().equals(ChartType.BAR)
+                                && !chart.getChartType().equals(ChartType.TABLE)) {
+                            chart.getChart().getPlugins().forEach(chartPlugin -> {
+                                if (chartPlugin instanceof DataPointTableViewPointer) {
+                                    ((DataPointTableViewPointer) chartPlugin).updateTable(mouseLocation);
+                                }
+                            });
+                        } else if (chart.getChartType().equals(ChartType.TABLE)) {
+                            final DataPoint dataPoint = findNearestDataPointWithinPickingDistance(getChart(), mouseLocation, null);
+                            if (dataPoint == null) continue;
+
+                            Double v = dataPoint.getX() * 1000d;
+                            DateTime nearest = new DateTime(v.longValue());
+
+                            TableChart tableChart = (TableChart) chart;
+                            tableChart.updateTable(null, nearest);
+                            tableChart.setBlockDatePickerEvent(true);
+                            TableTopDatePicker tableTopDatePicker = tableChart.getTableTopDatePicker();
+                            JFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                            Platform.runLater(() -> {
+                                datePicker.getSelectionModel().select(nearest);
+                                tableChart.setBlockDatePickerEvent(false);
+                            });
+                        }
+                    }
+                }
+            } else {
+                final DataPoint dataPoint = findNearestDataPointWithinPickingDistance(getChart(), mouseLocation, null);
+                Double v = dataPoint.getX();
+                updateTable(v);
+            }
+        } catch (Exception e) {
+            logger.error("Error while updating table", e);
         }
     }
 
-    public void updateTable(DateTime nearest) {
+    public void updateTable(final Point2D mouseLocation) {
 
         Period period = this.currentChart.getPeriod();
 
-        xyChartSerieList.forEach(xyChartSerie -> {
+        for (XYChartSerie xyChartSerie : xyChartSerieList) {
             try {
+                final DataPoint dataPoint = findNearestDataPointWithinPickingDistance(getChart(), mouseLocation, xyChartSerie.getXAxis());
+
+                if (dataPoint == null) continue;
+
+                Double v = dataPoint.getX() * 1000d;
+                DateTime nearest = new DateTime(v.longValue());
+
                 TableEntry tableEntry = xyChartSerie.getTableEntry();
                 TreeMap<DateTime, JEVisSample> sampleTreeMap = xyChartSerie.getSampleMap();
                 Map<DateTime, JEVisSample> noteMap = xyChartSerie.getSingleRow().getNoteSamples();
@@ -313,7 +326,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
             } catch (Exception ignored) {
             }
-        });
+        }
     }
 
     public void updateTable(Double nearest) {

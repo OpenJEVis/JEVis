@@ -11,7 +11,6 @@ import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -26,6 +25,47 @@ import java.util.List;
  */
 public class TimeFrameFactory {
 
+    public static final TimeFrame NONE = new TimeFrame() {
+        @Override
+        public String getListName() {
+            return I18n.getInstance().getString("dialog.regression.type.none");
+        }
+
+        @Override
+        public Interval nextPeriod(Interval interval, int addAmount) {
+            return null;
+        }
+
+        @Override
+        public Interval previousPeriod(Interval interval, int addAmount) {
+            return null;
+        }
+
+        @Override
+        public String format(Interval interval) {
+            return null;
+        }
+
+        @Override
+        public Interval getInterval(DateTime dateTime) {
+            return null;
+        }
+
+        @Override
+        public String getID() {
+            return "NONE";
+        }
+
+        @Override
+        public boolean hasNextPeriod(Interval interval) {
+            return false;
+        }
+
+        @Override
+        public boolean hasPreviousPeriod(Interval interval) {
+            return false;
+        }
+    };
     private static final Logger logger = LogManager.getLogger(TimeFrameFactory.class);
     private final ObservableList<TimeFrame> list = FXCollections.observableArrayList();
     private JEVisDataSource ds;
@@ -38,6 +78,19 @@ public class TimeFrameFactory {
     public TimeFrame getTimeframe(String periode, String name) {
         LastPeriod lastPeriod = new LastPeriod(new Period(periode), name);
         return lastPeriod;
+    }
+
+    public List<TimeFrame> getReduced() {
+        List<TimeFrame> reducedList = new ArrayList<>();
+        reducedList.add(day());
+        reducedList.add(week());
+        reducedList.add(month());
+        reducedList.add(year());
+        reducedList.add(threeYears());
+        reducedList.add(fiveYears());
+        reducedList.add(tenYears());
+
+        return reducedList;
     }
 
     public ObservableList<TimeFrame> getAll() {
@@ -54,11 +107,11 @@ public class TimeFrameFactory {
         list.add(fiveYears());
         list.add(tenYears());
 
-
         list.add(new LastPeriod(new Period("PT24H"), I18n.getInstance().getString("plugin.dashboard.timefactory.pt24h")));
         list.add(new LastPeriod(new Period("P7D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p7d")));
         list.add(new LastPeriod(new Period("P30D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p30d")));
         list.add(new LastPeriod(new Period("P365D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p365d")));
+        list.add(new LastPeriod(Period.ZERO, I18n.getInstance().getString("plugin.dashboard.timefactory.lastValue")));
 
         if (this.ds != null) {
             try {
@@ -88,7 +141,7 @@ public class TimeFrameFactory {
                     }
                 }
             } catch (Exception ex) {
-                logger.error("error while loading Custom TimeFactorys: ", ex);
+                logger.error("error while loading Custom TimeFactories: ", ex);
             }
         }
 
@@ -158,14 +211,7 @@ public class TimeFrameFactory {
                     dateHelper.setWorkDays(wd);
                 }
 
-                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
-                newTimeFrame.setTimeFrame(org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END);
-                newTimeFrame.setId(cpo.getObject().getID());
-                newTimeFrame.setName(cpo.getObject().getName());
-                newTimeFrame.setStart(dateHelper.getStartDate());
-                newTimeFrame.setEnd(dateHelper.getEndDate());
-
-                return new Interval(newTimeFrame.getStart(), newTimeFrame.getEnd());
+                return new Interval(dateHelper.getStartDate(), dateHelper.getEndDate());
             }
 
             @Override

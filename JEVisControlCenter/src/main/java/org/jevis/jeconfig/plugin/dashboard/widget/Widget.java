@@ -574,6 +574,9 @@ public abstract class Widget extends Region {
                 .put(JsonNames.Widget.BACKGROUND_COLOR, this.config.getBackgroundColor().toString())
                 .put(JsonNames.Widget.FONT_COLOR, this.config.getFontColor().toString())
                 .put(JsonNames.Widget.FONT_SIZE, this.config.getFontSize())
+                .put(JsonNames.Widget.FONT_WEIGHT, this.config.getFontWeight().toString())
+                .put(JsonNames.Widget.FONT_POSTURE, this.config.getFontPosture().toString())
+                .put(JsonNames.Widget.FONT_UNDERLINED, this.config.getFontUnderlined())
                 .put(JsonNames.Widget.TITLE_POSITION, this.config.getTitlePosition().toString())
                 .put(JsonNames.Widget.BORDER_SIZE, this.config.getBorderSize().getTop())
                 .put(JsonNames.Widget.SHOW_SHADOW, this.config.getShowShadow())
@@ -631,7 +634,7 @@ public abstract class Widget extends Region {
     public Interval getCurrentInterval(Interval interval) {
         if (sampleHandler != null) {
             sampleHandler.setInterval(interval);
-            return new Interval(sampleHandler.getDurationProperty().getStart(), sampleHandler.getDurationProperty().getEnd());
+            return new Interval(sampleHandler.getDuration().getStart(), sampleHandler.getDuration().getEnd());
         } else {
             return null;
         }

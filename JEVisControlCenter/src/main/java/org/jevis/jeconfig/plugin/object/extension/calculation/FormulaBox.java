@@ -15,14 +15,15 @@ import net.sourceforge.jeval.Evaluator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
-import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.ExceptionDialog2;
-import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.dialog.Response;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -113,13 +114,13 @@ public class FormulaBox extends HBox {
             AtomicBoolean hasOutput = new AtomicBoolean(false);
             calcObj.getChildren().forEach(jeVisObject -> {
                 try {
-                    if (jeVisObject.getJEVisClassName().equals("Input")) {
+                    if (jeVisObject.getJEVisClassName().equals(JC.Input.name)) {
                         hasInput.set(true);
                         String inputName = jeVisObject.getName();
 
-                        JEVisAttribute targetAtt = jeVisObject.getAttribute("Input Data");
-                        JEVisAttribute identifyAtt = jeVisObject.getAttribute("Identifier");
-                        JEVisAttribute inputTypeAtt = jeVisObject.getAttribute("Input Data Type");
+                        JEVisAttribute targetAtt = jeVisObject.getAttribute(JC.Input.a_InputData);
+                        JEVisAttribute identifyAtt = jeVisObject.getAttribute(JC.Input.a_Identifier);
+                        JEVisAttribute inputTypeAtt = jeVisObject.getAttribute(JC.Input.a_InputDataType);
 
                         if (targetAtt == null || !targetAtt.hasSample()) {
                             error.add(String.format("%s - %s", inputName, I18n.getInstance().getString("plugin.object.extension.calculation.error.noinputdata")));
@@ -368,14 +369,14 @@ public class FormulaBox extends HBox {
     void setOnOutputAction() {
 
         try {
-            JEVisClass outputClass = this.calcObj.getDataSource().getJEVisClass("Output");
+            JEVisClass outputClass = this.calcObj.getDataSource().getJEVisClass(JC.Output.name);
             List<JEVisObject> outputs = this.calcObj.getChildren(outputClass, true);
             List<UserSelection> openList = new ArrayList<>();
             JEVisObject outputObj = null;
 
             if (!outputs.isEmpty()) {//there can only be one output
                 outputObj = outputs.get(0);
-                JEVisAttribute targetAttribute = outputObj.getAttribute("Output");
+                JEVisAttribute targetAttribute = outputObj.getAttribute(JC.Output.a_Output);
                 JEVisSample targetSample = targetAttribute.getLatestSample();
 
                 if (targetSample != null) {
@@ -383,15 +384,18 @@ public class FormulaBox extends HBox {
                     openList.add(new UserSelection(UserSelection.SelectionType.Attribute, th.getAttribute().get(0), null, null));
                 }
             }
-            List<JEVisTreeFilter> allFilter = new ArrayList<>();
-            JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
-            allFilter.add(basicFilter);
 
-            SelectTargetDialog selectionDialog = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.SINGLE, calcObj.getDataSource(), openList);
+            List<JEVisClass> classes = new ArrayList<>();
+
+            for (String className : TreeSelectionDialog.allData) {
+                classes.add(calcObj.getDataSource().getJEVisClass(className));
+            }
+
+            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(dialogContainer, calcObj.getDataSource(), classes, SelectionMode.SINGLE, openList, true);
             final JEVisObject out = outputObj;
             selectionDialog.setOnDialogClosed(event -> {
                 try {
-                    if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                    if (selectionDialog.getResponse() == Response.OK) {
                         for (UserSelection us : selectionDialog.getUserSelection()) {
                             JEVisObject outputObject = out;
                             JEVisAttribute targetAtt = us.getSelectedAttribute();
@@ -400,7 +404,7 @@ public class FormulaBox extends HBox {
                             }
                             TargetHelper th = new TargetHelper(this.calcObj.getDataSource(), us.getSelectedObject(), targetAtt);
 
-                            if (th.isValid() && th.targetAccessible()) {
+                            if (th.isValid() && th.targetObjectAccessible()) {
 
                                 /**
                                  *  Create an new target Object if not exists
@@ -408,6 +412,7 @@ public class FormulaBox extends HBox {
                                 try {
                                     if (outputObject == null) {
                                         JEVisObject newObject = this.calcObj.buildObject(CalculationNameFormatter.createVariableName(us.getSelectedObject()), outputClass);
+                                        newObject.setLocalNames(us.getSelectedObject().getLocalNameList());
                                         newObject.commit();
                                         outputObject = newObject;
                                     }

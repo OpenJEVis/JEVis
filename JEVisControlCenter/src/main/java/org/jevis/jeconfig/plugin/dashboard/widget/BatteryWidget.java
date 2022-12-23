@@ -17,10 +17,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,8 +80,9 @@ public class BatteryWidget extends Widget implements DataModelWidget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 6, control.getActiveDashboard().xGridInterval * 2));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 2, control.getActiveDashboard().xGridInterval * 4));
         widgetPojo.setDecimals(1);
+        widgetPojo.setBorderSize(new BorderWidths(0));
 
 
         return widgetPojo;
@@ -112,7 +110,8 @@ public class BatteryWidget extends Widget implements DataModelWidget {
             //try {
             widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setAutoAggregation(true);
-            setIntervallForLastValue(interval);
+            this.sampleHandler.setInterval(interval);
+            //setIntervallForLastValue(interval);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
@@ -125,7 +124,7 @@ public class BatteryWidget extends Widget implements DataModelWidget {
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
                     total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
-                    battery.setValue(Helper.convertToPercent(total.get(), batteryGaugePojo.getMaximum(), batteryGaugePojo.getMinimum(),this.config.getDecimals()));
+                    battery.setValue(Helper.convertToPercent(total.get(), batteryGaugePojo.getMaximum(), batteryGaugePojo.getMinimum(), this.config.getDecimals()));
                 } else {
                     battery.setValue(0);
                     showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
@@ -138,13 +137,13 @@ public class BatteryWidget extends Widget implements DataModelWidget {
     private void setIntervallForLastValue(Interval interval) {
         if (this.getDataHandler().getTimeFrameFactory() != null) {
             if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory()) && sampleHandler != null) {
-                sampleHandler.durationPropertyProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
+                sampleHandler.durationProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
                 sampleHandler.update();
                 if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
                     Interval interval1 = null;
                     try {
                         interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
-                        sampleHandler.durationPropertyProperty().setValue(interval1);
+                        sampleHandler.durationProperty().setValue(interval1);
                     } catch (JEVisException e) {
                         throw new RuntimeException(e);
                     }
@@ -223,12 +222,12 @@ public class BatteryWidget extends Widget implements DataModelWidget {
     }
 
 
-
     @Override
     public void updateConfig() {
         System.out.println(batteryGaugePojo);
         logger.debug("UpdateConfig");
         battery.setPrefSize(config.getSize().getWidth(), config.getSize().getHeight());
+        battery.setDecimals(config.getDecimals());
         Platform.runLater(() -> {
             try {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
@@ -314,7 +313,7 @@ public class BatteryWidget extends Widget implements DataModelWidget {
                             CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
-                                    this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
+                                    this.getDataHandler().getDuration().getStart(), this.getDataHandler().getDuration().getEnd(), true);
 
                             for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 

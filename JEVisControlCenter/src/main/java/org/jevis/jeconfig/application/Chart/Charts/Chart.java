@@ -4,9 +4,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -44,5 +45,7 @@ public interface Chart {
 
     List<ChartDataRow> getChartDataRows();
 
-    ChartSetting getChartSetting();
+    ChartModel getChartModel();
+
+    List<XYChartSerie> getXyChartSerieList();
 }

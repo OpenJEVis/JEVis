@@ -47,6 +47,7 @@ public class GUIConstants {
     public static DisplayType WEB_VIEW = new DisplayType("Web View", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType OPC_PROTOCOL = new DisplayType("OPC Protocol", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType PERIOD = new DisplayType("Period", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType RANGING_VALUE = new DisplayType("Ranging Value", JEVisConstants.PrimitiveType.STRING);
 
     private static final Logger logger = LogManager.getLogger(GUIConstants.class);
 
@@ -80,6 +81,7 @@ public class GUIConstants {
             add(WEB_VIEW);
             add(OPC_PROTOCOL);
             add(PERIOD);
+            add(RANGING_VALUE);
         }
     };
 

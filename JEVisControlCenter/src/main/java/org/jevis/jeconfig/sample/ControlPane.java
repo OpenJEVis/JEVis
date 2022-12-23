@@ -19,15 +19,12 @@ import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationPeriodBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.TimeZoneBox;
 import org.joda.time.DateTime;
@@ -60,7 +57,7 @@ public class ControlPane extends GridPane {
     private final Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
     private final Label tzLabel = new Label(I18n.getInstance().getString("attribute.editor.tz"));
     private final Label reloadLabel = new Label(I18n.getInstance().getString("attribute.editor.reload"));
-    private final AggregationBox aggregationField = new AggregationBox(AggregationPeriod.NONE);
+    private final AggregationPeriodBox aggregationField = new AggregationPeriodBox(AggregationPeriod.NONE);
     private final ProcessorBox processorField;
     // private RangeSlider dateSlider = new RangeSlider(0, 100, 10, 90);
     private final Region spacer2 = new Region();
@@ -91,12 +88,14 @@ public class ControlPane extends GridPane {
         this.attribute = attribute;
 
         JEVisObject rawDataParent = attribute.getObject();
+        JEVisDataSource ds = null;
         try {
             rawDataParent = getRawDataParent(attribute.getObject());
+            ds = attribute.getDataSource();
         } catch (JEVisException e) {
             e.printStackTrace();
         }
-        processorField = new ProcessorBox(rawDataParent, attribute.getObject());
+        processorField = new ProcessorBox(ds, attribute.getObject().getID());
 //        HBox reloadBox = new HBox(reloadLabel,reloadButton);
 //        reloadBox.setAlignment(Pos.BASELINE_LEFT);
 
@@ -518,8 +517,8 @@ public class ControlPane extends GridPane {
             }
         });
 
-        aggregationField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            period = newValue;
+        aggregationField.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            period = AggregationPeriod.parseAggregationIndex(newValue.intValue());
             timeChangeEvent.handle(new ActionEvent());
         });
 

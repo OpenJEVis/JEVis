@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class CalculationNameFormatter {
 
-    public final static String[] expressions = new String[]{"(", ")", "+", "-", "*", "/", "%", "=", "!", "<", ">", "&", "|", " ", ",", ".", ";", ":", "'"};
+    public final static String[] expressions = new String[]{"(", ")", "+", "-", "*", "#", "/", "%", "=", "!", "<", ">", "&", "|", " ", ",", ".", ";", ":", "'"};
     public final static String replacement = "_";
 
 

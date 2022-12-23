@@ -52,8 +52,8 @@
     },
     {
       "name": "Demand Charge",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
+      "primitiveType": 0,
+      "guiType": "Ranging Value",
       "guiposition": 15,
       "validity": 0,
       "inherited": false,

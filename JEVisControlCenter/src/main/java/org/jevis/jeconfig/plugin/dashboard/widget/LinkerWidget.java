@@ -23,14 +23,14 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.GraphAnalysisLinker;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
-import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -146,8 +146,8 @@ public class LinkerWidget extends Widget {
             widgetConfigDialog.addTab(tab);
 
             try {
-                JEVisClass analysisClass = getDataSource().getJEVisClass(AnalysisDataModel.ANALYSIS_CLASS_NAME);
-                JEVisClass analysisDirClass = getDataSource().getJEVisClass(AnalysisDataModel.ANALYSES_DIRECTORY_CLASS_NAME);
+                JEVisClass analysisClass = getDataSource().getJEVisClass(AnalysesComboBox.ANALYSIS_CLASS_NAME);
+                JEVisClass analysisDirClass = getDataSource().getJEVisClass(AnalysesComboBox.ANALYSES_DIRECTORY_CLASS_NAME);
                 List<JEVisObject> allAnalyses = getDataSource().getObjects(analysisClass, true);
                 List<JEVisObject> allAnalysesDir = getDataSource().getObjects(analysisClass, true);
                 boolean multipleDir = allAnalysesDir.size() > 2;
@@ -159,9 +159,21 @@ public class LinkerWidget extends Widget {
                         String prefix1 = "";
                         String prefix2 = "";
 
-                        prefix1 = objectRelations.getObjectPath(o1) + o1.getName();
+                        if (ChartTools.isMultiSite(getDataSource())) {
+                            prefix1 += objectRelations.getObjectPath(o1);
+                        }
+                        if (ChartTools.isMultiDir(getDataSource(), o1)) {
+                            prefix1 += objectRelations.getRelativePath(o1);
+                        }
+                        prefix1 += o1.getName();
 
-                        prefix2 = objectRelations.getObjectPath(o2) + o2.getName();
+                        if (ChartTools.isMultiSite(getDataSource())) {
+                            prefix2 += objectRelations.getObjectPath(o2);
+                        }
+                        if (ChartTools.isMultiDir(getDataSource(), o2)) {
+                            prefix2 += objectRelations.getRelativePath(o2);
+                        }
+                        prefix2 += o2.getName();
 
                         return ac.compare(prefix1, prefix2);
                     });
@@ -177,10 +189,15 @@ public class LinkerWidget extends Widget {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (!multipleDir)
+                            if (!ChartTools.isMultiSite(getDataSource()) && !ChartTools.isMultiDir(getDataSource(), obj))
                                 setText(obj.getName());
                             else {
-                                String prefix = objectRelations.getObjectPath(obj);
+                                String prefix = "";
+                                if (ChartTools.isMultiSite(getDataSource()))
+                                    prefix += objectRelations.getObjectPath(obj);
+                                if (ChartTools.isMultiDir(getDataSource(), obj)) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
 
                                 setText(prefix + obj.getName());
                             }

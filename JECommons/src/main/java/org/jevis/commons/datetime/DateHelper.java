@@ -72,7 +72,7 @@ public class DateHelper {
     }
 
     public DateTime getStartDate() {
-
+        this.now = DateTime.now();
         switch (type) {
             case CUSTOM:
                 break;
@@ -352,7 +352,7 @@ public class DateHelper {
 
     public DateTime getEndDate() {
         //if (startTime.isAfter(endTime)) now = now.minusDays(1);
-
+        this.now = DateTime.now();
         switch (type) {
             case PREVIEW:
             case CURRENT:
@@ -362,39 +362,33 @@ public class DateHelper {
             case THISWEEK:
             case LAST30DAYS:
             case LAST7DAYS:
-                now = DateTime.now();
 
                 endDate = now;
                 break;
             case YESTERDAY:
-                now = DateTime.now();
                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                         endTime.getHour(), endTime.getMinute(), endTime.getSecond())
                         .minusDays(1);
 
                 break;
             case LASTWEEK:
-                now = DateTime.now();
                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                         endTime.getHour(), endTime.getMinute(), endTime.getSecond())
                         .minusDays(now.getDayOfWeek() - 1).minusWeeks(1)
                         .plusDays(6);
                 break;
             case LASTMONTH:
-                now = DateTime.now();
                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                         endTime.getHour(), endTime.getMinute(), endTime.getSecond())
                         .minusDays(now.getDayOfMonth() - 1)
                         .minusDays(1);
                 break;
             case LASTYEAR:
-                now = DateTime.now();
                 endDate = new DateTime(now.getYear(), 1, 1,
                         endTime.getHour(), endTime.getMinute(), endTime.getSecond())
                         .minusDays(1);
                 break;
             case THEYEARBEFORELAST:
-                now = DateTime.now();
                 endDate = new DateTime(now.getYear(), 1, 1,
                         endTime.getHour(), endTime.getMinute(), endTime.getSecond())
                         .minusYears(1)
@@ -434,14 +428,12 @@ public class DateHelper {
                                 }
                                 break;
                             case "CURRENT_WEEK":
-                                now = DateTime.now();
                                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                                         endTime.getHour(), endTime.getMinute(), endTime.getSecond());
                                 endDate = endDate.minusDays(now.getDayOfWeek());
                                 endDate = endDate.plusWeeks(1);
                                 break;
                             case "CURRENT_MONTH":
-                                now = DateTime.now();
                                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                                         endTime.getHour(), endTime.getMinute(), endTime.getSecond());
                                 endDate = endDate.minusDays(now.getDayOfMonth() - 1);
@@ -449,11 +441,9 @@ public class DateHelper {
                                 endDate = endDate.minusDays(1);
                                 break;
                             case "CURRENT_YEAR":
-                                now = DateTime.now();
                                 endDate = new DateTime(now.getYear(), 12, 31, 23, 59, 59, 999);
                                 break;
                             case "CURRENT_DAY":
-                                now = DateTime.now();
                                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond());
                                 break;

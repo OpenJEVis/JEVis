@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,12 +20,12 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigTab;
+import org.jevis.jeconfig.plugin.dashboard.controls.FontPostureBox;
+import org.jevis.jeconfig.plugin.dashboard.controls.FontWeightBox;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
-
-import java.time.Period;
 
 public class GenericConfigNode extends Tab implements ConfigTab {
     private static final Logger logger = LogManager.getLogger(GenericConfigNode.class);
@@ -39,6 +40,8 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
     private final Label timeFrameLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.forcedtime"));
     private final Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
+    private final Label fontWeightLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontweight"));
+    private final Label fontPostureLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontposture"));
     private final Label borderSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.bordersize"));
     private final Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
     private final Label precisionLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.precision"));
@@ -52,6 +55,9 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final JFXCheckBox showShadowField = new JFXCheckBox();
     private final JFXCheckBox showValueField = new JFXCheckBox();
     private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
+    private final FontWeightBox fontWeightBox = new FontWeightBox();
+    private final FontPostureBox fontPostureBox = new FontPostureBox();
+    private final JFXCheckBox fontUnderlined = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fontunderlined"));
     private final Spinner<Integer> borderSizeSpinner = new Spinner<Integer>(0, 20, 0);
     private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
     private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
@@ -71,14 +77,11 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         timeFrameBox.setPrefWidth(200);
         timeFrameBox.setMinWidth(200);
         timeFrameBox.getItems().addAll(timeFrames);
-        logger.debug(widget.getClass());
-        if (widget.getClass().equals(GaugeWidget.class) || widget.getClass().equals(LinearGaugeWidget.class) || widget.getClass().equals(ShapeWidget.class) || widget.getClass().equals(ValueWidget.class) || widget.getClass().equals(BatteryWidget.class)) {
-            logger.debug("widget is gauge");
-            timeFrameBox.getItems().add(widget.getControl().getAllTimeFrames().getTimeframe(Period.ZERO.toString(), I18n.getInstance().getString("plugin.graph.dashboard.timeframe.lastValue")));
-        }
+
         alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
         alignmentBox.setPrefWidth(200);
         alignmentBox.setMinWidth(200);
+
         Callback<ListView<Pos>, ListCell<Pos>> cellFactory = new Callback<ListView<Pos>, ListCell<Pos>>() {
             @Override
             public ListCell<Pos> call(ListView<Pos> param) {
@@ -186,9 +189,9 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         });
 
         gridPane.addColumn(0, idLabel, nameLabel, tooltipLabel, bgColorLabel, fColorLabel, yPosLabel, xPosLabel,
-                shadowLabel, showValueLabel, borderSizeLabel, precisionLabel, fontSizeLabel, alignmentLabel, timeFrameLabel);
+                shadowLabel, showValueLabel, borderSizeLabel, precisionLabel, fontSizeLabel, fontWeightLabel, fontPostureLabel, fontUnderlined, alignmentLabel, timeFrameLabel);
         gridPane.addColumn(1, idField, nameField, tooltipField, bgColorPicker, fColorPicker, yPosField, xPosField,
-                showShadowField, showValueField, borderSizeSpinner, precisionSpinner, fontSizeSpinner, alignmentBox, timeFrameBox);
+                showShadowField, showValueField, borderSizeSpinner, precisionSpinner, fontSizeSpinner, fontWeightBox, fontPostureBox, new Region(), alignmentBox, timeFrameBox);
 
         setContent(gridPane);
 
@@ -222,6 +225,9 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         yPosField.getValidators().add(validator);
 
         fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
+        fontWeightBox.getSelectionModel().select(widget.getConfig().getFontWeight());
+        fontPostureBox.getSelectionModel().select(widget.getConfig().getFontPosture());
+        fontUnderlined.selectedProperty().setValue(widget.getConfig().getFontUnderlined());
         borderSizeSpinner.getValueFactory().setValue((int) widget.getConfig().getBorderSize().getTop());
         alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
         precisionSpinner.getValueFactory().setValue(widget.getConfig().getDecimals().intValue());
@@ -286,6 +292,23 @@ public class GenericConfigNode extends Tab implements ConfigTab {
             ex.printStackTrace();
         }
 
+        try {
+            widget.getConfig().setFontWeight(fontWeightBox.getSelectionModel().getSelectedItem());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            widget.getConfig().setFontPosture(fontPostureBox.getSelectionModel().getSelectedItem());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            widget.getConfig().setFontUnderlined(fontUnderlined.isSelected());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         try {
             TimeFrame timeFrame = timeFrameBox.getValue();

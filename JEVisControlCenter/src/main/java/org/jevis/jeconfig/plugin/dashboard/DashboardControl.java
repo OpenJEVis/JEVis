@@ -22,6 +22,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
@@ -56,6 +58,7 @@ import java.util.*;
 public class DashboardControl {
 
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
+    private final StackPane dialogPane;
     private double zoomFactor = 1.0d;
     private final double defaultZoom = 1.0d;
     private final DashBordPlugIn dashBordPlugIn;
@@ -111,6 +114,7 @@ public class DashboardControl {
     public DashboardControl(DashBordPlugIn plugin) {
         this.configManager = new ConfigManager(plugin.getDialogPane(), plugin.getDataSource());
         this.dashBordPlugIn = plugin;
+        this.dialogPane = dashBordPlugIn.getDialogPane();
         this.jevisDataSource = plugin.getDataSource();
 
         //TaskWindow taskWindow = new TaskWindow(runningUpdateTaskList);
@@ -1230,6 +1234,30 @@ public class DashboardControl {
         });
     }
 
+    public void fontWeightSelected(FontWeight fontWeight) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontWeight(fontWeight);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void fontPostureSelected(FontPosture fontPosture) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontPosture(fontPosture);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void fontUnderlinedSelected(Boolean underlined) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontUnderlined(underlined);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
     public void setWidgetTitle(String name) {
         selectedWidgets.forEach(widget -> {
             widget.getConfig().setTitle(name);
@@ -1293,4 +1321,7 @@ public class DashboardControl {
         return configSideProperty;
     }
 
+    public StackPane getDialogPane() {
+        return dialogPane;
+    }
 }

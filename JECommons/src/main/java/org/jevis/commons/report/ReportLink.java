@@ -7,6 +7,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -150,40 +151,43 @@ public class ReportLink {
         FALSE
     }
 
-    public void update() {
+    public void update() throws JEVisException {
         logger.debug("Update Report Link: ", this);
-        try {
-            DateTime dateTime = new DateTime();
-            JEVisObject jevisObjectReportAttribute = null;
-            JEVisObject jevisObjectReportPeriodeConfiguration = null;
+
+        DateTime dateTime = new DateTime();
+        JEVisObject jevisObjectReportAttribute = null;
+        JEVisObject jevisObjectReportPeriodeConfiguration = null;
 
 
-            if (jeVisObject.getChildren().size() > 0) {
+        if (jeVisObject.getChildren().size() > 0) {
+
+            if (jeVisObject.getChildren().get(0).getJEVisClassName().equals(JC.ReportAttribute.name)) {
                 jevisObjectReportAttribute = jeVisObject.getChildren().get(0);
                 if (jevisObjectReportAttribute.getChildren().size() > 0) {
-                    jevisObjectReportPeriodeConfiguration = jevisObjectReportAttribute.getChildren().get(0);
+                    if (jevisObjectReportAttribute.getChildren().get(0).getJEVisClassName().equals(JC.ReportConfiguration.ReportPeriodConfiguration.name)) {
+                        jevisObjectReportPeriodeConfiguration = jevisObjectReportAttribute.getChildren().get(0);
+                    }
                 }
+
             }
-
-            if (jeVisObject == null) return;
-            updateJevisID(dateTime);
-            updateOptional(dateTime);
-            if (reportAttribute == null) return;
-            if (reportAttribute.getReportPeriodConfiguration() == null) return;
-            updateAggregation(dateTime, jevisObjectReportPeriodeConfiguration);
-            updateManipulation(dateTime, jevisObjectReportPeriodeConfiguration);
-            updatePeriod(dateTime, jevisObjectReportPeriodeConfiguration);
-            updateFixedPeriod(dateTime, jevisObjectReportPeriodeConfiguration);
-
-
-        } catch (JEVisException e) {
-            e.printStackTrace();
         }
+
+        if (jeVisObject == null) return;
+        updateJevisID(dateTime);
+        updateOptional(dateTime);
+        if (reportAttribute == null) return;
+        if (reportAttribute.getReportPeriodConfiguration() == null) return;
+        updateAggregation(dateTime, jevisObjectReportPeriodeConfiguration);
+        updateManipulation(dateTime, jevisObjectReportPeriodeConfiguration);
+        updatePeriod(dateTime, jevisObjectReportPeriodeConfiguration);
+        updateFixedPeriod(dateTime, jevisObjectReportPeriodeConfiguration);
+
+
     }
 
     private void updateFixedPeriod(DateTime dateTime, JEVisObject jevisObjectReportAttribute) throws JEVisException {
         if (reportAttribute.getReportPeriodConfiguration().getReportManipulation() == null) return;
-        JEVisAttribute jeVisAttribute = jevisObjectReportAttribute.getAttribute("Fixed Period");
+        JEVisAttribute jeVisAttribute = jevisObjectReportAttribute.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_FixedPeriod);
         if (jeVisAttribute == null) return;
         if (jeVisAttribute.hasSample()) {
             if (!jeVisAttribute.getLatestSample().getValueAsString().equals(reportAttribute.getReportPeriodConfiguration().getFixedPeriod().toString())) {
@@ -198,7 +202,7 @@ public class ReportLink {
 
     private void updatePeriod(DateTime dateTime, JEVisObject jevisObjectReportAttribute) throws JEVisException {
         if (reportAttribute.getReportPeriodConfiguration().getReportManipulation() == null) return;
-        JEVisAttribute jeVisAttribute = jevisObjectReportAttribute.getAttribute("Period");
+        JEVisAttribute jeVisAttribute = jevisObjectReportAttribute.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Period);
         if (jeVisAttribute == null) return;
         if (jeVisAttribute.hasSample()) {
             if (!jeVisAttribute.getLatestSample().getValueAsString().equals(reportAttribute.getReportPeriodConfiguration().getPeriodMode().toString())) {
@@ -213,7 +217,7 @@ public class ReportLink {
 
     private void updateManipulation(DateTime dateTime, JEVisObject jevisObjectReportAttribute) throws JEVisException {
         if (reportAttribute.getReportPeriodConfiguration().getReportManipulation() == null) return;
-        JEVisAttribute jeVisAttribute = jevisObjectReportAttribute.getAttribute("Manipulation");
+        JEVisAttribute jeVisAttribute = jevisObjectReportAttribute.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Manipulation);
         if (jeVisAttribute == null) return;
         if (jeVisAttribute.hasSample()) {
             if (!jeVisAttribute.getLatestSample().getValueAsString().equals(reportAttribute.getReportPeriodConfiguration().getReportManipulation().toString())) {
@@ -230,7 +234,7 @@ public class ReportLink {
 
     private void updateAggregation(DateTime dateTime, JEVisObject jevisObjectReportAttribute) throws JEVisException {
         if (reportAttribute.getReportPeriodConfiguration().getReportAggregation() == null) return;
-        JEVisAttribute jeVisAttribute = jevisObjectReportAttribute.getAttribute("Aggregation");
+        JEVisAttribute jeVisAttribute = jevisObjectReportAttribute.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Aggregation);
         if (jeVisAttribute == null) return;
         if (jeVisAttribute.hasSample()) {
             if (!jeVisAttribute.getLatestSample().getValueAsString().equals(reportAttribute.getReportPeriodConfiguration().getReportAggregation().toString())) {
@@ -245,7 +249,7 @@ public class ReportLink {
     }
 
     private void updateOptional(DateTime dateTime) throws JEVisException {
-        JEVisAttribute jeVisAttribute = jeVisObject.getAttribute("Optional");
+        JEVisAttribute jeVisAttribute = jeVisObject.getAttribute(JC.ReportLink.a_Optional);
         if (jeVisAttribute == null) return;
         if (jeVisAttribute.hasSample()) {
             if (!jeVisAttribute.getLatestSample().getValueAsBoolean().equals(optional)) {
@@ -261,7 +265,7 @@ public class ReportLink {
 
     private void updateJevisID(DateTime dateTime) throws JEVisException {
         if (jEVisID != 0) {
-            JEVisAttribute jeVisAttribute = jeVisObject.getAttribute("JEVis ID");
+            JEVisAttribute jeVisAttribute = jeVisObject.getAttribute(JC.ReportLink.a_JEVisID);
             if (jeVisAttribute == null) return;
             if (jeVisAttribute.hasSample()) {
                 if (jeVisAttribute.getLatestSample().getValueAsLong() != jEVisID) {
@@ -294,62 +298,66 @@ public class ReportLink {
                 JEVisObject reportPeriodeConfiguration = null;
 
 
-                if (jeVisObject.getChildren().size() > 0) {
-                    reportAttribute = jeVisObject.getChildren().get(0);
-                    if (reportAttribute.getChildren().size() > 0) {
-                        reportPeriodeConfiguration = reportAttribute.getChildren().get(0);
-                    }
-                }
-
-
                 name = null;
                 jevisID = null;
                 optional = false;
                 variableTemplateName = null;
 
                 name = jeVisObject.getName();
-                if (jeVisObject.getAttribute("JEVis ID").hasSample()) {
-                    jevisID = jeVisObject.getAttribute("JEVis ID").getLatestSample().getValueAsLong();
+                if (jeVisObject.getAttribute(JC.ReportLink.a_JEVisID).hasSample()) {
+                    jevisID = jeVisObject.getAttribute(JC.ReportLink.a_JEVisID).getLatestSample().getValueAsLong();
                 }
-                if (jeVisObject.getAttribute("Optional").hasSample()) {
-                    optional = jeVisObject.getAttribute("Optional").getLatestSample().getValueAsBoolean();
+                if (jeVisObject.getAttribute(JC.ReportLink.a_Optional).hasSample()) {
+                    optional = jeVisObject.getAttribute(JC.ReportLink.a_Optional).getLatestSample().getValueAsBoolean();
                 }
-                if (jeVisObject.getAttribute("Template Variable Name").hasSample()) {
-                    variableTemplateName = jeVisObject.getAttribute("Template Variable Name").getLatestSample().getValueAsString();
+                if (jeVisObject.getAttribute(JC.ReportLink.a_TemplateVariableName).hasSample()) {
+                    variableTemplateName = jeVisObject.getAttribute(JC.ReportLink.a_TemplateVariableName).getLatestSample().getValueAsString();
                 }
 
 
                 attributeName = null;
 
-
-                if (reportAttribute.getAttribute("Attribute Name").hasSample()) {
-                    attributeName = reportAttribute.getAttribute("Attribute Name").getLatestSample().getValueAsString();
+                if (jeVisObject.getChildren() != null && jeVisObject.getChildren().size() > 0) {
+                    reportAttribute = jeVisObject.getChildren().get(0);
+                    if (reportAttribute.getAttribute(JC.ReportAttribute.a_AttributeName).hasSample()) {
+                        attributeName = reportAttribute.getAttribute(JC.ReportAttribute.a_AttributeName).getLatestSample().getValueAsString();
+                    }
                 }
+
 
                 String aggregationPeriod = null;
                 String manipulation = null;
                 String periode = null;
                 String fixedPeriod = null;
 
-                if (reportPeriodeConfiguration.getAttribute("Aggregation").hasSample()) {
-                    aggregationPeriod = reportPeriodeConfiguration.getAttribute("Aggregation").getLatestSample().getValueAsString();
+                if (reportAttribute != null) {
+                    if (reportAttribute.getChildren().size() > 0) {
+
+
+                        reportPeriodeConfiguration = reportAttribute.getChildren().get(0);
+                        if (reportPeriodeConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Aggregation).hasSample()) {
+                            aggregationPeriod = reportPeriodeConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Aggregation).getLatestSample().getValueAsString();
+                        }
+
+                        if (reportPeriodeConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Manipulation).hasSample()) {
+                            manipulation = reportPeriodeConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Manipulation).getLatestSample().getValueAsString();
+
+                        }
+                        if (reportPeriodeConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Period).hasSample()) {
+                            periode = reportPeriodeConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_Period).getLatestSample().getValueAsString();
+                        }
+                        if (reportPeriodeConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_FixedPeriod).hasSample()) {
+                            fixedPeriod = reportPeriodeConfiguration.getAttribute(JC.ReportConfiguration.ReportPeriodConfiguration.a_FixedPeriod).getLatestSample().getValueAsString();
+                        }
+                        aggregationPeriod1 = AggregationPeriod.parseAggregation(aggregationPeriod);
+                        manipulationMode = ManipulationMode.parseManipulation(manipulation);
+                        periodMode = PeriodMode.valueOf(periode);
+                        fixedPeriod1 = FixedPeriod.parseFixedPeriod(fixedPeriod);
+
+                    }
                 }
 
-                if (reportPeriodeConfiguration.getAttribute("Manipulation").hasSample()) {
-                    manipulation = reportPeriodeConfiguration.getAttribute("Manipulation").getLatestSample().getValueAsString();
 
-                }
-                if (reportPeriodeConfiguration.getAttribute("Period").hasSample()) {
-                    periode = reportPeriodeConfiguration.getAttribute("Period").getLatestSample().getValueAsString();
-                }
-                if (reportPeriodeConfiguration.getAttribute("Fixed Period").hasSample()) {
-                    fixedPeriod = reportPeriodeConfiguration.getAttribute("Fixed Period").getLatestSample().getValueAsString();
-                }
-
-                aggregationPeriod1 = AggregationPeriod.parseAggregation(aggregationPeriod);
-                manipulationMode = ManipulationMode.parseManipulation(manipulation);
-                periodMode = PeriodMode.valueOf(periode);
-                fixedPeriod1 = FixedPeriod.parseFixedPeriod(fixedPeriod);
 
             } catch (JEVisException e) {
                 throw new RuntimeException(e);

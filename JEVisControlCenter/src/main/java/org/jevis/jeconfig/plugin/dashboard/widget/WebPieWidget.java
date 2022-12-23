@@ -17,7 +17,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
@@ -132,7 +131,7 @@ public class WebPieWidget extends Widget {
                     proC = 8;
                 }
 
-                PieData pieData = new PieData(ColorHelper.toColor(chartDataModel.getColor())
+                PieData pieData = new PieData(chartDataModel.getColor()
                         , value, proC, UnitManager.getInstance().format(chartDataModel.getUnitLabel()), dataName, dataName);
 
                 pieDataList.add(pieData);
