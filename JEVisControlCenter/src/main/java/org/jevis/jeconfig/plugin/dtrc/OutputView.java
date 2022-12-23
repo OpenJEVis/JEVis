@@ -798,7 +798,7 @@ public class OutputView extends Tab {
                 logger.debug("Added {} to grouped inputs", templateInput.getVariableName());
             } else if (templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
                 ungroupedInputs.add(templateInput);
-                logger.debug("Added {} to ungrouped inputs", templateInput.getVariableName());
+                logger.debug("Added formula {} to ungrouped inputs", templateInput.getVariableName());
             }
         }
 
@@ -815,7 +815,7 @@ public class OutputView extends Tab {
         for (TemplateInput ungroupedInput : ungroupedInputs) {
             String variableName = ungroupedInput.getVariableName();
             Label label = new Label(variableName);
-            label.setTooltip(new Tooltip(variableName));
+            label.setTooltip(new Tooltip(ungroupedInput.getObjectClass()));
             label.setMinWidth(120);
             label.setAlignment(Pos.CENTER_LEFT);
 
@@ -894,7 +894,7 @@ public class OutputView extends Tab {
                         contractsGP.add(region, finalColumn + 2, finalRow);
                     });
                 }
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get object selector for template input {}", ungroupedInput, e);
             }
 
@@ -917,18 +917,27 @@ public class OutputView extends Tab {
                 row++;
             }
             List<TemplateInput> groupedInputs = groupedInputsMap.get(jeVisClass);
+            TemplateInput firstGroupedInput = groupedInputs.get(0);
+            StringBuilder objectNames = new StringBuilder();
             String className = null;
             try {
                 className = I18nWS.getInstance().getClassName(jeVisClass);
+
+                for (int i = 0; i < groupedInputs.size(); i++) {
+                    if (i > 0) objectNames.append(", ");
+                    if (i % 2 == 0) objectNames.append("\n");
+                    TemplateInput groupedInput = groupedInputs.get(i);
+                    objectNames.append(groupedInput.getVariableName());
+                }
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
-            Label label = new Label(className);
+            Label label = new Label(objectNames.toString());
             label.setTooltip(new Tooltip(className));
             label.setMinWidth(120);
             label.setAlignment(Pos.CENTER_LEFT);
 
-            JFXComboBox<JEVisObject> objectSelector = createObjectSelector(groupedInputs.get(0).getObjectClass(), groupedInputs.get(0).getFilter());
+            JFXComboBox<JEVisObject> objectSelector = createObjectSelector(firstGroupedInput.getObjectClass(), firstGroupedInput.getFilter());
 
             try {
                 Long objectID = groupedInputs.stream().filter(input -> input.getObjectID() != -1L).findFirst().map(TemplateSelected::getObjectID).orElse(-1L);
@@ -942,10 +951,10 @@ public class OutputView extends Tab {
                     }
 
                     JEVisObject selectedObject = ds.getObject(objectID);
-                    logger.debug("Found object {}:{}, selecting for {}", selectedObject.getName(), selectedObject.getID(), groupedInputs.get(0).getVariableName());
+                    logger.debug("Found object {}:{}, selecting for {}", selectedObject.getName(), selectedObject.getID(), firstGroupedInput.getVariableName());
                     objectSelector.getSelectionModel().select(selectedObject);
                 } else {
-                    logger.debug("Found no object, selecting for {}", groupedInputs.get(0).getVariableName());
+                    logger.debug("Found no object, selecting for {}", firstGroupedInput.getVariableName());
                     objectSelector.getSelectionModel().selectFirst();
                     groupedInputs.forEach(templateInput1 -> {
                         templateInput1.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID());
@@ -991,11 +1000,9 @@ public class OutputView extends Tab {
                 try {
                     if (jeVisClass.getInheritance() != null) {
                         String translatedClassName = I18nWS.getInstance().getClassName(jeVisClass.getInheritance().getName());
-                        label.setText(translatedClassName);
                         label.setTooltip(new Tooltip(translatedClassName));
                     } else {
                         String translatedClassName = I18nWS.getInstance().getClassName(jeVisClass.getName());
-                        label.setText(translatedClassName);
                         label.setTooltip(new Tooltip(translatedClassName));
                     }
                 } catch (Exception e) {
