@@ -7,6 +7,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 
@@ -23,20 +24,25 @@ public class HoursAbove {
         this.chartDataRow = chartDataRow;
         this.periodRules = CleanDataObject.getPeriodAlignmentForObject(chartDataRow.getAttribute().getObject());
 
-        Period abovePeriod = Period.ZERO;
-        Period belowPeriod = Period.ZERO;
+        Long aboveMillis = 0L;
+        Long belowMillis = 0L;
 
         try {
             for (JEVisSample sample : chartDataRow.getSamples()) {
                 if (sample.getValueAsDouble() < limit) {
-                    belowPeriod = belowPeriod.plus(getPeriodForDate(sample.getTimestamp()));
+                    belowMillis += getPeriodForDate(sample.getTimestamp()).toStandardDuration().getMillis();
                 } else {
-                    abovePeriod = abovePeriod.plus(getPeriodForDate(sample.getTimestamp()));
+                    aboveMillis += getPeriodForDate(sample.getTimestamp()).toStandardDuration().getMillis();
                 }
             }
         } catch (JEVisException e) {
             e.printStackTrace();
         }
+
+        Duration aboveDuration = new Duration(aboveMillis);
+        Period abovePeriod = aboveDuration.toPeriod();
+        Duration belowDuration = new Duration(belowMillis);
+        Period belowPeriod = belowDuration.toPeriod();
 
         below = PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()).print(belowPeriod.normalizedStandard())
                 + " (" + PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()).print(belowPeriod.toStandardHours()) + ")";
