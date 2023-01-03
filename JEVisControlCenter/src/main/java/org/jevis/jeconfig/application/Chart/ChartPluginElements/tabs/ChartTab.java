@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.tabs;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -47,6 +48,8 @@ public class ChartTab extends Tab {
     private final Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
     private final ChartTypeComboBox chartTypeComboBox;
     private final Label labelGroupingInterval = new Label(I18n.getInstance().getString("graph.tabs.tab.groupinginterval"));
+    private final Label labelFixYAxisToZero = new Label(I18n.getInstance().getString("graph.tabs.tab.fixyaxistozero"));
+    private final JFXCheckBox fixYAxisToZero = new JFXCheckBox();
     private final Table chartTable;
     private final GridPane chartSettings = new GridPane();
     private final VBox vBox = new VBox();
@@ -71,6 +74,11 @@ public class ChartTab extends Tab {
             this.chartModel.setGroupingInterval(newValue.doubleValue());
         }
     };
+    private final ChangeListener<Boolean> fixYAxisToZeroChangeListener = ((observable, oldValue, newValue) -> {
+        if (chartModel != null && !newValue.equals(oldValue)) {
+            this.chartModel.setFixYAxisToZero(newValue);
+        }
+    });
     private final ChangeListener<BigDecimal> minFractionDigitsChangeListener = (observable, oldValue, newValue) -> {
         if (chartModel != null && !newValue.equals(oldValue)) {
             chartModel.setMinFractionDigits(newValue.intValue());
@@ -253,6 +261,7 @@ public class ChartTab extends Tab {
     }
 
     private void updateChartSettings(ChartModel chartModel, GridPane chartSettings) {
+        disableListener();
 
         int row = 0;
         chartSettings.getChildren().clear();
@@ -288,8 +297,10 @@ public class ChartTab extends Tab {
         if (chartModel.getChartType() == ChartType.BUBBLE) {
             chartSettings.add(labelGroupingInterval, 0, row);
             chartSettings.add(groupingInterval, 1, row);
-
             row++;
+
+            chartSettings.add(labelFixYAxisToZero, 0, row);
+            chartSettings.add(fixYAxisToZero, 1, row);
         }
 
         boolean isCustomPeriodEnabled = chartModel.getChartData().stream().anyMatch(ChartData::isIntervalEnabled);
@@ -427,18 +438,22 @@ public class ChartTab extends Tab {
                 setCssColumnVisible(true);
                 break;
         }
+
+        enableListener();
     }
 
     private void enableListener() {
         groupingInterval.numberProperty().addListener(groupingIntervalChangeListener);
         minFractionDigits.numberProperty().addListener(minFractionDigitsChangeListener);
         maxFractionDigits.numberProperty().addListener(maxFractionChangeListener);
+        fixYAxisToZero.selectedProperty().addListener(fixYAxisToZeroChangeListener);
     }
 
     private void disableListener() {
         groupingInterval.numberProperty().removeListener(groupingIntervalChangeListener);
         minFractionDigits.numberProperty().removeListener(minFractionDigitsChangeListener);
-        maxFractionDigits.numberProperty().addListener(maxFractionChangeListener);
+        maxFractionDigits.numberProperty().removeListener(maxFractionChangeListener);
+        fixYAxisToZero.selectedProperty().removeListener(fixYAxisToZeroChangeListener);
     }
 
     private void initializeClasses(JEVisDataSource ds) {

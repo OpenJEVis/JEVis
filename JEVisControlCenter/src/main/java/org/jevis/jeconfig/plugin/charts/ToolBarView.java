@@ -650,11 +650,20 @@ public class ToolBarView {
 
         delete.setOnAction(event -> getChartPluginView().handleRequest(Constants.Plugin.Command.DELETE));
 
-        showRawData.setOnAction(event -> toolBarSettings.setShowRawData(!toolBarSettings.isShowRawData()));
+        showRawData.setOnAction(event -> {
+            toolBarSettings.setShowRawData(!toolBarSettings.isShowRawData());
+            chartPlugin.update();
+        });
 
-        showSum.setOnAction(event -> toolBarSettings.setShowSum(!toolBarSettings.isShowSum()));
+        showSum.setOnAction(event -> {
+            toolBarSettings.setShowSum(!toolBarSettings.isShowSum());
+            chartPlugin.update();
+        });
 
-        showL1L2.setOnAction(event -> toolBarSettings.setShowL1L2(!toolBarSettings.isShowL1L2()));
+        showL1L2.setOnAction(event -> {
+            toolBarSettings.setShowL1L2(!toolBarSettings.isShowL1L2());
+            chartPlugin.update();
+        });
 
         calcRegression.setOnAction(event -> toolBarFunctions.calcRegression());
 
