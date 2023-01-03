@@ -55,7 +55,11 @@ public class AnalysesComboBox extends JFXComboBox<String> {
 
         this.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, t1) -> {
             this.updating = true;
-            setSelectedAnalysis(analyses.get(t1.intValue()));
+            if (t1 != null && t1.intValue() > -1) {
+                setSelectedAnalysis(analyses.get(t1.intValue()));
+            } else {
+                setSelectedAnalysis(null);
+            }
             this.updating = false;
         });
 
