@@ -20,6 +20,7 @@ public class ChartModel {
     private final SimpleIntegerProperty minFractionDigits = new SimpleIntegerProperty(this, "minFractionDigits", 2);
     private final SimpleIntegerProperty maxFractionDigits = new SimpleIntegerProperty(this, "maxFractionDigits", 2);
     private final SimpleBooleanProperty filterEnabled = new SimpleBooleanProperty(this, "filterEnabled", false);
+    private final SimpleBooleanProperty fixYAxisToZero = new SimpleBooleanProperty(this, "fixYAxisToZero", false);
     private List<ChartData> chartData = new ArrayList<>();
 
     public List<ChartData> getChartData() {
@@ -148,5 +149,17 @@ public class ChartModel {
 
     public SimpleBooleanProperty filterEnabledProperty() {
         return filterEnabled;
+    }
+
+    public boolean isFixYAxisToZero() {
+        return fixYAxisToZero.get();
+    }
+
+    public void setFixYAxisToZero(boolean fixYAxisToZero) {
+        this.fixYAxisToZero.set(fixYAxisToZero);
+    }
+
+    public SimpleBooleanProperty fixYAxisToZeroProperty() {
+        return fixYAxisToZero;
     }
 }
