@@ -18,6 +18,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
@@ -58,6 +59,7 @@ public class XYChartSerie {
     ValueWithDateTime maxValue = new ValueWithDateTime(-Double.MAX_VALUE);
     private double sortCriteria;
     private double avg;
+    private boolean aggregated = false;
 
     public XYChartSerie() {
     }
@@ -73,6 +75,7 @@ public class XYChartSerie {
         this.forecast = forecast;
         this.nf.setMinimumFractionDigits(chartModel.getMinFractionDigits());
         this.nf.setMaximumFractionDigits(chartModel.getMaxFractionDigits());
+        this.aggregated = singleRow.getAggregationPeriod() != AggregationPeriod.NONE;
 
         generateSeriesFromSamples();
     }
@@ -84,6 +87,16 @@ public class XYChartSerie {
         Color brighter = ColorHelper.colorToBrighter(singleRow.getColor());
 
         List<JEVisSample> samples = new ArrayList<>();
+        if (aggregated) {
+            JEVisUnit unit = singleRow.getUnit();
+
+            QuantityUnits quantityUnits = new QuantityUnits();
+            JEVisUnit sumUnit = quantityUnits.getSumUnit(unit);
+            if (!sumUnit.equals(unit)) {
+                singleRow.setUnit(sumUnit);
+            }
+        }
+
         if (!forecast) {
             this.tableEntry = new TableEntry(getTableEntryName());
             this.valueDataSet.setName(getTableEntryName());
