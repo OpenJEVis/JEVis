@@ -94,6 +94,7 @@ public class XYChartSerie {
             JEVisUnit sumUnit = quantityUnits.getSumUnit(unit);
             if (!sumUnit.equals(unit)) {
                 singleRow.setUnit(sumUnit);
+                singleRow.setSomethingChanged(true);
             }
         }
 
