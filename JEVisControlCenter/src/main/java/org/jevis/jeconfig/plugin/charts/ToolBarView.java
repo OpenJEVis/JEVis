@@ -665,7 +665,10 @@ public class ToolBarView {
             chartPlugin.update();
         });
 
-        calcRegression.setOnAction(event -> toolBarFunctions.calcRegression());
+        calcRegression.setOnAction(event -> {
+            toolBarFunctions.calcRegression();
+            chartPlugin.update();
+        });
 
         calcFullLoadHours.setOnAction(event -> toolBarFunctions.calcFullLoadHours());
 
