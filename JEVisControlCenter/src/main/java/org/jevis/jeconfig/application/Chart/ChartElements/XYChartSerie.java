@@ -498,7 +498,11 @@ public class XYChartSerie {
         return shownInRenderer;
     }
 
+    private Renderer valueDataSetRenderer;
+    private Renderer noteDataSetRenderer;
+
     public void addValueDataSetRenderer(Renderer renderer) {
+        this.valueDataSetRenderer = renderer;
         shownInRendererProperty().addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
                 renderer.getDatasets().add(this.getValueDataSet());
@@ -509,6 +513,7 @@ public class XYChartSerie {
     }
 
     public void addNoteDataSetRenderer(Renderer renderer) {
+        this.noteDataSetRenderer = renderer;
         shownInRendererProperty().addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
                 renderer.getDatasets().add(this.getNoteDataSet());
@@ -528,5 +533,13 @@ public class XYChartSerie {
 
     public void setSampleMap(TreeMap<DateTime, JEVisSample> sampleMap) {
         this.sampleMap = sampleMap;
+    }
+
+    public Renderer getValueDataSetRenderer() {
+        return valueDataSetRenderer;
+    }
+
+    public Renderer getNoteDataSetRenderer() {
+        return noteDataSetRenderer;
     }
 }
