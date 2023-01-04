@@ -284,7 +284,11 @@ public class TreeSelectionDialog extends JFXDialog {
                 else if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (!classFilter.isEmpty())) {
                     return TreeItemPredicate.create(jeVisTreeViewItem -> {
                         try {
-                            return classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
+                            boolean contains = classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
+                            if (contains) {
+                                this.treeView.select(jeVisTreeViewItem.getObject());
+                            }
+                            return contains;
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }
@@ -298,7 +302,13 @@ public class TreeSelectionDialog extends JFXDialog {
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
-                    return containsName && classFiltered;
+
+                    boolean b = containsName && classFiltered;
+                    if (b) {
+                        this.treeView.select(jeVisTreeViewItem.getObject());
+                    }
+
+                    return b;
                 });
             }, filterTextField.textProperty()));
         }
