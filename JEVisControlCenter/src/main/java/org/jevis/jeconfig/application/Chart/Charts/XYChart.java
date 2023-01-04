@@ -998,17 +998,11 @@ public class XYChart implements Chart {
 
                     rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
                 }
-
-                if (calcRegression) {
-                    trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
-                }
             } else if (!hasSecondYAxis && xyChartSerie.getyAxis() == 0) {
                 xyChartSerie.addValueDataSetRenderer(rendererY1);
 
                 rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
-                if (calcRegression) {
-                    trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
-                }
+
             } else {
                 if (xyChartSerie.getyAxis() == 0) {
                     xyChartSerie.addValueDataSetRenderer(rendererY1);
@@ -1019,6 +1013,10 @@ public class XYChart implements Chart {
 
                     rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
                 }
+            }
+
+            if (calcRegression) {
+                trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             }
 
             if (showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
@@ -1076,13 +1074,13 @@ public class XYChart implements Chart {
             }
         }
 
-        if (calcRegression && showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
+        if (chartType != null && chartType.equals(ChartType.COLUMN) && showIcons && calcRegression) {
+            allRenderer.add(labelledMarkerRenderer);
+            allRenderer.add(columnChartLabelRenderer);
             allRenderer.add(trendLineRenderer);
+        } else if (chartType != null && !chartType.equals(ChartType.COLUMN) && showIcons && calcRegression) {
             allRenderer.add(labelledMarkerRenderer);
-            allRenderer.add(columnChartLabelRenderer);
-        } else if (chartType != null && chartType.equals(ChartType.COLUMN) && showIcons) {
-            allRenderer.add(labelledMarkerRenderer);
-            allRenderer.add(columnChartLabelRenderer);
+            allRenderer.add(trendLineRenderer);
         } else if (showIcons) {
             allRenderer.add(labelledMarkerRenderer);
         }
