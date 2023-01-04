@@ -1450,56 +1450,56 @@ public class XYChart implements Chart {
         if (period == null) {
             if (chartDataRows != null && chartDataRows.size() > 0) {
                 ChartDataRow chartDataRow = chartDataRows.get(0);
-                if (chartDataRow.getSamples().size() > 1) {
-                    try {
-                        List<JEVisSample> samples = chartDataRow.getSamples();
 
-                        switch (chartDataRow.getAggregationPeriod()) {
-                            case QUARTER_HOURLY:
-                                period = Period.minutes(15);
-                                break;
-                            case HOURLY:
-                                period = Period.hours(1);
-                                break;
-                            case DAILY:
-                                period = Period.days(1);
-                                break;
-                            case WEEKLY:
-                                period = Period.weeks(1);
-                                break;
-                            case MONTHLY:
-                                period = Period.months(1);
-                                break;
-                            case QUARTERLY:
-                                period = Period.hours(3);
-                                break;
-                            case YEARLY:
-                                period = Period.years(1);
-                                break;
-                            case THREEYEARS:
-                                period = Period.years(3);
-                                break;
-                            case FIVEYEARS:
-                                period = Period.years(5);
-                                break;
-                            case TENYEARS:
-                                period = Period.years(10);
-                                break;
-                            case NONE:
-                            default:
+                try {
+                    switch (chartDataRow.getAggregationPeriod()) {
+                        case QUARTER_HOURLY:
+                            period = Period.minutes(15);
+                            break;
+                        case HOURLY:
+                            period = Period.hours(1);
+                            break;
+                        case DAILY:
+                            period = Period.days(1);
+                            break;
+                        case WEEKLY:
+                            period = Period.weeks(1);
+                            break;
+                        case MONTHLY:
+                            period = Period.months(1);
+                            break;
+                        case QUARTERLY:
+                            period = Period.hours(3);
+                            break;
+                        case YEARLY:
+                            period = Period.years(1);
+                            break;
+                        case THREEYEARS:
+                            period = Period.years(3);
+                            break;
+                        case FIVEYEARS:
+                            period = Period.years(5);
+                            break;
+                        case TENYEARS:
+                            period = Period.years(10);
+                            break;
+                        case NONE:
+                        default:
+
+                            List<JEVisSample> samples = chartDataRow.getSamples();
+                            if (chartDataRow.getSamples().size() > 1) {
                                 period = new Period(samples.get(0).getTimestamp(),
                                         samples.get(1).getTimestamp());
-                                break;
-                        }
 
-                        timeStampOfFirstSample.set(samples.get(0).getTimestamp());
-                        timeStampOfLastSample.set(samples.get(samples.size() - 1).getTimestamp());
-
-                        changedBoth[0] = true;
-                        changedBoth[1] = true;
-                    } catch (Exception e) {
-                        logger.error("Could not get period from samples", e);
+                                timeStampOfFirstSample.set(samples.get(0).getTimestamp());
+                                timeStampOfLastSample.set(samples.get(samples.size() - 1).getTimestamp());
+                                changedBoth[0] = true;
+                                changedBoth[1] = true;
+                            }
+                            break;
                     }
+                } catch (Exception e) {
+                    logger.error("Could not get period from samples", e);
                 }
             }
         }

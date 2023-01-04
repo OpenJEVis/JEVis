@@ -198,7 +198,7 @@ public class ChartDataRow extends ChartData {
 
 
                     if (!samples.isEmpty()) {
-                        for (JEVisSample valueSample : getSamples()) {
+                        for (JEVisSample valueSample : samples) {
                             try {
                                 DateTime ts = valueSample.getTimestamp();
                                 JEVisSample compareSample = null;
@@ -455,8 +455,8 @@ public class ChartDataRow extends ChartData {
 
     private void applyUserData(List<JEVisSample> unmodifiedSamples) {
         try {
-            //TODO make aggregation check for congruent data periods of clean data row and user data row
-            if (!getUserDataMap().isEmpty()) {
+            if (!getUserDataMap().isEmpty() && aggregationPeriod != AggregationPeriod.NONE) {
+
                 List<JEVisSample> samplesToRemove = new ArrayList<>();
                 List<JEVisSample> samplesToAdd = new ArrayList<>();
                 for (JEVisSample sample : unmodifiedSamples) {
@@ -817,7 +817,7 @@ public class ChartDataRow extends ChartData {
         avg = 0d;
         sum = 0d;
 
-        for (JEVisSample sample : getSamples()) {
+        for (JEVisSample sample : samples) {
             try {
                 DateTime ts = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
@@ -829,8 +829,8 @@ public class ChartDataRow extends ChartData {
             }
         }
         QuantityUnits qu = new QuantityUnits();
-        if (getSamples().size() > 0) {
-            avg = sum / getSamples().size();
+        if (samples.size() > 0) {
+            avg = sum / samples.size();
         }
 
         if (!qu.isQuantityUnit(getUnit()) && qu.isSumCalculable(getUnit()) && getManipulationMode().equals(ManipulationMode.NONE)) {
