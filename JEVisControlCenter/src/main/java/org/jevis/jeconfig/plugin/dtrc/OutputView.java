@@ -1277,31 +1277,61 @@ public class OutputView extends Tab {
             String prefix1 = "";
             String prefix2 = "";
 
-            if (ChartTools.isMultiSite(ds)) {
-                prefix1 += objectRelations.getObjectPath(o1);
-            }
-            if (ChartTools.isMultiDir(ds, o1)) {
-                prefix1 += objectRelations.getRelativePath(o1);
-            }
-            prefix1 += o1.getName();
+            JEVisObject correctObject1 = o1;
+            try {
 
-            if (!prefix1.endsWith(o1.getName())) {
-                prefix1 += " \\ " + o1.getName();
+                if (o1.getJEVisClassName().equals("Clean Data")) {
+                    correctObject1 = CommonMethods.getFirstParentalDataObject(o1);
+                }
+
+                if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, correctObject1))
+                    prefix1 = correctObject1.getName();
+                else {
+                    String prefix = "";
+                    if (ChartTools.isMultiSite(ds)) {
+                        prefix += objectRelations.getObjectPath(correctObject1);
+                    }
+                    if (ChartTools.isMultiDir(ds, correctObject1)) {
+                        prefix += objectRelations.getRelativePath(correctObject1);
+                    }
+
+                    prefix1 = prefix + correctObject1.getName();
+                }
+
+                if (!prefix1.endsWith(o1.getName())) {
+                    prefix1 += " \\ " + o1.getName();
+                }
+
+                JEVisObject correctObject2 = o2;
+                if (o2.getJEVisClassName().equals("Clean Data")) {
+                    correctObject2 = CommonMethods.getFirstParentalDataObject(o2);
+                }
+
+                if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, correctObject2))
+                    prefix2 = correctObject2.getName();
+                else {
+                    String prefix = "";
+                    if (ChartTools.isMultiSite(ds)) {
+                        prefix += objectRelations.getObjectPath(correctObject2);
+                    }
+                    if (ChartTools.isMultiDir(ds, correctObject2)) {
+                        prefix += objectRelations.getRelativePath(correctObject2);
+                    }
+
+                    prefix2 = prefix + correctObject2.getName();
+                }
+
+                if (!prefix2.endsWith(o2.getName())) {
+                    prefix2 += " \\ " + o2.getName();
+                }
+
+                return alphanumComparator.compare(prefix1, prefix2);
+
+            } catch (Exception e) {
+                logger.error("Could not sort properly", e);
             }
 
-            if (ChartTools.isMultiSite(ds)) {
-                prefix2 += objectRelations.getObjectPath(o2);
-            }
-            if (ChartTools.isMultiDir(ds, o2)) {
-                prefix2 += objectRelations.getRelativePath(o2);
-            }
-            prefix2 += o2.getName();
-
-            if (!prefix2.endsWith(o2.getName())) {
-                prefix2 += " \\ " + o2.getName();
-            }
-
-            return alphanumComparator.compare(prefix1, prefix2);
+            return alphanumComparator.compare(o1.getName(), o2.getName());
         });
 
         JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
