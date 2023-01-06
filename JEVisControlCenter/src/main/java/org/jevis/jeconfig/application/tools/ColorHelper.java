@@ -17,6 +17,11 @@ public class ColorHelper {
                 .toUpperCase();
     }
 
+    public static String toShortRGBCode(Color value) {
+        return "#" + (format(value.getRed()) + format(value.getGreen()) + format(value.getBlue()))
+                .toUpperCase();
+    }
+
     public static String colorToBrighter(String colorString) {
         Color color = ColorHelper.toColor(colorString);
 

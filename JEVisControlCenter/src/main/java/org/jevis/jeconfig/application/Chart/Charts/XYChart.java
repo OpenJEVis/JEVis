@@ -23,7 +23,10 @@ import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -36,9 +39,6 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
-import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.jeapi.ws.JEVisDataSourceWS;
-import org.jevis.jeapi.ws.JEVisObjectWS;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.ChartType;
@@ -57,7 +57,10 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -229,8 +232,6 @@ public class XYChart implements Chart {
         addManipulationToTitle = (dataSettings.getManipulationMode().equals(RUNNING_MEAN)
                 || dataSettings.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN));
 
-        ChartDataRow sumModelY1 = null;
-        ChartDataRow sumModelY2 = null;
 
         if (chartType != ChartType.BUBBLE) {
             for (ChartDataRow chartDataRow : chartDataRows) {
@@ -251,15 +252,6 @@ public class XYChart implements Chart {
                             e.printStackTrace();
                         }
                     }
-
-                    if (showSum && sumModelY1 == null && chartDataRow.getAxis() == 0) {
-                        sumModelY1 = chartDataRow.clone();
-                    }
-
-                    if (showSum && sumModelY2 == null && chartDataRow.getAxis() == 1) {
-                        sumModelY2 = chartDataRow.clone();
-                    }
-
                 } catch (Exception e) {
                     logger.error("Error: Cant create series for data rows: ", e);
                 }
@@ -595,12 +587,8 @@ public class XYChart implements Chart {
             Platform.runLater(() -> this.secondaryDateAxis.setAxisLabelFormatter(secondaryAxisLabelFormatter));
         }
 
-        List<ChartDataRow> sumModels = new ArrayList<>();
-        sumModels.add(sumModelY1);
-        sumModels.add(sumModelY2);
-
-        if (showSum && chartDataRows.size() > 1 && (sumModelY1 != null || sumModelY2 != null) && chartType != ChartType.TABLE_V) {
-            createSumModels(chartModel, sumModels);
+        if (showSum && chartDataRows.size() > 1 && chartType != ChartType.TABLE_V) {
+            createSumModels();
         }
 
         addSeriesToChart();
@@ -616,93 +604,148 @@ public class XYChart implements Chart {
 
     }
 
-    private void createSumModels(ChartModel chartModel, List<ChartDataRow> sumModels) {
+    private void createSumModels() {
         try {
-            long sumId = 9999999999L;
-            List<ChartDataRow> oldModels = new ArrayList<>();
-            chartModel.getChartData().forEach(chartData -> {
-                if (chartData.getId() == sumId) {
-                    ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
-                    oldModels.add(chartDataRow);
-                }
-            });
-            chartModel.getChartData().removeAll(oldModels);
 
-            for (ChartDataRow sumModel : sumModels) {
-                int index = sumModels.indexOf(sumModel);
-                JsonObject json = new JsonObject();
-                json.setId(sumId);
-                json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
-                if (index == 0) {
-                    json.setName(json.getName() + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1"));
+            for (int axis = 0; axis < 2; axis++) {
+                int finalAxis = axis;
+                List<XYChartSerie> currentAxisSeries = xyChartSerieList.stream().filter(chartSerie -> chartSerie.getSingleRow().getAxis() == finalAxis).collect(Collectors.toList());
+                if (currentAxisSeries.size() == 1 || currentAxisSeries.isEmpty()) {
+                    continue;
+                }
+
+                XYChartSerie currentSumSerie = new XYChartSerie();
+                String name = "~" + I18n.getInstance().getString("plugin.graph.table.sum");
+                if (axis == 0) {
+                    y1SumSerie = currentSumSerie;
+                    name += " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1");
                 } else {
-                    json.setName(json.getName() + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2"));
+                    y2SumSerie = currentSumSerie;
+                    name += " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2");
                 }
-                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataRows.get(0).getObject().getDataSource(), json);
 
-                sumModel.setId(test.getID());
-                sumModel.setName(json.getName());
-                sumModel.setAxis(index);
-                if (index == 0) {
-                    sumModel.setColor(Color.BLACK);
+                TableEntry sumEntry = new TableEntry(name);
+                sumEntry.setColor(Color.BLACK);
+                ChartDataRow firstY1Row = currentAxisSeries.get(0).getSingleRow();
+                sumEntry.setPeriod(currentAxisSeries.get(0).getTableEntry().getPeriod());
+                ChartDataRow chartDataRow = new ChartDataRow(ds, new ChartData());
+                JEVisUnit unit = firstY1Row.getUnit();
+                chartDataRow.setColor(Color.BLACK);
+                chartDataRow.setChartType(ChartType.LINE);
+                chartDataRow.setUnit(unit);
+                chartDataRow.setAxis(axis);
+                chartDataRow.setScaleFactor(firstY1Row.getScaleFactor());
+                chartDataRow.setTimeFactor(firstY1Row.getTimeFactor());
+                chartDataRow.setPeriod(firstY1Row.getPeriod());
+                chartDataRow.setFormatString(firstY1Row.getFormatString());
+                chartDataRow.setSomethingChanged(false);
+                currentSumSerie.setSingleRow(chartDataRow);
+                DoubleDataSet noteDataSet = new DoubleDataSet(name);
+                currentSumSerie.setNoteDataSet(noteDataSet);
+
+                TreeMap<DateTime, JEVisSample> sampleMap = new TreeMap<>();
+                double min = Double.MAX_VALUE;
+                double max = -Double.MAX_VALUE;
+                double avg = 0d;
+                double sum = 0d;
+
+                currentSumSerie.setTableEntry(sumEntry);
+                currentSumSerie.setSampleMap(sampleMap);
+                AlphanumComparator ac = new AlphanumComparator();
+                currentAxisSeries.sort((o1, o2) -> ac.compare(o2.getTableEntryName(), o1.getTableEntryName()));
+                List<XYChartSerie> otherSeries = currentAxisSeries.stream().filter(y1Serie -> currentAxisSeries.indexOf(y1Serie) > 0).collect(Collectors.toList());
+
+                DoubleDataSet ds = currentAxisSeries.get(0).getValueDataSet();
+                DoubleDataSet newDS = new DoubleDataSet(ds.getName());
+                newDS.setStyle("strokeColor=" + Color.BLACK + "; fillColor=" + Color.BLACK);
+
+                for (int i = 0; i < ds.getDataCount(); i++) {
+                    double x = ds.get(DataSet.DIM_X, i);
+                    DateTime ts = new DateTime(new Double(x * 1000d).longValue());
+
+                    double currentY = ds.get(DataSet.DIM_Y, i);
+                    List<Double> otherYs = new ArrayList<>();
+
+                    for (XYChartSerie otherSerie : otherSeries) {
+                        try {
+                            double otherY = otherSerie.getValueDataSet().get(DataSet.DIM_Y, i);
+                            otherYs.add(otherY);
+                        } catch (Exception ignored) {
+                        }
+                    }
+
+                    for (Double aDouble : otherYs) {
+                        currentY += aDouble;
+                    }
+
+                    if (sampleMap.get(ts) == null) {
+                        VirtualSample jeVisSample = new VirtualSample(ts, currentY);
+                        jeVisSample.setNote("");
+                        sampleMap.put(ts, jeVisSample);
+
+                        min = Math.min(min, currentY);
+                        max = Math.max(max, currentY);
+                        sum += currentY;
+                    }
+
+                    newDS.add(x, currentY);
+                }
+
+                if (!otherSeries.isEmpty()) {
+                    otherSeries.remove(0);
+                }
+
+                List<JEVisSample> samples = new ArrayList<>();
+                sampleMap.forEach((key, value) -> samples.add(value));
+                currentSumSerie.getSingleRow().setSamples(samples);
+                currentSumSerie.setValueDataSet(newDS);
+
+                ValueWithDateTime minVWD = new ValueWithDateTime(min);
+                minVWD.setUnit(unit);
+                sumEntry.setMin(minVWD);
+                currentSumSerie.setMinValue(minVWD);
+
+                ValueWithDateTime maxVWD = new ValueWithDateTime(max);
+                maxVWD.setUnit(unit);
+                sumEntry.setMax(maxVWD);
+                currentSumSerie.setMaxValue(maxVWD);
+
+                avg = sum / sampleMap.size();
+                sumEntry.setAvg(nf.format(avg) + " " + unit.getLabel());
+
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(unit);
+                if (isQuantity) {
+                    sumEntry.setSum(nf.format(sum) + " " + unit.getLabel());
                 } else {
-                    sumModel.setColor(Color.SADDLEBROWN);
-                }
-                Map<DateTime, JEVisSample> sumSamples = new HashMap<>();
-                boolean hasData = false;
-                int moreThanOne = 0;
-                for (ChartDataRow model : chartDataRows) {
-                    if (model.getAxis() == index) {
-                        hasData = true;
-                        moreThanOne++;
-                        for (JEVisSample jeVisSample : model.getSamples()) {
-                            try {
-                                DateTime ts = jeVisSample.getTimestamp();
-                                Double value = jeVisSample.getValueAsDouble();
-                                if (!sumSamples.containsKey(ts)) {
-                                    JEVisSample smp = new VirtualSample(ts, value);
-                                    smp.setNote("sum");
-                                    sumSamples.put(ts, smp);
-                                } else {
-                                    JEVisSample smp = sumSamples.get(ts);
+                    if (qu.isSumCalculable(unit) && currentSumSerie.getSingleRow().getManipulationMode().equals(ManipulationMode.NONE)) {
+                        try {
+                            JEVisUnit sumUnit = qu.getSumUnit(unit);
+                            ChartUnits cu = new ChartUnits();
+                            double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
+                            JEVisUnit inputUnit = firstY1Row.getAttribute().getInputUnit();
+                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
-                                    smp.setValue(smp.getValueAsDouble() + value);
-                                }
-                            } catch (JEVisException e) {
-                                e.printStackTrace();
+                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
+                                sum = sum * newScaleFactor / currentSumSerie.getSingleRow().getTimeFactor();
+                            } else {
+                                sum = sum / currentSumSerie.getSingleRow().getScaleFactor() / currentSumSerie.getSingleRow().getTimeFactor();
                             }
+
+                            Double finalSum1 = sum;
+                            sumEntry.setSum(nf.format(finalSum1) + " " + sumUnit.getLabel());
+                        } catch (Exception e) {
+                            logger.error("Couldn't calculate periods");
+                            sumEntry.setSum("- " + unit.getLabel());
                         }
+                    } else {
+                        sumEntry.setSum("- " + unit.getLabel());
                     }
                 }
-                ArrayList<JEVisSample> arrayList = new ArrayList<>(sumSamples.values());
-                arrayList.sort((o1, o2) -> {
-                    try {
-                        if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
-                            return -1;
-                        } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
-                            return 0;
-                        } else {
-                            return 1;
-                        }
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                    return -1;
-                });
 
-                sumModel.setSamples(arrayList);
-                sumModel.setSomethingChanged(false);
-
-                try {
-                    if (hasData && moreThanOne > 1) {
-                        chartModel.getChartData().add(sumModel);
-                        xyChartSerieList.add(generateSerie(changedBoth, sumModel));
-                    }
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
+                xyChartSerieList.add(currentSumSerie);
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not generate sum of data rows: ", e);
         }
     }
@@ -955,12 +998,11 @@ public class XYChart implements Chart {
 
                     rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
                 }
-                trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             } else if (!hasSecondYAxis && xyChartSerie.getyAxis() == 0) {
                 xyChartSerie.addValueDataSetRenderer(rendererY1);
 
                 rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
-                trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
+
             } else {
                 if (xyChartSerie.getyAxis() == 0) {
                     xyChartSerie.addValueDataSetRenderer(rendererY1);
@@ -971,6 +1013,10 @@ public class XYChart implements Chart {
 
                     rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
                 }
+            }
+
+            if (calcRegression) {
+                trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             }
 
             if (showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
@@ -1028,23 +1074,23 @@ public class XYChart implements Chart {
             }
         }
 
-        if (calcRegression && showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
+        if (chartType != null && chartType.equals(ChartType.COLUMN) && showIcons && calcRegression) {
+            allRenderer.add(labelledMarkerRenderer);
+            allRenderer.add(columnChartLabelRenderer);
             allRenderer.add(trendLineRenderer);
+        } else if (chartType != null && !chartType.equals(ChartType.COLUMN) && showIcons && calcRegression) {
             allRenderer.add(labelledMarkerRenderer);
-            allRenderer.add(columnChartLabelRenderer);
-        } else if (chartType != null && chartType.equals(ChartType.COLUMN) && showIcons) {
-            allRenderer.add(labelledMarkerRenderer);
-            allRenderer.add(columnChartLabelRenderer);
+            allRenderer.add(trendLineRenderer);
         } else if (showIcons) {
             allRenderer.add(labelledMarkerRenderer);
         }
 
-        if (y1SumSerie != null) {
+        if (!showSum && y1SumSerie != null) {
             xyChartSerieList.add(y1SumSerie);
             tableData.add(y1SumSerie.getTableEntry());
         }
 
-        if (y2SumSerie != null) {
+        if (!showSum && y2SumSerie != null) {
             xyChartSerieList.add(y2SumSerie);
             tableData.add(y2SumSerie.getTableEntry());
         }
@@ -1061,129 +1107,126 @@ public class XYChart implements Chart {
     List<DataSet> drawRegression(DataSet input, Color color, String title) {
         List<DataSet> list = new ArrayList<>();
 
-        if (calcRegression) {
+        TrendLine trendLineObs = null;
+        PolynomialCurveFitter fitter = null;
 
-            TrendLine trendLineObs = null;
-            PolynomialCurveFitter fitter = null;
+        switch (regressionType) {
+            case NONE:
+                break;
+            case POLY:
+                fitter = PolynomialCurveFitter.create(polyRegressionDegree);
+                break;
+            case EXP:
+                trendLineObs = new ExpTrendLine();
+                break;
+            case LOG:
+                trendLineObs = new LogTrendLine();
+                break;
+            case POW:
+                trendLineObs = new PowerTrendLine();
+                break;
+        }
 
-            switch (regressionType) {
-                case NONE:
-                    break;
-                case POLY:
-                    fitter = PolynomialCurveFitter.create(polyRegressionDegree);
-                    break;
-                case EXP:
-                    trendLineObs = new ExpTrendLine();
-                    break;
-                case LOG:
-                    trendLineObs = new LogTrendLine();
-                    break;
-                case POW:
-                    trendLineObs = new PowerTrendLine();
-                    break;
+        if (trendLineObs != null) {
+            double[] x = new double[input.getDataCount()];
+            double[] y = new double[input.getDataCount()];
+
+            for (int i = 0; i < input.getDataCount(); i++) {
+                if (input instanceof DoubleDataSet) {
+                    DoubleDataSet doubleDataSet = (DoubleDataSet) input;
+                    x[i] = doubleDataSet.getX(i);
+                    y[i] = doubleDataSet.getY(i);
+                } else if (input instanceof DoubleErrorDataSet) {
+                    DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
+                    x[i] = doubleErrorDataSet.getX(i);
+                    y[i] = doubleErrorDataSet.getY(i);
+                }
             }
 
-            if (trendLineObs != null) {
-                double[] x = new double[input.getDataCount()];
-                double[] y = new double[input.getDataCount()];
+            trendLineObs.setValues(y, x);
 
-                for (int i = 0; i < input.getDataCount(); i++) {
-                    if (input instanceof DoubleDataSet) {
-                        DoubleDataSet doubleDataSet = (DoubleDataSet) input;
-                        x[i] = doubleDataSet.getX(i);
-                        y[i] = doubleDataSet.getY(i);
-                    } else if (input instanceof DoubleErrorDataSet) {
-                        DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
-                        x[i] = doubleErrorDataSet.getX(i);
-                        y[i] = doubleErrorDataSet.getY(i);
-                    }
+            DoubleDataSet set = new DoubleDataSet("regression");
+            Color darker = color.darker();
+            set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
+
+            for (int i = 0; i < x.length; i++) {
+                set.add(x[i], trendLineObs.predict(i));
+            }
+
+            list.add(set);
+        } else if (fitter != null) {
+            DoubleDataSet set = new DoubleDataSet("regression");
+            final WeightedObservedPoints obs = new WeightedObservedPoints();
+            for (int i = 0; i < input.getDataCount(); i++) {
+
+                if (input instanceof DoubleDataSet) {
+                    DoubleDataSet doubleDataSet = (DoubleDataSet) input;
+                    obs.add(doubleDataSet.getX(i), doubleDataSet.getY(i));
+                } else if (input instanceof DoubleErrorDataSet) {
+                    DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
+                    obs.add(doubleErrorDataSet.getX(i), doubleErrorDataSet.getY(i));
                 }
+            }
 
-                trendLineObs.setValues(y, x);
+            Color darker = color.darker();
+            set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
 
-                DoubleDataSet set = new DoubleDataSet("regression");
-                Color darker = color.darker();
-                set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
+            final double[] coefficient = fitter.fit(obs.toList());
 
-                for (int i = 0; i < x.length; i++) {
-                    set.add(x[i], trendLineObs.predict(i));
-                }
+            for (int i = 0; i < input.getDataCount(); i++) {
 
-                list.add(set);
-            } else if (fitter != null) {
-                DoubleDataSet set = new DoubleDataSet("regression");
-                final WeightedObservedPoints obs = new WeightedObservedPoints();
-                for (int i = 0; i < input.getDataCount(); i++) {
-
-                    if (input instanceof DoubleDataSet) {
-                        DoubleDataSet doubleDataSet = (DoubleDataSet) input;
-                        obs.add(doubleDataSet.getX(i), doubleDataSet.getY(i));
-                    } else if (input instanceof DoubleErrorDataSet) {
-                        DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
-                        obs.add(doubleErrorDataSet.getX(i), doubleErrorDataSet.getY(i));
-                    }
-                }
-
-                Color darker = color.darker();
-                set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
-
-                final double[] coefficient = fitter.fit(obs.toList());
-
-                for (int i = 0; i < input.getDataCount(); i++) {
-
-                    double result = 0d;
-                    for (int power = coefficient.length - 1; power >= 0; power--) {
-
-                        if (input instanceof DoubleDataSet) {
-                            DoubleDataSet doubleDataSet = (DoubleDataSet) input;
-                            result += coefficient[power] * (Math.pow(doubleDataSet.getX(i), power));
-                        } else if (input instanceof DoubleErrorDataSet) {
-                            DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
-                            result += coefficient[power] * (Math.pow(doubleErrorDataSet.getX(i), power));
-                        }
-                    }
+                double result = 0d;
+                for (int power = coefficient.length - 1; power >= 0; power--) {
 
                     if (input instanceof DoubleDataSet) {
                         DoubleDataSet doubleDataSet = (DoubleDataSet) input;
-                        set.add(doubleDataSet.getX(i), result);
+                        result += coefficient[power] * (Math.pow(doubleDataSet.getX(i), power));
                     } else if (input instanceof DoubleErrorDataSet) {
                         DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
-                        set.add(doubleErrorDataSet.getX(i), result);
+                        result += coefficient[power] * (Math.pow(doubleErrorDataSet.getX(i), power));
                     }
                 }
 
-                regressionFormula.append(title);
-                regressionFormula.append(System.getProperty("line.separator"));
-                regressionFormula.append("f(x) = ");
-                DecimalFormat formatter = new DecimalFormat();
-                formatter.setMaximumSignificantDigits(4);
-                formatter.setSignificantDigitsUsed(true);
+                if (input instanceof DoubleDataSet) {
+                    DoubleDataSet doubleDataSet = (DoubleDataSet) input;
+                    set.add(doubleDataSet.getX(i), result);
+                } else if (input instanceof DoubleErrorDataSet) {
+                    DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
+                    set.add(doubleErrorDataSet.getX(i), result);
+                }
+            }
 
-                for (int p = coefficient.length - 1; p >= 0; p--) {
-                    if (p > 0) {
-                        regressionFormula.append(" ");
-                    }
+            regressionFormula.append(title);
+            regressionFormula.append(System.getProperty("line.separator"));
+            regressionFormula.append("f(x) = ");
+            DecimalFormat formatter = new DecimalFormat();
+            formatter.setMaximumSignificantDigits(4);
+            formatter.setSignificantDigitsUsed(true);
 
-                    if (p > 0) {
-                        regressionFormula.append(formatter.format(coefficient[p]));
+            for (int p = coefficient.length - 1; p >= 0; p--) {
+                if (p > 0) {
+                    regressionFormula.append(" ");
+                }
+
+                if (p > 0) {
+                    regressionFormula.append(formatter.format(coefficient[p]));
+                } else {
+                    regressionFormula.append(formatter.format(coefficient[p]));
+                }
+
+                if (p > 0) {
+                    if (p > 1) {
+                        regressionFormula.append(" * x^");
+                        regressionFormula.append(p);
                     } else {
-                        regressionFormula.append(formatter.format(coefficient[p]));
+                        regressionFormula.append(" * x");
                     }
-
-                    if (p > 0) {
-                        if (p > 1) {
-                            regressionFormula.append(" * x^");
-                            regressionFormula.append(p);
-                        } else {
-                            regressionFormula.append(" * x");
-                        }
-                        regressionFormula.append(" + ");
-                    }
+                    regressionFormula.append(" + ");
                 }
-                regressionFormula.append(System.getProperty("line.separator"));
-
-                list.add(set);
             }
+            regressionFormula.append(System.getProperty("line.separator"));
+
+            list.add(set);
         }
 
         return list;
@@ -1405,56 +1448,56 @@ public class XYChart implements Chart {
         if (period == null) {
             if (chartDataRows != null && chartDataRows.size() > 0) {
                 ChartDataRow chartDataRow = chartDataRows.get(0);
-                if (chartDataRow.getSamples().size() > 1) {
-                    try {
-                        List<JEVisSample> samples = chartDataRow.getSamples();
 
-                        switch (chartDataRow.getAggregationPeriod()) {
-                            case QUARTER_HOURLY:
-                                period = Period.minutes(15);
-                                break;
-                            case HOURLY:
-                                period = Period.hours(1);
-                                break;
-                            case DAILY:
-                                period = Period.days(1);
-                                break;
-                            case WEEKLY:
-                                period = Period.weeks(1);
-                                break;
-                            case MONTHLY:
-                                period = Period.months(1);
-                                break;
-                            case QUARTERLY:
-                                period = Period.hours(3);
-                                break;
-                            case YEARLY:
-                                period = Period.years(1);
-                                break;
-                            case THREEYEARS:
-                                period = Period.years(3);
-                                break;
-                            case FIVEYEARS:
-                                period = Period.years(5);
-                                break;
-                            case TENYEARS:
-                                period = Period.years(10);
-                                break;
-                            case NONE:
-                            default:
+                try {
+                    switch (chartDataRow.getAggregationPeriod()) {
+                        case QUARTER_HOURLY:
+                            period = Period.minutes(15);
+                            break;
+                        case HOURLY:
+                            period = Period.hours(1);
+                            break;
+                        case DAILY:
+                            period = Period.days(1);
+                            break;
+                        case WEEKLY:
+                            period = Period.weeks(1);
+                            break;
+                        case MONTHLY:
+                            period = Period.months(1);
+                            break;
+                        case QUARTERLY:
+                            period = Period.hours(3);
+                            break;
+                        case YEARLY:
+                            period = Period.years(1);
+                            break;
+                        case THREEYEARS:
+                            period = Period.years(3);
+                            break;
+                        case FIVEYEARS:
+                            period = Period.years(5);
+                            break;
+                        case TENYEARS:
+                            period = Period.years(10);
+                            break;
+                        case NONE:
+                        default:
+
+                            List<JEVisSample> samples = chartDataRow.getSamples();
+                            if (chartDataRow.getSamples().size() > 1) {
                                 period = new Period(samples.get(0).getTimestamp(),
                                         samples.get(1).getTimestamp());
-                                break;
-                        }
 
-                        timeStampOfFirstSample.set(samples.get(0).getTimestamp());
-                        timeStampOfLastSample.set(samples.get(samples.size() - 1).getTimestamp());
-
-                        changedBoth[0] = true;
-                        changedBoth[1] = true;
-                    } catch (Exception e) {
-                        logger.error("Could not get period from samples", e);
+                                timeStampOfFirstSample.set(samples.get(0).getTimestamp());
+                                timeStampOfLastSample.set(samples.get(samples.size() - 1).getTimestamp());
+                                changedBoth[0] = true;
+                                changedBoth[1] = true;
+                            }
+                            break;
                     }
+                } catch (Exception e) {
+                    logger.error("Could not get period from samples", e);
                 }
             }
         }

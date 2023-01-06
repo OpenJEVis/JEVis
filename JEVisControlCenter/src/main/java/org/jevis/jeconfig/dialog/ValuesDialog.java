@@ -135,7 +135,7 @@ public class ValuesDialog extends JFXDialog {
                                     sum = sum / chartDataRow.getScaleFactor() / chartDataRow.getTimeFactor();
                                 }
 
-                                values.setSum(nf.format(sum) + " " + chartDataRow.getUnit());
+                                values.setSum(nf.format(sum) + " " + sumUnit);
 
                             } catch (Exception e) {
                                 logger.error("Couldn't calculate periods");

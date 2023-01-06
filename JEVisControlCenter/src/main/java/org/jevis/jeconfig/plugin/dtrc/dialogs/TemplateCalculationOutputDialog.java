@@ -59,18 +59,24 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         GridPane.setHgrow(nameLabel, Priority.ALWAYS);
 
         Label variableNameLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.variablenamelabel"));
-
         GridPane.setHgrow(variableNameLabel, Priority.ALWAYS);
 
         Label unitLabel = new Label(I18n.getInstance().getString("graph.table.unit"));
         GridPane.setHgrow(unitLabel, Priority.ALWAYS);
 
+        Label tooltipLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.tooltip"));
+        GridPane.setHgrow(tooltipLabel, Priority.ALWAYS);
+
         JFXTextField nameField = new JFXTextField(templateOutput.getName());
         JFXTextField variableNameField = new JFXTextField(templateOutput.getVariableName());
         JFXTextField unitField = new JFXTextField(templateOutput.getUnit());
+        JFXTextField tooltipField = new JFXTextField(templateOutput.getTooltip());
 
         JFXCheckBox isLinkToggle = new JFXCheckBox(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
         isLinkToggle.setSelected(templateOutput.getLink());
+
+        JFXCheckBox showTooltip = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.showtooltip"));
+        showTooltip.setSelected(templateOutput.getShowTooltip());
 
         Label columnLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.columnlabel"));
         NumberSpinner columnSpinner = new NumberSpinner(new BigDecimal(templateOutput.getColumn()), new BigDecimal(1));
@@ -87,12 +93,16 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         JFXCheckBox resultBold = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.bold"));
         resultBold.setSelected(templateOutput.getResultBold());
 
+        JFXCheckBox showAnalysisLink = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.showanalysislink"));
+        showAnalysisLink.setSelected(templateOutput.getShowAnalysisLink());
+
         JFXCheckBox separatorToggle = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.separator"));
         separatorToggle.setSelected(templateOutput.getSeparator());
 
         nameField.textProperty().addListener((observable, oldValue, newValue) -> templateOutput.setName(newValue));
         variableNameField.textProperty().addListener((observable, oldValue, newValue) -> templateOutput.setVariableName(newValue));
         unitField.textProperty().addListener((observable, oldValue, newValue) -> templateOutput.setUnit(newValue));
+        tooltipField.textProperty().addListener((observable, oldValue, newValue) -> templateOutput.setTooltip(newValue));
         columnSpinner.numberProperty().addListener((observable, oldValue, newValue) -> templateOutput.setColumn(newValue.intValue()));
         rowSpinner.numberProperty().addListener((observable, oldValue, newValue) -> templateOutput.setRow(newValue.intValue()));
         colSpanSpinner.numberProperty().addListener((observable, oldValue, newValue) -> templateOutput.setColSpan(newValue.intValue()));
@@ -101,6 +111,8 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         resultBold.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setResultBold(newValue));
         separatorToggle.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setSeparator(newValue));
         isLinkToggle.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setLink(newValue));
+        showTooltip.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setShowTooltip(newValue));
+        showAnalysisLink.selectedProperty().addListener((observable, oldValue, newValue) -> templateOutput.setShowAnalysisLink(newValue));
 
         JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {
@@ -131,11 +143,19 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         gridPane.add(resultBold, 2, row);
         row++;
 
+        gridPane.add(showAnalysisLink, 0, row, 3, 1);
+        row++;
+
         gridPane.add(unitLabel, 0, row);
         gridPane.add(unitField, 1, row);
         row++;
 
-        gridPane.add(separatorToggle, 0, row, 2, 1);
+        gridPane.add(tooltipLabel, 0, row);
+        gridPane.add(tooltipField, 1, row);
+        gridPane.add(showTooltip, 2, row);
+        row++;
+
+        gridPane.add(separatorToggle, 0, row, 3, 1);
         row++;
 
         Separator separator1 = new Separator(Orientation.HORIZONTAL);
@@ -167,7 +187,7 @@ public class TemplateCalculationOutputDialog extends JFXDialog {
         gridPane.add(rowSpanSpinner, 1, row);
         row++;
 
-        gridPane.add(new Label("UUID: " + templateOutput.getId()), 0, row);
+        gridPane.add(new Label("UUID: " + templateOutput.getId()), 0, row, 3, 1);
         row++;
 
         Separator separator3 = new Separator(Orientation.HORIZONTAL);

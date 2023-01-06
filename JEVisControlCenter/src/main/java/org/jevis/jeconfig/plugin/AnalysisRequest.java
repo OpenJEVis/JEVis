@@ -12,8 +12,8 @@ public class AnalysisRequest {
     private ManipulationMode manipulationMode;
     private JEVisObject object;
     private JEVisAttribute attribute;
-    private final DateTime startDate;
-    private final DateTime endDate;
+    private DateTime startDate;
+    private DateTime endDate;
 
     public AnalysisRequest(JEVisObject object, AggregationPeriod aggregationPeriod, ManipulationMode manipulationMode, DateTime startDate, DateTime endDate) {
         this.manipulationMode = manipulationMode;
@@ -27,8 +27,16 @@ public class AnalysisRequest {
         return startDate;
     }
 
+    public void setStartDate(DateTime startDate) {
+        this.startDate = startDate;
+    }
+
     public DateTime getEndDate() {
         return endDate;
+    }
+
+    public void setEndDate(DateTime endDate) {
+        this.endDate = endDate;
     }
 
     public AggregationPeriod getAggregationPeriod() {

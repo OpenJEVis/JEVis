@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
@@ -41,7 +42,7 @@ public class AttributeCopy {
 
     private void doPaste(List<JEVisAttribute> jeVisAttributes, List<JEVisObject> objectsTargets, boolean overwrite) {
         objectsTargets.forEach(object -> {
-            logger.error("- Checking objetc Object: {}", object);
+            logger.debug("- Checking object Object: {}", object);
 
             try {
                 for (JEVisAttribute targetAttribute : object.getAttributes()) {
@@ -49,33 +50,51 @@ public class AttributeCopy {
                     jeVisAttributes.forEach(sourceAttribute -> {
                         if (targetAttribute.getName().equals(sourceAttribute.getName())) {
                             //System.out.println("target attribute: " + sourceAttribute);
+
                             javafx.concurrent.Task<Object> task = new javafx.concurrent.Task<Object>() {
                                 @Override
                                 protected Object call() throws Exception {
                                     StringProperty name = new SimpleStringProperty();
                                     try {
-                                        logger.error("Starting copy for: {}", targetAttribute);
+                                        logger.debug("Starting copy for: {}", targetAttribute);
                                         //System.out.println("--- Copy attribute: " + sourceAttribute.getName());
                                         name.set("[" + object.getID() + "] " + object + ":" + sourceAttribute.getName());
                                         /**
                                          JEConfig.getStatusBar().startProgressJob("Copy setting"
-                                         , DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count()
+                                         , DashboardControl.this.widgetList.stream().filter(widget -> !widget.isStatic()).count()
                                          , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
                                          **/
                                         Platform.runLater(() -> this.updateTitle("Copy setting to " + name.get()));
 
+                                        boolean commit = false;
+                                        try {
+                                            JEVisUnit inputUnit = sourceAttribute.getInputUnit();
+                                            JEVisUnit displayUnit = sourceAttribute.getDisplayUnit();
+                                            if (inputUnit != null) {
+                                                targetAttribute.setInputUnit(inputUnit);
+                                                commit = true;
+                                            }
+                                            if (displayUnit != null) {
+                                                targetAttribute.setDisplayUnit(displayUnit);
+                                                commit = true;
+                                            }
+                                        } catch (Exception e) {
+                                            logger.error("Unit copy failed for attribute {}", sourceAttribute.getName(), e);
+                                        }
+
+                                        if (commit) {
+                                            targetAttribute.commit();
+                                        }
+
                                         if (overwrite) {
-                                            logger.error("Delete samples for: {}", targetAttribute);
+                                            logger.debug("Delete samples for: {}", targetAttribute);
                                             targetAttribute.deleteAllSample();
                                         }
 
                                         if (sourceAttribute.hasSample()) {
                                             targetAttribute.addSamples(sourceAttribute.getAllSamples());
-                                            logger.error("Sample to copy: {}", targetAttribute.getSampleCount());
-                                            //targetAttribute.commit();
+                                            logger.debug("Sample to copy: {}", targetAttribute.getSampleCount());
                                         }
-
-
                                     } catch (Exception ex) {
                                         this.failed();
                                         logger.error("Widget update error: [{}]", ex, ex);

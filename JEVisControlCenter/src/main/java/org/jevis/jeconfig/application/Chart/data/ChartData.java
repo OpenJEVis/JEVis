@@ -2,20 +2,25 @@ package org.jevis.jeconfig.application.Chart.data;
 
 import javafx.beans.property.*;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.joda.time.DateTime;
 
+import javax.measure.MetricPrefix;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
 public class ChartData {
-
+    private static final Logger logger = LogManager.getLogger(ChartData.class);
     private final SimpleLongProperty id = new SimpleLongProperty(this, "id", -1);
     private final SimpleStringProperty attributeString = new SimpleStringProperty(this, "attribute", "");
     private final SimpleStringProperty unitPrefix = new SimpleStringProperty(this, "unitPrefix", new JEVisUnitImp(Unit.ONE).getPrefix().toString());
@@ -102,6 +107,8 @@ public class ChartData {
 
     public JEVisUnit getUnit() {
         JEVisUnitImp jeVisUnitImp = new JEVisUnitImp(getUnitFormula(), getUnitLabel(), getUnitPrefix());
+        unit.set(jeVisUnitImp);
+
         return jeVisUnitImp;
     }
 
@@ -121,12 +128,32 @@ public class ChartData {
             this.unitFormula.set(jeVisUnitImp.getFormula());
             this.unitLabel.set(jeVisUnitImp.getLabel());
         } catch (Exception e) {
-            JEVisUnitImp jeVisUnitImp = new JEVisUnitImp(Unit.ONE);
+            String prefixFromUnit = getPrefixFromUnit(unitString);
+            JsonUnit jsonUnit = new JsonUnit();
+            jsonUnit.setLabel(unitString);
+            jsonUnit.setFormula(unitString);
+            jsonUnit.setPrefix(prefixFromUnit);
+
+            JEVisUnitImp jeVisUnitImp = new JEVisUnitImp(jsonUnit);
             this.unit.set(jeVisUnitImp);
             this.unitPrefix.set(jeVisUnitImp.getPrefix().toString());
             this.unitFormula.set(jeVisUnitImp.getFormula());
             this.unitLabel.set(jeVisUnitImp.getLabel());
         }
+    }
+
+    private String getPrefixFromUnit(String unitString) {
+
+        if (unitString.length() > 1) {
+            if (unitString.equals("m²") || unitString.equals("m³") || unitString.equals("min")) return "";
+
+            String sub = unitString.substring(0, 1);
+            MetricPrefix prefixFromShort = UnitManager.getInstance().getPrefixFromShort(sub);
+
+            if (prefixFromShort != null) {
+                return prefixFromShort.toString();
+            } else return "";
+        } else return "";
     }
 
     public JEVisObject getObjectName() {

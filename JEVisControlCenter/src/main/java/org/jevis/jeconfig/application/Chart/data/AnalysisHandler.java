@@ -122,6 +122,7 @@ public class AnalysisHandler {
             }
 
             chartModelNode.put("filterEnabled", chartModel.isFilterEnabled());
+            chartModelNode.put("fixYAxisToZero", chartModel.isFixYAxisToZero());
 
             chartModelNode.set("chartData", chartDataList);
 

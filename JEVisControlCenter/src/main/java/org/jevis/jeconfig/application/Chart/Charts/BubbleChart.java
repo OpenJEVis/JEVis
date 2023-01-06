@@ -344,9 +344,14 @@ public class BubbleChart extends XYChart {
             getY1Axis().setName(finalYAxisTitle);
             getY1Axis().setUnit(yUnit);
             getY1Axis().setAutoRanging(false);
-            getY1Axis().setMin(minY.get() - ((maxY.get() - minY.get()) * 0.25));
+            if (!chartModel.isFixYAxisToZero()) {
+                getY1Axis().setMin(minY.get() - ((maxY.get() - minY.get()) * 0.25));
+                getY1Axis().setForceZeroInRange(false);
+            } else {
+                getY1Axis().setMin(0);
+                getY1Axis().setForceZeroInRange(true);
+            }
             getY1Axis().setMax(maxY.get() + ((maxY.get() - minY.get()) * 0.25));
-            getY1Axis().setForceZeroInRange(false);
         });
 
         tableEntry = new TableEntry(yAxisTitle + " : " + xAxisTitle);

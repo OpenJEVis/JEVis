@@ -137,7 +137,9 @@ public class RoleExtention implements ObjectEditorExtension {
 
     @Override
     public boolean needSave() {
-        return role.hasChanged();
+        if (role != null) {
+            return role.hasChanged();
+        } else return false;
     }
 
     @Override

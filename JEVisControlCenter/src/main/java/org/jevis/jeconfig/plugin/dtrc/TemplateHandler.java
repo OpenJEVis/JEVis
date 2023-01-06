@@ -116,9 +116,12 @@ public class TemplateHandler {
             outputNode.put("name", templateOutput.getName());
             outputNode.put("nameBold", templateOutput.getNameBold());
             outputNode.put("variableName", templateOutput.getVariableName());
+            outputNode.put("tooltip", templateOutput.getTooltip());
+            outputNode.put("showTooltip", templateOutput.getShowTooltip());
             outputNode.put("resultBold", templateOutput.getResultBold());
             outputNode.put("unit", templateOutput.getUnit());
             outputNode.put("showLabel", templateOutput.getShowLabel());
+            outputNode.put("showAnalysisLink", templateOutput.getShowAnalysisLink());
             outputNode.put("link", templateOutput.getLink());
             outputNode.put("column", templateOutput.getColumn());
             outputNode.put("row", templateOutput.getRow());
