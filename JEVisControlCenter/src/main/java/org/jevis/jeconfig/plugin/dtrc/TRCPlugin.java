@@ -99,7 +99,7 @@ public class TRCPlugin implements Plugin {
         try {
             if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
                 JEVisObject firstParentalDataObject = CommonMethods.getFirstParentalDataObject(jeVisObject);
-                objectName = firstParentalDataObject.getName();
+                objectName = firstParentalDataObject.getName() + " \\ " + jeVisObject.getName();
             }
         } catch (JEVisException e) {
             logger.error("Could not get raw data name for object {}:{}", jeVisObject.getName(), jeVisObject.getID(), e);

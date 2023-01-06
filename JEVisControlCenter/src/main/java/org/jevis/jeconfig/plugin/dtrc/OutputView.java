@@ -1240,13 +1240,12 @@ public class OutputView extends Tab {
                 String objectName = TRCPlugin.getRealName(jeVisObject);
 
                 if (filter != null && filter.contains(" ")) {
-                    String[] result = filter.split(" ");
+                    String[] result = filter.toLowerCase().split(" ");
                     String string = objectName.toLowerCase();
                     boolean[] results = new boolean[result.length];
                     for (int i = 0, resultLength = result.length; i < resultLength; i++) {
                         String value = result[i];
-                        String subString = value.toLowerCase();
-                        results[i] = string.contains(subString);
+                        results[i] = string.contains(value);
                     }
 
                     boolean allFound = true;
@@ -1286,6 +1285,10 @@ public class OutputView extends Tab {
             }
             prefix1 += o1.getName();
 
+            if (!prefix1.endsWith(o1.getName())) {
+                prefix1 += " \\ " + o1.getName();
+            }
+
             if (ChartTools.isMultiSite(ds)) {
                 prefix2 += objectRelations.getObjectPath(o2);
             }
@@ -1293,6 +1296,10 @@ public class OutputView extends Tab {
                 prefix2 += objectRelations.getRelativePath(o2);
             }
             prefix2 += o2.getName();
+
+            if (!prefix2.endsWith(o2.getName())) {
+                prefix2 += " \\ " + o2.getName();
+            }
 
             return alphanumComparator.compare(prefix1, prefix2);
         });
@@ -1330,6 +1337,10 @@ public class OutputView extends Tab {
                                     }
 
                                     name = prefix + correctObject.getName();
+                                }
+
+                                if (!name.endsWith(obj.getName())) {
+                                    name += " \\ " + obj.getName();
                                 }
 
                                 setText(name);
