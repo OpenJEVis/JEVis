@@ -11,27 +11,33 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
 import org.controlsfx.control.CheckComboBox;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.classes.JC;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlan;
 import org.jevis.jeconfig.plugin.action.data.FileData;
 import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public class ActionForm extends Dialog {
 
@@ -73,12 +79,15 @@ public class ActionForm extends Dialog {
     private TextArea f_correctionIfNeeded = new TextArea("Korrekturmaßnahmen");
     private TextArea f_nextActionIfNeeded = new TextArea("Folgemaßnahmen");
     private TextArea f_alternativAction = new TextArea("Alternativmaßnahmen");
-    ;
+
+
+    private ComboBox<JEVisObject> f_Enpi = new ComboBox();
+    private ActionPlan actionPlan;
 
     public ActionForm(ActionPlan actionPlan) {
         super();
         this.initOwner(JEConfig.getStage());
-
+        this.actionPlan = actionPlan;
 
         setTitle(I18n.getInstance().getString("actionform.editor.title"));
         setHeaderText(null);
@@ -91,6 +100,27 @@ public class ActionForm extends Dialog {
 
         tabPane.setPrefWidth(ScreenSize.fitScreenWidth(1050));
 
+        System.out.println("Set ENPIS: " + actionPlan.getEnpis());
+        f_Enpi = new ComboBox(actionPlan.getEnpis());
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> enpiCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            setText(item.getName());
+                        } else {
+                            setText(null);
+                        }
+
+                    }
+                };
+            }
+        };
+        f_Enpi.setCellFactory(enpiCellFactory);
+        f_Enpi.setButtonCell(enpiCellFactory.call(null));
 
         f_statusTags = new ComboBox<>(actionPlan.getStatustags());
         //f_statusTags = new CheckComboBox<>(actionPlan.getStatustags());
@@ -101,6 +131,7 @@ public class ActionForm extends Dialog {
             f_statusTags.setPrefWidth(newValue.doubleValue());
             f_fieldTags.setPrefWidth(newValue.doubleValue());
             f_mediaTags.setPrefWidth(newValue.doubleValue());
+            f_Enpi.setPrefWidth(newValue.doubleValue());
         });
 
         basicTab.setClosable(false);
@@ -111,14 +142,14 @@ public class ActionForm extends Dialog {
     }
 
     public void setData(ActionData data) {
-        initLayout(data);
+        initGeneralTab(data);
         initDetailsTab(data);
         initAttachmentTab(data);
         updateView(data);
 
     }
 
-    private void initLayout(ActionData data) {
+    private void initGeneralTab(ActionData data) {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20));
         ScrollPane scrollPane = new ScrollPane(gridPane);
@@ -142,6 +173,7 @@ public class ActionForm extends Dialog {
         Label l_statusTags = new Label();
         Label l_fieldTags = new Label();
         Region col3Spacer = new Region();
+        Label l_Enpi = new Label("EnPI");
         col3Spacer.setMinWidth(25);
 
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_ActionNr);
@@ -157,10 +189,10 @@ public class ActionForm extends Dialog {
         add(gridPane, 2, 5, 1, 1, Priority.SOMETIMES, f_doneDate);
 
 
-        add(gridPane, 1, 7, 2, 1, Priority.SOMETIMES, l_Description);
-        add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, f_Description);
-        add(gridPane, 1, 9, 2, 1, Priority.SOMETIMES, l_NoteBewertet);
-        add(gridPane, 1, 10, 2, 1, Priority.SOMETIMES, f_NoteBewertet);
+        add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, l_Description);
+        add(gridPane, 1, 9, 2, 1, Priority.SOMETIMES, f_Description);
+        add(gridPane, 1, 10, 2, 1, Priority.SOMETIMES, l_NoteBewertet);
+        add(gridPane, 1, 11, 2, 1, Priority.SOMETIMES, f_NoteBewertet);
 
         //Spacer column
         gridPane.add(col3Spacer, 3, 1);
@@ -168,21 +200,23 @@ public class ActionForm extends Dialog {
         add(gridPane, 4, 1, 1, 1, Priority.SOMETIMES, l_statusTags);
         add(gridPane, 4, 2, 1, 1, Priority.SOMETIMES, l_fieldTags);
         add(gridPane, 4, 3, 1, 1, Priority.SOMETIMES, l_mediaTags);
-        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, l_Investment);
-        add(gridPane, 4, 5, 1, 1, Priority.SOMETIMES, l_changeKost);
-        add(gridPane, 4, 6, 1, 1, Priority.SOMETIMES, l_Attachment);
+        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, l_Enpi);
+        add(gridPane, 4, 5, 1, 1, Priority.SOMETIMES, l_Investment);
+        add(gridPane, 4, 6, 1, 1, Priority.SOMETIMES, l_changeKost);
+        add(gridPane, 4, 7, 1, 1, Priority.SOMETIMES, l_Attachment);
 
         add(gridPane, 5, 1, 1, 1, Priority.SOMETIMES, f_statusTags);
         add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags);
         add(gridPane, 5, 3, 1, 1, Priority.SOMETIMES, f_mediaTags);
-        add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, f_Investment);
-        add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, f_savingYear);
-        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, f_Attachment);
+        add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, f_Enpi);
+        add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, f_Investment);
+        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, f_savingYear);
+        add(gridPane, 5, 7, 1, 1, Priority.SOMETIMES, f_Attachment);
 
-        add(gridPane, 4, 7, 2, 1, Priority.SOMETIMES, l_NoteEnergiefluss);
-        add(gridPane, 4, 8, 2, 1, Priority.SOMETIMES, f_NoteEnergiefluss);
-        add(gridPane, 4, 9, 2, 1, Priority.SOMETIMES, l_Note);
-        add(gridPane, 4, 10, 2, 1, Priority.SOMETIMES, f_Note);
+        add(gridPane, 4, 8, 2, 1, Priority.SOMETIMES, l_NoteEnergiefluss);
+        add(gridPane, 4, 9, 2, 1, Priority.SOMETIMES, f_NoteEnergiefluss);
+        add(gridPane, 4, 10, 2, 1, Priority.SOMETIMES, l_Note);
+        add(gridPane, 4, 11, 2, 1, Priority.SOMETIMES, f_Note);
 
         l_Attachment.setVisible(false);
         f_Attachment.setVisible(false);
@@ -365,6 +399,45 @@ public class ActionForm extends Dialog {
         Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
 
 
+        ToggleButton beforeDateButton = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+        ToggleButton afterDateButton = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+        HBox box_EnpiAfter = new HBox(afterDateButton, f_enpiAfter);
+        HBox box_EnpiBefore = new HBox(beforeDateButton, f_enpiBefore);
+        box_EnpiAfter.setSpacing(20);
+        box_EnpiBefore.setSpacing(20);
+        HBox.setHgrow(f_enpiAfter, Priority.SOMETIMES);
+        HBox.setHgrow(f_enpiBefore, Priority.SOMETIMES);
+        //GridPane.setHgrow(box_EnpiAfter, Priority.ALWAYS);
+        //GridPane.setHgrow(box_EnpiBefore, Priority.ALWAYS);
+        //HBox box_EnpiChange = new HBox(f_enpiChange, l_unitEnpIChange);
+
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+        beforeDateButton.setOnAction(event -> {
+            TimeRangeDialog timeRangeDialog = new TimeRangeDialog(
+                    new DateTime(2022, 8, 1, 0, 0),
+                    new DateTime(2022, 8, 1, 0, 0));
+
+            Optional<ButtonType> result = timeRangeDialog.showAndWait();
+            if (result.get() == ButtonType.OK) {
+                data.enpiBeforeProperty().set(fmt.print(timeRangeDialog.getFromDate()) + "&" + fmt.print(timeRangeDialog.getUntilDate()));
+            }
+        });
+        afterDateButton.setOnAction(event -> {
+            TimeRangeDialog timeRangeDialog = new TimeRangeDialog(
+                    new DateTime(2022, 8, 1, 0, 0),
+                    new DateTime(2022, 8, 1, 0, 0));
+            Optional<ButtonType> result = timeRangeDialog.showAndWait();
+            if (result.get() == ButtonType.OK) {
+                data.enpiAfterProperty().set(fmt.print(timeRangeDialog.getFromDate()) + "&" + fmt.print(timeRangeDialog.getUntilDate()));
+            }
+
+        });
+
+        data.enpilinksProperty().addListener(observable -> {
+            System.out.println("Enpi link changed");
+
+        });
+
         f_correctionIfNeeded.setPrefWidth(400);
         f_nextActionIfNeeded.setPrefWidth(400);
         f_alternativAction.setPrefWidth(400);
@@ -409,13 +482,13 @@ public class ActionForm extends Dialog {
 
         int row = 0;
         //checklists
-        gridPane.add(l_enpiAfter, 0, row);
-        gridPane.add(l_enpiBefore, 0, ++row);
+        gridPane.add(l_enpiBefore, 0, row);
+        gridPane.add(l_enpiAfter, 0, ++row);
         gridPane.add(l_enpiChange, 0, ++row);
 
         row = 0;
-        gridPane.add(f_enpiAfter, 1, row);
-        gridPane.add(f_enpiBefore, 1, ++row);
+        gridPane.add(box_EnpiBefore, 1, row);
+        gridPane.add(box_EnpiAfter, 1, ++row);
         gridPane.add(f_enpiChange, 1, ++row);
 
         gridPane.add(l_FromUser, 3, 0);
@@ -456,6 +529,71 @@ public class ActionForm extends Dialog {
         gridPane.add(qDoc4, 3, ++row, 2, 1);
         gridPane.add(qDoc5, 3, ++row, 2, 1);
 
+    }
+
+    private void updateEnpi() {
+        try {
+            DecimalFormat f = new DecimalFormat("#0.00");
+
+            JEVisObject dataObj = actionPlan.getObject().getDataSource().getObject(9610l);
+            JEVisObject calcObj = actionPlan.getObject().getDataSource().getObject(9629l);
+
+            JEVisUnit unit = dataObj.getAttribute("Value").getDisplayUnit();
+            double before = calcEnpi(dataObj, calcObj, unit,
+                    new DateTime(2022, 8, 8, 0, 0), new DateTime(2022, 8, 31, 0, 0));
+
+            double after = calcEnpi(dataObj, calcObj, unit,
+                    new DateTime(2022, 12, 1, 0, 0), new DateTime(2023, 1, 5, 0, 0));
+
+            double diff = before - after;
+            f_enpiBefore.setText(f.format(before) + " " + unit.toString());
+            f_enpiBefore.setTooltip(new Tooltip(before + " " + unit.toString()));
+
+            f_enpiAfter.setText(f.format(after) + " " + unit.toString());
+            f_enpiAfter.setTooltip(new Tooltip(after + " " + unit.toString()));
+
+            f_enpiChange.setText(f.format(diff) + " " + unit.toString());
+            f_enpiChange.setTooltip(new Tooltip(diff + " " + unit.toString()));
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private Double calcEnpi(JEVisObject dataObj, JEVisObject calcObj, JEVisUnit unit, DateTime from, DateTime until) {
+        try {
+            System.out.println("ENPI changed: " + dataObj);
+
+            ChartDataRow chartDataRow = new ChartDataRow(actionPlan.getObject().getDataSource());
+            chartDataRow.setId(dataObj.getID());
+            chartDataRow.setEnPI(true);
+            chartDataRow.setCalculationObject(calcObj);
+            chartDataRow.setSelectedStart(from);
+            chartDataRow.setSelectedEnd(until);
+            chartDataRow.setAggregationPeriod(AggregationPeriod.NONE);
+            chartDataRow.setManipulationMode(ManipulationMode.NONE);
+            chartDataRow.setAbsolute(true);
+            // JEVisUnit unit = unit;//dataObj.getAttribute("Value").getDisplayUnit();
+            chartDataRow.setUnit(unit);
+            System.out.println("Get Data");
+            List<JEVisSample> samples = chartDataRow.getSamples();
+
+            for (JEVisSample jeVisSample : samples) {
+                try {
+                    System.out.println("Sample: " + jeVisSample);
+                    return jeVisSample.getValueAsDouble();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new Double(0);
     }
 
 
@@ -522,6 +660,19 @@ public class ActionForm extends Dialog {
 
         });
 
+        try {
+            f_Enpi.valueProperty().set(data.getObject().getDataSource().getObject(new Long(data.enpilinksProperty().get())));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        f_Enpi.valueProperty().addListener(new ChangeListener<JEVisObject>() {
+            @Override
+            public void changed(ObservableValue<? extends JEVisObject> observable, JEVisObject oldValue, JEVisObject newValue) {
+                data.enpilinksProperty().set(newValue.getID().toString());
+                updateEnpi();
+            }
+        });
+
         if (data.doneDateProperty().getValue() != null) {
             DateTime end = data.doneDateProperty().get();
             f_doneDate.valueProperty().setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
@@ -553,6 +704,7 @@ public class ActionForm extends Dialog {
         });
 
 
+        updateEnpi();
     }
 
 
