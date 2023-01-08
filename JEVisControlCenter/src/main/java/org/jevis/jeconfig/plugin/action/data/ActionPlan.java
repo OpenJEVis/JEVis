@@ -13,6 +13,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
 import org.joda.time.DateTime;
@@ -30,6 +31,7 @@ public class ActionPlan {
     private ObservableList<String> statusTags;
     private ObservableList<String> mediumTags;
     private ObservableList<String> fieldsTags;
+    private ObservableList<JEVisObject> enpis;
     private StringProperty name = new SimpleStringProperty("");
     private ObservableList<ActionData> actions = FXCollections.observableArrayList();
 
@@ -42,6 +44,8 @@ public class ActionPlan {
     private String ATTRIBUTE_CSTATUS = "Custom Status";
     private String ATTRIBUTE_CFIELD = "Custom Fields";
     private String ATTRIBUTE_CMEDIUM = "Custom Medium";
+    private String ATTRIBUTE_EnPI = "EnPI";
+
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
@@ -106,17 +110,26 @@ public class ActionPlan {
                 }
             }
         });
-        //Optional<TableData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.actionNrProperty().get(), o2.actionNrProperty().get()));
-        /*
-        actions.forEach(tableData -> {
-            if (tableData.actionNrProperty().get() > actionNr.get()) {
-                actionNr.set(tableData.actionNrProperty().get());
-            }
-        });
 
-         */
+        enpis = FXCollections.observableArrayList();
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
+            // JEVisSample sample = attribute.getLatestSample();
+            System.out.println("ENPIS ind DB: " + attribute.getLatestSample().toString());
+            TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), attribute);
+            System.out.println("targetHelper: " + targetHelper.getObject());
+            enpis.setAll(targetHelper.getObject());
+
+        } catch (Exception e) {
+            logger.error(e);
+        }
 
 
+    }
+
+
+    public ObservableList<JEVisObject> getEnpis() {
+        return enpis;
     }
 
     public static String listToString(ObservableList<String> list) {
@@ -215,6 +228,21 @@ public class ActionPlan {
             } catch (Exception e) {
                 logger.error(e);
             }
+        }
+
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
+            //TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), enpis.sorted(), attribute);
+
+            String targetStrg = "";
+            boolean first = true;
+            for (JEVisObject jeVisObject : enpis) {
+                targetStrg += jeVisObject.getID() + ";";
+            }
+            JEVisSample sample = attribute.buildSample(now, targetStrg);
+            sample.commit();
+        } catch (Exception e) {
+            logger.error(e);
         }
 
 
