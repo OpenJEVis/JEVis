@@ -39,7 +39,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.accounting.AccountingPlugin;
-import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
 import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
@@ -228,7 +227,7 @@ public class PluginManager {
                         ex.printStackTrace();
                     }
                 }
-                _plugins.add(new ActionPlugin(this._ds, "Actions"));
+                _plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
                 this._plugins.addAll(enabledPlugins);
 
             }
