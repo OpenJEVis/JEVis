@@ -281,6 +281,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Action"
+    },
+    {
+      "name": "EnPI Link",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
     }
   ]
 }
