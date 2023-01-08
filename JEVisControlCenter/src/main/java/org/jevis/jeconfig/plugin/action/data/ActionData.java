@@ -51,13 +51,17 @@ public class ActionData {
     private final SimpleStringProperty noteBetroffenerProzess = new SimpleStringProperty("Affected Process Note", I18n.getInstance().getString("plugin.action.affectedprocess"), "");
     private final SimpleStringProperty noteEnergiefluss = new SimpleStringProperty("Energy Flow Note", "Maßnahmenbeschreibung", "");
     private final SimpleStringProperty noteBewertet = new SimpleStringProperty("Evaluation Note", I18n.getInstance().getString("plugin.action.noteBewertet"), "");
-    private final SimpleStringProperty enpiAfter = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiafter"), "23,50 Wh/kg");
-    private final SimpleStringProperty enpiBefore = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabefore"), "20,50 Wh/kg");
-    private final SimpleStringProperty enpiChange = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabechange"), "3,50 Wh/kg");
+    private final SimpleStringProperty enpi = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiafter"), "");
+    private final SimpleStringProperty enpiAfter = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiafter"), "");
+    private final SimpleStringProperty enpiBefore = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabefore"), "");
+    private final SimpleStringProperty enpiChange = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabechange"), "");
     private final SimpleStringProperty distributor = new SimpleStringProperty("Distributor", I18n.getInstance().getString("plugin.action.distributor"), "");
-    private SimpleStringProperty investment = new SimpleStringProperty("Investment", I18n.getInstance().getString("plugin.action.investment"), "");
-    private SimpleStringProperty savingyear = new SimpleStringProperty("Saving Year", I18n.getInstance().getString("plugin.action.savingyear"), "");
-    private SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
+    private final SimpleStringProperty investment = new SimpleStringProperty("Investment", I18n.getInstance().getString("plugin.action.investment"), "");
+    private final SimpleStringProperty savingyear = new SimpleStringProperty("Saving Year", I18n.getInstance().getString("plugin.action.savingyear"), "");
+    private final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
+
+    private final SimpleStringProperty enpilinks = new SimpleStringProperty("EnPI Link", I18n.getInstance().getString("plugin.action.enpilink"), "");
+
     private ChangeListener changeListener;
     private JEVisObject object;
 
@@ -115,6 +119,7 @@ public class ActionData {
 
         registerChanges(savingyear);
         registerChanges(investment);
+        registerChanges(enpilinks);
         valueChanged.set(false);
     }
 
@@ -172,6 +177,8 @@ public class ActionData {
                         AttributeFactory.commitAttribute(noteBetroffenerProzess, object, now);
                         AttributeFactory.commitAttribute(investment, object, now);
                         AttributeFactory.commitAttribute(savingyear, object, now);
+                        AttributeFactory.commitAttribute(enpilinks, object, now);
+
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -191,6 +198,10 @@ public class ActionData {
 
     public void delete() throws Exception {
         object.delete();
+    }
+
+    public SimpleStringProperty enpilinksProperty() {
+        return enpilinks;
     }
 
     public SimpleStringProperty fromUserProperty() {
