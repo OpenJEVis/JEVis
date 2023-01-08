@@ -1,11 +1,11 @@
 {
   "name": "Action Plan v2",
-  "description": "Action plan",
+  "description": "Action Plan",
   "unique": false,
   "relationships": [
     {
       "start": "Action Plan v2",
-      "end": "Action Plan Directory2",
+      "end": "Action Plan Directory v2",
       "type": 3
     }
   ],
@@ -28,6 +28,14 @@
     },
     {
       "name": "Custom Medium",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action Plan v2"
+    },
+    {
+      "name": "EnPI",
       "primitiveType": 0,
       "guiposition": 1,
       "validity": 0,
