@@ -720,6 +720,14 @@ public class OutputView extends Tab {
                                     calculate = expression.calculate();
                                 }
 
+                                if (formula.getInputIds().size() == 0) {
+                                    try {
+                                        calculate = Double.parseDouble(formulaString);
+                                    } catch (Exception e) {
+                                        logger.error("No input ids and could not parse formula as value", e);
+                                    }
+                                }
+
                                 if (!isText) {
                                     try {
                                         if (calculate == 0d) {
