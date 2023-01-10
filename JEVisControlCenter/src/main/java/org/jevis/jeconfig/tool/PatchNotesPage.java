@@ -50,7 +50,268 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.66------\n" +
+            "------Version 3.9.67------\n" +
+                    "JECC - AccountingPlugin - Data are not updated after changing the period \n" +
+                    "JECC - AccountingPlugin - OutputView - fixed sort order for multi formula input formulas\n" +
+                    "JECC - AccountingPlugin - added ranging values\n" +
+                    "JECC - AccountingPlugin - added zooming \n" +
+                    "JECC - AccountingPlugin - fixed date interval for fixed time restrictions\n" +
+                    "JECC - AccountingPlugin - improved box pathing\n" +
+                    "JECC - AccountingPlugin - improved reload on save\n" +
+                    "JECC - AccountingPlugin - missing formula input calculation\n" +
+                    "JECC - AccountingPlugin - time discreet value generation\n" +
+                    "JECC - AlarmPlugin - fixed await all tasks check for list\n" +
+                    "JECC - AlarmPlugin - to accept alarms now execute permission is required\n" +
+                    "JECC - CalculationExtension - UI does not check for \"#\"\n" +
+                    "JECC - ChartPlugin - \"updata data\"-button shows no effect, even if new clean data exists\n" +
+                    "JECC - ChartPlugin - AnalysesComboBox - fixed name not showing up under some circumstances\n" +
+                    "JECC - ChartPlugin - AnalysesComboBox - more checks \n" +
+                    "JECC - ChartPlugin - Automatic Colors\n" +
+                    "JECC - ChartPlugin - BubbleChart - It should be configurable in the advanced settings if one wants to start the y-axis at 0 or not (dynamic)\n" +
+                    "JECC - ChartPlugin - BubbleChart - default note dialog (rmb) shows bubble content\n" +
+                    "JECC - ChartPlugin - CSV export not working in new analysis\n" +
+                    "JECC - ChartPlugin - Calculation of data incl./excl. a time should show the sum as kWh if kW is analyzed\n" +
+                    "JECC - ChartPlugin - ChartDataRow - fixed null pointer\n" +
+                    "JECC - ChartPlugin - ChartTab - Table - added processor column for clean/math/forecast data selection\n" +
+                    "JECC - ChartPlugin - ChartTab - fixed used colors not working properly\n" +
+                    "JECC - ChartPlugin - ChartTab - improved columns on chart type\n" +
+                    "JECC - ChartPlugin - Charts - Show sum of data rows does not work\n" +
+                    "JECC - ChartPlugin - DataPointTableViewPointer - fixed second x-axis mouse moved event\n" +
+                    "JECC - ChartPlugin - FavoriteAnalysisHandler - automatic alphanumeric sorting when adding\n" +
+                    "JECC - ChartPlugin - Heatmap does not show all data in some cases\n" +
+                    "JECC - ChartPlugin - If kW is choosen, but the period is >1h the diagram should show kWh\n" +
+                    "JECC - ChartPlugin - Limit check does counts the time correctly\n" +
+                    "JECC - ChartPlugin - LoadAnalysisDialog - fixed aggregation not working \n" +
+                    "JECC - ChartPlugin - NewSelectionDialog - allowing dynamic data row changing\n" +
+                    "JECC - ChartPlugin - NewSelectionDialog - fixed dialog on open\n" +
+                    "JECC - ChartPlugin - NewSelectionDialog - fixed problem with closing new chart tab\n" +
+                    "JECC - ChartPlugin - NewSelectionDialog - moved CommonTab to the back\n" +
+                    "JECC - ChartPlugin - No Name after Save\n" +
+                    "JECC - ChartPlugin - ProcessorBox - added TableCell functions\n" +
+                    "JECC - ChartPlugin - ProcessorTableCell - added table cell\n" +
+                    "JECC - ChartPlugin - Regression function only considers data from the left axis\n" +
+                    "JECC - ChartPlugin - Saving of new analyses does not work\n" +
+                    "JECC - ChartPlugin - Selection Dialog Search\n" +
+                    "JECC - ChartPlugin - Settings Dialog Cancel not Working properly\n" +
+                    "JECC - ChartPlugin - StackedChart - fixed null pointer in case of secondary y-axis\n" +
+                    "JECC - ChartPlugin - StackedCharts - fixed sum calculation for units which are not quantities\n" +
+                    "JECC - ChartPlugin - Table (V) does not support text data\n" +
+                    "JECC - ChartPlugin - Table (V) filter function considers the decimal separators\n" +
+                    "JECC - ChartPlugin - Table - added commit on unit change\n" +
+                    "JECC - ChartPlugin - TableChartV - added filter option\n" +
+                    "JECC - ChartPlugin - TableChartV - changed header \n" +
+                    "JECC - ChartPlugin - TableChartV - fixed filter column name mismatch\n" +
+                    "JECC - ChartPlugin - TableChartV - fixed null pointer\n" +
+                    "JECC - ChartPlugin - TableChartV - fixed sort order on filter\n" +
+                    "JECC - ChartPlugin - ValuesTable - changed column name for zero values\n" +
+                    "JECC - ChartPlugin - ValuesTable - fixed column header text\n" +
+                    "JECC - ChartPlugin - XYChart - fixed null pointer on missing values for stacked charts\n" +
+                    "JECC - ChartPlugin - added ColorTable\n" +
+                    "JECC - ChartPlugin - added data heirs to standard selection\n" +
+                    "JECC - ChartPlugin - added default unit \n" +
+                    "JECC - ChartPlugin - added mass flow units\n" +
+                    "JECC - ChartPlugin - added new magic button to calculate values for time range\n" +
+                    "JECC - ChartPlugin - added stacked charts\n" +
+                    "JECC - ChartPlugin - minor bugfixes\n" +
+                    "JECC - ChartPlugin - csv export - fixed missing name\n" +
+                    "JECC - ChartPlugin - different periods in one chart confuse mouse position listener\n" +
+                    "JECC - ChartPlugin - disabling data in charts does not adjust the y-axis propperly after zoom-in\n" +
+                    "JECC - ChartPlugin - double click on color in header allows hiding datarow\n" +
+                    "JECC - ChartPlugin - favorites - fixed name problem\n" +
+                    "JECC - ChartPlugin - favorites - initial commit\n" +
+                    "JECC - ChartPlugin - favorites - menu not closing after ok\n" +
+                    "JECC - ChartPlugin - fixed LogicalChart problem with wrong id\n" +
+                    "JECC - ChartPlugin - fixed axis in logic chart\n" +
+                    "JECC - ChartPlugin - fixed bug when not selecting an analysis and clicking on load\n" +
+                    "JECC - ChartPlugin - fixed double.max values appearing in header table\n" +
+                    "JECC - ChartPlugin - fixed export function\n" +
+                    "JECC - ChartPlugin - fixed favorite analysis missing settings\n" +
+                    "JECC - ChartPlugin - fixed min max calculation for stacked header entries\n" +
+                    "JECC - ChartPlugin - fixed missing dates in dashboard link\n" +
+                    "JECC - ChartPlugin - fixed name bug in selection dialog\n" +
+                    "JECC - ChartPlugin - fixed null pointer in ColumnChart and TableChartV\n" +
+                    "JECC - ChartPlugin - fixed null pointer in heat map chart\n" +
+                    "JECC - ChartPlugin - fixed null pointer on saving anlysis\n" +
+                    "JECC - ChartPlugin - fixed problem in chart selection dialog \n" +
+                    "JECC - ChartPlugin - fixed problem when directly jumping from dashboard to chart plugin\n" +
+                    "JECC - ChartPlugin - fixed saving too late when switching analysis after changing something\n" +
+                    "JECC - ChartPlugin - fixed secondary yaxis problem\n" +
+                    "JECC - ChartPlugin - fixed some aggregation problem \n" +
+                    "JECC - ChartPlugin - fixed some favorite analysis bugs\n" +
+                    "JECC - ChartPlugin - fixed some problem with auto kW to kWh conversion\n" +
+                    "JECC - ChartPlugin - fixed some problem with chart type recognition\n" +
+                    "JECC - ChartPlugin - fixed some unit selection bug\n" +
+                    "JECC - ChartPlugin - fixed temporary analysis disabled on some users \n" +
+                    "JECC - ChartPlugin - fixed temporary analysis not showing name in some cases\n" +
+                    "JECC - ChartPlugin - fixed unit bug\n" +
+                    "JECC - ChartPlugin - fixed wrong date on 0-1 hours in date presets\n" +
+                    "JECC - ChartPlugin - improved height scaling\n" +
+                    "JECC - ChartPlugin - improved quick analysis selection box performance\n" +
+                    "JECC - ChartPlugin - let the data rows show different time frames\n" +
+                    "JECC - ChartPlugin - limit zoom to period to avoid \"-\" in table header fixes \n" +
+                    "JECC - ChartPlugin - limiting PieChart to 10 data rows\n" +
+                    "JECC - ChartPlugin - mouse hover on min/max shows timestamp(s) (up to 40)\n" +
+                    "JECC - ChartPlugin - removed new residence\n" +
+                    "JECC - ChartPlugin - small minor appearance changes\n" +
+                    "JECC - ChartPlugin - stacked charts - sorte data rows by name\n" +
+                    "JECC - ChartPlugin - stacked charts - added period\n" +
+                    "JECC - ChartPlugin - stacked charts - changed sum description\n" +
+                    "JECC - ChartPlugin - y-Axis does not consider the \"sum of data rows\"-values (after zoom-in)\n" +
+                    "JECC - ChartPlugin - zoom not working\n" +
+                    "JECC - DashboardPlugin - Add an open start page button\n" +
+                    "JECC - DashboardPlugin - Add default values to GaugePojo\n" +
+                    "JECC - DashboardPlugin - Add feature to delete dashboards \n" +
+                    "JECC - DashboardPlugin - Add icon for side editor\n" +
+                    "JECC - DashboardPlugin - Add localisation to the widget name\n" +
+                    "JECC - DashboardPlugin - Add missing Classes\n" +
+                    "JECC - DashboardPlugin - Add text overrun for the dashboad list\n" +
+                    "JECC - DashboardPlugin - Add the feature to select multiple widgets with a drag mouse gesture\n" +
+                    "JECC - DashboardPlugin - Catch missing configuration parameters\n" +
+                    "JECC - DashboardPlugin - Changed translation\n" +
+                    "JECC - DashboardPlugin - Edit function will be only be visible in edit mode\n" +
+                    "JECC - DashboardPlugin - Fixed a bug where a new Widget did not display the value\n" +
+                    "JECC - DashboardPlugin - Fixed a bug where part of the disabled toolbar was shown\n" +
+                    "JECC - DashboardPlugin - Fixed an bug where disabling the limit or procent did not update\n" +
+                    "JECC - DashboardPlugin - Fixed config is show even if no widegt is selected\n" +
+                    "JECC - DashboardPlugin - Fixed key events do not work for new widgets\n" +
+                    "JECC - DashboardPlugin - Fixed some bug in the side pane editor\n" +
+                    "JECC - DashboardPlugin - Fixed typo in the title field\n" +
+                    "JECC - DashboardPlugin - Fixes Problem with Adding an Image (Bug)\n" +
+                    "JECC - DashboardPlugin - Gauge / Linear gauge fix for negative values\n" +
+                    "JECC - DashboardPlugin - Gauge config tab overhaul\n" +
+                    "JECC - DashboardPlugin - Gauge, LinearGauge, Shape shows warning if no data available\n" +
+                    "JECC - DashboardPlugin - Improvement the zoom behavior is the zoom is set to fit to screen\n" +
+                    "JECC - DashboardPlugin - Last Value\n" +
+                    "JECC - DashboardPlugin - Linear Gauge - Major Tick Step Distance adjustable\n" +
+                    "JECC - DashboardPlugin - LinearGauge - Last Value\n" +
+                    "JECC - DashboardPlugin - LinearGauge - updated tick label spacing\n" +
+                    "JECC - DashboardPlugin - LinkerWidget - fixed anlaysis paths not working properly\n" +
+                    "JECC - DashboardPlugin - No option to set text in title widget as bold \n" +
+                    "JECC - DashboardPlugin - No option to set text in title widget as underlined\n" +
+                    "JECC - DashboardPlugin - Performance improvement and reduced memory usage\n" +
+                    "JECC - DashboardPlugin - Pie plugin does not remember the digits setting fixes \n" +
+                    "JECC - DashboardPlugin - Plus Minus Widgets\n" +
+                    "JECC - DashboardPlugin - Removed widget icons\n" +
+                    "JECC - DashboardPlugin - Shape - implemented step distance\n" +
+                    "JECC - DashboardPlugin - Shape Widget fix translation\n" +
+                    "JECC - DashboardPlugin - Shape config tab overhaul\n" +
+                    "JECC - DashboardPlugin - Slider / Plus Minus font color changeable\n" +
+                    "JECC - DashboardPlugin - TableWidget will now show the chart model title\n" +
+                    "JECC - DashboardPlugin - The dashboard fast selection will now update if re reload button is used\n" +
+                    "JECC - DashboardPlugin - The side pane editor allows now to edit the title\n" +
+                    "JECC - DashboardPlugin - The side pane editor can now be toggled to stay visible or be hidden\n" +
+                    "JECC - DashboardPlugin - The side pane editor show now the selected input data\n" +
+                    "JECC - DashboardPlugin - TimeFrame Widget Added\n" +
+                    "JECC - DashboardPlugin - Timeframe Widget - fixed translation\n" +
+                    "JECC - DashboardPlugin - Timeframe Widget - remove sample handler from Widgets -> use of parent sampleHandler\n" +
+                    "JECC - DashboardPlugin - Timeframe Widget set hgrow / vgrow for grid pane\n" +
+                    "JECC - DashboardPlugin - Update the add icon\n" +
+                    "JECC - DashboardPlugin - ValueWidget - last value fix\n" +
+                    "JECC - DashboardPlugin - ValueWidget - temporary removed setIntervalForLastValue causing too many errors\n" +
+                    "JECC - DashboardPlugin - added Battery Widget\n" +
+                    "JECC - DashboardPlugin - added Slider, Toggle Switch, Plus Minus Widgets\n" +
+                    "JECC - DashboardPlugin - added opacity for Shape widget\n" +
+                    "JECC - DashboardPlugin - changed DatePicker Color of Toolbar\n" +
+                    "JECC - DashboardPlugin - changed Icons to Icons from Fontawsome\n" +
+                    "JECC - DashboardPlugin - changed icons for Google Material Icons\n" +
+                    "JECC - DashboardPlugin - enabled table menu for aggregation/manipulation columns\n" +
+                    "JECC - DashboardPlugin - fixed some Widgets did not refresh on commit\n" +
+                    "JECC - DashboardPlugin - fixed wrong translation string\n" +
+                    "JECC - DashboardPlugin - implemented Shape Widget\n" +
+                    "JECC - DashboardPlugin - improved code for overrun\n" +
+                    "JECC - DashboardPlugin - moved convert_to_percent to Helper Class\n" +
+                    "JECC - DashboardPlugin - removed methode setLastInterval, adjusted default size\n" +
+                    "JECC - DashboardPlugin - set hgrow for Table View in config tab\n" +
+                    "JECC - DashboardPlugin - unit fix\n" +
+                    "JECC - DashboardPlugin - updated config tab GUI\n" +
+                    "JECC - EnterDataDialog - added confirmation dialog for resetting dependent data row (need appropriate rights)\n" +
+                    "JECC - EnterDataDialog - fixed period check for differential raw values\n" +
+                    "JECC - FXLogin - Add missing translation for missing login messages\n" +
+                    "JECC - FXLogin - Removed border form the statusbox. and changed the text\n" +
+                    "JECC - FXLogin - Removed shadows from login message box\n" +
+                    "JECC - FXLogin - Update button shows wrong text\n" +
+                    "JECC - FXLogin - changed blue to grey for header/footer\n" +
+                    "JECC - FXLogin - fixed typo\n" +
+                    "JECC - OPCExtension - object creation sets period to default value (needs readout from linx?)\n" +
+                    "JECC - ObjectPlugin - Allow to copy the Unit in the AttributeCopyDialog\n" +
+                    "JECC - ObjectPlugin - CalculationMethods - added all children to delete list\n" +
+                    "JECC - ObjectPlugin - Fixed a bug where a moved object will be present in the bin\n" +
+                    "JECC - ObjectPlugin - GapFillingEditor - fixed non standard decimal entry\n" +
+                    "JECC - ObjectPlugin - Hotfix for LocalNameDialog\n" +
+                    "JECC - ObjectPlugin - Loytec Assistant select parent if child is selected\n" +
+                    "JECC - ObjectPlugin - Report Wizard - changed attribute reference\n" +
+                    "JECC - ObjectPlugin - Report Wizard - fix Error message for invalid template\n" +
+                    "JECC - ObjectPlugin - Report Wizard - new reference for JEVis Attribute , Error message for invalid template\n" +
+                    "JECC - ObjectPlugin - ReportWizardDialog - Wizard works with String Data\n" +
+                    "JECC - ObjectPlugin - ReportWizardDialog - fixed all attribute filter\n" +
+                    "JECC - ObjectPlugin - ReportWizardDialog Error Window if JEVis Object cannot parsed to ReportLink\n" +
+                    "JECC - ObjectPlugin - ReportWizardDialog fix ReportPeriodBox only shows if period fixed\n" +
+                    "JECC - ObjectPlugin - ReportWizardDialog updated (edit,add,delete) after report is created\n" +
+                    "JECC - ObjectPlugin - RoleExtention - improved path display for groups\n" +
+                    "JECC - ObjectPlugin - Translation in rename dialog rename language you logged in as, in Wizards add all available local names\n" +
+                    "JECC - ObjectPlugin - Tree - Bin is now sorted by deleting time\n" +
+                    "JECC - ObjectPlugin - Tree - the bin will now always be the last element in the tree.\n" +
+                    "JECC - ObjectPlugin - TreeSelectionDialog - added filter box\n" +
+                    "JECC - ObjectPlugin - TreeSelectionDialog - fixed target selection showing on parent item\n" +
+                    "JECC - ObjectPlugin - add values in between improvements for localization of value and more date options\n" +
+                    "JECC - ObjectPlugin - fixed some null pointer in RangingValueEditor\n" +
+                    "JECC - ObjectPlugin - go to source now works with all channels\n" +
+                    "JECC - Statusbar - Process Monitor is not translated into English\n" +
+                    "JECC - Statusbar - fixed status tooltip\n" +
+                    "JECC - TRCPlugin - Ranging Values support - initial commit\n" +
+                    "JECC - TRCPlugin - added constant function for calculation outputs\n" +
+                    "JECC - TRCPlugin - allowing analysis links for single value template outputs\n" +
+                    "JECC - TRCPlugin - enabled Tooltips for TemplateOutputs\n" +
+                    "JECC - TRCPlugin - fixed selection problem for base data input\n" +
+                    "JECC - TRCPlugin - fixed sort order for outputs\n" +
+                    "JECC - TRCPlugin - fixed time dependent value generation for formulas\n" +
+                    "JECC - TRCPlugin - improved input naming\n" +
+                    "JECC - TRCPlugin - improved input sorting\n" +
+                    "JECC - TRCPlugin - integration of ranging values \n" +
+                    "JECC - Themes - improved dark theme settings\n" +
+                    "JECC - Update themes for new icon set\n" +
+                    "JECC - ValueWidget - removed double webservice request\n" +
+                    "JECC - Widget radar chart added\n" +
+                    "JECC - changed Icons to Icons from Fontawsome\n" +
+                    "JECC - changed Plugin Icons\n" +
+                    "\n" +
+                    "Classes - added new attribute to user object for favorites\n" +
+                    "Classes - rework attribute period\n" +
+                    "\n" +
+                    "DataCollector - DWDWDParser - udpated dependencies\n" +
+                    "DataCollector - HTTPDataSource - updated dependencies\n" +
+                    "DataCollector - JEDataCollector - updated dependencies\n" +
+                    "DataCollector - cleaned up poms\n" +
+                    "DataCollector - sFTPDataSource - fixed some null pointer\n" +
+                    "\n" +
+                    "JEAPI - Implementation of getParent function\n" +
+                    "JEAPI - add getParent function\n" +
+                    "\n" +
+                    "JEAPI-WS - updated dependencies\n" +
+                    "\n" +
+                    "JEAlarm - added AlarmPeriod.NONE as functionality, using last alarm as start for period\n" +
+                    "\n" +
+                    "JECommons - Add a JEVisClass printer to create the reference class\n" +
+                    "JECommons - Add a new reference class for all JEVisClasses \n" +
+                    "JECommons - DataProcessing - simple sample generator\n" +
+                    "JECommons - MathFunction - fixed missing values for avg with aggregation \n" +
+                    "JECommons - ObjectRelations - fixed relative path problem for multi directory systems\n" +
+                    "JECommons - TargetHelper - fixed bug\n" +
+                    "JECommons - updated dependencies\n" +
+                    "\n" +
+                    "JEDataProcessor - MathDataObject - fixed ready check for timestamps equal\n" +
+                    "JEDataProcessor - fixed bug for period alignment on periods greater then days\n" +
+                    "\n" +
+                    "JEReport - ReportLinkProperty - added parental data object name to no data message\n" +
+                    "JEReport - supports custom workdays for sanity check\n" +
+                    "JEReport - updated dependencies\n" +
+                    "\n" +
+                    "JEStatus - added object name to report status\n" +
+                    "\n" +
+                    "JEWebService - ResourceSample - fixed exception permissions for alarm status \n" +
+                    "JEWebService - ResourceSample - fixed wrong read file check\n" +
+                    "JEWebservice - ResourceSample - fixed user exception for files\n\n" +
+                    "------Version 3.9.66------\n" +
                     "JECC - AccountingPlugin - added zooming \n" +
                     "JECC - Add missing translation for missing login messages\n" +
                     "JECC - AlarmPlugin - to accept alarms you must have full write access to the alarm objects\n" +
