@@ -2,8 +2,6 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.AtomicDouble;
-import eu.hansolo.fx.charts.SankeyPlot;
-import eu.hansolo.fx.charts.SankeyPlotBuilder;
 import eu.hansolo.fx.charts.data.PlotItem;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -35,6 +33,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SankeyWidget extends Widget implements DataModelWidget {
 
@@ -53,6 +52,10 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     private Boolean customWorkday = true;
 
     private SankeyPojo sankeyPojo;
+
+    private String alermsg = "";
+
+    private List<JEVisObject> sankeyDataRowsWithMultipleParents = new ArrayList<>();
 
 
     public SankeyWidget(DashboardControl control, WidgetPojo config) {
@@ -78,6 +81,8 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateData(Interval interval) {
+        showAlertOverview(false, "");
+        alermsg = "";
         logger.error("Sankey.Update: {}", interval);
         this.lastInterval = interval;
 
@@ -94,10 +99,9 @@ public class SankeyWidget extends Widget implements DataModelWidget {
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
 
-
+        updateChart();
         try {
 
-            updateChart();
             Platform.runLater(() -> {
                 borderPane.setPadding(new Insets(10));
 
@@ -113,11 +117,11 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     }
 
     private void buildSankeyPlot(Size configSize) {
-        SankeyPlot.StreamFillMode streamFillMode = null;
+        eu.hansolo.fx.charts.SankeyPlot.StreamFillMode streamFillMode = null;
         if (sankeyPojo.isColorGradient()) {
-            streamFillMode = SankeyPlot.StreamFillMode.GRADIENT;
+            streamFillMode = eu.hansolo.fx.charts.SankeyPlot.StreamFillMode.GRADIENT;
         } else {
-            streamFillMode = SankeyPlot.StreamFillMode.COLOR;
+            streamFillMode = eu.hansolo.fx.charts.SankeyPlot.StreamFillMode.COLOR;
         }
 
 
@@ -125,16 +129,24 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                 .items(plotItems)
                 .showFlowDirection(sankeyPojo.isShowFlow())
                 .autoItemWidth(false)
-                .autoItemGap(false)
+                .itemWidth(20)
+                //.autoItemGap(false)
+                .itemGap(50)
                 .minSize(configSize.getWidth() - 10, configSize.getHeight() - 10)
                 .streamFillMode(streamFillMode)
                 .build();
         sankeyPlot.setManaged(true);
-        //todo
-
-
+        if (sankeyPojo.isAutoGap()) {
+            sankeyPlot.setAutoItemGap(true);
+        }else {
+            sankeyPlot.setAutoItemGap(false);
+            sankeyPlot.setItemGap(sankeyPojo.getGap());
+        }
         sankeyPlot.setPadding(new Insets(0, 10, 10, 10));
         this.borderPane.getChildren().setAll(sankeyPlot);
+        sankeyPlot.setFontSize(config.getFontSize());
+        sankeyPlot.addOffset(2, -250);
+        sankeyPlot.addOffset(1,-200);
     }
 
 
@@ -185,15 +197,50 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                 }
             }).findAny();
             if (dataRowOptional.isPresent()) {
-                jeVisPlotItem.setName(dataRowOptional.get().getName());
-                jeVisPlotItem.setFill(dataRowOptional.get().getColor());
+                try {
+
+                    jeVisPlotItem.setName(dataRowOptional.get().getName());
+                    jeVisPlotItem.setFill(dataRowOptional.get().getColor());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+
             addOutgoingObject(sankeyDataRow, jeVisPlotItem);
         }
+        xxx();
+
         createPlotNames();
+        check();
         addSpacing();
 
 
+    }
+
+    private void xxx() {
+        for (JEVisObject jeVisObject:sankeyDataRowsWithMultipleParents) {
+            JEVisPlotItem child = getFromJEvisObject(jeVisObject);
+            double remaining = child.getValue();
+            for (int i = 0; i < getParents(jeVisObject).size(); i++) {
+                JEVisPlotItem parent = getFromJEvisObject(getParents(jeVisObject).get(i).getJeVisObject());
+                double diff = parent.getValue() - parent.getSumOfOutgoing();
+                if (i < getParents(jeVisObject).size() + 1) {
+                    if (diff > 0 && remaining >0) {
+                        parent.addToOutgoing(child, diff);
+                        remaining = remaining - diff;
+                    }
+
+                }else {
+                    if (remaining > 0) {
+                        parent.addToOutgoing(child,remaining);
+                    }
+                }
+
+
+
+            }
+
+        }
     }
 
     private JEVisValueUnitPair getJevisValueUnitPair(SankeyDataRow sankeyDataRow) {
@@ -201,9 +248,6 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
         for (ChartDataRow dataModel : this.sampleHandler.getDataModel()) {
             jeVisValueUnitPair.setJeVisUnit(dataModel.getUnit());
-            System.out.println("unit");
-            System.out.println(dataModel.getUnit());
-            System.out.printf(dataModel.getUnitLabel());
             AtomicDouble total = new AtomicDouble(0);
             if (dataModel.getId() == sankeyDataRow.getJeVisObject().getID().doubleValue()) {
                 List<JEVisSample> results = dataModel.getSamples();
@@ -216,60 +260,181 @@ public class SankeyWidget extends Widget implements DataModelWidget {
         }
         return jeVisValueUnitPair;
     }
+    private List<SankeyDataRow> getParents(JEVisObject jeVisObject) {
+        List<SankeyDataRow> parents = new ArrayList<>();
+        for (SankeyDataRow netGraphDataRow : sankeyPojo.getNetGraphDataRows()) {
+            for (JEVisObject jeVisObject1 : netGraphDataRow.getChildren()) {
+                if (jeVisObject1.getID().intValue() == jeVisObject.getID().intValue()) {
+                    parents.add(netGraphDataRow);
+                    break;
+                }
+            }
+        }
+        return parents;
+
+        //return sankeyPojo.getNetGraphDataRows().stream().filter(sankeyDataRow1 -> sankeyDataRow1.getChildren().stream().filter(jeVisObject2 -> jeVisObject.getID().intValue() == jeVisObject.getID().intValue()).count() > 0).collect(Collectors.toList());
+
+    }
 
     private void addOutgoingObject(SankeyDataRow sankeyDataRow, JEVisPlotItem jeVisPlotItem) {
+        if (sankeyPojo.isAllowOutputToBeGraterThanInput()) {
+            addOutgoingObjectAllowOutputToBeGrater(sankeyDataRow,jeVisPlotItem);
+        }else {
+            addOutgoingObjectWithNoOutputGreater(sankeyDataRow,jeVisPlotItem);
+        }
+    }
+
+    private void addOutgoingObjectAllowOutputToBeGrater(SankeyDataRow sankeyDataRow, JEVisPlotItem jeVisPlotItem) {
+        sankeyDataRow.getChildren().forEach(jeVisObject -> {
+            if (getParents(jeVisObject).size() > 1) {
+                if (!sankeyDataRowsWithMultipleParents.contains(jeVisObject)) {
+                    sankeyDataRowsWithMultipleParents.add(jeVisObject);
+                }
+
+            }else {
+                jeVisPlotItem.addToOutgoing(getFromJEvisObject(jeVisObject), getFromJEvisObject(jeVisObject).getValue());
+            }
+        });
+
+
+
+        }
+
+
+
+    private void check() {
+        if (sankeyPojo.isAllowOutputToBeGraterThanInput()) {
+            checkAllowOutputToBeGrater();
+        }else {
+            checkWithnoOutputGreater();
+        }
+    }
+
+    private void checkWithnoOutputGreater(){
+        alermsg = "";
+        plotItems.forEach(jeVisPlotItem -> {
+
+            BigDecimal value = new BigDecimal(jeVisPlotItem.getValue());
+            value = value.setScale(config.getDecimals(), RoundingMode.HALF_UP);
+            BigDecimal income = new BigDecimal(jeVisPlotItem.getSumOfIncoming());
+            income = income.setScale(config.getDecimals(), RoundingMode.HALF_UP);
+            if (value.doubleValue() > income.doubleValue() && !jeVisPlotItem.isRoot()) {
+                jeVisPlotItem.setFill(Color.RED);
+                jeVisPlotItem.setOnItemEvent(itemEvent -> {
+                });
+                alermsg = alermsg + jeVisPlotItem.getName() + " Value: "+value.doubleValue()+" > Sum Incoming: "+income.doubleValue()+"\n";
+                showAlertOverview(true,(alermsg));
+            }
+
+        });
+    }
+    private void checkAllowOutputToBeGrater(){
+        alermsg = "";
+        plotItems.forEach(jeVisPlotItem -> {
+            BigDecimal value = new BigDecimal(jeVisPlotItem.getValue());
+            value = value.setScale(config.getDecimals(), RoundingMode.HALF_UP);
+            BigDecimal outgoing = new BigDecimal(jeVisPlotItem.getSumOfOutgoing());
+            outgoing = outgoing.setScale(config.getDecimals(), RoundingMode.HALF_UP);
+            if (value.doubleValue() < outgoing.doubleValue()) {
+                jeVisPlotItem.setFill(Color.RED);
+                jeVisPlotItem.setOnItemEvent(itemEvent -> {
+                });
+                alermsg = alermsg + jeVisPlotItem.getName() + " Value: " + value.doubleValue() + " < Sum Outgoing: " + outgoing.doubleValue() + "\n";
+                showAlertOverview(true, (alermsg));
+            }
+
+        });
+
+    }
+
+    private void addOutgoingObjectWithNoOutputGreater(SankeyDataRow sankeyDataRow, JEVisPlotItem jeVisPlotItem) {
         for (JEVisObject child : sankeyDataRow.getChildren()) {
             double sumoutgoing = 0;
             double childsumincoming = 0;
 
             JEVisPlotItem childPlotItem = getFromJEvisObject(child);
-
-
-            if (jeVisPlotItem.hasOutgoing()) {
-                sumoutgoing = jeVisPlotItem.getSumOfOutgoing();
-            }
-            if (getFromJEvisObject(child).getJevisValue() < (jeVisPlotItem.getJevisValue() - jeVisPlotItem.getSumOfOutgoing())) {
-                jeVisPlotItem.addToOutgoing(getFromJEvisObject(child), childPlotItem.getJevisValue());
-            } else {
-                if (childPlotItem.hasIncoming()) {
-                    childsumincoming = childPlotItem.getSumOfIncoming();
+            if(childPlotItem.getValue()!= 0){
+                if (jeVisPlotItem.hasOutgoing()) {
+                    sumoutgoing = jeVisPlotItem.getSumOfOutgoing();
                 }
-
-                double remainingValue = jeVisPlotItem.getJevisValue() - sumoutgoing;
-
-                double childrenRemainingValue = childPlotItem.getJevisValue() - childsumincoming;
-
-
-                if (childrenRemainingValue >= remainingValue) {
-                    jeVisPlotItem.addToOutgoing(getFromJEvisObject(child), remainingValue);
+                if (childPlotItem.getValue() < (jeVisPlotItem.getValue() - jeVisPlotItem.getSumOfOutgoing())) {
+                    jeVisPlotItem.addToOutgoing(getFromJEvisObject(child), childPlotItem.getValue());
                 } else {
-                    jeVisPlotItem.addToOutgoing(getFromJEvisObject(child), childrenRemainingValue);
+
+                    if (childPlotItem.hasIncoming()) {
+                        childsumincoming = childPlotItem.getSumOfIncoming();
+                    }
+
+                    double remainingValue = jeVisPlotItem.getValue() - sumoutgoing;
+
+                    double childrenRemainingValue = childPlotItem.getValue() - childsumincoming;
+
+
+                    if (childrenRemainingValue >= remainingValue) {
+                        jeVisPlotItem.addToOutgoing(childPlotItem, remainingValue);
+                    } else {
+                        jeVisPlotItem.addToOutgoing(childPlotItem, childrenRemainingValue);
+
+                    }
                 }
+
+            }else {
+                plotItems.remove(childPlotItem);
             }
+
+
         }
 
     }
 
     private void createPlotNames() {
+        System.out.println("names");
+        System.out.println(config.getTitle());
         for (JEVisPlotItem jeVisPlotItem : plotItems) {
-            if (jeVisPlotItem.getIncoming().size() > 0) {
-                if (sankeyPojo.getShowValueIn().equals(SankeyPojo.UNIT)) {
-                    jeVisPlotItem.setName(createNameWithUnit(jeVisPlotItem));
-                }else {
-                    for (Map.Entry<PlotItem, Double> jeVisPlotItem1 : jeVisPlotItem.getIncoming().entrySet()) {
-                        if (jeVisPlotItem1.getKey().hasIncoming()) {
-                            jeVisPlotItem.setName(jeVisPlotItem.getName() + " (" + inPercent(jeVisPlotItem1.getKey().getSumOfIncoming(), jeVisPlotItem.getSumOfIncoming()) + "%)");
-                        } else {
-                            jeVisPlotItem.setName(jeVisPlotItem.getName());
-                        }
-                    }
-                }
+            System.out.println(jeVisPlotItem);
+            if (sankeyPojo.getShowValueIn().equals(SankeyPojo.UNIT)) {
+                jeVisPlotItem.setName(createNameWithUnit(jeVisPlotItem));
             }
+            else if (jeVisPlotItem.hasIncoming()) {
+                if (sankeyPojo.getPercentRefersTo().equals(SankeyPojo.PARENT)) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(jeVisPlotItem.getName());
+                    stringBuilder.append("\n");
+                    stringBuilder.append("(");
+                    for (Map.Entry<PlotItem, Double> jeVisPlotItemChild:jeVisPlotItem.getIncoming().entrySet()) {
+                        stringBuilder.append(" ");
+                        stringBuilder.append(inPercent(jeVisPlotItemChild.getKey().getValue(),jeVisPlotItemChild.getValue()));
+                        stringBuilder.append("%");
+                        stringBuilder.append(" |");
+                    }
+                    stringBuilder.delete(stringBuilder.length() - 2, stringBuilder.length());
+                    stringBuilder.append(")");
+                    if(jeVisPlotItem.getValue()!= 0)
+                    jeVisPlotItem.setName(stringBuilder.toString());
+                }
+                else {
+                 List<PlotItem> roots = plotItems.stream().filter(jeVisPlotItem1 -> jeVisPlotItem1.isRoot() && jeVisPlotItem1.getValue()!= 0).collect(Collectors.toList());
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(jeVisPlotItem.getName());
+                    stringBuilder.append("\n");
+                    stringBuilder.append("(");
+                    stringBuilder.append(inPercent(roots.get(0).getValue(), jeVisPlotItem.getValue()));
+                    stringBuilder.append("%)");
+                    jeVisPlotItem.setName(stringBuilder.toString());
+                }
+
+
+            }
+
+
+
         }
     }
 
     private String createNameWithUnit(JEVisPlotItem jeVisPlotItem) {
-        return jeVisPlotItem.getName() + " (" + jeVisPlotItem.getJevisValue() + " " + jeVisPlotItem.getJeVisUnit().getLabel() + " )";
+        BigDecimal bigDecimal = new BigDecimal(jeVisPlotItem.getValue());
+        bigDecimal = bigDecimal.setScale(config.getDecimals(), RoundingMode.HALF_UP);
+        return jeVisPlotItem.getName() + " (" + bigDecimal.doubleValue() + " " + jeVisPlotItem.getJeVisUnit().getLabel() + " )";
     }
 
     private void addSpacing() {
@@ -293,6 +458,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
         bd = bd.setScale(config.getDecimals(), RoundingMode.HALF_UP);
         return bd.toString();
     }
+
 
     @Override
     public void resize(double v, double v1) {
@@ -441,7 +607,6 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
 
         private JEVisObject object;
-        private double jevisValue;
 
         private JEVisUnit jeVisUnit;
 
@@ -458,7 +623,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
         public JEVisPlotItem(String NAME, Color FILL, JEVisObject object, double value, JEVisUnit jeVisUnit) {
             super(NAME, 0, "", FILL);
-            this.jevisValue = value;
+            setValue(value);
             this.object = object;
             this.jeVisUnit = jeVisUnit;
         }
@@ -471,13 +636,6 @@ public class SankeyWidget extends Widget implements DataModelWidget {
             this.object = object;
         }
 
-        public double getJevisValue() {
-            return jevisValue;
-        }
-
-        public void setJevisValue(double jevisValue) {
-            this.jevisValue = jevisValue;
-        }
 
         public JEVisUnit getJeVisUnit() {
             return jeVisUnit;

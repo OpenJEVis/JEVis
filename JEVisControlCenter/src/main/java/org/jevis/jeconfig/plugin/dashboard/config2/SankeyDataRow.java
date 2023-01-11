@@ -7,6 +7,7 @@ import org.jevis.commons.classes.JC;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SankeyDataRow {
@@ -63,5 +64,18 @@ public class SankeyDataRow {
         } catch (JEVisException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SankeyDataRow that = (SankeyDataRow) o;
+        return Objects.equals(jeVisObject.getID(), that.jeVisObject.getID());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(jeVisObject);
     }
 }

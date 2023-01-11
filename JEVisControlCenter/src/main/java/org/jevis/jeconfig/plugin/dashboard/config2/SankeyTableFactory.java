@@ -17,7 +17,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,10 +26,10 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeapi.ws.REQUEST;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
-import java.util.List;
 import java.util.Optional;
 
 public class SankeyTableFactory {
@@ -56,12 +56,11 @@ public class SankeyTableFactory {
         tableView = new TableView<>();
         tableView.setEditable(true);
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        this.tableView.getColumns().add(buildID());
-        this.tableView.getColumns().add(buildName());
-        this.tableView.getColumns().add(advSettingAttributeColumn());
-        this.tableView.getColumns().add(move());
+        this.tableView.getColumns().add(buildIDColumn());
+        this.tableView.getColumns().add(buildNameColumn());
+        this.tableView.getColumns().add(buildFlowsIntoColumn());
+        this.tableView.getColumns().add(buildMoveColumn());
 
-        //this.tableView.getColumns().add(buildLevel());
         observableList = sankeyDataRows;
 
         return tableView;
@@ -69,8 +68,8 @@ public class SankeyTableFactory {
     }
 
 
-    private TableColumn<SankeyDataRow, String> buildName() {
-        TableColumn<SankeyDataRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
+    private TableColumn<SankeyDataRow, String> buildNameColumn() {
+        TableColumn<SankeyDataRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.sankey.objectname"));
         nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         nameColumn.setCellValueFactory(param -> {
             try {
@@ -89,35 +88,19 @@ public class SankeyTableFactory {
 
         return nameColumn;
     }
-
-//    private TableColumn<SankeyDataRow, String> buildLevel() {
-//        TableColumn<SankeyDataRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("Level"));
-//        nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-//        nameColumn.setCellValueFactory(sankeyDataRowStringCellDataFeatures -> new SimpleStringProperty(String.valueOf(sankeyDataRowStringCellDataFeatures.getValue().getLevel())));
-//        nameColumn.setOnEditCommit(sankeyDataRowStringCellEditEvent -> sankeyDataRowStringCellEditEvent.getRowValue().setLevel(Integer.parseInt(sankeyDataRowStringCellEditEvent.getNewValue())));
-//        nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
-//        nameColumn.setEditable(true);
-//        nameColumn.setPrefWidth(numberColumDefaultSize);
-//
-//
-//        return nameColumn;
-//    }
-
-
-
-    private TableColumn<SankeyDataRow, String> buildID() {
-        TableColumn<SankeyDataRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
+    private TableColumn<SankeyDataRow, String> buildIDColumn() {
+        TableColumn<SankeyDataRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.sankey.id"));
         nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         nameColumn.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().jeVisObject.getID())));
         nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
-        nameColumn.setPrefWidth(numberColumDefaultSize);
+        nameColumn.setPrefWidth(numberColumDefaultSize/2);
 
 
         return nameColumn;
     }
 
 
-    public TableColumn<SankeyDataRow, SankeyDataRow> advSettingAttributeColumn() {
+    public TableColumn<SankeyDataRow, SankeyDataRow> buildFlowsIntoColumn() {
 
         Callback treeTableColumnCallback = new Callback<TableColumn<SankeyDataRow, SankeyDataRow>, TableCell<SankeyDataRow, SankeyDataRow>>() {
             @Override
@@ -137,6 +120,7 @@ public class SankeyTableFactory {
                                 Optional<SankeyDataRow> sankeyDataRowOptional = checkComboBox.getItems().stream().filter(sankeyDataRow -> sankeyDataRow.getJeVisObject().getID().intValue() == jeVisObject.getID().intValue()).findAny();
                                 if (sankeyDataRowOptional.isPresent()) {
                                     checkComboBox.getCheckModel().check(sankeyDataRowOptional.get());
+                                    //checkComboBox.setMinWidth();
                                 }
                             }
                             checkComboBox.getCheckModel().getCheckedItems().addListener(new ListChangeListener() {
@@ -171,14 +155,14 @@ public class SankeyTableFactory {
         };
 
 
-        TableColumn<SankeyDataRow, SankeyDataRow> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.settings"));
-        column.setId("Settings");
+        TableColumn<SankeyDataRow, SankeyDataRow> column = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.sankey.flowchildren"));
+        column.setId("FlowsInto");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
         column.setPrefWidth(numberColumDefaultSize);
 
         return column;
-    }    public TableColumn<SankeyDataRow, SankeyDataRow> move() {
+    }    public TableColumn<SankeyDataRow, SankeyDataRow> buildMoveColumn() {
 
         Callback treeTableColumnCallback = new Callback<TableColumn<SankeyDataRow, SankeyDataRow>, TableCell<SankeyDataRow, SankeyDataRow>>() {
             @Override
@@ -193,15 +177,14 @@ public class SankeyTableFactory {
                             setGraphic(null);
                         } else {
                             HBox hBox = new HBox();
-                            JFXButton jfxButtonMoveUp = new JFXButton("move up");
-                            JFXButton jfxButtonMoveDown = new JFXButton("moveDown");
+                            JFXButton jfxButtonMoveUp = new JFXButton("",JEConfig.getSVGImage(Icon.ARROW_UP,10,10));
+                            JFXButton jfxButtonMoveDown = new JFXButton("", JEConfig.getSVGImage(Icon.ARROW_DOWN, 10, 10));
                             hBox.setSpacing(3);
                             hBox.getChildren().addAll(jfxButtonMoveUp, jfxButtonMoveDown);
 
                             jfxButtonMoveDown.setOnAction(actionEvent -> {
 
-                                System.out.println("old list");
-                                System.out.println(observableList);
+
                                 int index = observableList.indexOf(item);
 
 
@@ -209,11 +192,7 @@ public class SankeyTableFactory {
 
                                 observableList.set(index + 1, item);
                                 observableList.set(index, swap);
-                                System.out.println("new list");
-                                System.out.println(observableList);
 
-                                System.out.println("tableview list");
-                                System.out.printf(tableView.getItems().toString());
                                 tableView.getItems().setAll(observableList);
 
                                 tableView.refresh();
@@ -259,8 +238,8 @@ public class SankeyTableFactory {
         };
 
 
-        TableColumn<SankeyDataRow, SankeyDataRow> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.settings"));
-        column.setId("Settings");
+        TableColumn<SankeyDataRow, SankeyDataRow> column = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.sankey.move"));
+        column.setId("Move");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
         column.setPrefWidth(numberColumDefaultSize);
