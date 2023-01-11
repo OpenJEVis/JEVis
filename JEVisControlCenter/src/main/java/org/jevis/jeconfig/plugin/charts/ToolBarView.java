@@ -582,14 +582,14 @@ public class ToolBarView {
                 if (chartPlugin.isZoomed()) {
                     ge = new ChartExportCSV(
                             ds,
-                            dataModel,
+                            chartPlugin.getDataRowMap(),
                             chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
                             new DateTime(chartPlugin.getxAxisLowerBound().longValue() * 1000),
                             new DateTime(chartPlugin.getxAxisUpperBound().longValue() * 1000));
                 } else {
                     ge = new ChartExportCSV(
                             ds,
-                            dataModel,
+                            chartPlugin.getDataRowMap(),
                             chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
                             chartPlugin.getDataSettings().getAnalysisTimeFrame().getStart(),
                             chartPlugin.getDataSettings().getAnalysisTimeFrame().getEnd());
