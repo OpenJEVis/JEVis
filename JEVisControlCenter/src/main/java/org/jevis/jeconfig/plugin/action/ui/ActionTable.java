@@ -119,11 +119,15 @@ public class ActionTable extends TableView<ActionData> {
 
         TableColumn<ActionData, String> investPropertyCol = new TableColumn(fakeForName.investmentProperty().getName());
         investPropertyCol.setCellValueFactory(param -> param.getValue().investmentProperty());
-        investPropertyCol.setCellFactory(buildShotTextFactory());
+        //investPropertyCol.setCellFactory(buildShotTextFactory());
+        investPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        investPropertyCol.setCellFactory(new DoubleColumnCell());
 
         TableColumn<ActionData, String> savingYearPropertyCol = new TableColumn(fakeForName.savingyearProperty().getName());
         savingYearPropertyCol.setCellValueFactory(param -> param.getValue().savingyearProperty());
         savingYearPropertyCol.setCellFactory(buildShotTextFactory());
+        savingYearPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        savingYearPropertyCol.setCellFactory(new DoubleColumnCell());
 
         actionNrPropertyCol.setVisible(true);
         fromUserCol.setVisible(false);

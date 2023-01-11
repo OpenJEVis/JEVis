@@ -7,6 +7,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -19,6 +20,7 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
@@ -75,6 +77,11 @@ public class ActionForm extends Dialog {
     private JFXTextField f_enpiBefore = new JFXTextField();
     private JFXTextField f_enpiChange = new JFXTextField();
     private JFXTextField f_distributor = new JFXTextField();
+
+    private JFXTextField f_energyBefore = new JFXTextField();
+    private JFXTextField f_energyAfter = new JFXTextField();
+    private JFXTextField f_energyChange = new JFXTextField();
+
     private CheckBox f_isTargetReached = new CheckBox();
     private TextArea f_correctionIfNeeded = new TextArea("Korrekturmaßnahmen");
     private TextArea f_nextActionIfNeeded = new TextArea("Folgemaßnahmen");
@@ -176,6 +183,23 @@ public class ActionForm extends Dialog {
         Label l_Enpi = new Label("EnPI");
         col3Spacer.setMinWidth(25);
 
+        f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
+        JFXTextField l_savingsUnitLabel = new JFXTextField("€");
+        l_savingsUnitLabel.setEditable(false);
+        l_savingsUnitLabel.setPrefWidth(25);
+        HBox savingsBox = new HBox(f_savingYear, l_savingsUnitLabel);
+        HBox.setHgrow(f_savingYear, Priority.ALWAYS);
+        f_savingYear.setAlignment(Pos.BASELINE_RIGHT);
+
+        f_Investment.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
+        JFXTextField l_investmentUnitLabel = new JFXTextField("€");
+        l_investmentUnitLabel.setEditable(false);
+        l_investmentUnitLabel.setPrefWidth(25);
+        HBox investBox = new HBox(f_Investment, l_investmentUnitLabel);
+        HBox.setHgrow(f_Investment, Priority.ALWAYS);
+        f_Investment.setAlignment(Pos.BASELINE_RIGHT);
+
+
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_ActionNr);
         add(gridPane, 1, 2, 1, 1, Priority.NEVER, l_Title);
         add(gridPane, 1, 3, 1, 1, Priority.NEVER, l_Responsible);
@@ -209,8 +233,8 @@ public class ActionForm extends Dialog {
         add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags);
         add(gridPane, 5, 3, 1, 1, Priority.SOMETIMES, f_mediaTags);
         add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, f_Enpi);
-        add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, f_Investment);
-        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, f_savingYear);
+        add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, investBox);//f_Investment
+        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, savingsBox);//f_savings
         add(gridPane, 5, 7, 1, 1, Priority.SOMETIMES, f_Attachment);
 
         add(gridPane, 4, 8, 2, 1, Priority.SOMETIMES, l_NoteEnergiefluss);
@@ -398,11 +422,23 @@ public class ActionForm extends Dialog {
         Label l_nextActionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.followupaction"));
         Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
 
+        Label l_energyBefore = new Label("Aktueller. Verbrauch");
+        Label l_energyAfter = new Label("Erwarteter Verbrauch");
+        Label l_energyChange = new Label("Änderung Verbrauch");
 
         ToggleButton beforeDateButton = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
         ToggleButton afterDateButton = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
-        HBox box_EnpiAfter = new HBox(afterDateButton, f_enpiAfter);
-        HBox box_EnpiBefore = new HBox(beforeDateButton, f_enpiBefore);
+
+        ToggleButton buttonOpenAnalysisBefore = new ToggleButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+        ToggleButton buttonOpenAnalysisafter = new ToggleButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(beforeDateButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(afterDateButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(buttonOpenAnalysisBefore);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(buttonOpenAnalysisafter);
+
+        HBox box_EnpiAfter = new HBox(buttonOpenAnalysisBefore, afterDateButton, f_enpiAfter);
+        HBox box_EnpiBefore = new HBox(buttonOpenAnalysisafter, beforeDateButton, f_enpiBefore);
         box_EnpiAfter.setSpacing(20);
         box_EnpiBefore.setSpacing(20);
         HBox.setHgrow(f_enpiAfter, Priority.SOMETIMES);
@@ -432,6 +468,27 @@ public class ActionForm extends Dialog {
             }
 
         });
+
+
+        buttonOpenAnalysisBefore.setOnAction(event -> {
+            try {
+                Long enpiData = Long.parseLong(data.enpilinksProperty().get().replace(";", ""));
+                JEVisAttribute attribute = data.getObject().getDataSource().getObject(enpiData).getAttribute("Value");
+
+                /**
+                 AnalysisRequest analysisRequest = new AnalysisRequest(attribute.getObject(),
+                 AggregationPeriod.NONE,
+                 ManipulationMode.NONE,
+                 startDateFromSampleRate, timestampFromLastSample);
+                 analysisRequest.setAttribute(attribute);
+                 JEConfig.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, analysisRequest)
+                 */
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+        });
+
 
         data.enpilinksProperty().addListener(observable -> {
             System.out.println("Enpi link changed");
@@ -486,10 +543,18 @@ public class ActionForm extends Dialog {
         gridPane.add(l_enpiAfter, 0, ++row);
         gridPane.add(l_enpiChange, 0, ++row);
 
+        gridPane.add(l_energyBefore, 0, ++row);
+        gridPane.add(l_energyAfter, 0, ++row);
+        gridPane.add(l_energyChange, 0, ++row);
+
         row = 0;
         gridPane.add(box_EnpiBefore, 1, row);
         gridPane.add(box_EnpiAfter, 1, ++row);
         gridPane.add(f_enpiChange, 1, ++row);
+
+        gridPane.add(f_energyBefore, 1, ++row);
+        gridPane.add(f_energyAfter, 1, ++row);
+        gridPane.add(f_energyChange, 1, ++row);
 
         gridPane.add(l_FromUser, 3, 0);
         gridPane.add(l_CreateDate, 3, 1);
@@ -499,12 +564,12 @@ public class ActionForm extends Dialog {
         gridPane.add(f_CreateDate, 4, 1);
         gridPane.add(f_distributor, 4, 2);
 
-        gridPane.add(l_correctionIfNeeded, 0, 5);
-        gridPane.add(f_correctionIfNeeded, 0, 6, 2, 1);
-        gridPane.add(l_nextActionIfNeeded, 3, 5);
-        gridPane.add(f_nextActionIfNeeded, 3, 6, 2, 1);
-        gridPane.add(l_alternativAction, 0, 7);
-        gridPane.add(f_alternativAction, 0, 8, 2, 1);
+        gridPane.add(l_correctionIfNeeded, 0, 6);
+        gridPane.add(f_correctionIfNeeded, 0, 7, 2, 1);
+        gridPane.add(l_nextActionIfNeeded, 3, 6);
+        gridPane.add(f_nextActionIfNeeded, 3, 7, 2, 1);
+        gridPane.add(l_alternativAction, 0, 8);
+        gridPane.add(f_alternativAction, 0, 9, 2, 1);
 
         Separator sep = new Separator();
         GridPane.setHgrow(sep, Priority.ALWAYS);

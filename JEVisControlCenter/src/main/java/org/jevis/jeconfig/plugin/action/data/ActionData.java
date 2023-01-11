@@ -61,6 +61,7 @@ public class ActionData {
     private final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
 
     private final SimpleStringProperty enpilinks = new SimpleStringProperty("EnPI Link", I18n.getInstance().getString("plugin.action.enpilink"), "");
+    public final SimpleDoubleProperty energySaving = new SimpleDoubleProperty(" Energy Saving", I18n.getInstance().getString("plugin.action.enpilink"), 0d);
 
     private ChangeListener changeListener;
     private JEVisObject object;
@@ -374,4 +375,6 @@ public class ActionData {
     public SimpleStringProperty savingyearProperty() {
         return savingyear;
     }
+
+
 }
