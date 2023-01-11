@@ -786,6 +786,13 @@ public class ChartPlugin implements Plugin {
 //        });
     }
 
+    Map<Chart, List<ChartDataRow>> dataRowMap = new TreeMap<Chart, List<ChartDataRow>>() {
+        @Override
+        public Comparator<? super Chart> comparator() {
+            return new ChartComparator();
+        }
+    };
+
     private void finalUpdates() throws InterruptedException {
 
         AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
@@ -803,6 +810,8 @@ public class ChartPlugin implements Plugin {
 
                 StringBuilder allFormulas = new StringBuilder();
                 for (Map.Entry<Integer, Chart> entry : allCharts.entrySet()) {
+                    dataRowMap.put(entry.getValue(), entry.getValue().getChartDataRows());
+
                     List<Chart> notActive = new ArrayList<>(allCharts.values());
                     notActive.remove(entry.getValue());
                     ChartType chartType = entry.getValue().getChartType();
@@ -838,6 +847,10 @@ public class ChartPlugin implements Plugin {
             Thread.sleep(500);
             finalUpdates();
         }
+    }
+
+    public Map<Chart, List<ChartDataRow>> getDataRowMap() {
+        return dataRowMap;
     }
 
     private void formatCharts() {
@@ -1593,5 +1606,14 @@ public class ChartPlugin implements Plugin {
 
     public FavoriteAnalysisHandler getFavoriteAnalysisHandler() {
         return favoriteAnalysisHandler;
+    }
+
+    static class ChartComparator implements Comparator<Chart> {
+        private final AlphanumComparator alphanumComparator = new AlphanumComparator();
+
+        @Override
+        public int compare(Chart o1, Chart o2) {
+            return o1.getChartName().compareTo(o2.getChartName());
+        }
     }
 }
