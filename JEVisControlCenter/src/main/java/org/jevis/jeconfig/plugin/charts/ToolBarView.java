@@ -680,11 +680,20 @@ public class ToolBarView {
 
         calcSumAboveBelow.setOnAction(event -> toolBarFunctions.calcSumAboveBelow());
 
-        customWorkDay.setOnAction(event -> toolBarSettings.setCustomWorkday(!toolBarSettings.isCustomWorkday()));
+        customWorkDay.setOnAction(event -> {
+            toolBarSettings.setCustomWorkday(!toolBarSettings.isCustomWorkday());
+            chartPlugin.update();
+        });
 
-        disableIcons.setOnAction(event -> toolBarSettings.setShowIcons(!toolBarSettings.isShowIcons()));
+        disableIcons.setOnAction(event -> {
+            toolBarSettings.setShowIcons(!toolBarSettings.isShowIcons());
+            chartPlugin.update();
+        });
 
-        autoResize.setOnAction(event -> toolBarSettings.setAutoResize(!toolBarSettings.isAutoResize()));
+        autoResize.setOnAction(event -> {
+            toolBarSettings.setAutoResize(!toolBarSettings.isAutoResize());
+            chartPlugin.update();
+        });
 
     }
 
