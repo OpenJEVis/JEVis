@@ -93,12 +93,12 @@ public class JEVisUnitImp implements JEVisUnit {
     }
 
     /**
-     * Create an new JEVisUnit from an JEVisUnit string
+     * Create a new JEVisUnit from an JEVisUnit string
      *
      * @param prefix
      * @param unit
      * @param label
-     * @TODO example of an string
+     * @TODO example of a string
      */
     public JEVisUnitImp(String unit, String label, String prefix) {
         UnitFormula up = new UnitFormula(unit, label);

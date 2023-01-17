@@ -229,7 +229,7 @@ public class TemplateInput extends TemplateSelected {
                         max = Math.max(max, d);
                     }
 
-                    if (!isQuantity() || getVariableType().equals(InputVariableType.AVG.toString()))
+                    if ((!isQuantity() || getVariableType().equals(InputVariableType.AVG.toString())) && !samples.isEmpty())
                         sum = sum / samples.size();
 
                     if (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())) {

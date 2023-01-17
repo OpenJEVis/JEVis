@@ -29,10 +29,13 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -339,7 +342,7 @@ public class OutputView extends Tab {
         multiInputFormulaOutputs.sort((o1, o2) -> {
             List<TemplateOutput> templateOutputs1 = map.get(o1);
             List<TemplateOutput> templateOutputs2 = map.get(o2);
-            if (templateOutputs1.contains(o2)) return 1;
+            if (templateOutputs1.size() == 0 || templateOutputs1.contains(o2)) return 1;
             if (templateOutputs1.contains(o2) && templateOutputs2.contains(o2)) return 0;
             else return -1;
         });
@@ -353,7 +356,11 @@ public class OutputView extends Tab {
                 for (TemplateOutput templateOutput : outputs) {
                     if (!templateOutput.getSeparator()) {
                         try {
-                            logger.debug("Output creation for {} with variable name {}", templateOutput.getName(), templateOutput.getVariableName());
+                            if (templateOutput.getName() != null) {
+                                logger.debug("Output creation for {}", templateOutput.getName());
+                            } else if (templateOutput.getVariableName() != null) {
+                                logger.debug("Output creation for output with variable name {}", templateOutput.getVariableName());
+                            }
 
                             Label label = new Label(templateOutput.getName());
                             if (templateOutput.getNameBold()) {
@@ -372,7 +379,13 @@ public class OutputView extends Tab {
 
                             HBox hBox = new HBox(label, result);
 
+                            if (templateOutput.getShowTooltip()) {
+                                Tooltip tooltip = new Tooltip(templateOutput.getTooltip());
+                                Tooltip.install(hBox, tooltip);
+                            }
+
                             if (templateOutput.getLink()) {
+                                logger.debug("Found linked output, creating Manual Data Button");
                                 JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
                                 manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
 
@@ -415,7 +428,7 @@ public class OutputView extends Tab {
                                                     }
                                                 }
                                             } catch (Exception e) {
-                                                logger.error("Could not determin attribute type and gui display type", e);
+                                                logger.error("Could not determine attribute type and gui display type", e);
                                             }
                                         });
 
@@ -439,6 +452,7 @@ public class OutputView extends Tab {
                             TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
 
                             if (formula != null) {
+                                logger.debug("Found formula named {} with formula {}", formula.getName(), formula.getFormula());
 
                                 DateTime start = getStart();
                                 DateTime end = getEnd();
@@ -469,7 +483,36 @@ public class OutputView extends Tab {
                                             }
 
                                             if (p != null) {
-                                                previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
+                                                DateTime minusPeriodToDate = PeriodHelper.minusPeriodToDate(end, p);
+
+                                                boolean followUp = false;
+
+                                                if (p.equals(Period.years(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withMonthOfYear(12);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.months(1))) {
+                                                    int lastDayOfMonth = minusPeriodToDate.dayOfMonth().getMaximumValue();
+                                                    minusPeriodToDate = minusPeriodToDate.withDayOfMonth(lastDayOfMonth);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.days(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withHourOfDay(23);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.hours(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withMinuteOfHour(59);
+                                                    followUp = true;
+                                                }
+
+                                                if (followUp || p.equals(Period.minutes(1))) {
+                                                    minusPeriodToDate = minusPeriodToDate.withSecondOfMinute(59);
+                                                }
+
+                                                previousEndDate = minusPeriodToDate;
                                             } else {
                                                 previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart()).toDuration());
                                             }
@@ -477,13 +520,16 @@ public class OutputView extends Tab {
 
                                         if (previousEndDate != null && previousEndDate.isAfter(start)) {
                                             end = previousEndDate;
+                                        } else if (previousEndDate != null && (previousEndDate.isBefore(start) || previousEndDate.equals(start))) {
+                                            start = start.plusSeconds(1);
+                                            end = start;
                                         }
                                     }
                                 }
 
                                 String formulaString = formula.getFormula();
                                 Double calculate = 0d;
-                                logger.debug("Start of formula creation: " + formulaString);
+                                logger.debug("Start of formula creation starting with string " + formulaString);
 
                                 boolean isText = false;
                                 List<DateTime> allTimestamps = new ArrayList<>();
@@ -551,6 +597,19 @@ public class OutputView extends Tab {
                                             formulaString = formulaString.replace(templateInput.getVariableName(), templateInput.getValue(ds, start, end, rangingValueDetermination));
                                         }
                                     }
+                                }
+
+                                if (formula.getInputIds().size() == 1 && templateOutput.getShowAnalysisLink()) {
+                                    TemplateInput correspondingInput = templateHandler.getRcTemplate().getTemplateInputs().stream().filter(templateInput -> templateInput.getId().equals(formula.getInputIds().get(0))).findFirst().orElse(null);
+
+                                    if (!correspondingInput.getAttributeName().equals("name")) {
+                                        JEVisAttribute attribute = ds.getObject(correspondingInput.getObjectID()).getAttribute(correspondingInput.getAttributeName());
+                                        AnalysisLinkButton analysisLinkButton = new AnalysisLinkButton(attribute);
+                                        analysisLinkButton.getAnalysisRequest().setStartDate(start);
+                                        analysisLinkButton.getAnalysisRequest().setEndDate(end);
+                                        hBox.getChildren().add(analysisLinkButton);
+                                    }
+
                                 }
 
                                 dependencyInputs.forEach(dependencyInput -> dependencyInput.getResultMap().forEach((dateTime, aDouble) -> {
@@ -665,8 +724,9 @@ public class OutputView extends Tab {
                                             Expression expression = new Expression(formulaString);
                                             calculate = expression.calculate();
                                         }
-                                        if (!calculate.isNaN()) {
+                                        if (!calculate.isNaN() && !calculate.isInfinite()) {
                                             resultMap.put(formula.getId(), calculate);
+                                            logger.debug("added value of {} to result map", calculate);
                                         }
                                         if (templateOutput.getUnit() != null) {
                                             result.setText(nf.format(calculate) + " " + templateOutput.getUnit());
@@ -738,7 +798,7 @@ public class OutputView extends Tab {
                 logger.debug("Added {} to grouped inputs", templateInput.getVariableName());
             } else if (templateInput.getVariableType() != null && !templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
                 ungroupedInputs.add(templateInput);
-                logger.debug("Added {} to ungrouped inputs", templateInput.getVariableName());
+                logger.debug("Added formula {} to ungrouped inputs", templateInput.getVariableName());
             }
         }
 
@@ -755,7 +815,7 @@ public class OutputView extends Tab {
         for (TemplateInput ungroupedInput : ungroupedInputs) {
             String variableName = ungroupedInput.getVariableName();
             Label label = new Label(variableName);
-            label.setTooltip(new Tooltip(variableName));
+            label.setTooltip(new Tooltip(ungroupedInput.getObjectClass()));
             label.setMinWidth(120);
             label.setAlignment(Pos.CENTER_LEFT);
 
@@ -834,7 +894,7 @@ public class OutputView extends Tab {
                         contractsGP.add(region, finalColumn + 2, finalRow);
                     });
                 }
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get object selector for template input {}", ungroupedInput, e);
             }
 
@@ -857,18 +917,27 @@ public class OutputView extends Tab {
                 row++;
             }
             List<TemplateInput> groupedInputs = groupedInputsMap.get(jeVisClass);
+            TemplateInput firstGroupedInput = groupedInputs.get(0);
+            StringBuilder objectNames = new StringBuilder();
             String className = null;
             try {
                 className = I18nWS.getInstance().getClassName(jeVisClass);
+
+                for (int i = 0; i < groupedInputs.size(); i++) {
+                    if (i > 0) objectNames.append(", ");
+                    if (i % 2 == 0) objectNames.append("\n");
+                    TemplateInput groupedInput = groupedInputs.get(i);
+                    objectNames.append(groupedInput.getVariableName());
+                }
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
-            Label label = new Label(className);
+            Label label = new Label(objectNames.toString());
             label.setTooltip(new Tooltip(className));
             label.setMinWidth(120);
             label.setAlignment(Pos.CENTER_LEFT);
 
-            JFXComboBox<JEVisObject> objectSelector = createObjectSelector(groupedInputs.get(0).getObjectClass(), groupedInputs.get(0).getFilter());
+            JFXComboBox<JEVisObject> objectSelector = createObjectSelector(firstGroupedInput.getObjectClass(), firstGroupedInput.getFilter());
 
             try {
                 Long objectID = groupedInputs.stream().filter(input -> input.getObjectID() != -1L).findFirst().map(TemplateSelected::getObjectID).orElse(-1L);
@@ -882,10 +951,10 @@ public class OutputView extends Tab {
                     }
 
                     JEVisObject selectedObject = ds.getObject(objectID);
-                    logger.debug("Found object {}:{}, selecting for {}", selectedObject.getName(), selectedObject.getID(), groupedInputs.get(0).getVariableName());
+                    logger.debug("Found object {}:{}, selecting for {}", selectedObject.getName(), selectedObject.getID(), firstGroupedInput.getVariableName());
                     objectSelector.getSelectionModel().select(selectedObject);
                 } else {
-                    logger.debug("Found no object, selecting for {}", groupedInputs.get(0).getVariableName());
+                    logger.debug("Found no object, selecting for {}", firstGroupedInput.getVariableName());
                     objectSelector.getSelectionModel().selectFirst();
                     groupedInputs.forEach(templateInput1 -> {
                         templateInput1.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID());
@@ -931,11 +1000,9 @@ public class OutputView extends Tab {
                 try {
                     if (jeVisClass.getInheritance() != null) {
                         String translatedClassName = I18nWS.getInstance().getClassName(jeVisClass.getInheritance().getName());
-                        label.setText(translatedClassName);
                         label.setTooltip(new Tooltip(translatedClassName));
                     } else {
                         String translatedClassName = I18nWS.getInstance().getClassName(jeVisClass.getName());
-                        label.setText(translatedClassName);
                         label.setTooltip(new Tooltip(translatedClassName));
                     }
                 } catch (Exception e) {
@@ -1206,17 +1273,26 @@ public class OutputView extends Tab {
 
         objects.sort((o1, o2) -> {
 
-            String relativePathO1 = objectRelations.getRelativePath(o1);
-            String objectPathO1 = objectRelations.getObjectPath(o1);
+            String prefix1 = "";
+            String prefix2 = "";
 
-            String o1Name = objectPathO1 + relativePathO1 + TRCPlugin.getRealName(o1);
+            if (ChartTools.isMultiSite(ds)) {
+                prefix1 += objectRelations.getObjectPath(o1);
+            }
+            if (ChartTools.isMultiDir(ds, o1)) {
+                prefix1 += objectRelations.getRelativePath(o1);
+            }
+            prefix1 += o1.getName();
 
-            String relativePathO2 = objectRelations.getRelativePath(o1);
-            String objectPathO2 = objectRelations.getObjectPath(o1);
+            if (ChartTools.isMultiSite(ds)) {
+                prefix2 += objectRelations.getObjectPath(o2);
+            }
+            if (ChartTools.isMultiDir(ds, o2)) {
+                prefix2 += objectRelations.getRelativePath(o2);
+            }
+            prefix2 += o2.getName();
 
-            String o2Name = objectPathO2 + relativePathO2 + TRCPlugin.getRealName(o2);
-
-            return alphanumComparator.compare(o1Name, o2Name);
+            return alphanumComparator.compare(prefix1, prefix2);
         });
 
         JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
@@ -1234,13 +1310,27 @@ public class OutputView extends Tab {
                             setText(null);
                         } else {
                             try {
-                                String objectPath = objectRelations.getObjectPath(obj);
-                                String relativePath = objectRelations.getRelativePath(obj);
-                                if (!obj.getJEVisClassName().equals("Clean Data")) {
-                                    setText(objectPath + relativePath + obj.getName());
-                                } else {
-                                    setText(objectPath + relativePath + TRCPlugin.getRealName(obj));
+                                String name = "";
+                                JEVisObject correctObject = obj;
+                                if (obj.getJEVisClassName().equals("Clean Data")) {
+                                    correctObject = CommonMethods.getFirstParentalDataObject(obj);
                                 }
+
+                                if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, correctObject))
+                                    name = correctObject.getName();
+                                else {
+                                    String prefix = "";
+                                    if (ChartTools.isMultiSite(ds)) {
+                                        prefix += objectRelations.getObjectPath(correctObject);
+                                    }
+                                    if (ChartTools.isMultiDir(ds, correctObject)) {
+                                        prefix += objectRelations.getRelativePath(correctObject);
+                                    }
+
+                                    name = prefix + correctObject.getName();
+                                }
+
+                                setText(name);
                             } catch (JEVisException e) {
                                 logger.error("Could not get JEVisClass of object {}:{}", obj.getName(), obj.getID(), e);
                             }
