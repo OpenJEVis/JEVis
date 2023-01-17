@@ -177,7 +177,7 @@ public class PluginManager {
                         new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")),
                         new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")),
                         new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")),
-                        new AccountingPlugin(this._ds, "Actions"),
+                        new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")),
                         new TRCPlugin(this._ds)
                 ));
             } else {
@@ -214,6 +214,8 @@ public class PluginManager {
                                         _plugins.add(new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")));
                                     } else if (plugObj.getJEVisClassName().equals(AccountingPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
+                                    } else if (plugObj.getJEVisClassName().equals(ActionPlugin.PLUGIN_NAME)) {
+                                        _plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
                                     } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new TRCPlugin(this._ds));
                                     }
@@ -227,7 +229,7 @@ public class PluginManager {
                         ex.printStackTrace();
                     }
                 }
-                _plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
+                //_plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
                 this._plugins.addAll(enabledPlugins);
 
             }

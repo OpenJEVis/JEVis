@@ -21,6 +21,7 @@ public class ActionPlugin implements Plugin {
     private JEVisDataSource ds;
     private boolean isInit = false;
     private ActionToolbar toolbar;
+    public static final String PLUGIN_NAME = "Action Plan Plugin";
 
 
     public ActionPlugin(JEVisDataSource ds, String name) {
