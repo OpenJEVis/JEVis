@@ -118,6 +118,7 @@ public class SankeyPlot extends Region {
 
     public void setFontSize(double fontSize) {
         this.fontSize = fontSize;
+        redraw();
     }
 
     private double fontSize;

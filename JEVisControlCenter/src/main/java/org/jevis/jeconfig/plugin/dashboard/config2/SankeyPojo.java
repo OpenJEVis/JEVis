@@ -4,33 +4,34 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import eu.hansolo.fx.charts.Grid;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
-import javafx.geometry.NodeOrientation;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TableView;
+import javafx.geometry.Orientation;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.Icon;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SankeyPojo {
 
@@ -52,9 +53,6 @@ public class SankeyPojo {
 
     private boolean showFlow = true;
 
-
-    private boolean colorGradient = true;
-
     private boolean autoGap;
 
     private int gap;
@@ -68,7 +66,6 @@ public class SankeyPojo {
     public static final String ROOT = "Root";
 
 
-
     private String showValueIn = PERCENT;
 
     private String percentRefersTo = PARENT;
@@ -80,14 +77,9 @@ public class SankeyPojo {
     private JFXTextField jfxTextFieldGap;
     private JFXCheckBox jfxCheckBoxShowFlow;
 
+    private Map<Integer, Spinner<Integer>> offsetUIList = new HashMap<>();
 
-    private JFXCheckBox jfxCheckBoxColorGradient;
-
-    private JFXCheckBox jfxCheckBoxAllowOutputToBeGraterThanInput;
-
-    private boolean allowOutputToBeGraterThanInput;
-
-
+    private Map<Integer, Integer> offsetMap = new HashMap<>();
 
 
 
@@ -108,9 +100,6 @@ public class SankeyPojo {
             if (jsonNode.has("showFlow")) {
                 showFlow = jsonNode.get("showFlow").asBoolean(true);
             }
-            if (jsonNode.has("colorGradient")) {
-               colorGradient = jsonNode.get("colorGradient").asBoolean(true);
-            }
             if (jsonNode.has("showValueIn")) {
                 showValueIn = jsonNode.get("showValueIn").asText();
             }
@@ -123,12 +112,11 @@ public class SankeyPojo {
             if (jsonNode.has("gap")) {
                 gap = jsonNode.get("gap").asInt(0);
             }
-            if (jsonNode.has("allowOutpuGreater")) {
-                allowOutputToBeGraterThanInput = jsonNode.get("allowOutpuGreater").asBoolean();
-            }
+
 
             try {
                 retrieveSankeyDataRowObjects(jsonNode);
+                retrieveOffsets(jsonNode);
             } catch (JEVisException e) {
                 throw new RuntimeException(e);
             }
@@ -150,29 +138,20 @@ public class SankeyPojo {
         sankeyTable.getItems().addAll(netGraphDataRows);
     }
 
+    private void retrieveOffsets(JsonNode jsonNode){
+        if (jsonNode.has("offsets")) {
+            jsonNode.get("offsets").forEach(jsonNode1 -> {
+                offsetMap.put(jsonNode1.get("level").asInt(), jsonNode1.get("offset").asInt());
+            });
+        }
+
+    }
+
     public Tab getConfigTab(ObservableList<ChartData> tableList) {
-        GridPane gridPane = new GridPane();
-
-        ColumnConstraints column1 = new ColumnConstraints();
-        ColumnConstraints column2 = new ColumnConstraints();
-        ColumnConstraints column3 = new ColumnConstraints();
-        ColumnConstraints column4 = new ColumnConstraints();
-        ColumnConstraints column5 = new ColumnConstraints();
-
-        column1.setHgrow(Priority.NEVER);
-        column2.setHgrow(Priority.NEVER);
-        column3.setHgrow(Priority.NEVER);
-        column4.setHgrow(Priority.NEVER);
-        column5.setHgrow(Priority.ALWAYS);
-        gridPane.getColumnConstraints().addAll(column1, column2, column3,column4,column5);
-        gridPane.setVgap(8);
-        gridPane.setHgap(8);
-        gridPane.setPadding(new Insets(8, 5, 8, 5));
+        GridPane gridPane = createGridpane();
 
         jfxCheckBoxShowFlow = new JFXCheckBox();
         jfxCheckBoxShowFlow.setSelected(showFlow);
-        jfxCheckBoxColorGradient = new JFXCheckBox();
-        jfxCheckBoxColorGradient.setSelected(colorGradient);
 
         jfxComboBoxShowValueIn = new JFXComboBox<>();
         jfxComboBoxShowValueIn.getItems().addAll(UNIT, PERCENT);
@@ -184,25 +163,25 @@ public class SankeyPojo {
         Label label = new Label(I18n.getInstance().getString("plugin.dashboard.sankey.refersto"));
 
         if (jfxComboBoxShowValueIn.getValue().equals(UNIT)) {
-           label.setVisible(false);
-           label.setDisable(true);
+            label.setVisible(false);
+            label.setDisable(true);
             jfxComboBoxRefersTo.setVisible(false);
             jfxComboBoxRefersTo.setDisable(true);
         }
 
-       jfxComboBoxShowValueIn.setOnAction(actionEvent -> {
-           if (jfxComboBoxShowValueIn.getValue().equals(PERCENT)) {
-               label.setVisible(true);
-               label.setDisable(false);
-               jfxComboBoxRefersTo.setVisible(true);
-               jfxComboBoxRefersTo.setDisable(false);
-           }else {
-               label.setVisible(false);
-               label.setDisable(true);
-               jfxComboBoxRefersTo.setVisible(false);
-               jfxComboBoxRefersTo.setDisable(true);
-           }
-       });
+        jfxComboBoxShowValueIn.setOnAction(actionEvent -> {
+            if (jfxComboBoxShowValueIn.getValue().equals(PERCENT)) {
+                label.setVisible(true);
+                label.setDisable(false);
+                jfxComboBoxRefersTo.setVisible(true);
+                jfxComboBoxRefersTo.setDisable(false);
+            } else {
+                label.setVisible(false);
+                label.setDisable(true);
+                jfxComboBoxRefersTo.setVisible(false);
+                jfxComboBoxRefersTo.setDisable(true);
+            }
+        });
 
 
         jfxTextFieldGap = new JFXTextField();
@@ -218,8 +197,6 @@ public class SankeyPojo {
         }
 
 
-
-
         jfxCheckBoxAutoGap = new JFXCheckBox();
         jfxCheckBoxAutoGap.setSelected(autoGap);
         jfxCheckBoxAutoGap.setOnAction(actionEvent -> {
@@ -228,7 +205,7 @@ public class SankeyPojo {
                 jfxTextFieldGap.setVisible(false);
                 label1.setDisable(true);
                 label1.setVisible(false);
-            }else {
+            } else {
                 jfxTextFieldGap.setDisable(false);
                 jfxTextFieldGap.setVisible(true);
                 label1.setDisable(false);
@@ -236,25 +213,39 @@ public class SankeyPojo {
             }
         });
 
-        jfxCheckBoxAllowOutputToBeGraterThanInput = new JFXCheckBox();
-        jfxCheckBoxAllowOutputToBeGraterThanInput.setSelected(allowOutputToBeGraterThanInput);
+
+
+
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showflow")), jfxCheckBoxShowFlow);
+
+        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 1, 5, 1);
+
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showvaluein")), jfxComboBoxShowValueIn, label, jfxComboBoxRefersTo);
+
+        gridPane.addRow(3, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.autogap")), jfxCheckBoxAutoGap, label1, jfxTextFieldGap);
+
+
+        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 4, 5, 1);
+        int j = 5;
+        for (int i = 1; i < getMaxLevel(); i++) {
+            if (offsetMap.containsKey(i)) {
+                createOffsetLevelRow(gridPane, i,offsetMap.get(i), j);
+            }else {
+                createOffsetLevelRow(gridPane, i,0, j);
+            }
+
+
+            j++;
+        }
 
 
 
 
-        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showflow")),jfxCheckBoxShowFlow);
-        gridPane.addRow(1,new Label("use Color Gradient"),jfxCheckBoxColorGradient);
-        gridPane.addRow(2,new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showvaluein")),jfxComboBoxShowValueIn,label,jfxComboBoxRefersTo);
-        gridPane.addRow(3,new Label(I18n.getInstance().getString("plugin.dashboard.sankey.autogap")),jfxCheckBoxAutoGap,label1,jfxTextFieldGap);
-        gridPane.addRow(4,new Label(I18n.getInstance().getString("output > input")),jfxCheckBoxAllowOutputToBeGraterThanInput);
-
-
-
-
+        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, j, 5, 1);
+        j++;
 
         addChangeListenerForDataTable(tableList);
-        gridPane.add(sankeyTable,0,5,5,5);
-
+        gridPane.add(sankeyTable, 0, j, 5, 5);
 
 
         SankeyPojo.GaugeDesignTab tab = new SankeyPojo.GaugeDesignTab(I18n.getInstance().getString("plugin.dashboard.sankey")
@@ -267,6 +258,93 @@ public class SankeyPojo {
 
     }
 
+    @NotNull
+    private static GridPane createGridpane() {
+        GridPane gridPane = new GridPane();
+
+
+        ColumnConstraints column1 = new ColumnConstraints();
+        ColumnConstraints column2 = new ColumnConstraints();
+        ColumnConstraints column3 = new ColumnConstraints();
+        ColumnConstraints column4 = new ColumnConstraints();
+        ColumnConstraints column5 = new ColumnConstraints();
+
+        column1.setHgrow(Priority.NEVER);
+        column2.setHgrow(Priority.NEVER);
+        column3.setHgrow(Priority.NEVER);
+        column4.setHgrow(Priority.NEVER);
+        column5.setHgrow(Priority.ALWAYS);
+        gridPane.getColumnConstraints().addAll(column1, column2, column3, column4, column5);
+        gridPane.setVgap(8);
+        gridPane.setHgap(8);
+        gridPane.setPadding(new Insets(8, 5, 8, 5));
+        return gridPane;
+    }
+
+    private void createOffsetLevelRow(GridPane gridPane, int level,int offset, int row) {
+
+
+
+
+        Label levelLabel = new Label(I18n.getInstance().getString("plugin.dashboard.sankey.level")+": "+(level+1));
+        Label offsetLabel = new Label(I18n.getInstance().getString("plugin.dashboard.sankey.offset"));
+
+        Tooltip tooltipLevel = new Tooltip(I18n.getInstance().getString("plugin.dashboard.sankey.tolltip.level"));
+        Tooltip tooltipOffset = new Tooltip(I18n.getInstance().getString("plugin.dashboard.sankey.tolltip.offset"));
+        levelLabel.setTooltip(tooltipLevel);
+        offsetLabel.setTooltip(tooltipOffset);
+
+        Spinner<Integer> offsetSpinner = new Spinner<>();
+        offsetSpinner.setEditable(true);
+        SpinnerValueFactory<Integer> valueFactoryOffset = new SpinnerValueFactory.IntegerSpinnerValueFactory(-800, 800,offset);
+
+
+
+        gridPane.addRow(row,levelLabel,offsetLabel,offsetSpinner);
+
+
+
+        offsetSpinner.focusedProperty().addListener((s, ov, nv) -> {
+            if (nv) return;
+            commitEditorText(offsetSpinner);
+        });
+
+        offsetSpinner.setValueFactory(valueFactoryOffset);
+
+
+        this.offsetUIList.put(level, offsetSpinner);
+
+    }
+
+    private int getMaxLevel() {
+        int level = 0;
+            for (SankeyDataRow sankeyDataRow:netGraphDataRows) {
+                int i = calculateMaxLevel(sankeyDataRow, 0);
+                if (level < i) {
+                    level = i;
+                }
+            }
+        return level;
+    }
+
+    private int calculateMaxLevel(SankeyDataRow sankeyDataRow, int i) {
+        int z = i;
+        if (sankeyDataRow.getChildren().size() > 0) {
+
+            for (JEVisObject jeVisObject: sankeyDataRow.getChildren()) {
+                Optional<SankeyDataRow> sankeyDataRow1 = netGraphDataRows.stream().filter(sankeyDataRow2 -> sankeyDataRow2.getJeVisObject().getID().intValue() == jeVisObject.getID().intValue()).findAny();
+                if (sankeyDataRow1.isPresent()) {
+                    int j = calculateMaxLevel(sankeyDataRow1.get(),i+1);
+                    if (j > z) {
+                        z = j;
+                    }
+                }
+            }
+        }
+        return z;
+    }
+
+
     private void addChangeListenerForDataTable(ObservableList<ChartData> tableList) {
         tableList.addListener(new ListChangeListener<ChartData>() {
             @Override
@@ -274,7 +352,7 @@ public class SankeyPojo {
                 sankeyTable.getItems().clear();
                 while (c.next()) {
                     for (ChartData chartData : c.getRemoved()) {
-                       Optional<SankeyDataRow> sankeyDataRowOptional = netGraphDataRows.stream().filter(sankeyDataRow -> sankeyDataRow.getJeVisObject().equals(chartData.getObjectName())).findAny();
+                        Optional<SankeyDataRow> sankeyDataRowOptional = netGraphDataRows.stream().filter(sankeyDataRow -> sankeyDataRow.getJeVisObject().equals(chartData.getObjectName())).findAny();
                         if (sankeyDataRowOptional.isPresent()) {
                             netGraphDataRows.remove(sankeyDataRowOptional.get());
                         }
@@ -294,28 +372,43 @@ public class SankeyPojo {
         });
     }
 
+    private <T> void commitEditorText(Spinner<T> spinner) {
+        if (!spinner.isEditable()) return;
+        String text = spinner.getEditor().getText();
+        SpinnerValueFactory<T> valueFactory = spinner.getValueFactory();
+        if (valueFactory != null) {
+            StringConverter<T> converter = valueFactory.getConverter();
+            if (converter != null) {
+                T value = converter.fromString(text);
+                valueFactory.setValue(value);
+            }
+        }
+    }
+
 
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
         dataNode.put("showFlow", showFlow);
-        dataNode.put("colorGradient", colorGradient);
         dataNode.put("showValueIn", showValueIn);
         dataNode.put("refersTo", percentRefersTo);
         dataNode.put("autoGap", autoGap);
         dataNode.put("gap", gap);
-        dataNode.put("allowOutpuGreater", allowOutputToBeGraterThanInput);
         ArrayNode arrayNode = dataNode.putArray("sankeyDataRows");
         netGraphDataRows.forEach(sankeyDataRow -> {
             ObjectNode sankeyData = arrayNode.addObject();
             sankeyData.put("id", sankeyDataRow.getJeVisObject().getID());
             ArrayNode children = sankeyData.putArray("children");
-            //System.out.println(sankeyDataRow.getChildren());
             for (int i = 0; i < sankeyDataRow.getChildren().size(); i++) {
                 children.add(sankeyDataRow.getChildren().get(i).getID());
             }
-
-
         });
+        ArrayNode arrayNodeOffset = dataNode.putArray("offsets");
+        offsetMap.forEach((integer, integer2) -> {
+            ObjectNode objectNode = arrayNodeOffset.addObject();
+            objectNode.put("level", integer);
+            objectNode.put("offset", integer2);
+        });
+
 
         return dataNode;
     }
@@ -347,17 +440,6 @@ public class SankeyPojo {
 
     public void setShowFlow(boolean showFlow) {
         this.showFlow = showFlow;
-    }
-
-
-
-
-    public boolean isColorGradient() {
-        return colorGradient;
-    }
-
-    public void setColorGradient(boolean colorGradient) {
-        this.colorGradient = colorGradient;
     }
 
     public String getShowValueIn() {
@@ -392,12 +474,16 @@ public class SankeyPojo {
         this.gap = gap;
     }
 
-    public boolean isAllowOutputToBeGraterThanInput() {
-        return allowOutputToBeGraterThanInput;
+
+
+
+
+    public Map<Integer, Integer> getOffsetMap() {
+        return offsetMap;
     }
 
-    public void setAllowOutputToBeGraterThanInput(boolean allowOutputToBeGraterThanInput) {
-        this.allowOutputToBeGraterThanInput = allowOutputToBeGraterThanInput;
+    public void setOffsetMap(Map<Integer, Integer> offsetMap) {
+        this.offsetMap = offsetMap;
     }
 
     private class GaugeDesignTab extends Tab implements ConfigTab {
@@ -411,12 +497,18 @@ public class SankeyPojo {
         @Override
         public void commitChanges() {
             showFlow = jfxCheckBoxShowFlow.isSelected();
-            colorGradient = jfxCheckBoxColorGradient.isSelected();
             showValueIn = jfxComboBoxShowValueIn.getValue();
             percentRefersTo = jfxComboBoxRefersTo.getValue();
             autoGap = jfxCheckBoxAutoGap.isSelected();
             gap = Integer.valueOf(jfxTextFieldGap.getText());
-            allowOutputToBeGraterThanInput = jfxCheckBoxAllowOutputToBeGraterThanInput.isSelected();
+
+
+
+            offsetMap.clear();
+           offsetUIList.forEach((integer, integerSpinner) -> {
+               offsetMap.put(integer, integerSpinner.getValue());
+           });
+
         }
     }
 
