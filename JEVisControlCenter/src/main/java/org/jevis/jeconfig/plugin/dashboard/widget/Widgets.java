@@ -25,7 +25,7 @@ public class Widgets {
             put(ValueEditWidget.WIDGET_ID, new WidgetSelection(ValueEditWidget.class.getName(), ValueEditWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.valueeditor"), TitleWidget.ICON));
             put(DashboadLinkWidget.WIDGET_ID, new WidgetSelection(DashboadLinkWidget.class.getName(), DashboadLinkWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.dashboardlinker"), TitleWidget.ICON));
             put(ArrowWidget.WIDGET_ID, new WidgetSelection(ArrowWidget.class.getName(), ArrowWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.arrow"), TitleWidget.ICON));
-            //put(SankeyWidget.WIDGET_ID, new WidgetSelection(TitleWidget.class.getName(), TitleWidget.WIDGET_ID, TitleWidget.ICON));
+            put(SankeyWidget.WIDGET_ID, new WidgetSelection(SankeyWidget.class.getName(), SankeyWidget.WIDGET_ID,I18n.getInstance().getString("dashboard.widget.sankey"), TitleWidget.ICON));
             put(ImageWidget.WIDGET_ID, new WidgetSelection(ImageWidget.class.getName(), ImageWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.image"), TitleWidget.ICON));
             put(GaugeWidget.WIDGET_ID, new WidgetSelection(GaugeWidget.class.getName(), GaugeWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.gauge"), TitleWidget.ICON));
             put(LinearGaugeWidget.WIDGET_ID, new WidgetSelection(LinearGaugeWidget.class.getName(), LinearGaugeWidget.WIDGET_ID, I18n.getInstance().getString("dashboard.widget.lineargauge"), TitleWidget.ICON));

@@ -125,5 +125,7 @@ public class Icon {
 
     public static final String HOME = "/icons/MaterialDesignSVG/outlined/home.svg";
     public static final String SELECT_CHECK_BOX = "/icons/MaterialDesignSVG/outlined/select_check_box.svg";
+    public static final String ARROW_UP = "/icons/MaterialDesignSVG/outlined/arrow_upward.svg";
+    public static final String ARROW_DOWN = "/icons/MaterialDesignSVG/outlined/arrow_downward.svg";
 
 }

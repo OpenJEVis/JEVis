@@ -396,6 +396,9 @@ public class TableHeader extends TableView<TableEntry> {
                                             } else {
                                                 stackPane.setBackground(new Background(new BackgroundFill(item, CornerRadii.EMPTY, Insets.EMPTY)));
                                             }
+
+                                            serie.getValueDataSetRenderer().getAxes().forEach(axis -> axis.requestAxisLayout());
+                                            serie.getNoteDataSetRenderer().getAxes().forEach(axis -> axis.requestAxisLayout());
                                         }
                                     }
                                 }
