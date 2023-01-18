@@ -1068,8 +1068,8 @@ public class ChartPlugin implements Plugin {
 
         if (noOfCharts == 1 || dataModel.isAutoSize()) {
             /**
-             * If all children take more space then the maximum available size
-             * set all on min size. after this the free space will be reallocate
+             * If all children take more space than the maximum available size
+             * set all on min size. after this the free space will be reallocated
              */
             totalPrefHeight = calculationTotalPrefSize(vBox);
 

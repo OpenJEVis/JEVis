@@ -106,7 +106,7 @@ public class JEConfig extends Application {
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
-    private static final Statusbar statusBar = new Statusbar();
+    private static Statusbar statusBar;
     private static final StackPane dialogContainer = new StackPane();
 
     public static final String xpathExpression = "//path/@d";
@@ -181,7 +181,7 @@ public class JEConfig extends Application {
      * Get the configuration for the app
      *
      * @return
-     * @deprecated will be replaced by an singleton
+     * @deprecated will be replaced by a singleton
      */
     public static Configuration getConfig() {
         return _config;
@@ -235,7 +235,7 @@ public class JEConfig extends Application {
     }
 
     /**
-     * Return an common resource
+     * Return a common resource
      *
      * @param file
      * @return
@@ -417,18 +417,9 @@ public class JEConfig extends Application {
 
                 logger.debug("Start JEVis Control Center");
                 login.addLoginMessage(I18n.getInstance().getString("app.login.start"), false);
-                _mainDS = login.getDataSource();
                 login.addLoginMessage(FXLogin.checkMarkSymbol, true);
 
                 JEConfig.userpassword = login.getUserPassword();
-                login.addLoginMessage(I18n.getInstance().getString("app.login.initializelocale"), false);
-                I18n.getInstance().selectBundle(login.getSelectedLocale());
-                Locale.setDefault(login.getSelectedLocale());
-                I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
-                I18nWS.getInstance().setLocale(login.getSelectedLocale());
-                login.addLoginMessage(FXLogin.checkMarkSymbol, true);
-
-                _config.setLocale(login.getSelectedLocale());
 
                 try {
                     preload(login);
@@ -571,6 +562,17 @@ public class JEConfig extends Application {
 
         login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                _mainDS = login.getDataSource();
+                I18n.getInstance().selectBundle(login.getSelectedLocale());
+                Locale.setDefault(login.getSelectedLocale());
+                I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
+                I18nWS.getInstance().setLocale(login.getSelectedLocale());
+                _config.setLocale(login.getSelectedLocale());
+                login.addLoginMessage(I18n.getInstance().getString("app.login.initializelocale"), false);
+                login.addLoginMessage(FXLogin.checkMarkSymbol, true);
+
+                statusBar = new Statusbar();
+
                 JEConfig.getStatusBar().addTask(JEConfig.class.getName(), loginTask, null, true);
             } else {
                 System.exit(0);
@@ -603,7 +605,7 @@ public class JEConfig extends Application {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         //Platform.runLater(() -> notificationPane.show(message));
 
-        /**delay or it will not shown**/
+        /**delay or it will not be shown**/
         executor.schedule(new Runnable() {
             @Override
             public void run() {
