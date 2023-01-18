@@ -43,6 +43,8 @@ public class ActionTable extends TableView<ActionData> {
     private ObservableList<String> field = FXCollections.observableArrayList();
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
+    private ActionData sumRow = new ActionData();
+    private boolean showSumRow = false;
 
     public ActionTable(ObservableList<ActionData> data) {
         this.data = data;
@@ -164,6 +166,18 @@ public class ActionTable extends TableView<ActionData> {
         this.getVisibleLeafColumns().addListener((ListChangeListener<TableColumn<ActionData, ?>>) c -> {
             while (c.next()) autoFitTable();
         });
+
+
+    }
+
+    public void enableSumRow(boolean enable) {
+        showSumRow = enable;
+        if (enable) {
+            sumRow.actionNrProperty().set(Integer.MAX_VALUE);
+            data.add(sumRow);
+        } else {
+            data.remove(sumRow);
+        }
     }
 
     public void autoFitTable() {
@@ -257,6 +271,8 @@ public class ActionTable extends TableView<ActionData> {
                     public boolean test(ActionData notesRow) {
                         //System.out.println("Filter.predict: " + notesRow.getTags());
                         try {
+                           
+
                             AtomicBoolean statusMatch = new AtomicBoolean(false);
                             status.forEach(s -> {
                                 try {

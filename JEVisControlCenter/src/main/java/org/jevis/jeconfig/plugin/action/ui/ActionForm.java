@@ -45,13 +45,10 @@ public class ActionForm extends Dialog {
 
     private final JFXDatePicker f_plannedDate = new JFXDatePicker();
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
-    private CheckBox f_IsNeedAdditionalMeters = new CheckBox();
-    private CheckBox f_IsAffectsOtherProcess = new CheckBox();
-    private CheckBox f_IsConsumptionDocumented = new CheckBox();
+
     private JFXTextField f_isNewEnPI = new JFXTextField();
-    private CheckBox f_isNeedCorrection = new CheckBox();
-    private CheckBox f_isNeedOther = new CheckBox();
-    private CheckBox f_isNeedAdditionalAction = new CheckBox();
+
+
     //private CheckComboBox<String> f_statusTags;
     private ComboBox<String> f_statusTags;
     private CheckComboBox<String> f_fieldTags;
@@ -71,6 +68,8 @@ public class ActionForm extends Dialog {
     private Tab basicTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.general"));
     private Tab detailTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.deteils"));
     private Tab attachmentTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.attachment"));
+    private Tab capitalTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.capital"));
+    private Tab checkListTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.checklist"));
     private JFXTextField f_Investment = new JFXTextField();
     private JFXTextField f_savingYear = new JFXTextField();
     private JFXTextField f_enpiAfter = new JFXTextField();
@@ -87,9 +86,23 @@ public class ActionForm extends Dialog {
     private TextArea f_nextActionIfNeeded = new TextArea("Folgemaßnahmen");
     private TextArea f_alternativAction = new TextArea("Alternativmaßnahmen");
 
+    private TextFieldWithUnit f_customEnpiBefore = new TextFieldWithUnit();
+    private TextFieldWithUnit f_customEnpiAfter = new TextFieldWithUnit();
+    private TextFieldWithUnit f_customEnpichange = new TextFieldWithUnit();
 
     private ComboBox<JEVisObject> f_Enpi = new ComboBox();
     private ActionPlan actionPlan;
+
+    private CheckBox f_isNeedProcessDocument = new CheckBox();
+    private CheckBox f_isNeedWorkInstruction = new CheckBox();
+    private CheckBox f_isNeedTestInstruction = new CheckBox();
+    private CheckBox f_isNeedDrawing = new CheckBox();
+    private CheckBox f_isNeedOther = new CheckBox();
+    private CheckBox f_IsNeedAdditionalMeters = new CheckBox();
+    private CheckBox f_IsAffectsOtherProcess = new CheckBox();
+    private CheckBox f_IsConsumptionDocumented = new CheckBox();
+    private CheckBox f_isNeedCorrection = new CheckBox();
+    private CheckBox f_isNeedAdditionalAction = new CheckBox();
 
     public ActionForm(ActionPlan actionPlan) {
         super();
@@ -144,7 +157,11 @@ public class ActionForm extends Dialog {
         basicTab.setClosable(false);
         detailTab.setClosable(false);
         attachmentTab.setClosable(false);
-        tabPane.getTabs().addAll(basicTab, detailTab, attachmentTab);
+        capitalTab.setClosable(false);
+        capitalTab.setDisable(true);
+        checkListTab.setClosable(false);
+
+        tabPane.getTabs().addAll(basicTab, detailTab, capitalTab, checkListTab, attachmentTab);
         getDialogPane().setContent(tabPane);
     }
 
@@ -152,8 +169,21 @@ public class ActionForm extends Dialog {
         initGeneralTab(data);
         initDetailsTab(data);
         initAttachmentTab(data);
+        initCapitalValueTab(data);
+        initCheckListTab(data);
         updateView(data);
 
+    }
+
+    private void initCapitalValueTab(ActionData data) {
+        GridPane gridPane = new GridPane();
+
+        gridPane.setVgap(10);
+        gridPane.setHgap(15);
+
+        gridPane.add(new Label("Comming soon."), 0, 0);
+
+        capitalTab.setContent(gridPane);
     }
 
     private void initGeneralTab(ActionData data) {
@@ -401,27 +431,9 @@ public class ActionForm extends Dialog {
         Label l_enpiAfter = new Label(data.enpiAfterProperty().getName());
         Label l_enpiBefore = new Label(data.enpiBeforeProperty().getName());
         Label l_enpiChange = new Label(data.enpiChangeProperty().getName());
-        Label l_isNeedProcessDocument = new Label(data.isNeedProcessDocumentProperty().getName());
-        Label l_isNeedWorkInstruction = new Label(data.isNeedWorkInstructionProperty().getName());
-        Label l_isNeedTestInstruction = new Label(data.isNeedTestInstructionProperty().getName());
-        Label l_isNeedDrawing = new Label(data.isNeedDrawingProperty().getName());
-        Label l_isNeedOther = new Label(data.isNeedOtherProperty().getName());
-        Label l_isNeedAdditionalAction = new Label(data.isNeedAdditionalActionProperty().getName());
-        Label l_isAffectsOtherProcess = new Label(data.isAffectsOtherProcessProperty().getName());
-        Label l_isConsumptionDocumented = new Label(data.isConsumptionDocumentedProperty().getName());
-        Label l_isTargetReached = new Label(data.isTargetReachedProperty().getName());
-        Label l_isNewEnPI = new Label(data.isNewEnPIProperty().getName());
-        Label l_isNeedDocumentCorrection = new Label(data.isNeedDocumentCorrectionProperty().getName());
-        Label l_isNeedCorrection = new Label(data.isNeedCorrectionProperty().getName());
-        Label l_IsNeedAdditionalMeters = new Label(data.isNeedAdditionalMetersProperty().getName());
-
-        Label l_titleDocument = new Label(I18n.getInstance().getString("plugin.action.needdocchange.title"));
-        Label l_creator = new Label(data.fromUserProperty().getName());
-
         Label l_correctionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.correction"));
         Label l_nextActionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.followupaction"));
         Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
-
         Label l_energyBefore = new Label("Aktueller. Verbrauch");
         Label l_energyAfter = new Label("Erwarteter Verbrauch");
         Label l_energyChange = new Label("Änderung Verbrauch");
@@ -443,9 +455,6 @@ public class ActionForm extends Dialog {
         box_EnpiBefore.setSpacing(20);
         HBox.setHgrow(f_enpiAfter, Priority.SOMETIMES);
         HBox.setHgrow(f_enpiBefore, Priority.SOMETIMES);
-        //GridPane.setHgrow(box_EnpiAfter, Priority.ALWAYS);
-        //GridPane.setHgrow(box_EnpiBefore, Priority.ALWAYS);
-        //HBox box_EnpiChange = new HBox(f_enpiChange, l_unitEnpIChange);
 
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
         beforeDateButton.setOnAction(event -> {
@@ -500,17 +509,58 @@ public class ActionForm extends Dialog {
         f_alternativAction.setPrefWidth(400);
 
 
+        gridPane.addRow(0, l_enpiBefore, box_EnpiBefore, new Region(), l_energyBefore, f_customEnpiBefore);
+        gridPane.addRow(1, l_enpiAfter, box_EnpiAfter, new Region(), l_energyAfter, f_customEnpiAfter);
+        gridPane.addRow(2, l_enpiChange, f_enpiChange, new Region(), l_energyChange, f_customEnpichange);
+        gridPane.addRow(3, new Region());
+
+
+        gridPane.addRow(4, l_FromUser, f_FromUser, new Region(), l_CreateDate, f_CreateDate);
+        gridPane.addRow(5, l_distributor, f_distributor);
+
+        gridPane.addRow(6, l_correctionIfNeeded, new Region(), new Region(), l_nextActionIfNeeded, new Region());
+        gridPane.addRow(7, f_correctionIfNeeded, new Region(), new Region(), f_nextActionIfNeeded, new Region());
+        gridPane.addRow(8, l_alternativAction);
+        gridPane.addRow(9, f_alternativAction, new Region(), new Region(), new Region(), new Region());
+
+        GridPane.setColumnSpan(l_correctionIfNeeded, 2);
+        GridPane.setColumnSpan(l_nextActionIfNeeded, 2);
+        GridPane.setColumnSpan(f_correctionIfNeeded, 2);
+        GridPane.setColumnSpan(f_nextActionIfNeeded, 2);
+        GridPane.setColumnSpan(l_alternativAction, 2);
+        GridPane.setColumnSpan(f_alternativAction, 2);
+
+    }
+
+    private void initCheckListTab(ActionData data) {
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(20));
+        ScrollPane scrollPane = new ScrollPane(gridPane);
+        gridPane.setVgap(15);
+        gridPane.setHgap(15);
+
+        Label l_isNeedProcessDocument = new Label(data.isNeedProcessDocumentProperty().getName());
+        Label l_isNeedWorkInstruction = new Label(data.isNeedWorkInstructionProperty().getName());
+        Label l_isNeedTestInstruction = new Label(data.isNeedTestInstructionProperty().getName());
+        Label l_isNeedDrawing = new Label(data.isNeedDrawingProperty().getName());
+        Label l_isNeedOther = new Label(data.isNeedOtherProperty().getName());
+        Label l_isNeedAdditionalAction = new Label(data.isNeedAdditionalActionProperty().getName());
+        Label l_isAffectsOtherProcess = new Label(data.isAffectsOtherProcessProperty().getName());
+        Label l_isConsumptionDocumented = new Label(data.isConsumptionDocumentedProperty().getName());
+        Label l_isTargetReached = new Label(data.isTargetReachedProperty().getName());
+        Label l_isNewEnPI = new Label(data.isNewEnPIProperty().getName());
+        Label l_isNeedDocumentCorrection = new Label(data.isNeedDocumentCorrectionProperty().getName());
+        Label l_isNeedCorrection = new Label(data.isNeedCorrectionProperty().getName());
+        Label l_IsNeedAdditionalMeters = new Label(data.isNeedAdditionalMetersProperty().getName());
+
+        Label l_titleDocument = new Label(I18n.getInstance().getString("plugin.action.needdocchange.title"));
+
+
         l_isNeedProcessDocument.setText("Prozessanweisung");
         l_isNeedWorkInstruction.setText("Arbeitsanweisung");
         l_isNeedTestInstruction.setText("Prüfanweisung");
         l_isNeedDrawing.setText("Zeichnungen");
         l_isNeedOther.setText("Sonstige");
-
-        CheckBox f_isNeedProcessDocument = new CheckBox();
-        CheckBox f_isNeedWorkInstruction = new CheckBox();
-        CheckBox f_isNeedTestInstruction = new CheckBox();
-        CheckBox f_isNeedDrawing = new CheckBox();
-        CheckBox f_isNeedOther = new CheckBox();
 
 
         HBox q1 = new HBox(f_IsNeedAdditionalMeters, l_IsNeedAdditionalMeters);
@@ -536,48 +586,7 @@ public class ActionForm extends Dialog {
         q4.setPadding(new Insets(0, 0, 0, 20));
         q5.setPadding(new Insets(0, 0, 0, 20));
 
-
         int row = 0;
-        //checklists
-        gridPane.add(l_enpiBefore, 0, row);
-        gridPane.add(l_enpiAfter, 0, ++row);
-        gridPane.add(l_enpiChange, 0, ++row);
-
-        gridPane.add(l_energyBefore, 0, ++row);
-        gridPane.add(l_energyAfter, 0, ++row);
-        gridPane.add(l_energyChange, 0, ++row);
-
-        row = 0;
-        gridPane.add(box_EnpiBefore, 1, row);
-        gridPane.add(box_EnpiAfter, 1, ++row);
-        gridPane.add(f_enpiChange, 1, ++row);
-
-        gridPane.add(f_energyBefore, 1, ++row);
-        gridPane.add(f_energyAfter, 1, ++row);
-        gridPane.add(f_energyChange, 1, ++row);
-
-        gridPane.add(l_FromUser, 3, 0);
-        gridPane.add(l_CreateDate, 3, 1);
-        gridPane.add(l_distributor, 3, 2);
-
-        gridPane.add(f_FromUser, 4, 0);
-        gridPane.add(f_CreateDate, 4, 1);
-        gridPane.add(f_distributor, 4, 2);
-
-        gridPane.add(l_correctionIfNeeded, 0, 6);
-        gridPane.add(f_correctionIfNeeded, 0, 7, 2, 1);
-        gridPane.add(l_nextActionIfNeeded, 3, 6);
-        gridPane.add(f_nextActionIfNeeded, 3, 7, 2, 1);
-        gridPane.add(l_alternativAction, 0, 8);
-        gridPane.add(f_alternativAction, 0, 9, 2, 1);
-
-        Separator sep = new Separator();
-        GridPane.setHgrow(sep, Priority.ALWAYS);
-        //sep.setPrefWidth(1000);
-        gridPane.add(sep, 0, 9, 5, 1);
-
-        row = 9;
-
 
         gridPane.add(new Label(I18n.getInstance().getString("plugin.action.dependencies.title")), 0, ++row, 2, 1);
         gridPane.add(q1, 0, ++row, 2, 1);
@@ -587,13 +596,15 @@ public class ActionForm extends Dialog {
         gridPane.add(q5, 0, ++row, 2, 1);
 
         row = 9;
-        gridPane.add(l_titleDocument, 3, ++row, 2, 1);
-        gridPane.add(qDoc1, 3, ++row, 2, 1);
-        gridPane.add(qDoc2, 3, ++row, 2, 1);
-        gridPane.add(qDoc3, 3, ++row, 2, 1);
-        gridPane.add(qDoc4, 3, ++row, 2, 1);
-        gridPane.add(qDoc5, 3, ++row, 2, 1);
+        gridPane.add(l_titleDocument, 0, ++row, 2, 1);
+        gridPane.add(qDoc1, 0, ++row, 2, 1);
+        gridPane.add(qDoc2, 0, ++row, 2, 1);
+        gridPane.add(qDoc3, 0, ++row, 2, 1);
+        gridPane.add(qDoc4, 0, ++row, 2, 1);
+        gridPane.add(qDoc5, 0, ++row, 2, 1);
 
+
+        checkListTab.setContent(gridPane);
     }
 
     private void updateEnpi() {

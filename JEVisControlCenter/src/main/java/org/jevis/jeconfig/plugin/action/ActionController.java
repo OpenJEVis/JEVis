@@ -74,6 +74,7 @@ public class ActionController {
 
     private void buildTabPane(ActionPlan plan) {
         ActionTable actionTable = new ActionTable(plan.getActionData());
+        //actionTable.enableSumRow(true);
         ActionTab tab = new ActionTab(plan, actionTable);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);

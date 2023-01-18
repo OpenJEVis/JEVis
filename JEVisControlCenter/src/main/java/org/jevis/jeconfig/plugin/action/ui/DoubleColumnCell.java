@@ -15,6 +15,7 @@ public class DoubleColumnCell implements Callback<TableColumn<ActionData, String
                 super.updateItem(item, empty);
 
                 if (item != null && !empty) {
+
                     try {
                         UnitDoubleConverter unitDoubleConverter = new UnitDoubleConverter();
                         setText(unitDoubleConverter.toString(unitDoubleConverter.fromString(item)) + " €");
