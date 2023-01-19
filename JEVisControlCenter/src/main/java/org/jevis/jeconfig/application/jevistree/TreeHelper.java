@@ -2107,17 +2107,18 @@ public class TreeHelper {
         });
 
         JFXCheckBox correctUTC = new JFXCheckBox("Correct UTC diff");
-        JFXCheckBox allObjects = new JFXCheckBox("All objects");
-        Label tzInputLabel = new Label("input timezone");
-        Label tzOutputLabel = new Label("output timezone");
+        JFXCheckBox dataObjectsCheckBox = new JFXCheckBox("Data Objects");
+        JFXCheckBox cleanDataObjectsCheckBox = new JFXCheckBox("Clean Data Objects");
+        JFXCheckBox onlyConversionToDiffObjectsCheckBox = new JFXCheckBox("Only Conversion To Diff Clean Objects");
+        JFXCheckBox allObjects = new JFXCheckBox("All Objects");
+        Label tzInputLabel = new Label("Input Timezone");
+        Label tzOutputLabel = new Label("Output Timezone");
         TimeZoneBox timeZoneBoxInput = new TimeZoneBox();
         TimeZoneBox timeZoneBoxOutput = new TimeZoneBox();
 
         HBox inputBox = new HBox(6, tzInputLabel, timeZoneBoxInput);
         HBox outputBox = new HBox(6, tzOutputLabel, timeZoneBoxOutput);
 
-        JFXTextArea textArea = new JFXTextArea();
-        textArea.setPrefRowCount(20);
 
         Label periodLabel = new Label("Period count");
         HBox periodBox = new HBox(6, periodLabel, textField);
@@ -2125,7 +2126,7 @@ public class TreeHelper {
         HBox fromBox = new HBox(6, dateLabelFrom, datePickerFrom, timePickerFrom);
         HBox toBox = new HBox(6, dateLabelTo, datePickerTo, timePickerTo);
 
-        VBox vBox = new VBox(6, message, periodBox, fromBox, toBox, correctUTC, allObjects, inputBox, outputBox, textArea);
+        VBox vBox = new VBox(6, message, periodBox, fromBox, toBox, correctUTC, dataObjectsCheckBox, cleanDataObjectsCheckBox, onlyConversionToDiffObjectsCheckBox, allObjects, inputBox, outputBox);
         warning.getDialogPane().setContent(vBox);
 
         ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
@@ -2133,6 +2134,12 @@ public class TreeHelper {
         warning.showAndWait().ifPresent(buttonType -> {
             if (buttonType.equals(ButtonType.OK)) {
                 JEVisDataSource ds = tree.getJEVisDataSource();
+                JFXTextArea textArea = new JFXTextArea();
+                textArea.setPrefRowCount(20);
+                Alert info = new Alert(AlertType.INFORMATION);
+                info.getDialogPane().setContent(textArea);
+                info.show();
+
 
                 try {
                     JEVisClass dataClass = ds.getJEVisClass("Data");
@@ -2140,14 +2147,24 @@ public class TreeHelper {
 
                     if (!correctUTC.isSelected()) {
 
-                        Integer periodIncrease = Integer.parseInt(textField.getText());
+                        Long periodMultiplier = Long.parseLong(textField.getText());
+                        Long periodIncrease = Math.abs(periodMultiplier);
+                        List<JEVisObject> objectsToWorkWith = new ArrayList<>();
                         List<JEVisObject> dataObjects = CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), dataClass);
+                        if (dataObjectsCheckBox.isSelected()) {
+                            objectsToWorkWith.addAll(dataObjects);
+                        }
+
                         List<JEVisObject> ctdObjects = new ArrayList<>();
                         for (JEVisObject dataObject : dataObjects) {
                             JEVisAttribute valueAttribute = dataObject.getAttribute("Value");
                             Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " Check"));
 
                             List<JEVisObject> cleanDataChildren = dataObject.getChildren(cleanDataClass, false);
+                            if (cleanDataObjectsCheckBox.isSelected()) {
+                                objectsToWorkWith.addAll(cleanDataChildren);
+                            }
+
                             if (!cleanDataChildren.isEmpty() && valueAttribute != null) {
                                 JEVisObject cleanDataObject = cleanDataChildren.get(0);
                                 JEVisAttribute ctdAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
@@ -2161,9 +2178,14 @@ public class TreeHelper {
                             }
                         }
 
+                        if (onlyConversionToDiffObjectsCheckBox.isSelected()) {
+                            objectsToWorkWith.clear();
+                            objectsToWorkWith.addAll(ctdObjects);
+                        }
+
                         final String formatStr = "yyyy-MM-dd HH:mm:ss";
-                        for (JEVisObject dataObject : ctdObjects) {
-                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " moving samples"));
+                        for (JEVisObject dataObject : objectsToWorkWith) {
+                            Platform.runLater(() -> textArea.setText(textArea.getText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " moving samples"));
 
                             JEVisAttribute value = dataObject.getAttribute("Value");
                             if (value != null) {
@@ -2220,22 +2242,31 @@ public class TreeHelper {
                                     Period p = CleanDataObject.getPeriodForDate(dataObject, oldTS);
 
                                     if (p.equals(Period.years(1))) {
-                                        movedTimeStamp = oldTS.plusYears(periodIncrease).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                        if (periodMultiplier > 0)
+                                            movedTimeStamp = oldTS.plusYears(periodIncrease.intValue()).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                        else if (periodMultiplier < 0)
+                                            movedTimeStamp = oldTS.minusYears(periodIncrease.intValue()).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
                                     } else if (p.equals(Period.months(1))) {
-                                        movedTimeStamp = oldTS.plusMonths(periodIncrease).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                        if (periodMultiplier > 0)
+                                            movedTimeStamp = oldTS.plusMonths(periodIncrease.intValue()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                        else if (periodMultiplier < 0)
+                                            movedTimeStamp = oldTS.minusMonths(periodIncrease.intValue()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
                                     } else {
-                                        movedTimeStamp = oldTS.plusMillis(Math.toIntExact(p.toStandardDuration().getMillis() * periodIncrease));
+                                        if (periodMultiplier > 0)
+                                            movedTimeStamp = oldTS.plusMillis(Math.toIntExact(p.toStandardDuration().getMillis() * periodIncrease));
+                                        else if (periodMultiplier < 0)
+                                            movedTimeStamp = oldTS.minusMillis(Math.toIntExact(p.toStandardDuration().getMillis() * periodIncrease));
                                     }
 
                                     JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());
                                     virtualSample.setNote(sample.getNote());
                                     DateTime finalMovedTimeStamp = movedTimeStamp;
-                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
+                                    Platform.runLater(() -> textArea.setText(textArea.getText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
                                     virtualSamples.add(virtualSample);
                                 }
 
                                 List<JEVisSample> finalAllSamples = allSamples;
-                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + finalAllSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
+                                Platform.runLater(() -> textArea.setText(textArea.getText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + finalAllSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
 
                                 if (allSamples.size() == virtualSamples.size()) {
                                     if (!changedFrom.get() && !changedTo.get()) {
@@ -2280,7 +2311,7 @@ public class TreeHelper {
                                         value.deleteSamplesBetween(dateTimeFrom, dateTimeTo);
                                     }
                                     value.addSamples(virtualSamples);
-                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " finished moving samples"));
+                                    Platform.runLater(() -> textArea.setText(textArea.getText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " finished moving samples"));
                                 }
                             }
                         }
