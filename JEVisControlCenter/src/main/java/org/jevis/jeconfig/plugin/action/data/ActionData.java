@@ -1,23 +1,39 @@
 package org.jevis.jeconfig.plugin.action.data;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
-import org.jevis.jeconfig.tool.AttributeFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ActionData {
 
-
+    private final ObjectMapper mapper = new ObjectMapper();
+    private static final Logger logger = LogManager.getLogger(ActionData.class);
     public static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private final SimpleStringProperty fromUser = new SimpleStringProperty("From User", I18n.getInstance().getString("plugin.action.fromuser"), "");
     private final SimpleIntegerProperty actionNr = new SimpleIntegerProperty("Nr", I18n.getInstance().getString("plugin.action.nr"), 0);
@@ -51,7 +67,6 @@ public class ActionData {
     private final SimpleStringProperty noteBetroffenerProzess = new SimpleStringProperty("Affected Process Note", I18n.getInstance().getString("plugin.action.affectedprocess"), "");
     private final SimpleStringProperty noteEnergiefluss = new SimpleStringProperty("Energy Flow Note", "Maßnahmenbeschreibung", "");
     private final SimpleStringProperty noteBewertet = new SimpleStringProperty("Evaluation Note", I18n.getInstance().getString("plugin.action.noteBewertet"), "");
-    private final SimpleStringProperty enpi = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiafter"), "");
     private final SimpleStringProperty enpiAfter = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiafter"), "");
     private final SimpleStringProperty enpiBefore = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabefore"), "");
     private final SimpleStringProperty enpiChange = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiabechange"), "");
@@ -59,15 +74,23 @@ public class ActionData {
     private final SimpleStringProperty investment = new SimpleStringProperty("Investment", I18n.getInstance().getString("plugin.action.investment"), "");
     private final SimpleStringProperty savingyear = new SimpleStringProperty("Saving Year", I18n.getInstance().getString("plugin.action.savingyear"), "");
     private final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
-
     private final SimpleStringProperty enpilinks = new SimpleStringProperty("EnPI Link", I18n.getInstance().getString("plugin.action.enpilink"), "");
-    public final SimpleDoubleProperty energySaving = new SimpleDoubleProperty(" Energy Saving", I18n.getInstance().getString("plugin.action.enpilink"), 0d);
+    public final SimpleDoubleProperty consumptionActual = new SimpleDoubleProperty("Consumption Actual", I18n.getInstance().getString("plugin.action.consumptionactual"), 0d);
+    public final SimpleStringProperty consumptionUnit = new SimpleStringProperty("Consumption Unit", I18n.getInstance().getString("plugin.action.consumptionunit"), "kWh");
+    public final SimpleDoubleProperty consumptionTarget = new SimpleDoubleProperty("Consumption Target", I18n.getInstance().getString("plugin.action.consumptiontarget"), 0d);
+
 
     private ChangeListener changeListener;
     private JEVisObject object;
+    private ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+
+    private List<ReadOnlyProperty> propertyList = new ArrayList<>();
 
     public ActionData(JEVisObject obj) {
         this.object = obj;
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
         this.changeListener = new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -83,55 +106,140 @@ public class ActionData {
 
     public void reload() {
         //if (!valueChanged.getValue()) return;
+        //dataNode = JsonNodeFactory.instance.objectNode();
 
-        //TODO:
-        //distributor
+        try {
+            propertyList = new ArrayList<>();
 
-        registerChanges(fromUser);
-        registerChanges(actionNr);
-        registerChanges(statusTags);
-        registerChanges(fieldTags);
-        registerChanges(mediaTags);
-        registerChanges(desciption);
-        registerChanges(note);
-        registerChanges(createDate);
-        registerChanges(plannedDate);
-        registerChanges(doneDate);
-        registerChanges(attachment);
+            JEVisSample lastConfigSample = object.getAttribute("Data").getLatestSample();
+            JEVisFile file = lastConfigSample.getValueAsFile();
+            JsonNode dataNode = this.mapper.readTree(file.getBytes());
 
-        registerChanges(noteCorrection);
-        registerChanges(isNeedAdditionalMeters);
-        registerChanges(isConsumptionDocumented);
-        registerChanges(isTargetReached);
-        registerChanges(isNewEnPI);
-        registerChanges(isNeedAdditionalAction);
-        registerChanges(isNeedDocumentCorrection);
-        registerChanges(isNeedProcessDocument);
-        registerChanges(isNeedTestInstruction);
-        registerChanges(isNeedDrawing);
-        registerChanges(isNeedOther);
-        registerChanges(noteFollowUpAction);
-        registerChanges(noteAlternativeMeasures);
-        registerChanges(responsible);
-        registerChanges(noteBewertet);
-        registerChanges(noteEnergiefluss);
-        registerChanges(noteBetroffenerProzess);
-        registerChanges(title);
+            registerChanges(fromUser, dataNode);
+            registerChanges(actionNr, dataNode);
+            registerChanges(statusTags, dataNode);
+            registerChanges(fieldTags, dataNode);
+            registerChanges(mediaTags, dataNode);
+            registerChanges(desciption, dataNode);
+            registerChanges(note, dataNode);
+            registerChanges(createDate, dataNode);
+            registerChanges(plannedDate, dataNode);
+            registerChanges(doneDate, dataNode);
+            registerChanges(attachment, dataNode);
 
-        registerChanges(savingyear);
-        registerChanges(investment);
-        registerChanges(enpilinks);
-        valueChanged.set(false);
+            registerChanges(noteCorrection, dataNode);
+            registerChanges(isNeedAdditionalMeters, dataNode);
+            registerChanges(isConsumptionDocumented, dataNode);
+            registerChanges(isTargetReached, dataNode);
+            registerChanges(isNewEnPI, dataNode);
+            registerChanges(isNeedAdditionalAction, dataNode);
+            registerChanges(isNeedDocumentCorrection, dataNode);
+            registerChanges(isNeedProcessDocument, dataNode);
+            registerChanges(isNeedTestInstruction, dataNode);
+            registerChanges(isNeedDrawing, dataNode);
+            registerChanges(isNeedOther, dataNode);
+            registerChanges(noteFollowUpAction, dataNode);
+            registerChanges(noteAlternativeMeasures, dataNode);
+            registerChanges(responsible, dataNode);
+            registerChanges(noteBewertet, dataNode);
+            registerChanges(noteEnergiefluss, dataNode);
+            registerChanges(noteBetroffenerProzess, dataNode);
+            registerChanges(title, dataNode);
+
+            registerChanges(savingyear, dataNode);
+            registerChanges(investment, dataNode);
+            registerChanges(enpilinks, dataNode);
+            valueChanged.set(false);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+    private void updateJsonData(ObjectNode dataNode) {
+        propertyList.forEach(propertyObj -> {
+            if (propertyObj.getValue() != null) {
+                dataNode.put(propertyObj.getBean().toString(), propertyObj.getValue().toString());
+            }
+        });
+    }
+
+    private void propertyToNode(ReadOnlyProperty propertyObj, ObjectNode dataNode) {
+        if (propertyObj.getValue() != null) {
+            dataNode.put(propertyObj.getBean().toString(), propertyObj.getValue().toString());
+        }
     }
 
     public JEVisObject getObject() {
         return object;
     }
 
-    private void registerChanges(ReadOnlyProperty propertyObj) {
-        propertyObj.removeListener(changeListener);
-        propertyObj.addListener(changeListener);
-        AttributeFactory.fillProperty(propertyObj, object);
+    private void registerChanges(Object propertyObj, JsonNode jsonNode) {
+        try {
+
+            if (propertyObj instanceof ReadOnlyProperty) {
+                ((ReadOnlyProperty) propertyObj).removeListener(changeListener);
+                ((ReadOnlyProperty) propertyObj).addListener(changeListener);
+                propertyList.add(((ReadOnlyProperty) propertyObj));
+            }
+
+            //AttributeFactory.fillProperty(propertyObj, object);
+
+            try {
+                if (propertyObj instanceof DoublePropertyBase) {
+                    DoublePropertyBase propertyBase = (DoublePropertyBase) propertyObj;
+                    JsonNode node = jsonNode.get(propertyBase.getBean().toString());
+                    propertyBase.set(node.doubleValue());
+                }
+
+                if (propertyObj instanceof SimpleStringProperty) {
+                    SimpleStringProperty propertyBase = (SimpleStringProperty) propertyObj;
+                    JsonNode node = jsonNode.get(propertyBase.getBean().toString());
+                    propertyBase.set(node.asText());
+                }
+
+                if (propertyObj instanceof SimpleIntegerProperty) {
+                    SimpleIntegerProperty propertyBase = (SimpleIntegerProperty) propertyObj;
+                    JsonNode node = jsonNode.get(propertyBase.getBean().toString());
+                    propertyBase.set(node.asInt());
+                }
+
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", ((Property<?>) propertyObj).getBean().toString(), ex);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    public ObjectNode toJson() {
+        ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+        dataNode.put(fromUser.getBean().toString(), fromUser.get());
+        dataNode.put(actionNr.getBean().toString(), actionNr.get());
+        dataNode.put(statusTags.getBean().toString(), statusTags.get());
+        dataNode.put(fieldTags.getBean().toString(), fieldTags.get());
+        dataNode.put(mediaTags.getBean().toString(), mediaTags.get());
+        dataNode.put(desciption.getBean().toString(), desciption.get());
+
+        ObjectNode conNode = dataNode.putObject("consumption");
+        conNode.put(consumptionUnit.getBean().toString(), consumptionUnit.get());
+
+        /*
+
+        ArrayNode arrayNode = dataNode.putArray("consumption");
+        for (GaugeSectionPojo gaugeSection : sections) {
+            ObjectNode dataNode1 = arrayNode.addObject();
+            dataNode1.put("end", gaugeSection.getEnd());
+            dataNode1.put("start", gaugeSection.getStart());
+            dataNode1.put("color", gaugeSection.getColor().toString());
+
+        }
+
+         */
+
+        return dataNode;
     }
 
     public void commit() {
@@ -143,6 +251,23 @@ public class ActionData {
                 @Override
                 protected Object call() throws Exception {
                     try {
+                        try {
+                            System.out.println("Json:\n" + ActionData.this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataNode));
+
+                            if (object != null) {
+                                JEVisAttribute dataModel = object.getAttribute("Data");
+                                JEVisFileImp jsonFile = new JEVisFileImp(
+                                        "DataModel" + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
+                                        , ActionData.this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataNode).getBytes(StandardCharsets.UTF_8));
+                                JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
+                                newSample.commit();
+                            }
+
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+/*
+
                         DateTime now = new DateTime();
                         AttributeFactory.commitAttribute(title, object, now);//->
                         AttributeFactory.commitAttribute(fromUser, object, now);
@@ -179,6 +304,8 @@ public class ActionData {
                         AttributeFactory.commitAttribute(investment, object, now);
                         AttributeFactory.commitAttribute(savingyear, object, now);
                         AttributeFactory.commitAttribute(enpilinks, object, now);
+
+ */
 
                     } catch (Exception ex) {
                         ex.printStackTrace();

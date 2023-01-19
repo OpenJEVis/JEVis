@@ -74,7 +74,7 @@ public class ActionForm extends Dialog {
     private JFXTextField f_savingYear = new JFXTextField();
     private JFXTextField f_enpiAfter = new JFXTextField();
     private JFXTextField f_enpiBefore = new JFXTextField();
-    private JFXTextField f_enpiChange = new JFXTextField();
+    private JFXTextField f_enpiDiff = new JFXTextField();
     private JFXTextField f_distributor = new JFXTextField();
 
     private JFXTextField f_energyBefore = new JFXTextField();
@@ -86,9 +86,9 @@ public class ActionForm extends Dialog {
     private TextArea f_nextActionIfNeeded = new TextArea("Folgemaßnahmen");
     private TextArea f_alternativAction = new TextArea("Alternativmaßnahmen");
 
-    private TextFieldWithUnit f_customEnpiBefore = new TextFieldWithUnit();
-    private TextFieldWithUnit f_customEnpiAfter = new TextFieldWithUnit();
-    private TextFieldWithUnit f_customEnpichange = new TextFieldWithUnit();
+    private TextFieldWithUnit f_consumptionBefore = new TextFieldWithUnit();
+    private TextFieldWithUnit f_consumptionAfter = new TextFieldWithUnit();
+    private TextFieldWithUnit f_consumptionDiff = new TextFieldWithUnit();
 
     private ComboBox<JEVisObject> f_Enpi = new ComboBox();
     private ActionPlan actionPlan;
@@ -509,9 +509,9 @@ public class ActionForm extends Dialog {
         f_alternativAction.setPrefWidth(400);
 
 
-        gridPane.addRow(0, l_enpiBefore, box_EnpiBefore, new Region(), l_energyBefore, f_customEnpiBefore);
-        gridPane.addRow(1, l_enpiAfter, box_EnpiAfter, new Region(), l_energyAfter, f_customEnpiAfter);
-        gridPane.addRow(2, l_enpiChange, f_enpiChange, new Region(), l_energyChange, f_customEnpichange);
+        gridPane.addRow(0, l_enpiBefore, box_EnpiBefore, new Region(), l_energyBefore, f_consumptionBefore);
+        gridPane.addRow(1, l_enpiAfter, box_EnpiAfter, new Region(), l_energyAfter, f_consumptionAfter);
+        gridPane.addRow(2, l_enpiChange, f_enpiDiff, new Region(), l_energyChange, f_consumptionDiff);
         gridPane.addRow(3, new Region());
 
 
@@ -628,8 +628,8 @@ public class ActionForm extends Dialog {
             f_enpiAfter.setText(f.format(after) + " " + unit.toString());
             f_enpiAfter.setTooltip(new Tooltip(after + " " + unit.toString()));
 
-            f_enpiChange.setText(f.format(diff) + " " + unit.toString());
-            f_enpiChange.setTooltip(new Tooltip(diff + " " + unit.toString()));
+            f_enpiDiff.setText(f.format(diff) + " " + unit.toString());
+            f_enpiDiff.setTooltip(new Tooltip(diff + " " + unit.toString()));
 
 
         } catch (Exception ex) {
@@ -688,7 +688,7 @@ public class ActionForm extends Dialog {
         f_savingYear.textProperty().bindBidirectional(data.savingyearProperty());
         f_enpiAfter.textProperty().bindBidirectional(data.enpiAfterProperty());
         f_enpiBefore.textProperty().bindBidirectional(data.enpiBeforeProperty());
-        f_enpiChange.textProperty().bindBidirectional(data.enpiChangeProperty());
+        f_enpiDiff.textProperty().bindBidirectional(data.enpiChangeProperty());
 
 
         /*
@@ -779,6 +779,9 @@ public class ActionForm extends Dialog {
             // data.actionNrProperty().set(Integer.parseInt(fActionNr.getText()));
         });
 
+        f_consumptionAfter.getUnitField().textProperty().bindBidirectional(data.consumptionUnit);
+        f_consumptionBefore.getUnitField().textProperty().bindBidirectional(data.consumptionUnit);
+        f_consumptionDiff.getUnitField().textProperty().bindBidirectional(data.consumptionUnit);
 
         updateEnpi();
     }
