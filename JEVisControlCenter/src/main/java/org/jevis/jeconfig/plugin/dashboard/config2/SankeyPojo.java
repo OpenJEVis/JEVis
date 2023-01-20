@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
@@ -17,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,14 +24,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.Icon;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.plugin.dashboard.widget.SankeyWidget;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class SankeyPojo {
 
@@ -57,18 +55,18 @@ public class SankeyPojo {
 
     private int gap;
 
-    public static final String UNIT = "Unit";
+    public static final String UNIT = I18n.getInstance().getString("plugin.dashboard.sankey.unit");
 
-    public static final String PERCENT = "%";
+    public static final String PERCENT = I18n.getInstance().getString("plugin.dashboard.sankey.percent");
 
-    public static final String PARENT = "Parent";
+    public static final String PARENT = I18n.getInstance().getString("plugin.dashboard.sankey.parent");
 
-    public static final String ROOT = "Root";
+    public static final String ROOT = I18n.getInstance().getString("plugin.dashboard.sankey.root");
 
 
-    private String showValueIn = PERCENT;
+    private SankeyWidget.SHOW_VALUE_IN showValueIn = SankeyWidget.SHOW_VALUE_IN.UNIT;
 
-    private String percentRefersTo = PARENT;
+    private SankeyWidget.REFERS_TO percentRefersTo = SankeyWidget.REFERS_TO.PARENT;
 
     private JFXComboBox<String> jfxComboBoxShowValueIn;
     private JFXComboBox<String> jfxComboBoxRefersTo;
@@ -80,7 +78,6 @@ public class SankeyPojo {
     private Map<Integer, Spinner<Integer>> offsetUIList = new HashMap<>();
 
     private Map<Integer, Integer> offsetMap = new HashMap<>();
-
 
 
     public SankeyPojo(DashboardControl control) {
@@ -101,10 +98,10 @@ public class SankeyPojo {
                 showFlow = jsonNode.get("showFlow").asBoolean(true);
             }
             if (jsonNode.has("showValueIn")) {
-                showValueIn = jsonNode.get("showValueIn").asText();
+                showValueIn = SankeyWidget.SHOW_VALUE_IN.valueOf(jsonNode.get("showValueIn").asText());
             }
             if (jsonNode.has("refersTo")) {
-                percentRefersTo = jsonNode.get("refersTo").asText();
+                percentRefersTo = SankeyWidget.REFERS_TO.valueOf(jsonNode.get("refersTo").asText());
             }
             if (jsonNode.has("autoGap")) {
                 autoGap = jsonNode.get("autoGap").asBoolean();
@@ -118,6 +115,7 @@ public class SankeyPojo {
                 retrieveSankeyDataRowObjects(jsonNode);
                 retrieveOffsets(jsonNode);
             } catch (JEVisException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }
@@ -138,7 +136,7 @@ public class SankeyPojo {
         sankeyTable.getItems().addAll(netGraphDataRows);
     }
 
-    private void retrieveOffsets(JsonNode jsonNode){
+    private void retrieveOffsets(JsonNode jsonNode) {
         if (jsonNode.has("offsets")) {
             jsonNode.get("offsets").forEach(jsonNode1 -> {
                 offsetMap.put(jsonNode1.get("level").asInt(), jsonNode1.get("offset").asInt());
@@ -155,10 +153,19 @@ public class SankeyPojo {
 
         jfxComboBoxShowValueIn = new JFXComboBox<>();
         jfxComboBoxShowValueIn.getItems().addAll(UNIT, PERCENT);
-        jfxComboBoxShowValueIn.setValue(showValueIn);
+        if (showValueIn.equals(SankeyWidget.SHOW_VALUE_IN.UNIT)) {
+            jfxComboBoxShowValueIn.setValue(UNIT);
+        } else if (showValueIn.equals(SankeyWidget.SHOW_VALUE_IN.PERCENT)) {
+            jfxComboBoxShowValueIn.setValue(PERCENT);
+        }
 
         jfxComboBoxRefersTo = new JFXComboBox<>();
-        jfxComboBoxRefersTo.setValue(percentRefersTo);
+        if (percentRefersTo.equals(SankeyWidget.REFERS_TO.PARENT)) {
+            jfxComboBoxRefersTo.setValue(PARENT);
+        } else if (percentRefersTo.equals(SankeyWidget.REFERS_TO.ROOT)) {
+            jfxComboBoxRefersTo.setValue(ROOT);
+        }
+
         jfxComboBoxRefersTo.getItems().addAll(PARENT, ROOT);
         Label label = new Label(I18n.getInstance().getString("plugin.dashboard.sankey.refersto"));
 
@@ -214,8 +221,6 @@ public class SankeyPojo {
         });
 
 
-
-
         gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showflow")), jfxCheckBoxShowFlow);
 
         gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 1, 5, 1);
@@ -229,9 +234,9 @@ public class SankeyPojo {
         int j = 5;
         for (int i = 1; i < getMaxLevel(); i++) {
             if (offsetMap.containsKey(i)) {
-                createOffsetLevelRow(gridPane, i,offsetMap.get(i), j);
-            }else {
-                createOffsetLevelRow(gridPane, i,0, j);
+                createOffsetLevelRow(gridPane, i, offsetMap.get(i), j);
+            } else {
+                createOffsetLevelRow(gridPane, i, 0, j);
             }
 
 
@@ -239,13 +244,21 @@ public class SankeyPojo {
         }
 
 
-
-
         gridPane.add(new Separator(Orientation.HORIZONTAL), 0, j, 5, 1);
         j++;
 
         addChangeListenerForDataTable(tableList);
         gridPane.add(sankeyTable, 0, j, 5, 5);
+
+        for (int i = 0; i <= j; i++) {
+            RowConstraints rowConstraints = new RowConstraints();
+            if (i == j) {
+                rowConstraints.setVgrow(Priority.ALWAYS);
+            } else {
+                rowConstraints.setVgrow(Priority.NEVER);
+            }
+            gridPane.getRowConstraints().add(rowConstraints);
+        }
 
 
         SankeyPojo.GaugeDesignTab tab = new SankeyPojo.GaugeDesignTab(I18n.getInstance().getString("plugin.dashboard.sankey")
@@ -281,12 +294,10 @@ public class SankeyPojo {
         return gridPane;
     }
 
-    private void createOffsetLevelRow(GridPane gridPane, int level,int offset, int row) {
+    private void createOffsetLevelRow(GridPane gridPane, int level, int offset, int row) {
 
 
-
-
-        Label levelLabel = new Label(I18n.getInstance().getString("plugin.dashboard.sankey.level")+": "+(level+1));
+        Label levelLabel = new Label(I18n.getInstance().getString("plugin.dashboard.sankey.level") + ": " + (level + 1));
         Label offsetLabel = new Label(I18n.getInstance().getString("plugin.dashboard.sankey.offset"));
 
         Tooltip tooltipLevel = new Tooltip(I18n.getInstance().getString("plugin.dashboard.sankey.tolltip.level"));
@@ -296,12 +307,10 @@ public class SankeyPojo {
 
         Spinner<Integer> offsetSpinner = new Spinner<>();
         offsetSpinner.setEditable(true);
-        SpinnerValueFactory<Integer> valueFactoryOffset = new SpinnerValueFactory.IntegerSpinnerValueFactory(-800, 800,offset);
+        SpinnerValueFactory<Integer> valueFactoryOffset = new SpinnerValueFactory.IntegerSpinnerValueFactory(-800, 800, offset);
 
 
-
-        gridPane.addRow(row,levelLabel,offsetLabel,offsetSpinner);
-
+        gridPane.addRow(row, levelLabel, offsetLabel, offsetSpinner);
 
 
         offsetSpinner.focusedProperty().addListener((s, ov, nv) -> {
@@ -318,30 +327,36 @@ public class SankeyPojo {
 
     private int getMaxLevel() {
         int level = 0;
-            for (SankeyDataRow sankeyDataRow:netGraphDataRows) {
-                int i = calculateMaxLevel(sankeyDataRow, 0);
-                if (level < i) {
-                    level = i;
-                }
+        for (SankeyDataRow sankeyDataRow : netGraphDataRows) {
+            int i = calculateMaxLevel(sankeyDataRow, 0);
+            if (level < i) {
+                level = i;
             }
+        }
         return level;
     }
 
     private int calculateMaxLevel(SankeyDataRow sankeyDataRow, int i) {
-        int z = i;
-        if (sankeyDataRow.getChildren().size() > 0) {
+        try {
+            int z = i;
+            if (sankeyDataRow.getChildren().size() > 0) {
 
-            for (JEVisObject jeVisObject: sankeyDataRow.getChildren()) {
-                Optional<SankeyDataRow> sankeyDataRow1 = netGraphDataRows.stream().filter(sankeyDataRow2 -> sankeyDataRow2.getJeVisObject().getID().intValue() == jeVisObject.getID().intValue()).findAny();
-                if (sankeyDataRow1.isPresent()) {
-                    int j = calculateMaxLevel(sankeyDataRow1.get(),i+1);
-                    if (j > z) {
-                        z = j;
+                for (JEVisObject jeVisObject : sankeyDataRow.getChildren()) {
+                    Optional<SankeyDataRow> sankeyDataRow1 = netGraphDataRows.stream().filter(sankeyDataRow2 -> sankeyDataRow2.getJeVisObject().getID().intValue() == jeVisObject.getID().intValue()).findAny();
+                    if (sankeyDataRow1.isPresent()) {
+                        int j = calculateMaxLevel(sankeyDataRow1.get(), i + 1);
+                        if (j > z) {
+                            z = j;
+                        }
                     }
                 }
             }
+            return z;
+        } catch (Exception e) {
+            logger.error(e);
         }
-        return z;
+        return 0;
+
     }
 
 
@@ -389,8 +404,8 @@ public class SankeyPojo {
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
         dataNode.put("showFlow", showFlow);
-        dataNode.put("showValueIn", showValueIn);
-        dataNode.put("refersTo", percentRefersTo);
+        dataNode.put("showValueIn", showValueIn.toString());
+        dataNode.put("refersTo", percentRefersTo.toString());
         dataNode.put("autoGap", autoGap);
         dataNode.put("gap", gap);
         ArrayNode arrayNode = dataNode.putArray("sankeyDataRows");
@@ -442,20 +457,20 @@ public class SankeyPojo {
         this.showFlow = showFlow;
     }
 
-    public String getShowValueIn() {
+    public SankeyWidget.SHOW_VALUE_IN getShowValueIn() {
         return showValueIn;
     }
 
     public void setShowValueIn(String showValueIn) {
-        this.showValueIn = showValueIn;
+        this.showValueIn = SankeyWidget.SHOW_VALUE_IN.valueOf(showValueIn);
     }
 
-    public String getPercentRefersTo() {
+    public SankeyWidget.REFERS_TO getPercentRefersTo() {
         return percentRefersTo;
     }
 
     public void setPercentRefersTo(String percentRefersTo) {
-        this.percentRefersTo = percentRefersTo;
+        this.percentRefersTo = SankeyWidget.REFERS_TO.valueOf(percentRefersTo);
     }
 
     public boolean isAutoGap() {
@@ -473,9 +488,6 @@ public class SankeyPojo {
     public void setGap(int gap) {
         this.gap = gap;
     }
-
-
-
 
 
     public Map<Integer, Integer> getOffsetMap() {
@@ -497,17 +509,25 @@ public class SankeyPojo {
         @Override
         public void commitChanges() {
             showFlow = jfxCheckBoxShowFlow.isSelected();
-            showValueIn = jfxComboBoxShowValueIn.getValue();
-            percentRefersTo = jfxComboBoxRefersTo.getValue();
+            if (jfxComboBoxShowValueIn.getValue().equals(PERCENT)) {
+                showValueIn = SankeyWidget.SHOW_VALUE_IN.PERCENT;
+            } else if (jfxComboBoxShowValueIn.getValue().equals(UNIT)) {
+                showValueIn = SankeyWidget.SHOW_VALUE_IN.UNIT;
+            }
+            if (jfxComboBoxRefersTo.getValue().equals(PARENT)) {
+                percentRefersTo = SankeyWidget.REFERS_TO.PARENT;
+            } else if (jfxComboBoxRefersTo.getValue().equals(ROOT)) {
+                percentRefersTo = SankeyWidget.REFERS_TO.ROOT;
+            }
+
             autoGap = jfxCheckBoxAutoGap.isSelected();
             gap = Integer.valueOf(jfxTextFieldGap.getText());
 
 
-
             offsetMap.clear();
-           offsetUIList.forEach((integer, integerSpinner) -> {
-               offsetMap.put(integer, integerSpinner.getValue());
-           });
+            offsetUIList.forEach((integer, integerSpinner) -> {
+                offsetMap.put(integer, integerSpinner.getValue());
+            });
 
         }
     }
