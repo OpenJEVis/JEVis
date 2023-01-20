@@ -527,22 +527,18 @@ public class NodeTreeTable {
                         dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
                         JEVisAttribute dataPeriodAttribute = dataJEVisObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
                         if (dataPeriodAttribute != null) {
-                            //TODO: get period from linx
-                            JEVisSample sample = dataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), Period.minutes(15));
+                            JEVisSample sample = dataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(node.getValue().getLogInterval()));
                             sample.commit();
                         }
                         jevisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
-                        setLogIntervalToJEVisObject(node, dataJEVisObject);
                         JEVisObject cleanDataJEVisObject = createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
                         cleanDataJEVisObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
                         JEVisAttribute cleanDataPeriodAttribute = cleanDataJEVisObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
                         if (cleanDataPeriodAttribute != null) {
-                            //TODO: get period from linx
-                            JEVisSample sample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), Period.minutes(15));
+                            JEVisSample sample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(node.getValue().getLogInterval()));
                             sample.commit();
                         }
                         cleanDataJEVisObject.commit();
-                        setLogIntervalToJEVisObject(node, cleanDataJEVisObject);
                     }
                     setTrendIdToJEVisObject(node, dataSourceJEVisObject, dateTime);
                 }
@@ -649,20 +645,6 @@ public class NodeTreeTable {
         } else {
             return "Asynchronous";
         }
-    }
-
-    /**
-     * @param node            OPC UA node to get the interval from
-     * @param dataJEVisObject JEVis data object where to set up input sample rate
-     * @throws JEVisException
-     */
-    private void setLogIntervalToJEVisObject(TreeItem<Node> node, JEVisObject dataJEVisObject) throws JEVisException {
-        JEVisAttribute jeVisAttribute = dataJEVisObject.getAttribute("Value");
-        jeVisAttribute.setInputSampleRate(convertInterval(node.getValue().getLogInterval()));
-        logger.debug(jeVisAttribute);
-        jeVisAttribute.commit();
-
-
     }
 
     /**

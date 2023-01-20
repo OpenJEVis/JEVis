@@ -1568,6 +1568,12 @@ public class TreeHelper {
         logger.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
+        Map<String, String> commitLangMap = toCopyObj.getLocalNameList();
+        if (commitLangMap.containsValue(I18n.getInstance().getLocale().getLanguage())) {
+            commitLangMap.replace((I18n.getInstance().getLocale().getLanguage()), newName);
+        }else {
+            commitLangMap.put(I18n.getInstance().getLocale().getLanguage(), newName);
+        }
         newObject.setLocalNames(toCopyObj.getLocalNameList());
         newObject.commit();
 
