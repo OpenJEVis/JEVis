@@ -284,11 +284,7 @@ public class TreeSelectionDialog extends JFXDialog {
                 else if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (!classFilter.isEmpty())) {
                     return TreeItemPredicate.create(jeVisTreeViewItem -> {
                         try {
-                            boolean contains = classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
-                            if (contains) {
-                                this.treeView.select(jeVisTreeViewItem.getObject());
-                            }
-                            return contains;
+                            return classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }

@@ -18,17 +18,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.util.Callback;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.jevis.jeconfig.plugin.object.attribute.LanguageEditor;
 import org.jevis.jeconfig.tool.Layouts;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -195,7 +194,7 @@ public class LocalNameDialog {
                     if (response.getButtonData().getTypeCode().equals(ButtonType.FINISH.getButtonData().getTypeCode())) {
                         this.response = Response.YES;
                         try {
-                            Map<String, String> commitLangMap = new HashedMap();
+                            Map<String, String> commitLangMap = new HashMap<>();
                             translationRows.forEach(translationRow -> {
                                 if (translationRow != null && !translationRow.getName().isEmpty()) {
                                     commitLangMap.put(translationRow.getLanguage(), translationRow.getName());

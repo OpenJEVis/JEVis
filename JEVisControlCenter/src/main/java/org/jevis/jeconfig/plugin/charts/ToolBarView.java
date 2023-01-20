@@ -120,7 +120,7 @@ public class ToolBarView {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.chartPlugin = chartPlugin;
-        this.toolBarFunctions = new ToolBarFunctions(chartPlugin.getDialogContainer(), ds, chartPlugin.getDataSettings(), toolBarSettings, dataModel);
+        this.toolBarFunctions = new ToolBarFunctions(chartPlugin.getDialogContainer(), ds, chartPlugin.getDataSettings(), toolBarSettings, chartPlugin);
 
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
         analysesComboBox.setPrefWidth(300);
