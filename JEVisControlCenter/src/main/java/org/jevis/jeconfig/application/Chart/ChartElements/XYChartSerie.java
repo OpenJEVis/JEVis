@@ -92,7 +92,7 @@ public class XYChartSerie {
 
             QuantityUnits quantityUnits = new QuantityUnits();
             JEVisUnit sumUnit = quantityUnits.getSumUnit(unit);
-            if (!sumUnit.equals(unit)) {
+            if (sumUnit != null && !sumUnit.equals(unit)) {
                 singleRow.setUnit(sumUnit);
                 singleRow.setSomethingChanged(true);
             }

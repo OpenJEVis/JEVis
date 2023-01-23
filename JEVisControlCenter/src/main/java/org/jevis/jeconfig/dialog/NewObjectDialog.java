@@ -345,7 +345,8 @@ public class NewObjectDialog {
 
                         createName = fName.getText();
                         createClass = jeVisClassComboBox.getSelectionModel().getSelectedItem();
-                        createCount = Integer.parseInt(count.getNumber().toString());//dirty :)
+//                        createCount = Integer.parseInt(count.getNumber().toString());//dirty :)
+                        createCount = count.getNumber().intValue(); //haha
 
                         NewObjectDialog.this.response = Response.YES;
                     } else {

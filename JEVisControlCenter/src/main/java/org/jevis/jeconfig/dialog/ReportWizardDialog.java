@@ -102,8 +102,8 @@ public class ReportWizardDialog {
     private Integer maxColumnIndex = 0;
     private Integer maxRowIndex = 0;
 
-    public ReportWizardDialog(JEVisObject newObject, String wizardTyp) {
-        this.wizardTyp = wizardTyp;
+    public ReportWizardDialog(JEVisObject newObject, String wizardType) {
+        this.wizardTyp = wizardType;
         try {
             ds = newObject.getDataSource();
             JEVisClass reportLinkDirectoryClass = ds.getJEVisClass("Report Link Directory");
@@ -182,9 +182,9 @@ public class ReportWizardDialog {
         JEVisClass finalReportAttributeClass = reportAttributeClass;
         JEVisClass finalReportPeriodConfigurationClass = reportPeriodConfigurationClass;
         reportWizardDialog.setOnDialogClosed(event -> {
-            System.out.println("wizard");
-            System.out.println(event.toString());
-            onWizardClose(newObject, wizardTyp, finalReportLinkClass, finalReportAttributeClass, finalReportPeriodConfigurationClass);
+            logger.debug("wizard");
+            logger.debug(event.toString());
+            onWizardClose(newObject, wizardType, finalReportLinkClass, finalReportAttributeClass, finalReportPeriodConfigurationClass);
         });
 
         reportWizardDialog.show();
@@ -364,8 +364,8 @@ public class ReportWizardDialog {
 
         List<ReportLink> newDataLinks = filterReportDataLinks(newList);
         List<ReportLink> newTextLinks = filterReportTextLinks(newList);
-        System.out.println("textlinks");
-        System.out.println(newTextLinks);
+        logger.debug("textlinks");
+        logger.debug(newTextLinks);
 
         if (newDataLinks != null) {
             if (newDataLinks.size() > 0) {
@@ -1179,12 +1179,12 @@ public class ReportWizardDialog {
                 Iterator<Cell> cellIterator = sheet.getRow(0).cellIterator();
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
-                    System.out.println(cell.getStringCellValue());
+                    logger.debug(cell.getStringCellValue());
                     if (!cell.getStringCellValue().isEmpty()) {
                         Optional<JEVisObject> jevisobject = listReportLinkObjects.stream().filter(jeVisObject -> jeVisObject.getName().equals(cell.getStringCellValue())).findFirst();
                         if (jevisobject.isPresent()) {
                             cellJevisMap.get(sheet.getSheetName()).put(cell.getAddress(), jevisobject.get());
-                            System.out.println(cellJevisMap.get(sheet.getSheetName()));
+                            logger.debug(cellJevisMap.get(sheet.getSheetName()));
                             logger.debug("load DP: ", cell.getAddress(), jevisobject.get().getName());
                         }
                     }
@@ -1391,7 +1391,7 @@ public class ReportWizardDialog {
             }
         }).collect(Collectors.toList());
 
-        System.out.println(dataLinks);
+        logger.debug(dataLinks);
 
 
         int sheetWidth = links.size() * 3;
