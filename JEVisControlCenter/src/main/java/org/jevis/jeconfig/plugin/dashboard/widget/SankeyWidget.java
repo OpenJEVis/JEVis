@@ -112,9 +112,11 @@ public class SankeyWidget extends Widget implements DataModelWidget {
             });
             /** workaround because we make a new chart every time**/
         } catch (Exception ex) {
+            ex.printStackTrace();
             logger.error(ex);
         }
         showProgressIndicator(false);
+        updateConfig();
     }
 
     private void buildSankeyPlot(Size configSize) {
@@ -128,6 +130,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                     .streamFillMode(eu.hansolo.fx.charts.SankeyPlot.StreamFillMode.GRADIENT)
                     .build();
             sankeyPlot.setManaged(true);
+
         }
 
     }
@@ -151,6 +154,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
                 try {
                     if (sankeyPlot != null) {
+
                         sankeyPlot.setFontSize(config.getFontSize());
                         if (sankeyPojo.isAutoGap()) {
                             sankeyPlot.setAutoItemGap(true);
@@ -165,16 +169,16 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                         } else {
                             sankeyPlot.setTextColor(config.getFontColor());
                         }
-                        sankeyPlot.setOffsetMap(sankeyPojo.getOffsetMap());
                         sankeyPlot.setShowFlowDirection(sankeyPojo.isShowFlow());
                         sankeyPlot.setMinSize(config.getSize().getWidth(), config.getSize().getHeight());
+                        sankeyPlot.setOffsetMap(sankeyPojo.getOffsetMap());
                     }
+
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
             } catch (Exception ex) {
                 logger.error(ex);
-                ex.printStackTrace();
             }
         });
     }
