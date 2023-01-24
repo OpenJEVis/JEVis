@@ -109,6 +109,7 @@ public class ActionForm extends Dialog {
         this.initOwner(JEConfig.getStage());
         this.actionPlan = actionPlan;
 
+
         setTitle(I18n.getInstance().getString("actionform.editor.title"));
         setHeaderText(null);
         setResizable(true);
@@ -303,7 +304,8 @@ public class ActionForm extends Dialog {
         l_plannedDate.setText(data.plannedDateProperty().getName());
         l_Note.setText(data.noteProperty().getName());
         l_Description.setText(data.desciptionProperty().getName());
-        l_ActionNr.setText(data.actionNrProperty().getName());
+        System.out.println("nr later:" + data.nrProperty().getName());
+        l_ActionNr.setText(data.nrProperty().getName());
         l_Attachment.setText(data.attachmentProperty().getName());
         l_statusTags.setText(data.statusTagsProperty().getName());
         l_fieldTags.setText(data.fieldTagsProperty().getName());
@@ -674,6 +676,10 @@ public class ActionForm extends Dialog {
 
 
     private void updateView(ActionData data) {
+        //Gson gson = CustomAdapter.createDefaultBuilder().create();
+        // System.out.println("Jsons--------\n" + gson.toJson(data));
+
+
         f_distributor.textProperty().bindBidirectional(data.distributorProperty());
         f_FromUser.textProperty().bindBidirectional(data.fromUserProperty());
         f_Note.textProperty().bindBidirectional(data.noteProperty());
@@ -761,7 +767,7 @@ public class ActionForm extends Dialog {
             data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
         });
 
-        f_ActionNr.setText(data.actionNrProperty().get() + "");
+        f_ActionNr.setText(data.nrProperty().get() + "");
 
         f_IsNeedAdditionalMeters.selectedProperty().bindBidirectional(data.isNeedAdditionalMetersProperty());
         f_isNeedAdditionalAction.selectedProperty().bindBidirectional((data.isNeedAdditionalActionProperty()));

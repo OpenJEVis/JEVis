@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.action;
 
-import com.google.gson.Gson;
 import com.jfoenix.controls.JFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -17,7 +16,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hildan.fxgson.FxGson;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -25,13 +23,10 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlan;
-import org.jevis.jeconfig.plugin.action.data.DataExample;
 import org.jevis.jeconfig.plugin.action.data.TableFilter;
 import org.jevis.jeconfig.plugin.action.ui.*;
 import org.joda.time.DateTime;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -75,13 +70,6 @@ public class ActionController {
         AnchorPane.setLeftAnchor(tabPane, 0.0);
         contentPane.getChildren().add(tabPane);
 
-        //test
-        Gson gson = FxGson.coreBuilder().setPrettyPrinting().create();
-        try (FileWriter writer = new FileWriter("C:\\Users\\Ich\\Desktop\\test2.json")) {
-            gson.toJson(new DataExample(), writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 
@@ -256,7 +244,7 @@ public class ActionController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(I18n.getInstance().getString("plugin.action.action.deletetitle"));
         alert.setHeaderText(I18n.getInstance().getString("plugin.action.action.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.action.action.content") + "\n" + getSelectedData().actionNrProperty().get() + " " + getSelectedData().titleProperty().get());
+        Label text = new Label(I18n.getInstance().getString("plugin.action.action.content") + "\n" + getSelectedData().nrProperty().get() + " " + getSelectedData().titleProperty().get());
         text.setWrapText(true);
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
@@ -288,7 +276,7 @@ public class ActionController {
             JEVisObject actionObject = actionDirObj.buildObject(getActiveActionPlan().getNextActionNr().toString(), actionClass);
             actionObject.commit();
             ActionData newAction = new ActionData(actionObject);
-            newAction.actionNrProperty().set(tab.getActionPlan().getNextActionNr());
+            newAction.nrProperty().set(tab.getActionPlan().getNextActionNr());
             tab.getActionPlan().addAction(newAction);
 
             tab.getActionTable().getSelectionModel().select(newAction);
