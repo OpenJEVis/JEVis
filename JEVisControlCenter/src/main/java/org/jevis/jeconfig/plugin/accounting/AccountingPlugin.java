@@ -274,7 +274,11 @@ public class AccountingPlugin extends TablePlugin {
 
         boolean canWriteToContracts = false;
         try {
-            canWriteToContracts = ds.getCurrentUser().canWrite(accountingDirectories.getEnergyContractingDir().getID());
+            if (accountingDirectories != null && accountingDirectories.getEnergyContractingDir() != null) {
+                canWriteToContracts = ds.getCurrentUser().canWrite(accountingDirectories.getEnergyContractingDir().getID());
+            } else {
+                logger.warn("Missing Accounting Directory");
+            }
         } catch (Exception e) {
             logger.error("Failed to check user permissions to write to contracts directory", e);
             try {
