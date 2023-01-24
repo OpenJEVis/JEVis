@@ -26,7 +26,6 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
-import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.jevis.jeconfig.dialog.BaseLoadDialog;
 import org.jevis.jeconfig.dialog.ValuesDialog;
 import org.jevis.jeconfig.sample.DaySchedule;
@@ -46,14 +45,14 @@ public class ToolBarFunctions {
     private final JEVisDataSource ds;
     private final DataSettings dataSettings;
     private final ToolBarSettings toolBarSettings;
-    private final DataModel dataModel;
+    private final ChartPlugin chartPlugin;
 
-    public ToolBarFunctions(StackPane dialogContainer, JEVisDataSource ds, DataSettings dataSettings, ToolBarSettings toolBarSettings, DataModel dataModel) {
+    public ToolBarFunctions(StackPane dialogContainer, JEVisDataSource ds, DataSettings dataSettings, ToolBarSettings toolBarSettings, ChartPlugin chartPlugin) {
         this.dialogContainer = dialogContainer;
         this.ds = ds;
         this.dataSettings = dataSettings;
         this.toolBarSettings = toolBarSettings;
-        this.dataModel = dataModel;
+        this.chartPlugin = chartPlugin;
     }
 
     protected void calcRegression() {
@@ -177,8 +176,7 @@ public class ToolBarFunctions {
         });
 
         fullLoadHours.getColumns().addAll(nameColumn, valueColumn);
-        dataModel.getChartModels().forEach(chart -> chart.getChartData().forEach(chartData -> {
-            ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+        chartPlugin.getAllCharts().forEach((integer, chart) -> chart.getChartDataRows().forEach(chartDataRow -> {
             fullLoadHours.getItems().add(chartDataRow);
         }));
 
@@ -329,7 +327,7 @@ public class ToolBarFunctions {
                 setting.setResultStart(resultStartDate.getValue(), resultStartTime.getValue());
                 setting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
 
-                BaseLoadDialog dialog = new BaseLoadDialog(dialogContainer, ds, setting, dataModel);
+                BaseLoadDialog dialog = new BaseLoadDialog(dialogContainer, ds, setting, chartPlugin.getAllCharts());
 
                 dialog.show();
 
@@ -425,7 +423,7 @@ public class ToolBarFunctions {
                 valuesSetting.setResultStart(resultStartDate.getValue(), resultStartTime.getValue());
                 valuesSetting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
 
-                ValuesDialog dialog = new ValuesDialog(dialogContainer, ds, valuesSetting, dataModel);
+                ValuesDialog dialog = new ValuesDialog(dialogContainer, ds, valuesSetting, chartPlugin.getAllCharts());
 
                 dialog.show();
 
@@ -557,8 +555,7 @@ public class ToolBarFunctions {
                             fullLoadHours.getColumns().addAll(nameColumn, belowColumn, aboveColumn);
 
                             List<HoursAbove> hoursAbove = new ArrayList<>();
-                            dataModel.getChartModels().forEach(chart -> chart.getChartData().forEach(chartData -> {
-                                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                            chartPlugin.getAllCharts().forEach((integer, chart) -> chart.getChartDataRows().forEach(chartDataRow -> {
                                 hoursAbove.add(new HoursAbove(chartDataRow, limit));
                             }));
 
@@ -702,8 +699,7 @@ public class ToolBarFunctions {
                             fullLoadHours.getColumns().addAll(nameColumn, belowColumn, aboveColumn);
 
                             List<SumsAbove> hoursAbove = new ArrayList<>();
-                            dataModel.getChartModels().forEach(chart -> chart.getChartData().forEach(chartData -> {
-                                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                            chartPlugin.getAllCharts().forEach((integer, chart) -> chart.getChartDataRows().forEach(chartDataRow -> {
                                 hoursAbove.add(new SumsAbove(chartDataRow, limit));
                             }));
 

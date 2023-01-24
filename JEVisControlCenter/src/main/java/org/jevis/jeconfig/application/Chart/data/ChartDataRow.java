@@ -455,7 +455,7 @@ public class ChartDataRow extends ChartData {
 
     private void applyUserData(List<JEVisSample> unmodifiedSamples) {
         try {
-            if (!getUserDataMap().isEmpty() && aggregationPeriod != AggregationPeriod.NONE) {
+            if (!getUserDataMap().isEmpty() && aggregationPeriod == AggregationPeriod.NONE) {
 
                 List<JEVisSample> samplesToRemove = new ArrayList<>();
                 List<JEVisSample> samplesToAdd = new ArrayList<>();

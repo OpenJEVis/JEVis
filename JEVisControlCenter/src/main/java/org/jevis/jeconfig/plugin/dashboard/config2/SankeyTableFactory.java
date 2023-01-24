@@ -36,7 +36,7 @@ public class SankeyTableFactory {
 
 
     private static final Logger logger = LogManager.getLogger(WidgetColumnFactory.class);
-    private final Double numberColumDefaultSize = 70d;
+    private final Double numberColumDefaultSize = 280d;
     private TableView<SankeyDataRow> tableView;
 
     public ObservableList<SankeyDataRow> observableList = FXCollections.observableArrayList();
@@ -54,7 +54,7 @@ public class SankeyTableFactory {
 
     public TableView<SankeyDataRow> buildTable(ObservableList<SankeyDataRow> sankeyDataRows) {
         tableView = new TableView<>();
-        tableView.setEditable(true);
+        tableView.setEditable(false);
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         this.tableView.getColumns().add(buildIDColumn());
         this.tableView.getColumns().add(buildNameColumn());
@@ -89,14 +89,15 @@ public class SankeyTableFactory {
         return nameColumn;
     }
     private TableColumn<SankeyDataRow, String> buildIDColumn() {
-        TableColumn<SankeyDataRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.sankey.id"));
-        nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        nameColumn.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().jeVisObject.getID())));
-        nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
-        nameColumn.setPrefWidth(numberColumDefaultSize/2);
+        TableColumn<SankeyDataRow, String> column = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.sankey.id"));
+        column.setCellFactory(TextFieldTableCell.forTableColumn());
+        column.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().jeVisObject.getID())));
+        column.setStyle("-fx-alignment: CENTER-LEFT;");
+        column.setPrefWidth(numberColumDefaultSize/2);
+        column.setMaxWidth(numberColumDefaultSize);
 
 
-        return nameColumn;
+        return column;
     }
 
 
@@ -115,12 +116,12 @@ public class SankeyTableFactory {
                             setGraphic(null);
                         } else {
                             CheckComboBox<SankeyDataRow> checkComboBox = new CheckComboBox();
+                            checkComboBox.setPrefWidth(1000d);
                             checkComboBox.getItems().addAll(observableList);
                             for (JEVisObject jeVisObject : item.getChildren()) {
                                 Optional<SankeyDataRow> sankeyDataRowOptional = checkComboBox.getItems().stream().filter(sankeyDataRow -> sankeyDataRow.getJeVisObject().getID().intValue() == jeVisObject.getID().intValue()).findAny();
                                 if (sankeyDataRowOptional.isPresent()) {
                                     checkComboBox.getCheckModel().check(sankeyDataRowOptional.get());
-                                    //checkComboBox.setMinWidth();
                                 }
                             }
                             checkComboBox.getCheckModel().getCheckedItems().addListener(new ListChangeListener() {
@@ -243,6 +244,7 @@ public class SankeyTableFactory {
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
         column.setPrefWidth(numberColumDefaultSize);
+        column.setMaxWidth(numberColumDefaultSize*4);
 
         return column;
     }

@@ -21,35 +21,36 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
-import org.jevis.jeconfig.application.Chart.data.ChartData;
+import org.jevis.jeconfig.application.Chart.Charts.Chart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
-import org.jevis.jeconfig.application.Chart.data.ChartModel;
-import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.jevis.jeconfig.plugin.charts.BaseLoad;
 import org.jevis.jeconfig.plugin.charts.BaseLoadSetting;
 import org.jevis.jeconfig.plugin.charts.BaseLoadTable;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BaseLoadDialog extends JFXDialog {
     private static final Logger logger = LogManager.getLogger(BaseLoadDialog.class);
     final NumberFormat nf = NumberFormat.getNumberInstance();
 
-    public BaseLoadDialog(StackPane dialogContainer, JEVisDataSource ds, BaseLoadSetting settings, DataModel model) {
+    public BaseLoadDialog(StackPane dialogContainer, JEVisDataSource ds, BaseLoadSetting settings, HashMap<Integer, Chart> model) {
         setDialogContainer(dialogContainer);
         setTransitionType(DialogTransition.NONE);
 
-        this.nf.setMinimumFractionDigits(model.getChartModels().get(0).getMinFractionDigits());
-        this.nf.setMaximumFractionDigits(model.getChartModels().get(0).getMaxFractionDigits());
+        this.nf.setMinimumFractionDigits(model.values().stream().findFirst().get().getChartModel().getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(model.values().stream().findFirst().get().getChartModel().getMaxFractionDigits());
 
         List<BaseLoad> data = new ArrayList<>();
         int repeatType = settings.getRepeatType();
 
-        for (ChartModel chartModel : model.getChartModels()) {
-            for (ChartData chartData : chartModel.getChartData()) {
-                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+        for (Map.Entry<Integer, Chart> entry : model.entrySet()) {
+            Integer integer = entry.getKey();
+            Chart chart = entry.getValue();
+            for (ChartDataRow chartDataRow : chart.getChartDataRows()) {
                 BaseLoad baseLoad = new BaseLoad(chartDataRow.getName());
 
                 JEVisAttribute attribute = chartDataRow.getAttribute();

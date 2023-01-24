@@ -120,7 +120,7 @@ public class ToolBarView {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.chartPlugin = chartPlugin;
-        this.toolBarFunctions = new ToolBarFunctions(chartPlugin.getDialogContainer(), ds, chartPlugin.getDataSettings(), toolBarSettings, dataModel);
+        this.toolBarFunctions = new ToolBarFunctions(chartPlugin.getDialogContainer(), ds, chartPlugin.getDataSettings(), toolBarSettings, chartPlugin);
 
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
         analysesComboBox.setPrefWidth(300);
@@ -582,14 +582,14 @@ public class ToolBarView {
                 if (chartPlugin.isZoomed()) {
                     ge = new ChartExportCSV(
                             ds,
-                            dataModel,
+                            chartPlugin.getDataRowMap(),
                             chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
                             new DateTime(chartPlugin.getxAxisLowerBound().longValue() * 1000),
                             new DateTime(chartPlugin.getxAxisUpperBound().longValue() * 1000));
                 } else {
                     ge = new ChartExportCSV(
                             ds,
-                            dataModel,
+                            chartPlugin.getDataRowMap(),
                             chartPlugin.getDataSettings().getCurrentAnalysis().getName(),
                             chartPlugin.getDataSettings().getAnalysisTimeFrame().getStart(),
                             chartPlugin.getDataSettings().getAnalysisTimeFrame().getEnd());
@@ -680,11 +680,20 @@ public class ToolBarView {
 
         calcSumAboveBelow.setOnAction(event -> toolBarFunctions.calcSumAboveBelow());
 
-        customWorkDay.setOnAction(event -> toolBarSettings.setCustomWorkday(!toolBarSettings.isCustomWorkday()));
+        customWorkDay.setOnAction(event -> {
+            toolBarSettings.setCustomWorkday(!toolBarSettings.isCustomWorkday());
+            chartPlugin.update();
+        });
 
-        disableIcons.setOnAction(event -> toolBarSettings.setShowIcons(!toolBarSettings.isShowIcons()));
+        disableIcons.setOnAction(event -> {
+            toolBarSettings.setShowIcons(!toolBarSettings.isShowIcons());
+            chartPlugin.update();
+        });
 
-        autoResize.setOnAction(event -> toolBarSettings.setAutoResize(!toolBarSettings.isAutoResize()));
+        autoResize.setOnAction(event -> {
+            toolBarSettings.setAutoResize(!toolBarSettings.isAutoResize());
+            chartPlugin.update();
+        });
 
     }
 
