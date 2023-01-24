@@ -256,9 +256,8 @@ public class ActionController {
                 ex.printStackTrace();
             }
         }
-
-
     }
+
 
     public void createNewAction() {
         ActionTab tab = getActiveTab();

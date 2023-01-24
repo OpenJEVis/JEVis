@@ -167,27 +167,11 @@ public class ActionPlan {
                             //System.out.println("Action Dir: " + dirObj);
                             dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                                 System.out.println("new Action from JEVis: " + actionObj);
-                                // ActionData actionData = new ActionData(actionObj);
-                                //actions.add(actionData);
-
                                 try {
-                                    JEVisAttribute att = actionObj.getAttribute("Data");
-                                    if (att != null) {
-                                        JEVisSample sample = att.getLatestSample();
-                                        JEVisFile file = sample.getValueAsFile();
-                                        String s = new String(file.getBytes(), StandardCharsets.UTF_8);
-                                        //System.out.println("Parsed Json:\n" + s);
-                                        Gson gson = GsonBuilder.createDefaultBuilder().create();
-                                        ActionData actionData = gson.fromJson(s, ActionData.class);
-                                        actions.add(actionData);
-                                        actionData.setObject(actionObj);
-                                    }
-
+                                    actions.add(loadAction(actionObj));
                                 } catch (Exception e) {
-                                    throw new RuntimeException(e);
+                                    logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                                 }
-
-
                             });
                         }
                         actions.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
@@ -206,6 +190,19 @@ public class ActionPlan {
 
 
     }
+
+    public ActionData loadAction(JEVisObject actionObj) throws JEVisException, NullPointerException {
+        JEVisAttribute att = actionObj.getAttribute("Data");
+        JEVisSample sample = att.getLatestSample();
+        JEVisFile file = sample.getValueAsFile();
+        String s = new String(file.getBytes(), StandardCharsets.UTF_8);
+        //System.out.println("Parsed Json:\n" + s);
+        Gson gson = GsonBuilder.createDefaultBuilder().create();
+        ActionData actionData = gson.fromJson(s, ActionData.class);
+        actionData.setObject(actionObj);
+        return actionData;
+    }
+
 
     public void commit() {
 
