@@ -69,11 +69,14 @@ public class ActionController {
         AnchorPane.setRightAnchor(tabPane, 0.0);
         AnchorPane.setLeftAnchor(tabPane, 0.0);
         contentPane.getChildren().add(tabPane);
+
+
     }
 
 
     private void buildTabPane(ActionPlan plan) {
         ActionTable actionTable = new ActionTable(plan.getActionData());
+        //actionTable.enableSumRow(true);
         ActionTab tab = new ActionTab(plan, actionTable);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
@@ -241,7 +244,7 @@ public class ActionController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(I18n.getInstance().getString("plugin.action.action.deletetitle"));
         alert.setHeaderText(I18n.getInstance().getString("plugin.action.action.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.action.action.content") + "\n" + getSelectedData().actionNrProperty().get() + " " + getSelectedData().titleProperty().get());
+        Label text = new Label(I18n.getInstance().getString("plugin.action.action.content") + "\n" + getSelectedData().nrProperty().get() + " " + getSelectedData().titleProperty().get());
         text.setWrapText(true);
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
@@ -253,9 +256,8 @@ public class ActionController {
                 ex.printStackTrace();
             }
         }
-
-
     }
+
 
     public void createNewAction() {
         ActionTab tab = getActiveTab();
@@ -273,7 +275,7 @@ public class ActionController {
             JEVisObject actionObject = actionDirObj.buildObject(getActiveActionPlan().getNextActionNr().toString(), actionClass);
             actionObject.commit();
             ActionData newAction = new ActionData(actionObject);
-            newAction.actionNrProperty().set(tab.getActionPlan().getNextActionNr());
+            newAction.nrProperty().set(tab.getActionPlan().getNextActionNr());
             tab.getActionPlan().addAction(newAction);
 
             tab.getActionTable().getSelectionModel().select(newAction);

@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.action.data;
 
+import com.google.gson.Gson;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -9,15 +10,14 @@ import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
+import org.jevis.jeconfig.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -104,9 +104,9 @@ public class ActionPlan {
             @Override
             public void onChanged(Change<? extends ActionData> c) {
                 while (c.next()) {
-                    Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.actionNrProperty().get(), o2.actionNrProperty().get()));
-                    System.out.println("New Action Nr Max: " + maxNr.get().actionNrProperty().get());
-                    biggestActionNr.set(maxNr.get().actionNrProperty().get());
+                    Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
+                    System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
+                    biggestActionNr.set(maxNr.get().nrProperty().get());
                 }
             }
         });
@@ -118,6 +118,7 @@ public class ActionPlan {
             System.out.println("ENPIS ind DB: " + attribute.getLatestSample().toString());
             TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), attribute);
             System.out.println("targetHelper: " + targetHelper.getObject());
+
             enpis.setAll(targetHelper.getObject());
 
         } catch (Exception e) {
@@ -165,12 +166,15 @@ public class ActionPlan {
                         for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
                             //System.out.println("Action Dir: " + dirObj);
                             dirObj.getChildren(actionClass, false).forEach(actionObj -> {
-                                //System.out.println("new Action from JEVis: " + actionObj);
-                                ActionData actionData = new ActionData(actionObj);
-                                actions.add(actionData);
+                                System.out.println("new Action from JEVis: " + actionObj);
+                                try {
+                                    actions.add(loadAction(actionObj));
+                                } catch (Exception e) {
+                                    logger.error("Could not load Action: {},{},{}", actionObj, e, e);
+                                }
                             });
                         }
-                        actions.sort(Comparator.comparingInt(value -> value.actionNrProperty().get()));
+                        actions.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -186,6 +190,19 @@ public class ActionPlan {
 
 
     }
+
+    public ActionData loadAction(JEVisObject actionObj) throws JEVisException, NullPointerException {
+        JEVisAttribute att = actionObj.getAttribute("Data");
+        JEVisSample sample = att.getLatestSample();
+        JEVisFile file = sample.getValueAsFile();
+        String s = new String(file.getBytes(), StandardCharsets.UTF_8);
+        //System.out.println("Parsed Json:\n" + s);
+        Gson gson = GsonBuilder.createDefaultBuilder().create();
+        ActionData actionData = gson.fromJson(s, ActionData.class);
+        actionData.setObject(actionObj);
+        return actionData;
+    }
+
 
     public void commit() {
 
