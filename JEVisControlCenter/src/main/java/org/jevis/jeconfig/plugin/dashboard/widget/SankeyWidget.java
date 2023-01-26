@@ -319,7 +319,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
             value = value.setScale(config.getDecimals(), RoundingMode.HALF_UP);
             BigDecimal outgoing = new BigDecimal(jeVisPlotItem.getSumOfOutgoing());
             outgoing = outgoing.setScale(config.getDecimals(), RoundingMode.HALF_UP);
-            if (value.doubleValue() < outgoing.doubleValue()) {
+            if (value.doubleValue()*(1+sankeyPojo.getErrorTolerance()) < outgoing.doubleValue()) {
                 jeVisPlotItem.setFill(Color.RED);
                 jeVisPlotItem.setOnItemEvent(itemEvent -> {
                 });
