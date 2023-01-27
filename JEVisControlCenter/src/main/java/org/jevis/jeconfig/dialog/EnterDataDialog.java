@@ -37,6 +37,7 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -70,11 +71,14 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     private boolean showValuePrompt = false;
     private JEVisSample initSample = null;
     private final SimpleBooleanProperty isConversionToDifferential = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty isQuantity = new SimpleBooleanProperty(false);
+    private final SimpleObjectProperty<Period> period = new SimpleObjectProperty<>(Period.ZERO);
     private JEVisAttribute target = null;
     private final Label messageLabel = new Label(I18n.getInstance().getString("plugin.object.dialog.data.message.notdifferential"));
     private final DataTypeBox dataTypeBox = new DataTypeBox();
     private final Label idLabel = new Label(I18n.getInstance().getString("plugin.graph.export.text.id"));
     private final Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
+    private final Label lastRawValueLabel = new Label(I18n.getInstance().getString("status.table.captions.lastrawvalue"));
     private final Label dateTypeLabel = new Label(I18n.getInstance().getString("plugin.object.dialog.data.datetype.label"));
     private final JFXTextField searchIdField = new JFXTextField();
     private final JFXButton treeButton = new JFXButton(I18n
@@ -88,8 +92,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     private final JFXDatePicker datePicker = new JFXDatePicker(LocalDate.now());
     private final JFXTimePicker timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
     private boolean selectable = true;
-    private DateTime lastTS;
-    private List<JEVisSample> conversionDifferential;
+    private final SimpleObjectProperty<DateTime> lastTS = new SimpleObjectProperty<>(new DateTime(1990, 1, 1, 0, 0, 0, 0));
     private final GridPane gridPane = new GridPane();
     private boolean showDetailedTarget = true;
 
@@ -103,6 +106,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
         this.objectRelations = new ObjectRelations(ds);
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
+
         init();
     }
 
@@ -111,20 +115,6 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
         this.timePicker.set24HourView(true);
         this.timePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        this.isConversionToDifferential.addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                Platform.runLater(() -> {
-                    messageLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.message.differential"));
-                    dataTypeBox.getSelectionModel().select(EnterDataTypes.DAY);
-                });
-            } else {
-                Platform.runLater(() -> {
-                    messageLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.message.notdifferential"));
-                    dataTypeBox.selectFromPeriod(selectedObject);
-                });
-            }
-        });
 
         treeButton.setOnAction(event -> {
             TargetHelper th = null;
@@ -397,6 +387,53 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
         cancel.setOnAction(event -> close());
     }
 
+    private void updateView() {
+        if (isConversionToDifferential.get()) {
+            Platform.runLater(() -> {
+                messageLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.message.differential"));
+                dataTypeBox.setVisible(false);
+
+                dataTypeBox.getSelectionModel().select(EnterDataTypes.DAY);
+                dateTypeLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.datetype.date"));
+                valueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.meterreading"));
+                lastRawValueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.lastmeterreading"));
+
+                if (isQuantity.get()) {
+
+                } else {
+
+                }
+            });
+        } else if (!isConversionToDifferential.get()) {
+            Period p = dataTypeBox.selectFromPeriod(selectedObject);
+            String periodName = p.toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
+
+
+            Platform.runLater(() -> {
+                messageLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.message.notdifferential"));
+
+                dataTypeBox.setVisible(false);
+
+                if (!p.equals(Period.ZERO)) {
+                    dateTypeLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.datetype.period") + ", " + periodName);
+
+                    if (isQuantity.get()) {
+                        valueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.consumption"));
+                        lastRawValueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.lastconsumption"));
+                    } else {
+                        valueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.meanvalue"));
+                        lastRawValueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.lastmeanvalue"));
+                    }
+
+                } else {
+                    dateTypeLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.datetype.valid"));
+                    valueLabel.setText(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
+                    lastRawValueLabel.setText(I18n.getInstance().getString("status.table.captions.lastrawvalue"));
+                }
+            });
+        }
+    }
+
     public ObjectProperty<JEVisSample> getNewSampleProperty() {
         return newSampleProperty;
     }
@@ -526,7 +563,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
         gridPane.addRow(row, valueLabel, doubleField, unitField);
         row++;
 
-        gridPane.add(new Label(I18n.getInstance().getString("status.table.captions.lastrawvalue")), 0, row, 1, 1);
+        gridPane.add(lastRawValueLabel, 0, row, 1, 1);
         gridPane.add(lastValueLabel, 1, row, 2, 1);
         row++;
 
@@ -553,13 +590,13 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     }
 
     private DateTime getNextTS() {
-        DateTime nextTS = lastTS;
+        DateTime nextTS = lastTS.get();
 
         JEVisAttribute periodAttribute = null;
         if (selectedObject != null) {
             try {
                 periodAttribute = selectedObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get value attribute", e);
             }
         }
@@ -574,18 +611,18 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
             }
 
             if (p.equals(Period.minutes(15))) {
-                nextTS = lastTS.plusMinutes(15).withSecondOfMinute(0).withMillisOfSecond(0);
+                nextTS = lastTS.get().plusMinutes(15).withSecondOfMinute(0).withMillisOfSecond(0);
             } else if (p.equals(Period.days(1))) {
-                nextTS = lastTS.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                nextTS = lastTS.get().plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             } else if (p.equals(Period.weeks(1))) {
-                nextTS = lastTS.plusWeeks(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                nextTS = lastTS.get().plusWeeks(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             } else if (p.equals(Period.months(1))) {
-                nextTS = lastTS.plusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                nextTS = lastTS.get().plusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             } else if (p.equals(Period.years(1))) {
-                nextTS = lastTS.plusYears(1).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                nextTS = lastTS.get().plusYears(1).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             } else {
                 try {
-                    nextTS = lastTS.plus(p.toStandardDuration().getMillis());
+                    nextTS = lastTS.get().plus(p.toStandardDuration().getMillis());
                 } catch (Exception e) {
                     logger.error("Could not determine period", e);
                 }
@@ -669,52 +706,59 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                     String finalUnitString = unitString;
                     Platform.runLater(() -> unitField.setText(finalUnitString));
                 }
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
             }
 
             JEVisSample sample = null;
-            lastTS = null;
             lastValue = null;
-            if (valueAttribute != null && valueAttribute.hasSample())
-                try {
+
+            try {
+                if (valueAttribute != null && valueAttribute.hasSample()) {
                     ds.reloadAttribute(valueAttribute);
                     sample = valueAttribute.getLatestSample();
                     if (sample != null) {
-                        lastTS = sample.getTimestamp();
+                        lastTS.set(sample.getTimestamp());
                         lastValue = sample.getValueAsDouble();
-                        if (lastTS != null && lastValue != null) {
-                            Double finalLastValue = lastValue;
-                            String finalUnitString = unitString;
-                            Period p = null;
-                            if (!selectedObject.getChildren().isEmpty()) {
-                                JEVisObject cleanDataObject = selectedObject.getChildren(cleanDataClass, true).get(0);
-                                CleanDataObject cdo = new CleanDataObject(cleanDataObject);
-                                isConversionToDifferential.set(CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), lastTS));
-                                p = CleanDataObject.getPeriodForDate(cdo.getCleanDataPeriodAlignment(), lastTS);
-                            } else {
-                                p = CleanDataObject.getPeriodForDate(selectedObject, lastTS);
+                        if (lastValue != null) {
+
+                            getCleanDataSettings();
+
+                            if (workDays.isCustomWorkDay() && workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd()) && PeriodHelper.isGreaterThenDays(period.get())) {
+                                lastTS.set(lastTS.get().plusDays(1));
                             }
 
-                            Period finalP = p;
-                            Platform.runLater(() -> {
-                                DateTime finalLastTS = lastTS;
-                                if (workDays.isCustomWorkDay() && workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd()) && PeriodHelper.isGreaterThenDays(finalP)) {
-                                    finalLastTS = finalLastTS.plusDays(1);
-                                }
-                                String normalPattern = PeriodHelper.getFormatString(finalP, isConversionToDifferential.get());
-                                lastTSLabel.setText(finalLastTS.toString(normalPattern) + " : ");
+                            String normalPattern = PeriodHelper.getFormatString(period.get(), isConversionToDifferential.get());
+                            String valueString = numberFormat.format(lastValue) + unitString + " @ " + lastTS.get().toString(normalPattern);
 
-                                String valueString = numberFormat.format(finalLastValue) + finalUnitString + " @ " + finalLastTS.toString(normalPattern);
+                            Platform.runLater(() -> {
+                                lastTSLabel.setText(lastTS.get().toString(normalPattern) + " : ");
                                 lastValueLabel.setText(valueString);
                             });
 
                         }
                     }
-                } catch (Exception e) {
-                    logger.error("Could not get last sample.", e);
+                } else {
+                    getCleanDataSettings();
                 }
+            } catch (Exception e) {
+                logger.error("Could not get last sample.", e);
+            }
         }
+    }
+
+    private void getCleanDataSettings() throws JEVisException {
+        if (!selectedObject.getChildren().isEmpty()) {
+            JEVisObject cleanDataObject = selectedObject.getChildren(cleanDataClass, true).get(0);
+            CleanDataObject cdo = new CleanDataObject(cleanDataObject);
+            isQuantity.set(cdo.getValueIsQuantity());
+            isConversionToDifferential.set(CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), lastTS.get()));
+            period.set(CleanDataObject.getPeriodForDate(cdo.getCleanDataPeriodAlignment(), lastTS.get()));
+        } else {
+            period.set(CleanDataObject.getPeriodForDate(selectedObject, lastTS.get()));
+        }
+
+        updateView();
     }
 
     public boolean isShowDetailedTarget() {

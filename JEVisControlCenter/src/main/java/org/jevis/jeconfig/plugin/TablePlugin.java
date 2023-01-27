@@ -75,8 +75,8 @@ public class TablePlugin implements Plugin {
     protected final int toolBarIconSize = 20;
     protected final int tableIconSize = 18;
     protected final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-    protected final ToggleButton reduceFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.LESS_DIGITS, toolBarIconSize, toolBarIconSize,90));
-    protected final ToggleButton increaseFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.MORE_DIGITS, toolBarIconSize, toolBarIconSize,90));
+    protected final ToggleButton reduceFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.LESS_DIGITS, toolBarIconSize, toolBarIconSize, 90));
+    protected final ToggleButton increaseFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.MORE_DIGITS, toolBarIconSize, toolBarIconSize, 90));
 
     static {
         try {
@@ -425,13 +425,27 @@ public class TablePlugin implements Plugin {
             if (targetSample != null) {
                 try {
                     TargetHelper th = new TargetHelper(getDataSource(), targetSample.getValueAsString());
-                    if (th.isValid() && th.targetObjectAccessible() && !th.getAttribute().isEmpty()) {
-                        JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
+                    if (th.isValid() && th.targetObjectAccessible()) {
 
                         EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, getDataSource());
                         enterDataDialog.setShowDetailedTarget(false);
-                        enterDataDialog.setTarget(false, th.getAttribute().get(0));
-                        enterDataDialog.setSample(lastValue);
+
+                        if (th.isAttribute()) {
+                            enterDataDialog.setTarget(false, th.getAttribute().get(0));
+                        } else {
+                            JEVisAttribute attribute = th.getObject().get(0).getAttribute("Value");
+                            if (attribute != null) {
+                                enterDataDialog.setTarget(false, attribute);
+                            } else {
+                                logger.warn("No attribute target found");
+                            }
+                        }
+
+                        if (!th.getAttribute().isEmpty()) {
+                            JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
+                            enterDataDialog.setSample(lastValue);
+                        }
+
                         enterDataDialog.setShowValuePrompt(true);
 
                         enterDataDialog.show();

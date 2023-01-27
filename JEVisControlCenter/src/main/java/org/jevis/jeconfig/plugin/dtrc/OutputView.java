@@ -57,6 +57,7 @@ import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class OutputView extends Tab {
     private static final Logger logger = LogManager.getLogger(OutputView.class);
@@ -323,31 +324,97 @@ public class OutputView extends Tab {
         }
     }
 
-    public void sortMultiInputFormulaOutputs(List<TemplateOutput> multiInputFormulaOutputs) {
-        Map<TemplateOutput, List<TemplateOutput>> map = new HashMap<>();
-        for (TemplateOutput output : multiInputFormulaOutputs) {
-            List<TemplateOutput> dependencies = new ArrayList<>();
-            TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(output.getId())).findFirst().orElse(null);
-            if (formula != null) {
-                multiInputFormulaOutputs.forEach(otherOutput -> {
-                    TemplateFormula formulaOtherOutput = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(otherOutput.getId())).findFirst().orElse(null);
-                    if (formulaOtherOutput != null && formula.getInputIds().contains(formulaOtherOutput.getId())) {
-                        dependencies.add(otherOutput);
-                    }
-                });
+    private List<TemplateFormula> getDependencies(TemplateOutput templateOutput, List<TemplateOutput> multiInputFormulaOutputs) {
+
+        List<TemplateFormula> dependencies = new ArrayList<>();
+        TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
+        if (formula != null) {
+            for (TemplateOutput otherOutput : multiInputFormulaOutputs) {
+                TemplateFormula otherFormula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(otherOutput.getId())).findFirst().orElse(null);
+                if (otherFormula != null && formula.getInputIds().contains(otherFormula.getId())) {
+                    dependencies.add(otherFormula);
+
+                    dependencies.addAll(getDependencies(otherOutput, multiInputFormulaOutputs));
+                }
             }
+        }
+
+        return dependencies;
+    }
+
+    public void sortMultiInputFormulaOutputs(List<TemplateOutput> multiInputFormulaOutputs) {
+        Map<TemplateOutput, List<TemplateFormula>> map = new HashMap<>();
+        for (TemplateOutput output : multiInputFormulaOutputs) {
+            List<TemplateFormula> dependencies = getDependencies(output, multiInputFormulaOutputs);
+
             map.put(output, dependencies);
         }
 
-        multiInputFormulaOutputs.sort((o1, o2) -> {
-            List<TemplateOutput> templateOutputs1 = map.get(o1);
-            List<TemplateOutput> templateOutputs2 = map.get(o2);
-            if (templateOutputs1.size() == 0) return -1;
-            if (templateOutputs1.contains(o2) && templateOutputs2.contains(o1)) return 0;
-            else if (templateOutputs1.contains(o2)) return 1;
+        logger.debug("Formula dependencies of outputs:");
+        if (logger.isDebugEnabled()) {
+            for (Map.Entry<TemplateOutput, List<TemplateFormula>> entry : map.entrySet()) {
+                TemplateOutput templateOutput = entry.getKey();
+                List<TemplateFormula> templateFormulas = entry.getValue();
 
-            return -1;
+                StringBuilder stringBuilder = new StringBuilder();
+                TemplateFormula formula = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(templateOutput.getId())).findFirst().orElse(null);
+                if (formula != null) {
+                    stringBuilder.append(formula.getName()).append(": ");
+                    List<String> names = templateFormulas.stream().map(TemplateFormula::getName).collect(Collectors.toList());
+
+                    for (int i = 0; i < names.size(); i++) {
+                        String s = names.get(i);
+                        if (i > 0) stringBuilder.append(", ");
+
+                        stringBuilder.append(s);
+                    }
+                }
+
+                logger.debug(stringBuilder.toString());
+            }
+        }
+
+        List<TemplateOutput> templateOutputsWithoutFormulaInputs = new ArrayList<>();
+        for (TemplateOutput templateOutput : multiInputFormulaOutputs) {
+            if (map.get(templateOutput).size() == 0) {
+                templateOutputsWithoutFormulaInputs.add(templateOutput);
+            }
+        }
+
+        multiInputFormulaOutputs.removeAll(templateOutputsWithoutFormulaInputs);
+
+        List<TemplateOutput> templateOutputsWithFormulaInputs = new ArrayList<>(multiInputFormulaOutputs);
+        templateOutputsWithFormulaInputs.sort((o1, o2) -> {
+            TemplateFormula formula1 = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(o1.getId())).findFirst().orElse(null);
+            TemplateFormula formula2 = templateHandler.getRcTemplate().getTemplateFormulas().stream().filter(templateFormula -> templateFormula.getOutput().equals(o2.getId())).findFirst().orElse(null);
+            List<TemplateFormula> neededFormulasForO1 = map.get(o1);
+            List<TemplateFormula> neededFormulasForO2 = map.get(o2);
+            boolean oneNeedsOutputFromTwo = false;
+            boolean twoNeedsOutputFromOne = false;
+
+            for (TemplateFormula templateFormula : neededFormulasForO1) {
+                if (templateFormula.equals(formula2)) {
+                    oneNeedsOutputFromTwo = true;
+                    break;
+                }
+            }
+
+            for (TemplateFormula templateFormula : neededFormulasForO2) {
+                if (templateFormula.equals(formula1)) {
+                    twoNeedsOutputFromOne = true;
+                    break;
+                }
+            }
+
+            if (oneNeedsOutputFromTwo && !twoNeedsOutputFromOne) return 1;
+            else if (!oneNeedsOutputFromTwo && twoNeedsOutputFromOne) return -1;
+            else if (oneNeedsOutputFromTwo) return 0;
+            else return -1;
         });
+
+        multiInputFormulaOutputs.clear();
+        multiInputFormulaOutputs.addAll(templateOutputsWithoutFormulaInputs);
+        multiInputFormulaOutputs.addAll(templateOutputsWithFormulaInputs);
     }
 
     private void createOutputs(List<TemplateOutput> outputs) {
