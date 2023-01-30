@@ -579,14 +579,14 @@ public class ChartDataRow extends ChartData {
                 ChartUnits cu = new ChartUnits();
                 scaleFactor = cu.scaleValue(inputUnit, outputUnit);
 
+                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                PeriodComparator periodComparator = new PeriodComparator();
+
                 if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
                         && (outputUnit.equals("kW") || outputUnit.equals("W") || outputUnit.equals("MW") || outputUnit.equals("GW"))) {
-                    Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
                     if (inputList.size() > 1) {
-                        Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
-                        PeriodComparator periodComparator = new PeriodComparator();
+                        Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
                         int compare = periodComparator.compare(currentPeriod, rowPeriod);
-
                         if (!currentPeriod.equals(rowPeriod) && compare > 0) {
                             if (currentPeriod.equals(Period.hours(1))) {
                                 timeFactor *= 1 / 4d;
@@ -604,6 +604,15 @@ public class ChartDataRow extends ChartData {
                         }
                     } else {
                         logger.debug("Can not determine time factor for fewer than two samples");
+                    }
+                }
+
+                if (cu.areComplementary(inputUnit, outputUnit)) {
+                    Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+                    int compare = periodComparator.compare(currentPeriod, rowPeriod);
+
+                    if (currentPeriod.equals(Period.hours(1)) && compare == 0) {
+                        timeFactor *= 1 / 4d;
                     }
                 }
 
