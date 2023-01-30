@@ -128,6 +128,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                     .autoItemWidth(true)
                     .minSize(configSize.getWidth(), configSize.getHeight())
                     .streamFillMode(eu.hansolo.fx.charts.SankeyPlot.StreamFillMode.GRADIENT)
+                    .showFlowDirection(true)
                     .build();
             sankeyPlot.setManaged(true);
 
@@ -169,7 +170,6 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                         } else {
                             sankeyPlot.setTextColor(config.getFontColor());
                         }
-                        sankeyPlot.setShowFlowDirection(sankeyPojo.isShowFlow());
                         sankeyPlot.setMinSize(config.getSize().getWidth(), config.getSize().getHeight());
                         sankeyPlot.setOffsetMap(sankeyPojo.getOffsetMap());
                     }

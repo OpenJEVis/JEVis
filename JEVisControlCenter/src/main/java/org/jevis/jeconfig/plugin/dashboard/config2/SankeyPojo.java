@@ -54,11 +54,9 @@ public class SankeyPojo {
     private JFXCheckBox jfxCheckBoxShowPercent;
     private JFXComboBox<String> jfxComboBoxRefersTo;
     private JFXTextField jfxTextFieldGap;
-    private JFXCheckBox jfxCheckBoxShowFlow;
     private JFXTextField jfxTextFieldErrorTolerance;
     private Map<Integer, Spinner<Integer>> offsetUIList = new HashMap<>();
     private Map<Integer, Integer> offsetMap = new HashMap<>();
-    private boolean showFlow = true;
 
     private boolean autoGap;
 
@@ -89,9 +87,6 @@ public class SankeyPojo {
         sankeyTable = sankeyTableFactory.buildTable(netGraphDataRows);
 
         if (jsonNode != null) {
-            if (jsonNode.has("showFlow")) {
-                showFlow = jsonNode.get("showFlow").asBoolean(true);
-            }
             if (jsonNode.has("showValue")) {
                 showValue = jsonNode.get("showValue").asBoolean(true);
             }
@@ -149,10 +144,6 @@ public class SankeyPojo {
     public Tab getConfigTab(ObservableList<ChartData> tableList) {
         GridPane gridPane = createGridpane();
 
-
-        jfxCheckBoxShowFlow = new JFXCheckBox();
-        jfxCheckBoxShowFlow.setSelected(showFlow);
-
         jfxCheckBoxShowValue = new JFXCheckBox();
         jfxCheckBoxShowValue.setSelected(showValue);
 
@@ -177,20 +168,17 @@ public class SankeyPojo {
         jfxTextFieldErrorTolerance.setText(String.valueOf(errorTolerance));
 
 
-        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showflow")), jfxCheckBoxShowFlow);
 
-        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 1, 5, 1);
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showvaluein")), jfxCheckBoxShowValue);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showpercent")), jfxCheckBoxShowPercent, labelRefersTo, jfxComboBoxRefersTo);
 
-        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showvaluein")), jfxCheckBoxShowValue);
-        gridPane.addRow(3, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showpercent")), jfxCheckBoxShowPercent, labelRefersTo, jfxComboBoxRefersTo);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.autogap")), jfxCheckBoxAutoGap, labelGap, jfxTextFieldGap);
 
-        gridPane.addRow(4, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.autogap")), jfxCheckBoxAutoGap, labelGap, jfxTextFieldGap);
-
-        gridPane.addRow(5, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.errortolerance")), jfxTextFieldErrorTolerance);
+        gridPane.addRow(3, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.errortolerance")), jfxTextFieldErrorTolerance);
 
 
-        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 6, 5, 1);
-        int j = 7;
+        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 4, 5, 1);
+        int j = 5;
         for (int i = 1; i < getMaxLevel(); i++) {
             if (offsetMap.containsKey(i)) {
                 createOffsetLevelRow(gridPane, i, offsetMap.get(i), j);
@@ -416,7 +404,6 @@ public class SankeyPojo {
 
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-        dataNode.put("showFlow", showFlow);
         dataNode.put("showValue", showValue);
         dataNode.put("showPercent", showPercent);
         dataNode.put("refersTo", percentRefersTo.toString());
@@ -462,14 +449,6 @@ public class SankeyPojo {
 
     public void setNetGraphDataRows(ObservableList<SankeyDataRow> netGraphDataRows) {
         this.netGraphDataRows = netGraphDataRows;
-    }
-
-    public boolean isShowFlow() {
-        return showFlow;
-    }
-
-    public void setShowFlow(boolean showFlow) {
-        this.showFlow = showFlow;
     }
 
     public SankeyWidget.REFERS_TO getPercentRefersTo() {
@@ -539,7 +518,6 @@ public class SankeyPojo {
 
         @Override
         public void commitChanges() {
-            showFlow = jfxCheckBoxShowFlow.isSelected();
             showPercent = jfxCheckBoxShowPercent.isSelected();
             showValue = jfxCheckBoxShowValue.isSelected();
             if (jfxComboBoxRefersTo.getValue().equals(PARENT)) {
