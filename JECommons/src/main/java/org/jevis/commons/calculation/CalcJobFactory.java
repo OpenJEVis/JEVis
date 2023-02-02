@@ -418,7 +418,7 @@ public class CalcJobFactory {
                 } else {
                     calcObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime);
                 }
-                logger.info("Got samples for id {}", calcObject.getIdentifier());
+                logger.info("Got {} samples for id {}", calcObject.getSamples().size(), calcObject.getIdentifier());
                 calcObjects.add(calcObject);
             }
         } catch (JEVisException ex) {
