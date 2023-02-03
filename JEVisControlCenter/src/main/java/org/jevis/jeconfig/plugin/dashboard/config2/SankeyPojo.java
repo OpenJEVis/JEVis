@@ -30,6 +30,7 @@ import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.widget.SankeyWidget;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SankeyPojo {
 
@@ -57,6 +58,7 @@ public class SankeyPojo {
     private JFXTextField jfxTextFieldErrorTolerance;
     private Map<Integer, Spinner<Integer>> offsetUIList = new HashMap<>();
     private Map<Integer, Integer> offsetMap = new HashMap<>();
+
 
     private boolean autoGap;
 
@@ -362,6 +364,46 @@ public class SankeyPojo {
 
 
     private void addChangeListenerForDataTable(ObservableList<ChartData> tableList) {
+
+
+        tableList.forEach(chartData -> {
+            chartData.idProperty().addListener((observableValue, oldVal, newVal) -> {
+
+                logger.info("old Value: {} new Value: {}", oldVal, newVal);
+
+                netGraphDataRows.forEach(sankeyDataRow -> {
+                    if (sankeyDataRow.getJeVisObject().getID().longValue() == oldVal.longValue()) {
+
+                        try {
+                            sankeyDataRow.setJeVisObject(dashboardControl.getDataSource().getObject(newVal.longValue()));
+                        } catch (JEVisException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    if (sankeyDataRow.getChildren().stream().filter(jeVisObject -> jeVisObject.getID().longValue() == oldVal.longValue()).count() > 0) {
+                        try {
+                            sankeyDataRow.getChildren().remove(dashboardControl.getDataSource().getObject(oldVal.longValue()));
+                        } catch (JEVisException e) {
+                            throw new RuntimeException(e);
+                        }
+                        try {
+                            sankeyDataRow.getChildren().add(dashboardControl.getDataSource().getObject(newVal.longValue()));
+                        } catch (JEVisException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                });
+                sankeyTable.refresh();
+
+            });
+
+        });
+
+
+
+
+
         tableList.addListener(new ListChangeListener<ChartData>() {
             @Override
             public void onChanged(Change<? extends ChartData> c) {

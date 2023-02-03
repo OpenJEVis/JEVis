@@ -129,6 +129,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                     .minSize(configSize.getWidth(), configSize.getHeight())
                     .streamFillMode(eu.hansolo.fx.charts.SankeyPlot.StreamFillMode.GRADIENT)
                     .showFlowDirection(true)
+                    .textColor(config.getFontColor())
                     .build();
             sankeyPlot.setManaged(true);
 
@@ -308,28 +309,38 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     private void check() {
         error = false;
-        plotItems.forEach(jeVisPlotItem -> {
 
-            if (jeVisPlotItem.isRoot() && jeVisPlotItem.getValue() == 0) {
-                showAlertOverview(true, ("Root has no Data"));
+
+       long sizeRootNotNull = plotItems.stream().filter(jeVisPlotItem -> jeVisPlotItem.isRoot()).filter(jeVisPlotItem -> jeVisPlotItem.getValue() != 0).count();
+        if (sizeRootNotNull == 0) {
+            showAlertOverview(true, ("Root has no Data"));
                 error = true;
                 return;
-            }
-            BigDecimal value = new BigDecimal(jeVisPlotItem.getValue());
-            value = value.setScale(config.getDecimals(), RoundingMode.HALF_UP);
-            BigDecimal outgoing = new BigDecimal(jeVisPlotItem.getSumOfOutgoing());
-            outgoing = outgoing.setScale(config.getDecimals(), RoundingMode.HALF_UP);
-            if (value.doubleValue()*(1+sankeyPojo.getErrorTolerance()) < outgoing.doubleValue()) {
-                jeVisPlotItem.setFill(Color.RED);
-                jeVisPlotItem.setOnItemEvent(itemEvent -> {
-                });
-                alermsg = alermsg + jeVisPlotItem.getName() + " Value: " + value.doubleValue() + " < Sum Outgoing: " + outgoing.doubleValue() + "\n";
-                showAlertOverview(true, (alermsg));
-            }
+        }
 
-        });
+            plotItems.forEach(jeVisPlotItem -> {
 
-    }
+//            if (jeVisPlotItem.isRoot() && jeVisPlotItem.getValue() == 0) {
+//                showAlertOverview(true, ("Root has no Data"));
+//                error = true;
+//                return;
+//            }
+                BigDecimal value = new BigDecimal(jeVisPlotItem.getValue());
+                value = value.setScale(config.getDecimals(), RoundingMode.HALF_UP);
+                BigDecimal outgoing = new BigDecimal(jeVisPlotItem.getSumOfOutgoing());
+                outgoing = outgoing.setScale(config.getDecimals(), RoundingMode.HALF_UP);
+                if (value.doubleValue() * (1 + sankeyPojo.getErrorTolerance()) < outgoing.doubleValue()) {
+                    jeVisPlotItem.setFill(Color.RED);
+                    jeVisPlotItem.setOnItemEvent(itemEvent -> {
+                    });
+                    alermsg = alermsg + jeVisPlotItem.getName() + " Value: " + value.doubleValue() + " < Sum Outgoing: " + outgoing.doubleValue() + "\n";
+                    showAlertOverview(true, (alermsg));
+                }
+
+            });
+        }
+
+
 
     private void createPlotNames() {
         for (JEVisPlotItem jeVisPlotItem : plotItems) {
@@ -392,8 +403,6 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     private void addSpacing(int maxLevel,boolean toTop) {
         try {
             int level = maxLevel;
-            System.out.println("max Level");
-            System.out.println(maxLevel);
             JEVisPlotItem jeVisPlotItem = new JEVisPlotItem("", Color.AQUA, null, 0, null);
             if (toTop) {
                 plotItems.add(0,jeVisPlotItem);
