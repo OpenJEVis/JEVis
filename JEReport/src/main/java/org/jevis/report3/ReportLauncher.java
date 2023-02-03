@@ -17,7 +17,6 @@ import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
 import org.jevis.report3.data.report.ReportAttributes;
 import org.jevis.report3.data.report.ReportExecutor;
-import org.jevis.report3.policy.ReportPolicy;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -76,25 +75,17 @@ public class ReportLauncher extends AbstractCliApp {
 
                         logger.info("---------------------------------------------------------------------");
                         logger.info("current report object: {} with id: {}", reportObject.getName(), reportObject.getID());
-                        //check if the report is enabled
-                        ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
-                        Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
-                        if (!reportEnabled) {
-                            logger.info("Report is not enabled");
+
+                        ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+
+                        if (executor != null) {
+                            executor.executeReport();
+
                             LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
-
                         } else {
-
-                            ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
-
-                            if (executor != null) {
-                                executor.executeReport();
-
-                                LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
-                            } else {
-                                LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
-                            }
+                            LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
                         }
+
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
 
@@ -204,13 +195,12 @@ public class ReportLauncher extends AbstractCliApp {
         }
         List<JEVisObject> enabledReports = new ArrayList<>();
         reportObjects.forEach(jeVisObject -> {
-                    ReportPolicy reportPolicy = new ReportPolicy();
-                    if (reportPolicy.isReportEnabled(jeVisObject)) {
-                        enabledReports.add(jeVisObject);
-                        if (!plannedJobs.containsKey(jeVisObject.getID())) {
-                            plannedJobs.put(jeVisObject.getID(), new DateTime());
-                        }
-                    }
+            if (isEnabled(jeVisObject)) {
+                enabledReports.add(jeVisObject);
+                if (!plannedJobs.containsKey(jeVisObject.getID())) {
+                    plannedJobs.put(jeVisObject.getID(), new DateTime());
+                }
+            }
                 }
         );
         return enabledReports;

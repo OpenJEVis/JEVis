@@ -418,7 +418,7 @@ public class CalcJobFactory {
                 } else {
                     calcObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime);
                 }
-                logger.info("Got samples for id {}", calcObject.getIdentifier());
+                logger.info("Got {} samples for id {}", calcObject.getSamples().size(), calcObject.getIdentifier());
                 calcObjects.add(calcObject);
             }
         } catch (JEVisException ex) {
@@ -480,7 +480,7 @@ public class CalcJobFactory {
 
                 CalcInputObject calcInputObject = new CalcInputObject(identifier, inputType, valueAttribute);
                 calcInputObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime, aggregationPeriod);
-                logger.info("Got samples for id {}", calcInputObject.getIdentifier());
+                logger.info("Got {} samples for id {}", calcInputObject.getSamples().size(), calcInputObject.getIdentifier());
                 calcObjects.add(calcInputObject);
             }
         } catch (Exception ex) {
@@ -497,7 +497,7 @@ public class CalcJobFactory {
             /**
              * find the combined end interval
              * hotfix to calculate inputs with different time range
-             * Discussion: we we handle the error here or do we throw an error and the caller has to take care of this?
+             * Discussion: we handle the error here or do we throw an error and the caller has to take care of this?
              */
             List<JEVisObject> inputObjectList = getCalcInputObjects(jevisObject);
 //            List<DateTime> lastSampleList = new ArrayList<>();
