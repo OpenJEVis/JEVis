@@ -718,7 +718,7 @@ public class AccountingPlugin extends TablePlugin {
             }
         }
 
-        viewTab.sortMultiInputFormulaOutputs(multiInputFormulaOutputs);
+        viewTab.sortMultiInputFormulaOutputs(multiInputFormulaOutputs, templateOutputs);
 
         List<TemplateOutput> sortedList = new ArrayList<>();
         sortedList.addAll(noInputOutputs);
