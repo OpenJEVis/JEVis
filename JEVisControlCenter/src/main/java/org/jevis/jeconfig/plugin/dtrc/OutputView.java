@@ -271,7 +271,7 @@ public class OutputView extends Tab {
             }
         }
 
-        sortMultiInputFormulaOutputs(multiInputFormulaOutputs);
+        sortMultiInputFormulaOutputs(multiInputFormulaOutputs, templateOutputs);
 
         logger.debug("Order of formula outputs after sorting:");
         if (logger.isDebugEnabled()) {
@@ -342,10 +342,10 @@ public class OutputView extends Tab {
         return dependencies;
     }
 
-    public void sortMultiInputFormulaOutputs(List<TemplateOutput> multiInputFormulaOutputs) {
+    public void sortMultiInputFormulaOutputs(List<TemplateOutput> multiInputFormulaOutputs, List<TemplateOutput> allFormulaOutputs) {
         Map<TemplateOutput, List<TemplateFormula>> map = new HashMap<>();
         for (TemplateOutput output : multiInputFormulaOutputs) {
-            List<TemplateFormula> dependencies = getDependencies(output, multiInputFormulaOutputs);
+            List<TemplateFormula> dependencies = getDependencies(output, allFormulaOutputs);
 
             map.put(output, dependencies);
         }
