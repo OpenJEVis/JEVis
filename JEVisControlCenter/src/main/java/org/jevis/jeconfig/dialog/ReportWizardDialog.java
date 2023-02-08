@@ -233,7 +233,7 @@ public class ReportWizardDialog {
                                         object.commit();
 
                                         JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
-                                        JEVisSample jevisIdSample = jeVis_id.buildSample(new DateTime(), reportLink.getjEVisID());
+                                        JEVisSample jevisIdSample = jeVis_id.buildSample(new DateTime(), reportLink.getJEVisId());
                                         jevisIdSample.commit();
 
                                         JEVisAttribute optionalAttribute = object.getAttribute("Optional");
@@ -702,7 +702,7 @@ public class ReportWizardDialog {
         StringBuilder stringBuilder = new StringBuilder();
         boolean disable = false;
         try {
-            disable = ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.StringData.name);
+            disable = ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.StringData.name);
         } catch (Exception e) {
             logger.error("Could not get ", e);
         }
@@ -828,8 +828,8 @@ public class ReportWizardDialog {
         });
 
         AtomicReference<String> targetString = new AtomicReference<>();
-        if (reportLink.getjEVisID() != null) {
-            targetString.set(reportLink.getjEVisID().toString());
+        if (reportLink.getJEVisId() != null) {
+            targetString.set(reportLink.getJEVisId().toString());
         }
 
         List<JEVisClass> classes = new ArrayList<>();
@@ -842,12 +842,12 @@ public class ReportWizardDialog {
             }
         }
 
-        if (reportLink.getjEVisID() != null) {
+        if (reportLink.getJEVisId() != null) {
             String target = "";
             if (reportLink.getReportAttribute() != null) {
-                target = reportLink.getjEVisID() + ":" + reportLink.getReportAttribute().getAttributeName();
+                target = reportLink.getJEVisId() + ":" + reportLink.getReportAttribute().getAttributeName();
             } else {
-                target = reportLink.getjEVisID().toString();
+                target = reportLink.getJEVisId().toString();
             }
             TargetHelper th = new TargetHelper(ds, target);
             if (th.isValid() && th.targetObjectAccessible()) {
@@ -888,7 +888,7 @@ public class ReportWizardDialog {
                         if (index > 0) newTarget += ";";
 
                         newTarget += us.getSelectedObject().getID();
-                        reportLink.setjEVisID(us.getSelectedObject().getID());
+                        reportLink.setJEVisId(us.getSelectedObject().getID());
 
                         Platform.runLater(() -> updateName(reportLink));
 
@@ -1012,9 +1012,9 @@ public class ReportWizardDialog {
     private void updateName(ReportLink reportLink) {
         JEVisObject object = null;
         try {
-            object = ds.getObject(reportLink.getjEVisID());
+            object = ds.getObject(reportLink.getJEVisId());
         } catch (Exception e) {
-            logger.error("Could not update name for object with id: {}", reportLink.getjEVisID(), e);
+            logger.error("Could not update name for object with id: {}", reportLink.getJEVisId(), e);
         }
 
         if (object != null) {
@@ -1025,12 +1025,12 @@ public class ReportWizardDialog {
                     reportLink.setName(object.getName());
                 }
             } catch (Exception e) {
-                logger.error("Could not set new Report Link Name for object with id: {}", reportLink.getjEVisID(), e);
+                logger.error("Could not set new Report Link Name for object with id: {}", reportLink.getJEVisId(), e);
             }
 
             try {
                 if (reportType == ReportType.STANDARD) {
-                    if (ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.Data.CleanData.name)) {
+                    if (ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.CleanData.name)) {
                         reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object)
                                 + "_" + reportLink.getReportAttribute().getAttributeName()
                                 + "_" + reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation()
@@ -1042,7 +1042,7 @@ public class ReportWizardDialog {
                     reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object));
                 }
             } catch (Exception e) {
-                logger.error("Could not set new Variable Name for object with id: {}", reportLink.getjEVisID(), e);
+                logger.error("Could not set new Variable Name for object with id: {}", reportLink.getJEVisId(), e);
             }
         }
     }
@@ -1339,7 +1339,7 @@ public class ReportWizardDialog {
 
         List<ReportLink> dataLinks = links.stream().filter(reportLink -> {
             try {
-                return ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.Data.CleanData.name);
+                return ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.CleanData.name);
             } catch (JEVisException e) {
                 throw new RuntimeException(e);
             }
@@ -1495,7 +1495,7 @@ public class ReportWizardDialog {
     private List<ReportLink> filterReportDataLinks(List<ReportLink> reportLinkList) {
         return reportLinkList.stream().filter(reportLink -> {
             try {
-                return ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.Data.CleanData.name);
+                return ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.CleanData.name);
             } catch (Exception e) {
                 logger.error(e);
             }
@@ -1507,7 +1507,7 @@ public class ReportWizardDialog {
     private List<ReportLink> filterReportTextLinks(List<ReportLink> reportLinkList) {
         return reportLinkList.stream().filter(reportLink -> {
             try {
-                return ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.StringData.name);
+                return ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.StringData.name);
             } catch (Exception e) {
                 logger.error(e);
             }
