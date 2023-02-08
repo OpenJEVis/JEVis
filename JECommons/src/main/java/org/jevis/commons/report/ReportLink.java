@@ -16,7 +16,7 @@ import org.joda.time.DateTime;
 public class ReportLink {
     private static final Logger logger = LogManager.getLogger(ReportLink.class);
     private String name;
-    private Long jEVisID;
+    private Long JEVisId;
     private boolean optional;
     private String templateVariableName;
 
@@ -30,9 +30,9 @@ public class ReportLink {
 
     private ReportAttribute reportAttribute;
 
-    public ReportLink(String name, Long jEVisID, boolean optional, String templateVariableName, ReportAttribute reportAttribute) {
+    public ReportLink(String name, Long JEVisId, boolean optional, String templateVariableName, ReportAttribute reportAttribute) {
         this.name = name;
-        this.jEVisID = jEVisID;
+        this.JEVisId = JEVisId;
         this.optional = optional;
         this.templateVariableName = templateVariableName;
         this.reportAttribute = reportAttribute;
@@ -46,12 +46,12 @@ public class ReportLink {
         this.name = name;
     }
 
-    public Long getjEVisID() {
-        return jEVisID;
+    public Long getJEVisId() {
+        return JEVisId;
     }
 
-    public void setjEVisID(Long jEVisID) {
-        this.jEVisID = jEVisID;
+    public void setJEVisId(Long JEVisId) {
+        this.JEVisId = JEVisId;
     }
 
     public boolean isOptional() {
@@ -79,25 +79,17 @@ public class ReportLink {
         this.reportAttribute = reportAttribute;
     }
 
+    @Override
     public ReportLink clone() {
-        ReportLink clonedReportLink = new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration(AggregationPeriod.NONE, ManipulationMode.NONE, PeriodMode.CURRENT, FixedPeriod.NONE)));
-        clonedReportLink.setName(this.getName());
-        clonedReportLink.setTemplateVariableName(this.getTemplateVariableName());
-        clonedReportLink.setjEVisID(this.getjEVisID());
-        clonedReportLink.setOptional(this.isOptional());
-        clonedReportLink.setLinkStatus(this.getLinkStatus());
-        if (getReportAttribute() != null) {
-            clonedReportLink.getReportAttribute().setAttributeName(getReportAttribute().getAttributeName());
+        ReportLink clonedReportLink = new ReportLink(
+                this.getName(), this.getJEVisId(), this.isOptional(), this.getTemplateVariableName(),
+                new ReportAttribute(getReportAttribute().getAttributeName(),
+                        new ReportPeriodConfiguration(getReportAttribute().getReportPeriodConfiguration().getReportAggregation(),
+                                getReportAttribute().getReportPeriodConfiguration().getReportManipulation(),
+                                getReportAttribute().getReportPeriodConfiguration().getPeriodMode(),
+                                getReportAttribute().getReportPeriodConfiguration().getFixedPeriod())));
 
-            if (getReportAttribute().getReportPeriodConfiguration() != null) {
-                clonedReportLink.getReportAttribute().getReportPeriodConfiguration().setPeriodMode(getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
-                clonedReportLink.getReportAttribute().getReportPeriodConfiguration().setReportAggregation(getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
-            } else {
-                getReportAttribute().setReportPeriodConfiguration(null);
-            }
-        } else {
-            clonedReportLink.setReportAttribute(null);
-        }
+        clonedReportLink.setLinkStatus(this.getLinkStatus());
 
         return clonedReportLink;
     }
@@ -106,7 +98,7 @@ public class ReportLink {
     public String toString() {
         return "ReportLink{" +
                 "name='" + name + '\'' +
-                ", jEVisID=" + jEVisID +
+                ", jEVisID=" + JEVisId +
                 ", optional=" + optional +
                 ", templateVariableName='" + templateVariableName + '\'' +
                 ", reportAttribute=" + reportAttribute +
@@ -265,16 +257,16 @@ public class ReportLink {
     }
 
     private void updateJevisID(DateTime dateTime) throws JEVisException {
-        if (jEVisID != 0) {
+        if (JEVisId != 0) {
             JEVisAttribute jeVisAttribute = jeVisObject.getAttribute(JC.ReportLink.a_JEVisID);
             if (jeVisAttribute == null) return;
             if (jeVisAttribute.hasSample()) {
-                if (jeVisAttribute.getLatestSample().getValueAsLong() != jEVisID) {
-                    JEVisSample sample = jeVisAttribute.buildSample(dateTime, jEVisID);
+                if (jeVisAttribute.getLatestSample().getValueAsLong() != JEVisId) {
+                    JEVisSample sample = jeVisAttribute.buildSample(dateTime, JEVisId);
                     sample.commit();
                 }
             } else {
-                JEVisSample sample = jeVisAttribute.buildSample(dateTime, jEVisID);
+                JEVisSample sample = jeVisAttribute.buildSample(dateTime, JEVisId);
                 sample.commit();
             }
         }
