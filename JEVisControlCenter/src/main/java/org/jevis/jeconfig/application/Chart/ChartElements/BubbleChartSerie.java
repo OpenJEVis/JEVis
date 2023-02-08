@@ -197,7 +197,7 @@ public class BubbleChartSerie extends XYChartSerie {
             Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
             Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
         } else {
-            if (!singleRow.getEnPI()) {
+            if (!singleRow.isCalculation()) {
                 double finalAvg = avg;
                 Platform.runLater(() -> tableEntry.setAvg(nf.format(finalAvg) + " " + getUnit()));
             } else {

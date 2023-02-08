@@ -18,7 +18,6 @@ import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
-import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
@@ -45,7 +44,6 @@ public class ChartDataRow extends ChartData {
     private List<JEVisSample> forecastSamples = new ArrayList<>();
     private boolean somethingChanged = true;
     private List<Integer> selectedCharts = new ArrayList<>();
-    private Boolean isEnPI = false;
     private JEVisObject calculationObject;
     private Boolean absolute = false;
     private boolean isStringData = false;
@@ -66,6 +64,14 @@ public class ChartDataRow extends ChartData {
 
     public ChartDataRow(JEVisDataSource dataSource) {
         this(dataSource, null);
+
+        this.calculationProperty().addListener((observableValue, aBoolean, t1) -> {
+            if (t1) {
+                setCalculationId(ChartTools.isObjectCalculated(getObject()));
+            } else {
+                setCalculationId(-1);
+            }
+        });
     }
 
     public ChartDataRow(JEVisDataSource ds, ChartData chartData) {
@@ -327,7 +333,7 @@ public class ChartDataRow extends ChartData {
 
                 if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                     try {
-                        if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
+                        if (!isCalculation() || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
                             List<JEVisSample> unmodifiedSamples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString(), DateTimeZone.getDefault().getID());
                             if (!isStringData) {
                                 applyUserData(unmodifiedSamples);
@@ -862,27 +868,16 @@ public class ChartDataRow extends ChartData {
 
     }
 
-    public Boolean getEnPI() {
-        return isEnPI;
-    }
-
-    public void setEnPI(Boolean enPI) {
-        isEnPI = enPI;
-    }
-
     public JEVisObject getCalculationObject() {
-        return calculationObject;
-    }
-
-    public void setCalculationObject(String calculationObject) {
-        TargetHelper th = new TargetHelper(dataSource, calculationObject);
-        if (th.getObject() != null && !th.getObject().isEmpty()) {
-            this.calculationObject = th.getObject().get(0);
+        if (getCalculationId() != -1) {
+            try {
+                return dataSource.getObject(getCalculationId());
+            } catch (Exception e) {
+                logger.error("Could not get object for id {}", getCalculationId(), e);
+            }
         }
-    }
 
-    public void setCalculationObject(JEVisObject calculationObject) {
-        this.calculationObject = calculationObject;
+        return null;
     }
 
     @Override
@@ -894,8 +889,7 @@ public class ChartDataRow extends ChartData {
         newModel.setAttribute(this.getAttribute());
         newModel.setSelectedEnd(this.getSelectedEnd());
         newModel.setSelectedStart(this.getSelectedStart());
-        newModel.setEnPI(this.getEnPI());
-        newModel.setCalculationObject(getCalculationObject());
+        newModel.setCalculation(this.isCalculation());
         newModel.setAxis(this.getAxis());
         newModel.setColor(this.getColor());
         newModel.setName(this.getName());

@@ -144,7 +144,7 @@ public class BubbleChart extends XYChart {
                 }
             }
 
-            if (model.getBubbleType() == BubbleType.Y && model.getEnPI()) {
+            if (model.getBubbleType() == BubbleType.Y && model.isCalculation()) {
                 isEnPI = true;
                 chartDataRowY = model;
             } else {

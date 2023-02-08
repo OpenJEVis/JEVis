@@ -341,7 +341,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                 gp.setHgap(4);
                 gp.setVgap(8);
                 for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
-                    if (chartDataRow.getEnPI()) {
+                    if (chartDataRow.isCalculation()) {
                         try {
                             alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));
 
