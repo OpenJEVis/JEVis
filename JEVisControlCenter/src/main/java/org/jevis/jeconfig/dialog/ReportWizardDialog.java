@@ -61,7 +61,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -110,16 +109,14 @@ public class ReportWizardDialog {
             JEVisClass reportLinkClass = ds.getJEVisClass("Report Link");
             List<JEVisObject> listDirectory = newObject.getChildren(reportLinkDirectoryClass, false);
             List<JEVisObject> listReportLinkObjects = new ArrayList<>();
-            for (int i = 0; i < listDirectory.size(); i++) {
-                listReportLinkObjects.addAll(listDirectory.get(i).getChildren(reportLinkClass, false));
+            for (JEVisObject object : listDirectory) {
+                listReportLinkObjects.addAll(object.getChildren(reportLinkClass, false));
             }
             if ((newObject.getAttribute("Template").hasSample())) {
                 JEVisFile templateFile = newObject.getAttribute("Template").getLatestSample().getValueAsFile();
                 loadTemplate(templateFile, listReportLinkObjects);
             }
-        } catch (JEVisException e) {
-            throw new RuntimeException(e);
-        } catch (IOException | NullPointerException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.template"));
@@ -128,7 +125,6 @@ public class ReportWizardDialog {
             alert.showAndWait();
             return;
         }
-
 
         JEVisClass reportLinkClass = null;
         JEVisClass reportAttributeClass = null;
@@ -140,24 +136,17 @@ public class ReportWizardDialog {
             reportAttributeClass = newObject.getDataSource().getJEVisClass("Report Attribute");
             reportPeriodConfigurationClass = newObject.getDataSource().getJEVisClass("Report Period Configuration");
             if (newObject.getChildren().size() > 0) {
-                if (newObject.getChildren().stream().filter(jeVisObject -> {
-                    try {
-                        return jeVisObject.getJEVisClass().equals(reportLinksDirectoryClass);
-                    } catch (JEVisException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).count() == 0) {
+                reportLinkDirectory = newObject.getChildren(reportLinksDirectoryClass, true).stream().findFirst().orElse(null);
+
+                if (reportLinkDirectory == null) {
                     reportLinkDirectory = newObject.buildObject(I18n.getInstance().getString("tree.treehelper.reportlinkdirectory.name"), reportLinksDirectoryClass);
                     reportLinkDirectory.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.reportlinkdirectory.name"));
                     reportLinkDirectory.commit();
                 }
-                if (newObject.getChildren().stream().filter(jeVisObject -> {
-                    try {
-                        return jeVisObject.getJEVisClass().equals(emailNotificationClass);
-                    } catch (JEVisException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).count() == 0) {
+
+                JEVisObject emailNotificationObject = newObject.getChildren(emailNotificationClass, true).stream().findFirst().orElse(null);
+
+                if (emailNotificationObject == null) {
                     JEVisObject emailNotification = newObject.buildObject(I18n.getInstance().getString("tree.treehelper.emailnotification.name"), emailNotificationClass);
                     emailNotification.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.emailnotification.name"));
                     emailNotification.commit();
@@ -170,10 +159,8 @@ public class ReportWizardDialog {
                 emailNotification.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.emailnotification.name"));
                 emailNotification.commit();
             }
-
-
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Could not create basic folder structure", e);
         }
 
         init();
@@ -190,6 +177,34 @@ public class ReportWizardDialog {
         reportWizardDialog.show();
     }
 
+    @NotNull
+    private static Task getUpdateTask(List<ReportLink> updateList) {
+        return new Task() {
+            @Override
+            protected Object call() throws Exception {
+
+                updateList.forEach(reportLink -> {
+                    try {
+                        reportLink.update();
+                    } catch (Exception e) {
+                        logger.error(e);
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.title"));
+                        alert.setHeaderText("JEVis Object: " + reportLink.getName() + " : " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.header"));
+                        alert.setContentText(e.getMessage());
+                        alert.showAndWait();
+                    } finally {
+                        JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, I18n.getInstance().getString("plugin.object.report.message.finishedlink") + " " + reportLink.getName());
+                        succeeded();
+                    }
+                });
+                return null;
+
+            }
+
+        };
+    }
+
     private void onWizardClose(JEVisObject newObject, String wizardTyp, JEVisClass finalReportLinkClass, JEVisClass finalReportAttributeClass, JEVisClass finalReportPeriodConfigurationClass) {
         try {
             if (wizardTyp.equals(ReportWizardDialog.NEW)) {
@@ -198,23 +213,15 @@ public class ReportWizardDialog {
                 //JEVisSample templateSample = templateAttribute.buildSample(new DateTime(), template);
                 //templateSample.commit();
             }
-            List<ReportLink> deleteList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.DELETE)).collect(Collectors.toList());
-            List<ReportLink> newList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.NEW)).collect(Collectors.toList());
-            List<ReportLink> updateList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkeStaus().equals(ReportLink.Status.UPDATE)).collect(Collectors.toList());
+            List<ReportLink> deleteList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkStatus().equals(ReportLink.Status.DELETE)).collect(Collectors.toList());
+            List<ReportLink> newList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkStatus().equals(ReportLink.Status.NEW)).collect(Collectors.toList());
+            List<ReportLink> updateList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkStatus().equals(ReportLink.Status.UPDATE)).collect(Collectors.toList());
             Task updateTask = getUpdateTask(updateList);
             JEConfig.getStatusBar().addTask(ReportWizardDialog.class.getName(), updateTask, taskImage, true);
             delete(deleteList);
-            ConcurrentHashMap<ReportLink, Boolean> completed = new ConcurrentHashMap<>();
             for (ReportLink reportLink : newList) {
                 if (newObject.getChildren().size() > 1) {
-                    Optional<JEVisObject> linkDirectory = newObject.getChildren().stream().filter(jeVisObject -> {
-                        try {
-                            return jeVisObject.getJEVisClassName().equals("Report Link Directory");
-                        } catch (JEVisException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }).findAny();
-                    if (linkDirectory.isPresent()) {
+                    if (reportLinkDirectory != null) {
                         if (reportLink.getJeVisObject() == null) {
                             Task task = new Task() {
                                 @Override
@@ -222,7 +229,7 @@ public class ReportWizardDialog {
                                     try {
                                         String variableName = reportLink.getTemplateVariableName();
 
-                                        JEVisObject object = linkDirectory.get().buildObject(variableName, finalReportLinkClass);
+                                        JEVisObject object = reportLinkDirectory.buildObject(variableName, finalReportLinkClass);
                                         object.commit();
 
                                         JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
@@ -266,11 +273,10 @@ public class ReportWizardDialog {
                                             JEVisSample fixedPeriodSample = fixedPeriodAttribute.buildSample(new DateTime(), reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod().toString());
                                             fixedPeriodSample.commit();
                                         }
-                                    } catch (JEVisException e) {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                         failed();
                                     } finally {
-                                        completed.put(reportLink, true);
                                         JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, I18n.getInstance().getString("plugin.object.report.message.finishedlink") + " " + reportLink.getName());
                                         succeeded();
                                     }
@@ -285,11 +291,8 @@ public class ReportWizardDialog {
             }
             addData(newList);
 
-
-        } catch (JEVisException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            logger.error(e);
         }
 
         if (workbook != null) {
@@ -298,45 +301,14 @@ public class ReportWizardDialog {
                 JEVisAttribute jeVisAttribute = newObject.getAttribute("Template");
                 JEVisSample templateSample = jeVisAttribute.buildSample(new DateTime(), template);
                 templateSample.commit();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (JEVisException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                logger.error(e);
             }
         }
-    }
-
-    @NotNull
-    private static Task getUpdateTask(List<ReportLink> updateList) {
-        Task updateTask = new Task() {
-            @Override
-            protected Object call() throws Exception {
-
-                updateList.forEach(reportLink -> {
-                    try {
-                        reportLink.update();
-                    } catch (Exception e) {
-                        logger.error(e);
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.title"));
-                        alert.setHeaderText("JEVis Obejct: " + reportLink.getName() + " : " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.update.header"));
-                        alert.setContentText(e.getMessage());
-                        alert.showAndWait();
-                    } finally {
-                        JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, I18n.getInstance().getString("plugin.object.report.message.finishedlink") + " " + reportLink.getName());
-                        succeeded();
-                    }
-                });
-                return null;
-
-            }
-
-        };
-        return updateTask;
     }
 
     private void addData(List<ReportLink> newList) {
-        Optional<Integer> optional_maxDataSheetnumber = sheetList.stream().filter(s -> s.contains("Data")).map(s -> {
+        Optional<Integer> optional_maxDataSheetNumber = sheetList.stream().filter(s -> s.contains("Data")).map(s -> {
             s = s.replaceAll("\\D+", "");
             if (!s.isEmpty()) {
                 return Integer.valueOf(s);
@@ -344,11 +316,11 @@ public class ReportWizardDialog {
                 return 0;
             }
         }).max(Integer::compareTo);
-        Integer maxDataSheetnumber = 0;
-        if (optional_maxDataSheetnumber.isPresent()) {
-            maxDataSheetnumber = optional_maxDataSheetnumber.get();
+        int maxDataSheetnumber = 0;
+        if (optional_maxDataSheetNumber.isPresent()) {
+            maxDataSheetnumber = optional_maxDataSheetNumber.get();
         }
-        Optional<Integer> optional_maxTextSheetnumber = sheetList.stream().filter(s -> s.contains("Text")).map(s -> {
+        Optional<Integer> optional_maxTextSheetNumber = sheetList.stream().filter(s -> s.contains("Text")).map(s -> {
             s = s.replaceAll("\\D+", "");
             if (!s.isEmpty()) {
                 return Integer.valueOf(s);
@@ -356,9 +328,9 @@ public class ReportWizardDialog {
                 return 0;
             }
         }).max(Integer::compareTo);
-        Integer maxTextSheetnumber = 0;
-        if (optional_maxTextSheetnumber.isPresent()) {
-            maxTextSheetnumber = optional_maxTextSheetnumber.get();
+        int maxTextSheetnumber = 0;
+        if (optional_maxTextSheetNumber.isPresent()) {
+            maxTextSheetnumber = optional_maxTextSheetNumber.get();
         }
 
 
@@ -385,8 +357,6 @@ public class ReportWizardDialog {
                 }
             }
         }
-
-
     }
 
     private JEVisFile writeTemplate(String templateName) throws IOException {
@@ -395,7 +365,7 @@ public class ReportWizardDialog {
         Path templatePath = Files.createTempFile("template", "xlsx");
         File templateFile = new File(templatePath.toString());
         templateFile.deleteOnExit();
-        workbook.write(new FileOutputStream(templateFile));
+        workbook.write(Files.newOutputStream(templateFile.toPath()));
         workbook.close();
         return new JEVisFileImp(templateName + ".xlsx", templateFile);
     }
@@ -405,40 +375,37 @@ public class ReportWizardDialog {
         List<ReportLink> deleteDataLinks = filterReportDataLinks(deleteReportLinks);
         List<ReportLink> deleteTextLinks = filterReportTextLinks(deleteReportLinks);
 
-
         for (ReportLink rl : deleteDataLinks) {
             removeDataCell(rl);
         }
         for (ReportLink rl : deleteTextLinks) {
             removeTextCell(rl);
         }
-
-
     }
 
     private void removeDataCell(ReportLink reportLink) {
-        logger.debug("Delete: ", reportLink);
+        logger.debug("Delete: {}", reportLink);
         Sheet sheet = workbook.getSheet(reportLink.getSheet());
         Cell cell = sheet.getRow(reportLink.getCellAddress().getRow()).getCell(reportLink.getCellAddress().getColumn());
         cell.removeCellComment();
         removeDataCellContent(sheet, reportLink.getCellAddress());
         try {
             reportLink.getJeVisObject().delete();
-        } catch (JEVisException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            logger.error(e);
         }
     }
 
     private void removeTextCell(ReportLink reportLink) {
-        logger.debug("Delete: ", reportLink);
+        logger.debug("Delete: {}", reportLink);
         Sheet sheet = workbook.getSheet(reportLink.getSheet());
         Cell cell = sheet.getRow(reportLink.getCellAddress().getRow()).getCell(reportLink.getCellAddress().getColumn());
         cell.removeCellComment();
         removeTextCellContent(sheet, reportLink.getCellAddress());
         try {
             reportLink.getJeVisObject().delete();
-        } catch (JEVisException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            logger.error(e);
         }
     }
 
@@ -460,12 +427,9 @@ public class ReportWizardDialog {
 
     }
 
-    private XSSFWorkbook createEmptyReportSheet(XSSFWorkbook workbook) {
+    private void createEmptyReportSheet(XSSFWorkbook workbook) {
         Sheet sheet = workbook.createSheet(I18n.getInstance().getString("plugin.object.report.dialog.report.titlepage"));
         sheet.setDefaultColumnWidth(3);
-
-        return workbook;
-
     }
 
 
@@ -587,15 +551,6 @@ public class ReportWizardDialog {
     }
 
     private void openMultiSelect() {
-        List<JEVisClass> classes = new ArrayList<>();
-
-        for (String className : TreeSelectionDialog.allData) {
-            try {
-                classes.add(ds.getJEVisClass(className));
-            } catch (Exception e) {
-                logger.error("Could not get JEVisClass for {}", className, e);
-            }
-        }
 
         TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, new ArrayList<>(), SelectionMode.MULTIPLE, new ArrayList<>(), true);
 
@@ -617,7 +572,7 @@ public class ReportWizardDialog {
 
                     updateName(newLink);
 
-                    createNewReportLink(true, newLink);
+                    createNewReportLink(false, newLink);
                 }
             }
         });
@@ -649,8 +604,8 @@ public class ReportWizardDialog {
                     try {
                         directoryClass = ds.getJEVisClass("Directory");
                         createAllAttributeLinks(directoryClass, us.getSelectedObject());
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        logger.error(e);
                     }
                 }
             }
@@ -663,15 +618,15 @@ public class ReportWizardDialog {
         if (!directoryClass.getHeirs().contains(selectedObject.getJEVisClass())) {
             ReportLink newLink = new ReportLink("", selectedObject.getID(), false, "", null);
             updateName(newLink);
-            createNewReportLink(true, newLink);
+            createNewReportLink(false, newLink);
         }
 
         try {
             for (JEVisObject jeVisObject : selectedObject.getChildren()) {
                 createAllAttributeLinks(directoryClass, jeVisObject);
             }
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Could not create attribute link for object {}:{}", selectedObject.getName(), selectedObject.getID());
         }
     }
 
@@ -706,8 +661,6 @@ public class ReportWizardDialog {
             createBox(reportLink);
             row++;
         }
-
-
     }
 
     private ReportLink buildReportLink(JEVisObject jeVisObject, String sheet, CellAddress cellAddress) {
@@ -717,17 +670,15 @@ public class ReportWizardDialog {
             reportLink = ReportLink.parseFromJEVisObject(jeVisObject);
             reportLink.setCellAddress(cellAddress);
             reportLink.setSheet(sheet);
-            reportLink.setLinkeStaus(ReportLink.Status.FALSE);
-        } catch (RuntimeException e) {
+            reportLink.setLinkStatus(ReportLink.Status.FALSE);
+        } catch (Exception e) {
             logger.error(jeVisObject, e);
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.title"));
-            alert.setHeaderText("JEVis Obejct: " + jeVisObject.getName() + ": " + jeVisObject.getID() + ": " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.header"));
+            alert.setHeaderText("JEVis Object: " + jeVisObject.getName() + ": " + jeVisObject.getID() + ": " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.header"));
             alert.setContentText(e.getMessage());
             alert.showAndWait();
-
         }
-
 
         return reportLink;
     }
@@ -735,12 +686,12 @@ public class ReportWizardDialog {
 
     private void createNewReportLink(Boolean copy, ReportLink oldReportLink) {
         ReportLink reportLink = null;
-        if (!copy) {
-            reportLink = new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration(AggregationPeriod.NONE, ManipulationMode.NONE, PeriodMode.CURRENT, FixedPeriod.NONE)));
-
-        } else {
+        if (copy) {
             reportLink = oldReportLink.clone();
+        } else {
+            reportLink = oldReportLink;
         }
+        reportLink.setLinkStatus(ReportLink.Status.NEW);
         reportLinkList.add(reportLink);
         row++;
         createBox(reportLink);
@@ -752,8 +703,8 @@ public class ReportWizardDialog {
         boolean disable = false;
         try {
             disable = ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.StringData.name);
-        } catch (JEVisException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            logger.error("Could not get ", e);
         }
 
         if (reportLink.getSheet() != null) {
@@ -815,7 +766,7 @@ public class ReportWizardDialog {
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
             periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
             if (reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED) || reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED_TO_REPORT_END)) {
-                showFixedPeriodeComboBox(currentRow, fixedPeriodComboBox);
+                showFixedPeriodComboBox(currentRow, fixedPeriodComboBox);
             }
         }
         ImageView imageMarkAllPeriod = new ImageView(imgMarkAll);
@@ -852,7 +803,9 @@ public class ReportWizardDialog {
         toggleSwitchPlus.setSelected(reportLink.isOptional());
         toggleSwitchPlus.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                reportLink.setLinkeStaus(ReportLink.Status.UPDATE);
+                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
+                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
+                }
                 reportLink.setOptional(newValue);
             }
         });
@@ -863,7 +816,7 @@ public class ReportWizardDialog {
         removeButton.setOnAction(event -> {
             if (row > 1) {
                 if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
-                    reportLink.setLinkeStaus(ReportLink.Status.DELETE);
+                    reportLink.setLinkStatus(ReportLink.Status.DELETE);
                     moveNodesGridpane(GridPane.getRowIndex(removeButton));
                     gridPane.getChildren().removeAll(removeButton, excelCellLabel, targetsButton, aggregationPeriodComboBox, manipulationComboBox, tbManipulation, tbPeriod, periodModeComboBox, toggleSwitchPlus, copyButton, tbAggregation);
                     row--;
@@ -962,7 +915,9 @@ public class ReportWizardDialog {
         aggregationPeriodComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 reportLink.getReportAttribute().getReportPeriodConfiguration().setReportAggregation(newValue);
-                reportLink.setLinkeStaus(ReportLink.Status.UPDATE);
+                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
+                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
+                }
 
                 Platform.runLater(() -> updateName(reportLink));
             }
@@ -971,7 +926,9 @@ public class ReportWizardDialog {
         manipulationComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 reportLink.getReportAttribute().getReportPeriodConfiguration().setReportManipulation(newValue);
-                reportLink.setLinkeStaus(ReportLink.Status.UPDATE);
+                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
+                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
+                }
 
                 Platform.runLater(() -> updateName(reportLink));
             }
@@ -980,12 +937,14 @@ public class ReportWizardDialog {
         periodModeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 reportLink.getReportAttribute().getReportPeriodConfiguration().setPeriodMode(newValue);
-                reportLink.setLinkeStaus(ReportLink.Status.UPDATE);
+                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
+                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
+                }
 
                 Platform.runLater(() -> updateName(reportLink));
 
                 if (newValue == PeriodMode.FIXED || newValue == PeriodMode.FIXED_TO_REPORT_END) {
-                    showFixedPeriodeComboBox(currentRow, fixedPeriodComboBox);
+                    showFixedPeriodComboBox(currentRow, fixedPeriodComboBox);
                 } else if (oldValue == PeriodMode.FIXED || oldValue == PeriodMode.FIXED_TO_REPORT_END) {
 
                     ReportFixedPeriodBox box = null;
@@ -1008,7 +967,9 @@ public class ReportWizardDialog {
         fixedPeriodComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 reportLink.getReportAttribute().getReportPeriodConfiguration().setFixedPeriod(newValue);
-                reportLink.setLinkeStaus(ReportLink.Status.UPDATE);
+                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
+                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
+                }
 
                 Platform.runLater(() -> updateName(reportLink));
             }
@@ -1033,7 +994,7 @@ public class ReportWizardDialog {
 
     }
 
-    private void showFixedPeriodeComboBox(int currentRow, ReportFixedPeriodBox fixedPeriodComboBox) {
+    private void showFixedPeriodComboBox(int currentRow, ReportFixedPeriodBox fixedPeriodComboBox) {
         Platform.runLater(() -> {
             gridPane.add(fixedPeriodComboBox, 11, currentRow);
         });
@@ -1052,7 +1013,7 @@ public class ReportWizardDialog {
         JEVisObject object = null;
         try {
             object = ds.getObject(reportLink.getjEVisID());
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not update name for object with id: {}", reportLink.getjEVisID(), e);
         }
 
@@ -1063,7 +1024,7 @@ public class ReportWizardDialog {
                 } else {
                     reportLink.setName(object.getName());
                 }
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not set new Report Link Name for object with id: {}", reportLink.getjEVisID(), e);
             }
 
@@ -1080,7 +1041,7 @@ public class ReportWizardDialog {
                 } else {
                     reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object));
                 }
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not set new Variable Name for object with id: {}", reportLink.getjEVisID(), e);
             }
         }
@@ -1088,13 +1049,8 @@ public class ReportWizardDialog {
 
 
     private void setButtonText(String targetString, JFXButton targetsButton) {
-        TargetHelper th;
         try {
-            if (targetString != null) {
-                th = new TargetHelper(ds, targetString);
-            } else {
-                th = new TargetHelper(ds, targetString);
-            }
+            TargetHelper th = new TargetHelper(ds, targetString);
 
             if (th.isValid() && th.targetObjectAccessible()) {
 
@@ -1162,7 +1118,7 @@ public class ReportWizardDialog {
         cellJevisMap = new TreeMap<>();
         for (String sheetName : sheetList) {
             if (sheetName.contains("Data")) {
-                logger.debug("load Excel sheet: ", sheetName);
+                logger.debug("load Excel sheet: {}", sheetName);
                 XSSFSheet sheet = workbook.getSheet(sheetName);
                 cellJevisMap.put(sheet.getSheetName(), new TreeMap<>());
                 for (Map.Entry<CellAddress, XSSFComment> entry : sheet.getCellComments().entrySet()) {
@@ -1170,7 +1126,7 @@ public class ReportWizardDialog {
                     Optional<JEVisObject> jevisobject = listReportLinkObjects.stream().filter(jeVisObject -> jeVisObject.getName().equals(variable)).findFirst();
                     if (jevisobject.isPresent()) {
                         cellJevisMap.get(sheet.getSheetName()).put(entry.getKey(), jevisobject.get());
-                        logger.debug("load DP: ", entry.getKey(), jevisobject.get().getName());
+                        logger.debug("load DP key {} with object name {}", entry.getKey(), jevisobject.get().getName());
                     }
                 }
             } else if (sheetName.contains("Text")) {
@@ -1185,7 +1141,7 @@ public class ReportWizardDialog {
                         if (jevisobject.isPresent()) {
                             cellJevisMap.get(sheet.getSheetName()).put(cell.getAddress(), jevisobject.get());
                             logger.debug(cellJevisMap.get(sheet.getSheetName()));
-                            logger.debug("load DP: ", cell.getAddress(), jevisobject.get().getName());
+                            logger.debug("load DP with cell address {} and object name {}", cell.getAddress(), jevisobject.get().getName());
                         }
                     }
                 }
@@ -1205,9 +1161,9 @@ public class ReportWizardDialog {
         }
     }
 
-    public void createStandardTemplate() throws IOException {
-        workbook = new XSSFWorkbook(); //create workbook
+    public void createStandardTemplate() {
 
+        workbook = new XSSFWorkbook();
         XSSFDataFormat dataFormatDates = workbook.createDataFormat();
         dataFormatDates.putFormat((short) 165, "YYYY-MM-dd HH:MM:ss");
         CellStyle cellStyleDates = workbook.createCellStyle();
@@ -1239,8 +1195,7 @@ public class ReportWizardDialog {
             lists.add(reportLinkList);
         }
 
-
-        workbook = createEmptyReportSheet(workbook);
+        createEmptyReportSheet(workbook);
     }
 
     private JEVisFile createAllAttributesTemplate(String templateName) throws IOException, JEVisException {
@@ -1322,7 +1277,7 @@ public class ReportWizardDialog {
     }
 
     private void addDataContent(List<ReportLink> links, int number) {
-        logger.debug("Create Sheet Data" + number, links);
+        logger.debug("Create Sheet Data{} with {} links", number, links);
 
         XSSFDataFormat dataFormatDates = workbook.createDataFormat();
         dataFormatDates.putFormat((short) 165, "YYYY-MM-dd HH:MM:ss");
@@ -1337,7 +1292,7 @@ public class ReportWizardDialog {
     }
 
     private void addTextContent(List<ReportLink> links, int number) {
-        logger.debug("Create Sheet Data" + number, links);
+        logger.debug("Create Sheet Data{} with {} links", number, links);
 
         XSSFDataFormat dataFormatDates = workbook.createDataFormat();
         dataFormatDates.putFormat((short) 165, "YYYY-MM-dd HH:MM:ss");
@@ -1354,7 +1309,7 @@ public class ReportWizardDialog {
     private void setExcelTextContent(List<ReportLink> links, XSSFWorkbook workbook, int number, CellStyle cellStyleDates, CellStyle cellStyleValues) {
 
 
-        int sheetWidth = links.size() * 1;
+        int sheetWidth = links.size();
         Sheet sheet = workbook.createSheet("Text" + number); //create sheet
         Cell firstCell = getOrCreateCell(sheet, 0, 0);
         String lastCellColumnName = CellReference.convertNumToColString(sheetWidth);
@@ -1369,12 +1324,11 @@ public class ReportWizardDialog {
             cell.setCellValue(rl.getTemplateVariableName());
 
             Cell cell2 = getOrCreateCell(sheet, 1, (i + 1));
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("${");
-            stringBuilder.append(rl.getTemplateVariableName());
-            stringBuilder.append(".Value.value");
-            stringBuilder.append("}");
-            cell2.setCellValue(stringBuilder.toString());
+            String string = "${" +
+                    rl.getTemplateVariableName() +
+                    ".Value.value" +
+                    "}";
+            cell2.setCellValue(string);
 
         }
 
@@ -1393,9 +1347,8 @@ public class ReportWizardDialog {
 
         logger.debug(dataLinks);
 
-
         int sheetWidth = links.size() * 3;
-        Sheet sheet = workbook.createSheet("Data" + number); //create sheet
+        XSSFSheet sheet = workbook.createSheet("Data" + number); //create sheet
         Cell firstCell = getOrCreateCell(sheet, 0, 0);
         String lastCellColumnName = CellReference.convertNumToColString(sheetWidth);
         String lastCellCommentText = "jx:area(lastCell=\"" + lastCellColumnName + 3 + "\")";
@@ -1435,11 +1388,11 @@ public class ReportWizardDialog {
             Cell cell = getOrCreateCell(sheet, 2, ((i + 1) + (counter - 2)));
             cell.setCellValue("${data.timestamp}");
             cell.setCellStyle(cellStyleDates);
-            ((XSSFSheet) sheet).getColumnHelper().setColDefaultStyle(((i + 1) + (counter - 2)), cellStyleDates);
+            sheet.getColumnHelper().setColDefaultStyle(((i + 1) + (counter - 2)), cellStyleDates);
             Cell cell2 = getOrCreateCell(sheet, 2, ((i + 1) + counter - 1));
             cell2.setCellValue("${data.value}");
             cell2.setCellStyle(cellStyleValues);
-            ((XSSFSheet) sheet).getColumnHelper().setColDefaultStyle(((i + 1) + (counter - 1)), cellStyleValues);
+            sheet.getColumnHelper().setColDefaultStyle(((i + 1) + (counter - 1)), cellStyleValues);
             Cell cell3 = getOrCreateCell(sheet, 2, ((i + 1) + counter));
             cell3.setCellValue("${data.unit}");
             String columnName = CellReference.convertNumToColString((i + 1) + counter);
@@ -1530,7 +1483,7 @@ public class ReportWizardDialog {
         anchor.setRow1(rowIdx + 1); //one row below the cell...
         anchor.setRow2(rowIdx + 5); //...and 4 rows high
 
-        Drawing drawing = sheet.createDrawingPatriarch();
+        Drawing<?> drawing = sheet.createDrawingPatriarch();
         Comment comment = drawing.createCellComment(anchor);
         //set the comment text and author
         comment.setString(factory.createRichTextString(commentText));
@@ -1540,26 +1493,26 @@ public class ReportWizardDialog {
     }
 
     private List<ReportLink> filterReportDataLinks(List<ReportLink> reportLinkList) {
-        List<ReportLink> dataReportLinks = reportLinkList.stream().filter(reportLink -> {
+        return reportLinkList.stream().filter(reportLink -> {
             try {
                 return ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.Data.CleanData.name);
-            } catch (JEVisException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                logger.error(e);
             }
+            return false;
         }).collect(Collectors.toList());
-        return dataReportLinks;
     }
 
 
     private List<ReportLink> filterReportTextLinks(List<ReportLink> reportLinkList) {
-        List<ReportLink> textReportLinks = reportLinkList.stream().filter(reportLink -> {
+        return reportLinkList.stream().filter(reportLink -> {
             try {
                 return ds.getObject(reportLink.getjEVisID()).getJEVisClass().getName().equals(JC.StringData.name);
-            } catch (JEVisException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                logger.error(e);
             }
+            return false;
         }).collect(Collectors.toList());
-        return textReportLinks;
     }
 
 

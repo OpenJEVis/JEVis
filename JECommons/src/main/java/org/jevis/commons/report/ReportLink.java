@@ -24,7 +24,7 @@ public class ReportLink {
     private CellAddress cellAddress;
 
 
-    private Status linkeStaus = Status.NEW;
+    private Status linkStatus = Status.NEW;
 
     private JEVisObject jeVisObject;
 
@@ -85,6 +85,7 @@ public class ReportLink {
         clonedReportLink.setTemplateVariableName(this.getTemplateVariableName());
         clonedReportLink.setjEVisID(this.getjEVisID());
         clonedReportLink.setOptional(this.isOptional());
+        clonedReportLink.setLinkStatus(this.getLinkStatus());
         if (getReportAttribute() != null) {
             clonedReportLink.getReportAttribute().setAttributeName(getReportAttribute().getAttributeName());
 
@@ -136,12 +137,12 @@ public class ReportLink {
         this.jeVisObject = jeVisObject;
     }
 
-    public Status getLinkeStaus() {
-        return linkeStaus;
+    public Status getLinkStatus() {
+        return linkStatus;
     }
 
-    public void setLinkeStaus(Status linkeStaus) {
-        this.linkeStaus = linkeStaus;
+    public void setLinkStatus(Status linkStatus) {
+        this.linkStatus = linkStatus;
     }
 
     public static enum Status {
