@@ -645,8 +645,8 @@ public class ActionForm extends Dialog {
 
             ChartDataRow chartDataRow = new ChartDataRow(actionPlan.getObject().getDataSource());
             chartDataRow.setId(dataObj.getID());
-            chartDataRow.setEnPI(true);
-            chartDataRow.setCalculationObject(calcObj);
+            chartDataRow.setCalculation(true);
+            chartDataRow.setCalculationId(calcObj.getID());
             chartDataRow.setSelectedStart(from);
             chartDataRow.setSelectedEnd(until);
             chartDataRow.setAggregationPeriod(AggregationPeriod.NONE);

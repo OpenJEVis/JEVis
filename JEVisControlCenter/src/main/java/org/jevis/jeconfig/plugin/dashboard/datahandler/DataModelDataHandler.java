@@ -602,8 +602,8 @@ public class DataModelDataHandler {
                         this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
 
                         if (dataPointNode.getCalculationID() != null && dataPointNode.getCalculationID() > 0L) {
-                            chartDataRow.setEnPI(true);
-                            chartDataRow.setCalculationObject(dataPointNode.getCalculationID().toString());
+                            chartDataRow.setCalculation(true);
+                            chartDataRow.setCalculationId(dataPointNode.getCalculationID());
                         }
                         if (autoAggregation) {
                             chartDataRow.setAbsolute(true);
@@ -764,8 +764,8 @@ public class DataModelDataHandler {
                         this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
 
                         if (dataPointNode.getCalculationID() != null && dataPointNode.getCalculationID() != 0L) {
-                            chartDataRow.setEnPI(dataPointNode.isEnpi());
-                            chartDataRow.setCalculationObject(dataPointNode.getCalculationID().toString());
+                            chartDataRow.setCalculation(dataPointNode.isEnpi());
+                            chartDataRow.setCalculationId(dataPointNode.getCalculationID());
                         }
                         if (autoAggregation) {
                             chartDataRow.setAbsolute(true);
