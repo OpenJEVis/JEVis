@@ -205,6 +205,10 @@ public class PrepareStep implements ProcessStep {
                 currentDateLocal = currentDateLocal.minusMinutes(firstCleanPeriod.getMinutes()).withSecondOfMinute(0);
             }
 
+            if (firstCleanPeriod.getSeconds() > 0) {
+                currentDateLocal = currentDateLocal.minusSeconds(firstCleanPeriod.getSeconds()).withMillisOfSecond(0);
+            }
+
             currentDate = currentDateLocal.withZone(DateTimeZone.UTC);
             maxEndDate = maxEndDateLocal.withZone(DateTimeZone.UTC);
             Period lastCleanPeriod = firstCleanPeriod;
