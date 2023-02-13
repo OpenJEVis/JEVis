@@ -349,17 +349,17 @@ public class ChartDataRow extends ChartData {
 
                             if (!getAbsolute()) {
                                 logger.debug("Getting calc job not absolute for object {}:{} from {} to {} with period {}",
-                                        calculationObject.getName(), calculationObject.getID(),
+                                        getCalculationObject().getName(), getCalculationObject().getID(),
                                         selectedStart.toString("yyyy-MM-dd HH:mm:ss"), selectedEnd.toString("yyyy-MM-dd HH:mm:ss"),
                                         aggregationPeriod.toString());
-                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, getCalculationObject(),
                                         selectedStart, selectedEnd, aggregationPeriod);
                             } else {
                                 logger.debug("Getting calc job absolute for object {}:{} from {} to {} with period {}",
-                                        calculationObject.getName(), calculationObject.getID(),
+                                        getCalculationObject().getName(), getCalculationObject().getID(),
                                         selectedStart.toString("yyyy-MM-dd HH:mm:ss"), selectedEnd.toString("yyyy-MM-dd HH:mm:ss"),
                                         aggregationPeriod.toString());
-                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, getCalculationObject(),
                                         selectedStart, selectedEnd, true);
                             }
 
@@ -869,15 +869,15 @@ public class ChartDataRow extends ChartData {
     }
 
     public JEVisObject getCalculationObject() {
-        if (getCalculationId() != -1) {
+        if (calculationObject == null && getCalculationId() != -1) {
             try {
-                return dataSource.getObject(getCalculationId());
+                calculationObject = dataSource.getObject(getCalculationId());
             } catch (Exception e) {
                 logger.error("Could not get object for id {}", getCalculationId(), e);
             }
         }
 
-        return null;
+        return calculationObject;
     }
 
     @Override
