@@ -541,6 +541,7 @@ public class ChartPlugin implements Plugin {
         });
 
         allCharts.clear();
+        dataRowMap.clear();
 
         Integer horizontalPies = dataModel.getHorizontalPies();
         Integer horizontalTables = dataModel.getHorizontalTables();
