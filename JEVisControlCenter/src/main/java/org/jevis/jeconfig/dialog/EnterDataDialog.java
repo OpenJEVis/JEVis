@@ -486,11 +486,11 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     private GridPane buildForm() {
         gridPane.getChildren().clear();
 
+        loadLastValue();
+
         try {
             if (initSample != null && showValuePrompt) {
-
                 doubleField.setText(numberFormat.format(initSample.getValueAsDouble()));
-                loadLastValue();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -503,7 +503,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
             cleanDataClass = ds.getJEVisClass("Clean Data");
             allData = ds.getObjects(dataClass, false);
             map = allData.stream().collect(Collectors.toMap(JEVisObject::getID, object -> object, (a, b) -> b, HashMap::new));
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -514,8 +514,9 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
             searchIdField.setText("[" + selectedObject.getID().toString() + "] " + selectedObject.getName());
         }
 
-        yearBox.setTS(getNextTS());
-        monthBox.setRelations(yearBox, dayBox, getNextTS());
+        DateTime nextTS = getNextTS();
+        yearBox.setTS(nextTS);
+        monthBox.setRelations(yearBox, dayBox, nextTS);
         yearBox.setRelations(monthBox, dayBox);
 
         HashMap<Long, JEVisObject> finalMap = map;
@@ -756,6 +757,17 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
             period.set(CleanDataObject.getPeriodForDate(cdo.getCleanDataPeriodAlignment(), lastTS.get()));
         } else {
             period.set(CleanDataObject.getPeriodForDate(selectedObject, lastTS.get()));
+        }
+
+        try {
+            DateTime nextTS = getNextTS();
+            yearBox.setTS(nextTS);
+            Platform.runLater(() -> {
+                monthBox.getSelectionModel().select(nextTS.getMonthOfYear() - 1);
+                dayBox.getSelectionModel().select(nextTS.getDayOfMonth() - 1);
+            });
+        } catch (Exception e) {
+            logger.error(e);
         }
 
         updateView();
