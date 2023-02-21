@@ -31,6 +31,41 @@
         "th": "ความคุ้มค่า",
         "en": "Value"
       }
+    },
+    {
+      "type": "Conversion to Differential",
+      "descriptions": {
+        "de": "Aktiviert/Deaktiviert die Umwandlung von kumulative Daten zu differenziellen Daten",
+        "ru": "Разрешает/запрещает преобразование накопленных данных в дифференциальные данные.",
+        "uk": "Ввімкнути / Вимкнути перетворення сукупних даних на диференціальні значення",
+        "th": "เปิดใช้งาน / ปิดใช้งานการแปลงข้อมูลสะสมเป็นข้อมูลส่วนต่าง",
+        "en": "Enables/Disables the conversion of cumulative data to differential values."
+      },
+      "names": {
+        "de": "Umwandlung zu Differenz",
+        "ru": "Преобразование в разницу",
+        "uk": "Перетворення на диференціальні значення",
+        "th": "การแปลงไปสู่ความแตกต่าง",
+        "en": "Conversion to Differential"
+      }
+    },
+    ,
+    {
+      "type": "Value is a Quantity",
+      "descriptions": {
+        "de": "Definiert ob es sich bei den Wert um eine Mengenangabe handelt, wie z.B. kWh.",
+        "ru": "Определяет, является ли это значение количеством, например, кВтч.",
+        "uk": "Значення кількісно описує",
+        "th": "กำหนดว่าค่าเป็นการบ่งบอกปริมาณเช่น กิโลวัตต์ต่อชั่วโมง",
+        "en": "Defines if the value represents a quantity, such as kWh."
+      },
+      "names": {
+        "de": "Mengeneinheit",
+        "ru": "агрегат",
+        "uk": "Значення це кількість",
+        "th": "หน่วย",
+        "en": "Value is a Quantity"
+      }
     }
   ]
 }
