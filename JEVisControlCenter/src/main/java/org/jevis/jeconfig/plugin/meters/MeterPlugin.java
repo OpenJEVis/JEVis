@@ -58,7 +58,7 @@ public class MeterPlugin extends TablePlugin {
     private boolean initialized = false;
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getSVGImage(Icon.SWAP, toolBarIconSize, toolBarIconSize));
     private int selectedIndex = 0;
-    private final JFXButton renameButton = new JFXButton("",JEConfig.getSVGImage(Icon.EDIT,toolBarIconSize,toolBarIconSize));
+    private final JFXButton renameButton = new JFXButton("", JEConfig.getSVGImage(Icon.EDIT, toolBarIconSize, toolBarIconSize));
 
     public MeterPlugin(JEVisDataSource ds, String title) {
         super(ds, title);
@@ -290,7 +290,7 @@ public class MeterPlugin extends TablePlugin {
         });
         replaceButton.setDisable(true);
 
-        renameButton.setTooltip(new Tooltip(("(F2)"+I18n.getInstance().getString("plugin.meters.button.rename"))));
+        renameButton.setTooltip(new Tooltip(("(F2)" + I18n.getInstance().getString("plugin.meters.button.rename"))));
         renameButton.setOnAction(event -> openRenameDialog());
         renameButton.setDisable(true);
 
@@ -372,7 +372,7 @@ public class MeterPlugin extends TablePlugin {
         reduceFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
         increaseFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
 
-        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, renameButton, sep3, printButton, sep4, reduceFractionDigitsButton, increaseFractionDigitsButton);
+        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, renameButton, sep3, xlsxButton, printButton, sep4, reduceFractionDigitsButton, increaseFractionDigitsButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
         JEVisHelp.getInstance().addHelpItems(MeterPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
@@ -786,7 +786,7 @@ public class MeterPlugin extends TablePlugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.GAUGE, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.GAUGE, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override
