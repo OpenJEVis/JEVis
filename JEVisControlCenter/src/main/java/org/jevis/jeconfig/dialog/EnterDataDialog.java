@@ -18,6 +18,7 @@ import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.constants.EnterDataTypes;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
@@ -51,6 +52,7 @@ import java.util.stream.Collectors;
 
 public class EnterDataDialog extends JFXDialog implements EventTarget {
     private static final Logger logger = LogManager.getLogger(EnterDataDialog.class);
+    public static final String CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME = "Conversion to Differential";
     public static String ICON = "Startup Wizard_18228.png";
     private final StackPane dialogContainer;
     private final JEVisDataSource ds;
@@ -64,6 +66,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     private Double lastValue;
     private JEVisClass dataClass;
     private JEVisClass cleanDataClass;
+    private final Label messageLabel = new Label(I18n.getInstance().getString("plugin.object.dialog.data.message.notdiffquantity"));
     private final ObjectProperty<JEVisSample> newSampleProperty = new SimpleObjectProperty<>();
     private final Label unitField = new Label();
     private final Label lastTSLabel = new Label();
@@ -74,7 +77,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     private final SimpleBooleanProperty isQuantity = new SimpleBooleanProperty(false);
     private final SimpleObjectProperty<Period> period = new SimpleObjectProperty<>(Period.ZERO);
     private JEVisAttribute target = null;
-    private final Label messageLabel = new Label(I18n.getInstance().getString("plugin.object.dialog.data.message.notdifferential"));
+    private JEVisClass baseDataClass;
     private final DataTypeBox dataTypeBox = new DataTypeBox();
     private final Label idLabel = new Label(I18n.getInstance().getString("plugin.graph.export.text.id"));
     private final Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
@@ -199,8 +202,13 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                             Map<JsonLimitsConfig, JEVisObject> limitsConfigs = new HashMap<>();
                             try {
                                 valueAttribute = selectedObject.getAttribute("Value");
+
+                                if (selectedObject != null && selectedObject.getJEVisClass().equals(baseDataClass)) {
+                                    diffAttribute = selectedObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
+                                }
+
                                 for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
-                                    diffAttribute = jeVisObject.getAttribute("Conversion to Differential");
+                                    diffAttribute = jeVisObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
                                     CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject);
                                     if (cleanDataObject.getLimitsConfig().size() > 0) {
                                         limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
@@ -398,11 +406,6 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                 valueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.meterreading"));
                 lastRawValueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.lastmeterreading"));
 
-                if (isQuantity.get()) {
-
-                } else {
-
-                }
             });
         } else if (!isConversionToDifferential.get()) {
             Period p = dataTypeBox.selectFromPeriod(selectedObject);
@@ -410,7 +413,13 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
 
 
             Platform.runLater(() -> {
-                messageLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.message.notdifferential"));
+
+                if (isQuantity.get()) {
+                    messageLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.message.notdiffquantity"));
+                } else {
+                    messageLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.message.notdiffmean"));
+                }
+
 
                 dataTypeBox.setVisible(false);
 
@@ -501,6 +510,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
         try {
             dataClass = ds.getJEVisClass("Data");
             cleanDataClass = ds.getJEVisClass("Clean Data");
+            baseDataClass = ds.getJEVisClass("Base Data");
             allData = ds.getObjects(dataClass, false);
             map = allData.stream().collect(Collectors.toMap(JEVisObject::getID, object -> object, (a, b) -> b, HashMap::new));
         } catch (Exception e) {
@@ -757,6 +767,17 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
             period.set(CleanDataObject.getPeriodForDate(cdo.getCleanDataPeriodAlignment(), lastTS.get()));
         } else {
             period.set(CleanDataObject.getPeriodForDate(selectedObject, lastTS.get()));
+
+            if (selectedObject != null && selectedObject.getJEVisClass().equals(baseDataClass)) {
+                try {
+                    JEVisType isQuantity = selectedObject.getJEVisClass().getType("Value is a Quantity");
+                    this.isQuantity.set(DatabaseHelper.getObjectAsBoolean(selectedObject, isQuantity));
+                    JEVisType isConversionToDifferential = selectedObject.getJEVisClass().getType(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
+                    this.isConversionToDifferential.set(DatabaseHelper.getObjectAsBoolean(selectedObject, isConversionToDifferential));
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+            }
         }
 
         try {

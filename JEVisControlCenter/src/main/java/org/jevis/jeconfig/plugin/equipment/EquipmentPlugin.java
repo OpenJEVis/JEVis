@@ -257,7 +257,7 @@ public class EquipmentPlugin extends TablePlugin {
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.equipment.toolbar.tooltip.print")));
 
 
-        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
+        toolBar.getItems().setAll(filterInput, reload, sep1, save, sep2, newButton, replaceButton, sep3, xlsxButton, printButton);
         toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(EquipmentPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
@@ -643,7 +643,7 @@ public class EquipmentPlugin extends TablePlugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.BUILDING, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.BUILDING, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override

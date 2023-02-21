@@ -20,5 +20,23 @@
     }
   ],
   "types": [
+    {
+      "name": "Value is a Quantity",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 5,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Base Data"
+    },
+    {
+      "name": "Conversion to Differential",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 7,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Base Data"
+    }
   ]
 }

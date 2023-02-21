@@ -33,6 +33,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.utils.FileNames;
 import org.jevis.commons.utils.JEVisDates;
+import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -77,6 +78,7 @@ public class TablePlugin implements Plugin {
     protected final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
     protected final ToggleButton reduceFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.LESS_DIGITS, toolBarIconSize, toolBarIconSize, 90));
     protected final ToggleButton increaseFractionDigitsButton = new ToggleButton("", JEConfig.getSVGImage(Icon.MORE_DIGITS, toolBarIconSize, toolBarIconSize, 90));
+    protected final ToggleButton xlsxButton = new ToggleButton("", JEConfig.getSVGImage(Icon.EXPORT, toolBarIconSize, toolBarIconSize));
 
     static {
         try {
@@ -102,6 +104,23 @@ public class TablePlugin implements Plugin {
         this.title = title;
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
+        Tooltip xlsxTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
+        xlsxButton.setTooltip(xlsxTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(xlsxButton);
+
+        xlsxButton.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("XLSX File Destination");
+            FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", ".xlsx");
+            fileChooser.getExtensionFilters().addAll(pdfFilter);
+            fileChooser.setSelectedExtensionFilter(pdfFilter);
+
+            File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
+            if (selectedFile != null) {
+                JEConfig.setLastPath(selectedFile);
+                createExcelFile(selectedFile);
+            }
+        });
 
         addListener();
 
@@ -1062,43 +1081,52 @@ public class TablePlugin implements Plugin {
         for (Tab tab : tabPane.getTabs()) {
             try {
                 JEVisClassTab currentTab = (JEVisClassTab) tab;
-                Sheet sheet = workbook.createSheet(I18nWS.getInstance().getClassName(currentTab.getJeVisClass()));
+                Sheet sheet = workbook.createSheet(tab.getText());
                 int maxColumn = 0;
 
                 int row = 1;
                 for (RegisterTableRow registerTableRow : currentTab.getFilteredList()) {
-                    String name = registerTableRow.getName();
+                    try {
+                        String name = registerTableRow.getName();
 
-                    Cell rowFirstColumn = getOrCreateCell(sheet, row, 0);
-                    rowFirstColumn.setCellValue(name);
+                        Cell rowFirstColumn = getOrCreateCell(sheet, row, 0);
+                        rowFirstColumn.setCellValue(name);
 
-                    int index = currentTab.getFilteredList().indexOf(registerTableRow);
-                    int col = 1;
-                    for (Map.Entry<JEVisType, JEVisAttribute> entry : registerTableRow.getAttributeMap().entrySet()) {
-                        JEVisType jeVisType = entry.getKey();
-                        JEVisAttribute jeVisAttribute = entry.getValue();
+                        int index = currentTab.getFilteredList().indexOf(registerTableRow);
+                        int col = 1;
+                        for (Map.Entry<JEVisType, JEVisAttribute> entry : registerTableRow.getAttributeMap().entrySet()) {
+                            try {
+                                JEVisType jeVisType = entry.getKey();
+                                JEVisAttribute jeVisAttribute = entry.getValue();
 
-                        if (index == 0) {
-                            Cell columnHeader = getOrCreateCell(sheet, 0, 0);
-                            columnHeader.setCellValue(I18nWS.getInstance().getTypeName(jeVisType));
+                                if (index == 0) {
+                                    Cell columnHeader = getOrCreateCell(sheet, 0, 0);
+                                    columnHeader.setCellValue(I18nWS.getInstance().getTypeName(jeVisType));
+                                }
+
+                                Cell valueCell = getOrCreateCell(sheet, row, col);
+
+                                if (jeVisType.getPrimitiveType() != 2 && jeVisAttribute.hasSample()) {
+                                    valueCell.setCellValue(jeVisAttribute.getLatestSample().getValueAsString());
+                                } else if (jeVisAttribute.hasSample()) {
+                                    valueCell.setCellValue(jeVisAttribute.getLatestSample().getValueAsDouble());
+
+                                    DataFormat format = workbook.createDataFormat();
+                                    CellStyle cellStyle = workbook.createCellStyle();
+                                    cellStyle.setDataFormat(format.getFormat("#,##0.00 [$" + jeVisAttribute.getInputUnit() + "]"));
+                                    valueCell.setCellStyle(cellStyle);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            col++;
                         }
-
-                        Cell valueCell = getOrCreateCell(sheet, row, col);
-
-                        if (jeVisType.getPrimitiveType() != 2) {
-                            valueCell.setCellValue(jeVisAttribute.getLatestSample().getValueAsString());
-                        } else {
-                            valueCell.setCellValue(jeVisAttribute.getLatestSample().getValueAsDouble());
-
-                            DataFormat format = workbook.createDataFormat();
-                            CellStyle cellStyle = workbook.createCellStyle();
-                            cellStyle.setDataFormat(format.getFormat("#,##0.00 [$" + jeVisAttribute.getInputUnit() + "]"));
-                            valueCell.setCellStyle(cellStyle);
-                        }
-
-                        col++;
+                        maxColumn = Math.max(maxColumn, col);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    maxColumn = Math.max(maxColumn, col);
+                    row++;
                 }
 
                 IntStream.rangeClosed(0, maxColumn).forEach(sheet::autoSizeColumn);
