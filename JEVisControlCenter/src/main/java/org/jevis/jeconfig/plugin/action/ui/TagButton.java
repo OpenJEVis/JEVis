@@ -64,14 +64,6 @@ public class TagButton extends Button {
             cb.setSelected(true);
             boxes.add(cb);
             cb.setOnAction(event -> {
-                System.out.println("Event: " + event);
-                /*
-                if (cb.isSelected()) {
-                    selectedTags.add(s);
-                } else {
-                    selectedTags.remove(s);
-                }
-                */
                 updateValue();
             });
             CustomMenuItem cmi = new CustomMenuItem(cb);
