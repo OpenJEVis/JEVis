@@ -91,37 +91,7 @@ public class ActionController {
         gridPane.setPadding(new Insets(25));
         gridPane.setHgap(10);
         gridPane.setVgap(10);
-        double maxListHeight = 100;
 
-        /*
-        ComboBox<String> datumBox = new ComboBox<>();
-        datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
-        datumBox.getSelectionModel().selectFirst();
-        JFXTextField filterDatumText = new JFXTextField();
-        filterDatumText.setPromptText("Datum...");
-        ComboBox<String> comparatorBox = new ComboBox<>();
-        comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));
-        comparatorBox.getSelectionModel().selectFirst();
-        HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
-        EventHandler<ActionEvent> dateFilerEvent = new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (comparatorBox.getSelectionModel().getSelectedItem().equals(">")) {
-                    actionTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.BIGGER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("<")) {
-                    actionTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.SMALLER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("=")) {
-                    actionTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.EQUALS);
-                }
-                actionTable.getTableFilter().setPlannedDateFilter(filterDatumText.getText());
-                actionTable.filter();
-
-            }
-        };
-
-        comparatorBox.setOnAction(dateFilerEvent);
-
-         */
 
         Label lSuche = new Label("Suche");
         JFXTextField fsearch = new JFXTextField();
@@ -193,13 +163,6 @@ public class ActionController {
         gridPane.addColumn(5, vSep2);
         gridPane.addColumn(6, new Label("Zeitbereich"), dateSelector);
 
-        /*
-        gridPane.add(statusButton, 0, 0);
-        gridPane.add(mediumButton, 1, 0);
-        gridPane.add(fieldsButton, 2, 0);
-        gridPane.add(vSep, 3, 0, 1, 3);
-        gridPane.add(dateSelector, 4, 0, 1, 3);
-*/
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
