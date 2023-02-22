@@ -1,18 +1,23 @@
 package org.jevis.jeconfig.plugin.action.ui;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
+import javafx.util.converter.NumberStringConverter;
 import org.controlsfx.control.CheckComboBox;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
@@ -20,13 +25,13 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlan;
 import org.jevis.jeconfig.plugin.action.data.FileData;
+import org.jevis.jeconfig.plugin.action.data.NPVYearData;
 import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -37,8 +42,11 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.Currency;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class ActionForm extends Dialog {
@@ -70,6 +78,7 @@ public class ActionForm extends Dialog {
     private Tab attachmentTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.attachment"));
     private Tab capitalTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.capital"));
     private Tab checkListTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.checklist"));
+
     private JFXTextField f_Investment = new JFXTextField();
     private JFXTextField f_savingYear = new JFXTextField();
     private JFXTextField f_enpiAfter = new JFXTextField();
@@ -103,8 +112,10 @@ public class ActionForm extends Dialog {
     private CheckBox f_IsConsumptionDocumented = new CheckBox();
     private CheckBox f_isNeedCorrection = new CheckBox();
     private CheckBox f_isNeedAdditionalAction = new CheckBox();
+    private ActionData names = new ActionData();
 
-    public ActionForm(ActionPlan actionPlan) {
+
+    public ActionForm(ActionPlan actionPlan, ActionData action) {
         super();
         this.initOwner(JEConfig.getStage());
         this.actionPlan = actionPlan;
@@ -121,7 +132,6 @@ public class ActionForm extends Dialog {
 
         tabPane.setPrefWidth(ScreenSize.fitScreenWidth(1050));
 
-        System.out.println("Set ENPIS: " + actionPlan.getEnpis());
         f_Enpi = new ComboBox(actionPlan.getEnpis());
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> enpiCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
@@ -159,14 +169,16 @@ public class ActionForm extends Dialog {
         detailTab.setClosable(false);
         attachmentTab.setClosable(false);
         capitalTab.setClosable(false);
-        capitalTab.setDisable(true);
+        //capitalTab.setDisable(true);
         checkListTab.setClosable(false);
 
         tabPane.getTabs().addAll(basicTab, detailTab, capitalTab, checkListTab, attachmentTab);
         getDialogPane().setContent(tabPane);
+
+        setData(action);
     }
 
-    public void setData(ActionData data) {
+    private void setData(ActionData data) {
         initGeneralTab(data);
         initDetailsTab(data);
         initAttachmentTab(data);
@@ -178,13 +190,220 @@ public class ActionForm extends Dialog {
 
     private void initCapitalValueTab(ActionData data) {
         GridPane gridPane = new GridPane();
-
+        gridPane.setPadding(new Insets(25, 12, 12, 12));
         gridPane.setVgap(10);
         gridPane.setHgap(15);
 
-        gridPane.add(new Label("Comming soon."), 0, 0);
+        Label l_investition = new Label("Investition");
+        JFXTextField f_investition = new JFXTextField();
+        Label l_investitionUnit = new Label("€");
+        Label l_einsparrung = new Label("Jährliche Einsparung");
+        JFXTextField f_einsparrung = new JFXTextField();
+        Label l_einsparrungUnit = new Label("€");
+
+        Label l_zinssatz = new Label("Zinssatz");
+        JFXTextField f_zinssatz = new JFXTextField("");
+        f_zinssatz.setPrefWidth(50);
+        Label l_proZent = new Label("%");
+        Label l_years = new Label("Jahr(e)");
+        Label l_kapitalwert = new Label("Kapitalwert");
+        JFXTextField f_kapitalwert = new JFXTextField("");
+        Label l_kapitalwertrate = new Label("Kapitalwertrate");
+        JFXTextField f_kapitalwertrate = new JFXTextField("");
+        Label l_period = new Label("Laufzeit");
+        Label l_periodOverX = new Label("Laufzeit über X");
+        Label l_overRuntime = new Label("Amortisation über die Laufzeit");
+        Label l_over = new Label("Amortisation über");
+        Label l_infation = new Label("Jährliche Preissteigerung");
+        Label l_infationUnit = new Label("%");
+        JFXTextField f_infation = new JFXTextField();
+        Label l_yearCost = new Label("Jährliche Betriebskosten");
+        Label l_yearCostUnit = new Label("€");
+        JFXTextField f_runningCost = new JFXTextField();
+
+
+        Label l_yearsOverX = new Label("Jahr(e)");
+        JFXTextField f_kapitalwertOverX = new JFXTextField();
+        JFXTextField f_kapitalrateOverX = new JFXTextField();
+        NPVTableView npvTableView = new NPVTableView(data.npv.get().npvYears);
+
+        Label l_einzahlungGesamt = new Label("Einsparung");
+        l_einzahlungGesamt.setAlignment(Pos.CENTER);
+        JFXTextField f_einzahlungGesamt = new JFXTextField();
+
+
+        Label l_auszahlungGesamt = new Label("Investition");
+        l_auszahlungGesamt.setAlignment(Pos.CENTER);
+        JFXTextField f_auszahlungGesamt = new JFXTextField();
+        Label l_nettoGesamt = new Label("Netto");
+        l_nettoGesamt.setAlignment(Pos.CENTER);
+        JFXTextField f_nettoGesamt = new JFXTextField();
+        Label l_gesamt = new Label("Gesamt");
+
+        ChoiceBox<Integer> f_period = new ChoiceBox<>();
+        f_period.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); // only 15 years by lore
+        f_period.setValue(data.npv.get().npvYears.size());
+
+        ChoiceBox<Integer> f_amortizedDuration = new ChoiceBox<>();
+        f_amortizedDuration.valueProperty().bindBidirectional(data.npv.get().overXYear.asObject());
+        f_amortizedDuration.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+        GridPane.setHalignment(l_einzahlungGesamt, HPos.RIGHT);
+        GridPane.setHalignment(l_auszahlungGesamt, HPos.RIGHT);
+        GridPane.setHalignment(l_overRuntime, HPos.RIGHT);
+        GridPane.setHalignment(l_periodOverX, HPos.RIGHT);
+        GridPane.setHalignment(l_nettoGesamt, HPos.RIGHT);
+        l_overRuntime.setTextAlignment(TextAlignment.RIGHT);
+        l_periodOverX.setTextAlignment(TextAlignment.RIGHT);
+        l_einzahlungGesamt.setTextAlignment(TextAlignment.RIGHT);
+        l_auszahlungGesamt.setTextAlignment(TextAlignment.RIGHT);
+        l_nettoGesamt.setTextAlignment(TextAlignment.RIGHT);
+
+        double currencyPrefWidth = 120;
+        f_kapitalwert.setPrefWidth(currencyPrefWidth);
+        f_kapitalwertrate.setPrefWidth(currencyPrefWidth);
+        f_einzahlungGesamt.setPrefWidth(currencyPrefWidth);
+        f_auszahlungGesamt.setPrefWidth(currencyPrefWidth);
+        f_nettoGesamt.setPrefWidth(currencyPrefWidth);
+
+        f_kapitalwert.setEditable(false);
+        f_kapitalwertrate.setEditable(false);
+        f_nettoGesamt.setEditable(false);
+        f_einzahlungGesamt.setEditable(false);
+        f_auszahlungGesamt.setEditable(false);
+
+
+        f_period.setOnAction(event -> {
+            int diff = f_period.getValue() - data.npv.get().npvYears.size();
+            if (diff > 0) {
+                for (int i = data.npv.get().npvYears.size(); i <= f_period.getValue(); i++) {
+                    NPVYearData npvYearData = new NPVYearData();
+                    npvYearData.year.set(i);
+                    npvYearData.setNpvData(data.npv.get());
+                    npvYearData.setDeposit(data.npv.get().einsparung.get());
+                    data.npv.get().npvYears.add(npvYearData);
+                }
+
+            } else if (diff < 0) {
+                data.npv.get().npvYears.remove(f_period.getValue() + 1, data.npv.get().npvYears.size());
+            }
+
+            data.npv.get().npvYears.forEach(NPVYearData::updateSums);
+            data.npv.get().updateResults();
+        });
+
+
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+        NumberFormat doubleFormat = NumberFormat.getNumberInstance();
+        doubleFormat.setMinimumFractionDigits(2);
+        doubleFormat.setMaximumFractionDigits(2);
+        doubleFormat.setGroupingUsed(true);
+
+        currencyFormat.setCurrency(Currency.getInstance(Locale.GERMANY));
+
+        NumberStringConverter nsc = new NumberStringConverter() {
+            @Override
+            public String toString(Number value) {
+                return currencyFormat.format(value);
+            }
+        };
+
+        NumberStringConverter nscNoUnit = new NumberStringConverter() {
+            @Override
+            public String toString(Number value) {
+                return doubleFormat.format(value);
+            }
+        };
+
+        l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.get() + " Jahre");
+        data.npv.get().overXYear.addListener(observable -> l_periodOverX.setText("Amortisation über " + observable.toString() + " Year"));
+        DecimalFormat decimalFormat = new DecimalFormat();
+        decimalFormat.setMinimumFractionDigits(4);
+
+        Bindings.bindBidirectional(f_zinssatz.textProperty(), data.npv.get().interestRate, new NumberStringConverter());
+        Bindings.bindBidirectional(f_kapitalwert.textProperty(), data.npv.get().npvResult, nsc);
+        Bindings.bindBidirectional(f_auszahlungGesamt.textProperty(), data.npv.get().sumAuszahlungProperty(), nsc);
+        Bindings.bindBidirectional(f_einzahlungGesamt.textProperty(), data.npv.get().sumEinzahlung, nsc);
+        Bindings.bindBidirectional(f_kapitalwertrate.textProperty(), data.npv.get().piResult, decimalFormat);
+        Bindings.bindBidirectional(f_nettoGesamt.textProperty(), data.npv.get().sumNetto, nsc);
+        Bindings.bindBidirectional(f_investition.textProperty(), data.npv.get().investition, nscNoUnit);
+        Bindings.bindBidirectional(f_einsparrung.textProperty(), data.npv.get().einsparung, nscNoUnit);
+        Bindings.bindBidirectional(f_kapitalwertOverX.textProperty(), data.npv.get().npvResultOverX, nsc);
+        Bindings.bindBidirectional(f_kapitalrateOverX.textProperty(), data.npv.get().piResultOverX, decimalFormat);
+        Bindings.bindBidirectional(f_infation.textProperty(), data.npv.get().inflation, nscNoUnit);
+        Bindings.bindBidirectional(f_runningCost.textProperty(), data.npv.get().runningCost, nscNoUnit);
+
+        f_zinssatz.setAlignment(Pos.CENTER_RIGHT);
+        f_kapitalwert.setAlignment(Pos.CENTER_RIGHT);
+        f_auszahlungGesamt.setAlignment(Pos.CENTER_RIGHT);
+        f_einzahlungGesamt.setAlignment(Pos.CENTER_RIGHT);
+        f_kapitalwertrate.setAlignment(Pos.CENTER_RIGHT);
+        f_nettoGesamt.setAlignment(Pos.CENTER_RIGHT);
+        f_investition.setAlignment(Pos.CENTER_RIGHT);
+        f_einsparrung.setAlignment(Pos.CENTER_RIGHT);
+        f_kapitalwertOverX.setAlignment(Pos.CENTER_RIGHT);
+        f_kapitalrateOverX.setAlignment(Pos.CENTER_RIGHT);
+        f_runningCost.setAlignment(Pos.CENTER_RIGHT);
+        f_infation.setAlignment(Pos.CENTER_RIGHT);
+
+
+        HBox peridBox = new HBox(f_period, l_years, l_over, f_amortizedDuration, l_yearsOverX);
+        peridBox.setSpacing(15);
+        peridBox.setAlignment(Pos.CENTER_LEFT);
+
+        GridPane topPane = new GridPane();
+        topPane.setHgap(10);
+        topPane.setVgap(6);
+
+        double fieldWidth = 125;
+        topPane.getColumnConstraints().addAll(
+                new ColumnConstraints(100, 150, 400),
+                new ColumnConstraints(100, fieldWidth, 200),
+                new ColumnConstraints(20, 20, 50),
+                new ColumnConstraints(20, 20, 20), // Spacer
+                new ColumnConstraints(100, 170, 400),
+                new ColumnConstraints(100, fieldWidth, 200),
+                new ColumnConstraints(20, 20, 50)
+        );
+
+
+        topPane.addRow(0, l_investition, f_investition, l_investitionUnit);
+        topPane.addRow(1, l_einsparrung, f_einsparrung, l_einsparrungUnit, new Region(), l_yearCost, f_runningCost, l_yearCostUnit);
+        topPane.addRow(2, l_zinssatz, f_zinssatz, l_proZent, new Region(), l_infation, f_infation, l_infationUnit);
+        topPane.add(l_period, 0, 4);
+        topPane.add(peridBox, 1, 4, 6, 1);
+        GridPane bottomPane = new GridPane();
+        bottomPane.setHgap(10);
+        bottomPane.setVgap(6);
+        bottomPane.addRow(0, new Region(), l_overRuntime, l_periodOverX);
+        bottomPane.addRow(1, l_kapitalwert, f_kapitalwert, f_kapitalwertOverX);
+        bottomPane.addRow(3, l_kapitalwertrate, f_kapitalwertrate, f_kapitalrateOverX);
+
+        GridPane sumPane = new GridPane();
+        sumPane.setHgap(12);
+        sumPane.setVgap(6);
+        sumPane.addRow(0, new Region(), l_einzahlungGesamt, l_auszahlungGesamt, l_nettoGesamt);
+        sumPane.addRow(1, l_gesamt, f_einzahlungGesamt, f_auszahlungGesamt, f_nettoGesamt);
+
+        int toalColums = 6;
+        gridPane.add(topPane, 0, 0, 5, 1);
+        gridPane.add(new Separator(), 0, 1, toalColums, 1);
+        gridPane.add(npvTableView, 0, 2, toalColums, 1);
+        gridPane.add(new Separator(), 0, 3, toalColums, 1);
+        gridPane.add(sumPane, 0, 4, 4, 1);
+
+        gridPane.add(new Separator(), 0, 6, toalColums, 1);
+        gridPane.add(bottomPane, 0, 7, 4, 1);
+
+        data.npv.get().updateResults();
 
         capitalTab.setContent(gridPane);
+    }
+
+    private void formateCurrencyInGrid(JFXTextField node) {
+        GridPane.setHalignment(node, HPos.RIGHT);
+        node.setPrefWidth(100);
+
     }
 
     private void initGeneralTab(ActionData data) {
@@ -300,21 +519,21 @@ public class ActionForm extends Dialog {
         scrollPane.setContent(gridPane);
         basicTab.setContent(scrollPane);
 
-        l_doneDate.setText(data.doneDateProperty().getName());
-        l_plannedDate.setText(data.plannedDateProperty().getName());
-        l_Note.setText(data.noteProperty().getName());
-        l_Description.setText(data.desciptionProperty().getName());
-        System.out.println("nr later:" + data.nrProperty().getName());
-        l_ActionNr.setText(data.nrProperty().getName());
-        l_Attachment.setText(data.attachmentProperty().getName());
-        l_statusTags.setText(data.statusTagsProperty().getName());
-        l_fieldTags.setText(data.fieldTagsProperty().getName());
-        l_mediaTags.setText(data.mediaTagsProperty().getName());
-        l_Responsible.setText(data.responsibleProperty().getName());
+        l_doneDate.setText(names.doneDateProperty().getName());
+        l_plannedDate.setText(names.plannedDateProperty().getName());
+        l_Note.setText(names.noteProperty().getName());
+        l_Description.setText(names.desciptionProperty().getName());
+        System.out.println("nr later:" + names.nrProperty().getName());
+        l_ActionNr.setText(names.nrProperty().getName());
+        l_Attachment.setText(names.attachmentProperty().getName());
+        l_statusTags.setText(names.statusTagsProperty().getName());
+        l_fieldTags.setText(names.fieldTagsProperty().getName());
+        l_mediaTags.setText(names.mediaTagsProperty().getName());
+        l_Responsible.setText(names.responsibleProperty().getName());
 
-        l_Title.setText(data.noteBetroffenerProzessProperty().getName());
-        l_NoteBewertet.setText(data.noteBewertetProperty().getName());
-        l_NoteEnergiefluss.setText(data.noteEnergieflussProperty().getName());
+        l_Title.setText(names.noteBetroffenerProzessProperty().getName());
+        l_NoteBewertet.setText(names.noteBewertetProperty().getName());
+        l_NoteEnergiefluss.setText(names.noteEnergieflussProperty().getName());
 
         l_Title.setWrapText(true);
         l_NoteBewertet.setWrapText(true);
@@ -427,34 +646,47 @@ public class ActionForm extends Dialog {
         scrollPane.setContent(gridPane);
         detailTab.setContent(scrollPane);
 
-        Label l_CreateDate = new Label(data.createDateProperty().getName());
-        Label l_FromUser = new Label(data.fromUserProperty().getName());
-        Label l_distributor = new Label(data.distributorProperty().getName());
-        Label l_enpiAfter = new Label(data.enpiAfterProperty().getName());
-        Label l_enpiBefore = new Label(data.enpiBeforeProperty().getName());
-        Label l_enpiChange = new Label(data.enpiChangeProperty().getName());
+        Label l_CreateDate = new Label(names.createDateProperty().getName());
+        Label l_FromUser = new Label(names.fromUserProperty().getName());
+        Label l_distributor = new Label(names.distributorProperty().getName());
+        Label l_enpiAfter = new Label(names.enpiAfterProperty().getName());
+        Label l_enpiBefore = new Label(names.enpiBeforeProperty().getName());
+        Label l_enpiChange = new Label(names.enpiChangeProperty().getName());
         Label l_correctionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.correction"));
         Label l_nextActionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.followupaction"));
         Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
-        Label l_energyBefore = new Label("Aktueller. Verbrauch");
-        Label l_energyAfter = new Label("Erwarteter Verbrauch");
-        Label l_energyChange = new Label("Änderung Verbrauch");
+        Label l_energyBefore = new Label("Verbrauch (Referenz)");
+        Label l_energyAfter = new Label("Verbrauch (Ist)");
+        Label l_energyChange = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
 
-        ToggleButton beforeDateButton = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
-        ToggleButton afterDateButton = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+        Button beforeDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+        Button afterDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+        Button diffDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+        diffDateButton.setVisible(false);
 
-        ToggleButton buttonOpenAnalysisBefore = new ToggleButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
-        ToggleButton buttonOpenAnalysisafter = new ToggleButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+        JFXButton buttonOpenAnalysisBefore = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+        Button buttonOpenAnalysisafter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+        Button buttonOpenAnalysisaDiff = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
 
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(beforeDateButton);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(afterDateButton);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(buttonOpenAnalysisBefore);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(buttonOpenAnalysisafter);
 
-        HBox box_EnpiAfter = new HBox(buttonOpenAnalysisBefore, afterDateButton, f_enpiAfter);
-        HBox box_EnpiBefore = new HBox(buttonOpenAnalysisafter, beforeDateButton, f_enpiBefore);
-        box_EnpiAfter.setSpacing(20);
-        box_EnpiBefore.setSpacing(20);
+        f_enpiAfter.setEditable(false);
+        f_enpiBefore.setEditable(false);
+        f_enpiDiff.setEditable(false);
+
+        Region spacerEnpiBefore = new Region();
+        Region spacerEnpiAfter = new Region();
+        Region spacerEnpiDiff = new Region();
+        HBox.setHgrow(spacerEnpiBefore, Priority.ALWAYS);
+        HBox.setHgrow(spacerEnpiAfter, Priority.ALWAYS);
+        HBox.setHgrow(spacerEnpiDiff, Priority.ALWAYS);
+
+
+        HBox box_EnpiAfter = new HBox(buttonOpenAnalysisBefore, afterDateButton, spacerEnpiBefore, f_enpiAfter);
+        HBox box_EnpiBefore = new HBox(buttonOpenAnalysisafter, beforeDateButton, spacerEnpiBefore, f_enpiBefore);
+        HBox box_EnpiDiff = new HBox(buttonOpenAnalysisaDiff, diffDateButton, spacerEnpiBefore, f_enpiDiff);
+        box_EnpiAfter.setSpacing(8);
+        box_EnpiBefore.setSpacing(8);
+        box_EnpiDiff.setSpacing(8);
         HBox.setHgrow(f_enpiAfter, Priority.SOMETIMES);
         HBox.setHgrow(f_enpiBefore, Priority.SOMETIMES);
 
@@ -509,21 +741,26 @@ public class ActionForm extends Dialog {
         f_correctionIfNeeded.setPrefWidth(400);
         f_nextActionIfNeeded.setPrefWidth(400);
         f_alternativAction.setPrefWidth(400);
-
+        f_energyAfter.setAlignment(Pos.CENTER_RIGHT);
+        f_energyBefore.setAlignment(Pos.CENTER_RIGHT);
+        f_energyChange.setAlignment(Pos.CENTER_RIGHT);
+        f_enpiAfter.setAlignment(Pos.CENTER_RIGHT);
+        f_enpiBefore.setAlignment(Pos.CENTER_RIGHT);
+        f_enpiDiff.setAlignment(Pos.CENTER_RIGHT);
 
         gridPane.addRow(0, l_enpiBefore, box_EnpiBefore, new Region(), l_energyBefore, f_consumptionBefore);
         gridPane.addRow(1, l_enpiAfter, box_EnpiAfter, new Region(), l_energyAfter, f_consumptionAfter);
-        gridPane.addRow(2, l_enpiChange, f_enpiDiff, new Region(), l_energyChange, f_consumptionDiff);
+        gridPane.addRow(2, l_enpiChange, box_EnpiDiff, new Region(), l_energyChange, f_consumptionDiff);
         gridPane.addRow(3, new Region());
 
-
+        System.out.println("l_FromUser: " + l_FromUser.textProperty().get());
         gridPane.addRow(4, l_FromUser, f_FromUser, new Region(), l_CreateDate, f_CreateDate);
         gridPane.addRow(5, l_distributor, f_distributor);
 
         gridPane.addRow(6, l_correctionIfNeeded, new Region(), new Region(), l_nextActionIfNeeded, new Region());
         gridPane.addRow(7, f_correctionIfNeeded, new Region(), new Region(), f_nextActionIfNeeded, new Region());
-        gridPane.addRow(8, l_alternativAction);
-        gridPane.addRow(9, f_alternativAction, new Region(), new Region(), new Region(), new Region());
+        // gridPane.addRow(8, l_alternativAction);
+        // gridPane.addRow(9, f_alternativAction, new Region(), new Region(), new Region(), new Region());
 
         GridPane.setColumnSpan(l_correctionIfNeeded, 2);
         GridPane.setColumnSpan(l_nextActionIfNeeded, 2);
@@ -541,19 +778,19 @@ public class ActionForm extends Dialog {
         gridPane.setVgap(15);
         gridPane.setHgap(15);
 
-        Label l_isNeedProcessDocument = new Label(data.isNeedProcessDocumentProperty().getName());
-        Label l_isNeedWorkInstruction = new Label(data.isNeedWorkInstructionProperty().getName());
-        Label l_isNeedTestInstruction = new Label(data.isNeedTestInstructionProperty().getName());
-        Label l_isNeedDrawing = new Label(data.isNeedDrawingProperty().getName());
-        Label l_isNeedOther = new Label(data.isNeedOtherProperty().getName());
-        Label l_isNeedAdditionalAction = new Label(data.isNeedAdditionalActionProperty().getName());
-        Label l_isAffectsOtherProcess = new Label(data.isAffectsOtherProcessProperty().getName());
-        Label l_isConsumptionDocumented = new Label(data.isConsumptionDocumentedProperty().getName());
-        Label l_isTargetReached = new Label(data.isTargetReachedProperty().getName());
-        Label l_isNewEnPI = new Label(data.isNewEnPIProperty().getName());
-        Label l_isNeedDocumentCorrection = new Label(data.isNeedDocumentCorrectionProperty().getName());
-        Label l_isNeedCorrection = new Label(data.isNeedCorrectionProperty().getName());
-        Label l_IsNeedAdditionalMeters = new Label(data.isNeedAdditionalMetersProperty().getName());
+        Label l_isNeedProcessDocument = new Label(names.isNeedProcessDocumentProperty().getName());
+        Label l_isNeedWorkInstruction = new Label(names.isNeedWorkInstructionProperty().getName());
+        Label l_isNeedTestInstruction = new Label(names.isNeedTestInstructionProperty().getName());
+        Label l_isNeedDrawing = new Label(names.isNeedDrawingProperty().getName());
+        Label l_isNeedOther = new Label(names.isNeedOtherProperty().getName());
+        Label l_isNeedAdditionalAction = new Label(names.isNeedAdditionalActionProperty().getName());
+        Label l_isAffectsOtherProcess = new Label(names.isAffectsOtherProcessProperty().getName());
+        Label l_isConsumptionDocumented = new Label(names.isConsumptionDocumentedProperty().getName());
+        Label l_isTargetReached = new Label(names.isTargetReachedProperty().getName());
+        Label l_isNewEnPI = new Label(names.isNewEnPIProperty().getName());
+        Label l_isNeedDocumentCorrection = new Label(names.isNeedDocumentCorrectionProperty().getName());
+        Label l_isNeedCorrection = new Label(names.isNeedCorrectionProperty().getName());
+        Label l_IsNeedAdditionalMeters = new Label(names.isNeedAdditionalMetersProperty().getName());
 
         Label l_titleDocument = new Label(I18n.getInstance().getString("plugin.action.needdocchange.title"));
 
@@ -624,6 +861,7 @@ public class ActionForm extends Dialog {
                     new DateTime(2022, 12, 1, 0, 0), new DateTime(2023, 1, 5, 0, 0));
 
             double diff = before - after;
+
             f_enpiBefore.setText(f.format(before) + " " + unit.toString());
             f_enpiBefore.setTooltip(new Tooltip(before + " " + unit.toString()));
 
@@ -691,10 +929,10 @@ public class ActionForm extends Dialog {
         f_Responsible.textProperty().bindBidirectional(data.responsibleProperty());
 
         f_Investment.textProperty().bindBidirectional(data.investmentProperty());
-        f_savingYear.textProperty().bindBidirectional(data.savingyearProperty());
+        f_savingYear.textProperty().bindBidirectional(data.DELETEsavingyearProperty());
         f_enpiAfter.textProperty().bindBidirectional(data.enpiAfterProperty());
         f_enpiBefore.textProperty().bindBidirectional(data.enpiBeforeProperty());
-        f_enpiDiff.textProperty().bindBidirectional(data.enpiChangeProperty());
+        //f_enpiDiff.textProperty().bindBidirectional(data.enpiChangeProperty());
 
 
         /*
