@@ -25,6 +25,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -124,12 +125,9 @@ public class AlarmPlugin implements Plugin {
 
         Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
         label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        this.tableView.setPlaceholder(label);
 
-        this.tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-//        this.tableView.setStyle("-fx-background-color: white;");
-
-//        this.tableView.setItems(alarmRows);
+        //tableView.setPadding(new Insets(20, 20, 20, 20));
+        tableView.setBorder(new Border(new BorderStroke(Paint.valueOf("#b5bbb7"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN, new Insets(20, 20, 20, 20))));
 
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
@@ -167,22 +165,7 @@ public class AlarmPlugin implements Plugin {
             } catch (Exception e) {
             }
         }
-    }    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
-
-    private Node createPage(int pageIndex) {
-        int numOfPages = 1;
-        if (data.size() % ROWS_PER_PAGE == 0) {
-            numOfPages = data.size() / ROWS_PER_PAGE;
-        } else if (data.size() > ROWS_PER_PAGE) {
-            numOfPages = data.size() / ROWS_PER_PAGE + 1;
-        }
-        pagination.setPageCount(numOfPages);
-        int fromIndex = pageIndex * ROWS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, data.size());
-        tableView.setItems(FXCollections.observableArrayList(data.subList(fromIndex, toIndex)));
-
-        return tableView;
-    }    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
+    }
 
     private void initToolBar() {
         ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
@@ -297,7 +280,50 @@ public class AlarmPlugin implements Plugin {
         JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
 
-    }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
+    }
+
+    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+
+    private Node createPage(int pageIndex) {
+        int numOfPages = 1;
+        if (data.size() % ROWS_PER_PAGE == 0) {
+            numOfPages = data.size() / ROWS_PER_PAGE;
+        } else if (data.size() > ROWS_PER_PAGE) {
+            numOfPages = data.size() / ROWS_PER_PAGE + 1;
+        }
+        pagination.setPageCount(numOfPages);
+        int fromIndex = pageIndex * ROWS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, data.size());
+        tableView.setItems(FXCollections.observableArrayList(data.subList(fromIndex, toIndex)));
+
+        return tableView;
+    }    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
+
+    private void checkForRunningTasks() throws InterruptedException {
+        AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
+        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
+        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
+            String s = entry.getValue();
+            if (s.equals("AlarmConfigs")) {
+                hasActiveChartTasks.set(true);
+                break;
+            }
+        }
+        if (!hasActiveChartTasks.get()) {
+            JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
+            data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+
+            Platform.runLater(() -> {
+                createPage(0);
+                autoFitTable(tableView);
+            });
+        } else {
+            Thread.sleep(500);
+            checkForRunningTasks();
+        }
+    }
+
+    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
         if (newValue != oldValue) {
             start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
             timeFrame = TimeFrame.CUSTOM;
@@ -375,29 +401,8 @@ public class AlarmPlugin implements Plugin {
         JEConfig.getStatusBar().addTask(AlarmPlugin.class.getName(), task, taskImage, true);
     }
 
-    private void checkForRunningTasks() throws InterruptedException {
-        AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
-        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
-        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
-            String s = entry.getValue();
-            if (s.equals("AlarmConfigs")) {
-                hasActiveChartTasks.set(true);
-                break;
-            }
-        }
-        if (!hasActiveChartTasks.get()) {
-            JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
-            data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
 
-            Platform.runLater(() -> {
-                createPage(0);
-                autoFitTable(tableView);
-            });
-        } else {
-            Thread.sleep(500);
-            checkForRunningTasks();
-        }
-    }    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
+    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
         if (newValue != oldValue) {
             end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
             timeFrame = TimeFrame.CUSTOM;
@@ -1210,9 +1215,6 @@ public class AlarmPlugin implements Plugin {
     }
 
 
-
-
-
     private synchronized boolean allJobsDone(List<Future<?>> futures) {
         boolean allDone = true;
         Iterator<Future<?>> itr = futures.iterator();
@@ -1249,7 +1251,6 @@ public class AlarmPlugin implements Plugin {
         }
         return list;
     }
-
 
 
     @Override
