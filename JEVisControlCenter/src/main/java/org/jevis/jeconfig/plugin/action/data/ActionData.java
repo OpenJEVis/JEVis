@@ -141,16 +141,17 @@ public class ActionData {
     public final SimpleStringProperty enpiBefore = new SimpleStringProperty("EnPI Before", I18n.getInstance().getString("plugin.action.enpiabefore"), "");
     @Expose
     @SerializedName("EnPI Change")
-    public final SimpleStringProperty enpiChange = new SimpleStringProperty("EnPI Change", I18n.getInstance().getString("plugin.action.enpiabechange"), "");
+    public final SimpleDoubleProperty enpiChange = new SimpleDoubleProperty("EnPI Change",
+            I18n.getInstance().getString("plugin.action.enpiabechange"), 0);
     @Expose
     @SerializedName("Distributor")
     public final SimpleStringProperty distributor = new SimpleStringProperty("Distributor", I18n.getInstance().getString("plugin.action.distributor"), "");
     @Expose
     @SerializedName("Investment")
     public final SimpleStringProperty investment = new SimpleStringProperty("Investment", I18n.getInstance().getString("plugin.action.investment"), "");
-    @Expose
-    @SerializedName("Saving Year")
-    public final SimpleStringProperty savingyear = new SimpleStringProperty("Saving Year", I18n.getInstance().getString("plugin.action.savingyear"), "");
+
+    public final SimpleStringProperty DELETEsavingyear = new SimpleStringProperty("Saving Year",
+            I18n.getInstance().getString("plugin.action.savingyear"), "");
     @Expose
     @SerializedName("EnPI Link")
     public final SimpleStringProperty enpilinks = new SimpleStringProperty("EnPI Link", I18n.getInstance().getString("plugin.action.enpilink"), "");
@@ -158,12 +159,18 @@ public class ActionData {
     @SerializedName("Consumption Actual")
     public final SimpleDoubleProperty consumptionActual = new SimpleDoubleProperty("Consumption Actual", I18n.getInstance().getString("plugin.action.consumptionactual"), 0d);
     @Expose
+    @SerializedName("Consumption Diff")
+    public final SimpleDoubleProperty consumptionDiff = new SimpleDoubleProperty("Consumption Diff",
+            I18n.getInstance().getString("plugin.action.consumption.diff"), 0d);
+    @Expose
     @SerializedName("Consumption Unit")
     public final SimpleStringProperty consumptionUnit = new SimpleStringProperty("Consumption Unit", I18n.getInstance().getString("plugin.action.consumptionunit"), "kWh");
     @Expose
     @SerializedName("Consumption Target")
-    public final SimpleDoubleProperty consumptionTarget = new SimpleDoubleProperty("Consumption Target", I18n.getInstance().getString("plugin.action.consumptiontarget"), 0d);
+    public final SimpleDoubleProperty consumptionTarget = new SimpleDoubleProperty("Consumption Target",
+            I18n.getInstance().getString("plugin.action.consumptiontarget"), 0d);
 
+    public final SimpleObjectProperty<NPVData> npv = new SimpleObjectProperty<>(new NPVData());
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     private ChangeListener changeListener;
     private JEVisObject object;
@@ -171,14 +178,15 @@ public class ActionData {
 
     private List<ReadOnlyProperty> propertyList = new ArrayList<>();
 
-    public ActionData(JEVisObject obj) {
+    private ActionPlan actionPlan = null;
+
+    public ActionData(ActionPlan actionPlan, JEVisObject obj) {
         this.object = obj;
-        System.out.println("nr title: " + nr.getName());
+        this.actionPlan = actionPlan;
         reload();
     }
 
     public ActionData() {
-        System.out.println("nr title: " + nr.getName());
         reload();
     }
 
@@ -186,9 +194,18 @@ public class ActionData {
         this.object = object;
     }
 
+    public ActionPlan getActionPlan() {
+        return actionPlan;
+    }
+
+    public void setActionPlan(ActionPlan actionPlan) {
+        this.actionPlan = actionPlan;
+    }
+
     public void reload() {
-        //if (!valueChanged.getValue()) return;
+
         //dataNode = JsonNodeFactory.instance.objectNode();
+
 
         if (this.changeListener == null) {
             this.changeListener = new ChangeListener() {
@@ -242,7 +259,7 @@ public class ActionData {
             registerChanges(noteBetroffenerProzess, dataNode);
             registerChanges(title, dataNode);
 
-            registerChanges(savingyear, dataNode);
+            // registerChanges(DELETEsavingyear, dataNode);
             registerChanges(investment, dataNode);
             registerChanges(enpilinks, dataNode);
             valueChanged.set(false);
@@ -283,7 +300,7 @@ public class ActionData {
                 protected Object call() throws Exception {
                     try {
                         try {
-                            System.out.println("Json:\n" + ActionData.this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataNode));
+                            // System.out.println("Json:\n" + ActionData.this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataNode));
 
                             if (object != null) {
                                 JEVisAttribute dataModel = object.getAttribute("Data");
@@ -480,7 +497,7 @@ public class ActionData {
         return enpiBefore;
     }
 
-    public SimpleStringProperty enpiChangeProperty() {
+    public SimpleDoubleProperty enpiChangeProperty() {
         return enpiChange;
     }
 
@@ -492,8 +509,8 @@ public class ActionData {
         return investment;
     }
 
-    public SimpleStringProperty savingyearProperty() {
-        return savingyear;
+    public SimpleStringProperty DELETEsavingyearProperty() {
+        return DELETEsavingyear;
     }
 
 
