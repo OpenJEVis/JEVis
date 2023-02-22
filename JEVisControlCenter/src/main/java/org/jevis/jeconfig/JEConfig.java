@@ -317,9 +317,13 @@ public class JEConfig extends Application {
             region.setRotate(rotate);
 
             region.setPrefSize(width, height);
+            region.setMinSize(width, height);
+            region.setMaxSize(width, height);
+
             SVGPath svgPath = getSvgPath(path, height, width);
             region.setShape(svgPath);
             region.getStyleClass().add(css);
+
             return region;
         } catch (Exception e) {
             return null;
