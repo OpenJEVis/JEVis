@@ -354,18 +354,20 @@ public class ActionTable extends TableView<ActionData> {
                                 if (!dateFilter.show(notesRow)) return false;
                             }
 
+
                             AtomicBoolean containString = new AtomicBoolean(false);
                             if (containsTextFilter != null || containsTextFilter.isEmpty()) {
-                                if (notesRow.title.get().contains(containsTextFilter)
-                                        || notesRow.responsible.get().contains(containsTextFilter)
-                                        || notesRow.note.get().contains(containsTextFilter)
-                                        || notesRow.title.get().contains(containsTextFilter)
-                                        || notesRow.desciption.get().contains(containsTextFilter)
-                                        || notesRow.noteAlternativeMeasures.get().contains(containsTextFilter)
-                                        || notesRow.noteCorrection.get().contains(containsTextFilter)
-                                        || notesRow.noteBetroffenerProzess.get().contains(containsTextFilter)
-                                        || notesRow.noteFollowUpAction.get().contains(containsTextFilter)
-                                        || notesRow.noteBewertet.get().contains(containsTextFilter)) {
+                                if (notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.responsible.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.note.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.desciption.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteAlternativeMeasures.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteCorrection.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteBetroffenerProzess.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteFollowUpAction.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteBewertet.get().toLowerCase().contains(containsTextFilter.toLowerCase())) {
+
                                     containString.set(true);
                                 }
 
