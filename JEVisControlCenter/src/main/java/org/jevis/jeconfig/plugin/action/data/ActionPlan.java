@@ -34,13 +34,10 @@ public class ActionPlan {
     private ObservableList<JEVisObject> enpis;
     private StringProperty name = new SimpleStringProperty("");
     private ObservableList<ActionData> actions = FXCollections.observableArrayList();
-
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
-
     private String initCustomStatus = "";
     private String initCustomFields = "";
     private String initCustomMedium = "";
-
     private String ATTRIBUTE_CSTATUS = "Custom Status";
     private String ATTRIBUTE_CFIELD = "Custom Fields";
     private String ATTRIBUTE_CMEDIUM = "Custom Medium";
@@ -50,6 +47,7 @@ public class ActionPlan {
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
     public ActionPlan(JEVisObject obj) {
+        System.out.println("New ActionPlan from Object: " + obj);
         this.object = obj;
 
         name.set(obj.getName());
@@ -200,6 +198,8 @@ public class ActionPlan {
         Gson gson = GsonBuilder.createDefaultBuilder().create();
         ActionData actionData = gson.fromJson(s, ActionData.class);
         actionData.setObject(actionObj);
+        actionData.setActionPlan(this);
+        System.out.println("-- Loaded Action GSON: " + actionData);
         return actionData;
     }
 
