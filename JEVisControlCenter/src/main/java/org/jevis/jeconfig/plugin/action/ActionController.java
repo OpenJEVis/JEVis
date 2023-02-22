@@ -1,19 +1,21 @@
 package org.jevis.jeconfig.plugin.action;
 
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -23,7 +25,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlan;
-import org.jevis.jeconfig.plugin.action.data.TableFilter;
 import org.jevis.jeconfig.plugin.action.ui.*;
 import org.joda.time.DateTime;
 
@@ -59,8 +60,6 @@ public class ActionController {
 
                     }
                 }
-
-
             }
         });
 
@@ -94,6 +93,7 @@ public class ActionController {
         gridPane.setVgap(10);
         double maxListHeight = 100;
 
+        /*
         ComboBox<String> datumBox = new ComboBox<>();
         datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
         datumBox.getSelectionModel().selectFirst();
@@ -121,7 +121,12 @@ public class ActionController {
 
         comparatorBox.setOnAction(dateFilerEvent);
 
+         */
 
+        Label lSuche = new Label("Suche");
+        JFXTextField fsearch = new JFXTextField();
+        fsearch.setPromptText("Suche nach...");
+        TimeFilterSelector dateSelector = new TimeFilterSelector(plan);
         TagButton statusButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.status"), plan.getStatustags(), plan.getStatustags());
         TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), plan.getMediumTags());
         TagButton fieldsButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.bereich"), plan.getFieldsTags(), plan.getFieldsTags());
@@ -129,6 +134,18 @@ public class ActionController {
         actionTable.setFilterStatus(plan.getStatustags());
         actionTable.setFilterMedium(plan.getMediumTags());
         actionTable.setFilterField(plan.getFieldsTags());
+
+        fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            actionTable.setTextFilter(newValue);
+            actionTable.filter();
+        });
+        dateSelector.getValuePropertyProperty().addListener(new ChangeListener<DateFilter>() {
+            @Override
+            public void changed(ObservableValue<? extends DateFilter> observable, DateFilter oldValue, DateFilter newValue) {
+                actionTable.setDateFilter(newValue);
+                actionTable.filter();
+            }
+        });
 
         statusButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
@@ -149,6 +166,8 @@ public class ActionController {
                 }
             }
         });
+
+
         fieldsButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
@@ -160,15 +179,34 @@ public class ActionController {
             }
         });
 
+
+        Separator vSep1 = new Separator(Orientation.VERTICAL);
+        Separator vSep2 = new Separator(Orientation.VERTICAL);
+        GridPane.setRowSpan(vSep1, 2);
+        GridPane.setRowSpan(vSep2, 2);
+
+        gridPane.addColumn(0, lSuche, fsearch);
+        gridPane.addColumn(1, vSep1);
+        gridPane.addColumn(2, new Label("Filter"), statusButton);
+        gridPane.addColumn(3, new Region(), mediumButton);
+        gridPane.addColumn(4, new Region(), fieldsButton);
+        gridPane.addColumn(5, vSep2);
+        gridPane.addColumn(6, new Label("Zeitbereich"), dateSelector);
+
+        /*
         gridPane.add(statusButton, 0, 0);
         gridPane.add(mediumButton, 1, 0);
         gridPane.add(fieldsButton, 2, 0);
-        gridPane.add(hBox, 0, 1, 3, 1);
-
+        gridPane.add(vSep, 3, 0, 1, 3);
+        gridPane.add(dateSelector, 4, 0, 1, 3);
+*/
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
         borderPane.setCenter(actionTable);
+
+        TableSumPanel tableSumPanel = new TableSumPanel(actionTable.getItems());
+        borderPane.setBottom(tableSumPanel);
 
         actionTable.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
@@ -274,7 +312,7 @@ public class ActionController {
 
             JEVisObject actionObject = actionDirObj.buildObject(getActiveActionPlan().getNextActionNr().toString(), actionClass);
             actionObject.commit();
-            ActionData newAction = new ActionData(actionObject);
+            ActionData newAction = new ActionData(tab.getActionPlan(), actionObject);
             newAction.nrProperty().set(tab.getActionPlan().getNextActionNr());
             tab.getActionPlan().addAction(newAction);
 
@@ -300,6 +338,9 @@ public class ActionController {
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
             AtomicBoolean isFirstPlan = new AtomicBoolean(true);
+            OverviewTab overviewTab = new OverviewTab();
+
+            tabPane.getTabs().add(overviewTab);
 
             planObjs.forEach(jeVisObject -> {
                 ActionPlan plan = new ActionPlan(jeVisObject);
@@ -342,9 +383,8 @@ public class ActionController {
     }
 
     public void openDataForm() {
-        ActionForm actionForm = new ActionForm(getActiveActionPlan());
         ActionData data = getSelectedData();
-        actionForm.setData(data);
+        ActionForm actionForm = new ActionForm(getActiveActionPlan(), data);
 
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
