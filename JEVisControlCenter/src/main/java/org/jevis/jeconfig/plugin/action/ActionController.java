@@ -24,7 +24,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
-import org.jevis.jeconfig.plugin.action.data.ActionPlan;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.ui.*;
 import org.joda.time.DateTime;
 
@@ -39,7 +39,7 @@ public class ActionController {
 
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
-    private ObservableList<ActionPlan> actionPlans;
+    private ObservableList<ActionPlanData> actionPlans;
     private TabPane tabPane = new TabPane();
 
     public ActionController(ActionPlugin plugin) {
@@ -49,9 +49,9 @@ public class ActionController {
     public void loadActionView() {
 
         actionPlans = FXCollections.observableArrayList();
-        actionPlans.addListener(new ListChangeListener<ActionPlan>() {
+        actionPlans.addListener(new ListChangeListener<ActionPlanData>() {
             @Override
-            public void onChanged(Change<? extends ActionPlan> c) {
+            public void onChanged(Change<? extends ActionPlanData> c) {
                 while (c.next()) {
                     if (c.wasAdded()) {
                         c.getAddedSubList().forEach(actionPlan -> {
@@ -73,7 +73,7 @@ public class ActionController {
     }
 
 
-    private void buildTabPane(ActionPlan plan) {
+    private void buildTabPane(ActionPlanData plan) {
         ActionTable actionTable = new ActionTable(plan.getActionData());
         //actionTable.enableSumRow(true);
         ActionTab tab = new ActionTab(plan, actionTable);
@@ -82,7 +82,7 @@ public class ActionController {
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("new tab selected: " + newValue);
 
-            ActionPlan actionPlan = ((ActionTab) newValue).getActionPlan();
+            ActionPlanData actionPlan = ((ActionTab) newValue).getActionPlan();
             actionPlan.loadActionList();
 
         });
@@ -218,7 +218,7 @@ public class ActionController {
 
                 JEVisObject newObject = parentDir.buildObject(newActionDialog.getCreateName(), actionPlanClass);
                 newObject.commit();
-                ActionPlan actionPlan = new ActionPlan(newObject);
+                ActionPlanData actionPlan = new ActionPlanData(newObject);
                 actionPlans.add(actionPlan);
                 tabPane.getSelectionModel().selectLast();
 
@@ -306,7 +306,7 @@ public class ActionController {
             tabPane.getTabs().add(overviewTab);
 
             planObjs.forEach(jeVisObject -> {
-                ActionPlan plan = new ActionPlan(jeVisObject);
+                ActionPlanData plan = new ActionPlanData(jeVisObject);
                 actionPlans.add(plan);
                 if (isFirstPlan.get()) plan.loadActionList();
                 isFirstPlan.set(false);
@@ -326,7 +326,7 @@ public class ActionController {
         return tab;
     }
 
-    public ActionPlan getActiveActionPlan() {
+    public ActionPlanData getActiveActionPlan() {
         return getActiveTab().getActionPlan();
     }
 

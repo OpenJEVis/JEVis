@@ -36,6 +36,7 @@ public class ActionData {
     private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(ActionData.class);
     private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+
     @Expose
     @SerializedName("From User")
     public final SimpleStringProperty fromUser = new SimpleStringProperty("From User", I18n.getInstance().getString("plugin.action.fromuser"), "");
@@ -179,9 +180,9 @@ public class ActionData {
 
     private List<ReadOnlyProperty> propertyList = new ArrayList<>();
 
-    private ActionPlan actionPlan = null;
+    private ActionPlanData actionPlan = null;
 
-    public ActionData(ActionPlan actionPlan, JEVisObject obj) {
+    public ActionData(ActionPlanData actionPlan, JEVisObject obj) {
         this.object = obj;
         this.actionPlan = actionPlan;
         reload();
@@ -195,11 +196,11 @@ public class ActionData {
         this.object = object;
     }
 
-    public ActionPlan getActionPlan() {
+    public ActionPlanData getActionPlan() {
         return actionPlan;
     }
 
-    public void setActionPlan(ActionPlan actionPlan) {
+    public void setActionPlan(ActionPlanData actionPlan) {
         this.actionPlan = actionPlan;
     }
 
@@ -222,13 +223,6 @@ public class ActionData {
         try {
             propertyList = new ArrayList<>();
 
-            /*
-            JEVisSample lastConfigSample = object.getAttribute("Data").getLatestSample();
-            JEVisFile file = lastConfigSample.getValueAsFile();
-            JsonNode dataNode = this.mapper.readTree(file.getBytes());
-
-
-             */
             registerChanges(fromUser, dataNode);
             registerChanges(nr, dataNode);
             registerChanges(statusTags, dataNode);

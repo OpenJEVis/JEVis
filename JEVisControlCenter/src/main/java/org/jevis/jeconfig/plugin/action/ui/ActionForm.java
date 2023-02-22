@@ -29,7 +29,7 @@ import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
-import org.jevis.jeconfig.plugin.action.data.ActionPlan;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.FileData;
 import org.jevis.jeconfig.plugin.action.data.NPVYearData;
 import org.jevis.jeconfig.tool.ScreenSize;
@@ -100,7 +100,7 @@ public class ActionForm extends Dialog {
     private TextFieldWithUnit f_consumptionDiff = new TextFieldWithUnit();
 
     private ComboBox<JEVisObject> f_Enpi = new ComboBox();
-    private ActionPlan actionPlan;
+    private ActionPlanData actionPlan;
 
     private CheckBox f_isNeedProcessDocument = new CheckBox();
     private CheckBox f_isNeedWorkInstruction = new CheckBox();
@@ -115,7 +115,7 @@ public class ActionForm extends Dialog {
     private ActionData names = new ActionData();
 
 
-    public ActionForm(ActionPlan actionPlan, ActionData action) {
+    public ActionForm(ActionPlanData actionPlan, ActionData action) {
         super();
         this.initOwner(JEConfig.getStage());
         this.actionPlan = actionPlan;
@@ -932,25 +932,18 @@ public class ActionForm extends Dialog {
         f_savingYear.textProperty().bindBidirectional(data.DELETEsavingyearProperty());
         f_enpiAfter.textProperty().bindBidirectional(data.enpiAfterProperty());
         f_enpiBefore.textProperty().bindBidirectional(data.enpiBeforeProperty());
-        //f_enpiDiff.textProperty().bindBidirectional(data.enpiChangeProperty());
-
-
-        /*
-        for (String s : data.statusTagsProperty().getValue().split(";")) {
-            f_statusTags.getCheckModel().check(s);
-        }
-        f_statusTags.checkModelProperty().addListener((observable, oldValue, newValue) -> {
-            data.statusTagsProperty().set(ActionPlan.listToString(f_statusTags.getCheckModel().getCheckedItems()));
-        });
-         */
         f_statusTags.getSelectionModel().select(data.statusTagsProperty().getValue());
         f_statusTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                System.out.println("Status change: " + newValue + " = " + ActionPlanData.STATUS_DONE + " = " + newValue.equals(ActionPlanData.STATUS_DONE));
                 data.statusTagsProperty().set(newValue);
+                if (newValue.equals(ActionPlanData.STATUS_DONE)) {
+                    data.doneDateProperty().set(new DateTime());
+                }
             }
         });
-        
+
         f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
         f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -964,7 +957,7 @@ public class ActionForm extends Dialog {
             f_fieldTags.getCheckModel().check(s);
         }
         f_fieldTags.checkModelProperty().addListener((observable, oldValue, newValue) -> {
-            data.fieldTagsProperty().set(ActionPlan.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
+            data.fieldTagsProperty().set(ActionPlanData.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
         });
 
         DateTime start = data.createDateProperty().get();
@@ -973,9 +966,12 @@ public class ActionForm extends Dialog {
             data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
         });
 
+        data.doneDateProperty().addListener((observable, oldValue, newValue) -> {
+            f_doneDate.setValue(LocalDate.of(newValue.getYear(), newValue.getMonthOfYear(), newValue.getDayOfMonth()));
+        });
+
         f_doneDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
-
         });
 
         try {
