@@ -60,7 +60,7 @@ public class ActionForm extends Dialog {
     //private CheckComboBox<String> f_statusTags;
     private ComboBox<String> f_statusTags;
     private CheckComboBox<String> f_fieldTags;
-    private CheckComboBox<String> f_mediaTags;
+    private ComboBox<String> f_mediaTags;
     private JFXTextField f_FromUser = new JFXTextField();
     private JFXTextField f_toUser = new JFXTextField();
     private TextArea f_Note = new TextArea();
@@ -156,7 +156,7 @@ public class ActionForm extends Dialog {
         f_statusTags = new ComboBox<>(actionPlan.getStatustags());
         //f_statusTags = new CheckComboBox<>(actionPlan.getStatustags());
         f_fieldTags = new CheckComboBox<>(actionPlan.getFieldsTags());
-        f_mediaTags = new CheckComboBox<>(actionPlan.getMediumTags());
+        f_mediaTags = new ComboBox<>(actionPlan.getMediumTags());
 
         f_Title.widthProperty().addListener((observable, oldValue, newValue) -> {
             f_statusTags.setPrefWidth(newValue.doubleValue());
@@ -950,17 +950,15 @@ public class ActionForm extends Dialog {
                 data.statusTagsProperty().set(newValue);
             }
         });
-
-        System.out.println("To check Media: " + data.mediaTagsProperty().getValue());
-        for (String s : data.mediaTagsProperty().getValue().split(";")) {
-            System.out.println("-aktivate: " + s);
-            f_mediaTags.getCheckModel().check(s);
-        }
-
-        f_mediaTags.checkModelProperty().addListener((observable, oldValue, newValue) -> {
-            data.mediaTagsProperty().set(ActionPlan.listToString(f_mediaTags.getCheckModel().getCheckedItems()));
-            System.out.println("Media to check: " + ActionPlan.listToString(f_mediaTags.getCheckModel().getCheckedItems()));
+        
+        f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
+        f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                data.mediaTagsProperty().set(newValue);
+            }
         });
+
 
         for (String s : data.fieldTagsProperty().getValue().split(";")) {
             f_fieldTags.getCheckModel().check(s);
