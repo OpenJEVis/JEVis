@@ -120,7 +120,8 @@ public class ActionData {
     public final SimpleStringProperty noteFollowUpAction = new SimpleStringProperty("Follow Action", "Folgemaßnahmen", "");
     @Expose
     @SerializedName("Alternative Measures")
-    public final SimpleStringProperty noteAlternativeMeasures = new SimpleStringProperty("Alternative Measures", "Alternativmaßnahmen", "");
+    public final SimpleStringProperty noteAlternativeMeasures = new SimpleStringProperty("Alternative Measures"
+            , "Alternativmaßnahmen", "");
     @Expose
     @SerializedName("Responsible")
     public final SimpleStringProperty responsible = new SimpleStringProperty("Responsible", "Verantwortlichkeit", "");
