@@ -35,7 +35,7 @@ public class NonconformityData {
     private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     @Expose
     @SerializedName("Title")
-    public final SimpleStringProperty title = new SimpleStringProperty("Title", I18n.getInstance().getString("plugin.nonconformities.title"), "test");
+    public final SimpleStringProperty title = new SimpleStringProperty("Title", I18n.getInstance().getString("plugin.nonconformities.title"), "");
     @Expose
     @SerializedName("Creator")
     public final SimpleStringProperty creator = new SimpleStringProperty("Creator", I18n.getInstance().getString("plugin.nonconformities.creator"), "");
@@ -43,93 +43,93 @@ public class NonconformityData {
 
     @Expose
     @SerializedName("Nr")
-    public final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr", I18n.getInstance().getString("plugin.nonconformities.nr"), 0);
+    private final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr", I18n.getInstance().getString("plugin.nonconformities.nr"), 0);
     @Expose
     @SerializedName("Description")
-    public final SimpleStringProperty description = new SimpleStringProperty("Description", I18n.getInstance().getString("plugin.nonconformities.description"), "");
+    private final SimpleStringProperty description = new SimpleStringProperty("Description", I18n.getInstance().getString("plugin.nonconformities.description"), "");
     @Expose
     @SerializedName("Cause")
-    public final SimpleStringProperty cause = new SimpleStringProperty("Cause", I18n.getInstance().getString("plugin.nonconformities.cause"), "");
+    private final SimpleStringProperty cause = new SimpleStringProperty("Cause", I18n.getInstance().getString("plugin.nonconformities.cause"), "");
 
     @Expose
     @SerializedName("Immediate Measures")
-    public final SimpleStringProperty immediateMeasures = new SimpleStringProperty("Immediate Measures", I18n.getInstance().getString("plugin.nonconformities.immediatemeasures"), "");
+    private final SimpleStringProperty immediateMeasures = new SimpleStringProperty("Immediate Measures", I18n.getInstance().getString("plugin.nonconformities.immediatemeasures"), "");
 
     @Expose
     @SerializedName("Corrective Actions")
-    public final SimpleStringProperty correctiveActions = new SimpleStringProperty("Corrective Actions", I18n.getInstance().getString("plugin.nonconformities.correctiveactions"), "");
+    private final SimpleStringProperty correctiveActions = new SimpleStringProperty("Corrective Actions", I18n.getInstance().getString("plugin.nonconformities.correctiveactions"), "");
 
     @Expose
     @SerializedName("Responsible Person")
-    public final SimpleStringProperty responsiblePerson = new SimpleStringProperty("Responsible Person", I18n.getInstance().getString("plugin.nonconformities.responsibleperson"), "");
+    private final SimpleStringProperty responsiblePerson = new SimpleStringProperty("Responsible Person", I18n.getInstance().getString("plugin.nonconformities.responsibleperson"), "");
 
     @Expose
     @SerializedName("Immediate Action Required")
-    public final SimpleBooleanProperty isImmediateActionRequired = new SimpleBooleanProperty("Immediate Action Required", I18n.getInstance().getString("plugin.nonconformities.immediateactionrequired"), false);
+    private final SimpleBooleanProperty isImmediateActionRequired = new SimpleBooleanProperty("Immediate Action Required", I18n.getInstance().getString("plugin.nonconformities.immediateactionrequired"), false);
     @Expose
     @SerializedName("Effect on ongoing Processes")
-    public final SimpleBooleanProperty isEffectOnOngoingProcesses = new SimpleBooleanProperty("Effect on ongoing Processes", I18n.getInstance().getString("plugin.nonconformities.effectonongoingprocesses"), false);
+    private final SimpleBooleanProperty isEffectOnOngoingProcesses = new SimpleBooleanProperty("Effect on ongoing Processes", I18n.getInstance().getString("plugin.nonconformities.effectonongoingprocesses"), false);
     @Expose
     @SerializedName("Routinely Affected")
-    public final SimpleBooleanProperty isRoutinelyAffected = new SimpleBooleanProperty("Routinely Affected", I18n.getInstance().getString("plugin.nonconformities.routinelyaffected"), false);
+    private final SimpleBooleanProperty isRoutinelyAffected = new SimpleBooleanProperty("Routinely Affected", I18n.getInstance().getString("plugin.nonconformities.routinelyaffected"), false);
     @Expose
     @SerializedName("Employee Trained")
-    public final SimpleBooleanProperty isEmployeeTrained = new SimpleBooleanProperty("Employee Trained", I18n.getInstance().getString("plugin.nonconformities.employeetrained"), false);
+    private final SimpleBooleanProperty isEmployeeTrained = new SimpleBooleanProperty("Employee Trained", I18n.getInstance().getString("plugin.nonconformities.employeetrained"), false);
     @Expose
     @SerializedName("Supplier Change Goods Needed")
-    public final SimpleBooleanProperty isSupplierChangeGoodsNeeded = new SimpleBooleanProperty("Supplier Change Goods Needed", I18n.getInstance().getString("plugin.nonconformities.supplierchangegoodsneeded"), false);
+    private final SimpleBooleanProperty isSupplierChangeGoodsNeeded = new SimpleBooleanProperty("Supplier Change Goods Needed", I18n.getInstance().getString("plugin.nonconformities.supplierchangegoodsneeded"), false);
     @Expose
     @SerializedName("Management Notification Needed")
-    public final SimpleBooleanProperty isManagementNotificationNeeded = new SimpleBooleanProperty("Management Notification Needed", I18n.getInstance().getString("plugin.nonconformities.managementnotificationneeded"), false);
+    private final SimpleBooleanProperty isManagementNotificationNeeded = new SimpleBooleanProperty("Management Notification Needed", I18n.getInstance().getString("plugin.nonconformities.managementnotificationneeded"), false);
 
     @Expose
     @SerializedName("Documents Changes Needed")
-    public final SimpleBooleanProperty isDocumentsChangesNeeded = new SimpleBooleanProperty("Documents Changes Needed", I18n.getInstance().getString("plugin.nonconformities.documentschangesneeded"), false);
+    private final SimpleBooleanProperty isDocumentsChangesNeeded = new SimpleBooleanProperty("Documents Changes Needed", I18n.getInstance().getString("plugin.nonconformities.documentschangesneeded"), false);
 
     @Expose
     @SerializedName("Process Instructions")
-    public final SimpleBooleanProperty isProcessInstructions = new SimpleBooleanProperty("Process Instructions", I18n.getInstance().getString("plugin.nonconformities.processinstructions"), false);
+    private final SimpleBooleanProperty isProcessInstructions = new SimpleBooleanProperty("Process Instructions", I18n.getInstance().getString("plugin.nonconformities.processinstructions"), false);
 
 
     @Expose
     @SerializedName("Work Instructions")
-    public final SimpleBooleanProperty isWorkInstructions = new SimpleBooleanProperty("Work Instructions", I18n.getInstance().getString("plugin.nonconformities.workinstructions"), false);
+    private final SimpleBooleanProperty isWorkInstructions = new SimpleBooleanProperty("Work Instructions", I18n.getInstance().getString("plugin.nonconformities.workinstructions"), false);
 
     @Expose
     @SerializedName("Test Instructions")
-    public final SimpleBooleanProperty isTestInstructions = new SimpleBooleanProperty("Test Instructions", I18n.getInstance().getString("plugin.nonconformities.testinstructions"), false);
+    private final SimpleBooleanProperty isTestInstructions = new SimpleBooleanProperty("Test Instructions", I18n.getInstance().getString("plugin.nonconformities.testinstructions"), false);
 
     @Expose
     @SerializedName("Design")
-    public final SimpleBooleanProperty isDesign = new SimpleBooleanProperty("Design", I18n.getInstance().getString("plugin.nonconformities.design"), false);
+    private final SimpleBooleanProperty isDesign = new SimpleBooleanProperty("Design", I18n.getInstance().getString("plugin.nonconformities.design"), false);
 
     @Expose
     @SerializedName("Model")
-    public final SimpleBooleanProperty isModel = new SimpleBooleanProperty("Model", I18n.getInstance().getString("plugin.nonconforrmities.model"), false);
+    private final SimpleBooleanProperty isModel = new SimpleBooleanProperty("Model", I18n.getInstance().getString("plugin.nonconforrmities.model"), false);
 
     @Expose
     @SerializedName("Miscellaneous")
-    public final SimpleBooleanProperty isMiscellaneous = new SimpleBooleanProperty("Miscellaneous", I18n.getInstance().getString("plugin.nonconforrmities.miscellaneous"), false);
+    private final SimpleBooleanProperty isMiscellaneous = new SimpleBooleanProperty("Miscellaneous", I18n.getInstance().getString("plugin.nonconforrmities.miscellaneous"), false);
 
 
     @Expose
     @SerializedName("Create Date")
-    public final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date", I18n.getInstance().getString("plugin.nonconforrmities.createdate"),  new DateTime());
+    private final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date", I18n.getInstance().getString("plugin.nonconforrmities.createdate"),  new DateTime());
 
     @Expose
     @SerializedName("Planned Date")
-    public final SimpleObjectProperty<DateTime> plannedDate = new SimpleObjectProperty<>("Planned Date", I18n.getInstance().getString("plugin.nonconforrmities.planneddate"),null);
+    private final SimpleObjectProperty<DateTime> plannedDate = new SimpleObjectProperty<>("Planned Date", I18n.getInstance().getString("plugin.nonconforrmities.planneddate"),null);
 
 
     @Expose
     @SerializedName("Done Date")
-    public final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date", I18n.getInstance().getString("plugin.nonconforrmities.donedate"), null);
+    private final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date", I18n.getInstance().getString("plugin.nonconforrmities.donedate"), null);
 
 
 
     @Expose
     @SerializedName("Attachment")
-    public final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", I18n.getInstance().getString("plugin.nonconforrmities.attachment"), "");
+    private final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", I18n.getInstance().getString("plugin.nonconforrmities.attachment"), "");
 
 
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
@@ -140,12 +140,10 @@ public class NonconformityData {
 
     public NonconformityData(JEVisObject obj) {
         this.object = obj;
-        System.out.println("nr title: " + nr.getName());
         reload();
     }
 
     public NonconformityData() {
-        System.out.println("nr title: " + nr.getName());
         reload();
     }
 
@@ -235,9 +233,6 @@ public class NonconformityData {
 
 
     public void commit() {
-        System.out.println("commit");
-        System.out.println(this);
-        System.out.println();
         try {
             if (!valueChanged.getValue()) return;
 
@@ -247,9 +242,8 @@ public class NonconformityData {
                 protected Object call() throws Exception {
                     try {
                         try {
-                            System.out.println(this);
                             Gson gson = GsonBuilder.createDefaultBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create();
-                            System.out.println("Json:\n" + gson.toJson(NonconformityData.this));
+                            logger.info("Json: {}",gson.toJson(NonconformityData.this));
 
 
 

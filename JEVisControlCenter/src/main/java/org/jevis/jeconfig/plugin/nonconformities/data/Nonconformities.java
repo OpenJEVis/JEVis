@@ -105,7 +105,6 @@ public class Nonconformities {
             public void onChanged(Change<? extends NonconformityData> c) {
                 while (c.next()) {
                     Optional<NonconformityData> maxNr = nonconformityList.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
-                    System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
                     biggestActionNr.set(maxNr.get().nrProperty().get());
                 }
             }
@@ -115,9 +114,7 @@ public class Nonconformities {
         try {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
             // JEVisSample sample = attribute.getLatestSample();
-            System.out.println("ENPIS ind DB: " + attribute.getLatestSample().toString());
             TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), attribute);
-            System.out.println("targetHelper: " + targetHelper.getObject());
 
             enpis.setAll(targetHelper.getObject());
 
@@ -164,7 +161,6 @@ public class Nonconformities {
                         JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Nonconformities Directory");
                         JEVisClass actionClass = object.getDataSource().getJEVisClass("Nonconformity");
                         for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
-                            //System.out.println("Action Dir: " + dirObj);
                             dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                                 System.out.println("new Action from JEVis: " + actionObj);
                                 try {
@@ -196,8 +192,8 @@ public class Nonconformities {
         JEVisSample sample = att.getLatestSample();
         JEVisFile file = sample.getValueAsFile();
         String s = new String(file.getBytes(), StandardCharsets.UTF_8);
-        System.out.println("Parsed Json:\n" + s);
-        //System.out.println("Parsed Json:\n" + s);
+
+        logger.info("Json: {}",s);
         Gson gson = GsonBuilder.createDefaultBuilder().create();
         NonconformityData nonconformityData = gson.fromJson(s, NonconformityData.class);
         nonconformityData.setObject(actionObj);

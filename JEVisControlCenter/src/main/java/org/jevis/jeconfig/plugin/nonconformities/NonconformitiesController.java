@@ -81,7 +81,7 @@ public class NonconformitiesController {
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("new tab selected: " + newValue);
+            logger.info("new tab selected: {}",newValue);
 
             Nonconformities nonconformities = ((NonconformitiesTab) newValue).getNonconformities();
             nonconformities.loadActionList();
@@ -102,7 +102,7 @@ public class NonconformitiesController {
         ComboBox<String> comparatorBox = new ComboBox<>();
         comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));
         comparatorBox.getSelectionModel().selectFirst();
-        HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
+        //HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
         EventHandler<ActionEvent> dateFilerEvent = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -142,7 +142,6 @@ public class NonconformitiesController {
         mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
                 while (c.next()) {
                     nonconformitiesTable.setFilterMedium((ObservableList<String>) c.getList());
                     //nonconformitiesTable.filter();
@@ -152,7 +151,6 @@ public class NonconformitiesController {
         fieldsButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
                 while (c.next()) {
                     nonconformitiesTable.setFilterField((ObservableList<String>) c.getList());
                     //nonconformitiesTable.filter();
@@ -160,7 +158,7 @@ public class NonconformitiesController {
             }
         });
 
-        gridPane.add(hBox, 0, 1, 3, 1);
+        //gridPane.add(hBox, 0, 1, 3, 1);
 
 
         BorderPane borderPane = new BorderPane();
@@ -263,7 +261,6 @@ public class NonconformitiesController {
             JEVisClass nonconformityClass = getActiveNonconformities().getObject().getDataSource().getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.Nonconformity.name);
             JEVisObject nonconformitiesDirObj = null;
             if (getActiveNonconformities().getObject().getChildren(nonconformitiesDirClass, false).isEmpty()) {
-                System.out.println("is empty");
                 nonconformitiesDirObj = getActiveNonconformities().getObject().buildObject(nonconformitiesDirClass.getName(), nonconformitiesDirClass);
 
                 nonconformitiesDirObj.commit();
@@ -348,10 +345,6 @@ public class NonconformitiesController {
         NonconformityForm nonconformityForm = new NonconformityForm(getActiveNonconformities());
         NonconformityData data = getSelectedData();
         nonconformityForm.setData(data);
-
-        System.out.println("data");
-        System.out.println(data);
-
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 

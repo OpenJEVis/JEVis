@@ -58,7 +58,7 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
 
 
 
-        TableColumn<NonconformityData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsiblePerson.getName());
+        TableColumn<NonconformityData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsiblePersonProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsiblePersonProperty());
 
         TableColumn<NonconformityData, Integer> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
@@ -236,80 +236,6 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
         this.field = field;
     }
 
-//    public void filter() {
-//        System.out.println("Filter: " + status);
-//        //System.out.println("---------------------------------------------------------------------------------------------");
-//        //System.out.println("Searchabr: " + searchTextProperty.get());
-//        //System.out.println("Finter: " + searchTextProperty.get() + " U: " + searchInUser.get() + " O: " + searchInDataRow.get() + " N: " + searchInNote.get());
-//        //System.out.println("List: " + data.size());
-//        filteredData.setPredicate(
-//                new Predicate<NonconformityData>() {
-//                    @Override
-//                    public boolean test(NonconformityData notesRow) {
-//                        //System.out.println("Filter.predict: " + notesRow.getTags());
-//                        try {
-//
-//
-//                            AtomicBoolean statusMatch = new AtomicBoolean(false);
-//                            status.forEach(s -> {
-//                                try {
-//                                    for (String s1 : notesRow.statusTagsProperty().get().split(";")) {
-//                                        if (s1.equalsIgnoreCase(s)) {
-//                                            statusMatch.set(true);
-//                                        }
-//                                    }
-//                                } catch (Exception ex) {
-//
-//                                }
-//                            });
-//                            System.out.println("Status Match: " + statusMatch.get());
-//
-//                            AtomicBoolean mediumMatch = new AtomicBoolean(false);
-//                            medium.forEach(s -> {
-//                                try {
-//                                    for (String s1 : notesRow.mediaTagsProperty().get().split(";")) {
-//                                        if (s1.equalsIgnoreCase(s)) {
-//                                            mediumMatch.set(true);
-//                                        }
-//                                    }
-//                                } catch (Exception ex) {
-//
-//                                }
-//                            });
-//
-//                            AtomicBoolean fieldMatch = new AtomicBoolean(false);
-//                            field.forEach(s -> {
-//                                try {
-//                                    for (String s1 : notesRow.fieldTagsProperty().get().split(";")) {
-//                                        if (s1.equalsIgnoreCase(s)) {
-//                                            fieldMatch.set(true);
-//                                        }
-//                                    }
-//                                } catch (Exception ex) {
-//
-//                                }
-//                            });
-//
-//
-//                            System.out.println("statusMatch.get(): " + statusMatch.get() + "  mediumMatch.get():" + mediumMatch.get() + "  fieldMatch.get():" + fieldMatch.get());
-//                            if (statusMatch.get() && mediumMatch.get() && fieldMatch.get()) {//&& fieldMatch.get()
-//                                System.out.println("-> true");
-//                                return true;
-//                            }
-//
-//                            System.out.println("-> false");
-//                            return false;
-//                        } catch (Exception ex) {
-//                            ex.printStackTrace();
-//                        }
-//
-//                        return false;
-//                    }
-//                });
-//        //Platform.runLater(() -> autoFitTable(tableView));
-//        Platform.runLater(() -> sort());
-//
-//    }
 
 
 }

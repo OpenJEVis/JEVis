@@ -1,40 +1,14 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
-import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
-import javafx.util.Callback;
-import org.controlsfx.control.CheckComboBox;
-import org.jevis.api.*;
-import org.jevis.commons.JEVisFileImp;
-import org.jevis.commons.classes.JC;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
-import org.jevis.jeconfig.plugin.nonconformities.data.FileData;
+import org.jevis.jeconfig.plugin.nonconformities.ui.tab.AttachmentTab;
+import org.jevis.jeconfig.plugin.nonconformities.ui.tab.CheckListTab;
+import org.jevis.jeconfig.plugin.nonconformities.ui.tab.GeneralTab;
 import org.jevis.jeconfig.tool.ScreenSize;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.text.DecimalFormat;
-import java.time.LocalDate;
-import java.util.List;
 
 public class NonconformityForm extends Dialog {
 
