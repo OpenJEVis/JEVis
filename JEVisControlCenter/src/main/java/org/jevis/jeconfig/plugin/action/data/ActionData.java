@@ -39,138 +39,127 @@ public class ActionData {
 
     @Expose
     @SerializedName("From User")
-    public final SimpleStringProperty fromUser = new SimpleStringProperty("From User", I18n.getInstance().getString("plugin.action.fromuser"), "");
+    public final SimpleStringProperty fromUser = new SimpleStringProperty("From User",
+            I18n.getInstance().getString("plugin.action.fromuser"), "");
     @Expose
     @SerializedName("Nr")
-    public final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr", I18n.getInstance().getString("plugin.action.nr"), 0);
+    public final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr",
+            I18n.getInstance().getString("plugin.action.nr"), 0);
     @Expose
     @SerializedName("Desciption")
-    public final SimpleStringProperty desciption = new SimpleStringProperty("Desciption", I18n.getInstance().getString("plugin.action.description"), "");
+    public final SimpleStringProperty desciption = new SimpleStringProperty("Desciption",
+            I18n.getInstance().getString("plugin.action.description"), "");
     @Expose
     @SerializedName("Note")
-    public final SimpleStringProperty note = new SimpleStringProperty("Note", I18n.getInstance().getString("plugin.action.note"), "");
+    public final SimpleStringProperty note = new SimpleStringProperty("Note",
+            I18n.getInstance().getString("plugin.action.note"), "");
     @Expose
     @SerializedName("Create Date")
-    public final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date", "Erstellt", (new DateTime()));
+    public final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date",
+            "Erstellt", (new DateTime()));
     @Expose
     @SerializedName("Planned Date")
-    public final SimpleObjectProperty<DateTime> plannedDate = new SimpleObjectProperty<>("Planned Date", "Umsetzung", (new DateTime()));
+    public final SimpleObjectProperty<DateTime> plannedDate = new SimpleObjectProperty<>("Planned Date",
+            "Umsetzung", (new DateTime()));
     @Expose
     @SerializedName("Done Date")
-    public final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date", "Abgeschlossen", null);
+    public final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date",
+            "Abgeschlossen", null);
     @Expose
     @SerializedName("Attachment")
-    public final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", "Anhang", "");
+    public final SimpleStringProperty attachment = new SimpleStringProperty("Attachment",
+            "Anhang", "");
 
     @Expose
     @SerializedName("Title")
-    public final SimpleStringProperty title = new SimpleStringProperty("Title", I18n.getInstance().getString("plugin.action.title"), "");
-    @Expose
-    @SerializedName("Additional Meter")
-    public final SimpleBooleanProperty isNeedAdditionalMeters = new SimpleBooleanProperty("Additional Meter", "Zusätzliche Messtechnik notwendig?", false);
-    @Expose
-    @SerializedName("Affect Others")
-    public final SimpleBooleanProperty isAffectsOtherProcess = new SimpleBooleanProperty("Affect Others", "Sind vor- oder nachgelagerte Prozesse betroffen?", false);
-    @Expose
-    @SerializedName("Consumption Documented")
-    public final SimpleBooleanProperty isConsumptionDocumented = new SimpleBooleanProperty("Consumption Documented", "Wird der Energieverbrauch gemessen und dokumentiert?", false);
-    @Expose
-    @SerializedName("Target Reached")
-    public final SimpleBooleanProperty isTargetReached = new SimpleBooleanProperty("Target Reached", "Wurde das Ziel der Maßnahme erreicht?", false);
-    @Expose
-    @SerializedName("New EnPI")
-    public final SimpleStringProperty isNewEnPI = new SimpleStringProperty("New EnPI", "Falls ja neue EnPI bitte angeben", "");
-    @Expose
-    @SerializedName("Document Correction")
-    public final SimpleBooleanProperty isNeedCorrection = new SimpleBooleanProperty("Document Correction", "Müssen Unterlagen geändert werden?", false);
-    @Expose
-    @SerializedName("Additional Action")
-    public final SimpleBooleanProperty isNeedAdditionalAction = new SimpleBooleanProperty("Additional Action", "Prüfanweisungen", false);
-    @Expose
-    @SerializedName("Document Correction Text")
-    public final SimpleBooleanProperty isNeedDocumentCorrection = new SimpleBooleanProperty("Document Correction Text", "Falls nein, Korrekturmaßname notwendig?", false);
-    @Expose
-    @SerializedName("Process Document")
-    public final SimpleBooleanProperty isNeedProcessDocument = new SimpleBooleanProperty("Process Document", "Prozessanweisungen", false);
-    @Expose
-    @SerializedName("isNeedWorkInstruction")
-    public final SimpleBooleanProperty isNeedWorkInstruction = new SimpleBooleanProperty("isNeedWorkInstruction", "Arbeitsanweisungen", false);
-    @Expose
-    @SerializedName("Test Instruction")
-    public final SimpleBooleanProperty isNeedTestInstruction = new SimpleBooleanProperty("Test Instruction", "Prüfanweisungen", false);
-    @Expose
-    @SerializedName("Drawing")
-    public final SimpleBooleanProperty isNeedDrawing = new SimpleBooleanProperty("Drawing", "Prüfanweisungen", false);
-    @Expose
-    @SerializedName("Other")
-    public final SimpleBooleanProperty isNeedOther = new SimpleBooleanProperty("Other", "Zeichnungen", false);
+    public final SimpleStringProperty title = new SimpleStringProperty("Title",
+            I18n.getInstance().getString("plugin.action.title"), "");
+
     @Expose
     @SerializedName("Status Tags")
-    public final SimpleStringProperty statusTags = new SimpleStringProperty("Status Tags", "Status", "Offen;In Bearbeitung");
+    public final SimpleStringProperty statusTags = new SimpleStringProperty("Status Tags",
+            "Status", "Offen;In Bearbeitung");
     @Expose
     @SerializedName("Field Tags")
-    public final SimpleStringProperty fieldTags = new SimpleStringProperty("Field Tags", "Bereich", "Lager");
+    public final SimpleStringProperty fieldTags = new SimpleStringProperty("Field Tags",
+            "Bereich", "Lager");
     @Expose
     @SerializedName("Medium Tags")
-    public final SimpleStringProperty mediaTags = new SimpleStringProperty("Medium Tags", "Medium", "Strom");
+    public final SimpleStringProperty mediaTags = new SimpleStringProperty("Medium Tags",
+            "Medium", "Strom");
     @Expose
     @SerializedName("Correction")
-    public final SimpleStringProperty noteCorrection = new SimpleStringProperty("Correction", "Korrekturmaßnahmen", "");
+    public final SimpleStringProperty noteCorrection = new SimpleStringProperty("Correction",
+            "Korrekturmaßnahmen", "");
     @Expose
     @SerializedName("Follow Action")
-    public final SimpleStringProperty noteFollowUpAction = new SimpleStringProperty("Follow Action", "Folgemaßnahmen", "");
+    public final SimpleStringProperty noteFollowUpAction = new SimpleStringProperty("Follow Action",
+            "Folgemaßnahmen", "");
     @Expose
     @SerializedName("Alternative Measures")
     public final SimpleStringProperty noteAlternativeMeasures = new SimpleStringProperty("Alternative Measures"
             , "Alternativmaßnahmen", "");
     @Expose
     @SerializedName("Responsible")
-    public final SimpleStringProperty responsible = new SimpleStringProperty("Responsible", "Verantwortlichkeit", "");
+    public final SimpleStringProperty responsible = new SimpleStringProperty("Responsible",
+            "Verantwortlichkeit", "");
     @Expose
     @SerializedName("Affected Process Note")
-    public final SimpleStringProperty noteBetroffenerProzess = new SimpleStringProperty("Affected Process Note", I18n.getInstance().getString("plugin.action.affectedprocess"), "");
+    public final SimpleStringProperty noteBetroffenerProzess = new SimpleStringProperty("Affected Process Note",
+            I18n.getInstance().getString("plugin.action.affectedprocess"), "");
     @Expose
     @SerializedName("Energy Flow Note")
-    public final SimpleStringProperty noteEnergiefluss = new SimpleStringProperty("Energy Flow Note", "Maßnahmenbeschreibung", "");
+    public final SimpleStringProperty noteEnergiefluss = new SimpleStringProperty("Energy Flow Note",
+            "Maßnahmenbeschreibung", "");
     @Expose
     @SerializedName("Evaluation Note")
-    public final SimpleStringProperty noteBewertet = new SimpleStringProperty("Evaluation Note", I18n.getInstance().getString("plugin.action.noteBewertet"), "");
-    @Expose
-    @SerializedName("EnPI After")
-    public final SimpleStringProperty enpiAfter = new SimpleStringProperty("EnPI After", I18n.getInstance().getString("plugin.action.enpiafter"), "");
-    @Expose
-    @SerializedName("EnPI Before")
-    public final SimpleStringProperty enpiBefore = new SimpleStringProperty("EnPI Before", I18n.getInstance().getString("plugin.action.enpiabefore"), "");
-    @Expose
-    @SerializedName("EnPI Change")
-    public final SimpleDoubleProperty enpiChange = new SimpleDoubleProperty("EnPI Change",
-            I18n.getInstance().getString("plugin.action.enpiabechange"), 0);
+    public final SimpleStringProperty noteBewertet = new SimpleStringProperty("Evaluation Note",
+            I18n.getInstance().getString("plugin.action.noteBewertet"), "");
+
     @Expose
     @SerializedName("Distributor")
-    public final SimpleStringProperty distributor = new SimpleStringProperty("Distributor", I18n.getInstance().getString("plugin.action.distributor"), "");
+    public final SimpleStringProperty distributor = new SimpleStringProperty("Distributor",
+            I18n.getInstance().getString("plugin.action.distributor"), "");
     @Expose
     @SerializedName("Investment")
-    public final SimpleStringProperty investment = new SimpleStringProperty("Investment", I18n.getInstance().getString("plugin.action.investment"), "");
+    public final SimpleStringProperty investment = new SimpleStringProperty("Investment",
+            I18n.getInstance().getString("plugin.action.investment"), "");
 
     public final SimpleStringProperty DELETEsavingyear = new SimpleStringProperty("Saving Year",
             I18n.getInstance().getString("plugin.action.savingyear"), "");
     @Expose
     @SerializedName("EnPI Link")
-    public final SimpleStringProperty enpilinks = new SimpleStringProperty("EnPI Link", I18n.getInstance().getString("plugin.action.enpilink"), "");
+    public final SimpleStringProperty enpilinks = new SimpleStringProperty("EnPI Link",
+            I18n.getInstance().getString("plugin.action.enpilink"), "");
+    /*
     @Expose
     @SerializedName("Consumption Actual")
-    public final SimpleDoubleProperty consumptionActual = new SimpleDoubleProperty("Consumption Actual", I18n.getInstance().getString("plugin.action.consumptionactual"), 0d);
+    public final SimpleDoubleProperty consumptionActual = new SimpleDoubleProperty("Consumption Actual",
+            I18n.getInstance().getString("plugin.action.consumptionactual"), 0d);
     @Expose
     @SerializedName("Consumption Diff")
     public final SimpleDoubleProperty consumptionDiff = new SimpleDoubleProperty("Consumption Diff",
             I18n.getInstance().getString("plugin.action.consumption.diff"), 0d);
     @Expose
     @SerializedName("Consumption Unit")
-    public final SimpleStringProperty consumptionUnit = new SimpleStringProperty("Consumption Unit", I18n.getInstance().getString("plugin.action.consumptionunit"), "kWh");
+    public final SimpleStringProperty consumptionUnit = new SimpleStringProperty("Consumption Unit",
+            I18n.getInstance().getString("plugin.action.consumptionunit"), "kWh");
     @Expose
     @SerializedName("Consumption Target")
     public final SimpleDoubleProperty consumptionTarget = new SimpleDoubleProperty("Consumption Target",
             I18n.getInstance().getString("plugin.action.consumptiontarget"), 0d);
+
+
+     */
+    @Expose
+    @SerializedName("EnpI")
+    public final SimpleObjectProperty<ConsumptionData> enpi = new SimpleObjectProperty<>(new ConsumptionData());
+    @Expose
+    @SerializedName("Consumption")
+    public final SimpleObjectProperty<ConsumptionData> consumption = new SimpleObjectProperty<>(new ConsumptionData());
+    @Expose
+    @SerializedName("Check List")
+    private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
 
     public final SimpleObjectProperty<NPVData> npv = new SimpleObjectProperty<>(new NPVData());
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
@@ -215,10 +204,25 @@ public class ActionData {
                 public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                     valueChanged.set(true);
                     //System.out.println("Value Changed:" + newValue.toString());
+
+
                 }
             };
         }
 
+        ChangeListener<Number> calcListener = new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+
+            }
+        };
+
+        /*
+        enpiAfter.addListener(calcListener);
+        enpiBefore.addListener(calcListener);
+
+
+         */
 
         try {
             propertyList = new ArrayList<>();
@@ -236,6 +240,7 @@ public class ActionData {
             registerChanges(attachment, dataNode);
 
             registerChanges(noteCorrection, dataNode);
+            /*
             registerChanges(isNeedAdditionalMeters, dataNode);
             registerChanges(isConsumptionDocumented, dataNode);
             registerChanges(isTargetReached, dataNode);
@@ -246,6 +251,8 @@ public class ActionData {
             registerChanges(isNeedTestInstruction, dataNode);
             registerChanges(isNeedDrawing, dataNode);
             registerChanges(isNeedOther, dataNode);
+
+             */
             registerChanges(noteFollowUpAction, dataNode);
             registerChanges(noteAlternativeMeasures, dataNode);
             registerChanges(responsible, dataNode);
@@ -328,6 +335,7 @@ public class ActionData {
         }
     }
 
+
     public void delete() throws Exception {
         object.delete();
     }
@@ -365,71 +373,8 @@ public class ActionData {
         return attachment;
     }
 
-
     public SimpleStringProperty titleProperty() {
         return title;
-    }
-
-
-    public SimpleBooleanProperty isNeedAdditionalMetersProperty() {
-        return isNeedAdditionalMeters;
-    }
-
-
-    public SimpleBooleanProperty isAffectsOtherProcessProperty() {
-        return isAffectsOtherProcess;
-    }
-
-
-    public SimpleBooleanProperty isConsumptionDocumentedProperty() {
-        return isConsumptionDocumented;
-    }
-
-
-    public SimpleBooleanProperty isTargetReachedProperty() {
-        return isTargetReached;
-    }
-
-    public SimpleStringProperty isNewEnPIProperty() {
-        return isNewEnPI;
-    }
-
-
-    public SimpleBooleanProperty isNeedCorrectionProperty() {
-        return isNeedCorrection;
-    }
-
-    public SimpleBooleanProperty isNeedAdditionalActionProperty() {
-        return isNeedAdditionalAction;
-    }
-
-
-    public SimpleBooleanProperty isNeedDocumentCorrectionProperty() {
-        return isNeedDocumentCorrection;
-    }
-
-    public SimpleBooleanProperty isNeedProcessDocumentProperty() {
-        return isNeedProcessDocument;
-    }
-
-
-    public SimpleBooleanProperty isNeedWorkInstructionProperty() {
-        return isNeedWorkInstruction;
-    }
-
-
-    public SimpleBooleanProperty isNeedTestInstructionProperty() {
-        return isNeedTestInstruction;
-    }
-
-
-    public SimpleBooleanProperty isNeedDrawingProperty() {
-        return isNeedDrawing;
-    }
-
-
-    public SimpleBooleanProperty isNeedOtherProperty() {
-        return isNeedOther;
     }
 
     public SimpleStringProperty statusTagsProperty() {
@@ -482,20 +427,6 @@ public class ActionData {
         return plannedDate;
     }
 
-
-    public SimpleStringProperty enpiAfterProperty() {
-        return enpiAfter;
-    }
-
-
-    public SimpleStringProperty enpiBeforeProperty() {
-        return enpiBefore;
-    }
-
-    public SimpleDoubleProperty enpiChangeProperty() {
-        return enpiChange;
-    }
-
     public SimpleStringProperty distributorProperty() {
         return distributor;
     }
@@ -508,5 +439,27 @@ public class ActionData {
         return DELETEsavingyear;
     }
 
+    public CheckListData getCheckListData() {
+        return checkListData.get();
+    }
 
+    public SimpleObjectProperty<CheckListData> checkListDataProperty() {
+        return checkListData;
+    }
+
+    public ConsumptionData getEnpi() {
+        return enpi.get();
+    }
+
+    public SimpleObjectProperty<ConsumptionData> enpiProperty() {
+        return enpi;
+    }
+
+    public ConsumptionData getConsumption() {
+        return consumption.get();
+    }
+
+    public SimpleObjectProperty<ConsumptionData> consumptionProperty() {
+        return consumption;
+    }
 }
