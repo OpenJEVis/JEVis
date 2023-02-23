@@ -82,8 +82,14 @@ public class ActionController {
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("new tab selected: " + newValue);
 
-            ActionPlanData actionPlan = ((ActionTab) newValue).getActionPlan();
-            actionPlan.loadActionList();
+            if (newValue instanceof ActionTab) {
+                ActionPlanData actionPlan = ((ActionTab) newValue).getActionPlan();
+                actionPlan.loadActionList();
+            } else if (newValue instanceof OverviewTab) {
+                /* TODO */
+                System.out.println("todo overview tab");
+            }
+
 
         });
 
