@@ -11,6 +11,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.TableFilter;
 import org.joda.time.DateTime;
@@ -18,6 +19,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -47,6 +49,8 @@ public class ActionTable extends TableView<ActionData> {
     private DateFilter dateFilter;
     private boolean showSumRow = false;
     private String containsTextFilter = "";
+
+    NumberFormat currencyFormat = NumberFormat.getNumberInstance();
 
     public ActionTable(ObservableList<ActionData> data) {
         this.data = data;
@@ -145,17 +149,53 @@ public class ActionTable extends TableView<ActionData> {
         savingYearPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         savingYearPropertyCol.setCellFactory(new CurrencyColumnCell());
 
-        TableColumn<ActionData, Double> enpiDevelopmentPropertyCol = new TableColumn(fakeForName.enpiChange.getName());
-        enpiDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().enpiChangeProperty().asObject());
+
+        TableColumn<ActionData, Double> enpiDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.enpiabechange"));
+        enpiDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().enpi.get().diffProperty().asObject());
         //savingYearPropertyCol.setCellFactory(buildShotTextFactory());
         enpiDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        //enpiDevelopmentPropertyCol.setCellFactory(new CurrencyColumnCell());
+        enpiDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
+            @Override
+            public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> param) {
+                return new TableCell<ActionData, Double>() {
+                    @Override
+                    protected void updateItem(Double item, boolean empty) {
+                        super.updateItem(item, empty);
 
-        TableColumn<ActionData, Double> consumptionDevelopmentPropertyCol = new TableColumn(fakeForName.consumptionDiff.getName());
-        consumptionDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().consumptionDiff.asObject());
+                        if (item != null && !empty && getTableRow() != null) {
+                            ActionData actionData = (ActionData) getTableRow().getItem();
+                            setText(currencyFormat.format(item) + " " + actionData.enpi.get().unitProperty().get());
+                        } else {
+                            setText(null);
+                        }
+                    }
+                };
+            }
+        });
+
+        TableColumn<ActionData, Double> consumptionDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.consumption.diff"));
+        consumptionDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().consumption.get().diffProperty().asObject());
         //consumptionDevelopmentPropertyCol.setCellFactory(buildShotTextFactory());
         consumptionDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         //consumptionDevelopmentPropertyCol.setCellFactory(new CurrencyColumnCell());
+        consumptionDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
+            @Override
+            public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> param) {
+                return new TableCell<ActionData, Double>() {
+                    @Override
+                    protected void updateItem(Double item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item != null && !empty && getTableRow() != null) {
+                            ActionData actionData = (ActionData) getTableRow().getItem();
+                            setText(currencyFormat.format(item) + " " + actionData.consumption.get().unitProperty().get());
+                        } else {
+                            setText(null);
+                        }
+                    }
+                };
+            }
+        });
 
 
         actionNrPropertyCol.setVisible(true);
