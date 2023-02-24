@@ -202,11 +202,11 @@ public class PrepareStep implements ProcessStep {
             }
 
             if (firstCleanPeriod.getMinutes() > 0) {
-                currentDateLocal = currentDateLocal.minusMinutes(firstCleanPeriod.getMinutes()).withSecondOfMinute(0);
+                currentDateLocal = currentDateLocal.minusMinutes(firstCleanPeriod.getMinutes());
             }
 
             if (firstCleanPeriod.getSeconds() > 0) {
-                currentDateLocal = currentDateLocal.minusSeconds(firstCleanPeriod.getSeconds()).withMillisOfSecond(0);
+                currentDateLocal = currentDateLocal.minusSeconds(firstCleanPeriod.getSeconds());
             }
 
             currentDate = currentDateLocal.withZone(DateTimeZone.UTC);
