@@ -14,7 +14,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
-import org.jevis.jeconfig.plugin.action.data.ActionPlan;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.tool.ScreenSize;
 
 import java.util.ArrayList;
@@ -36,10 +36,10 @@ public class ActionPlanForm extends Alert {
     ListView<String> fieldsListView = new ListView<>();
     ListView<String> mediumListView = new ListView<>();
     ListView<JEVisObject> enpiListView = new ListView<>();
-    private ActionPlan actionPlan;
+    private ActionPlanData actionPlan;
     StackPane stackPane = new StackPane();
 
-    public ActionPlanForm(ActionPlan actionPlan) {
+    public ActionPlanForm(ActionPlanData actionPlan) {
         super(AlertType.INFORMATION);
         this.actionPlan = actionPlan;
         this.initOwner(JEConfig.getStage());
@@ -82,7 +82,7 @@ public class ActionPlanForm extends Alert {
     }
 
 
-    public void updateView(ActionPlan actionPlan) {
+    public void updateView(ActionPlanData actionPlan) {
         //nameField.setText(actionPlan.getName());
 
         nameField.textProperty().bindBidirectional(actionPlan.getName());

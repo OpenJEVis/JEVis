@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
@@ -24,9 +25,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class ActionPlan {
+public class ActionPlanData {
 
-    protected static final Logger logger = LogManager.getLogger(ActionPlan.class);
+    protected static final Logger logger = LogManager.getLogger(ActionPlanData.class);
+
+    public static String STATUS_DONE = I18n.getInstance().getString("plugin.action.status.done");
     private JEVisObject object;
     private ObservableList<String> statusTags;
     private ObservableList<String> mediumTags;
@@ -34,13 +37,10 @@ public class ActionPlan {
     private ObservableList<JEVisObject> enpis;
     private StringProperty name = new SimpleStringProperty("");
     private ObservableList<ActionData> actions = FXCollections.observableArrayList();
-
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
-
     private String initCustomStatus = "";
     private String initCustomFields = "";
     private String initCustomMedium = "";
-
     private String ATTRIBUTE_CSTATUS = "Custom Status";
     private String ATTRIBUTE_CFIELD = "Custom Fields";
     private String ATTRIBUTE_CMEDIUM = "Custom Medium";
@@ -49,7 +49,8 @@ public class ActionPlan {
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
-    public ActionPlan(JEVisObject obj) {
+    public ActionPlanData(JEVisObject obj) {
+        System.out.println("New ActionPlan from Object: " + obj);
         this.object = obj;
 
         name.set(obj.getName());
@@ -68,6 +69,11 @@ public class ActionPlan {
         } catch (Exception e) {
             logger.error(e);
         }
+
+        if (!statusTags.contains(STATUS_DONE)) {
+            statusTags.add(STATUS_DONE);
+        }
+
 
         fieldsTags = FXCollections.observableArrayList();
         try {
@@ -112,9 +118,9 @@ public class ActionPlan {
         });
 
         enpis = FXCollections.observableArrayList();
+
         try {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
-            // JEVisSample sample = attribute.getLatestSample();
             System.out.println("ENPIS ind DB: " + attribute.getLatestSample().toString());
             TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), attribute);
             System.out.println("targetHelper: " + targetHelper.getObject());
@@ -126,11 +132,11 @@ public class ActionPlan {
         }
 
 
-    }
+        if (!enpis.contains(new FreeObject())) {
+            enpis.add(new FreeObject());
+        }
 
 
-    public ObservableList<JEVisObject> getEnpis() {
-        return enpis;
     }
 
     public static String listToString(ObservableList<String> list) {
@@ -145,6 +151,10 @@ public class ActionPlan {
             }
         }
         return string;
+    }
+
+    public ObservableList<JEVisObject> getEnpis() {
+        return enpis;
     }
 
     public void reloadActionList() {
@@ -200,6 +210,8 @@ public class ActionPlan {
         Gson gson = GsonBuilder.createDefaultBuilder().create();
         ActionData actionData = gson.fromJson(s, ActionData.class);
         actionData.setObject(actionObj);
+        actionData.setActionPlan(this);
+        System.out.println("-- Loaded Action GSON: " + actionData);
         return actionData;
     }
 

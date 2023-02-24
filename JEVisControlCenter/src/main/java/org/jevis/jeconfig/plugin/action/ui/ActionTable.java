@@ -11,6 +11,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.TableFilter;
 import org.joda.time.DateTime;
@@ -18,6 +19,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -44,12 +46,19 @@ public class ActionTable extends TableView<ActionData> {
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
     private ActionData sumRow = new ActionData();
+    private DateFilter dateFilter;
     private boolean showSumRow = false;
+    private String containsTextFilter = "";
+
+    NumberFormat currencyFormat = NumberFormat.getNumberInstance();
 
     public ActionTable(ObservableList<ActionData> data) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
         setItems(filteredData);
+        setId("Action Table");
+
+        //this.getStylesheets().add(this.getClass().getResource("/styles/Table2.css").toExternalForm());
 
         ActionData fakeForName = new ActionData();
 
@@ -63,6 +72,7 @@ public class ActionTable extends TableView<ActionData> {
 
         TableColumn<ActionData, Integer> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
         actionNrPropertyCol.setCellValueFactory(param -> param.getValue().nrProperty().asObject());
+        actionNrPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
 
         TableColumn<ActionData, String> desciptionPropertyCol = new TableColumn(fakeForName.desciptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().desciptionProperty());
@@ -74,9 +84,18 @@ public class ActionTable extends TableView<ActionData> {
 
         TableColumn<ActionData, String> mediaTagsPropertyCol = new TableColumn(fakeForName.mediaTagsProperty().getName());
         mediaTagsPropertyCol.setCellValueFactory(param -> param.getValue().mediaTagsProperty());
+        mediaTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        mediaTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
 
         TableColumn<ActionData, String> statusTagsPropertyCol = new TableColumn(fakeForName.statusTagsProperty().getName());
         statusTagsPropertyCol.setCellValueFactory(param -> param.getValue().statusTagsProperty());
+        statusTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        statusTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+
+        TableColumn<ActionData, String> fieldTagsPropertyCol = new TableColumn(fakeForName.fieldTagsProperty().getName());
+        fieldTagsPropertyCol.setCellValueFactory(param -> param.getValue().fieldTagsProperty());
+        fieldTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        fieldTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
 
         TableColumn<ActionData, DateTime> doneDatePropertyCol = new TableColumn(fakeForName.doneDateProperty().getName());
         doneDatePropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
@@ -89,7 +108,6 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, DateTime> plannedDatePropertyCol = new TableColumn(fakeForName.plannedDateProperty().getName());
         plannedDatePropertyCol.setCellValueFactory(param -> param.getValue().plannedDateProperty());
         plannedDatePropertyCol.setCellFactory(buildDateTimeFactory());
-
 
         TableColumn<ActionData, String> noteAlternativeMeasuresPropertyCol = new TableColumn(fakeForName.noteAlternativeMeasuresProperty().getName());
         noteAlternativeMeasuresPropertyCol.setCellValueFactory(param -> param.getValue().noteAlternativeMeasuresProperty());
@@ -119,17 +137,66 @@ public class ActionTable extends TableView<ActionData> {
         titlePropertyCol.setCellValueFactory(param -> param.getValue().titleProperty());
         titlePropertyCol.setCellFactory(buildShotTextFactory());
 
-        TableColumn<ActionData, String> investPropertyCol = new TableColumn(fakeForName.investmentProperty().getName());
-        investPropertyCol.setCellValueFactory(param -> param.getValue().investmentProperty());
+        TableColumn<ActionData, Double> investPropertyCol = new TableColumn(fakeForName.npv.get().investition.getName());
+        investPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().investition.asObject());
         //investPropertyCol.setCellFactory(buildShotTextFactory());
         investPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        investPropertyCol.setCellFactory(new DoubleColumnCell());
+        investPropertyCol.setCellFactory(new CurrencyColumnCell());
 
-        TableColumn<ActionData, String> savingYearPropertyCol = new TableColumn(fakeForName.savingyearProperty().getName());
-        savingYearPropertyCol.setCellValueFactory(param -> param.getValue().savingyearProperty());
-        savingYearPropertyCol.setCellFactory(buildShotTextFactory());
+        TableColumn<ActionData, Double> savingYearPropertyCol = new TableColumn(fakeForName.npv.get().einsparung.getName());
+        savingYearPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().einsparung.asObject());
+        //savingYearPropertyCol.setCellFactory(buildShotTextFactory());
         savingYearPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        savingYearPropertyCol.setCellFactory(new DoubleColumnCell());
+        savingYearPropertyCol.setCellFactory(new CurrencyColumnCell());
+
+
+        TableColumn<ActionData, Double> enpiDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.enpiabechange"));
+        enpiDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().enpi.get().diffProperty().asObject());
+        //savingYearPropertyCol.setCellFactory(buildShotTextFactory());
+        enpiDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        enpiDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
+            @Override
+            public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> param) {
+                return new TableCell<ActionData, Double>() {
+                    @Override
+                    protected void updateItem(Double item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item != null && !empty && getTableRow() != null) {
+                            ActionData actionData = (ActionData) getTableRow().getItem();
+                            setText(currencyFormat.format(item) + " " + actionData.enpi.get().unitProperty().get());
+                        } else {
+                            setText(null);
+                        }
+                    }
+                };
+            }
+        });
+
+        TableColumn<ActionData, Double> consumptionDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.consumption.diff"));
+        consumptionDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().consumption.get().diffProperty().asObject());
+        //consumptionDevelopmentPropertyCol.setCellFactory(buildShotTextFactory());
+        consumptionDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        //consumptionDevelopmentPropertyCol.setCellFactory(new CurrencyColumnCell());
+        consumptionDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
+            @Override
+            public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> param) {
+                return new TableCell<ActionData, Double>() {
+                    @Override
+                    protected void updateItem(Double item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item != null && !empty && getTableRow() != null) {
+                            ActionData actionData = (ActionData) getTableRow().getItem();
+                            setText(currencyFormat.format(item) + " " + actionData.consumption.get().unitProperty().get());
+                        } else {
+                            setText(null);
+                        }
+                    }
+                };
+            }
+        });
+
 
         actionNrPropertyCol.setVisible(true);
         fromUserCol.setVisible(false);
@@ -150,15 +217,18 @@ public class ActionTable extends TableView<ActionData> {
         noteFollowUpActionPropertyCol.setVisible(false);
         investPropertyCol.setVisible(true);
         savingYearPropertyCol.setVisible(true);
+        fieldTagsPropertyCol.setVisible(false);
+        enpiDevelopmentPropertyCol.setVisible(true);
+        consumptionDevelopmentPropertyCol.setVisible(true);
 
         this.tableMenuButtonVisibleProperty().set(true);
 
         this.getColumns().addAll(actionNrPropertyCol, titlePropertyCol, fromUserCol,
                 responsiblePropertyCol, desciptionPropertyCol, notePropertyCol,
-                mediaTagsPropertyCol, statusTagsPropertyCol,
+                mediaTagsPropertyCol, statusTagsPropertyCol, fieldTagsPropertyCol,
                 plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol, noteAlternativeMeasuresPropertyCol, noteBewertetPropertyCol,
                 noteCorrectionPropertyCol, noteBetroffenerProzessPropertyCol, noteEnergieflussPropertyCol, noteFollowUpActionPropertyCol,
-                investPropertyCol, savingYearPropertyCol
+                investPropertyCol, savingYearPropertyCol, enpiDevelopmentPropertyCol, consumptionDevelopmentPropertyCol
         );
 
 
@@ -251,6 +321,10 @@ public class ActionTable extends TableView<ActionData> {
         this.status = status;
     }
 
+    public void setDateFilter(DateFilter filter) {
+        this.dateFilter = filter;
+    }
+
     public void setFilterMedium(ObservableList<String> medium) {
         this.medium = medium;
     }
@@ -259,12 +333,11 @@ public class ActionTable extends TableView<ActionData> {
         this.field = field;
     }
 
+    public void setTextFilter(String containsText) {
+        this.containsTextFilter = containsText;
+    }
+
     public void filter() {
-        System.out.println("Filter: " + status);
-        //System.out.println("---------------------------------------------------------------------------------------------");
-        //System.out.println("Searchabr: " + searchTextProperty.get());
-        //System.out.println("Finter: " + searchTextProperty.get() + " U: " + searchInUser.get() + " O: " + searchInDataRow.get() + " N: " + searchInNote.get());
-        //System.out.println("List: " + data.size());
         filteredData.setPredicate(
                 new Predicate<ActionData>() {
                     @Override
@@ -285,7 +358,8 @@ public class ActionTable extends TableView<ActionData> {
 
                                 }
                             });
-                            System.out.println("Status Match: " + statusMatch.get());
+                            if (!statusMatch.get()) return false;
+
 
                             AtomicBoolean mediumMatch = new AtomicBoolean(false);
                             medium.forEach(s -> {
@@ -299,6 +373,7 @@ public class ActionTable extends TableView<ActionData> {
 
                                 }
                             });
+                            if (!mediumMatch.get()) return false;
 
                             AtomicBoolean fieldMatch = new AtomicBoolean(false);
                             field.forEach(s -> {
@@ -312,20 +387,39 @@ public class ActionTable extends TableView<ActionData> {
 
                                 }
                             });
+                            if (!fieldMatch.get()) return false;
 
 
-                            System.out.println("statusMatch.get(): " + statusMatch.get() + "  mediumMatch.get():" + mediumMatch.get() + "  fieldMatch.get():" + fieldMatch.get());
-                            if (statusMatch.get() && mediumMatch.get() && fieldMatch.get()) {//&& fieldMatch.get()
-                                System.out.println("-> true");
-                                return true;
+                            if (dateFilter != null) {
+                                if (!dateFilter.show(notesRow)) return false;
                             }
 
-                            System.out.println("-> false");
-                            return false;
+
+                            AtomicBoolean containString = new AtomicBoolean(false);
+                            if (containsTextFilter != null || containsTextFilter.isEmpty()) {
+                                if (notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.responsible.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.note.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.desciption.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteAlternativeMeasures.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteCorrection.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteBetroffenerProzess.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteFollowUpAction.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.noteBewertet.get().toLowerCase().contains(containsTextFilter.toLowerCase())) {
+
+                                    containString.set(true);
+                                }
+
+                                //TODO: may also check if column is visible
+                                if (!containString.get()) return false;
+                            }
+
+
+                            return true;
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
-
                         return false;
                     }
                 });

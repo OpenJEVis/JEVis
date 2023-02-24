@@ -1,19 +1,21 @@
 package org.jevis.jeconfig.plugin.action;
 
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -22,8 +24,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
-import org.jevis.jeconfig.plugin.action.data.ActionPlan;
-import org.jevis.jeconfig.plugin.action.data.TableFilter;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.ui.*;
 import org.joda.time.DateTime;
 
@@ -38,7 +39,7 @@ public class ActionController {
 
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
-    private ObservableList<ActionPlan> actionPlans;
+    private ObservableList<ActionPlanData> actionPlans;
     private TabPane tabPane = new TabPane();
 
     public ActionController(ActionPlugin plugin) {
@@ -48,9 +49,9 @@ public class ActionController {
     public void loadActionView() {
 
         actionPlans = FXCollections.observableArrayList();
-        actionPlans.addListener(new ListChangeListener<ActionPlan>() {
+        actionPlans.addListener(new ListChangeListener<ActionPlanData>() {
             @Override
-            public void onChanged(Change<? extends ActionPlan> c) {
+            public void onChanged(Change<? extends ActionPlanData> c) {
                 while (c.next()) {
                     if (c.wasAdded()) {
                         c.getAddedSubList().forEach(actionPlan -> {
@@ -59,8 +60,6 @@ public class ActionController {
 
                     }
                 }
-
-
             }
         });
 
@@ -74,7 +73,7 @@ public class ActionController {
     }
 
 
-    private void buildTabPane(ActionPlan plan) {
+    private void buildTabPane(ActionPlanData plan) {
         ActionTable actionTable = new ActionTable(plan.getActionData());
         //actionTable.enableSumRow(true);
         ActionTab tab = new ActionTab(plan, actionTable);
@@ -83,8 +82,14 @@ public class ActionController {
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("new tab selected: " + newValue);
 
-            ActionPlan actionPlan = ((ActionTab) newValue).getActionPlan();
-            actionPlan.loadActionList();
+            if (newValue instanceof ActionTab) {
+                ActionPlanData actionPlan = ((ActionTab) newValue).getActionPlan();
+                actionPlan.loadActionList();
+            } else if (newValue instanceof OverviewTab) {
+                /* TODO */
+                System.out.println("todo overview tab");
+            }
+
 
         });
 
@@ -92,36 +97,12 @@ public class ActionController {
         gridPane.setPadding(new Insets(25));
         gridPane.setHgap(10);
         gridPane.setVgap(10);
-        double maxListHeight = 100;
-
-        ComboBox<String> datumBox = new ComboBox<>();
-        datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
-        datumBox.getSelectionModel().selectFirst();
-        JFXTextField filterDatumText = new JFXTextField();
-        filterDatumText.setPromptText("Datum...");
-        ComboBox<String> comparatorBox = new ComboBox<>();
-        comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));
-        comparatorBox.getSelectionModel().selectFirst();
-        HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
-        EventHandler<ActionEvent> dateFilerEvent = new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (comparatorBox.getSelectionModel().getSelectedItem().equals(">")) {
-                    actionTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.BIGGER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("<")) {
-                    actionTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.SMALLER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("=")) {
-                    actionTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.EQUALS);
-                }
-                actionTable.getTableFilter().setPlannedDateFilter(filterDatumText.getText());
-                actionTable.filter();
-
-            }
-        };
-
-        comparatorBox.setOnAction(dateFilerEvent);
 
 
+        Label lSuche = new Label("Suche");
+        JFXTextField fsearch = new JFXTextField();
+        fsearch.setPromptText("Suche nach...");
+        TimeFilterSelector dateSelector = new TimeFilterSelector(plan);
         TagButton statusButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.status"), plan.getStatustags(), plan.getStatustags());
         TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), plan.getMediumTags());
         TagButton fieldsButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.bereich"), plan.getFieldsTags(), plan.getFieldsTags());
@@ -129,6 +110,18 @@ public class ActionController {
         actionTable.setFilterStatus(plan.getStatustags());
         actionTable.setFilterMedium(plan.getMediumTags());
         actionTable.setFilterField(plan.getFieldsTags());
+
+        fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            actionTable.setTextFilter(newValue);
+            actionTable.filter();
+        });
+        dateSelector.getValuePropertyProperty().addListener(new ChangeListener<DateFilter>() {
+            @Override
+            public void changed(ObservableValue<? extends DateFilter> observable, DateFilter oldValue, DateFilter newValue) {
+                actionTable.setDateFilter(newValue);
+                actionTable.filter();
+            }
+        });
 
         statusButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
@@ -149,6 +142,8 @@ public class ActionController {
                 }
             }
         });
+
+
         fieldsButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
@@ -160,15 +155,27 @@ public class ActionController {
             }
         });
 
-        gridPane.add(statusButton, 0, 0);
-        gridPane.add(mediumButton, 1, 0);
-        gridPane.add(fieldsButton, 2, 0);
-        gridPane.add(hBox, 0, 1, 3, 1);
+
+        Separator vSep1 = new Separator(Orientation.VERTICAL);
+        Separator vSep2 = new Separator(Orientation.VERTICAL);
+        GridPane.setRowSpan(vSep1, 2);
+        GridPane.setRowSpan(vSep2, 2);
+
+        gridPane.addColumn(0, lSuche, fsearch);
+        gridPane.addColumn(1, vSep1);
+        gridPane.addColumn(2, new Label("Filter"), statusButton);
+        gridPane.addColumn(3, new Region(), mediumButton);
+        gridPane.addColumn(4, new Region(), fieldsButton);
+        gridPane.addColumn(5, vSep2);
+        gridPane.addColumn(6, new Label("Zeitbereich"), dateSelector);
 
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
         borderPane.setCenter(actionTable);
+
+        TableSumPanel tableSumPanel = new TableSumPanel(actionTable.getItems());
+        borderPane.setBottom(tableSumPanel);
 
         actionTable.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
@@ -217,7 +224,7 @@ public class ActionController {
 
                 JEVisObject newObject = parentDir.buildObject(newActionDialog.getCreateName(), actionPlanClass);
                 newObject.commit();
-                ActionPlan actionPlan = new ActionPlan(newObject);
+                ActionPlanData actionPlan = new ActionPlanData(newObject);
                 actionPlans.add(actionPlan);
                 tabPane.getSelectionModel().selectLast();
 
@@ -274,7 +281,7 @@ public class ActionController {
 
             JEVisObject actionObject = actionDirObj.buildObject(getActiveActionPlan().getNextActionNr().toString(), actionClass);
             actionObject.commit();
-            ActionData newAction = new ActionData(actionObject);
+            ActionData newAction = new ActionData(tab.getActionPlan(), actionObject);
             newAction.nrProperty().set(tab.getActionPlan().getNextActionNr());
             tab.getActionPlan().addAction(newAction);
 
@@ -300,9 +307,12 @@ public class ActionController {
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
             AtomicBoolean isFirstPlan = new AtomicBoolean(true);
+            OverviewTab overviewTab = new OverviewTab();
+
+            tabPane.getTabs().add(overviewTab);
 
             planObjs.forEach(jeVisObject -> {
-                ActionPlan plan = new ActionPlan(jeVisObject);
+                ActionPlanData plan = new ActionPlanData(jeVisObject);
                 actionPlans.add(plan);
                 if (isFirstPlan.get()) plan.loadActionList();
                 isFirstPlan.set(false);
@@ -322,7 +332,7 @@ public class ActionController {
         return tab;
     }
 
-    public ActionPlan getActiveActionPlan() {
+    public ActionPlanData getActiveActionPlan() {
         return getActiveTab().getActionPlan();
     }
 
@@ -342,9 +352,8 @@ public class ActionController {
     }
 
     public void openDataForm() {
-        ActionForm actionForm = new ActionForm(getActiveActionPlan());
         ActionData data = getSelectedData();
-        actionForm.setData(data);
+        ActionForm actionForm = new ActionForm(getActiveActionPlan(), data);
 
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);

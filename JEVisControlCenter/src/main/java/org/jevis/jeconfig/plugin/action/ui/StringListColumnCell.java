@@ -5,7 +5,19 @@ import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 
-public class DoubleColumnCell implements Callback<TableColumn<ActionData, String>, TableCell<ActionData, String>> {
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.Locale;
+
+public class StringListColumnCell implements Callback<TableColumn<ActionData, String>, TableCell<ActionData, String>> {
+
+    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+
+    {
+        currencyFormat.setCurrency(Currency.getInstance(Locale.GERMANY));
+    }
+
+    ;
 
     @Override
     public TableCell<ActionData, String> call(TableColumn<ActionData, String> param) {
@@ -15,12 +27,7 @@ public class DoubleColumnCell implements Callback<TableColumn<ActionData, String
                 super.updateItem(item, empty);
 
                 if (item != null && !empty) {
-
-                    try {
-                        UnitDoubleConverter unitDoubleConverter = new UnitDoubleConverter();
-                        setText(unitDoubleConverter.toString(unitDoubleConverter.fromString(item)) + " €");
-                    } catch (Exception ex) {
-                    }
+                    setText(item.replace(";", ", "));
                 } else {
                     setText(null);
                 }
