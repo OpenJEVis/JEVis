@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.action.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
@@ -33,9 +32,27 @@ import java.util.List;
 
 public class ActionData {
 
-    private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(ActionData.class);
     private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    /*
+    @Expose
+    @SerializedName("Investment")
+    public final SimpleStringProperty investment = new SimpleStringProperty("Investment",
+            I18n.getInstance().getString("plugin.action.investment"), "");
+
+
+
+    public final SimpleStringProperty DELETEsavingyear = new SimpleStringProperty("Saving Year",
+            I18n.getInstance().getString("plugin.action.savingyear"), "");
+
+     */
+    @Expose
+    @SerializedName("EnPI Link")
+    public final SimpleStringProperty enpilinks = new SimpleStringProperty("EnPI Link",
+            I18n.getInstance().getString("plugin.action.enpilink"), "");
+    @Expose
+    @SerializedName("NPV")
+    public final SimpleObjectProperty<NPVData> npv = new SimpleObjectProperty<>(new NPVData());
 
     @Expose
     @SerializedName("From User")
@@ -120,37 +137,7 @@ public class ActionData {
     @SerializedName("Distributor")
     public final SimpleStringProperty distributor = new SimpleStringProperty("Distributor",
             I18n.getInstance().getString("plugin.action.distributor"), "");
-    @Expose
-    @SerializedName("Investment")
-    public final SimpleStringProperty investment = new SimpleStringProperty("Investment",
-            I18n.getInstance().getString("plugin.action.investment"), "");
-
-    public final SimpleStringProperty DELETEsavingyear = new SimpleStringProperty("Saving Year",
-            I18n.getInstance().getString("plugin.action.savingyear"), "");
-    @Expose
-    @SerializedName("EnPI Link")
-    public final SimpleStringProperty enpilinks = new SimpleStringProperty("EnPI Link",
-            I18n.getInstance().getString("plugin.action.enpilink"), "");
-    /*
-    @Expose
-    @SerializedName("Consumption Actual")
-    public final SimpleDoubleProperty consumptionActual = new SimpleDoubleProperty("Consumption Actual",
-            I18n.getInstance().getString("plugin.action.consumptionactual"), 0d);
-    @Expose
-    @SerializedName("Consumption Diff")
-    public final SimpleDoubleProperty consumptionDiff = new SimpleDoubleProperty("Consumption Diff",
-            I18n.getInstance().getString("plugin.action.consumption.diff"), 0d);
-    @Expose
-    @SerializedName("Consumption Unit")
-    public final SimpleStringProperty consumptionUnit = new SimpleStringProperty("Consumption Unit",
-            I18n.getInstance().getString("plugin.action.consumptionunit"), "kWh");
-    @Expose
-    @SerializedName("Consumption Target")
-    public final SimpleDoubleProperty consumptionTarget = new SimpleDoubleProperty("Consumption Target",
-            I18n.getInstance().getString("plugin.action.consumptiontarget"), 0d);
-
-
-     */
+    private Gson gson = GsonBuilder.createDefaultBuilder().create();
     @Expose
     @SerializedName("EnpI")
     public final SimpleObjectProperty<ConsumptionData> enpi = new SimpleObjectProperty<>(new ConsumptionData());
@@ -160,8 +147,7 @@ public class ActionData {
     @Expose
     @SerializedName("Check List")
     private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
-
-    public final SimpleObjectProperty<NPVData> npv = new SimpleObjectProperty<>(new NPVData());
+    private String originalSettings = "";
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     private ChangeListener changeListener;
     private JEVisObject object;
@@ -226,6 +212,7 @@ public class ActionData {
 
         try {
             propertyList = new ArrayList<>();
+            /*
 
             registerChanges(fromUser, dataNode);
             registerChanges(nr, dataNode);
@@ -238,8 +225,17 @@ public class ActionData {
             registerChanges(plannedDate, dataNode);
             registerChanges(doneDate, dataNode);
             registerChanges(attachment, dataNode);
-
             registerChanges(noteCorrection, dataNode);
+            registerChanges(noteFollowUpAction, dataNode);
+            registerChanges(noteAlternativeMeasures, dataNode);
+            registerChanges(responsible, dataNode);
+            registerChanges(noteBewertet, dataNode);
+            registerChanges(noteEnergiefluss, dataNode);
+            registerChanges(noteBetroffenerProzess, dataNode);
+            registerChanges(title, dataNode);
+            */
+
+
             /*
             registerChanges(isNeedAdditionalMeters, dataNode);
             registerChanges(isConsumptionDocumented, dataNode);
@@ -253,21 +249,17 @@ public class ActionData {
             registerChanges(isNeedOther, dataNode);
 
              */
-            registerChanges(noteFollowUpAction, dataNode);
-            registerChanges(noteAlternativeMeasures, dataNode);
-            registerChanges(responsible, dataNode);
-            registerChanges(noteBewertet, dataNode);
-            registerChanges(noteEnergiefluss, dataNode);
-            registerChanges(noteBetroffenerProzess, dataNode);
-            registerChanges(title, dataNode);
+
 
             // registerChanges(DELETEsavingyear, dataNode);
-            registerChanges(investment, dataNode);
-            registerChanges(enpilinks, dataNode);
+            // registerChanges(investment, dataNode);
+            // registerChanges(enpilinks, dataNode);
             valueChanged.set(false);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        originalSettings = gson.toJson(this);
 
     }
 
@@ -291,10 +283,22 @@ public class ActionData {
         }
     }
 
+    public boolean hasChanged() {
+        // if (valueChanged.getValue()) return true;
+
+        if (!gson.toJson(this).equals(originalSettings)) {
+            System.out.println("gson change");
+            return true;
+        }
+
+
+        return false;
+    }
 
     public void commit() {
         try {
-            if (!valueChanged.getValue()) return;
+            System.out.println("ActonData.commit: " + nr.get() + " changes: " + valueChanged.getValue());
+            if (!hasChanged()) return;
 
 
             Task task = new Task() {
@@ -306,7 +310,7 @@ public class ActionData {
 
                             if (object != null) {
                                 JEVisAttribute dataModel = object.getAttribute("Data");
-                                Gson gson = GsonBuilder.createDefaultBuilder().create();
+
                                 JEVisFileImp jsonFile = new JEVisFileImp(
                                         "DataModel_v2" + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
                                         , gson.toJson(this).getBytes(StandardCharsets.UTF_8));
@@ -431,6 +435,7 @@ public class ActionData {
         return distributor;
     }
 
+    /*
     public SimpleStringProperty investmentProperty() {
         return investment;
     }
@@ -438,6 +443,8 @@ public class ActionData {
     public SimpleStringProperty DELETEsavingyearProperty() {
         return DELETEsavingyear;
     }
+
+     */
 
     public CheckListData getCheckListData() {
         return checkListData.get();

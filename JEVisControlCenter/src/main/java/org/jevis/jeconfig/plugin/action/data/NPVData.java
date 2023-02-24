@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.plugin.action.data;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
@@ -12,21 +14,47 @@ import java.text.NumberFormat;
 
 public class NPVData {
 
+    @Expose
+    @SerializedName("Interest Rate")
     public final SimpleDoubleProperty interestRate = new SimpleDoubleProperty(10);
-    public final SimpleDoubleProperty investition = new SimpleDoubleProperty("Investment"
+    @Expose
+    @SerializedName("Investment")
+    public final SimpleDoubleProperty investment = new SimpleDoubleProperty("Investment"
             , I18n.getInstance().getString("plugin.action.npv.invest"), 10000);
+    @Expose
+    @SerializedName("Saving")
     public final SimpleDoubleProperty einsparung = new SimpleDoubleProperty("Saving"
             , I18n.getInstance().getString("plugin.action.npv.saving"), 1000);
+    @Expose
+    @SerializedName("Running Cost")
     public final SimpleDoubleProperty runningCost = new SimpleDoubleProperty(500);
+    @Expose
+    @SerializedName("Inflation")
     public final SimpleDoubleProperty inflation = new SimpleDoubleProperty(3.1);
     public final ObservableList<NPVYearData> npvYears = FXCollections.observableArrayList();
+    @Expose
+    @SerializedName("Duration")
     public final SimpleIntegerProperty overXYear = new SimpleIntegerProperty(3);
+    @Expose
+    @SerializedName("Result")
     public final SimpleDoubleProperty npvResult = new SimpleDoubleProperty(0d);
+    @Expose
+    @SerializedName("Profitability Index")
     public final SimpleDoubleProperty piResult = new SimpleDoubleProperty(0d);
+    @Expose
+    @SerializedName("Result over X")
     public final SimpleDoubleProperty npvResultOverX = new SimpleDoubleProperty(0d);
+    @Expose
+    @SerializedName("Profitability Index over X")
     public final SimpleDoubleProperty piResultOverX = new SimpleDoubleProperty(0d);
+    @Expose
+    @SerializedName("Sum Investment")
     public final SimpleDoubleProperty sumEinzahlung = new SimpleDoubleProperty(0d);
+    @Expose
+    @SerializedName("Sum Payout")
     public final SimpleDoubleProperty sumAuszahlung = new SimpleDoubleProperty(0d);
+    @Expose
+    @SerializedName("Sum Net")
     public final SimpleDoubleProperty sumNetto = new SimpleDoubleProperty(0d);
 
     private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
@@ -56,12 +84,13 @@ public class NPVData {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 npvYears.forEach(NPVYearData::updateSums);
+                System.out.println("Value changed: " + newValue);
                 //updateResults();
             }
         };
 
         interestRate.addListener(changeListener);
-        investition.addListener(changeListener);
+        investment.addListener(changeListener);
         einsparung.addListener(changeListener);
         runningCost.addListener(changeListener);
         inflation.addListener(changeListener);
@@ -82,15 +111,18 @@ public class NPVData {
         double sumBetriebskosten = 0;
         double nettoSum = 0;
         double sumOverX = 0;
-        double initalInvestment = investition.get();
+        double initalInvestment = investment.get();
 
         sumBetriebskosten += initalInvestment;
         //einzahlung = 0;
 
+        /*
         System.out.println("Einmalig Anschaffung: " + investition.get());
         System.out.println("Einmalig invest:      " + einsparung.get());
         System.out.println("Einmalig runningCost: " + runningCost.get());
         System.out.println("--");
+
+         */
 
         int year = 0;
         for (NPVYearData npvYearData : npvYears) {
@@ -118,7 +150,7 @@ public class NPVData {
             }
 
         }
-
+/*
         System.out.println("Investtion:    " + (initalInvestment * -1));
         System.out.println("Sum            " + sum);
         System.out.println("sumEinzahlung: " + einsparrungSum);
@@ -127,6 +159,8 @@ public class NPVData {
 
         System.out.println("hmmm: " + (1895.3933847042238 / 10000.0));
         System.out.println("hmm2: " + (sum / initalInvestment));
+
+ */
 
         npvResult.set(round(((initalInvestment * -1) + sum), 2));
         piResult.set((sum / initalInvestment));
@@ -138,17 +172,20 @@ public class NPVData {
         npvResultOverX.set(round(((initalInvestment * -1) + sumOverX), 2));
         piResultOverX.set((sumOverX / initalInvestment));
 
+        /*
         System.out.println("new Sum:       " + sumAuszahlung.getValue());
         System.out.println("########################");
 
+         */
+
     }
 
-    public double getInvestition() {
-        return investition.get();
+    public double getInvestment() {
+        return investment.get();
     }
 
-    public SimpleDoubleProperty investitionProperty() {
-        return investition;
+    public SimpleDoubleProperty investmentProperty() {
+        return investment;
     }
 
     private double round(double value, int decimalPoints) {

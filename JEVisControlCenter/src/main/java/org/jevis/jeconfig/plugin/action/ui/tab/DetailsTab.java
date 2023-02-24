@@ -167,6 +167,7 @@ public class DetailsTab extends Tab {
         Bindings.bindBidirectional(f_enpiDiff.getTextField().textProperty(), data.enpiProperty().get().diffProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_enpiDiff.getUnitField().textProperty(), data.enpiProperty().get().unitProperty());
 
+
         f_distributor.textProperty().bindBidirectional(data.distributorProperty());
         f_FromUser.textProperty().bindBidirectional(data.fromUserProperty());
         DateTime start = data.createDateProperty().get();

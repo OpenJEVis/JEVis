@@ -20,7 +20,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
-import org.jevis.jeconfig.plugin.action.ui.UnitDoubleConverter;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -75,9 +74,9 @@ public class GeneralTab extends Tab {
 
         col3Spacer.setMinWidth(25);
 
-        f_savingYear.textProperty().bindBidirectional(data.DELETEsavingyearProperty());
+        // f_savingYear.textProperty().bindBidirectional(data.DELETEsavingyearProperty());
         f_ActionNr.setText(data.nrProperty().get() + "");
-        f_Investment.textProperty().bindBidirectional(data.investmentProperty());
+        // f_Investment.textProperty().bindBidirectional(data.investmentProperty());
 
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> enpiCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
@@ -178,10 +177,10 @@ public class GeneralTab extends Tab {
             data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
         });
 
-        Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investition, DoubleConverter.getInstance().getDoubleConverter());
+        Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, DoubleConverter.getInstance().getDoubleConverter());
         Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, DoubleConverter.getInstance().getDoubleConverter());
 
-        f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
+        // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
         JFXTextField l_savingsUnitLabel = new JFXTextField("€");
         l_savingsUnitLabel.setEditable(false);
         l_savingsUnitLabel.setPrefWidth(25);

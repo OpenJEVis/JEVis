@@ -137,8 +137,8 @@ public class ActionTable extends TableView<ActionData> {
         titlePropertyCol.setCellValueFactory(param -> param.getValue().titleProperty());
         titlePropertyCol.setCellFactory(buildShotTextFactory());
 
-        TableColumn<ActionData, Double> investPropertyCol = new TableColumn(fakeForName.npv.get().investition.getName());
-        investPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().investition.asObject());
+        TableColumn<ActionData, Double> investPropertyCol = new TableColumn(fakeForName.npv.get().investment.getName());
+        investPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().investment.asObject());
         //investPropertyCol.setCellFactory(buildShotTextFactory());
         investPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         investPropertyCol.setCellFactory(new CurrencyColumnCell());
