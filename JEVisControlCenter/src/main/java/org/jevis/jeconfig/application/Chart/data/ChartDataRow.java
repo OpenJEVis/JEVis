@@ -756,7 +756,7 @@ public class ChartDataRow extends ChartData {
             try {
 
                 String jevisClassName = getObject().getJEVisClassName();
-                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data") || jevisClassName.equals("Base Data")) {
+                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data") || jevisClassName.equals("Base Data") || jevisClassName.equals("Math Data")) {
                     if (dataProcessorObject == null) {
                         this.attribute = getObject().getAttribute("Value");
                     } else {
