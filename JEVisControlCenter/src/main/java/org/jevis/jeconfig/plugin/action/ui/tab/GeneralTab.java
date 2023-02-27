@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.action.ui.tab;
 
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.binding.Bindings;
@@ -19,6 +20,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.jevis.jeconfig.plugin.action.data.FreeObject;
 import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
 import org.joda.time.DateTime;
 
@@ -52,14 +54,21 @@ public class GeneralTab extends Tab {
     private JFXTextField f_Responsible = new JFXTextField();
     private TextArea f_Description = new TextArea();
     private TextArea f_NoteBewertet = new TextArea();
-    private ComboBox<String> f_statusTags;
+    private JFXComboBox<String> f_statusTags;
     private CheckComboBox<String> f_fieldTags;
-    private ComboBox<String> f_mediaTags;
-    private ComboBox<JEVisObject> f_Enpi = new ComboBox();
+    private JFXComboBox<String> f_mediaTags;
+    private JFXComboBox<JEVisObject> f_Enpi;
     private JFXTextField f_Attachment = new JFXTextField();
     private TextArea f_Note = new TextArea();
     private TextArea f_NoteEnergiefluss = new TextArea();
     private ActionData names = new ActionData();
+
+    {
+        f_NoteBewertet.setWrapText(true);
+        f_Description.setWrapText(true);
+        f_Note.setWrapText(true);
+        f_NoteEnergiefluss.setWrapText(true);
+    }
 
     public GeneralTab(ActionData data) {
         super(I18n.getInstance().getString("actionform.editor.tab.general"));
@@ -96,12 +105,13 @@ public class GeneralTab extends Tab {
             }
         };
 
-        f_Enpi = new ComboBox(data.getActionPlan().getEnpis());
+        f_Enpi = new JFXComboBox(data.getActionPlan().getEnpis());
         f_Enpi.setCellFactory(enpiCellFactory);
         f_Enpi.setButtonCell(enpiCellFactory.call(null));
-        f_statusTags = new ComboBox<>(actionPlan.getStatustags());
+        f_statusTags = new JFXComboBox<>(actionPlan.getStatustags());
         f_fieldTags = new CheckComboBox<>(actionPlan.getFieldsTags());
-        f_mediaTags = new ComboBox<>(actionPlan.getMediumTags());
+        f_mediaTags = new JFXComboBox<>(actionPlan.getMediumTags());
+        //f_mediaTags.setCellFactory();
 
         f_Title.widthProperty().addListener((observable, oldValue, newValue) -> {
             f_statusTags.setPrefWidth(newValue.doubleValue());
@@ -153,14 +163,30 @@ public class GeneralTab extends Tab {
         });
 
         try {
-            f_Enpi.valueProperty().set(data.getObject().getDataSource().getObject(new Long(data.enpilinksProperty().get())));
+            JEVisObject obj = FreeObject.getInstance();
+            System.out.println("data.enpilinksProperty().get(): " + data.enpiProperty().get().jevisLinkProperty().get());
+            if (!data.enpiProperty().get().jevisLinkProperty().get().isEmpty() && !data.enpiProperty().get().jevisLinkProperty().get().equals(FreeObject.getInstance().getID())) {
+                try {
+                    obj = data.getObject().getDataSource().getObject(new Long(data.enpiProperty().get().jevisLinkProperty().get()));
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            }
+            //System.out.println("Select Object; " + obj);
+            // f_Enpi.valueProperty().set(obj);
+            f_Enpi.getSelectionModel().select(obj);
+            f_Enpi.getSelectionModel().selectLast();
+
+            System.out.println("EnPI selected1: " + f_Enpi.getSelectionModel().getSelectedItem());
+            System.out.println("EnPI selected2: " + obj);
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         f_Enpi.valueProperty().addListener(new ChangeListener<JEVisObject>() {
             @Override
             public void changed(ObservableValue<? extends JEVisObject> observable, JEVisObject oldValue, JEVisObject newValue) {
-                data.enpilinksProperty().set(newValue.getID().toString());
+                data.enpiProperty().get().jevisLinkProperty().set(newValue.getID().toString());
                 /** TODO update enpi data **/
             }
         });
