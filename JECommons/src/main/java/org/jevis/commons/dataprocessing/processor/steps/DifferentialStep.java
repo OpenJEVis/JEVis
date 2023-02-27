@@ -126,14 +126,21 @@ public class DifferentialStep implements ProcessStep {
 
         if (listConversionToDifferential != null) {
 
-            DateTime firstTS = intervals.get(0).getDate();
+            DateTime firstTS = null;
+            for (CleanInterval interval : intervals) {
+                if (!interval.getRawSamples().isEmpty()) {
+                    firstTS = interval.getRawSamples().get(0).getTimestamp();
+                    break;
+                }
+            }
+
             DateTime lastDiffTS = firstTS;
             Double lastDiffVal = rawSamples.get(0).getValueAsDouble();
             CleanInterval lastInterval = null;
             boolean found = false;
 
             for (JEVisSample smp : rawSamples) {
-                if (smp.getTimestamp().isBefore(firstTS)) {
+                if (smp.getTimestamp().equals(firstTS) || smp.getTimestamp().isBefore(firstTS)) {
                     lastDiffVal = smp.getValueAsDouble();
                     lastDiffTS = smp.getTimestamp();
                     found = true;
@@ -162,6 +169,10 @@ public class DifferentialStep implements ProcessStep {
                         DateTime tmpTimeStamp = curSample.getTimestamp();
 
                         Double rawValue = curSample.getValueAsDouble();
+
+                        if (rawValue == null) {
+                            continue;
+                        }
 
                         if (curSample.getNote().contains(NoteConstants.Differential.COUNTER_CHANGE)) {
                             lastDiffVal = rawValue;
