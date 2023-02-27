@@ -81,7 +81,7 @@ public class ResourceI18n {
             }
 
             //@TODO add single class only support
-            if (jclass.isEmpty()) {
+            if (!jclass.isEmpty()) {
                 for (JsonI18nClass i18class : files) {
                     if (i18class.getJevisclass().equalsIgnoreCase(jclass)) {
                         return Response.ok(i18class).build();
