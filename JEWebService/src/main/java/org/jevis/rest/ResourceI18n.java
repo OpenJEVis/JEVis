@@ -75,7 +75,7 @@ public class ResourceI18n {
                         }
                     } catch (Exception fex) {
                         logger.error("Error while loading i18n file '{}':", file.getName(), fex);
-                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(fex.getMessage()).build();
+                        // return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(fex.getMessage()).build();
                     }
                 }
             }
