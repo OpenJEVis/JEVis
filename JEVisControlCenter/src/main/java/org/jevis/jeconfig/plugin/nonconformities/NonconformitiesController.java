@@ -1,19 +1,19 @@
 package org.jevis.jeconfig.plugin.nonconformities;
 
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -81,10 +81,10 @@ public class NonconformitiesController {
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            logger.info("new tab selected: {}",newValue);
+            logger.info("new tab selected: {}", newValue);
 
             Nonconformities nonconformities = ((NonconformitiesTab) newValue).getNonconformities();
-            nonconformities.loadActionList();
+            nonconformities.loadNonconformityList();
 
         });
 
@@ -94,6 +94,13 @@ public class NonconformitiesController {
         gridPane.setVgap(10);
         double maxListHeight = 100;
 
+
+        Label lSuche = new Label("Suche");
+        JFXTextField fsearch = new JFXTextField();
+        fsearch.setPromptText("Suche nach...");
+
+        org.jevis.jeconfig.plugin.action.ui.TagButton mediumButton = new org.jevis.jeconfig.plugin.action.ui.TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), plan.getMediumTags());
+
         ComboBox<String> datumBox = new ComboBox<>();
         datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
         datumBox.getSelectionModel().selectFirst();
@@ -102,6 +109,31 @@ public class NonconformitiesController {
         ComboBox<String> comparatorBox = new ComboBox<>();
         comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));
         comparatorBox.getSelectionModel().selectFirst();
+
+        fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            nonconformitiesTable.setTextFilter(newValue);
+            nonconformitiesTable.filter();
+        });
+
+        TimeFilterSelector dateSelector = new TimeFilterSelector(plan);
+
+        dateSelector.getValuePropertyProperty().addListener(new ChangeListener<DateFilter>() {
+            @Override
+            public void changed(ObservableValue<? extends DateFilter> observableValue, DateFilter dateFilter, DateFilter t1) {
+                nonconformitiesTable.setDateFilter(t1);
+                nonconformitiesTable.filter();
+            }
+        });
+
+
+        Separator vSep1 = new Separator(Orientation.VERTICAL);
+        gridPane.addColumn(0, lSuche, fsearch);
+        gridPane.addColumn(1, vSep1);
+        gridPane.addColumn(2, new Label("Zeitbereich"), dateSelector);
+
+        gridPane.addColumn(3, new Region(), mediumButton);
+
+
         //HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
         EventHandler<ActionEvent> dateFilerEvent = new EventHandler<ActionEvent>() {
             @Override
@@ -122,41 +154,8 @@ public class NonconformitiesController {
         comparatorBox.setOnAction(dateFilerEvent);
 
 
-        TagButton statusButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.status"), plan.getStatustags(), plan.getStatustags());
-        TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), plan.getMediumTags());
-        TagButton fieldsButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.bereich"), plan.getFieldsTags(), plan.getFieldsTags());
 
-        nonconformitiesTable.setFilterStatus(plan.getStatustags());
-        nonconformitiesTable.setFilterMedium(plan.getMediumTags());
-        nonconformitiesTable.setFilterField(plan.getFieldsTags());
 
-        statusButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                while (c.next()) {
-                    nonconformitiesTable.setFilterStatus((ObservableList<String>) c.getList());
-                    //nonconformitiesTable.filter();
-                }
-            }
-        });
-        mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                while (c.next()) {
-                    nonconformitiesTable.setFilterMedium((ObservableList<String>) c.getList());
-                    //nonconformitiesTable.filter();
-                }
-            }
-        });
-        fieldsButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                while (c.next()) {
-                    nonconformitiesTable.setFilterField((ObservableList<String>) c.getList());
-                    //nonconformitiesTable.filter();
-                }
-            }
-        });
 
         //gridPane.add(hBox, 0, 1, 3, 1);
 
@@ -268,14 +267,14 @@ public class NonconformitiesController {
                 nonconformitiesDirObj = getActiveNonconformities().getObject().getChildren(nonconformitiesDirClass, false).get(0);
             }
 
-            int nextNonconformityNr= getActiveNonconformities().getNextNonconformityNr();
+            int nextNonconformityNr = getActiveNonconformities().getNextNonconformityNr();
 
             JEVisObject nonconformityObject = nonconformitiesDirObj.buildObject(String.valueOf(nextNonconformityNr), nonconformityClass);
             nonconformityObject.commit();
-            NonconformityData newNonconformityData = new NonconformityData(nonconformityObject);
+            NonconformityData newNonconformityData = new NonconformityData(nonconformityObject, tab.getNonconformities());
             newNonconformityData.commit();
             newNonconformityData.nrProperty().set(nextNonconformityNr);
-            newNonconformityData.setCreator(getActiveNonconformities().getObject().getDataSource().getCurrentUser().getFirstName()+ " "+getActiveNonconformities().getObject().getDataSource().getCurrentUser().getLastName());
+            newNonconformityData.setCreator(getActiveNonconformities().getObject().getDataSource().getCurrentUser().getFirstName() + " " + getActiveNonconformities().getObject().getDataSource().getCurrentUser().getLastName());
             tab.getNonconformities().addAction(newNonconformityData);
 
             tab.getActionTable().getSelectionModel().select(newNonconformityData);
@@ -304,7 +303,7 @@ public class NonconformitiesController {
             planObjs.forEach(jeVisObject -> {
                 Nonconformities plan = new Nonconformities(jeVisObject);
                 actionPlans.add(plan);
-                if (isFirstPlan.get()) plan.loadActionList();
+                if (isFirstPlan.get()) plan.loadNonconformityList();
                 isFirstPlan.set(false);
             });
 

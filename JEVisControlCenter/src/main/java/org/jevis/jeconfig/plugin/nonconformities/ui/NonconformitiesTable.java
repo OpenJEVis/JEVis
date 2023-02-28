@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -10,6 +11,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.plugin.nonconformities.data.TableFilter;
 import org.joda.time.DateTime;
@@ -17,6 +19,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 
 
 public class NonconformitiesTable extends TableView<NonconformityData> {
@@ -35,13 +39,12 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
 
     ObservableList<NonconformityData> data = FXCollections.observableArrayList();
     FilteredList<NonconformityData> filteredData;
-    private ObservableList<String> status = FXCollections.observableArrayList();
-    private ObservableList<String> medium = FXCollections.observableArrayList();
-    private ObservableList<String> field = FXCollections.observableArrayList();
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
     private NonconformityData sumRow = new NonconformityData();
+    private DateFilter dateFilter;
     private boolean showSumRow = false;
+    private String containsTextFilter = "";
 
     public NonconformitiesTable(ObservableList<NonconformityData> data) {
         this.data = data;
@@ -223,17 +226,58 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
     public TableFilter getTableFilter() {
         return tableFilter;
     }
-
-    public void setFilterStatus(ObservableList<String> status) {
-        this.status = status;
+    public void setTextFilter(String containsText) {
+        this.containsTextFilter = containsText;
     }
 
-    public void setFilterMedium(ObservableList<String> medium) {
-        this.medium = medium;
+    public void setDateFilter(DateFilter filter) {
+        this.dateFilter = filter;
     }
 
-    public void setFilterField(ObservableList<String> field) {
-        this.field = field;
+
+
+    public void filter() {
+        filteredData.setPredicate(
+                new Predicate<NonconformityData>() {
+                    @Override
+                    public boolean test(NonconformityData notesRow) {
+                        //System.out.println("Filter.predict: " + notesRow.getTags());
+                        try {
+
+
+                            if (dateFilter != null) {
+                                if (!dateFilter.show(notesRow)) return false;
+                            }
+
+
+                            AtomicBoolean containString = new AtomicBoolean(false);
+                            if (containsTextFilter != null || containsTextFilter.isEmpty()) {
+                                if (notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.getResponsiblePerson().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.getCreator().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.getCause().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.getDescription().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.getImmediateMeasures().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.getCorrectiveActions().toLowerCase().contains(containsTextFilter.toLowerCase())) {
+                                    containString.set(true);
+                                }
+
+                                //TODO: may also check if column is visible
+                                if (!containString.get()) return false;
+                            }
+
+
+                            return true;
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        return false;
+                    }
+                });
+        //Platform.runLater(() -> autoFitTable(tableView));
+        Platform.runLater(() -> sort());
+
     }
 
 

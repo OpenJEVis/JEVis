@@ -4,11 +4,13 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.joda.time.*;
 
@@ -18,7 +20,9 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
     private final JFXDatePicker f_plannedDate = new JFXDatePicker();
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
 
+    private final JFXDatePicker f_createDate = new JFXDatePicker();
 
+    private ComboBox<String> f_mediaTags;
 
     private TextArea f_Description = new TextArea();
     private TextArea f_Cause = new TextArea();
@@ -48,6 +52,11 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
     private Label l_ImmediateMeasures = new Label();
     private Label l_CorrectiveActions = new Label();
     private Label l_Creator = new Label();
+    private Label l_CreateDate = new Label();
+    private Label l_Medium = new Label();
+    private Label l_mediaTags = new Label();
+
+
 
 
     public GeneralTab() {
@@ -65,6 +74,10 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
     public void initTab(NonconformityData nonconformityData) {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20));
+
+        Nonconformities nonconformities = nonconformityData.getNonconformities();
+
+
         //ScrollPane scrollPane = new ScrollPane(gridPane);
         gridPane.setVgap(10);
         gridPane.setHgap(15);
@@ -83,20 +96,24 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_ActionNr);
         add(gridPane, 1, 2, 1, 1, Priority.NEVER, l_Responsible);
         add(gridPane,1 , 3, 1, 1, Priority.NEVER, l_plannedDate);
+        add(gridPane,1,4,1,1,Priority.NEVER,l_CreateDate);
 
 
         add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_ActionNr);
         add(gridPane, 2, 2, 1, 1, Priority.SOMETIMES, f_Responsible);
         add(gridPane, 2, 3, 1, 1, Priority.SOMETIMES, f_plannedDate);
+        add(gridPane, 2, 4, 1, 1, Priority.SOMETIMES, f_createDate);
 
 
         add(gridPane, 3, 1, 1, 1, Priority.NEVER, l_Title);
         add(gridPane, 3, 2, 1, 1, Priority.NEVER, l_Creator);
         add(gridPane, 3, 3, 1, 1, Priority.NEVER, l_doneDate);
+        add(gridPane, 3, 4, 1, 1, Priority.NEVER, l_mediaTags);
 
         add(gridPane, 4, 1, 1, 1, Priority.NEVER, f_Title);
         add(gridPane, 4, 2, 1, 1, Priority.NEVER, f_Creator);
         add(gridPane, 4, 3, 1, 1, Priority.SOMETIMES, f_doneDate);
+        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, f_mediaTags);
 
         add(gridPane, 1, 5, 2, 1, Priority.SOMETIMES, l_Description);
         add(gridPane, 1, 6, 2, 1, Priority.SOMETIMES, f_Description);
@@ -158,8 +175,11 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
         f_CorrectiveActions.textProperty().bindBidirectional(data.correctiveActionsProperty());
         f_ImmediateMeasures.textProperty().bindBidirectional(data.immediateMeasuresProperty());
         f_Creator.textProperty().bindBidirectional(data.creatorProperty());
+        f_mediaTags = new ComboBox<>(data.getNonconformities().getMediumTags());
 
+        l_CreateDate.setText(fake.createDateProperty().getName());
         l_doneDate.setText(fake.doneDateProperty().getName());
+        l_mediaTags.setText(data.mediaTagsProperty().getName());
         l_plannedDate.setText(fake.plannedDateProperty().getName());
         l_Title.setText(fake.titleProperty().getName());
         l_Description.setText(fake.descriptionProperty().getName());
@@ -178,6 +198,10 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
             f_doneDate.setValue(LocalDate.of(data.getDoneDate().getYear(),data.getDoneDate().getMonthOfYear(),data.getDoneDate().getDayOfMonth()));
         }
 
+        if (data.createDateProperty().isNotNull().get()) {
+            f_createDate.setValue(LocalDate.of(data.getCreateDate().getYear(),data.getCreateDate().getMonthOfYear(),data.getCreateDate().getDayOfMonth()));
+        }
+
 
         f_plannedDate.valueProperty().addListener((observableValue, localDate, newValue) -> {
             data.plannedDateProperty().set(new DateTime(newValue.getYear(),newValue.getMonthValue(),newValue.getDayOfMonth(),0,0));
@@ -186,6 +210,11 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
 
         f_doneDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+
+        });
+
+        f_createDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
 
         });
 

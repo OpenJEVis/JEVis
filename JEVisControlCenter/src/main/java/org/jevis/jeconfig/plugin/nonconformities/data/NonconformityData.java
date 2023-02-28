@@ -132,13 +132,21 @@ public class NonconformityData {
     private final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", I18n.getInstance().getString("plugin.nonconforrmities.attachment"), "");
 
 
+    @Expose
+    @SerializedName("Medium Tags")
+    public final SimpleStringProperty mediaTags = new SimpleStringProperty("Medium Tags",
+            "Medium", "Strom");
+
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     private ChangeListener changeListener;
     private JEVisObject object;
 
     private List<ReadOnlyProperty> propertyList = new ArrayList<>();
 
-    public NonconformityData(JEVisObject obj) {
+    private Nonconformities nonconformities;
+
+    public NonconformityData(JEVisObject obj, Nonconformities nonconformities) {
+        this.nonconformities = nonconformities;
         this.object = obj;
         reload();
     }
@@ -638,5 +646,25 @@ public class NonconformityData {
                 ", doneDate=" + doneDate +
                 ", attachment=" + attachment +
                 '}';
+    }
+
+    public String getMediaTags() {
+        return mediaTags.get();
+    }
+
+    public SimpleStringProperty mediaTagsProperty() {
+        return mediaTags;
+    }
+
+    public void setMediaTags(String mediaTags) {
+        this.mediaTags.set(mediaTags);
+    }
+
+    public Nonconformities getNonconformities() {
+        return nonconformities;
+    }
+
+    public void setNonconformities(Nonconformities nonconformities) {
+        this.nonconformities = nonconformities;
     }
 }

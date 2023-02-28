@@ -146,10 +146,10 @@ public class Nonconformities {
 
     public void reloadActionList() {
         actionsLoaded.set(false);
-        loadActionList();
+        loadNonconformityList();
     }
 
-    public void loadActionList() {
+    public void loadNonconformityList() {
         if (!actionsLoaded.get()) {
             actionsLoaded.set(true);
             //System.out.println("loadIntoList for: " + name.get());
@@ -164,7 +164,7 @@ public class Nonconformities {
                             dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                                 System.out.println("new Action from JEVis: " + actionObj);
                                 try {
-                                    nonconformityList.add(loadAction(actionObj));
+                                    nonconformityList.add(loadNonconformties(actionObj));
                                 } catch (Exception e) {
                                     logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                                 }
@@ -187,7 +187,7 @@ public class Nonconformities {
 
     }
 
-    public NonconformityData loadAction(JEVisObject actionObj) throws JEVisException, NullPointerException {
+    public NonconformityData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
         JEVisAttribute att = actionObj.getAttribute("Data");;
         JEVisSample sample = att.getLatestSample();
         JEVisFile file = sample.getValueAsFile();
@@ -197,6 +197,7 @@ public class Nonconformities {
         Gson gson = GsonBuilder.createDefaultBuilder().create();
         NonconformityData nonconformityData = gson.fromJson(s, NonconformityData.class);
         nonconformityData.setObject(actionObj);
+        nonconformityData.setNonconformities(this);
         return nonconformityData;
     }
 
