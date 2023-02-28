@@ -17,6 +17,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
+import org.jevis.jeconfig.plugin.action.data.FreeObject;
 import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
 import org.jevis.jeconfig.plugin.action.ui.TextFieldWithUnit;
 import org.jevis.jeconfig.plugin.action.ui.TimeRangeDialog;
@@ -79,15 +80,11 @@ public class DetailsTab extends Tab {
         f_consumptionDiff.setEditable(false);
         f_enpiDiff.setEditable(false);
 
+        data.enpi.get().jevisLinkProperty().addListener((observable, oldValue, newValue) -> {
+            f_enpiBefore.setEditable(newValue.equals(FreeObject.getInstance().getID().toString()));
+            f_enpiAfter.setEditable(newValue.equals(FreeObject.getInstance().getID().toString()));
+        });
 
-        data.enpi.get().isManualProperty().addListener((observable, oldValue, newValue) -> {
-            f_enpiBefore.setEditable(newValue);
-            f_enpiAfter.setEditable(newValue);
-        });
-        data.consumption.get().isManualProperty().addListener((observable, oldValue, newValue) -> {
-            f_consumptionBefore.setEditable(newValue);
-            f_consumptionAfter.setEditable(newValue);
-        });
 
         Region spacerEnpiBefore = new Region();
         Region spacerEnpiAfter = new Region();
@@ -133,7 +130,7 @@ public class DetailsTab extends Tab {
 
         buttonOpenAnalysisBefore.setOnAction(event -> {
             try {
-                Long enpiData = Long.parseLong(data.enpilinksProperty().get().replace(";", ""));
+                Long enpiData = Long.parseLong(data.enpiProperty().get().jevisLinkProperty().get().replace(";", ""));
                 JEVisAttribute attribute = data.getObject().getDataSource().getObject(enpiData).getAttribute("Value");
 
                 /**
@@ -174,12 +171,6 @@ public class DetailsTab extends Tab {
         f_CreateDate.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
         f_CreateDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
-        });
-
-
-        data.enpilinksProperty().addListener(observable -> {
-            System.out.println("Enpi link changed");
-
         });
 
 
