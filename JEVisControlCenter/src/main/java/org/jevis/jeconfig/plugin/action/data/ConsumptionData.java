@@ -11,6 +11,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 
@@ -52,11 +53,15 @@ public class ConsumptionData {
     @Expose
     @SerializedName("After Until Date")
     public final SimpleObjectProperty<DateTime> afterUntilDate = new SimpleObjectProperty<DateTime>(null);
+    @Expose
+    @SerializedName("Data Source")
+    public final SimpleStringProperty jevisLink = new SimpleStringProperty("EnPI Link",
+            I18n.getInstance().getString("plugin.action.enpilink"), "");
     private SimpleStringProperty unit = new SimpleStringProperty("kWh");
     private ActionData actionData = null;
 
     {
-        diff.bind(Bindings.subtract(actual, after));
+        diff.bind(Bindings.subtract(after, actual));
     }
 
     private boolean isManual() {
@@ -185,5 +190,9 @@ public class ConsumptionData {
 
     public SimpleBooleanProperty isManualProperty() {
         return isManual;
+    }
+
+    public SimpleStringProperty jevisLinkProperty() {
+        return jevisLink;
     }
 }
