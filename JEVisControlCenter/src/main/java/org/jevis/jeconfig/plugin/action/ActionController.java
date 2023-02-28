@@ -34,9 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ActionController {
     private static final Logger logger = LogManager.getLogger(ActionController.class);
-
     private final ActionPlugin plugin;
-
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
     private ObservableList<ActionPlanData> actionPlans;
@@ -74,7 +72,7 @@ public class ActionController {
 
 
     private void buildTabPane(ActionPlanData plan) {
-        ActionTable actionTable = new ActionTable(plan.getActionData());
+        ActionTable actionTable = new ActionTable(plan, plan.getActionData());
         //actionTable.enableSumRow(true);
         ActionTab tab = new ActionTab(plan, actionTable);
         tab.setClosable(false);
@@ -188,6 +186,7 @@ public class ActionController {
         tab.setContent(borderPane);
         //actionTable.setItems(createTestData());
 
+        actionTable.filter();
     }
 
     public void deletePlan() {
@@ -258,7 +257,8 @@ public class ActionController {
         if (result.get() == ButtonType.OK) {
             try {
                 getSelectedData().delete();
-                tab.getActionPlan().removeAction(tab.getActionTable().getSelectionModel().getSelectedItem());
+                tab.getActionTable().filter();
+                //tab.getActionPlan().removeAction(tab.getActionTable().getSelectionModel().getSelectedItem());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -279,13 +279,17 @@ public class ActionController {
                 actionDirObj = getActiveActionPlan().getObject().getChildren(actionDirClass, false).get(0);
             }
 
-            JEVisObject actionObject = actionDirObj.buildObject(getActiveActionPlan().getNextActionNr().toString(), actionClass);
+            int nextNr = getActiveActionPlan().getNextActionNr();
+            JEVisObject actionObject = actionDirObj.buildObject(nextNr + "", actionClass);
             actionObject.commit();
             ActionData newAction = new ActionData(tab.getActionPlan(), actionObject);
-            newAction.nrProperty().set(tab.getActionPlan().getNextActionNr());
+            newAction.nrProperty().set(nextNr);
+            newAction.fromUser.set(actionDirObj.getDataSource().getCurrentUser().getAccountName());
+            newAction.commit();
             tab.getActionPlan().addAction(newAction);
 
             tab.getActionTable().getSelectionModel().select(newAction);
+
             openDataForm();//tab.getActionTable().getSelectionModel().getSelectedItem()
         } catch (Exception ex) {
             logger.error(ex);
@@ -364,9 +368,15 @@ public class ActionController {
 
         Optional<ButtonType> optional = actionForm.showAndWait();
         if (optional.get() == buttonTypeOne) {
+            data.setNew(false);
             data.commit();
         } else {
-            data.reload();
+            if (data.isNew()) {
+                data.getActionPlan().removeAction(data);
+            } else {
+                data.reload();
+            }
+
         }
 
 
