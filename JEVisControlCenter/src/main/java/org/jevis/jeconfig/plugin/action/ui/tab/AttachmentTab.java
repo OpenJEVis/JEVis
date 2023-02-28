@@ -52,9 +52,9 @@ public class AttachmentTab extends Tab {
         ObservableList<FileData> fileData = FXCollections.observableArrayList();
         FileTableView fileTableView = new FileTableView(fileData);
         double iconSize = 12;
-        Button addFileButton = new Button("", JEConfig.getSVGImage(Icon.PLUS, iconSize, 18));
-        Button downloadFileButton = new Button("", JEConfig.getSVGImage(Icon.EXPORT, iconSize, 18));
-        Button deleteFileButton = new Button("", JEConfig.getSVGImage(Icon.DELETE, iconSize, 18));
+        Button addFileButton = new Button("", JEConfig.getSVGImage(Icon.PLUS, iconSize, iconSize));
+        Button downloadFileButton = new Button("", JEConfig.getSVGImage(Icon.EXPORT, iconSize, iconSize));
+        Button deleteFileButton = new Button("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
 
 
         addFileButton.setDisable(true);
