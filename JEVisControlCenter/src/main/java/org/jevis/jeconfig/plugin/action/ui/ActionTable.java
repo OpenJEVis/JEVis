@@ -13,6 +13,7 @@ import javafx.scene.control.TableView;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.TableFilter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -51,17 +52,20 @@ public class ActionTable extends TableView<ActionData> {
     private String containsTextFilter = "";
 
     NumberFormat currencyFormat = NumberFormat.getNumberInstance();
+    private ActionPlanData actionPlanData = null;
 
-    public ActionTable(ObservableList<ActionData> data) {
+    public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
+        this.actionPlanData = actionPlanData;
         setItems(filteredData);
         setId("Action Table");
 
-        //this.getStylesheets().add(this.getClass().getResource("/styles/Table2.css").toExternalForm());
+        actionPlanData.nrPrefixProperty().addListener((observable, oldValue, newValue) -> {
+            filter();
+        });
 
         ActionData fakeForName = new ActionData();
-
         TableColumn<ActionData, String> fromUserCol = new TableColumn(fakeForName.fromUserProperty().getName());
         fromUserCol.setCellValueFactory(param -> param.getValue().fromUserProperty());
         fromUserCol.setCellFactory(buildShotTextFactory());
@@ -73,6 +77,18 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, Integer> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
         actionNrPropertyCol.setCellValueFactory(param -> param.getValue().nrProperty().asObject());
         actionNrPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        actionNrPropertyCol.setCellFactory(param -> {
+            return new TableCell<ActionData, Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (item != null && !empty) {
+                        if (actionPlanData != null) setText(actionPlanData.getNrPrefix() + item);
+                    }
+                }
+            };
+        });
 
         TableColumn<ActionData, String> desciptionPropertyCol = new TableColumn(fakeForName.desciptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().desciptionProperty());
@@ -162,7 +178,7 @@ public class ActionTable extends TableView<ActionData> {
                     protected void updateItem(Double item, boolean empty) {
                         super.updateItem(item, empty);
 
-                        if (item != null && !empty && getTableRow() != null) {
+                        if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
                             ActionData actionData = (ActionData) getTableRow().getItem();
                             setText(currencyFormat.format(item) + " " + actionData.enpi.get().unitProperty().get());
                         } else {
@@ -186,7 +202,7 @@ public class ActionTable extends TableView<ActionData> {
                     protected void updateItem(Double item, boolean empty) {
                         super.updateItem(item, empty);
 
-                        if (item != null && !empty && getTableRow() != null) {
+                        if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
                             ActionData actionData = (ActionData) getTableRow().getItem();
                             setText(currencyFormat.format(item) + " " + actionData.consumption.get().unitProperty().get());
                         } else {
@@ -344,7 +360,7 @@ public class ActionTable extends TableView<ActionData> {
                     public boolean test(ActionData notesRow) {
                         //System.out.println("Filter.predict: " + notesRow.getTags());
                         try {
-
+                            if (notesRow.isDeletedProperty().get()) return false;
 
                             AtomicBoolean statusMatch = new AtomicBoolean(false);
                             status.forEach(s -> {

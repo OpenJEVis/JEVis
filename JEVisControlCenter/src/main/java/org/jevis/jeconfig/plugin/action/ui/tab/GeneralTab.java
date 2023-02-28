@@ -6,6 +6,9 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -21,7 +24,9 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.FreeObject;
+import org.jevis.jeconfig.plugin.action.ui.CheckBoxData;
 import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
+import org.jevis.jeconfig.plugin.action.ui.JFXCheckComboBox;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -56,6 +61,7 @@ public class GeneralTab extends Tab {
     private TextArea f_NoteBewertet = new TextArea();
     private JFXComboBox<String> f_statusTags;
     private CheckComboBox<String> f_fieldTags;
+    private JFXCheckComboBox f_fieldTags2;
     private JFXComboBox<String> f_mediaTags;
     private JFXComboBox<JEVisObject> f_Enpi;
     private JFXTextField f_Attachment = new JFXTextField();
@@ -78,15 +84,10 @@ public class GeneralTab extends Tab {
         ScrollPane scrollPane = new ScrollPane(gridPane);
         gridPane.setVgap(10);
         gridPane.setHgap(15);
-        //gridPane.gridLinesVisibleProperty().set(true);
-
 
         col3Spacer.setMinWidth(25);
 
-        // f_savingYear.textProperty().bindBidirectional(data.DELETEsavingyearProperty());
-        f_ActionNr.setText(data.nrProperty().get() + "");
-        // f_Investment.textProperty().bindBidirectional(data.investmentProperty());
-
+        f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> enpiCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -113,12 +114,30 @@ public class GeneralTab extends Tab {
         f_mediaTags = new JFXComboBox<>(actionPlan.getMediumTags());
         //f_mediaTags.setCellFactory();
 
+        ObservableList<CheckBoxData> f_fieldTags2Data = FXCollections.observableArrayList();
+        data.getActionPlan().getFieldsTags().forEach(s -> {
+            f_fieldTags2Data.add(new CheckBoxData(s, false));
+        });
+/*
+        Arrays.stream(data.fieldTagsProperty().get().split(",")).forEach(s -> {
+            f_fieldTags2Data.add(new CheckBoxData(s, true));
+        });
+
+ */
+
+        f_fieldTags2 = new JFXCheckComboBox(data.getActionPlan().getFieldsTags(), data.fieldTagsProperty().get());
+        f_fieldTags2.textProperty().addListener((observable, oldValue, newValue) -> {
+            data.getActionPlan().getFieldsTags().setAll(f_fieldTags2.getValue());
+        });
+
         f_Title.widthProperty().addListener((observable, oldValue, newValue) -> {
             f_statusTags.setPrefWidth(newValue.doubleValue());
             f_fieldTags.setPrefWidth(newValue.doubleValue());
+            f_fieldTags2.setPrefWidth(newValue.doubleValue());
             f_mediaTags.setPrefWidth(newValue.doubleValue());
             f_Enpi.setPrefWidth(newValue.doubleValue());
         });
+
         f_Note.textProperty().bindBidirectional(data.noteProperty());
         f_Description.textProperty().bindBidirectional(data.desciptionProperty());
         f_Title.textProperty().bindBidirectional(data.titleProperty());
@@ -145,12 +164,18 @@ public class GeneralTab extends Tab {
             }
         });
 
-
         for (String s : data.fieldTagsProperty().getValue().split(";")) {
             f_fieldTags.getCheckModel().check(s);
         }
-        f_fieldTags.checkModelProperty().addListener((observable, oldValue, newValue) -> {
-            data.fieldTagsProperty().set(ActionPlanData.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
+
+        f_fieldTags.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+            public void onChanged(ListChangeListener.Change<? extends String> c) {
+                while (c.next()) {
+                    //do something with changes here
+                }
+                System.out.println(f_fieldTags.getCheckModel().getCheckedItems());
+                data.fieldTagsProperty().set(ActionPlanData.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
+            }
         });
 
 
@@ -164,7 +189,6 @@ public class GeneralTab extends Tab {
 
         try {
             JEVisObject obj = FreeObject.getInstance();
-            System.out.println("data.enpilinksProperty().get(): " + data.enpiProperty().get().jevisLinkProperty().get());
             if (!data.enpiProperty().get().jevisLinkProperty().get().isEmpty() && !data.enpiProperty().get().jevisLinkProperty().get().equals(FreeObject.getInstance().getID())) {
                 try {
                     obj = data.getObject().getDataSource().getObject(new Long(data.enpiProperty().get().jevisLinkProperty().get()));
@@ -177,8 +201,6 @@ public class GeneralTab extends Tab {
             f_Enpi.getSelectionModel().select(obj);
             f_Enpi.getSelectionModel().selectLast();
 
-            System.out.println("EnPI selected1: " + f_Enpi.getSelectionModel().getSelectedItem());
-            System.out.println("EnPI selected2: " + obj);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -253,7 +275,7 @@ public class GeneralTab extends Tab {
         add(gridPane, 4, 7, 1, 1, Priority.SOMETIMES, l_Attachment);
 
         add(gridPane, 5, 1, 1, 1, Priority.SOMETIMES, f_statusTags);
-        add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags);
+        add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags2);//f_fieldTags);
         add(gridPane, 5, 3, 1, 1, Priority.SOMETIMES, f_mediaTags);
         add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, f_Enpi);
         add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, investBox);//f_Investment
