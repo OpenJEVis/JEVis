@@ -128,12 +128,12 @@ public class CheckListTab extends javafx.scene.control.Tab implements Tab {
         f_SupplierChangeGoodsNeeded.selectedProperty().bindBidirectional(data.isSupplierChangeGoodsNeededProperty());
         f_ManagementNotificationNeeded.selectedProperty().bindBidirectional(data.isManagementNotificationNeededProperty());
         f_DocumentsChangesNeeded.selectedProperty().bindBidirectional(data.isDocumentsChangesNeededProperty());
-        f_ProcessInstructions.selectedProperty().bindBidirectional(data.isProcessInstructionsProperty());
-        f_WorkInstructions.selectedProperty().bindBidirectional(data.isWorkInstructionsProperty());
-        f_TestInstructions.selectedProperty().bindBidirectional(data.isTestInstructionsProperty());
-        f_Design.selectedProperty().bindBidirectional(data.isDesignProperty());
-        f_Model.selectedProperty().bindBidirectional(data.isModelProperty());
-        f_Miscellaneous.selectedProperty().bindBidirectional(data.isMiscellaneousProperty());
+        f_ProcessInstructions.selectedProperty().bindBidirectional(data.getCheckListData().isProcessInstructionsProperty());
+        f_WorkInstructions.selectedProperty().bindBidirectional(data.getCheckListData().isWorkInstructionsProperty());
+        f_TestInstructions.selectedProperty().bindBidirectional(data.getCheckListData().isTestInstructionsProperty());
+        f_Design.selectedProperty().bindBidirectional(data.getCheckListData().isDesignProperty());
+        f_Model.selectedProperty().bindBidirectional(data.getCheckListData().isModelProperty());
+        f_Miscellaneous.selectedProperty().bindBidirectional(data.getCheckListData().isMiscellaneousProperty());
 
         l_ImmediateActionRequired.setText(fake.isImmediateActionRequiredProperty().getName());
         l_EffectOnOngoingProcesses.setText(fake.isEffectOnOngoingProcessesProperty().getName());
@@ -143,12 +143,12 @@ public class CheckListTab extends javafx.scene.control.Tab implements Tab {
         l_ManagementNotificationNeeded.setText(fake.isManagementNotificationNeededProperty().getName());
         l_DocumentsChangesNeeded.setText(fake.isDocumentsChangesNeededProperty().getName());
         l_Documents.setText(fake.isDocumentsChangesNeededProperty().getName());
-        l_ProcessInstructions.setText(fake.isProcessInstructionsProperty().getName());
-        l_WorkInstructions.setText(fake.isWorkInstructionsProperty().getName());
-        l_TestInstructions.setText(fake.isTestInstructionsProperty().getName());
-        l_Design.setText(fake.isDesignProperty().getName());
-        l_Model.setText(fake.isModelProperty().getName());
-        l_Miscellaneous.setText(fake.isMiscellaneousProperty().getName());
+        l_ProcessInstructions.setText(fake.getCheckListData().isProcessInstructionsProperty().getName());
+        l_WorkInstructions.setText(fake.getCheckListData().isWorkInstructionsProperty().getName());
+        l_TestInstructions.setText(fake.getCheckListData().isTestInstructionsProperty().getName());
+        l_Design.setText(fake.getCheckListData().isDesignProperty().getName());
+        l_Model.setText(fake.getCheckListData().isModelProperty().getName());
+        l_Miscellaneous.setText(fake.getCheckListData().isMiscellaneousProperty().getName());
 
 
 

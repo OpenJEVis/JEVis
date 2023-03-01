@@ -135,6 +135,17 @@ public class NonconformitiesController {
 
         gridPane.addColumn(3, new Region(), mediumButton);
 
+        mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                System.out.println("List Changed: " + c);
+                while (c.next()) {
+                    nonconformitiesTable.setFilterMedium((ObservableList<String>) c.getList());
+                    nonconformitiesTable.filter();
+                }
+            }
+        });
+
 
         //HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
         EventHandler<ActionEvent> dateFilerEvent = new EventHandler<ActionEvent>() {
@@ -246,7 +257,8 @@ public class NonconformitiesController {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
             try {
-                getSelectedData().delete();
+                getSelectedData().setDeleted(true);
+                getSelectedData().commit();
                 tab.getNonconformities().removeNonconformity(tab.getActionTable().getSelectionModel().getSelectedItem());
             } catch (Exception ex) {
                 ex.printStackTrace();

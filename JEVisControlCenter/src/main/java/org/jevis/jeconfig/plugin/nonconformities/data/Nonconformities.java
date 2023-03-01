@@ -164,7 +164,10 @@ public class Nonconformities {
                             dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                                 System.out.println("new Action from JEVis: " + actionObj);
                                 try {
-                                    nonconformityList.add(loadNonconformties(actionObj));
+                                   NonconformityData nonconformityData = loadNonconformties(actionObj);
+                                    if (!nonconformityData.isDeleted()) {
+                                        nonconformityList.add(nonconformityData);
+                                    }
                                 } catch (Exception e) {
                                     logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                                 }

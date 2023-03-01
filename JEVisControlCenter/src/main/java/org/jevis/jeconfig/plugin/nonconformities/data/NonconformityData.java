@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class NonconformityData {
+public class NonconformityData{
 
     //private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(NonconformityData.class);
@@ -87,30 +87,8 @@ public class NonconformityData {
     private final SimpleBooleanProperty isDocumentsChangesNeeded = new SimpleBooleanProperty("Documents Changes Needed", I18n.getInstance().getString("plugin.nonconformities.documentschangesneeded"), false);
 
     @Expose
-    @SerializedName("Process Instructions")
-    private final SimpleBooleanProperty isProcessInstructions = new SimpleBooleanProperty("Process Instructions", I18n.getInstance().getString("plugin.nonconformities.processinstructions"), false);
-
-
-    @Expose
-    @SerializedName("Work Instructions")
-    private final SimpleBooleanProperty isWorkInstructions = new SimpleBooleanProperty("Work Instructions", I18n.getInstance().getString("plugin.nonconformities.workinstructions"), false);
-
-    @Expose
-    @SerializedName("Test Instructions")
-    private final SimpleBooleanProperty isTestInstructions = new SimpleBooleanProperty("Test Instructions", I18n.getInstance().getString("plugin.nonconformities.testinstructions"), false);
-
-    @Expose
-    @SerializedName("Design")
-    private final SimpleBooleanProperty isDesign = new SimpleBooleanProperty("Design", I18n.getInstance().getString("plugin.nonconformities.design"), false);
-
-    @Expose
-    @SerializedName("Model")
-    private final SimpleBooleanProperty isModel = new SimpleBooleanProperty("Model", I18n.getInstance().getString("plugin.nonconforrmities.model"), false);
-
-    @Expose
-    @SerializedName("Miscellaneous")
-    private final SimpleBooleanProperty isMiscellaneous = new SimpleBooleanProperty("Miscellaneous", I18n.getInstance().getString("plugin.nonconforrmities.miscellaneous"), false);
-
+    @SerializedName("Check List")
+    private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
 
     @Expose
     @SerializedName("Create Date")
@@ -125,6 +103,9 @@ public class NonconformityData {
     @SerializedName("Done Date")
     private final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date", I18n.getInstance().getString("plugin.nonconforrmities.donedate"), null);
 
+    @Expose
+    @SerializedName("Deleted")
+    private final SimpleBooleanProperty deleted = new SimpleBooleanProperty("Deleted", I18n.getInstance().getString("plugin.nonconforrmities.donedate"), false);
 
 
     @Expose
@@ -203,12 +184,12 @@ public class NonconformityData {
             registerChanges(isManagementNotificationNeeded);
 
             registerChanges(isDocumentsChangesNeeded);
-            registerChanges(isProcessInstructions);
-            registerChanges(isWorkInstructions);
-            registerChanges(isTestInstructions);
-            registerChanges(isDesign);
-            registerChanges(isModel);
-            registerChanges(isMiscellaneous);
+            registerChanges(getCheckListData().isProcessInstructionsProperty());
+            registerChanges(getCheckListData().isWorkInstructionsProperty());
+            registerChanges(getCheckListData().isTestInstructionsProperty());
+            registerChanges(getCheckListData().isDesignProperty());
+            registerChanges(getCheckListData().isModelProperty());
+            registerChanges(getCheckListData().isMiscellaneousProperty());
 
             registerChanges(immediateMeasures);
             registerChanges(correctiveActions);
@@ -505,65 +486,7 @@ public class NonconformityData {
         this.isDocumentsChangesNeeded.set(isDocumentsChangesNeeded);
     }
 
-    public boolean isIsProcessInstructions() {
-        return isProcessInstructions.get();
-    }
 
-    public SimpleBooleanProperty isProcessInstructionsProperty() {
-        return isProcessInstructions;
-    }
-
-    public void setIsProcessInstructions(boolean isProcessInstructions) {
-        this.isProcessInstructions.set(isProcessInstructions);
-    }
-
-    public boolean isIsWorkInstructions() {
-        return isWorkInstructions.get();
-    }
-
-    public SimpleBooleanProperty isWorkInstructionsProperty() {
-        return isWorkInstructions;
-    }
-
-    public void setIsWorkInstructions(boolean isWorkInstructions) {
-        this.isWorkInstructions.set(isWorkInstructions);
-    }
-
-    public boolean isIsTestInstructions() {
-        return isTestInstructions.get();
-    }
-
-    public SimpleBooleanProperty isTestInstructionsProperty() {
-        return isTestInstructions;
-    }
-
-    public void setIsTestInstructions(boolean isTestInstructions) {
-        this.isTestInstructions.set(isTestInstructions);
-    }
-
-    public boolean isIsDesign() {
-        return isDesign.get();
-    }
-
-    public SimpleBooleanProperty isDesignProperty() {
-        return isDesign;
-    }
-
-    public void setIsDesign(boolean isDesign) {
-        this.isDesign.set(isDesign);
-    }
-
-    public boolean isIsMiscellaneous() {
-        return isMiscellaneous.get();
-    }
-
-    public SimpleBooleanProperty isMiscellaneousProperty() {
-        return isMiscellaneous;
-    }
-
-    public void setIsMiscellaneous(boolean isMiscellaneous) {
-        this.isMiscellaneous.set(isMiscellaneous);
-    }
 
     public DateTime getCreateDate() {
         return createDate.get();
@@ -609,17 +532,7 @@ public class NonconformityData {
         this.valueChanged.set(valueChanged);
     }
 
-    public boolean isIsModel() {
-        return isModel.get();
-    }
 
-    public SimpleBooleanProperty isModelProperty() {
-        return isModel;
-    }
-
-    public void setIsModel(boolean isModel) {
-        this.isModel.set(isModel);
-    }
 
 
     @Override
@@ -640,12 +553,6 @@ public class NonconformityData {
                 ", isSupplierChangeGoodsNeeded=" + isSupplierChangeGoodsNeeded +
                 ", isManagementNotificationNeeded=" + isManagementNotificationNeeded +
                 ", isDocumentsChangesNeeded=" + isDocumentsChangesNeeded +
-                ", isProcessInstructions=" + isProcessInstructions +
-                ", isWorkInstructions=" + isWorkInstructions +
-                ", isTestInstructions=" + isTestInstructions +
-                ", isDesign=" + isDesign +
-                ", isModel=" + isModel +
-                ", isMiscellaneous=" + isMiscellaneous +
                 ", createDate=" + createDate +
                 ", plannedDate=" + plannedDate +
                 ", doneDate=" + doneDate +
@@ -671,5 +578,29 @@ public class NonconformityData {
 
     public void setNonconformities(Nonconformities nonconformities) {
         this.nonconformities = nonconformities;
+    }
+
+    public CheckListData getCheckListData() {
+        return checkListData.get();
+    }
+
+    public SimpleObjectProperty<CheckListData> checkListDataProperty() {
+        return checkListData;
+    }
+
+    public void setCheckListData(CheckListData checkListData) {
+        this.checkListData.set(checkListData);
+    }
+
+    public boolean isDeleted() {
+        return deleted.get();
+    }
+
+    public SimpleBooleanProperty deletedProperty() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted.set(deleted);
     }
 }

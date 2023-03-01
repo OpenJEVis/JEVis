@@ -44,6 +44,7 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
     private DateFilter dateFilter;
     private boolean showSumRow = false;
     private String containsTextFilter = "";
+    private ObservableList<String> medium = FXCollections.observableArrayList();
 
     public NonconformitiesTable(ObservableList<NonconformityData> data) {
         this.data = data;
@@ -238,6 +239,10 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
         this.dateFilter = filter;
     }
 
+    public void setFilterMedium(ObservableList<String> medium) {
+        this.medium = medium;
+    }
+
 
 
     public void filter() {
@@ -252,6 +257,20 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
                             if (dateFilter != null) {
                                 if (!dateFilter.show(notesRow)) return false;
                             }
+
+                            AtomicBoolean mediumMatch = new AtomicBoolean(false);
+                            medium.forEach(s -> {
+                                try {
+                                    for (String s1 : notesRow.getMedium().split(";")) {
+                                        if (s1.equalsIgnoreCase(s)) {
+                                            mediumMatch.set(true);
+                                        }
+                                    }
+                                } catch (Exception ex) {
+
+                                }
+                            });
+                            if (!mediumMatch.get()) return false;
 
 
                             AtomicBoolean containString = new AtomicBoolean(false);
@@ -285,5 +304,11 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
     }
 
 
+    public ObservableList<String> getMedium() {
+        return medium;
+    }
 
+    public void setMedium(ObservableList<String> medium) {
+        this.medium = medium;
+    }
 }
