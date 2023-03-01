@@ -16,6 +16,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -349,16 +350,36 @@ public class NonconformitiesController {
 
 
         nonconformityForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
-
-
-        Optional<ButtonType> optional = nonconformityForm.showAndWait();
-        if (optional.get() == buttonTypeOne) {
-            data.commit();
-        } else {
+        final Button btOk = (Button) nonconformityForm.getDialogPane().lookupButton(buttonTypeOne);
+        final Button btCancel = (Button) nonconformityForm.getDialogPane().lookupButton(buttonTypeTwo);
+        btOk.addEventFilter(ActionEvent.ACTION,getCloseRequest(data));
+        btCancel.setOnAction(actionEvent -> {
             data.reload();
-        }
+        });
+        nonconformityForm.show();
 
 
+
+
+    }
+    @NotNull
+    private static EventHandler getCloseRequest(NonconformityData data) {
+        return dialogEvent -> {
+            String errorText = data.checkForRequirements();
+            if (errorText != NonconformityData.REQUIREMENTS_MET) {
+                dialogEvent.consume();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Failed to Save Nonconformity");
+                alert.setHeaderText(errorText);
+                //alert.setContentText("Connect to the database successfully!");
+
+                alert.showAndWait();
+                dialogEvent.consume();
+
+            }else {
+                data.commit();
+            }
+        };
     }
 
 

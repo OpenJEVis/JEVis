@@ -1,0 +1,49 @@
+{
+  "name": "Nonconformities",
+  "description": "Nonconformities",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Nonconformities",
+      "end": "Deviations Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Custom Status",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Nonconformities"
+    },
+    {
+      "name": "Custom Fields",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Nonconformities"
+    },
+    {
+      "name": "Custom Medium",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Nonconformities"
+    },
+    {
+      "name": "EnPI",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Nonconformities"
+    }
+  ]
+}
+
+
+

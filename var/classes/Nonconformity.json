@@ -1,0 +1,22 @@
+﻿{
+  "name": "Nonconformity",
+  "description": "Nonconformity",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Nonconformity",
+      "end": "Nonconformities Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Data",
+      "primitiveType": 3,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Nonconformity"
+    }
+  ]
+}

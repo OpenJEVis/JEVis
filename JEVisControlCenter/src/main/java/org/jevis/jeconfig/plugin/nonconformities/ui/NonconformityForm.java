@@ -1,6 +1,10 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.control.*;
+import org.jetbrains.annotations.NotNull;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
@@ -19,13 +23,12 @@ public class NonconformityForm extends Dialog {
 
 
     private GeneralTab basicTab = new GeneralTab(I18n.getInstance().getString("plugin.nonconforrmities.form.tab.general"));
-   // private Tab detailTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.deteils"));
+    // private Tab detailTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.deteils"));
     private CheckListTab checkListTab = new CheckListTab(I18n.getInstance().getString("plugin.nonconforrmities.form.tab.checklist"));
 
     private AttachmentTab attachmentTab = new AttachmentTab(I18n.getInstance().getString("plugin.nonconforrmities.form.tab.attachment"));
 
     private Nonconformities nonconformities;
-
 
 
     public NonconformityForm(Nonconformities nonconformities) {
@@ -45,19 +48,13 @@ public class NonconformityForm extends Dialog {
 
         tabPane.setPrefWidth(ScreenSize.fitScreenWidth(1050));
 
-        
-
-
-
-
-
 
         basicTab.setClosable(false);
 
         attachmentTab.setClosable(false);
 
 
-        tabPane.getTabs().addAll(basicTab, checkListTab,attachmentTab);
+        tabPane.getTabs().addAll(basicTab, checkListTab, attachmentTab);
         getDialogPane().setContent(tabPane);
     }
 
@@ -66,20 +63,7 @@ public class NonconformityForm extends Dialog {
         checkListTab.initTab(data);
         attachmentTab.initTab(data);
         basicTab.initTab(data);
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
 
 
     private void updateView(NonconformityData data) {

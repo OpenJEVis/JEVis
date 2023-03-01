@@ -1,0 +1,17 @@
+﻿{
+  "name": "Nonconformities Directory",
+  "description": "Nonconformities Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Nonconformities Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Nonconformities Directory",
+      "end": "Nonconformities",
+      "type": 3
+    }
+  ]
+}

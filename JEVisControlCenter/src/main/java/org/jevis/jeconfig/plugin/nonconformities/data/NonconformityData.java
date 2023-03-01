@@ -145,6 +145,9 @@ public class NonconformityData {
 
     private Nonconformities nonconformities;
 
+    public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("Imediate Action have entered if checkbox is ticked");
+    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("OK");
+
     public NonconformityData(JEVisObject obj, Nonconformities nonconformities) {
         this.nonconformities = nonconformities;
         this.object = obj;
@@ -239,11 +242,13 @@ public class NonconformityData {
         }
     }
 
+    public String checkForRequirements() {
+        return isIsImmediateActionRequired() && !immediateMeasures.get().isEmpty() || !isIsImmediateActionRequired()? REQUIREMENTS_MET : IMMEDIATE_ACTION;
+    }
 
     public void commit() {
         try {
             if (!valueChanged.getValue()) return;
-
 
             Task task = new Task() {
                 @Override
