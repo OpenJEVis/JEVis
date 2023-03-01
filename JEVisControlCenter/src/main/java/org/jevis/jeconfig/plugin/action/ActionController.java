@@ -374,7 +374,11 @@ public class ActionController {
             if (data.isNew()) {
                 data.getActionPlan().removeAction(data);
             } else {
-                data.reload();
+                try {
+                    getActiveActionPlan().reloadAction(data);
+                } catch (Exception ex) {
+                    logger.error(ex, ex);
+                }
             }
 
         }
