@@ -195,7 +195,7 @@ public class SearchFilterBar extends GridPane {
                 String newName = oldName.replace(replacementValue, newValue);
 
                 if (!newName.equals(oldName)) {
-                    object.setName(newName);
+                    object.setLocalName(I18n.getInstance().getLocale().getLanguage(), newName);
                     object.commit();
                 }
             } catch (Exception e) {
