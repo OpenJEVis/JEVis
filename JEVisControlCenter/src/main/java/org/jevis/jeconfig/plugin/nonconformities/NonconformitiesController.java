@@ -77,7 +77,9 @@ public class NonconformitiesController {
 
 
     private void buildTabPane(Nonconformities plan) {
+
         NonconformitiesTable nonconformitiesTable = new NonconformitiesTable(plan.getActionData());
+
         //actionTable.enableSumRow(true);
         NonconformitiesTab tab = new NonconformitiesTab(plan, nonconformitiesTable);
         tab.setClosable(false);
@@ -145,6 +147,8 @@ public class NonconformitiesController {
                 }
             }
         });
+        nonconformitiesTable.setMedium(mediumButton.getSelectedTags());
+        nonconformitiesTable.filter();
 
 
         //HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);

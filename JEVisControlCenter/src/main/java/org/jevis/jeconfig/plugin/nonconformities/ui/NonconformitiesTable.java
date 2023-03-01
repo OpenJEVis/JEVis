@@ -252,6 +252,9 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
                     public boolean test(NonconformityData notesRow) {
                         //System.out.println("Filter.predict: " + notesRow.getTags());
                         try {
+                            if (notesRow.isDeleted()) {
+                                return false;
+                            }
 
 
                             if (dateFilter != null) {
