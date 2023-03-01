@@ -133,8 +133,8 @@ public class NonconformityData {
 
 
     @Expose
-    @SerializedName("Medium Tags")
-    public final SimpleStringProperty mediaTags = new SimpleStringProperty("Medium Tags",
+    @SerializedName("Medium")
+    public final SimpleStringProperty medium = new SimpleStringProperty("Medium Tags",
             "Medium", "Strom");
 
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
@@ -653,16 +653,16 @@ public class NonconformityData {
                 '}';
     }
 
-    public String getMediaTags() {
-        return mediaTags.get();
+    public String getMedium() {
+        return medium.get();
     }
 
-    public SimpleStringProperty mediaTagsProperty() {
-        return mediaTags;
+    public SimpleStringProperty mediumProperty() {
+        return medium;
     }
 
-    public void setMediaTags(String mediaTags) {
-        this.mediaTags.set(mediaTags);
+    public void setMedium(String medium) {
+        this.medium.set(medium);
     }
 
     public Nonconformities getNonconformities() {

@@ -18,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
@@ -353,8 +354,8 @@ public class NonconformitiesController {
         final Button btOk = (Button) nonconformityForm.getDialogPane().lookupButton(buttonTypeOne);
         final Button btCancel = (Button) nonconformityForm.getDialogPane().lookupButton(buttonTypeTwo);
         btOk.addEventFilter(ActionEvent.ACTION,getCloseRequest(data));
-        btCancel.setOnAction(actionEvent -> {
-            data.reload();
+        btCancel.addEventFilter(ActionEvent.ACTION,event -> {
+            reload(data);
         });
         nonconformityForm.show();
 
@@ -380,6 +381,14 @@ public class NonconformitiesController {
                 data.commit();
             }
         };
+    }
+
+    private void reload(NonconformityData nonconformityData) {
+        try {
+            nonconformityData = getActiveNonconformities().loadNonconformties(nonconformityData.getObject());
+        } catch (Exception e) {
+           logger.error(e);
+        }
     }
 
 

@@ -176,10 +176,11 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
         f_ImmediateMeasures.textProperty().bindBidirectional(data.immediateMeasuresProperty());
         f_Creator.textProperty().bindBidirectional(data.creatorProperty());
         f_mediaTags = new ComboBox<>(data.getNonconformities().getMediumTags());
+        f_mediaTags.valueProperty().bindBidirectional(data.mediumProperty());
 
         l_CreateDate.setText(fake.createDateProperty().getName());
         l_doneDate.setText(fake.doneDateProperty().getName());
-        l_mediaTags.setText(data.mediaTagsProperty().getName());
+        l_mediaTags.setText(data.mediumProperty().getName());
         l_plannedDate.setText(fake.plannedDateProperty().getName());
         l_Title.setText(fake.titleProperty().getName());
         l_Description.setText(fake.descriptionProperty().getName());

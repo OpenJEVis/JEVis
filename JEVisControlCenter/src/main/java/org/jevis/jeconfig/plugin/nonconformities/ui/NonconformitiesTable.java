@@ -11,7 +11,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
-import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.plugin.nonconformities.data.TableFilter;
 import org.joda.time.DateTime;
@@ -83,6 +82,11 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
         correctiveActionsCol.setCellValueFactory(param -> param.getValue().correctiveActionsProperty());
         correctiveActionsCol.setCellFactory(buildShotTextFactory());
 
+        TableColumn<NonconformityData, String> mediaTagsPropertyCol = new TableColumn(fakeForName.mediumProperty().getName());
+        mediaTagsPropertyCol.setCellValueFactory(param -> param.getValue().mediumProperty());
+        mediaTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        mediaTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+
 
 
 
@@ -138,7 +142,7 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
 
         this.getColumns().addAll(actionNrPropertyCol, titlePropertyCol, fromUserCol,
                 responsiblePropertyCol, desciptionPropertyCol,
-                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol
+                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol,mediaTagsPropertyCol
         );
 
 
