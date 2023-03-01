@@ -177,6 +177,9 @@ public class NonconformitiesController {
         borderPane.setTop(gridPane);
         borderPane.setCenter(nonconformitiesTable);
 
+        TableSumPanel tableSumPanel = new TableSumPanel(nonconformitiesTable.getItems());
+        borderPane.setBottom(tableSumPanel);
+
         nonconformitiesTable.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
