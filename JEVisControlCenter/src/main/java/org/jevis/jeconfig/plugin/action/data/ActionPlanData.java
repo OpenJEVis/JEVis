@@ -249,6 +249,15 @@ public class ActionPlanData {
         return actionData;
     }
 
+    public ActionData reloadAction(ActionData actionObj) throws JEVisException {
+        actions.remove(actionObj);
+        ActionData data = loadAction(actionObj.getObject());
+        actions.add(data);
+        return data;
+
+
+    }
+
 
     public void commit() {
 
