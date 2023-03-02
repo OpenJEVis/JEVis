@@ -14,12 +14,14 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.ActionController;
+import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
 
@@ -41,6 +43,14 @@ public class ActionTab extends Tab {
 
         textProperty().bind(plan.getName());
         this.plan = plan;
+        plan.getActionData().addListener(new ListChangeListener<ActionData>() {
+            @Override
+            public void onChanged(Change<? extends ActionData> c) {
+                while (c.next()) {
+                }
+                setTooltip(new Tooltip("Elemente: " + c.getList().size()));
+            }
+        });
 
         actionTable = new ActionTable(plan, plan.getActionData());
 
@@ -65,8 +75,8 @@ public class ActionTab extends Tab {
         //ObservableList<String> selectedPlans = FXCollections.observableArrayList(controller.getActionPlans().stream().map(aplan -> aplan.getName().get()).collect(Collectors.toList()));
 
         ObservableList<String> selectedStatus = FXCollections.observableArrayList(plan.getStatustags());
-        ObservableList<String> selectedMedium = FXCollections.observableArrayList(plan.getStatustags());
-        ObservableList<String> selectedFields = FXCollections.observableArrayList(plan.getStatustags());
+        ObservableList<String> selectedMedium = FXCollections.observableArrayList(plan.getMediumTags());
+        ObservableList<String> selectedFields = FXCollections.observableArrayList(plan.getFieldsTags());
 
 
         TagButton planFilterButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.plan"), allPlans, selectedPlans);
