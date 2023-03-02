@@ -20,9 +20,12 @@ import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.Locale.GERMANY;
 
 
 public class ActionPlanData {
@@ -30,6 +33,8 @@ public class ActionPlanData {
     protected static final Logger logger = LogManager.getLogger(ActionPlanData.class);
 
     public static String STATUS_DONE = I18n.getInstance().getString("plugin.action.status.done");
+    public static String STATUS_OPEN = I18n.getInstance().getString("plugin.action.status.open");
+
     private JEVisObject object;
     private ObservableList<String> statusTags;
     private ObservableList<String> mediumTags;
@@ -171,6 +176,23 @@ public class ActionPlanData {
         }
 
         loadActionList();
+
+    }
+
+    /**
+     * Set default values for the Action Plan in a locale
+     * TODO: implement other locales
+     *
+     * @param lang
+     */
+    public void setDefaultValues(Locale lang) {
+
+        if (lang.equals(GERMANY)) {
+            mediumTags.setAll("Strom", "Gas");
+            fieldsTags.setAll("Produktion", "Verwaltung");
+            statusTags.setAll(STATUS_OPEN, STATUS_DONE, "Prüfen", "Abgebrochen");
+
+        }
 
     }
 

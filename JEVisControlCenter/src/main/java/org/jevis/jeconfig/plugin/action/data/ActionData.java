@@ -78,15 +78,15 @@ public class ActionData {
     @Expose
     @SerializedName("Status Tags")
     public final SimpleStringProperty statusTags = new SimpleStringProperty("Status Tags",
-            "Status", "Offen");
+            "Status", ActionPlanData.STATUS_OPEN);
     @Expose
     @SerializedName("Field Tags")
     public final SimpleStringProperty fieldTags = new SimpleStringProperty("Field Tags",
-            "Bereich", "Lager");
+            "Bereich", "Strom");
     @Expose
     @SerializedName("Medium Tags")
     public final SimpleStringProperty mediaTags = new SimpleStringProperty("Medium Tags",
-            "Medium", "Strom");
+            "Medium", "");
     @Expose
     @SerializedName("Correction")
     public final SimpleStringProperty noteCorrection = new SimpleStringProperty("Correction",
