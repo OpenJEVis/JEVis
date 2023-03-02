@@ -17,10 +17,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -38,20 +37,15 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.*;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.application.I18nWS;
-import org.jevis.jeconfig.application.control.ReportAggregationBox;
-import org.jevis.jeconfig.application.control.ReportFixedPeriodBox;
-import org.jevis.jeconfig.application.control.ReportManipulationBox;
-import org.jevis.jeconfig.application.control.ReportPeriodBox;
+import org.jevis.jeconfig.application.control.ReportSheet;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
-import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
-import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -61,53 +55,41 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ReportWizardDialog {
     private static final Logger logger = LogManager.getLogger(ReportWizardDialog.class);
-    Image imgMarkAll = ResourceLoader.getImage("jetxee-check-sign-and-cross-sign-3.png");
-    Tooltip tooltipMarkAll = new Tooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
+
     public static final Image taskImage = JEConfig.getImage("Report.png");
 
     //public static String ICON = "Startup Wizard_18228.png";
     private JEVisDataSource ds;
     private JEVisObject reportLinkDirectory;
-    private List<UserSelection> selections;
-    private final List<ReportLink> reportLinkList = new ArrayList<>();
     //private int row = 0;
-
-    private int row = 1;
-
     private XSSFWorkbook workbook;
-
     private final List<String> sheetList = new ArrayList<>();
     private ReportType reportType = ReportType.STANDARD;
-
-    private GridPane gridPane;
+    private final TabPane tabPane = new TabPane();
     private JFXDialog reportWizardDialog;
-
     private Map<String, Map<CellAddress, JEVisObject>> cellJevisMap;
     private JEVisObject allAttributesRootObject;
     public static final String NEW = "NEW";
     public static final String UPDATE = "UPDATE";
-
-    private final String wizardTyp;
-
+    private final String wizardType;
     private Integer columnIndex = 0;
     private Integer rowIndex = 0;
     private Integer maxColumnIndex = 0;
     private Integer maxRowIndex = 0;
+    private Result result;
 
     public ReportWizardDialog(JEVisObject newObject, String wizardType) {
-        this.wizardTyp = wizardType;
+        this.wizardType = wizardType;
         try {
             ds = newObject.getDataSource();
             JEVisClass reportLinkDirectoryClass = ds.getJEVisClass("Report Link Directory");
             JEVisClass reportLinkClass = ds.getJEVisClass("Report Link");
-            List<JEVisObject> listDirectory = newObject.getChildren(reportLinkDirectoryClass, false);
+
+            List<JEVisObject> listDirectory = CommonMethods.getChildrenRecursive(newObject, reportLinkDirectoryClass);
             List<JEVisObject> listReportLinkObjects = new ArrayList<>();
             for (JEVisObject object : listDirectory) {
                 listReportLinkObjects.addAll(object.getChildren(reportLinkClass, false));
@@ -171,7 +153,9 @@ public class ReportWizardDialog {
         reportWizardDialog.setOnDialogClosed(event -> {
             logger.debug("wizard");
             logger.debug(event.toString());
-            onWizardClose(newObject, wizardType, finalReportLinkClass, finalReportAttributeClass, finalReportPeriodConfigurationClass);
+            if (getResult() == Result.OK) {
+                onWizardClose(newObject, wizardType, finalReportLinkClass, finalReportAttributeClass, finalReportPeriodConfigurationClass);
+            }
         });
 
         reportWizardDialog.show();
@@ -213,9 +197,18 @@ public class ReportWizardDialog {
                 //JEVisSample templateSample = templateAttribute.buildSample(new DateTime(), template);
                 //templateSample.commit();
             }
-            List<ReportLink> deleteList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkStatus().equals(ReportLink.Status.DELETE)).collect(Collectors.toList());
-            List<ReportLink> newList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkStatus().equals(ReportLink.Status.NEW)).collect(Collectors.toList());
-            List<ReportLink> updateList = reportLinkList.stream().filter(reportLink -> reportLink.getLinkStatus().equals(ReportLink.Status.UPDATE)).collect(Collectors.toList());
+
+            List<ReportLink> allLinks = new ArrayList<>();
+            for (Tab tab : tabPane.getTabs()) {
+                ReportSheet reportSheet = (ReportSheet) tab;
+                for (ReportLink link : reportSheet.getReportLinks()) {
+                    allLinks.add(link);
+                }
+            }
+
+            List<ReportLink> deleteList = allLinks.stream().filter(reportLink -> reportLink.getLinkStatus().equals(ReportLink.Status.DELETE)).collect(Collectors.toList());
+            List<ReportLink> newList = allLinks.stream().filter(reportLink -> reportLink.getLinkStatus().equals(ReportLink.Status.NEW)).collect(Collectors.toList());
+            List<ReportLink> updateList = allLinks.stream().filter(reportLink -> reportLink.getLinkStatus().equals(ReportLink.Status.UPDATE)).collect(Collectors.toList());
             Task updateTask = getUpdateTask(updateList);
             JEConfig.getStatusBar().addTask(ReportWizardDialog.class.getName(), updateTask, taskImage, true);
             delete(deleteList);
@@ -437,18 +430,11 @@ public class ReportWizardDialog {
         reportWizardDialog = new JFXDialog();
         reportWizardDialog.setDialogContainer(JEConfig.getStackPane());
         reportWizardDialog.setOverlayClose(false);
-        reportWizardDialog.setMinSize(1000, 800);
 
         Node header = DialogHeader.getDialogHeader(JEConfig.getSVGImage(Icon.WIZARD_HAT, 32, 32), I18n.getInstance().getString("plugin.object.report.dialog.header"));
 
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-
         VBox vBox = new VBox(6);
-        HBox hbox = new HBox(6);
+        vBox.setFillWidth(true);
 
         JFXButton addMultiple = new JFXButton("", JEConfig.getSVGImage(Icon.PLUS, 16, 16));
 
@@ -459,14 +445,7 @@ public class ReportWizardDialog {
             }
         });
 
-        gridPane = new GridPane();
-        gridPane.setPadding(new Insets(10, 10, 10, 10));
-        gridPane.setVgap(10);
-        gridPane.setHgap(4);
-
-
-        updateGridPane();
-
+        updateTabPane();
 
         addMultiple.setOnAction(event -> {
             if (reportType == ReportType.STANDARD) {
@@ -476,16 +455,20 @@ public class ReportWizardDialog {
             }
         });
 
-        hbox.getChildren().add(gridPane);
-        HBox.setHgrow(gridPane, Priority.ALWAYS);
 
         final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
         ok.setDefaultButton(true);
-        ok.setOnAction(event -> reportWizardDialog.close());
+        ok.setOnAction(event -> {
+            this.result = Result.OK;
+            reportWizardDialog.close();
+        });
 
         final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
         cancel.setCancelButton(true);
-        cancel.setOnAction(event -> reportWizardDialog.close());
+        cancel.setOnAction(event -> {
+            result = Result.CANCEL;
+            reportWizardDialog.close();
+        });
 
         HBox buttonBar = new HBox(6, cancel, ok);
         buttonBar.setAlignment(Pos.CENTER_RIGHT);
@@ -495,18 +478,36 @@ public class ReportWizardDialog {
         separator.setPadding(new Insets(8, 0, 8, 0));
 
         vBox.getChildren().add(header);
-        vBox.getChildren().add(hbox);
+        vBox.getChildren().add(tabPane);
         vBox.getChildren().add(reportTypeComboBox);
         vBox.getChildren().add(addMultiple);
         vBox.getChildren().add(separator);
         vBox.getChildren().add(buttonBar);
 
+        VBox.setVgrow(tabPane, Priority.ALWAYS);
 
-        scrollPane.setContent(vBox);
+        reportWizardDialog.setContent(vBox);
+    }
 
-        reportWizardDialog.setContent(scrollPane);
+    private void updateTabPane() {
+        if (cellJevisMap != null && !cellJevisMap.isEmpty()) {
+            for (Map.Entry<String, Map<CellAddress, JEVisObject>> entry : cellJevisMap.entrySet()) {
+                String s = entry.getKey();
+                Map<CellAddress, JEVisObject> cellAddressJEVisObjectMap = entry.getValue();
 
-        vBox.setFillWidth(true);
+                ReportSheet reportSheet = new ReportSheet(ds, this);
+                reportSheet.setText(s);
+
+                reportSheet.updateGridPane(cellAddressJEVisObjectMap);
+
+                tabPane.getTabs().add(reportSheet);
+            }
+        } else {
+            ReportSheet firstSheet = new ReportSheet(ds, this);
+            firstSheet.setText("Data 0");
+
+            tabPane.getTabs().add(firstSheet);
+        }
     }
 
     private JFXComboBox<ReportType> getReportTypeComboBox() {
@@ -558,8 +559,14 @@ public class ReportWizardDialog {
             if (selectionDialog.getResponse() == Response.OK) {
                 logger.trace("Selection Done");
 
-                selections = selectionDialog.getUserSelection();
-                for (UserSelection us : selections) {
+                List<UserSelection> userSelection = selectionDialog.getUserSelection();
+                ReportSheet currentSheet = (ReportSheet) tabPane.getSelectionModel().getSelectedItem();
+
+                for (UserSelection us : userSelection) {
+                    currentSheet = getFirstSheetWithEmptySlots(currentSheet);
+
+                    ReportSheet finalCurrentSheet = currentSheet;
+                    Platform.runLater(() -> tabPane.getSelectionModel().select(finalCurrentSheet));
 
                     ReportLink newLink = new ReportLink("", us.getSelectedObject().getID(), false, "",
                             new ReportAttribute("Value",
@@ -570,13 +577,27 @@ public class ReportWizardDialog {
                         newLink.getReportAttribute().setAttributeName("Value");
                     }
 
-                    updateName(newLink);
+                    currentSheet.updateName(newLink);
 
-                    createNewReportLink(false, newLink);
+                    currentSheet.createNewReportLink(false, newLink);
                 }
             }
         });
         selectionDialog.show();
+    }
+
+    public ReportSheet getFirstSheetWithEmptySlots(ReportSheet currentSheet) {
+        if (currentSheet.getRow() < 50 / 3) {
+            return currentSheet;
+        } else if (tabPane.getTabs().size() > tabPane.getTabs().indexOf(currentSheet) + 1) {
+            ReportSheet nextSheet = (ReportSheet) tabPane.getTabs().get(tabPane.getTabs().indexOf(currentSheet) + 1);
+            return getFirstSheetWithEmptySlots(nextSheet);
+        } else {
+            ReportSheet newSheet = new ReportSheet(ds, this);
+            newSheet.setText("Data " + tabPane.getTabs().size());
+            tabPane.getTabs().add(newSheet);
+            return getFirstSheetWithEmptySlots(newSheet);
+        }
     }
 
     private void openSingleSelect() {
@@ -596,8 +617,10 @@ public class ReportWizardDialog {
             if (selectionDialog.getResponse() == Response.OK) {
                 logger.trace("Selection Done");
 
-                selections = selectionDialog.getUserSelection();
-                for (UserSelection us : selections) {
+                List<UserSelection> userSelection = selectionDialog.getUserSelection();
+
+                for (UserSelection us : userSelection) {
+
                     allAttributesRootObject = us.getSelectedObject();
 
                     JEVisClass directoryClass = null;
@@ -607,6 +630,7 @@ public class ReportWizardDialog {
                     } catch (Exception e) {
                         logger.error(e);
                     }
+
                 }
             }
         });
@@ -617,8 +641,9 @@ public class ReportWizardDialog {
 
         if (!directoryClass.getHeirs().contains(selectedObject.getJEVisClass())) {
             ReportLink newLink = new ReportLink("", selectedObject.getID(), false, "", null);
-            updateName(newLink);
-            createNewReportLink(false, newLink);
+            //TODO enable again
+//            updateName(newLink);
+//            createNewReportLink(false, newLink);
         }
 
         try {
@@ -629,485 +654,6 @@ public class ReportWizardDialog {
             logger.error("Could not create attribute link for object {}:{}", selectedObject.getName(), selectedObject.getID());
         }
     }
-
-
-    private void updateGridPane() {
-        gridPane.getChildren().clear();
-        Label reportExcelCell = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.excelcolumn"));
-        Label reportVariableLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.reportlink"));
-        Label aggregationLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.aggregation"));
-        Label manipulationLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.manipulation"));
-        Label periodLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.period"));
-        Label optionalLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.optional"));
-
-        gridPane.add(reportExcelCell, 0, 0);
-        gridPane.add(reportVariableLabel, 1, 0);
-        gridPane.add(aggregationLabel, 2, 0);
-        gridPane.add(manipulationLabel, 4, 0);
-        gridPane.add(periodLabel, 6, 0);
-        gridPane.add(optionalLabel, 8, 0);
-        row = 1;
-
-        if (wizardTyp.equals(ReportWizardDialog.UPDATE) && cellJevisMap != null) {
-            for (Map.Entry<String, Map<CellAddress, JEVisObject>> sheetSet : cellJevisMap.entrySet())
-                for (Map.Entry<CellAddress, JEVisObject> dataSet : sheetSet.getValue().entrySet()) {
-                    ReportLink reportLink = buildReportLink(dataSet.getValue(), sheetSet.getKey(), dataSet.getKey());
-                    if (reportLink != null) {
-                        reportLinkList.add(reportLink);
-                    }
-                }
-        }
-        for (ReportLink reportLink : reportLinkList) {
-            createBox(reportLink);
-            row++;
-        }
-    }
-
-    private ReportLink buildReportLink(JEVisObject jeVisObject, String sheet, CellAddress cellAddress) {
-
-        ReportLink reportLink = null;
-        try {
-            reportLink = ReportLink.parseFromJEVisObject(jeVisObject);
-            reportLink.setCellAddress(cellAddress);
-            reportLink.setSheet(sheet);
-            reportLink.setLinkStatus(ReportLink.Status.FALSE);
-        } catch (Exception e) {
-            logger.error(jeVisObject, e);
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.title"));
-            alert.setHeaderText("JEVis Object: " + jeVisObject.getName() + ": " + jeVisObject.getID() + ": " + I18n.getInstance().getString("plugin.object.report.dialog.wizard.error.parse.header"));
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
-        }
-
-        return reportLink;
-    }
-
-
-    private void createNewReportLink(Boolean copy, ReportLink oldReportLink) {
-        ReportLink reportLink = null;
-        if (copy) {
-            reportLink = oldReportLink.clone();
-        } else {
-            reportLink = oldReportLink;
-        }
-        reportLink.setLinkStatus(ReportLink.Status.NEW);
-        reportLinkList.add(reportLink);
-        row++;
-        createBox(reportLink);
-    }
-
-    private void createBox(ReportLink reportLink) {
-        Label excelCellLabel = new Label();
-        StringBuilder stringBuilder = new StringBuilder();
-        boolean disable = false;
-        try {
-            disable = ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.StringData.name);
-        } catch (Exception e) {
-            logger.error("Could not get ", e);
-        }
-
-        if (reportLink.getSheet() != null) {
-            stringBuilder.append(reportLink.getSheet());
-            stringBuilder.append(" - ");
-        }
-        if (reportLink.getCellAddress() != null) {
-            Pattern pattern = Pattern.compile("\\D+");
-            Matcher matcher = pattern.matcher(reportLink.getCellAddress().formatAsString());
-            if (matcher.find()) {
-                stringBuilder.append(matcher.group());
-                excelCellLabel.setPrefWidth(100d);
-            }
-        }
-        excelCellLabel.setText(stringBuilder.toString());
-        int currentRow = row;
-        JFXButton targetsButton = new JFXButton("Select Target");
-        ReportAggregationBox aggregationPeriodComboBox = new ReportAggregationBox();
-        aggregationPeriodComboBox.setDisable(disable);
-        if (reportLink.getReportAttribute() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation() != null) {
-            aggregationPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
-        }
-
-        ReportManipulationBox manipulationComboBox = new ReportManipulationBox();
-        manipulationComboBox.setDisable(disable);
-        if (reportLink.getReportAttribute() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation() != null) {
-            manipulationComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
-        }
-
-        JFXButton tbManipulation = new JFXButton("", JEConfig.getSVGImage(Icon.SELECT_CHECK_BOX, 13, 13));
-        tbManipulation.setTooltip(tooltipMarkAll);
-        tbManipulation.setOnAction(event -> {
-            gridPane.getChildren().forEach(node -> {
-                if (GridPane.getColumnIndex(node) == 4) {
-                    if (node instanceof ReportManipulationBox) {
-                        ReportManipulationBox reportAggregationBox = (ReportManipulationBox) node;
-                        Platform.runLater(() -> reportAggregationBox.getSelectionModel().select(manipulationComboBox.getSelectionModel().getSelectedItem()));
-                    }
-                }
-            });
-        });
-
-
-        ReportFixedPeriodBox fixedPeriodComboBox = new ReportFixedPeriodBox();
-        if (reportLink.getReportAttribute() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod() != null) {
-            fixedPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod());
-        }
-
-        ReportPeriodBox periodModeComboBox = new ReportPeriodBox(FXCollections.observableArrayList(PeriodMode.values()));
-        periodModeComboBox.setDisable(disable);
-        if (reportLink.getReportAttribute() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
-                && reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
-            periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
-            if (reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED) || reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED_TO_REPORT_END)) {
-                showFixedPeriodComboBox(currentRow, fixedPeriodComboBox);
-            }
-        }
-        ImageView imageMarkAllPeriod = new ImageView(imgMarkAll);
-        imageMarkAllPeriod.fitHeightProperty().set(13);
-        imageMarkAllPeriod.fitWidthProperty().set(13);
-
-        JFXButton tbPeriod = new JFXButton("", JEConfig.getSVGImage(Icon.SELECT_CHECK_BOX, 13, 13));
-        tbPeriod.setTooltip(tooltipMarkAll);
-        tbPeriod.setOnAction(event -> {
-            gridPane.getChildren().forEach(node -> {
-                if (GridPane.getColumnIndex(node) == 6) {
-                    if (node instanceof ReportPeriodBox) {
-                        ReportPeriodBox reportPeriodBox = (ReportPeriodBox) node;
-                        Platform.runLater(() -> reportPeriodBox.getSelectionModel().select(periodModeComboBox.getSelectionModel().getSelectedItem()));
-                    }
-                }
-            });
-        });
-
-        JFXButton tbAggregation = new JFXButton("", JEConfig.getSVGImage(Icon.SELECT_CHECK_BOX, 13, 13));
-        tbAggregation.setTooltip(tooltipMarkAll);
-        tbAggregation.setOnAction(event -> {
-            gridPane.getChildren().forEach(node -> {
-                if (GridPane.getColumnIndex(node) == 2) {
-                    if (node instanceof ReportAggregationBox) {
-                        ReportAggregationBox reportAggregationBox = (ReportAggregationBox) node;
-                        Platform.runLater(() -> reportAggregationBox.getSelectionModel().select(aggregationPeriodComboBox.getSelectionModel().getSelectedItem()));
-                    }
-                }
-            });
-        });
-
-        ToggleSwitchPlus toggleSwitchPlus = new ToggleSwitchPlus();
-        toggleSwitchPlus.setSelected(reportLink.isOptional());
-        toggleSwitchPlus.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
-                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
-                }
-                reportLink.setOptional(newValue);
-            }
-        });
-
-        JFXButton copyButton = new JFXButton("", JEConfig.getSVGImage(Icon.COPY, 16, 16));
-
-        JFXButton removeButton = new JFXButton("", JEConfig.getSVGImage(Icon.MINUS_CIRCLE, 16, 16));
-        removeButton.setOnAction(event -> {
-            if (row > 1) {
-                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
-                    reportLink.setLinkStatus(ReportLink.Status.DELETE);
-                    moveNodesGridpane(GridPane.getRowIndex(removeButton));
-                    gridPane.getChildren().removeAll(removeButton, excelCellLabel, targetsButton, aggregationPeriodComboBox, manipulationComboBox, tbManipulation, tbPeriod, periodModeComboBox, toggleSwitchPlus, copyButton, tbAggregation);
-                    row--;
-                } else if (wizardTyp.equals(ReportWizardDialog.NEW)) {
-                    reportLinkList.remove(reportLink);
-                    Platform.runLater(this::updateGridPane);
-                }
-            }
-        });
-
-        AtomicReference<String> targetString = new AtomicReference<>();
-        if (reportLink.getJEVisId() != null) {
-            targetString.set(reportLink.getJEVisId().toString());
-        }
-
-        List<JEVisClass> classes = new ArrayList<>();
-
-        for (String className : TreeSelectionDialog.allData) {
-            try {
-                classes.add(ds.getJEVisClass(className));
-            } catch (Exception e) {
-                logger.error("Could not get JEVisClass for {}", className, e);
-            }
-        }
-
-        if (reportLink.getJEVisId() != null) {
-            String target = "";
-            if (reportLink.getReportAttribute() != null) {
-                target = reportLink.getJEVisId() + ":" + reportLink.getReportAttribute().getAttributeName();
-            } else {
-                target = reportLink.getJEVisId().toString();
-            }
-            TargetHelper th = new TargetHelper(ds, target);
-            if (th.isValid() && th.targetObjectAccessible()) {
-                logger.info("Target Is valid");
-                setButtonText(target, targetsButton);
-            }
-        }
-
-        targetsButton.setOnAction(event -> {
-            TargetHelper th = null;
-            if (targetString.get() != null) {
-                th = new TargetHelper(ds, targetString.get());
-                if (th.isValid() && th.targetObjectAccessible()) {
-                    logger.info("Target Is valid");
-                    setButtonText(targetString.get(), targetsButton);
-                }
-            }
-
-            List<UserSelection> openList = new ArrayList<>();
-            if (th != null && !th.getAttribute().isEmpty()) {
-                for (JEVisAttribute att : th.getAttribute())
-                    openList.add(new UserSelection(UserSelection.SelectionType.Attribute, att, null, null));
-            } else if (th != null && !th.getObject().isEmpty()) {
-                for (JEVisObject obj : th.getObject())
-                    openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
-            }
-
-            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, classes, SelectionMode.SINGLE, openList, true);
-
-            selectionDialog.setOnDialogClosed(event1 -> {
-                if (selectionDialog.getResponse() == Response.OK) {
-                    logger.trace("Selection Done");
-
-                    String newTarget = "";
-                    selections = selectionDialog.getUserSelection();
-                    for (UserSelection us : selections) {
-                        int index = selections.indexOf(us);
-                        if (index > 0) newTarget += ";";
-
-                        newTarget += us.getSelectedObject().getID();
-                        reportLink.setJEVisId(us.getSelectedObject().getID());
-
-                        Platform.runLater(() -> updateName(reportLink));
-
-                        ReportAttribute reportAttribute = reportLink.getReportAttribute();
-                        if (us.getSelectedAttribute() != null) {
-                            reportAttribute.setAttributeName(us.getSelectedAttribute().getName());
-                        } else {
-                            reportAttribute.setAttributeName("Value");
-                        }
-
-                        if (us.getSelectedAttribute() != null) {
-                            newTarget += ":" + us.getSelectedAttribute().getName();
-                        } else {
-                            newTarget += ":Value";
-                        }
-                    }
-                    targetString.set(newTarget);
-                }
-                setButtonText(targetString.get(), targetsButton);
-            });
-            selectionDialog.show();
-        });
-
-        aggregationPeriodComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                reportLink.getReportAttribute().getReportPeriodConfiguration().setReportAggregation(newValue);
-                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
-                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
-                }
-
-                Platform.runLater(() -> updateName(reportLink));
-            }
-        });
-
-        manipulationComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                reportLink.getReportAttribute().getReportPeriodConfiguration().setReportManipulation(newValue);
-                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
-                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
-                }
-
-                Platform.runLater(() -> updateName(reportLink));
-            }
-        });
-
-        periodModeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                reportLink.getReportAttribute().getReportPeriodConfiguration().setPeriodMode(newValue);
-                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
-                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
-                }
-
-                Platform.runLater(() -> updateName(reportLink));
-
-                if (newValue == PeriodMode.FIXED || newValue == PeriodMode.FIXED_TO_REPORT_END) {
-                    showFixedPeriodComboBox(currentRow, fixedPeriodComboBox);
-                } else if (oldValue == PeriodMode.FIXED || oldValue == PeriodMode.FIXED_TO_REPORT_END) {
-
-                    ReportFixedPeriodBox box = null;
-                    for (Node node : gridPane.getChildren()) {
-                        if (GridPane.getRowIndex(node).equals(currentRow)) {
-                            if (node instanceof ReportFixedPeriodBox) {
-                                box = (ReportFixedPeriodBox) node;
-                            }
-                        }
-                    }
-
-                    if (box != null) {
-                        ReportFixedPeriodBox finalBox = box;
-                        Platform.runLater(() -> gridPane.getChildren().remove(finalBox));
-                    }
-                }
-            }
-        });
-
-        fixedPeriodComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                reportLink.getReportAttribute().getReportPeriodConfiguration().setFixedPeriod(newValue);
-                if (wizardTyp.equals(ReportWizardDialog.UPDATE)) {
-                    reportLink.setLinkStatus(ReportLink.Status.UPDATE);
-                }
-
-                Platform.runLater(() -> updateName(reportLink));
-            }
-        });
-
-        copyButton.setOnAction(event -> {
-            Platform.runLater(() -> createNewReportLink(true, reportLink));
-        });
-
-        gridPane.add(excelCellLabel, 0, currentRow);
-        gridPane.add(targetsButton, 1, currentRow);
-        gridPane.add(aggregationPeriodComboBox, 2, currentRow);
-        gridPane.add(tbAggregation, 3, currentRow);
-        gridPane.add(manipulationComboBox, 4, currentRow);
-        gridPane.add(tbManipulation, 5, currentRow);
-        gridPane.add(periodModeComboBox, 6, currentRow);
-        gridPane.add(tbPeriod, 7, currentRow);
-        gridPane.add(toggleSwitchPlus, 8, currentRow);
-        gridPane.add(copyButton, 9, currentRow);
-        gridPane.add(removeButton, 10, currentRow);
-
-
-    }
-
-    private void showFixedPeriodComboBox(int currentRow, ReportFixedPeriodBox fixedPeriodComboBox) {
-        Platform.runLater(() -> {
-            gridPane.add(fixedPeriodComboBox, 11, currentRow);
-        });
-    }
-
-    private void moveNodesGridpane(int targetRowIndex) {
-        gridPane.getChildren().forEach(node -> {
-            final int rowIndex = GridPane.getRowIndex(node);
-            if (targetRowIndex < rowIndex) {
-                GridPane.setRowIndex(node, rowIndex - 1);
-            }
-        });
-    }
-
-    private void updateName(ReportLink reportLink) {
-        JEVisObject object = null;
-        try {
-            object = ds.getObject(reportLink.getJEVisId());
-        } catch (Exception e) {
-            logger.error("Could not update name for object with id: {}", reportLink.getJEVisId(), e);
-        }
-
-        if (object != null) {
-            try {
-                if (object.getJEVisClass().getName().equals("Clean Data")) {
-                    reportLink.setName(object.getParents().get(0).getName());
-                } else {
-                    reportLink.setName(object.getName());
-                }
-            } catch (Exception e) {
-                logger.error("Could not set new Report Link Name for object with id: {}", reportLink.getJEVisId(), e);
-            }
-
-            try {
-                if (reportType == ReportType.STANDARD) {
-                    if (ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.CleanData.name)) {
-                        reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object)
-                                + "_" + reportLink.getReportAttribute().getAttributeName()
-                                + "_" + reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation()
-                                + "_" + reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
-                    } else {
-                        reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object));
-                    }
-                } else {
-                    reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object));
-                }
-            } catch (Exception e) {
-                logger.error("Could not set new Variable Name for object with id: {}", reportLink.getJEVisId(), e);
-            }
-        }
-    }
-
-
-    private void setButtonText(String targetString, JFXButton targetsButton) {
-        try {
-            TargetHelper th = new TargetHelper(ds, targetString);
-
-            if (th.isValid() && th.targetObjectAccessible()) {
-
-                StringBuilder bText = new StringBuilder();
-
-                JEVisClass cleanData = ds.getJEVisClass("Clean Data");
-
-                for (JEVisObject obj : th.getObject()) {
-                    int index = th.getObject().indexOf(obj);
-                    if (index > 0) bText.append("; ");
-
-                    if (obj.getJEVisClass().equals(cleanData)) {
-                        List<JEVisObject> parents = obj.getParents();
-                        if (!parents.isEmpty()) {
-                            for (JEVisObject parent : parents) {
-                                bText.append("[");
-                                bText.append(parent.getID());
-                                bText.append("] ");
-                                bText.append(parent.getName());
-                                bText.append(" / ");
-                            }
-                        }
-                    }
-
-                    bText.append("[");
-                    bText.append(obj.getID());
-                    bText.append("] ");
-                    bText.append(obj.getName());
-
-                    if (th.isAttribute()) {
-
-                        bText.append(" - ");
-                        bText.append(th.getAttribute().get(index).getName());
-
-                    }
-                }
-
-                Platform.runLater(() -> targetsButton.setText(bText.toString()));
-            }
-
-        } catch (Exception ex) {
-            logger.catching(ex);
-        }
-    }
-
-    public List<UserSelection> getSelections() {
-        return selections;
-    }
-
-    public JEVisObject getReportLinkDirectory() {
-        return reportLinkDirectory;
-    }
-
-    public List<ReportLink> getReportLinkList() {
-        return reportLinkList;
-    }
-
 
     public void loadTemplate(JEVisFile jeVisFile, List<JEVisObject> listReportLinkObjects) throws IOException, NullPointerException {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jeVisFile.getBytes());
@@ -1154,8 +700,7 @@ public class ReportWizardDialog {
         String first = "items=";
         String commentString = xssfComment.getString().getString();
         if (commentString.contains("jx:each")) {
-            String variable = commentString.substring(commentString.indexOf(first) + first.length(), commentString.indexOf("var=")).replace("\"", "").trim().replace(".value", "");
-            return variable;
+            return commentString.substring(commentString.indexOf(first) + first.length(), commentString.indexOf("var=")).replace("\"", "").trim().replace(".value", "");
         } else {
             return null;
         }
@@ -1171,29 +716,6 @@ public class ReportWizardDialog {
 
         CellStyle cellStyleValues = workbook.createCellStyle();
         cellStyleValues.setDataFormat((short) 4);
-
-        int width = reportLinkList.size() * 3;
-        List<List<ReportLink>> lists = new ArrayList<>();
-        if (width > 50) {
-            int noOfSubLists = width / 50 + 1;
-            for (int i = 0; i < noOfSubLists; i++) {
-                List<ReportLink> subList = new ArrayList<>();
-                lists.add(subList);
-            }
-
-            int i = 0;
-            for (int j = 0; j < lists.size(); j++) {
-                while (i < reportLinkList.size() && (i * 3) < (50 * (j + 1))) {
-                    List<ReportLink> links = lists.get(j);
-                    ReportLink reportLink = reportLinkList.get(i);
-                    links.add(reportLink);
-                    i++;
-                }
-            }
-
-        } else {
-            lists.add(reportLinkList);
-        }
 
         createEmptyReportSheet(workbook);
     }
@@ -1516,4 +1038,27 @@ public class ReportWizardDialog {
     }
 
 
+    public StackPane getDialogContainer() {
+        return reportWizardDialog.getDialogContainer();
+    }
+
+    public String getWizardType() {
+        return wizardType;
+    }
+
+    public ReportType getReportType() {
+        return reportType;
+    }
+
+    public Result getResult() {
+        return result;
+    }
+
+    public TabPane getTabPane() {
+        return tabPane;
+    }
+
+    private enum Result {
+        OK, CANCEL;
+    }
 }
