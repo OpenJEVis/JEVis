@@ -195,4 +195,6 @@ public class ConsumptionData {
     public SimpleStringProperty jevisLinkProperty() {
         return jevisLink;
     }
+
+
 }

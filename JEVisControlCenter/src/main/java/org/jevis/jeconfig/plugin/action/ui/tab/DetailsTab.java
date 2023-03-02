@@ -1,9 +1,11 @@
 package org.jevis.jeconfig.plugin.action.ui.tab;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -11,8 +13,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
@@ -25,27 +29,30 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 public class DetailsTab extends Tab {
 
 
-    Label l_enpiAfter = new Label(I18n.getInstance().getString("plugin.action.enpiafter"));
-    Label l_enpiBefore = new Label(I18n.getInstance().getString("plugin.action.enpiabefore"));
-    Label l_enpiChange = new Label(I18n.getInstance().getString("plugin.action.enpiabechange"));
-    Label l_correctionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.correction"));
-    Label l_nextActionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.followupaction"));
-    Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
-    Label l_energyBefore = new Label("Verbrauch (Referenz)");
-    Label l_energyAfter = new Label("Verbrauch (Ist)");
-    Label l_energyChange = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
-    Button beforeDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
-    Button afterDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
-    Button diffDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
-    JFXButton buttonOpenAnalysisBefore = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
-    Button buttonOpenAnalysisafter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
-    Button buttonOpenAnalysisaDiff = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+    private Label l_enpiAfter = new Label(I18n.getInstance().getString("plugin.action.enpiafter"));
+    private Label l_enpiBefore = new Label(I18n.getInstance().getString("plugin.action.enpiabefore"));
+    private Label l_enpiChange = new Label(I18n.getInstance().getString("plugin.action.enpiabechange"));
+    private Label l_correctionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.correction"));
+    private Label l_nextActionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.followupaction"));
+    private Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
+    private Label l_energyBefore = new Label("Verbrauch (Referenz)");
+    private Label l_energyAfter = new Label("Verbrauch (Ist)");
+    private Label l_energyChange = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
+    private Button beforeDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+    private Button afterDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+    private Button diffDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+    private JFXButton buttonOpenAnalysisBefore = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+    private Button buttonOpenAnalysisafter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+    private Button buttonOpenAnalysisaDiff = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+    private JFXComboBox<JEVisObject> f_EnpiSelection;
+    private Label l_EnpiSelection = new Label("EnPI");
+    private Label l_mediaTags = new Label();
+    private JFXComboBox<String> f_mediaTags;
     private TextArea f_correctionIfNeeded = new TextArea("Korrekturmaßnahmen");
     private TextFieldWithUnit f_enpiAfter = new TextFieldWithUnit();
     private TextFieldWithUnit f_enpiBefore = new TextFieldWithUnit();
@@ -55,14 +62,12 @@ public class DetailsTab extends Tab {
     private TextFieldWithUnit f_consumptionBefore = new TextFieldWithUnit();
     private TextFieldWithUnit f_consumptionAfter = new TextFieldWithUnit();
     private TextFieldWithUnit f_consumptionDiff = new TextFieldWithUnit();
-    private JFXTextField f_FromUser = new JFXTextField();
+
     private JFXTextField f_toUser = new JFXTextField();
-    private JFXDatePicker f_CreateDate = new JFXDatePicker();
-    private JFXTextField f_distributor = new JFXTextField();
+
+
     private ActionData names = new ActionData();
-    Label l_CreateDate = new Label(names.createDateProperty().getName());
-    Label l_FromUser = new Label(names.fromUserProperty().getName());
-    Label l_distributor = new Label(names.distributorProperty().getName());
+
 
     public DetailsTab(ActionData data) {
         super(I18n.getInstance().getString("actionform.editor.tab.deteils"));
@@ -85,6 +90,74 @@ public class DetailsTab extends Tab {
             f_enpiAfter.setEditable(newValue.equals(FreeObject.getInstance().getID().toString()));
         });
 
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> enpiCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            setText(item.getName());
+                        } else {
+                            setText(null);
+                        }
+
+                    }
+                };
+            }
+        };
+        f_EnpiSelection = new JFXComboBox(data.getActionPlan().getEnpis());
+        f_EnpiSelection.setCellFactory(enpiCellFactory);
+        f_EnpiSelection.setButtonCell(enpiCellFactory.call(null));
+        try {
+            JEVisObject obj = FreeObject.getInstance();
+            if (!data.enpiProperty().get().jevisLinkProperty().get().isEmpty()
+                    && !data.enpiProperty().get().jevisLinkProperty().get().equals(FreeObject.getInstance().getID())) {
+                try {
+                    obj = data.getObject().getDataSource().getObject(new Long(data.enpiProperty().get().jevisLinkProperty().get()));
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            }
+            //System.out.println("Select Object; " + obj);
+            // f_Enpi.valueProperty().set(obj);
+            f_EnpiSelection.getSelectionModel().select(obj);
+            f_EnpiSelection.getSelectionModel().selectLast();
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+
+        f_EnpiSelection.valueProperty().addListener(new ChangeListener<JEVisObject>() {
+            @Override
+            public void changed(ObservableValue<? extends JEVisObject> observable, JEVisObject oldValue, JEVisObject newValue) {
+                data.enpiProperty().get().jevisLinkProperty().set(newValue.getID().toString());
+            }
+        });
+        try {
+            System.out.println("Select Object: " + data.getEnpi().dataObject.get());
+            if (data.getEnpi().dataObject.get() <= 0l) {
+                f_EnpiSelection.setValue(FreeObject.getInstance());
+            } else {
+                f_EnpiSelection.setValue(data.getObject().getDataSource().getObject(data.getEnpi().dataObject.get()));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+
+        f_mediaTags = new JFXComboBox<>(data.getActionPlan().getMediumTags());
+        f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
+        l_mediaTags.setText(names.mediaTagsProperty().getName());
+        f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                data.mediaTagsProperty().set(newValue);
+            }
+        });
 
         Region spacerEnpiBefore = new Region();
         Region spacerEnpiAfter = new Region();
@@ -165,33 +238,37 @@ public class DetailsTab extends Tab {
         Bindings.bindBidirectional(f_enpiDiff.getUnitField().textProperty(), data.enpiProperty().get().unitProperty());
 
 
-        f_distributor.textProperty().bindBidirectional(data.distributorProperty());
-        f_FromUser.textProperty().bindBidirectional(data.fromUserProperty());
-
-        DateTime start = data.createDateProperty().get();
-        f_CreateDate.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
-        f_CreateDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
-        });
-
-
         f_correctionIfNeeded.setPrefWidth(400);
         f_nextActionIfNeeded.setPrefWidth(400);
         f_alternativAction.setPrefWidth(400);
         f_enpiAfter.setAlignment(Pos.CENTER_RIGHT);
         f_enpiBefore.setAlignment(Pos.CENTER_RIGHT);
         f_enpiDiff.setAlignment(Pos.CENTER_RIGHT);
+        GridPane.setHgrow(f_EnpiSelection, Priority.ALWAYS);
+        GridPane.setHgrow(f_mediaTags, Priority.ALWAYS);
+        GridPane.setFillWidth(f_EnpiSelection, true);
+        GridPane.setFillWidth(f_mediaTags, true);
 
-        gridPane.addRow(0, l_enpiBefore, box_EnpiBefore, new Region(), l_energyBefore, f_consumptionBefore);
-        gridPane.addRow(1, l_enpiAfter, box_EnpiAfter, new Region(), l_energyAfter, f_consumptionAfter);
-        gridPane.addRow(2, l_enpiChange, box_EnpiDiff, new Region(), l_energyChange, f_consumptionDiff);
-        gridPane.addRow(3, new Region());
+        f_correctionIfNeeded.widthProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("With: " + newValue);
+        });
 
-        gridPane.addRow(4, l_FromUser, f_FromUser, new Region(), l_CreateDate, f_CreateDate);
-        gridPane.addRow(5, l_distributor, f_distributor);
+        //Workaround
+        f_EnpiSelection.setPrefWidth(320);
+        f_mediaTags.setPrefWidth(320);
 
-        gridPane.addRow(6, l_correctionIfNeeded, new Region(), new Region(), l_nextActionIfNeeded, new Region());
-        gridPane.addRow(7, f_correctionIfNeeded, new Region(), new Region(), f_nextActionIfNeeded, new Region());
+
+        gridPane.addRow(0, l_EnpiSelection, f_EnpiSelection, new Region(), l_mediaTags, f_mediaTags);
+        gridPane.addRow(1, l_enpiBefore, box_EnpiBefore, new Region(), l_energyBefore, f_consumptionBefore);
+        gridPane.addRow(2, l_enpiAfter, box_EnpiAfter, new Region(), l_energyAfter, f_consumptionAfter);
+        gridPane.addRow(3, l_enpiChange, box_EnpiDiff, new Region(), l_energyChange, f_consumptionDiff);
+        gridPane.addRow(4, new Region());
+
+        // gridPane.addRow(5, l_FromUser, f_FromUser, new Region(), l_CreateDate, f_CreateDate);
+        // gridPane.addRow(6, l_distributor, f_distributor);
+
+        gridPane.addRow(7, l_correctionIfNeeded, new Region(), new Region(), l_nextActionIfNeeded, new Region());
+        gridPane.addRow(8, f_correctionIfNeeded, new Region(), new Region(), f_nextActionIfNeeded, new Region());
         // gridPane.addRow(8, l_alternativAction);
         // gridPane.addRow(9, f_alternativAction, new Region(), new Region(), new Region(), new Region());
 

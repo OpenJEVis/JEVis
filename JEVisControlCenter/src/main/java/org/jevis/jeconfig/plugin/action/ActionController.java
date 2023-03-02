@@ -67,9 +67,7 @@ public class ActionController {
 
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println();
             isOverviewTab.set(getActiveActionPlan() instanceof ActionPlanOverviewData);
-            System.out.println("Tab is Overview: " + isOverviewTab.get());
         });
 
 
