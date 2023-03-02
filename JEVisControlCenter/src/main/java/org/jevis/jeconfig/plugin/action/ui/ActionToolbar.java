@@ -55,6 +55,8 @@ public class ActionToolbar extends ToolBar {
         newAction.setDisable(isOverview);
         deleteAction.setDisable(isOverview);
         deletePlan.setDisable(isOverview);
+        exportPDF.setDisable(true);//Disabled because implementation is missing
+        reloadButton.setDisable(true); //Disabled because implementation is missing
         //newPlan.setDisable(isOverview);
         //openForm.setDisable(isOverview);
         //reloadButton.setDisable(isOverview);
