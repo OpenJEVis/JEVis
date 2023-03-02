@@ -167,10 +167,11 @@ public class DetailsTab extends Tab {
 
         f_distributor.textProperty().bindBidirectional(data.distributorProperty());
         f_FromUser.textProperty().bindBidirectional(data.fromUserProperty());
+
         DateTime start = data.createDateProperty().get();
         f_CreateDate.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
         f_CreateDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
         });
 
 
@@ -186,7 +187,6 @@ public class DetailsTab extends Tab {
         gridPane.addRow(2, l_enpiChange, box_EnpiDiff, new Region(), l_energyChange, f_consumptionDiff);
         gridPane.addRow(3, new Region());
 
-        System.out.println("l_FromUser: " + l_FromUser.textProperty().get());
         gridPane.addRow(4, l_FromUser, f_FromUser, new Region(), l_CreateDate, f_CreateDate);
         gridPane.addRow(5, l_distributor, f_distributor);
 
