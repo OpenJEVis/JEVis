@@ -1,21 +1,13 @@
 package org.jevis.jeconfig.plugin.action;
 
-import com.jfoenix.controls.JFXTextField;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -25,12 +17,15 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
-import org.jevis.jeconfig.plugin.action.ui.*;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
+import org.jevis.jeconfig.plugin.action.ui.ActionForm;
+import org.jevis.jeconfig.plugin.action.ui.ActionPlanForm;
+import org.jevis.jeconfig.plugin.action.ui.ActionTab;
+import org.jevis.jeconfig.plugin.action.ui.NewActionDialog;
 import org.joda.time.DateTime;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ActionController {
     private static final Logger logger = LogManager.getLogger(ActionController.class);
@@ -38,7 +33,12 @@ public class ActionController {
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
     private ObservableList<ActionPlanData> actionPlans;
+    private ObservableList<ActionPlanData> actionPlansFilters;
+
+    private ObservableList<String> actionPlanNames;
     private TabPane tabPane = new TabPane();
+    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
+
 
     public ActionController(ActionPlugin plugin) {
         this.plugin = plugin;
@@ -47,6 +47,10 @@ public class ActionController {
     public void loadActionView() {
 
         actionPlans = FXCollections.observableArrayList();
+        actionPlanNames = FXCollections.observableArrayList();
+        actionPlansFilters = FXCollections.observableArrayList();
+
+
         actionPlans.addListener(new ListChangeListener<ActionPlanData>() {
             @Override
             public void onChanged(Change<? extends ActionPlanData> c) {
@@ -54,12 +58,23 @@ public class ActionController {
                     if (c.wasAdded()) {
                         c.getAddedSubList().forEach(actionPlan -> {
                             buildTabPane(actionPlan);
+                            actionPlanNames.add(actionPlan.getName().get());
                         });
 
                     }
                 }
             }
         });
+
+
+        /*
+        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println();
+            isOverviewTab.set(tabPane.getSelectionModel().getSelectedItem() instanceof OverviewTab);
+            System.out.println("Tab is Overview: " + isOverviewTab.get());
+        });
+
+         */
 
         AnchorPane.setBottomAnchor(tabPane, 0.0);
         AnchorPane.setTopAnchor(tabPane, 0.0);
@@ -72,121 +87,23 @@ public class ActionController {
 
 
     private void buildTabPane(ActionPlanData plan) {
-        ActionTable actionTable = new ActionTable(plan, plan.getActionData());
+        //ActionTable actionTable = new ActionTable(plan, plan.getActionData());
         //actionTable.enableSumRow(true);
-        ActionTab tab = new ActionTab(plan, actionTable);
+        ActionTab tab = new ActionTab(this, plan);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("new tab selected: " + newValue);
 
             if (newValue instanceof ActionTab) {
                 ActionPlanData actionPlan = ((ActionTab) newValue).getActionPlan();
-                actionPlan.loadActionList();
-            } else if (newValue instanceof OverviewTab) {
-                /* TODO */
-                System.out.println("todo overview tab");
-            }
-
-
-        });
-
-        GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(25));
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-
-
-        Label lSuche = new Label("Suche");
-        JFXTextField fsearch = new JFXTextField();
-        fsearch.setPromptText("Suche nach...");
-        TimeFilterSelector dateSelector = new TimeFilterSelector(plan);
-        TagButton statusButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.status"), plan.getStatustags(), plan.getStatustags());
-        TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), plan.getMediumTags());
-        TagButton fieldsButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.bereich"), plan.getFieldsTags(), plan.getFieldsTags());
-
-        actionTable.setFilterStatus(plan.getStatustags());
-        actionTable.setFilterMedium(plan.getMediumTags());
-        actionTable.setFilterField(plan.getFieldsTags());
-
-        fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
-            actionTable.setTextFilter(newValue);
-            actionTable.filter();
-        });
-        dateSelector.getValuePropertyProperty().addListener(new ChangeListener<DateFilter>() {
-            @Override
-            public void changed(ObservableValue<? extends DateFilter> observable, DateFilter oldValue, DateFilter newValue) {
-                actionTable.setDateFilter(newValue);
-                actionTable.filter();
+                //actionPlan.loadActionList();
             }
         });
 
-        statusButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                while (c.next()) {
-                    actionTable.setFilterStatus((ObservableList<String>) c.getList());
-                    actionTable.filter();
-                }
-            }
-        });
-        mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
-                while (c.next()) {
-                    actionTable.setFilterMedium((ObservableList<String>) c.getList());
-                    actionTable.filter();
-                }
-            }
-        });
+    }
 
-
-        fieldsButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
-                while (c.next()) {
-                    actionTable.setFilterField((ObservableList<String>) c.getList());
-                    actionTable.filter();
-                }
-            }
-        });
-
-
-        Separator vSep1 = new Separator(Orientation.VERTICAL);
-        Separator vSep2 = new Separator(Orientation.VERTICAL);
-        GridPane.setRowSpan(vSep1, 2);
-        GridPane.setRowSpan(vSep2, 2);
-
-        gridPane.addColumn(0, lSuche, fsearch);
-        gridPane.addColumn(1, vSep1);
-        gridPane.addColumn(2, new Label("Filter"), statusButton);
-        gridPane.addColumn(3, new Region(), mediumButton);
-        gridPane.addColumn(4, new Region(), fieldsButton);
-        gridPane.addColumn(5, vSep2);
-        gridPane.addColumn(6, new Label("Zeitbereich"), dateSelector);
-
-
-        BorderPane borderPane = new BorderPane();
-        borderPane.setTop(gridPane);
-        borderPane.setCenter(actionTable);
-
-        TableSumPanel tableSumPanel = new TableSumPanel(actionTable.getItems());
-        borderPane.setBottom(tableSumPanel);
-
-        actionTable.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-                    openDataForm();//actionTable.getSelectionModel().getSelectedItem()
-                }
-            }
-        });
-        tab.setContent(borderPane);
-        //actionTable.setItems(createTestData());
-
-        actionTable.filter();
+    public ObservableList<ActionPlanData> getActionPlans() {
+        return actionPlans;
     }
 
     public void deletePlan() {
@@ -310,17 +227,25 @@ public class ActionController {
             JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass("Action Plan v2");
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
-            AtomicBoolean isFirstPlan = new AtomicBoolean(true);
-            OverviewTab overviewTab = new OverviewTab();
+            //AtomicBoolean isFirstPlan = new AtomicBoolean(true);
 
-            tabPane.getTabs().add(overviewTab);
+
+            ActionPlanOverviewData overviewData = new ActionPlanOverviewData(this);
+            ActionTab overviewTab = new ActionTab(this, overviewData);
+            tabPane.getTabs().add(0, overviewTab);
 
             planObjs.forEach(jeVisObject -> {
                 ActionPlanData plan = new ActionPlanData(jeVisObject);
+                plan.loadActionList();
                 actionPlans.add(plan);
+
+
+                /* the new Overview need all data ready :(
                 if (isFirstPlan.get()) plan.loadActionList();
                 isFirstPlan.set(false);
+                 */
             });
+            overviewData.updateData();
 
         } catch (Exception e) {
             throw new RuntimeException(e);

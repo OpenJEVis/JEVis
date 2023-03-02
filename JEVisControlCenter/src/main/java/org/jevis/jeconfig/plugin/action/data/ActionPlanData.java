@@ -55,6 +55,9 @@ public class ActionPlanData {
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
+    public ActionPlanData() {
+    }
+
     public ActionPlanData(JEVisObject obj) {
         System.out.println("New ActionPlan from Object: " + obj);
         this.object = obj;
@@ -167,6 +170,7 @@ public class ActionPlanData {
             enpis.add(FreeObject.getInstance());
         }
 
+        loadActionList();
 
     }
 
@@ -245,7 +249,7 @@ public class ActionPlanData {
         ActionData actionData = gson.fromJson(s, ActionData.class);
         actionData.setObject(actionObj);
         actionData.setActionPlan(this);
-        System.out.println("-- Loaded Action GSON: " + actionData);
+        logger.debug("Load Action JSon: {}", gson.toJson(actionData));
         return actionData;
     }
 

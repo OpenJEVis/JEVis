@@ -151,7 +151,6 @@ public class TimeFilterSelector extends GridPane {
             fFromMonth.setValue(Month.of(maxDate.getMonthOfYear()));
             fToYear.setValue(maxDate.getYear());
         } else {
-            System.out.println("default value");
             fFromMonth.setValue(Month.of(1));
             fFromYear.setValue(2018);
 
@@ -211,7 +210,6 @@ public class TimeFilterSelector extends GridPane {
     }
 
     private void updateValue() {
-        System.out.println("Update value");
         try {
             DateTime from = new DateTime(fFromYear.getValue(), fFromMonth.getValue().getValue(), 1, 0, 0);
             DateTime until = new DateTime(fToYear.getValue(), fToMonth.getValue().getValue(), fToMonth.getValue().maxLength(), 23, 59);

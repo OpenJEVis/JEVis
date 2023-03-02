@@ -14,6 +14,7 @@ import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
 import org.jevis.jeconfig.plugin.action.data.TableFilter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -41,9 +42,10 @@ public class ActionTable extends TableView<ActionData> {
 
     ObservableList<ActionData> data = FXCollections.observableArrayList();
     FilteredList<ActionData> filteredData;
-    private ObservableList<String> status = FXCollections.observableArrayList();
-    private ObservableList<String> medium = FXCollections.observableArrayList();
-    private ObservableList<String> field = FXCollections.observableArrayList();
+    private ObservableList<String> statusFilter = FXCollections.observableArrayList();
+    private ObservableList<String> mediumFilter = FXCollections.observableArrayList();
+    private ObservableList<String> fieldFilter = FXCollections.observableArrayList();
+    private ObservableList<String> planFilters = FXCollections.observableArrayList();
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
     private ActionData sumRow = new ActionData();
@@ -52,14 +54,22 @@ public class ActionTable extends TableView<ActionData> {
     private String containsTextFilter = "";
 
     NumberFormat currencyFormat = NumberFormat.getNumberInstance();
-    private ActionPlanData actionPlanData = null;
 
     public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data) {
+        System.out.println("New Action Table: " + data);
         this.data = data;
         this.filteredData = new FilteredList<>(data);
-        this.actionPlanData = actionPlanData;
         setItems(filteredData);
         setId("Action Table");
+
+        data.addListener(new ListChangeListener<ActionData>() {
+            @Override
+            public void onChanged(Change<? extends ActionData> c) {
+                while (c.next()) ;
+
+                System.out.println("Daten in tabelle " + actionPlanData.getName() + " geändert: " + c.getList());
+            }
+        });
 
         actionPlanData.nrPrefixProperty().addListener((observable, oldValue, newValue) -> {
             filter();
@@ -83,8 +93,13 @@ public class ActionTable extends TableView<ActionData> {
                 protected void updateItem(Integer item, boolean empty) {
                     super.updateItem(item, empty);
 
-                    if (item != null && !empty) {
-                        if (actionPlanData != null) setText(actionPlanData.getNrPrefix() + item);
+                    if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
+                        ActionData actionData = (ActionData) getTableRow().getItem();
+                        setText(actionData.getActionPlan().getNrPrefix() + item);
+
+                        //if (actionPlanData != null) setText(actionPlanData.getNrPrefix() + item);
+                    } else {
+                        setText(null);
                     }
                 }
             };
@@ -93,6 +108,10 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> desciptionPropertyCol = new TableColumn(fakeForName.desciptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().desciptionProperty());
         desciptionPropertyCol.setCellFactory(buildShotTextFactory());
+
+        TableColumn<ActionData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.action.filter.plan"));
+        planNameCol.setCellValueFactory(param -> param.getValue().getActionPlan().getName());
+        planNameCol.setCellFactory(buildShotTextFactory());
 
         TableColumn<ActionData, String> notePropertyCol = new TableColumn(fakeForName.noteProperty().getName());
         notePropertyCol.setCellValueFactory(param -> param.getValue().noteProperty());
@@ -213,7 +232,7 @@ public class ActionTable extends TableView<ActionData> {
             }
         });
 
-
+        planNameCol.setVisible(actionPlanData instanceof ActionPlanOverviewData);
         actionNrPropertyCol.setVisible(true);
         fromUserCol.setVisible(false);
         responsiblePropertyCol.setVisible(true);
@@ -239,7 +258,7 @@ public class ActionTable extends TableView<ActionData> {
 
         this.tableMenuButtonVisibleProperty().set(true);
 
-        this.getColumns().addAll(actionNrPropertyCol, titlePropertyCol, fromUserCol,
+        this.getColumns().addAll(actionNrPropertyCol, planNameCol, titlePropertyCol, fromUserCol,
                 responsiblePropertyCol, desciptionPropertyCol, notePropertyCol,
                 mediaTagsPropertyCol, statusTagsPropertyCol, fieldTagsPropertyCol,
                 plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol, noteAlternativeMeasuresPropertyCol, noteBewertetPropertyCol,
@@ -334,7 +353,7 @@ public class ActionTable extends TableView<ActionData> {
     }
 
     public void setFilterStatus(ObservableList<String> status) {
-        this.status = status;
+        this.statusFilter = status;
     }
 
     public void setDateFilter(DateFilter filter) {
@@ -342,15 +361,19 @@ public class ActionTable extends TableView<ActionData> {
     }
 
     public void setFilterMedium(ObservableList<String> medium) {
-        this.medium = medium;
+        this.mediumFilter = medium;
     }
 
     public void setFilterField(ObservableList<String> field) {
-        this.field = field;
+        this.fieldFilter = field;
     }
 
     public void setTextFilter(String containsText) {
         this.containsTextFilter = containsText;
+    }
+
+    public void setPlanFilter(ObservableList<String> planNames) {
+        planFilters = planNames;
     }
 
     public void filter() {
@@ -358,12 +381,38 @@ public class ActionTable extends TableView<ActionData> {
                 new Predicate<ActionData>() {
                     @Override
                     public boolean test(ActionData notesRow) {
-                        //System.out.println("Filter.predict: " + notesRow.getTags());
+                        System.out.println("-----");
+                        System.out.println("Filter.predict: " + notesRow.nr);
                         try {
+                            //if (true) return true;
+
                             if (notesRow.isDeletedProperty().get()) return false;
+                            System.out.println("Filter.pass.delete");
+
+                            if (planFilters != null && !planFilters.isEmpty()) {
+                                /*
+                                System.out.println("Filter is active: " + notesRow.getActionPlan().getName());
+                                planFilters.forEach(s -> {
+                                    System.out.println("s: " + s);
+                                });
+
+                                System.out.println("F: " + planFilters.contains(notesRow.getActionPlan().getName().get()));
+
+                                 */
+                                if (!planFilters.contains(notesRow.getActionPlan().getName().get())) return false;
+                            }
+                            System.out.println("Filter.pass.plan");
+
+                            /*
+                            System.out.println("StatusFilter: " + notesRow.statusTagsProperty().get() + " in " + statusFilter);
+                            statusFilter.forEach(s -> {
+                                System.out.println("Status OK:" + s);
+                            });
+
+                             */
 
                             AtomicBoolean statusMatch = new AtomicBoolean(false);
-                            status.forEach(s -> {
+                            statusFilter.forEach(s -> {
                                 try {
                                     for (String s1 : notesRow.statusTagsProperty().get().split(";")) {
                                         if (s1.equalsIgnoreCase(s)) {
@@ -375,10 +424,11 @@ public class ActionTable extends TableView<ActionData> {
                                 }
                             });
                             if (!statusMatch.get()) return false;
+                            System.out.println("Filter.pass.status");
 
 
                             AtomicBoolean mediumMatch = new AtomicBoolean(false);
-                            medium.forEach(s -> {
+                            mediumFilter.forEach(s -> {
                                 try {
                                     for (String s1 : notesRow.mediaTagsProperty().get().split(";")) {
                                         if (s1.equalsIgnoreCase(s)) {
@@ -390,9 +440,10 @@ public class ActionTable extends TableView<ActionData> {
                                 }
                             });
                             if (!mediumMatch.get()) return false;
+                            System.out.println("Filter.pass.medium");
 
                             AtomicBoolean fieldMatch = new AtomicBoolean(false);
-                            field.forEach(s -> {
+                            fieldFilter.forEach(s -> {
                                 try {
                                     for (String s1 : notesRow.fieldTagsProperty().get().split(";")) {
                                         if (s1.equalsIgnoreCase(s)) {
@@ -404,11 +455,13 @@ public class ActionTable extends TableView<ActionData> {
                                 }
                             });
                             if (!fieldMatch.get()) return false;
+                            System.out.println("Filter.pass.field");
 
 
                             if (dateFilter != null) {
                                 if (!dateFilter.show(notesRow)) return false;
                             }
+                            System.out.println("Filter.pass.date");
 
 
                             AtomicBoolean containString = new AtomicBoolean(false);
@@ -422,6 +475,7 @@ public class ActionTable extends TableView<ActionData> {
                                         || notesRow.noteCorrection.get().toLowerCase().contains(containsTextFilter.toLowerCase())
                                         || notesRow.noteBetroffenerProzess.get().toLowerCase().contains(containsTextFilter.toLowerCase())
                                         || notesRow.noteFollowUpAction.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                        || notesRow.getActionPlan().getName().get().toLowerCase().contains(containsTextFilter.toLowerCase())
                                         || notesRow.noteBewertet.get().toLowerCase().contains(containsTextFilter.toLowerCase())) {
 
                                     containString.set(true);
@@ -431,7 +485,7 @@ public class ActionTable extends TableView<ActionData> {
                                 if (!containString.get()) return false;
                             }
 
-
+                            System.out.println("Return true");
                             return true;
                         } catch (Exception ex) {
                             ex.printStackTrace();

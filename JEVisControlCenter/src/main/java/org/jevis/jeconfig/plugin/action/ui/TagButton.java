@@ -27,10 +27,10 @@ public class TagButton extends Button {
 
     private List<JFXCheckBox> boxes = new ArrayList<>();
 
-    public TagButton(String text, ObservableList<String> entrys, ObservableList<String> items) {
+    public TagButton(String text, ObservableList<String> entry, ObservableList<String> selected) {
         super(text);
-        this.allTags = entrys;
-        this.selectedTags.addAll(items);
+        this.allTags = entry;
+        this.selectedTags.addAll(selected);
 
         this.allTags.addListener(new ListChangeListener<String>() {
             @Override
@@ -38,10 +38,22 @@ public class TagButton extends Button {
                 updateList();
             }
         });
+
+
         updateList();
     }
 
-    private void updateList() {
+    public ObservableList<String> selectedTags() {
+        return selectedTags;
+    }
+
+    public ObservableList<String> allTags() {
+        return allTags;
+    }
+
+    public void updateList() {
+        boxes.clear();
+
         MenuItem selectAllMenuItem = new MenuItem(I18n.getInstance().getString("plugin.notes.contextmenu.selectall"));
         selectAllMenuItem.setOnAction(event -> {
             boxes.forEach(jfxCheckBox -> jfxCheckBox.setSelected(true));
@@ -76,34 +88,35 @@ public class TagButton extends Button {
             cm.show(this, Side.BOTTOM, 0, 0);
         });
         updateButton();
+        updateValue();
     }
 
     private void updateValue() {
 
         List<String> selected = new ArrayList();
         boxes.forEach(jfxCheckBox -> {
-            System.out.println("jfxCheckBox: " + jfxCheckBox.isSelected() + "  " + jfxCheckBox.getText());
+            //System.out.println("jfxCheckBox: " + jfxCheckBox.isSelected() + "  " + jfxCheckBox.getText());
             if (jfxCheckBox.isSelected()) selected.add(jfxCheckBox.getText());
 
         });
-        System.out.println("selected: " + selected);
+        System.out.println("## selectedBoxes" + selected);
+
+        //System.out.println("selected: " + selected);
         if (selected.isEmpty()) {
             selectedTags.clear();
         } else {
             selectedTags.setAll(selected);
         }
-        updateButton();
+        //updateButton();
 
     }
 
     private void updateButton() {
         Platform.runLater(() -> {
             if (selectedTags.size() == allTags.size()) {
-                System.out.println("All selected");
                 setStyle("-fx-border-color: #51aaa5;");
                 setGraphic(JEConfig.getSVGImage(Icon.FILTER_ALT_OFF, 20, 20));
             } else {
-                System.out.println("User select");
                 setStyle("-fx-border-color: green;");
                 setGraphic(JEConfig.getSVGImage(Icon.FILTER_ALT, 20, 20));
             }
