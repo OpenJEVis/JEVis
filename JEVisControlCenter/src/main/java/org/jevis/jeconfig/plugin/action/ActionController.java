@@ -12,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
@@ -22,9 +21,9 @@ import org.jevis.jeconfig.plugin.action.ui.ActionForm;
 import org.jevis.jeconfig.plugin.action.ui.ActionPlanForm;
 import org.jevis.jeconfig.plugin.action.ui.ActionTab;
 import org.jevis.jeconfig.plugin.action.ui.NewActionDialog;
-import org.joda.time.DateTime;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class ActionController {
@@ -139,16 +138,12 @@ public class ActionController {
                 JEVisObject newObject = parentDir.buildObject(newActionDialog.getCreateName(), actionPlanClass);
                 newObject.commit();
                 ActionPlanData actionPlan = new ActionPlanData(newObject);
+
+                actionPlan.setDefaultValues(Locale.GERMANY);//For now only German is Supportet
+                actionPlan.commit();
                 actionPlans.add(actionPlan);
                 tabPane.getSelectionModel().selectLast();
 
-                DateTime now = new DateTime();
-                JEVisSample statusAtt = newObject.getAttribute("Custom Status").buildSample(now, "Offen;Geschlosse");
-                JEVisSample fieldsAtt = newObject.getAttribute("Custom Fields").buildSample(now, "Büro,Lager,Produktion");
-                JEVisSample mediumAtt = newObject.getAttribute("Custom Medium").buildSample(now, "Strom;Gas;Wasser");
-                statusAtt.commit();
-                fieldsAtt.commit();
-                mediumAtt.commit();
             }
 
         } catch (Exception ex) {
