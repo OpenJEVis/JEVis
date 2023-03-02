@@ -381,35 +381,18 @@ public class ActionTable extends TableView<ActionData> {
                 new Predicate<ActionData>() {
                     @Override
                     public boolean test(ActionData notesRow) {
-                        System.out.println("-----");
-                        System.out.println("Filter.predict: " + notesRow.nr);
+                        //System.out.println("-----");
+                        //System.out.println("Filter.predict: " + notesRow.nr);
                         try {
-                            //if (true) return true;
 
                             if (notesRow.isDeletedProperty().get()) return false;
-                            System.out.println("Filter.pass.delete");
+                            //System.out.println("Filter.pass.delete");
 
                             if (planFilters != null && !planFilters.isEmpty()) {
-                                /*
-                                System.out.println("Filter is active: " + notesRow.getActionPlan().getName());
-                                planFilters.forEach(s -> {
-                                    System.out.println("s: " + s);
-                                });
-
-                                System.out.println("F: " + planFilters.contains(notesRow.getActionPlan().getName().get()));
-
-                                 */
                                 if (!planFilters.contains(notesRow.getActionPlan().getName().get())) return false;
                             }
-                            System.out.println("Filter.pass.plan");
+                            //System.out.println("Filter.pass.plan");
 
-                            /*
-                            System.out.println("StatusFilter: " + notesRow.statusTagsProperty().get() + " in " + statusFilter);
-                            statusFilter.forEach(s -> {
-                                System.out.println("Status OK:" + s);
-                            });
-
-                             */
 
                             AtomicBoolean statusMatch = new AtomicBoolean(false);
                             statusFilter.forEach(s -> {
@@ -424,7 +407,7 @@ public class ActionTable extends TableView<ActionData> {
                                 }
                             });
                             if (!statusMatch.get()) return false;
-                            System.out.println("Filter.pass.status");
+                            // System.out.println("Filter.pass.status");
 
 
                             AtomicBoolean mediumMatch = new AtomicBoolean(false);
@@ -440,7 +423,7 @@ public class ActionTable extends TableView<ActionData> {
                                 }
                             });
                             if (!mediumMatch.get()) return false;
-                            System.out.println("Filter.pass.medium");
+                            //System.out.println("Filter.pass.medium");
 
                             AtomicBoolean fieldMatch = new AtomicBoolean(false);
                             fieldFilter.forEach(s -> {
@@ -455,13 +438,13 @@ public class ActionTable extends TableView<ActionData> {
                                 }
                             });
                             if (!fieldMatch.get()) return false;
-                            System.out.println("Filter.pass.field");
+                            //System.out.println("Filter.pass.field");
 
 
                             if (dateFilter != null) {
                                 if (!dateFilter.show(notesRow)) return false;
                             }
-                            System.out.println("Filter.pass.date");
+                            //System.out.println("Filter.pass.date");
 
 
                             AtomicBoolean containString = new AtomicBoolean(false);
@@ -485,7 +468,7 @@ public class ActionTable extends TableView<ActionData> {
                                 if (!containString.get()) return false;
                             }
 
-                            System.out.println("Return true");
+                            //System.out.println("Return true");
                             return true;
                         } catch (Exception ex) {
                             ex.printStackTrace();
