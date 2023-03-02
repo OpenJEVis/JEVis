@@ -67,14 +67,12 @@ public class ActionController {
         });
 
 
-        /*
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println();
-            isOverviewTab.set(tabPane.getSelectionModel().getSelectedItem() instanceof OverviewTab);
+            isOverviewTab.set(getActiveActionPlan() instanceof ActionPlanOverviewData);
             System.out.println("Tab is Overview: " + isOverviewTab.get());
         });
 
-         */
 
         AnchorPane.setBottomAnchor(tabPane, 0.0);
         AnchorPane.setTopAnchor(tabPane, 0.0);
@@ -311,5 +309,11 @@ public class ActionController {
 
     }
 
+    public boolean isIsOverviewTab() {
+        return isOverviewTab.get();
+    }
 
+    public BooleanProperty isOverviewTabProperty() {
+        return isOverviewTab;
+    }
 }

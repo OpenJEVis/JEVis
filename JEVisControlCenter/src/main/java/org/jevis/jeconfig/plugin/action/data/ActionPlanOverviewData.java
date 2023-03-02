@@ -80,8 +80,6 @@ public class ActionPlanOverviewData extends ActionPlanData {
                         });
                         //actions.addAll(c.getAddedSubList());
                         actions.removeAll(c.getRemoved());
-
-
                     }
 
                 }
