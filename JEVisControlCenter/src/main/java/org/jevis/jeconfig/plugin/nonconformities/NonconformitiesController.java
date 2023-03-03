@@ -21,6 +21,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
+import org.jevis.jeconfig.plugin.action.ui.ActionPlanForm;
 import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformtiesOverviewData;
@@ -210,8 +211,8 @@ public class NonconformitiesController {
     }
 
     public void openPlanSettings() {
-        NonconformitiesPlanForm nonconformitiesPlanForm = new NonconformitiesPlanForm(getActiveTab().getNonconformities());
-        Optional<ButtonType> result = nonconformitiesPlanForm.showAndWait();
+        NonconfomitiesForm nonconfomitiesForm = new NonconfomitiesForm(getActiveTab().getNonconformities());
+        Optional<ButtonType> result = nonconfomitiesForm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             getActiveTab().getNonconformities().commit();
         }

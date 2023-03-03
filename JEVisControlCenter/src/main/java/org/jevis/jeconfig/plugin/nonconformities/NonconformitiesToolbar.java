@@ -10,6 +10,8 @@ import org.jevis.jeconfig.JEConfig;
 public class NonconformitiesToolbar extends ToolBar {
 
     private final double iconSize = 20;
+
+    private final ToggleButton nonconformitiesConfig = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
     private final ToggleButton openForm = new ToggleButton("", JEConfig.getSVGImage(Icon.PREVIEW, iconSize, iconSize));
     private final ToggleButton newNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_ADD, iconSize, iconSize));
     private final ToggleButton newNonconformities = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
@@ -25,10 +27,12 @@ public class NonconformitiesToolbar extends ToolBar {
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
-        getItems().setAll(newNonconformities, deletePlan, reloadButton,
+        getItems().setAll(newNonconformities, nonconformitiesConfig, deletePlan, reloadButton,
                 sep1, newNonconformity, deleteNonconformity, openForm,
                 sep2, exportPDF);
 
+
+        nonconformitiesConfig.setOnAction(event -> nonconformitiesController.openPlanSettings());
         openForm.setOnAction(event -> nonconformitiesController.openDataForm());
         newNonconformities.setOnAction(event -> nonconformitiesController.createNewNonconformities());
         newNonconformity.setOnAction(event -> nonconformitiesController.createNonconformity());
@@ -51,7 +55,7 @@ public class NonconformitiesToolbar extends ToolBar {
     }
     private void setOverview(boolean isOverview) {
 
-        //actionPlanConfig.setDisable(isOverview);
+        nonconformitiesConfig.setDisable(isOverview);
         newNonconformity.setDisable(isOverview);
         deleteNonconformity.setDisable(isOverview);
         deletePlan.setDisable(isOverview);
