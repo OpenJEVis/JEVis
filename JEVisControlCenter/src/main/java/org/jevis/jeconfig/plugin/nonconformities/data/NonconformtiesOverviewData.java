@@ -7,13 +7,12 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesController;
 
 import java.util.stream.Collectors;
 
 
-public class NonconformtiesOverviewData extends Nonconformities {
+public class NonconformtiesOverviewData extends NonconformityPlan {
 
     protected static final Logger logger = LogManager.getLogger(NonconformtiesOverviewData.class);
     private ObservableList<String> statusTags;
@@ -35,9 +34,9 @@ public class NonconformtiesOverviewData extends Nonconformities {
         mediumTags = FXCollections.observableArrayList();
         nonconformityList = FXCollections.observableArrayList();
 
-        controller.getNonconformitiesList().addListener(new ListChangeListener<Nonconformities>() {
+        controller.getNonconformityPlanList().addListener(new ListChangeListener<NonconformityPlan>() {
             @Override
-            public void onChanged(Change<? extends Nonconformities> c) {
+            public void onChanged(Change<? extends NonconformityPlan> c) {
                 while (c.next()) {
 
                 }
@@ -56,19 +55,19 @@ public class NonconformtiesOverviewData extends Nonconformities {
         mediumTags.clear();
         nonconformityList.clear();
 
-        controller.getNonconformitiesList().forEach(nonconformities -> {
-            nonconformities.loadNonconformityList();
+        controller.getNonconformityPlanList().forEach(nonconformityPlan -> {
+            nonconformityPlan.loadNonconformityList();
             // System.out.println("Action to add: " + actionPlanData.getName());
-            nonconformityList.addAll(nonconformities.getNonconformityList());
+            nonconformityList.addAll(nonconformityPlan.getNonconformityList());
             //actions.addAll(actionPlanData.getActionData().stream().filter(actionData -> !actions.contains(actionData)).collect(Collectors.toList()));
 
             //System.out.println("Add: " + actionPlanData.getStatustags().stream().filter(obj -> !statusTags.contains(obj)).collect(Collectors.toList()));
-            statusTags.addAll(nonconformities.getStatustags().stream().filter(obj -> !statusTags.contains(obj)).collect(Collectors.toList()));
-            mediumTags.addAll(nonconformities.getMediumTags().stream().filter(obj -> !mediumTags.contains(obj)).collect(Collectors.toList()));
-            fieldsTags.addAll(nonconformities.getFieldsTags().stream().filter(obj -> !fieldsTags.contains(obj)).collect(Collectors.toList()));
+            statusTags.addAll(nonconformityPlan.getStatustags().stream().filter(obj -> !statusTags.contains(obj)).collect(Collectors.toList()));
+            mediumTags.addAll(nonconformityPlan.getMediumTags().stream().filter(obj -> !mediumTags.contains(obj)).collect(Collectors.toList()));
+            fieldsTags.addAll(nonconformityPlan.getFieldsTags().stream().filter(obj -> !fieldsTags.contains(obj)).collect(Collectors.toList()));
 
 
-            nonconformities.getActionData().addListener(new ListChangeListener<NonconformityData>() {
+            nonconformityPlan.getActionData().addListener(new ListChangeListener<NonconformityData>() {
                 @Override
                 public void onChanged(Change<? extends NonconformityData> c) {
                     while (c.next()) {

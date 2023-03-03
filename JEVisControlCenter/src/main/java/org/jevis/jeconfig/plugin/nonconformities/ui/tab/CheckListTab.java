@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.jevis.commons.i18n.I18n;
@@ -76,7 +75,7 @@ public class CheckListTab extends Tab {
 
 
 
-        add(gridPane,0,0,2,1,Priority.NEVER,new Label(I18n.getInstance().getString("plugin.nonconforrmities.form.tab.checklist.sideeffect")));
+        add(gridPane,0,0,2,1,Priority.NEVER,new Label(I18n.getInstance().getString("plugin.nonconformities.form.tab.checklist.sideeffect")));
 
         add(gridPane, 0, 1, 1, 1, Priority.NEVER, f_ImmediateActionRequired);
         add(gridPane, 0, 2, 1, 1, Priority.NEVER, f_EffectOnOngoingProcesses);
@@ -94,7 +93,7 @@ public class CheckListTab extends Tab {
         add(gridPane, 1, 5, 1, 1, Priority.NEVER, l_DocumentsChangesNeeded);
         //add(gridPane, 1, 7, 2, 1, Priority.SOMETIMES, l_Documents);
 
-        add(gridPane,0,6,2,1,Priority.NEVER,new Label(I18n.getInstance().getString("plugin.nonconforrmities.form.tab.checklist.documentschanged")));
+        add(gridPane,0,6,2,1,Priority.NEVER,new Label(I18n.getInstance().getString("plugin.nonconformities.form.tab.checklist.documentschanged")));
 
         add(gridPane, 0, 7, 1, 1, Priority.NEVER, f_ProcessInstructions);
         add(gridPane, 0, 8, 1, 1, Priority.NEVER, f_WorkInstructions);

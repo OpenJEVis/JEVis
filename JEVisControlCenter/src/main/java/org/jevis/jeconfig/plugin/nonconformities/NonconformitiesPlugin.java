@@ -17,7 +17,7 @@ public class NonconformitiesPlugin implements Plugin {
     private final BorderPane rootPane = new BorderPane();
     private final StringProperty uuidProperty = new SimpleStringProperty("Nonconformity");
     NonconformitiesController nonconformitiesController;
-    private SimpleStringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.nonconforrmities.name"));
+    private SimpleStringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.nonconformities.name"));
     private JEVisDataSource ds;
     private boolean isInit = false;
     private NonconformitiesToolbar toolbar;
@@ -39,7 +39,7 @@ public class NonconformitiesPlugin implements Plugin {
         nonconformitiesController.loadActionView();
         toolbar = new NonconformitiesToolbar(nonconformitiesController);
         isInit = true;
-        nonconformitiesController.loadActionPlans();
+        nonconformitiesController.loadNonconformityPlans();
     }
 
     @Override

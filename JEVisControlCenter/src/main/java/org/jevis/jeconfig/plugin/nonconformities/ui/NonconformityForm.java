@@ -4,7 +4,7 @@ import javafx.scene.control.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
-import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
+import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.ui.tab.AttachmentTab;
 import org.jevis.jeconfig.plugin.nonconformities.ui.tab.CheckListTab;
 import org.jevis.jeconfig.plugin.nonconformities.ui.tab.GeneralTab;
@@ -19,20 +19,20 @@ public class NonconformityForm extends Dialog {
     public TabPane tabPane = new TabPane();
 
 
-    private GeneralTab basicTab = new GeneralTab(I18n.getInstance().getString("plugin.nonconforrmities.form.tab.general"));
+    private GeneralTab basicTab = new GeneralTab(I18n.getInstance().getString("plugin.nonconformities.form.tab.general"));
     // private Tab detailTab = new Tab(I18n.getInstance().getString("actionform.editor.tab.deteils"));
-    private CheckListTab checkListTab = new CheckListTab(I18n.getInstance().getString("plugin.nonconforrmities.form.tab.checklist"));
+    private CheckListTab checkListTab = new CheckListTab(I18n.getInstance().getString("plugin.nonconformities.form.tab.checklist"));
 
-    private AttachmentTab attachmentTab = new AttachmentTab(I18n.getInstance().getString("plugin.nonconforrmities.form.tab.attachment"));
+    private AttachmentTab attachmentTab = new AttachmentTab(I18n.getInstance().getString("plugin.nonconformities.form.tab.attachment"));
 
-    private Nonconformities nonconformities;
+    private NonconformityPlan nonconformityPlan;
 
 
-    public NonconformityForm(Nonconformities nonconformities) {
+    public NonconformityForm(NonconformityPlan nonconformityPlan) {
 
         super();
         this.initOwner(JEConfig.getStage());
-        this.nonconformities = nonconformities;
+        this.nonconformityPlan = nonconformityPlan;
 
 
         setTitle(I18n.getInstance().getString("actionform.editor.title"));

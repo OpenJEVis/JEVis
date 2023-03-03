@@ -23,15 +23,15 @@ public class TableFilter {
                 boolean isBigger = false;
 
 
-                if ((data.plannedDateProperty().get().getYear() + "").contains(plannedDateFilter)) {
+                if ((data.deadLineProperty().get().getYear() + "").contains(plannedDateFilter)) {
                     isBigger = true;
                 }
 
-                if ((data.plannedDateProperty().get().getMonthOfYear() + "").contains(plannedDateFilter)) {
+                if ((data.deadLineProperty().get().getMonthOfYear() + "").contains(plannedDateFilter)) {
                     isBigger = true;
                 }
 
-                if ((data.plannedDateProperty().get().getDayOfMonth() + "").contains(plannedDateFilter)) {
+                if ((data.deadLineProperty().get().getDayOfMonth() + "").contains(plannedDateFilter)) {
                     isBigger = true;
                 }
 

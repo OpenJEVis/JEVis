@@ -11,10 +11,10 @@ public class NonconformitiesToolbar extends ToolBar {
 
     private final double iconSize = 20;
 
-    private final ToggleButton nonconformitiesConfig = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
+    private final ToggleButton nonconformityPlanConfig = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
     private final ToggleButton openForm = new ToggleButton("", JEConfig.getSVGImage(Icon.PREVIEW, iconSize, iconSize));
     private final ToggleButton newNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_ADD, iconSize, iconSize));
-    private final ToggleButton newNonconformities = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
+    private final ToggleButton newNonconformityPlan = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
     private final ToggleButton deleteNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_REMOVE, iconSize, iconSize));
     private final ToggleButton deletePlan = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
@@ -27,14 +27,14 @@ public class NonconformitiesToolbar extends ToolBar {
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
-        getItems().setAll(newNonconformities, nonconformitiesConfig, deletePlan, reloadButton,
+        getItems().setAll(newNonconformityPlan, nonconformityPlanConfig, deletePlan, reloadButton,
                 sep1, newNonconformity, deleteNonconformity, openForm,
                 sep2, exportPDF);
 
 
-        nonconformitiesConfig.setOnAction(event -> nonconformitiesController.openPlanSettings());
+        nonconformityPlanConfig.setOnAction(event -> nonconformitiesController.openPlanSettings());
         openForm.setOnAction(event -> nonconformitiesController.openDataForm());
-        newNonconformities.setOnAction(event -> nonconformitiesController.createNewNonconformities());
+        newNonconformityPlan.setOnAction(event -> nonconformitiesController.createNewNonconformityPlan());
         newNonconformity.setOnAction(event -> nonconformitiesController.createNonconformity());
         deleteNonconformity.setOnAction(event -> nonconformitiesController.deleteNonconformity());
         deletePlan.setOnAction(event -> nonconformitiesController.deletePlan());
@@ -55,7 +55,7 @@ public class NonconformitiesToolbar extends ToolBar {
     }
     private void setOverview(boolean isOverview) {
 
-        nonconformitiesConfig.setDisable(isOverview);
+        nonconformityPlanConfig.setDisable(isOverview);
         newNonconformity.setDisable(isOverview);
         deleteNonconformity.setDisable(isOverview);
         deletePlan.setDisable(isOverview);

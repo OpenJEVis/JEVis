@@ -219,7 +219,7 @@ public class PluginManager {
                                     } else if (plugObj.getJEVisClassName().equals(ActionPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
                                     } else if (plugObj.getJEVisClassName().equals(NonconformitiesPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconforrmities.name")));
+                                        _plugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")));
                                     } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new TRCPlugin(this._ds));
                                     }

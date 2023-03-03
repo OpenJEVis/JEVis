@@ -72,25 +72,25 @@ public class NonconformityData{
 
     @Expose
     @SerializedName("Create Date")
-    private final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date", I18n.getInstance().getString("plugin.nonconforrmities.createdate"),  new DateTime());
+    private final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date", I18n.getInstance().getString("plugin.nonconformities.createdate"),  new DateTime());
 
     @Expose
     @SerializedName("Planned Date")
-    private final SimpleObjectProperty<DateTime> plannedDate = new SimpleObjectProperty<>("Planned Date", I18n.getInstance().getString("plugin.nonconforrmities.planneddate"),null);
+    private final SimpleObjectProperty<DateTime> deadLine = new SimpleObjectProperty<>("deadline", I18n.getInstance().getString("plugin.nonconformities.planneddate"),null);
 
 
     @Expose
     @SerializedName("Done Date")
-    private final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date", I18n.getInstance().getString("plugin.nonconforrmities.donedate"), null);
+    private final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date", I18n.getInstance().getString("plugin.nonconformities.donedate"), null);
 
     @Expose
     @SerializedName("Deleted")
-    private final SimpleBooleanProperty deleted = new SimpleBooleanProperty("Deleted", I18n.getInstance().getString("plugin.nonconforrmities.donedate"), false);
+    private final SimpleBooleanProperty deleted = new SimpleBooleanProperty("Deleted", I18n.getInstance().getString("plugin.nonconformities.donedate"), false);
 
 
     @Expose
     @SerializedName("Attachment")
-    private final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", I18n.getInstance().getString("plugin.nonconforrmities.attachment"), "");
+    private final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", I18n.getInstance().getString("plugin.nonconformities.attachment"), "");
 
 
     @Expose
@@ -104,13 +104,13 @@ public class NonconformityData{
 
     private List<ReadOnlyProperty> propertyList = new ArrayList<>();
 
-    private Nonconformities nonconformities;
+    private NonconformityPlan nonconformityPlan;
 
-    public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconforrmities.error.immediatemeasures");
+    public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.immediatemeasures");
     public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.o");
 
-    public NonconformityData(JEVisObject obj, Nonconformities nonconformities) {
-        this.nonconformities = nonconformities;
+    public NonconformityData(JEVisObject obj, NonconformityPlan nonconformityPlan) {
+        this.nonconformityPlan = nonconformityPlan;
         this.object = obj;
         reload();
     }
@@ -124,8 +124,6 @@ public class NonconformityData{
     }
 
     public void reload() {
-        //if (!valueChanged.getValue()) return;
-        //dataNode = JsonNodeFactory.instance.objectNode();
 
         if (this.changeListener == null) {
             this.changeListener = new ChangeListener() {
@@ -141,13 +139,6 @@ public class NonconformityData{
         try {
             propertyList = new ArrayList<>();
 
-            /*
-            JEVisSample lastConfigSample = object.getAttribute("Data").getLatestSample();
-            JEVisFile file = lastConfigSample.getValueAsFile();
-            JsonNode dataNode = this.mapper.readTree(file.getBytes());
-
-
-             */
 
             registerChanges(title);
 
@@ -166,7 +157,7 @@ public class NonconformityData{
             registerChanges(immediateMeasures);
             registerChanges(correctiveActions);
             registerChanges(responsiblePerson);
-            registerChanges(plannedDate);
+            registerChanges(deadLine);
             registerChanges(doneDate);
             valueChanged.set(false);
         } catch (Exception ex) {
@@ -287,8 +278,8 @@ public class NonconformityData{
 
 
 
-    public SimpleObjectProperty<DateTime> plannedDateProperty() {
-        return plannedDate;
+    public SimpleObjectProperty<DateTime> deadLineProperty() {
+        return deadLine;
     }
 
 
@@ -380,12 +371,12 @@ public class NonconformityData{
         this.createDate.set(createDate);
     }
 
-    public DateTime getPlannedDate() {
-        return plannedDate.get();
+    public DateTime getDeadLine() {
+        return deadLine.get();
     }
 
-    public void setPlannedDate(DateTime plannedDate) {
-        this.plannedDate.set(plannedDate);
+    public void setDeadLine(DateTime deadLine) {
+        this.deadLine.set(deadLine);
     }
 
     public DateTime getDoneDate() {
@@ -431,7 +422,7 @@ public class NonconformityData{
                 ", correctiveActions=" + correctiveActions +
                 ", responsiblePerson=" + responsiblePerson +
                 ", createDate=" + createDate +
-                ", plannedDate=" + plannedDate +
+                ", plannedDate=" + deadLine +
                 ", doneDate=" + doneDate +
                 ", attachment=" + attachment +
                 '}';
@@ -449,12 +440,12 @@ public class NonconformityData{
         this.medium.set(medium);
     }
 
-    public Nonconformities getNonconformities() {
-        return nonconformities;
+    public NonconformityPlan getNonconformityPlan() {
+        return nonconformityPlan;
     }
 
-    public void setNonconformities(Nonconformities nonconformities) {
-        this.nonconformities = nonconformities;
+    public void setNonconformityPlan(NonconformityPlan nonconformityPlan) {
+        this.nonconformityPlan = nonconformityPlan;
     }
 
     public CheckListData getCheckListData() {
@@ -482,6 +473,6 @@ public class NonconformityData{
     }
 
     public String getPrefix() {
-        return getNonconformities().getPrefix();
+        return getNonconformityPlan().getPrefix();
     }
 }

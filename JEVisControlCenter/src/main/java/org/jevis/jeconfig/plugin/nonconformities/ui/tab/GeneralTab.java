@@ -4,15 +4,12 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import org.controlsfx.control.NotificationPane;
-import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
+import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.joda.time.*;
 
@@ -73,7 +70,7 @@ public class GeneralTab extends Tab {
         notificationPane.setContent(gridPane);
         gridPane.setPadding(new Insets(20));
 
-        Nonconformities nonconformities = nonconformityData.getNonconformities();
+        NonconformityPlan nonconformityPlan = nonconformityData.getNonconformityPlan();
 
 
         //ScrollPane scrollPane = new ScrollPane(gridPane);
@@ -175,7 +172,7 @@ public class GeneralTab extends Tab {
         f_CorrectiveActions.textProperty().bindBidirectional(data.correctiveActionsProperty());
         f_ImmediateMeasures.textProperty().bindBidirectional(data.immediateMeasuresProperty());
         f_Creator.textProperty().bindBidirectional(data.creatorProperty());
-        f_mediaTags = new JFXComboBox<>(data.getNonconformities().getMediumTags());
+        f_mediaTags = new JFXComboBox<>(data.getNonconformityPlan().getMediumTags());
         f_mediaTags.valueProperty().bindBidirectional(data.mediumProperty());
 
 
@@ -192,7 +189,7 @@ public class GeneralTab extends Tab {
         l_CreateDate.setText(fake.createDateProperty().getName());
         l_doneDate.setText(fake.doneDateProperty().getName());
         l_mediaTags.setText(fake.mediumProperty().getName());
-        l_plannedDate.setText(fake.plannedDateProperty().getName());
+        l_plannedDate.setText(fake.deadLineProperty().getName());
         l_Title.setText(fake.titleProperty().getName());
         l_Description.setText(fake.descriptionProperty().getName());
         l_Cause.setText(fake.causeProperty().getName());
@@ -203,8 +200,8 @@ public class GeneralTab extends Tab {
         l_CorrectiveActions.setText(fake.correctiveActionsProperty().getName());
         l_Creator.setText(fake.creatorProperty().getName());
         l_Title.setWrapText(true);
-        if (data.plannedDateProperty().isNotNull().get()) {
-            f_plannedDate.setValue(LocalDate.of(data.getPlannedDate().getYear(),data.getPlannedDate().getMonthOfYear(),data.getPlannedDate().getDayOfMonth()));
+        if (data.deadLineProperty().isNotNull().get()) {
+            f_plannedDate.setValue(LocalDate.of(data.getDeadLine().getYear(),data.getDeadLine().getMonthOfYear(),data.getDeadLine().getDayOfMonth()));
         }
         if (data.doneDateProperty().isNotNull().get()) {
             f_doneDate.setValue(LocalDate.of(data.getDoneDate().getYear(),data.getDoneDate().getMonthOfYear(),data.getDoneDate().getDayOfMonth()));
@@ -216,7 +213,7 @@ public class GeneralTab extends Tab {
 
 
         f_plannedDate.valueProperty().addListener((observableValue, localDate, newValue) -> {
-            data.plannedDateProperty().set(new DateTime(newValue.getYear(),newValue.getMonthValue(),newValue.getDayOfMonth(),0,0));
+            data.deadLineProperty().set(new DateTime(newValue.getYear(),newValue.getMonthValue(),newValue.getDayOfMonth(),0,0));
         });
 
 

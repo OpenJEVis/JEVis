@@ -34,7 +34,7 @@ public class DateFilter {
         } else if (dateField == DateField.ERSTELLT) {
             return data.getCreateDate();
         } else if (dateField == DateField.UMSETZUNG) {
-            return data.getPlannedDate();
+            return data.getDeadLine();
         }
         return null;
     }

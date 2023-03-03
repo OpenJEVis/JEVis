@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.nonconformities.data;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.jevis.commons.i18n.I18n;
 
@@ -44,11 +43,11 @@ public class CheckListData {
 
     @Expose
     @SerializedName("Model")
-    private final SimpleBooleanProperty isModel = new SimpleBooleanProperty("Model", I18n.getInstance().getString("plugin.nonconforrmities.model"), false);
+    private final SimpleBooleanProperty isModel = new SimpleBooleanProperty("Model", I18n.getInstance().getString("plugin.nonconformities.model"), false);
 
     @Expose
     @SerializedName("Miscellaneous")
-    private final SimpleBooleanProperty isMiscellaneous = new SimpleBooleanProperty("Miscellaneous", I18n.getInstance().getString("plugin.nonconforrmities.miscellaneous"), false);
+    private final SimpleBooleanProperty isMiscellaneous = new SimpleBooleanProperty("Miscellaneous", I18n.getInstance().getString("plugin.nonconformities.miscellaneous"), false);
 
     @Expose
     @SerializedName("Metrics")

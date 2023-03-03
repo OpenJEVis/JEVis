@@ -20,9 +20,7 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
-import org.jevis.jeconfig.plugin.action.ui.ActionPlanForm;
-import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
+import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformtiesOverviewData;
 import org.jevis.jeconfig.plugin.nonconformities.ui.*;
@@ -39,7 +37,7 @@ public class NonconformitiesController {
 
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
-    private ObservableList<Nonconformities> nonconformitiesList;
+    private ObservableList<NonconformityPlan> nonconformityPlanList;
     private TabPane tabPane = new TabPane();
     private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
@@ -48,10 +46,10 @@ public class NonconformitiesController {
     }
 
     public void loadActionView() {
-        nonconformitiesList = FXCollections.observableArrayList();
-        nonconformitiesList.addListener(new ListChangeListener<Nonconformities>() {
+        nonconformityPlanList = FXCollections.observableArrayList();
+        nonconformityPlanList.addListener(new ListChangeListener<NonconformityPlan>() {
             @Override
-            public void onChanged(Change<? extends Nonconformities> c) {
+            public void onChanged(Change<? extends NonconformityPlan> c) {
                 while (c.next()) {
                     if (c.wasAdded()) {
                         c.getAddedSubList().forEach(actionPlan -> {
@@ -65,7 +63,7 @@ public class NonconformitiesController {
             }
         });
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            isOverviewTab.set(getActiveNonconformities() instanceof NonconformtiesOverviewData);
+            isOverviewTab.set(getActiveNonconformityPlan() instanceof NonconformtiesOverviewData);
         });
 
 
@@ -79,19 +77,19 @@ public class NonconformitiesController {
     }
 
 
-    private void buildTabPane(Nonconformities nonconformitiesPlan) {
+    private void buildTabPane(NonconformityPlan nonconformityPlanPlan) {
 
-        NonconformitiesTable nonconformitiesTable = new NonconformitiesTable(nonconformitiesPlan,nonconformitiesPlan.getActionData());
+        NonconformityPlanTable nonconformityPlanTable = new NonconformityPlanTable(nonconformityPlanPlan, nonconformityPlanPlan.getActionData());
 
         //actionTable.enableSumRow(true);
-        NonconformitiesTab tab = new NonconformitiesTab(nonconformitiesPlan, this);
+        NonconformityPlanTab tab = new NonconformityPlanTab(nonconformityPlanPlan, this);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("new tab selected: {}", newValue);
 
-            if (newValue instanceof NonconformitiesTab) {
-                Nonconformities nonconformities = ((NonconformitiesTab) newValue).getNonconformities();
+            if (newValue instanceof NonconformityPlanTab) {
+                NonconformityPlan nonconformityPlan = ((NonconformityPlanTab) newValue).getNonconformityPlan();
                 //actionPlan.loadActionList();
             }
 
@@ -103,19 +101,19 @@ public class NonconformitiesController {
     }
 
     public void deletePlan() {
-        NonconformitiesTab tab = getActiveTab();
+        NonconformityPlanTab tab = getActiveTab();
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(I18n.getInstance().getString("plugin.action.plan.deletetitle"));
-        alert.setHeaderText(I18n.getInstance().getString("plugin.action.plan.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.action.plan.content") + "\n" + getActiveNonconformities().getName());
+        alert.setTitle(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.deletetitle"));
+        alert.setHeaderText(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.delete"));
+        Label text = new Label(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.content") + "\n" + getActiveNonconformityPlan().getName());
         text.setWrapText(true);
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
             try {
-                getActiveNonconformities().delete();
-                nonconformitiesList.remove(tab.getNonconformities());
+                getActiveNonconformityPlan().delete();
+                nonconformityPlanList.remove(tab.getNonconformityPlan());
                 tabPane.getTabs().remove(tab);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -125,7 +123,7 @@ public class NonconformitiesController {
 
     }
 
-    public void createNewNonconformities() {
+    public void createNewNonconformityPlan() {
         NewNonconformitiesDialog newNonconformitiesDialog = new NewNonconformitiesDialog();
         try {
             NewNonconformitiesDialog.Response response = newNonconformitiesDialog.show(JEConfig.getStage(), plugin.getDataSource());
@@ -136,16 +134,12 @@ public class NonconformitiesController {
 
                 JEVisObject newObject = parentDir.buildObject(newNonconformitiesDialog.getCreateName(), actionPlanClass);
                 newObject.commit();
-                Nonconformities nonconformities = new Nonconformities(newObject);
-                this.nonconformitiesList.add(nonconformities);
+                NonconformityPlan nonconformityPlan = new NonconformityPlan(newObject);
+                this.nonconformityPlanList.add(nonconformityPlan);
                 tabPane.getSelectionModel().selectLast();
 
                 DateTime now = new DateTime();
-                JEVisSample statusAtt = newObject.getAttribute("Custom Status").buildSample(now, "Offen;Geschlosse");
-                JEVisSample fieldsAtt = newObject.getAttribute("Custom Fields").buildSample(now, "Büro,Lager,Produktion");
                 JEVisSample mediumAtt = newObject.getAttribute("Custom Medium").buildSample(now, "Strom;Gas;Wasser");
-                statusAtt.commit();
-                fieldsAtt.commit();
                 mediumAtt.commit();
             }
 
@@ -158,12 +152,12 @@ public class NonconformitiesController {
 
 
     public void deleteNonconformity() {
-        NonconformitiesTab tab = getActiveTab();
+        NonconformityPlanTab tab = getActiveTab();
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(I18n.getInstance().getString("plugin.action.action.deletetitle"));
-        alert.setHeaderText(I18n.getInstance().getString("plugin.action.action.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.action.action.content") + "\n" + getSelectedData().nrProperty().get() + " " + getSelectedData().titleProperty().get());
+        alert.setTitle(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformities.deletetitle"));
+        alert.setHeaderText(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformities.delete"));
+        Label text = new Label(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformities.content") + "\n" + getSelectedData().nrProperty().get() + " " + getSelectedData().titleProperty().get());
         text.setWrapText(true);
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
@@ -171,7 +165,7 @@ public class NonconformitiesController {
             try {
                 getSelectedData().setDeleted(true);
                 getSelectedData().commit();
-                tab.getNonconformities().removeNonconformity(tab.getActionTable().getSelectionModel().getSelectedItem());
+                tab.getNonconformityPlan().removeNonconformity(tab.getActionTable().getSelectionModel().getSelectedItem());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -180,28 +174,28 @@ public class NonconformitiesController {
 
 
     public void createNonconformity() {
-        NonconformitiesTab tab = getActiveTab();
+        NonconformityPlanTab tab = getActiveTab();
         try {
-            JEVisClass nonconformitiesDirClass = getActiveNonconformities().getObject().getDataSource().getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.name);
-            JEVisClass nonconformityClass = getActiveNonconformities().getObject().getDataSource().getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.Nonconformity.name);
-            JEVisObject nonconformitiesDirObj = null;
-            if (getActiveNonconformities().getObject().getChildren(nonconformitiesDirClass, false).isEmpty()) {
-                nonconformitiesDirObj = getActiveNonconformities().getObject().buildObject(nonconformitiesDirClass.getName(), nonconformitiesDirClass);
+            JEVisClass nonconformityPlanDirClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.name);
+            JEVisClass nonconformityClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.Nonconformity.name);
+            JEVisObject nonconformityPlanDirObj = null;
+            if (getActiveNonconformityPlan().getObject().getChildren(nonconformityPlanDirClass, false).isEmpty()) {
+                nonconformityPlanDirObj = getActiveNonconformityPlan().getObject().buildObject(nonconformityPlanDirClass.getName(), nonconformityPlanDirClass);
 
-                nonconformitiesDirObj.commit();
+                nonconformityPlanDirObj.commit();
             } else {
-                nonconformitiesDirObj = getActiveNonconformities().getObject().getChildren(nonconformitiesDirClass, false).get(0);
+                nonconformityPlanDirObj = getActiveNonconformityPlan().getObject().getChildren(nonconformityPlanDirClass, false).get(0);
             }
 
-            int nextNonconformityNr = getActiveNonconformities().getNextNonconformityNr();
+            int nextNonconformityNr = getActiveNonconformityPlan().getNextNonconformityNr();
 
-            JEVisObject nonconformityObject = nonconformitiesDirObj.buildObject(String.valueOf(nextNonconformityNr), nonconformityClass);
+            JEVisObject nonconformityObject = nonconformityPlanDirObj.buildObject(String.valueOf(nextNonconformityNr), nonconformityClass);
             nonconformityObject.commit();
-            NonconformityData newNonconformityData = new NonconformityData(nonconformityObject, tab.getNonconformities());
+            NonconformityData newNonconformityData = new NonconformityData(nonconformityObject, tab.getNonconformityPlan());
             newNonconformityData.commit();
             newNonconformityData.nrProperty().set(nextNonconformityNr);
-            newNonconformityData.setCreator(getActiveNonconformities().getObject().getDataSource().getCurrentUser().getFirstName() + " " + getActiveNonconformities().getObject().getDataSource().getCurrentUser().getLastName());
-            tab.getNonconformities().addAction(newNonconformityData);
+            newNonconformityData.setCreator(getActiveNonconformityPlan().getObject().getDataSource().getCurrentUser().getFirstName() + " " + getActiveNonconformityPlan().getObject().getDataSource().getCurrentUser().getLastName());
+            tab.getNonconformityPlan().addAction(newNonconformityData);
 
             tab.getActionTable().getSelectionModel().select(newNonconformityData);
             openDataForm();//tab.getActionTable().getSelectionModel().getSelectedItem()
@@ -211,29 +205,29 @@ public class NonconformitiesController {
     }
 
     public void openPlanSettings() {
-        NonconfomitiesForm nonconfomitiesForm = new NonconfomitiesForm(getActiveTab().getNonconformities());
-        Optional<ButtonType> result = nonconfomitiesForm.showAndWait();
+        NonconfomityPlanForm nonconfomityPlanForm = new NonconfomityPlanForm(getActiveTab().getNonconformityPlan());
+        Optional<ButtonType> result = nonconfomityPlanForm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            getActiveTab().getNonconformities().commit();
+            getActiveTab().getNonconformityPlan().commit();
         }
 
     }
 
-    public void loadActionPlans() {
+    public void loadNonconformityPlans() {
         try {
-            JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass("Nonconformities");
+            JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass("NonconformityPlan");
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
             NonconformtiesOverviewData overviewData = new NonconformtiesOverviewData(this);
-            NonconformitiesTab overviewTab = new NonconformitiesTab(overviewData,this);
+            NonconformityPlanTab overviewTab = new NonconformityPlanTab(overviewData,this);
             tabPane.getTabs().add(0, overviewTab);
 
 
             AtomicBoolean isFirstPlan = new AtomicBoolean(true);
 
             planObjs.forEach(jeVisObject -> {
-                Nonconformities plan = new Nonconformities(jeVisObject);
-                nonconformitiesList.add(plan);
+                NonconformityPlan plan = new NonconformityPlan(jeVisObject);
+                nonconformityPlanList.add(plan);
                 if (isFirstPlan.get()) plan.loadNonconformityList();
                 isFirstPlan.set(false);
             });
@@ -247,17 +241,17 @@ public class NonconformitiesController {
         return contentPane;
     }
 
-    public NonconformitiesTab getActiveTab() {
-        NonconformitiesTab tab = (NonconformitiesTab) tabPane.getSelectionModel().getSelectedItem();
+    public NonconformityPlanTab getActiveTab() {
+        NonconformityPlanTab tab = (NonconformityPlanTab) tabPane.getSelectionModel().getSelectedItem();
         return tab;
     }
 
-    public Nonconformities getActiveNonconformities() {
-        return getActiveTab().getNonconformities();
+    public NonconformityPlan getActiveNonconformityPlan() {
+        return getActiveTab().getNonconformityPlan();
     }
 
     public NonconformityData getSelectedData() {
-        NonconformitiesTab tab = getActiveTab();
+        NonconformityPlanTab tab = getActiveTab();
         if (getActiveTab().getActionTable().getSelectionModel().getSelectedItem() != null) {
             return getActiveTab().getActionTable().getSelectionModel().getSelectedItem();
         } else {
@@ -272,11 +266,11 @@ public class NonconformitiesController {
     }
 
     public void openDataForm() {
-        NonconformityForm nonconformityForm = new NonconformityForm(getActiveNonconformities());
+        NonconformityForm nonconformityForm = new NonconformityForm(getActiveNonconformityPlan());
         NonconformityData data = getSelectedData();
         nonconformityForm.setData(data);
-        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
-        ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.nonconformities.form.save"), ButtonBar.ButtonData.APPLY);
+        ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.nonconformities.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
 
         nonconformityForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
@@ -308,7 +302,7 @@ public class NonconformitiesController {
 
     private void reload(NonconformityData nonconformityData) {
         try {
-            nonconformityData = getActiveNonconformities().loadNonconformties(nonconformityData.getObject());
+            nonconformityData = getActiveNonconformityPlan().loadNonconformties(nonconformityData.getObject());
         } catch (Exception e) {
            logger.error(e);
         }
@@ -327,11 +321,11 @@ public class NonconformitiesController {
         this.isOverviewTab.set(isOverviewTab);
     }
 
-    public ObservableList<Nonconformities> getNonconformitiesList() {
-        return nonconformitiesList;
+    public ObservableList<NonconformityPlan> getNonconformityPlanList() {
+        return nonconformityPlanList;
     }
 
-    public void setNonconformitiesList(ObservableList<Nonconformities> nonconformitiesList) {
-        this.nonconformitiesList = nonconformitiesList;
+    public void setNonconformityPlanList(ObservableList<NonconformityPlan> nonconformityPlanList) {
+        this.nonconformityPlanList = nonconformityPlanList;
     }
 }

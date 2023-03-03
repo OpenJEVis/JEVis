@@ -19,7 +19,6 @@ import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 
 public class TableSumPanel extends GridPane {
@@ -48,9 +47,9 @@ public class TableSumPanel extends GridPane {
         ActionData fakeNames = new ActionData();
 
         Label l_sumLabel = new Label(I18n.getInstance().getString("plugin.action.sumtable.total"));
-        Label l_sumTotal = new Label(I18n.getInstance().getString("plugin.nonconforrmities.sum.total"));
-        Label l_sumNotCompleted = new Label(I18n.getInstance().getString("plugin.nonconforrmities.sum.notcompletd"));
-        Label l_sumCompleted = new Label(I18n.getInstance().getString("plugin.nonconforrmities.sum.compled"));
+        Label l_sumTotal = new Label(I18n.getInstance().getString("plugin.nonconformities.sum.total"));
+        Label l_sumNotCompleted = new Label(I18n.getInstance().getString("plugin.nonconformities.sum.notcompletd"));
+        Label l_sumCompleted = new Label(I18n.getInstance().getString("plugin.nonconformities.sum.compled"));
 
 
         f_SumTotal.setAlignment(Pos.CENTER_RIGHT);

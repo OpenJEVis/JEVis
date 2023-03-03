@@ -13,7 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
+import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.joda.time.DateTime;
 
@@ -35,7 +35,7 @@ public class TimeFilterSelector extends GridPane {
     private SimpleObjectProperty<org.jevis.jeconfig.plugin.nonconformities.ui.DateFilter> valueProperty = new SimpleObjectProperty<>(null);
 
 
-    public TimeFilterSelector(Nonconformities nonconformities) {
+    public TimeFilterSelector(NonconformityPlan nonconformityPlan) {
         super();
 
         setHgap(8);
@@ -46,7 +46,7 @@ public class TimeFilterSelector extends GridPane {
         Label lDatum = new Label("Zeitbereich");
 
 
-        initValues(nonconformities);
+        initValues(nonconformityPlan);
         NonconformityData fakeNames = new NonconformityData();
 
         Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>> cellFactory = new Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>>() {
@@ -65,7 +65,7 @@ public class TimeFilterSelector extends GridPane {
                                     setText(fakeNames.doneDateProperty().getName());
                                     break;
                                 case UMSETZUNG:
-                                    setText(fakeNames.plannedDateProperty().getName());
+                                    setText(fakeNames.deadLineProperty().getName());
                                     break;
                                 case ERSTELLT:
                                     setText(fakeNames.createDateProperty().getName());
@@ -121,12 +121,12 @@ public class TimeFilterSelector extends GridPane {
          */
     }
 
-    private void initValues(Nonconformities nonconformities) {
-        System.out.println("MonthSelector.initValues: " + nonconformities + "  " + nonconformities.getActionData().size());
+    private void initValues(NonconformityPlan nonconformityPlan) {
+        System.out.println("MonthSelector.initValues: " + nonconformityPlan + "  " + nonconformityPlan.getActionData().size());
         DateTime minDate = null;
         DateTime maxDate = null;
 
-        for (NonconformityData nonconformityData : nonconformities.getActionData()) {
+        for (NonconformityData nonconformityData : nonconformityPlan.getActionData()) {
             if (minDate == null) {
                 if (getDate(nonconformityData) != null) {
                     minDate = getDate(nonconformityData);
@@ -170,7 +170,7 @@ public class TimeFilterSelector extends GridPane {
         } else if (dateField == DateFilter.DateField.ERSTELLT) {
             return data.getCreateDate();
         } else if (dateField == UMSETZUNG) {
-            return data.getPlannedDate();
+            return data.getDeadLine();
         }
         return null;
     }
