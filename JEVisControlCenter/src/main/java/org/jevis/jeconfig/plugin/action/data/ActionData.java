@@ -1,7 +1,5 @@
 package org.jevis.jeconfig.plugin.action.data;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
@@ -9,7 +7,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
@@ -33,9 +30,12 @@ import java.util.List;
 
 public class ActionData {
 
-    private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(ActionData.class);
     private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+
+    @Expose
+    @SerializedName("NPV")
+    public final SimpleObjectProperty<NPVData> npv = new SimpleObjectProperty<>(new NPVData());
 
     @Expose
     @SerializedName("From User")
@@ -78,15 +78,15 @@ public class ActionData {
     @Expose
     @SerializedName("Status Tags")
     public final SimpleStringProperty statusTags = new SimpleStringProperty("Status Tags",
-            "Status", "Offen;In Bearbeitung");
+            "Status", ActionPlanData.STATUS_OPEN);
     @Expose
     @SerializedName("Field Tags")
     public final SimpleStringProperty fieldTags = new SimpleStringProperty("Field Tags",
-            "Bereich", "Lager");
+            "Bereich", "Strom");
     @Expose
     @SerializedName("Medium Tags")
     public final SimpleStringProperty mediaTags = new SimpleStringProperty("Medium Tags",
-            "Medium", "Strom");
+            "Medium", "");
     @Expose
     @SerializedName("Correction")
     public final SimpleStringProperty noteCorrection = new SimpleStringProperty("Correction",
@@ -120,37 +120,7 @@ public class ActionData {
     @SerializedName("Distributor")
     public final SimpleStringProperty distributor = new SimpleStringProperty("Distributor",
             I18n.getInstance().getString("plugin.action.distributor"), "");
-    @Expose
-    @SerializedName("Investment")
-    public final SimpleStringProperty investment = new SimpleStringProperty("Investment",
-            I18n.getInstance().getString("plugin.action.investment"), "");
-
-    public final SimpleStringProperty DELETEsavingyear = new SimpleStringProperty("Saving Year",
-            I18n.getInstance().getString("plugin.action.savingyear"), "");
-    @Expose
-    @SerializedName("EnPI Link")
-    public final SimpleStringProperty enpilinks = new SimpleStringProperty("EnPI Link",
-            I18n.getInstance().getString("plugin.action.enpilink"), "");
-    /*
-    @Expose
-    @SerializedName("Consumption Actual")
-    public final SimpleDoubleProperty consumptionActual = new SimpleDoubleProperty("Consumption Actual",
-            I18n.getInstance().getString("plugin.action.consumptionactual"), 0d);
-    @Expose
-    @SerializedName("Consumption Diff")
-    public final SimpleDoubleProperty consumptionDiff = new SimpleDoubleProperty("Consumption Diff",
-            I18n.getInstance().getString("plugin.action.consumption.diff"), 0d);
-    @Expose
-    @SerializedName("Consumption Unit")
-    public final SimpleStringProperty consumptionUnit = new SimpleStringProperty("Consumption Unit",
-            I18n.getInstance().getString("plugin.action.consumptionunit"), "kWh");
-    @Expose
-    @SerializedName("Consumption Target")
-    public final SimpleDoubleProperty consumptionTarget = new SimpleDoubleProperty("Consumption Target",
-            I18n.getInstance().getString("plugin.action.consumptiontarget"), 0d);
-
-
-     */
+    private Gson gson = GsonBuilder.createDefaultBuilder().create();
     @Expose
     @SerializedName("EnpI")
     public final SimpleObjectProperty<ConsumptionData> enpi = new SimpleObjectProperty<>(new ConsumptionData());
@@ -160,8 +130,10 @@ public class ActionData {
     @Expose
     @SerializedName("Check List")
     private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
-
-    public final SimpleObjectProperty<NPVData> npv = new SimpleObjectProperty<>(new NPVData());
+    @Expose
+    @SerializedName("Deleted")
+    private final SimpleBooleanProperty isDeleted = new SimpleBooleanProperty(false);
+    private String originalSettings = "";
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     private ChangeListener changeListener;
     private JEVisObject object;
@@ -170,10 +142,12 @@ public class ActionData {
     private List<ReadOnlyProperty> propertyList = new ArrayList<>();
 
     private ActionPlanData actionPlan = null;
+    private boolean isNew = false;
 
     public ActionData(ActionPlanData actionPlan, JEVisObject obj) {
         this.object = obj;
         this.actionPlan = actionPlan;
+        this.isNew = true;
         reload();
     }
 
@@ -197,77 +171,13 @@ public class ActionData {
 
         //dataNode = JsonNodeFactory.instance.objectNode();
 
-
-        if (this.changeListener == null) {
-            this.changeListener = new ChangeListener() {
-                @Override
-                public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                    valueChanged.set(true);
-                    //System.out.println("Value Changed:" + newValue.toString());
-
-
-                }
-            };
-        }
-
-        ChangeListener<Number> calcListener = new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-
-            }
-        };
-
-        /*
-        enpiAfter.addListener(calcListener);
-        enpiBefore.addListener(calcListener);
-
-
-         */
-
         try {
             propertyList = new ArrayList<>();
-
-            registerChanges(fromUser, dataNode);
-            registerChanges(nr, dataNode);
-            registerChanges(statusTags, dataNode);
-            registerChanges(fieldTags, dataNode);
-            registerChanges(mediaTags, dataNode);
-            registerChanges(desciption, dataNode);
-            registerChanges(note, dataNode);
-            registerChanges(createDate, dataNode);
-            registerChanges(plannedDate, dataNode);
-            registerChanges(doneDate, dataNode);
-            registerChanges(attachment, dataNode);
-
-            registerChanges(noteCorrection, dataNode);
-            /*
-            registerChanges(isNeedAdditionalMeters, dataNode);
-            registerChanges(isConsumptionDocumented, dataNode);
-            registerChanges(isTargetReached, dataNode);
-            registerChanges(isNewEnPI, dataNode);
-            registerChanges(isNeedAdditionalAction, dataNode);
-            registerChanges(isNeedDocumentCorrection, dataNode);
-            registerChanges(isNeedProcessDocument, dataNode);
-            registerChanges(isNeedTestInstruction, dataNode);
-            registerChanges(isNeedDrawing, dataNode);
-            registerChanges(isNeedOther, dataNode);
-
-             */
-            registerChanges(noteFollowUpAction, dataNode);
-            registerChanges(noteAlternativeMeasures, dataNode);
-            registerChanges(responsible, dataNode);
-            registerChanges(noteBewertet, dataNode);
-            registerChanges(noteEnergiefluss, dataNode);
-            registerChanges(noteBetroffenerProzess, dataNode);
-            registerChanges(title, dataNode);
-
-            // registerChanges(DELETEsavingyear, dataNode);
-            registerChanges(investment, dataNode);
-            registerChanges(enpilinks, dataNode);
-            valueChanged.set(false);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        originalSettings = gson.toJson(this);
 
     }
 
@@ -276,26 +186,23 @@ public class ActionData {
         return object;
     }
 
-    private void registerChanges(Object propertyObj, JsonNode jsonNode) {
-        try {
 
-            if (propertyObj instanceof ReadOnlyProperty) {
-                ((ReadOnlyProperty) propertyObj).removeListener(changeListener);
-                ((ReadOnlyProperty) propertyObj).addListener(changeListener);
-                propertyList.add(((ReadOnlyProperty) propertyObj));
-            }
+    public boolean hasChanged() {
+        // if (valueChanged.getValue()) return true;
 
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (isDeletedProperty().get() || originalSettings == null || !gson.toJson(this).equals(originalSettings)) {
+            System.out.println("gson change");
+            return true;
         }
-    }
 
+
+        return false;
+    }
 
     public void commit() {
         try {
-            if (!valueChanged.getValue()) return;
-
+            System.out.println("ActonData.commit: " + nr.get() + " changes: " + valueChanged.getValue());
+            if (!hasChanged()) return;
 
             Task task = new Task() {
                 @Override
@@ -306,10 +213,12 @@ public class ActionData {
 
                             if (object != null) {
                                 JEVisAttribute dataModel = object.getAttribute("Data");
-                                Gson gson = GsonBuilder.createDefaultBuilder().create();
+
                                 JEVisFileImp jsonFile = new JEVisFileImp(
                                         "DataModel_v2" + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
-                                        , gson.toJson(this).getBytes(StandardCharsets.UTF_8));
+                                        , gson.toJson(ActionData.this).getBytes(StandardCharsets.UTF_8));
+                                System.out.println("Json to commit: " + gson.toJson(ActionData.this));
+
                                 JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
                                 newSample.commit();
                             }
@@ -337,13 +246,11 @@ public class ActionData {
 
 
     public void delete() throws Exception {
-        object.delete();
+        // object.delete();
+        isDeleted.set(true);
+        commit();
     }
 
-
-    public SimpleStringProperty enpilinksProperty() {
-        return enpilinks;
-    }
 
     public SimpleStringProperty fromUserProperty() {
         return fromUser;
@@ -431,6 +338,7 @@ public class ActionData {
         return distributor;
     }
 
+    /*
     public SimpleStringProperty investmentProperty() {
         return investment;
     }
@@ -438,6 +346,8 @@ public class ActionData {
     public SimpleStringProperty DELETEsavingyearProperty() {
         return DELETEsavingyear;
     }
+
+     */
 
     public CheckListData getCheckListData() {
         return checkListData.get();
@@ -462,4 +372,18 @@ public class ActionData {
     public SimpleObjectProperty<ConsumptionData> consumptionProperty() {
         return consumption;
     }
+
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean aNew) {
+        isNew = aNew;
+    }
+
+    public SimpleBooleanProperty isDeletedProperty() {
+        return isDeleted;
+    }
+
+
 }

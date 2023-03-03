@@ -79,8 +79,8 @@ public class NewActionDialog {
 
 
         Dialog<ButtonType> dialog = new Dialog();
-        dialog.setTitle(I18n.getInstance().getString("dialog.analyses.title"));
-        dialog.setHeaderText(I18n.getInstance().getString("dialog.analyses.header"));
+        dialog.setTitle(I18n.getInstance().getString("dialog.actionplugin.title"));
+        dialog.setHeaderText(I18n.getInstance().getString("dialog.actionplugin.header"));
         dialog.getDialogPane().getButtonTypes().setAll();
         dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
         VBox root = new VBox();

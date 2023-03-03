@@ -29,7 +29,7 @@ public class ActionForm extends Dialog {
         setTitle(I18n.getInstance().getString("actionform.editor.title"));
         setHeaderText(null);
         setResizable(true);
-        this.getDialogPane().setPrefWidth(ScreenSize.fitScreenWidth(1000));
+        this.getDialogPane().setPrefWidth(ScreenSize.fitScreenWidth(1050));
         this.getDialogPane().setPrefHeight(ScreenSize.fitScreenHeight(950));
 
         widthProperty().addListener((observable, oldValue, newValue) -> tabPane.setPrefWidth(newValue.doubleValue() - 50));

@@ -11,6 +11,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.plugin.action.ui.ActionToolbar;
 
 public class ActionPlugin implements Plugin {
 

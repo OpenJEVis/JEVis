@@ -11,12 +11,20 @@
   ],
   "types": [
     {
+      "name": "Nr Prefix",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action Plan v2"
+    },
+    {
       "name": "Custom Status",
       "primitiveType": 0,
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Action Plan2"
+      "jevisClass": "Action Plan v2"
     },
     {
       "name": "Custom Fields",
@@ -28,6 +36,14 @@
     },
     {
       "name": "Custom Medium",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action Plan v2"
+    },
+    {
+      "name": "Custom SEU",
       "primitiveType": 0,
       "guiposition": 1,
       "validity": 0,

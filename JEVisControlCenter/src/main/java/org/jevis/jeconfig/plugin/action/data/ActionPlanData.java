@@ -20,9 +20,12 @@ import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.Locale.GERMANY;
 
 
 public class ActionPlanData {
@@ -30,24 +33,35 @@ public class ActionPlanData {
     protected static final Logger logger = LogManager.getLogger(ActionPlanData.class);
 
     public static String STATUS_DONE = I18n.getInstance().getString("plugin.action.status.done");
+    public static String STATUS_OPEN = I18n.getInstance().getString("plugin.action.status.open");
+
     private JEVisObject object;
     private ObservableList<String> statusTags;
     private ObservableList<String> mediumTags;
     private ObservableList<String> fieldsTags;
+    private ObservableList<String> significantEnergyUseTags;
     private ObservableList<JEVisObject> enpis;
     private StringProperty name = new SimpleStringProperty("");
+    private StringProperty nrPrefix = new SimpleStringProperty("");
+    private String initNrPrefix = "";
     private ObservableList<ActionData> actions = FXCollections.observableArrayList();
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
     private String initCustomStatus = "";
     private String initCustomFields = "";
     private String initCustomMedium = "";
+    private String initCustomSEU = "";
     private String ATTRIBUTE_CSTATUS = "Custom Status";
     private String ATTRIBUTE_CFIELD = "Custom Fields";
     private String ATTRIBUTE_CMEDIUM = "Custom Medium";
+    private String ATTRIBUTE_SEU = "Custom SEU";
     private String ATTRIBUTE_EnPI = "EnPI";
+    private String ATTRIBUTE_NrPrefix = "Nr Prefix";
 
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
+
+    public ActionPlanData() {
+    }
 
     public ActionPlanData(JEVisObject obj) {
         System.out.println("New ActionPlan from Object: " + obj);
@@ -74,6 +88,18 @@ public class ActionPlanData {
             statusTags.add(STATUS_DONE);
         }
 
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_NrPrefix);
+            JEVisSample sample = attribute.getLatestSample();
+            if (sample != null && !sample.getValueAsString().isEmpty()) {
+                nrPrefix.set(sample.getValueAsString());
+                initNrPrefix = sample.getValueAsString();
+            }
+
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
 
         fieldsTags = FXCollections.observableArrayList();
         try {
@@ -90,6 +116,22 @@ public class ActionPlanData {
             logger.error(e);
         }
 
+        significantEnergyUseTags = FXCollections.observableArrayList();
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_SEU);
+            JEVisSample sample = attribute.getLatestSample();
+            if (sample != null && !sample.getValueAsString().isEmpty()) {
+                initCustomSEU = sample.getValueAsString();
+                for (String s : sample.getValueAsString().split(";")) {
+                    significantEnergyUseTags.add(s);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+
         mediumTags = FXCollections.observableArrayList();
         try {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
@@ -105,13 +147,13 @@ public class ActionPlanData {
             logger.error(e);
         }
 
-        actions.addAll(createTestData());
+        actions.addAll(FXCollections.observableArrayList());
         actions.addListener(new ListChangeListener<ActionData>() {
             @Override
             public void onChanged(Change<? extends ActionData> c) {
                 while (c.next()) {
                     Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
-                    System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
+                    //System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
                     biggestActionNr.set(maxNr.get().nrProperty().get());
                 }
             }
@@ -121,9 +163,7 @@ public class ActionPlanData {
 
         try {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
-            System.out.println("ENPIS ind DB: " + attribute.getLatestSample().toString());
             TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), attribute);
-            System.out.println("targetHelper: " + targetHelper.getObject());
 
             enpis.setAll(targetHelper.getObject());
 
@@ -131,11 +171,28 @@ public class ActionPlanData {
             logger.error(e);
         }
 
-
-        if (!enpis.contains(new FreeObject())) {
-            enpis.add(new FreeObject());
+        if (!enpis.contains(FreeObject.getInstance())) {
+            enpis.add(FreeObject.getInstance());
         }
 
+        loadActionList();
+
+    }
+
+    /**
+     * Set default values for the Action Plan in a locale
+     * TODO: implement other locales
+     *
+     * @param lang
+     */
+    public void setDefaultValues(Locale lang) {
+
+        if (lang.equals(GERMANY)) {
+            mediumTags.setAll("Strom", "Gas");
+            fieldsTags.setAll("Produktion", "Verwaltung");
+            statusTags.setAll(STATUS_OPEN, STATUS_DONE, "Prüfen", "Abgebrochen");
+
+        }
 
     }
 
@@ -178,7 +235,10 @@ public class ActionPlanData {
                             dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                                 System.out.println("new Action from JEVis: " + actionObj);
                                 try {
-                                    actions.add(loadAction(actionObj));
+                                    ActionData action = loadAction(actionObj);
+                                    actions.add(action);
+                                    // if (!action.isDeletedProperty().get()) actions.add(action);
+
                                 } catch (Exception e) {
                                     logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                                 }
@@ -211,8 +271,17 @@ public class ActionPlanData {
         ActionData actionData = gson.fromJson(s, ActionData.class);
         actionData.setObject(actionObj);
         actionData.setActionPlan(this);
-        System.out.println("-- Loaded Action GSON: " + actionData);
+        logger.debug("Load Action JSon: {}", gson.toJson(actionData));
         return actionData;
+    }
+
+    public ActionData reloadAction(ActionData actionObj) throws JEVisException {
+        actions.remove(actionObj);
+        ActionData data = loadAction(actionObj.getObject());
+        actions.add(data);
+        return data;
+
+
     }
 
 
@@ -227,7 +296,18 @@ public class ActionPlanData {
             }
         }
 
+
         DateTime now = new DateTime();
+
+        if (!initNrPrefix.equals(nrPrefix.get())) {
+            try {
+                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_NrPrefix);
+                JEVisSample sample = attribute.buildSample(now, nrPrefix.get());
+                sample.commit();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
 
         if (!initCustomStatus.equals(listToString(statusTags))) {
             try {
@@ -258,6 +338,16 @@ public class ActionPlanData {
                 logger.error(e);
             }
         }
+
+
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_SEU);
+            JEVisSample sample = attribute.buildSample(now, listToString(significantEnergyUseTags()));
+            sample.commit();
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
 
         try {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
@@ -318,29 +408,15 @@ public class ActionPlanData {
         return actions;
     }
 
-    private ObservableList<ActionData> createTestData() {
-        ObservableList<ActionData> data = FXCollections.observableArrayList();
+    public ObservableList<String> significantEnergyUseTags() {
+        return significantEnergyUseTags;
+    }
 
-        //(long toUserID, String fromUserID, String objectID, int actionNr, String desciption, String note, String status,
-        // double investment, DateTime createDate) {
-        //
-        /*
-        data.add(new TableData(new ActionData("Florian Simon", "Nils Heinrich", "9999", 1,
-                "Erstellen einen Action Plugins", "PS: Aufstehen", "Offen;Prüfen", 1000000, new DateTime())));
-        data.add(new TableData(new ActionData("Daniel Klincker", "Gerrit Schutz", "8888", 2,
-                "Messstellenkonzept erstellen", "PS: Rechtschreibung!", "Geschlossen", 1000000, new DateTime())));
+    public String getNrPrefix() {
+        return nrPrefix.get();
+    }
 
-
-         */
-        /*
-        try {
-
-            data.add(new ActionData(object.getChildren().get(0).getChildren().get(0)));
-        } catch (Exception ex) {
-
-        }
-*/
-
-        return data;
+    public StringProperty nrPrefixProperty() {
+        return nrPrefix;
     }
 }

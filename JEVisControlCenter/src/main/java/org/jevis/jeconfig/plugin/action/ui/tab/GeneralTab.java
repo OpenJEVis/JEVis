@@ -1,26 +1,32 @@
 package org.jevis.jeconfig.plugin.action.ui.tab;
 
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.util.Callback;
 import org.controlsfx.control.CheckComboBox;
-import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.jevis.jeconfig.plugin.action.ui.CheckBoxData;
 import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
-import org.jevis.jeconfig.plugin.action.ui.UnitDoubleConverter;
+import org.jevis.jeconfig.plugin.action.ui.JFXCheckComboBox;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -29,23 +35,23 @@ public class GeneralTab extends Tab {
 
     private final JFXDatePicker f_plannedDate = new JFXDatePicker();
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
-    Label l_Note = new Label();
-    Label l_Description = new Label();
-    Label l_ActionNr = new Label();
-    Label l_Investment = new Label("Investment:");
-    Label l_changeKost = new Label("Änderung Kosten/Jahr:");
-    Label l_Responsible = new Label();
-    Label l_NoteBewertet = new Label();
-    Label l_Attachment = new Label();
-    Label l_Title = new Label();
-    Label l_NoteEnergiefluss = new Label();
-    Label l_doneDate = new Label();
-    Label l_plannedDate = new Label();
-    Label l_mediaTags = new Label();
-    Label l_statusTags = new Label();
-    Label l_fieldTags = new Label();
-    Region col3Spacer = new Region();
-    Label l_Enpi = new Label("EnPI");
+    private ActionData names = new ActionData();
+    private Label l_Note = new Label();
+    private Label l_Description = new Label();
+    private Label l_ActionNr = new Label();
+    private Label l_Investment = new Label(I18n.getInstance().getString("actionform.editor.tab.general.investment"));
+    private Label l_changeKost = new Label(I18n.getInstance().getString("actionform.editor.tab.general.yearsaving"));
+    private Label l_Responsible = new Label();
+    private Label l_NoteBewertet = new Label();
+    private Label l_Attachment = new Label();
+    private Label l_Title = new Label();
+    private Label l_NoteEnergiefluss = new Label();
+    private Label l_doneDate = new Label();
+    private Label l_plannedDate = new Label();
+    private Label l_statusTags = new Label();
+    private Label l_fieldTags = new Label();
+    private Region col3Spacer = new Region();
+
     private JFXTextField f_savingYear = new JFXTextField();
     private JFXTextField f_Investment = new JFXTextField();
     private JFXTextField f_ActionNr = new JFXTextField();
@@ -53,14 +59,28 @@ public class GeneralTab extends Tab {
     private JFXTextField f_Responsible = new JFXTextField();
     private TextArea f_Description = new TextArea();
     private TextArea f_NoteBewertet = new TextArea();
-    private ComboBox<String> f_statusTags;
+    private JFXComboBox<String> f_statusTags;
     private CheckComboBox<String> f_fieldTags;
-    private ComboBox<String> f_mediaTags;
-    private ComboBox<JEVisObject> f_Enpi = new ComboBox();
+    private JFXCheckComboBox f_fieldTags2;
     private JFXTextField f_Attachment = new JFXTextField();
     private TextArea f_Note = new TextArea();
     private TextArea f_NoteEnergiefluss = new TextArea();
-    private ActionData names = new ActionData();
+    private Label l_seu = new Label(I18n.getInstance().getString("actionform.editor.tab.general.seu"));
+    private JFXComboBox<String> f_sueTags = new JFXComboBox<>();
+    private Label l_FromUser = new Label(names.fromUserProperty().getName());
+    private JFXTextField f_FromUser = new JFXTextField();
+    private Label l_CreateDate = new Label(names.createDateProperty().getName());
+    private JFXDatePicker f_CreateDate = new JFXDatePicker();
+    private Label l_distributor = new Label(names.distributorProperty().getName());
+    private JFXTextField f_distributor = new JFXTextField();
+
+
+    {
+        f_NoteBewertet.setWrapText(true);
+        f_Description.setWrapText(true);
+        f_Note.setWrapText(true);
+        f_NoteEnergiefluss.setWrapText(true);
+    }
 
     public GeneralTab(ActionData data) {
         super(I18n.getInstance().getString("actionform.editor.tab.general"));
@@ -70,46 +90,40 @@ public class GeneralTab extends Tab {
         ScrollPane scrollPane = new ScrollPane(gridPane);
         gridPane.setVgap(10);
         gridPane.setHgap(15);
-        //gridPane.gridLinesVisibleProperty().set(true);
-
 
         col3Spacer.setMinWidth(25);
 
-        f_savingYear.textProperty().bindBidirectional(data.DELETEsavingyearProperty());
-        f_ActionNr.setText(data.nrProperty().get() + "");
-        f_Investment.textProperty().bindBidirectional(data.investmentProperty());
+        f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
 
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> enpiCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-            @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            setText(item.getName());
-                        } else {
-                            setText(null);
-                        }
 
-                    }
-                };
-            }
-        };
-
-        f_Enpi = new ComboBox(data.getActionPlan().getEnpis());
-        f_Enpi.setCellFactory(enpiCellFactory);
-        f_Enpi.setButtonCell(enpiCellFactory.call(null));
-        f_statusTags = new ComboBox<>(actionPlan.getStatustags());
+        f_statusTags = new JFXComboBox<>(actionPlan.getStatustags());
         f_fieldTags = new CheckComboBox<>(actionPlan.getFieldsTags());
-        f_mediaTags = new ComboBox<>(actionPlan.getMediumTags());
+        //f_mediaTags.setCellFactory();
+
+        ObservableList<CheckBoxData> f_fieldTags2Data = FXCollections.observableArrayList();
+        data.getActionPlan().getFieldsTags().forEach(s -> {
+            f_fieldTags2Data.add(new CheckBoxData(s, false));
+        });
+/*
+        Arrays.stream(data.fieldTagsProperty().get().split(",")).forEach(s -> {
+            f_fieldTags2Data.add(new CheckBoxData(s, true));
+        });
+
+ */
+
+        f_fieldTags2 = new JFXCheckComboBox(data.getActionPlan().getFieldsTags(), data.fieldTagsProperty().get());
+        f_fieldTags2.textProperty().addListener((observable, oldValue, newValue) -> {
+            data.getActionPlan().getFieldsTags().setAll(f_fieldTags2.getValue());
+        });
 
         f_Title.widthProperty().addListener((observable, oldValue, newValue) -> {
             f_statusTags.setPrefWidth(newValue.doubleValue());
             f_fieldTags.setPrefWidth(newValue.doubleValue());
-            f_mediaTags.setPrefWidth(newValue.doubleValue());
-            f_Enpi.setPrefWidth(newValue.doubleValue());
+            f_fieldTags2.setPrefWidth(newValue.doubleValue());
+            //f_mediaTags.setPrefWidth(newValue.doubleValue());
+            //f_Enpi.setPrefWidth(newValue.doubleValue());
         });
+
         f_Note.textProperty().bindBidirectional(data.noteProperty());
         f_Description.textProperty().bindBidirectional(data.desciptionProperty());
         f_Title.textProperty().bindBidirectional(data.titleProperty());
@@ -128,20 +142,19 @@ public class GeneralTab extends Tab {
             }
         });
 
-        f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
-        f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                data.mediaTagsProperty().set(newValue);
-            }
-        });
-
 
         for (String s : data.fieldTagsProperty().getValue().split(";")) {
             f_fieldTags.getCheckModel().check(s);
         }
-        f_fieldTags.checkModelProperty().addListener((observable, oldValue, newValue) -> {
-            data.fieldTagsProperty().set(ActionPlanData.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
+
+        f_fieldTags.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+            public void onChanged(ListChangeListener.Change<? extends String> c) {
+                while (c.next()) {
+                    //do something with changes here
+                }
+                System.out.println(f_fieldTags.getCheckModel().getCheckedItems());
+                data.fieldTagsProperty().set(ActionPlanData.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
+            }
         });
 
 
@@ -153,18 +166,6 @@ public class GeneralTab extends Tab {
             data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
         });
 
-        try {
-            f_Enpi.valueProperty().set(data.getObject().getDataSource().getObject(new Long(data.enpilinksProperty().get())));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        f_Enpi.valueProperty().addListener(new ChangeListener<JEVisObject>() {
-            @Override
-            public void changed(ObservableValue<? extends JEVisObject> observable, JEVisObject oldValue, JEVisObject newValue) {
-                data.enpilinksProperty().set(newValue.getID().toString());
-                /** TODO update enpi data **/
-            }
-        });
 
         if (data.doneDateProperty().getValue() != null) {
             DateTime end = data.doneDateProperty().get();
@@ -178,10 +179,10 @@ public class GeneralTab extends Tab {
             data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
         });
 
-        Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investition, DoubleConverter.getInstance().getDoubleConverter());
+        Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, DoubleConverter.getInstance().getDoubleConverter());
         Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, DoubleConverter.getInstance().getDoubleConverter());
 
-        f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
+        // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
         JFXTextField l_savingsUnitLabel = new JFXTextField("€");
         l_savingsUnitLabel.setEditable(false);
         l_savingsUnitLabel.setPrefWidth(25);
@@ -198,18 +199,30 @@ public class GeneralTab extends Tab {
         f_Investment.setAlignment(Pos.BASELINE_RIGHT);
 
 
+        f_distributor.textProperty().bindBidirectional(data.distributorProperty());
+        f_FromUser.textProperty().bindBidirectional(data.fromUserProperty());
+
+        DateTime start = data.createDateProperty().get();
+        f_CreateDate.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        f_CreateDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+        });
+
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_ActionNr);
         add(gridPane, 1, 2, 1, 1, Priority.NEVER, l_Title);
         add(gridPane, 1, 3, 1, 1, Priority.NEVER, l_Responsible);
         add(gridPane, 1, 4, 1, 1, Priority.NEVER, l_plannedDate);
         add(gridPane, 1, 5, 1, 1, Priority.NEVER, l_doneDate);
+        add(gridPane, 1, 6, 1, 1, Priority.NEVER, l_CreateDate); //
+        // add(gridPane, 1, 7, 1, 1, Priority.NEVER, l_distributor);
 
         add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_ActionNr);
         add(gridPane, 2, 2, 1, 1, Priority.SOMETIMES, f_Title);
         add(gridPane, 2, 3, 1, 1, Priority.SOMETIMES, f_Responsible);
         add(gridPane, 2, 4, 1, 1, Priority.SOMETIMES, f_plannedDate);
         add(gridPane, 2, 5, 1, 1, Priority.SOMETIMES, f_doneDate);
-
+        add(gridPane, 2, 6, 1, 1, Priority.SOMETIMES, f_CreateDate);
+        //add(gridPane, 2, 7, 1, 1, Priority.NEVER, f_distributor);
 
         add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, l_Description);
         add(gridPane, 1, 9, 2, 1, Priority.SOMETIMES, f_Description);
@@ -221,18 +234,18 @@ public class GeneralTab extends Tab {
 
         add(gridPane, 4, 1, 1, 1, Priority.SOMETIMES, l_statusTags);
         add(gridPane, 4, 2, 1, 1, Priority.SOMETIMES, l_fieldTags);
-        add(gridPane, 4, 3, 1, 1, Priority.SOMETIMES, l_mediaTags);
-        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, l_Enpi);
-        add(gridPane, 4, 5, 1, 1, Priority.SOMETIMES, l_Investment);
-        add(gridPane, 4, 6, 1, 1, Priority.SOMETIMES, l_changeKost);
+        add(gridPane, 4, 3, 1, 1, Priority.SOMETIMES, l_seu);
+        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, l_Investment);
+        add(gridPane, 4, 5, 1, 1, Priority.SOMETIMES, l_changeKost);
+        add(gridPane, 4, 6, 1, 1, Priority.SOMETIMES, l_FromUser);
         add(gridPane, 4, 7, 1, 1, Priority.SOMETIMES, l_Attachment);
 
         add(gridPane, 5, 1, 1, 1, Priority.SOMETIMES, f_statusTags);
-        add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags);
-        add(gridPane, 5, 3, 1, 1, Priority.SOMETIMES, f_mediaTags);
-        add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, f_Enpi);
-        add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, investBox);//f_Investment
-        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, savingsBox);//f_savings
+        add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags2);//f_fieldTags);
+        add(gridPane, 5, 3, 1, 1, Priority.SOMETIMES, f_sueTags);
+        add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, investBox);
+        add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, savingsBox);//f_Investment
+        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, f_FromUser);//f_savings
         add(gridPane, 5, 7, 1, 1, Priority.SOMETIMES, f_Attachment);
 
         add(gridPane, 4, 8, 2, 1, Priority.SOMETIMES, l_NoteEnergiefluss);
@@ -276,7 +289,7 @@ public class GeneralTab extends Tab {
         l_Attachment.setText(names.attachmentProperty().getName());
         l_statusTags.setText(names.statusTagsProperty().getName());
         l_fieldTags.setText(names.fieldTagsProperty().getName());
-        l_mediaTags.setText(names.mediaTagsProperty().getName());
+
         l_Responsible.setText(names.responsibleProperty().getName());
 
         l_Title.setText(names.noteBetroffenerProzessProperty().getName());

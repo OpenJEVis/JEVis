@@ -9,6 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 public class FreeObject implements JEVisObject {
+
+    private static FreeObject instance = null;
+
+    public static FreeObject getInstance() {
+        if (instance == null) instance = new FreeObject();
+
+        return instance;
+    }
+
     @Override
     public String getName() {
         return I18n.getInstance().getString("plugin.action.freeobject.name");
@@ -177,6 +186,11 @@ public class FreeObject implements JEVisObject {
     @Override
     public void setDeleteTS(DateTime ts) throws JEVisException {
 
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof FreeObject;
     }
 
     @Override

@@ -46,7 +46,7 @@ public class TableSumPanel extends GridPane {
         ActionData fakeNames = new ActionData();
 
         Label l_sumLabel = new Label(I18n.getInstance().getString("plugin.action.sumtable.total"));
-        Label l_sumInvestment = new Label(fakeNames.investment.getName());
+        Label l_sumInvestment = new Label(fakeNames.npv.get().investment.getName());
         Label l_sumSavingsYear = new Label(fakeNames.npv.get().einsparung.getName());
         Label l_sumSavingEnergy = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
 
@@ -77,7 +77,7 @@ public class TableSumPanel extends GridPane {
         double sumInvest = 0;
         double sumEinsparrung = 0;
         for (ActionData actionData : data) {
-            sumInvest += actionData.npv.get().getInvestition();
+            sumInvest += actionData.npv.get().getInvestment();
             sumEinsparrung += actionData.npv.get().einsparung.get();
 
         }

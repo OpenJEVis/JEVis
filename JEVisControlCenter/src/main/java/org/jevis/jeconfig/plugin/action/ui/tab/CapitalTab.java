@@ -20,6 +20,7 @@ import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.NPVYearData;
 import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
 import org.jevis.jeconfig.plugin.action.ui.NPVTableView;
+import org.jevis.jeconfig.tool.gson.GsonBuilder;
 
 import java.text.DecimalFormat;
 
@@ -137,18 +138,25 @@ public class CapitalTab extends Tab {
         DecimalFormat decimalFormat = new DecimalFormat();
         decimalFormat.setMinimumFractionDigits(4);
 
+        System.out.println("=== NPV Data ===");
+        System.out.println(GsonBuilder.createDefaultBuilder().create().toJson(data.npv.get()));
+        System.out.println("Saving: " + data.npv.get().einsparung.get());
+        System.out.println("nscNoUnit: " + nscNoUnit.toString(data.npv.get().einsparung.get()));
+        //f_einsparrung.textProperty().set("test");
+
         Bindings.bindBidirectional(f_zinssatz.textProperty(), data.npv.get().interestRate, new NumberStringConverter());
         Bindings.bindBidirectional(f_kapitalwert.textProperty(), data.npv.get().npvResult, nsc);
         Bindings.bindBidirectional(f_auszahlungGesamt.textProperty(), data.npv.get().sumAuszahlungProperty(), nsc);
         Bindings.bindBidirectional(f_einzahlungGesamt.textProperty(), data.npv.get().sumEinzahlung, nsc);
         Bindings.bindBidirectional(f_kapitalwertrate.textProperty(), data.npv.get().piResult, decimalFormat);
         Bindings.bindBidirectional(f_nettoGesamt.textProperty(), data.npv.get().sumNetto, nsc);
-        Bindings.bindBidirectional(f_investition.textProperty(), data.npv.get().investition, nscNoUnit);
+        Bindings.bindBidirectional(f_investition.textProperty(), data.npv.get().investment, nscNoUnit);
         Bindings.bindBidirectional(f_einsparrung.textProperty(), data.npv.get().einsparung, nscNoUnit);
         Bindings.bindBidirectional(f_kapitalwertOverX.textProperty(), data.npv.get().npvResultOverX, nsc);
         Bindings.bindBidirectional(f_kapitalrateOverX.textProperty(), data.npv.get().piResultOverX, decimalFormat);
         Bindings.bindBidirectional(f_infation.textProperty(), data.npv.get().inflation, nscNoUnit);
         Bindings.bindBidirectional(f_runningCost.textProperty(), data.npv.get().runningCost, nscNoUnit);
+        System.out.println("f_einsparrung: " + f_einsparrung.textProperty());
 
         f_zinssatz.setAlignment(Pos.CENTER_RIGHT);
         f_kapitalwert.setAlignment(Pos.CENTER_RIGHT);
