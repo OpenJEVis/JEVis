@@ -41,6 +41,14 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Nonconformities"
+    },
+    {
+      "name": "prefix",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Nonconformities"
     }
   ]
 }

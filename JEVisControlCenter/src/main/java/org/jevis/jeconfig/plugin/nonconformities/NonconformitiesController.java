@@ -18,11 +18,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
@@ -131,11 +131,17 @@ public class NonconformitiesController {
 
 
         Separator vSep1 = new Separator(Orientation.VERTICAL);
+        Separator vSep2 = new Separator(Orientation.VERTICAL);
+;
+
+        GridPane.setRowSpan(vSep1, 2);
+        GridPane.setRowSpan(vSep2, 2);
         gridPane.addColumn(0, lSuche, fsearch);
         gridPane.addColumn(1, vSep1);
-        gridPane.addColumn(2, new Label("Zeitbereich"), dateSelector);
+        gridPane.addColumn(2, new Region(), mediumButton);
+        gridPane.addColumn(3, vSep2);
+        gridPane.addColumn(4, new Label("Zeitbereich"), dateSelector);
 
-        gridPane.addColumn(3, new Region(), mediumButton);
 
         mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
@@ -163,7 +169,6 @@ public class NonconformitiesController {
                     nonconformitiesTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.EQUALS);
                 }
                 nonconformitiesTable.getTableFilter().setPlannedDateFilter(filterDatumText.getText());
-                //nonconformitiesTable.filter();
 
             }
         };
@@ -372,7 +377,7 @@ public class NonconformitiesController {
         nonconformityForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
         final Button btOk = (Button) nonconformityForm.getDialogPane().lookupButton(buttonTypeOne);
         final Button btCancel = (Button) nonconformityForm.getDialogPane().lookupButton(buttonTypeTwo);
-        btOk.addEventFilter(ActionEvent.ACTION,getCloseRequest(data));
+        btOk.addEventFilter(ActionEvent.ACTION,getCloseRequest(data, nonconformityForm));
         btCancel.addEventFilter(ActionEvent.ACTION,event -> {
             reload(data);
         });
@@ -383,17 +388,11 @@ public class NonconformitiesController {
 
     }
     @NotNull
-    private static EventHandler getCloseRequest(NonconformityData data) {
+    private static EventHandler getCloseRequest(NonconformityData data, NonconformityForm nonconformityForm) {
         return dialogEvent -> {
             String errorText = data.checkForRequirements();
             if (errorText != NonconformityData.REQUIREMENTS_MET) {
-                dialogEvent.consume();
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Failed to Save Nonconformity");
-                alert.setHeaderText(errorText);
-                //alert.setContentText("Connect to the database successfully!");
-
-                alert.showAndWait();
+                nonconformityForm.showNotification(errorText,Icon.Warning);
                 dialogEvent.consume();
 
             }else {

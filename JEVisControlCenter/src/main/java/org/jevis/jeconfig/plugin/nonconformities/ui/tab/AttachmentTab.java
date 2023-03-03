@@ -12,6 +12,7 @@ import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
@@ -30,10 +31,11 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
-public class AttachmentTab extends javafx.scene.control.Tab implements Tab {
+public class AttachmentTab extends Tab  {
 
     protected static final Logger logger = LogManager.getLogger(AttachmentTab.class);
     public AttachmentTab() {
+        super();
     }
 
     public AttachmentTab(String s) {
@@ -46,17 +48,12 @@ public class AttachmentTab extends javafx.scene.control.Tab implements Tab {
 
     @Override
     public void initTab(NonconformityData data) {
-        AnchorPane anchorPane = new AnchorPane();
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(8));
         gridPane.setHgap(15);
-        anchorPane.getChildren().add(gridPane);
-        AnchorPane.setTopAnchor(gridPane, 0.0);
-        AnchorPane.setLeftAnchor(gridPane, 0.0);
-        AnchorPane.setRightAnchor(gridPane, 0.0);
-        AnchorPane.setBottomAnchor(gridPane, 0.0);
-        this.setContent(anchorPane);
+        notificationPane.setContent(gridPane);
+        this.setContent(notificationPane);
 
 
         //ToggleButton renameFileButton = new ToggleButton("", JEConfig.getSVGImage(Icon.R, iconSize, iconSize));

@@ -10,13 +10,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.controlsfx.control.NotificationPane;
 import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.joda.time.*;
 
 import java.time.LocalDate;
 
-public class GeneralTab extends javafx.scene.control.Tab implements Tab {
+public class GeneralTab extends Tab {
     private final JFXDatePicker f_plannedDate = new JFXDatePicker();
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
 
@@ -56,23 +57,19 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
     private Label l_Medium = new Label();
     private Label l_mediaTags = new Label();
 
-
-
-
-    public GeneralTab() {
-    }
-
     public GeneralTab(String s) {
         super(s);
     }
 
-    public GeneralTab(String s, Node node) {
-        super(s, node);
-    }
+//    public GeneralTab(String s, Node node) {
+//        super(s, node);
+//    }
 
     @Override
     public void initTab(NonconformityData nonconformityData) {
+
         GridPane gridPane = new GridPane();
+        notificationPane.setContent(gridPane);
         gridPane.setPadding(new Insets(20));
 
         Nonconformities nonconformities = nonconformityData.getNonconformities();
@@ -129,7 +126,7 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
 
 
 
-        gridPane.add(col3Spacer, 3, 1);
+        //gridPane.add(col3Spacer, 3, 1);
 
 
         l_Attachment.setVisible(false);
@@ -149,11 +146,13 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
         l_NoteBewertet.setPadding(new Insets(15, 0, 0, 0));
         l_NoteEnergiefluss.setPadding(new Insets(15, 0, 0, 0));
 
+
+
         f_ActionNr.setEditable(false);
 
 
         //scrollPane.setContent(gridPane);
-        this.setContent(gridPane);
+        this.setContent(notificationPane);
 
 
 
@@ -177,6 +176,17 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
         f_Creator.textProperty().bindBidirectional(data.creatorProperty());
         f_mediaTags = new ComboBox<>(data.getNonconformities().getMediumTags());
         f_mediaTags.valueProperty().bindBidirectional(data.mediumProperty());
+
+
+        f_Title.setMaxWidth(200);
+        f_ActionNr.setMaxWidth(200);
+        f_plannedDate.setMaxWidth(200);
+        f_doneDate.setMaxWidth(200);
+        f_createDate.setMaxWidth(200);
+        f_Responsible.setMaxWidth(200);
+        f_Creator.setMaxWidth(200);
+        f_mediaTags.setMaxWidth(200);
+
 
         l_CreateDate.setText(fake.createDateProperty().getName());
         l_doneDate.setText(fake.doneDateProperty().getName());
@@ -219,7 +229,7 @@ public class GeneralTab extends javafx.scene.control.Tab implements Tab {
 
         });
 
-        f_ActionNr.setText(data.nrProperty().get() + "");
+        f_ActionNr.setText(data.getPrefix() + data.nrProperty().get());
 
     }
 }

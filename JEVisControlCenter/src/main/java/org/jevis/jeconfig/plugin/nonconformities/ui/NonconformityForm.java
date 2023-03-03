@@ -1,10 +1,6 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.control.*;
-import org.jetbrains.annotations.NotNull;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
@@ -19,7 +15,8 @@ public class NonconformityForm extends Dialog {
     public NonconformityForm() {
     }
 
-    private TabPane tabPane = new TabPane();
+
+    public TabPane tabPane = new TabPane();
 
 
     private GeneralTab basicTab = new GeneralTab(I18n.getInstance().getString("plugin.nonconforrmities.form.tab.general"));
@@ -32,6 +29,7 @@ public class NonconformityForm extends Dialog {
 
 
     public NonconformityForm(Nonconformities nonconformities) {
+
         super();
         this.initOwner(JEConfig.getStage());
         this.nonconformities = nonconformities;
@@ -60,9 +58,9 @@ public class NonconformityForm extends Dialog {
 
     public void setData(NonconformityData data) {
         updateView(data);
+        basicTab.initTab(data);
         checkListTab.initTab(data);
         attachmentTab.initTab(data);
-        basicTab.initTab(data);
     }
 
 
@@ -71,6 +69,12 @@ public class NonconformityForm extends Dialog {
         checkListTab.updateView(data);
         basicTab.updateView(data);
         attachmentTab.updateView(data);
+
+    }
+    public void showNotification(String text, String path_icon) {
+        attachmentTab.showNotification(text,JEConfig.getSVGImage(path_icon,24,24));
+        basicTab.showNotification(text,JEConfig.getSVGImage(path_icon,24,24));
+        checkListTab.showNotification(text,JEConfig.getSVGImage(path_icon,24,24));
 
     }
 

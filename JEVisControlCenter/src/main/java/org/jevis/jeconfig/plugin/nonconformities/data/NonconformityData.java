@@ -63,28 +63,8 @@ public class NonconformityData{
     @SerializedName("Responsible Person")
     private final SimpleStringProperty responsiblePerson = new SimpleStringProperty("Responsible Person", I18n.getInstance().getString("plugin.nonconformities.responsibleperson"), "");
 
-    @Expose
-    @SerializedName("Immediate Action Required")
-    private final SimpleBooleanProperty isImmediateActionRequired = new SimpleBooleanProperty("Immediate Action Required", I18n.getInstance().getString("plugin.nonconformities.immediateactionrequired"), false);
-    @Expose
-    @SerializedName("Effect on ongoing Processes")
-    private final SimpleBooleanProperty isEffectOnOngoingProcesses = new SimpleBooleanProperty("Effect on ongoing Processes", I18n.getInstance().getString("plugin.nonconformities.effectonongoingprocesses"), false);
-    @Expose
-    @SerializedName("Routinely Affected")
-    private final SimpleBooleanProperty isRoutinelyAffected = new SimpleBooleanProperty("Routinely Affected", I18n.getInstance().getString("plugin.nonconformities.routinelyaffected"), false);
-    @Expose
-    @SerializedName("Employee Trained")
-    private final SimpleBooleanProperty isEmployeeTrained = new SimpleBooleanProperty("Employee Trained", I18n.getInstance().getString("plugin.nonconformities.employeetrained"), false);
-    @Expose
-    @SerializedName("Supplier Change Goods Needed")
-    private final SimpleBooleanProperty isSupplierChangeGoodsNeeded = new SimpleBooleanProperty("Supplier Change Goods Needed", I18n.getInstance().getString("plugin.nonconformities.supplierchangegoodsneeded"), false);
-    @Expose
-    @SerializedName("Management Notification Needed")
-    private final SimpleBooleanProperty isManagementNotificationNeeded = new SimpleBooleanProperty("Management Notification Needed", I18n.getInstance().getString("plugin.nonconformities.managementnotificationneeded"), false);
 
-    @Expose
-    @SerializedName("Documents Changes Needed")
-    private final SimpleBooleanProperty isDocumentsChangesNeeded = new SimpleBooleanProperty("Documents Changes Needed", I18n.getInstance().getString("plugin.nonconformities.documentschangesneeded"), false);
+
 
     @Expose
     @SerializedName("Check List")
@@ -126,8 +106,8 @@ public class NonconformityData{
 
     private Nonconformities nonconformities;
 
-    public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("Imediate Action have entered if checkbox is ticked");
-    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("OK");
+    public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconforrmities.error.immediatemeasures");
+    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.o");
 
     public NonconformityData(JEVisObject obj, Nonconformities nonconformities) {
         this.nonconformities = nonconformities;
@@ -176,14 +156,6 @@ public class NonconformityData{
             registerChanges(createDate);
             registerChanges(description);
             registerChanges(cause);
-            registerChanges(isImmediateActionRequired);
-            registerChanges(isEffectOnOngoingProcesses);
-            registerChanges(isRoutinelyAffected);
-            registerChanges(isEmployeeTrained);
-            registerChanges(isSupplierChangeGoodsNeeded);
-            registerChanges(isManagementNotificationNeeded);
-
-            registerChanges(isDocumentsChangesNeeded);
             registerChanges(getCheckListData().isProcessInstructionsProperty());
             registerChanges(getCheckListData().isWorkInstructionsProperty());
             registerChanges(getCheckListData().isTestInstructionsProperty());
@@ -224,7 +196,7 @@ public class NonconformityData{
     }
 
     public String checkForRequirements() {
-        return isIsImmediateActionRequired() && !immediateMeasures.get().isEmpty() || !isIsImmediateActionRequired()? REQUIREMENTS_MET : IMMEDIATE_ACTION;
+        return getCheckListData().isIsImmediateActionRequired() && !immediateMeasures.get().isEmpty() || !getCheckListData().isIsImmediateActionRequired()? REQUIREMENTS_MET : IMMEDIATE_ACTION;
     }
 
     public void commit() {
@@ -306,12 +278,6 @@ public class NonconformityData{
     public SimpleStringProperty titleProperty() {
         return title;
     }
-
-
-    public SimpleBooleanProperty isImmediateActionRequiredProperty() {
-        return isImmediateActionRequired;
-    }
-
 
 
 
@@ -406,88 +372,6 @@ public class NonconformityData{
         this.responsiblePerson.set(responsiblePerson);
     }
 
-    public boolean isIsImmediateActionRequired() {
-        return isImmediateActionRequired.get();
-    }
-
-    public void setIsImmediateActionRequired(boolean isImmediateActionRequired) {
-        this.isImmediateActionRequired.set(isImmediateActionRequired);
-    }
-
-    public boolean isIsEffectOnOngoingProcesses() {
-        return isEffectOnOngoingProcesses.get();
-    }
-
-    public SimpleBooleanProperty isEffectOnOngoingProcessesProperty() {
-        return isEffectOnOngoingProcesses;
-    }
-
-    public void setIsEffectOnOngoingProcesses(boolean isEffectOnOngoingProcesses) {
-        this.isEffectOnOngoingProcesses.set(isEffectOnOngoingProcesses);
-    }
-
-    public boolean isIsRoutinelyAffected() {
-        return isRoutinelyAffected.get();
-    }
-
-    public SimpleBooleanProperty isRoutinelyAffectedProperty() {
-        return isRoutinelyAffected;
-    }
-
-    public void setIsRoutinelyAffected(boolean isRoutinelyAffected) {
-        this.isRoutinelyAffected.set(isRoutinelyAffected);
-    }
-
-    public boolean isIsEmployeeTrained() {
-        return isEmployeeTrained.get();
-    }
-
-    public SimpleBooleanProperty isEmployeeTrainedProperty() {
-        return isEmployeeTrained;
-    }
-
-    public void setIsEmployeeTrained(boolean isEmployeeTrained) {
-        this.isEmployeeTrained.set(isEmployeeTrained);
-    }
-
-    public boolean isIsSupplierChangeGoodsNeeded() {
-        return isSupplierChangeGoodsNeeded.get();
-    }
-
-    public SimpleBooleanProperty isSupplierChangeGoodsNeededProperty() {
-        return isSupplierChangeGoodsNeeded;
-    }
-
-    public void setIsSupplierChangeGoodsNeeded(boolean isSupplierChangeGoodsNeeded) {
-        this.isSupplierChangeGoodsNeeded.set(isSupplierChangeGoodsNeeded);
-    }
-
-    public boolean isIsManagementNotificationNeeded() {
-        return isManagementNotificationNeeded.get();
-    }
-
-    public SimpleBooleanProperty isManagementNotificationNeededProperty() {
-        return isManagementNotificationNeeded;
-    }
-
-    public void setIsManagementNotificationNeeded(boolean isManagementNotificationNeeded) {
-        this.isManagementNotificationNeeded.set(isManagementNotificationNeeded);
-    }
-
-    public boolean isIsDocumentsChangesNeeded() {
-        return isDocumentsChangesNeeded.get();
-    }
-
-    public SimpleBooleanProperty isDocumentsChangesNeededProperty() {
-        return isDocumentsChangesNeeded;
-    }
-
-    public void setIsDocumentsChangesNeeded(boolean isDocumentsChangesNeeded) {
-        this.isDocumentsChangesNeeded.set(isDocumentsChangesNeeded);
-    }
-
-
-
     public DateTime getCreateDate() {
         return createDate.get();
     }
@@ -546,13 +430,6 @@ public class NonconformityData{
                 ", immediateMeasures=" + immediateMeasures +
                 ", correctiveActions=" + correctiveActions +
                 ", responsiblePerson=" + responsiblePerson +
-                ", isImmediateActionRequired=" + isImmediateActionRequired +
-                ", isEffectOnOngoingProcesses=" + isEffectOnOngoingProcesses +
-                ", isRoutinelyAffected=" + isRoutinelyAffected +
-                ", isEmployeeTrained=" + isEmployeeTrained +
-                ", isSupplierChangeGoodsNeeded=" + isSupplierChangeGoodsNeeded +
-                ", isManagementNotificationNeeded=" + isManagementNotificationNeeded +
-                ", isDocumentsChangesNeeded=" + isDocumentsChangesNeeded +
                 ", createDate=" + createDate +
                 ", plannedDate=" + plannedDate +
                 ", doneDate=" + doneDate +
@@ -602,5 +479,9 @@ public class NonconformityData{
 
     public void setDeleted(boolean deleted) {
         this.deleted.set(deleted);
+    }
+
+    public String getPrefix() {
+        return getNonconformities().getPrefix();
     }
 }

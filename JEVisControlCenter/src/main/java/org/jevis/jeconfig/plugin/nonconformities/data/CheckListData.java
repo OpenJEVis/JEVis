@@ -7,6 +7,23 @@ import javafx.beans.property.SimpleBooleanProperty;
 import org.jevis.commons.i18n.I18n;
 
 public class CheckListData {
+    @Expose
+    @SerializedName("Immediate Action Required")
+    private final SimpleBooleanProperty isImmediateActionRequired = new SimpleBooleanProperty("Immediate Action Required", I18n.getInstance().getString("plugin.nonconformities.immediateactionrequired"), false);
+
+    @Expose
+    @SerializedName("Effect on ongoing Processes")
+    private final SimpleBooleanProperty isEffectOnOngoingProcesses = new SimpleBooleanProperty("Effect on ongoing Processes", I18n.getInstance().getString("plugin.nonconformities.effectonongoingprocesses"), false);
+    @Expose
+    @SerializedName("Routinely Affected")
+    private final SimpleBooleanProperty isRoutinelyAffected = new SimpleBooleanProperty("Routinely Affected", I18n.getInstance().getString("plugin.nonconformities.routinelyaffected"), false);
+    @Expose
+    @SerializedName("Employee Trained")
+    private final SimpleBooleanProperty isEmployeeTrained = new SimpleBooleanProperty("Employee Trained", I18n.getInstance().getString("plugin.nonconformities.employeetrained"), false);
+
+    @Expose
+    @SerializedName("Documents Changes Needed")
+    private final SimpleBooleanProperty isDocumentsChangesNeeded = new SimpleBooleanProperty("Documents Changes Needed", I18n.getInstance().getString("plugin.nonconformities.documentschangesneeded"), false);
 
     @Expose
     @SerializedName("Process Instructions")
@@ -32,6 +49,11 @@ public class CheckListData {
     @Expose
     @SerializedName("Miscellaneous")
     private final SimpleBooleanProperty isMiscellaneous = new SimpleBooleanProperty("Miscellaneous", I18n.getInstance().getString("plugin.nonconforrmities.miscellaneous"), false);
+
+    @Expose
+    @SerializedName("Metrics")
+    private final SimpleBooleanProperty isMetrics = new SimpleBooleanProperty("Immediate Action Required", I18n.getInstance().getString("plugin.nonconformities.immediateactionrequired"), false);
+
 
     public boolean isIsProcessInstructions() {
         return isProcessInstructions.get();
@@ -103,5 +125,77 @@ public class CheckListData {
 
     public void setIsMiscellaneous(boolean isMiscellaneous) {
         this.isMiscellaneous.set(isMiscellaneous);
+    }
+
+    public boolean isIsImmediateActionRequired() {
+        return isImmediateActionRequired.get();
+    }
+
+    public SimpleBooleanProperty isImmediateActionRequiredProperty() {
+        return isImmediateActionRequired;
+    }
+
+    public void setIsImmediateActionRequired(boolean isImmediateActionRequired) {
+        this.isImmediateActionRequired.set(isImmediateActionRequired);
+    }
+
+    public boolean isIsEffectOnOngoingProcesses() {
+        return isEffectOnOngoingProcesses.get();
+    }
+
+    public SimpleBooleanProperty isEffectOnOngoingProcessesProperty() {
+        return isEffectOnOngoingProcesses;
+    }
+
+    public void setIsEffectOnOngoingProcesses(boolean isEffectOnOngoingProcesses) {
+        this.isEffectOnOngoingProcesses.set(isEffectOnOngoingProcesses);
+    }
+
+    public boolean isIsRoutinelyAffected() {
+        return isRoutinelyAffected.get();
+    }
+
+    public SimpleBooleanProperty isRoutinelyAffectedProperty() {
+        return isRoutinelyAffected;
+    }
+
+    public void setIsRoutinelyAffected(boolean isRoutinelyAffected) {
+        this.isRoutinelyAffected.set(isRoutinelyAffected);
+    }
+
+    public boolean isIsEmployeeTrained() {
+        return isEmployeeTrained.get();
+    }
+
+    public SimpleBooleanProperty isEmployeeTrainedProperty() {
+        return isEmployeeTrained;
+    }
+
+    public void setIsEmployeeTrained(boolean isEmployeeTrained) {
+        this.isEmployeeTrained.set(isEmployeeTrained);
+    }
+
+    public boolean isIsDocumentsChangesNeeded() {
+        return isDocumentsChangesNeeded.get();
+    }
+
+    public SimpleBooleanProperty isDocumentsChangesNeededProperty() {
+        return isDocumentsChangesNeeded;
+    }
+
+    public void setIsDocumentsChangesNeeded(boolean isDocumentsChangesNeeded) {
+        this.isDocumentsChangesNeeded.set(isDocumentsChangesNeeded);
+    }
+
+    public boolean isIsMetrics() {
+        return isMetrics.get();
+    }
+
+    public SimpleBooleanProperty isMetricsProperty() {
+        return isMetrics;
+    }
+
+    public void setIsMetrics(boolean isMetrics) {
+        this.isMetrics.set(isMetrics);
     }
 }

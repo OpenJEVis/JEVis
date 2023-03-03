@@ -29,6 +29,7 @@ public class Nonconformities {
     protected static final Logger logger = LogManager.getLogger(Nonconformities.class);
     private JEVisObject object;
     private ObservableList<String> statusTags;
+    private SimpleStringProperty prefix = new SimpleStringProperty();
     private ObservableList<String> mediumTags;
     private ObservableList<String> fieldsTags;
     private ObservableList<JEVisObject> enpis;
@@ -46,6 +47,8 @@ public class Nonconformities {
     private String ATTRIBUTE_CMEDIUM = "Custom Medium";
     private String ATTRIBUTE_EnPI = "EnPI";
 
+    private String ATTRIBUTE_PREFIX = "prefix";
+
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
@@ -53,6 +56,17 @@ public class Nonconformities {
         this.object = obj;
 
         name.set(obj.getName());
+
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_PREFIX);
+            JEVisSample sample = attribute.getLatestSample();
+            if (sample != null && !sample.getValueAsString().isEmpty()) {
+                setPrefix(sample.getValueAsString());
+
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
 
         statusTags = FXCollections.observableArrayList();
         try {
@@ -328,5 +342,21 @@ public class Nonconformities {
 */
 
         return data;
+    }
+
+    public void showNotification() {
+
+    }
+
+    public String getPrefix() {
+        return prefix.get();
+    }
+
+    public SimpleStringProperty prefixProperty() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix.set(prefix);
     }
 }

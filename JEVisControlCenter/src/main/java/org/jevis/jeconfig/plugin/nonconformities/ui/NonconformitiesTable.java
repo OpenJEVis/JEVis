@@ -66,6 +66,7 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
 
         TableColumn<NonconformityData, Integer> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
         actionNrPropertyCol.setCellValueFactory(param -> param.getValue().nrProperty().asObject());
+        actionNrPropertyCol.setMinWidth(80);
 
         TableColumn<NonconformityData, String> desciptionPropertyCol = new TableColumn(fakeForName.descriptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().descriptionProperty());
@@ -106,6 +107,19 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
         TableColumn<NonconformityData, DateTime> plannedDatePropertyCol = new TableColumn(fakeForName.plannedDateProperty().getName());
         plannedDatePropertyCol.setCellValueFactory(param -> param.getValue().plannedDateProperty());
         plannedDatePropertyCol.setCellFactory(buildDateTimeFactory());
+
+        actionNrPropertyCol.setCellFactory(param -> {
+                    return new TableCell<NonconformityData, Integer>() {
+                        @Override
+                        protected void updateItem(Integer item, boolean empty) {
+                            super.updateItem(item, empty);
+                            if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
+                                NonconformityData nonconformityData = (NonconformityData) getTableRow().getItem();
+                                setText(nonconformityData.getNonconformities().getPrefix() + item);                //if (actionPlanData != null) setText(actionPlanData.getNrPrefix() + item);            } else {                setText(null);            }        }    };});
+                            }
+                        }
+                    };
+                });
 
 
 
