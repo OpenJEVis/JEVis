@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui.tab;
 
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
@@ -23,7 +24,7 @@ public class GeneralTab extends Tab {
 
     private final JFXDatePicker f_createDate = new JFXDatePicker();
 
-    private ComboBox<String> f_mediaTags;
+    private JFXComboBox<String> f_mediaTags;
 
     private TextArea f_Description = new TextArea();
     private TextArea f_Cause = new TextArea();
@@ -174,7 +175,7 @@ public class GeneralTab extends Tab {
         f_CorrectiveActions.textProperty().bindBidirectional(data.correctiveActionsProperty());
         f_ImmediateMeasures.textProperty().bindBidirectional(data.immediateMeasuresProperty());
         f_Creator.textProperty().bindBidirectional(data.creatorProperty());
-        f_mediaTags = new ComboBox<>(data.getNonconformities().getMediumTags());
+        f_mediaTags = new JFXComboBox<>(data.getNonconformities().getMediumTags());
         f_mediaTags.valueProperty().bindBidirectional(data.mediumProperty());
 
 
@@ -190,7 +191,7 @@ public class GeneralTab extends Tab {
 
         l_CreateDate.setText(fake.createDateProperty().getName());
         l_doneDate.setText(fake.doneDateProperty().getName());
-        l_mediaTags.setText(data.mediumProperty().getName());
+        l_mediaTags.setText(fake.mediumProperty().getName());
         l_plannedDate.setText(fake.plannedDateProperty().getName());
         l_Title.setText(fake.titleProperty().getName());
         l_Description.setText(fake.descriptionProperty().getName());
