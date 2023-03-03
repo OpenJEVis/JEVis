@@ -24,9 +24,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class Nonconformities {
+public class NonconformityPlan {
 
-    protected static final Logger logger = LogManager.getLogger(Nonconformities.class);
+    protected static final Logger logger = LogManager.getLogger(NonconformityPlan.class);
     private JEVisObject object;
     private ObservableList<String> statusTags;
     private SimpleStringProperty prefix = new SimpleStringProperty();
@@ -52,7 +52,7 @@ public class Nonconformities {
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
-    public Nonconformities(JEVisObject obj) {
+    public NonconformityPlan(JEVisObject obj) {
         this.object = obj;
 
         name.set(obj.getName());
@@ -139,7 +139,7 @@ public class Nonconformities {
 
     }
 
-    public Nonconformities() {
+    public NonconformityPlan() {
     }
 
 
@@ -214,7 +214,7 @@ public class Nonconformities {
         Gson gson = GsonBuilder.createDefaultBuilder().create();
         NonconformityData nonconformityData = gson.fromJson(s, NonconformityData.class);
         nonconformityData.setObject(actionObj);
-        nonconformityData.setNonconformities(this);
+        nonconformityData.setNonconformityPlan(this);
         return nonconformityData;
     }
 

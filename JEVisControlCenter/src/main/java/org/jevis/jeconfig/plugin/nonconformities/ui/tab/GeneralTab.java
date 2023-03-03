@@ -16,7 +16,7 @@ import org.joda.time.*;
 import java.time.LocalDate;
 
 public class GeneralTab extends Tab {
-    private final JFXDatePicker f_plannedDate = new JFXDatePicker();
+    private final JFXDatePicker f_deadlineDate = new JFXDatePicker();
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
 
     private final JFXDatePicker f_createDate = new JFXDatePicker();
@@ -96,7 +96,7 @@ public class GeneralTab extends Tab {
 
         add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_ActionNr);
         add(gridPane, 2, 2, 1, 1, Priority.SOMETIMES, f_Responsible);
-        add(gridPane, 2, 3, 1, 1, Priority.SOMETIMES, f_plannedDate);
+        add(gridPane, 2, 3, 1, 1, Priority.SOMETIMES, f_deadlineDate);
         add(gridPane, 2, 4, 1, 1, Priority.SOMETIMES, f_createDate);
 
 
@@ -178,7 +178,7 @@ public class GeneralTab extends Tab {
 
         f_Title.setMaxWidth(200);
         f_ActionNr.setMaxWidth(200);
-        f_plannedDate.setMaxWidth(200);
+        f_deadlineDate.setMaxWidth(200);
         f_doneDate.setMaxWidth(200);
         f_createDate.setMaxWidth(200);
         f_Responsible.setMaxWidth(200);
@@ -201,7 +201,7 @@ public class GeneralTab extends Tab {
         l_Creator.setText(fake.creatorProperty().getName());
         l_Title.setWrapText(true);
         if (data.deadLineProperty().isNotNull().get()) {
-            f_plannedDate.setValue(LocalDate.of(data.getDeadLine().getYear(),data.getDeadLine().getMonthOfYear(),data.getDeadLine().getDayOfMonth()));
+            f_deadlineDate.setValue(LocalDate.of(data.getDeadLine().getYear(),data.getDeadLine().getMonthOfYear(),data.getDeadLine().getDayOfMonth()));
         }
         if (data.doneDateProperty().isNotNull().get()) {
             f_doneDate.setValue(LocalDate.of(data.getDoneDate().getYear(),data.getDoneDate().getMonthOfYear(),data.getDoneDate().getDayOfMonth()));
@@ -212,7 +212,7 @@ public class GeneralTab extends Tab {
         }
 
 
-        f_plannedDate.valueProperty().addListener((observableValue, localDate, newValue) -> {
+        f_deadlineDate.valueProperty().addListener((observableValue, localDate, newValue) -> {
             data.deadLineProperty().set(new DateTime(newValue.getYear(),newValue.getMonthValue(),newValue.getDayOfMonth(),0,0));
         });
 
