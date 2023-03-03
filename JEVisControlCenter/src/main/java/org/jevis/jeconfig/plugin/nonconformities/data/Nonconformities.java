@@ -139,6 +139,9 @@ public class Nonconformities {
 
     }
 
+    public Nonconformities() {
+    }
+
 
     public ObservableList<JEVisObject> getEnpis() {
         return enpis;
@@ -358,5 +361,13 @@ public class Nonconformities {
 
     public void setPrefix(String prefix) {
         this.prefix.set(prefix);
+    }
+
+    public ObservableList<NonconformityData> getNonconformityList() {
+        return nonconformityList;
+    }
+
+    public void setNonconformityList(ObservableList<NonconformityData> nonconformityList) {
+        this.nonconformityList = nonconformityList;
     }
 }

@@ -1,18 +1,14 @@
 package org.jevis.jeconfig.plugin.nonconformities;
 
-import com.jfoenix.controls.JFXTextField;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,9 +20,10 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
 import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
-import org.jevis.jeconfig.plugin.nonconformities.data.TableFilter;
+import org.jevis.jeconfig.plugin.nonconformities.data.NonconformtiesOverviewData;
 import org.jevis.jeconfig.plugin.nonconformities.ui.*;
 import org.joda.time.DateTime;
 
@@ -41,16 +38,17 @@ public class NonconformitiesController {
 
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
-    private ObservableList<Nonconformities> actionPlans;
+    private ObservableList<Nonconformities> nonconformitiesList;
     private TabPane tabPane = new TabPane();
+    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
     public NonconformitiesController(NonconformitiesPlugin plugin) {
         this.plugin = plugin;
     }
 
     public void loadActionView() {
-        actionPlans = FXCollections.observableArrayList();
-        actionPlans.addListener(new ListChangeListener<Nonconformities>() {
+        nonconformitiesList = FXCollections.observableArrayList();
+        nonconformitiesList.addListener(new ListChangeListener<Nonconformities>() {
             @Override
             public void onChanged(Change<? extends Nonconformities> c) {
                 while (c.next()) {
@@ -65,6 +63,10 @@ public class NonconformitiesController {
 
             }
         });
+        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            isOverviewTab.set(getActiveNonconformities() instanceof NonconformtiesOverviewData);
+        });
+
 
         AnchorPane.setBottomAnchor(tabPane, 0.0);
         AnchorPane.setTopAnchor(tabPane, 0.0);
@@ -76,128 +78,25 @@ public class NonconformitiesController {
     }
 
 
-    private void buildTabPane(Nonconformities plan) {
+    private void buildTabPane(Nonconformities nonconformitiesPlan) {
 
-        NonconformitiesTable nonconformitiesTable = new NonconformitiesTable(plan.getActionData());
+        NonconformitiesTable nonconformitiesTable = new NonconformitiesTable(nonconformitiesPlan,nonconformitiesPlan.getActionData());
 
         //actionTable.enableSumRow(true);
-        NonconformitiesTab tab = new NonconformitiesTab(plan, nonconformitiesTable);
+        NonconformitiesTab tab = new NonconformitiesTab(nonconformitiesPlan, this);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("new tab selected: {}", newValue);
 
-            Nonconformities nonconformities = ((NonconformitiesTab) newValue).getNonconformities();
-            nonconformities.loadNonconformityList();
-
-        });
-
-        GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(25));
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        double maxListHeight = 100;
-
-
-        Label lSuche = new Label("Suche");
-        JFXTextField fsearch = new JFXTextField();
-        fsearch.setPromptText("Suche nach...");
-
-        org.jevis.jeconfig.plugin.action.ui.TagButton mediumButton = new org.jevis.jeconfig.plugin.action.ui.TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), plan.getMediumTags());
-
-        ComboBox<String> datumBox = new ComboBox<>();
-        datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
-        datumBox.getSelectionModel().selectFirst();
-        JFXTextField filterDatumText = new JFXTextField();
-        filterDatumText.setPromptText("Datum...");
-        ComboBox<String> comparatorBox = new ComboBox<>();
-        comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));
-        comparatorBox.getSelectionModel().selectFirst();
-
-        fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
-            nonconformitiesTable.setTextFilter(newValue);
-            nonconformitiesTable.filter();
-        });
-
-        TimeFilterSelector dateSelector = new TimeFilterSelector(plan);
-
-        dateSelector.getValuePropertyProperty().addListener(new ChangeListener<DateFilter>() {
-            @Override
-            public void changed(ObservableValue<? extends DateFilter> observableValue, DateFilter dateFilter, DateFilter t1) {
-                nonconformitiesTable.setDateFilter(t1);
-                nonconformitiesTable.filter();
+            if (newValue instanceof NonconformitiesTab) {
+                Nonconformities nonconformities = ((NonconformitiesTab) newValue).getNonconformities();
+                //actionPlan.loadActionList();
             }
+
         });
 
 
-        Separator vSep1 = new Separator(Orientation.VERTICAL);
-        Separator vSep2 = new Separator(Orientation.VERTICAL);
-;
-
-        GridPane.setRowSpan(vSep1, 2);
-        GridPane.setRowSpan(vSep2, 2);
-        gridPane.addColumn(0, lSuche, fsearch);
-        gridPane.addColumn(1, vSep1);
-        gridPane.addColumn(2, new Region(), mediumButton);
-        gridPane.addColumn(3, vSep2);
-        gridPane.addColumn(4, new Label("Zeitbereich"), dateSelector);
-
-
-        mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
-                while (c.next()) {
-                    nonconformitiesTable.setFilterMedium((ObservableList<String>) c.getList());
-                    nonconformitiesTable.filter();
-                }
-            }
-        });
-        nonconformitiesTable.setMedium(mediumButton.getSelectedTags());
-        nonconformitiesTable.filter();
-
-
-        //HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
-        EventHandler<ActionEvent> dateFilerEvent = new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (comparatorBox.getSelectionModel().getSelectedItem().equals(">")) {
-                    nonconformitiesTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.BIGGER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("<")) {
-                    nonconformitiesTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.SMALLER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("=")) {
-                    nonconformitiesTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.EQUALS);
-                }
-                nonconformitiesTable.getTableFilter().setPlannedDateFilter(filterDatumText.getText());
-
-            }
-        };
-
-        comparatorBox.setOnAction(dateFilerEvent);
-
-
-
-
-
-        //gridPane.add(hBox, 0, 1, 3, 1);
-
-
-        BorderPane borderPane = new BorderPane();
-        borderPane.setTop(gridPane);
-        borderPane.setCenter(nonconformitiesTable);
-
-        TableSumPanel tableSumPanel = new TableSumPanel(nonconformitiesTable.getItems());
-        borderPane.setBottom(tableSumPanel);
-
-        nonconformitiesTable.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-                    openDataForm();//actionTable.getSelectionModel().getSelectedItem()
-                }
-            }
-        });
-        tab.setContent(borderPane);
         //actionTable.setItems(createTestData());
 
     }
@@ -215,7 +114,7 @@ public class NonconformitiesController {
         if (result.get() == ButtonType.OK) {
             try {
                 getActiveNonconformities().delete();
-                actionPlans.remove(tab.getNonconformities());
+                nonconformitiesList.remove(tab.getNonconformities());
                 tabPane.getTabs().remove(tab);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -237,7 +136,7 @@ public class NonconformitiesController {
                 JEVisObject newObject = parentDir.buildObject(newNonconformitiesDialog.getCreateName(), actionPlanClass);
                 newObject.commit();
                 Nonconformities nonconformities = new Nonconformities(newObject);
-                actionPlans.add(nonconformities);
+                this.nonconformitiesList.add(nonconformities);
                 tabPane.getSelectionModel().selectLast();
 
                 DateTime now = new DateTime();
@@ -324,11 +223,16 @@ public class NonconformitiesController {
             JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass("Nonconformities");
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
+            NonconformtiesOverviewData overviewData = new NonconformtiesOverviewData(this);
+            NonconformitiesTab overviewTab = new NonconformitiesTab(overviewData,this);
+            tabPane.getTabs().add(0, overviewTab);
+
+
             AtomicBoolean isFirstPlan = new AtomicBoolean(true);
 
             planObjs.forEach(jeVisObject -> {
                 Nonconformities plan = new Nonconformities(jeVisObject);
-                actionPlans.add(plan);
+                nonconformitiesList.add(plan);
                 if (isFirstPlan.get()) plan.loadNonconformityList();
                 isFirstPlan.set(false);
             });
@@ -410,4 +314,23 @@ public class NonconformitiesController {
     }
 
 
+    public boolean isIsOverviewTab() {
+        return isOverviewTab.get();
+    }
+
+    public BooleanProperty isOverviewTabProperty() {
+        return isOverviewTab;
+    }
+
+    public void setIsOverviewTab(boolean isOverviewTab) {
+        this.isOverviewTab.set(isOverviewTab);
+    }
+
+    public ObservableList<Nonconformities> getNonconformitiesList() {
+        return nonconformitiesList;
+    }
+
+    public void setNonconformitiesList(ObservableList<Nonconformities> nonconformitiesList) {
+        this.nonconformitiesList = nonconformitiesList;
+    }
 }

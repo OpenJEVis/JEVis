@@ -34,6 +34,14 @@ public class NonconformitiesToolbar extends ToolBar {
         newNonconformity.setOnAction(event -> nonconformitiesController.createNonconformity());
         deleteNonconformity.setOnAction(event -> nonconformitiesController.deleteNonconformity());
         deletePlan.setOnAction(event -> nonconformitiesController.deletePlan());
+
+        setOverview(nonconformitiesController.isOverviewTabProperty().get());
+        nonconformitiesController.isOverviewTabProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue);
+            setOverview(newValue);
+        });
+
+
        // reloadButton.setOnAction(event ->nonconformitiesController.relo );
         //calender.setOnAction(event -> actionCalendar.showAndWait());
 
@@ -41,5 +49,19 @@ public class NonconformitiesToolbar extends ToolBar {
 
 
     }
+    private void setOverview(boolean isOverview) {
+
+        //actionPlanConfig.setDisable(isOverview);
+        newNonconformity.setDisable(isOverview);
+        deleteNonconformity.setDisable(isOverview);
+        deletePlan.setDisable(isOverview);
+        exportPDF.setDisable(true);//Disabled because implementation is missing
+        reloadButton.setDisable(true); //Disabled because implementation is missing
+        //newPlan.setDisable(isOverview);
+        //openForm.setDisable(isOverview);
+        //reloadButton.setDisable(isOverview);
+
+    }
+
 
 }

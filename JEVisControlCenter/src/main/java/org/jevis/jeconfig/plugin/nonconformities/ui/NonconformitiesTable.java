@@ -11,6 +11,9 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+import org.jevis.jeconfig.plugin.action.data.ActionData;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.jevis.jeconfig.plugin.nonconformities.data.Nonconformities;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.plugin.nonconformities.data.TableFilter;
 import org.joda.time.DateTime;
@@ -46,10 +49,25 @@ public class NonconformitiesTable extends TableView<NonconformityData> {
     private String containsTextFilter = "";
     private ObservableList<String> medium = FXCollections.observableArrayList();
 
-    public NonconformitiesTable(ObservableList<NonconformityData> data) {
+    public NonconformitiesTable(Nonconformities nonconformities, ObservableList<NonconformityData> data) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
         setItems(filteredData);
+        setId("Action Table");
+
+        data.addListener(new ListChangeListener<NonconformityData>() {
+            @Override
+            public void onChanged(Change<? extends NonconformityData> c) {
+                while (c.next()) ;
+
+                System.out.println("Daten in tabelle " + nonconformities.getName() + " geändert: " + c.getList());
+            }
+        });
+
+        nonconformities.prefixProperty().addListener((observable, oldValue, newValue) -> {
+            filter();
+        });
+
 
         NonconformityData fakeForName = new NonconformityData();
 
