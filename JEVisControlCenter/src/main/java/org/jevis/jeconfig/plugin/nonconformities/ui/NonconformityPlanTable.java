@@ -78,15 +78,30 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         fromUserCol.setCellFactory(buildShotTextFactory());
 
 
-
-
-
         TableColumn<NonconformityData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsiblePersonProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsiblePersonProperty());
 
         TableColumn<NonconformityData, Integer> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
         actionNrPropertyCol.setCellValueFactory(param -> param.getValue().nrProperty().asObject());
         actionNrPropertyCol.setMinWidth(80);
+
+        actionNrPropertyCol.setCellFactory(param -> {
+            return new TableCell<NonconformityData, Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
+                        NonconformityData actionData = (NonconformityData) getTableRow().getItem();
+                        setText(actionData.getNonconformityPlan().getPrefix() + item);
+
+                    } else {
+                        setText(null);
+                    }
+                }
+            };
+        });
+
 
         TableColumn<NonconformityData, String> desciptionPropertyCol = new TableColumn(fakeForName.descriptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().descriptionProperty());
@@ -114,10 +129,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         planNameCol.setCellFactory(buildShotTextFactory());
 
 
-
-
-
-
         TableColumn<NonconformityData, DateTime> doneDatePropertyCol = new TableColumn(fakeForName.doneDateProperty().getName());
         doneDatePropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
         doneDatePropertyCol.setCellFactory(buildDateTimeFactory());
@@ -130,35 +141,10 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         plannedDatePropertyCol.setCellValueFactory(param -> param.getValue().deadLineProperty());
         plannedDatePropertyCol.setCellFactory(buildDateTimeFactory());
 
-        actionNrPropertyCol.setCellFactory(param -> {
-                    return new TableCell<NonconformityData, Integer>() {
-                        @Override
-                        protected void updateItem(Integer item, boolean empty) {
-                            super.updateItem(item, empty);
-                            if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
-                                NonconformityData nonconformityData = (NonconformityData) getTableRow().getItem();
-                                setText(nonconformityData.getNonconformityPlan().getPrefix() + item);                //if (actionPlanData != null) setText(actionPlanData.getNrPrefix() + item);            } else {                setText(null);            }        }    };});
-                            }
-                        }
-                    };
-                });
-
-
-
-
-
-
-
-
-
-
 
         TableColumn<NonconformityData, String> titlePropertyCol = new TableColumn(fakeForName.titleProperty().getName());
         titlePropertyCol.setCellValueFactory(param -> param.getValue().titleProperty());
         titlePropertyCol.setCellFactory(buildShotTextFactory());
-
-
-
 
 
         actionNrPropertyCol.setVisible(true);
@@ -179,13 +165,10 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         this.tableMenuButtonVisibleProperty().set(true);
 
 
-
         this.getColumns().addAll(actionNrPropertyCol, titlePropertyCol, fromUserCol,
                 responsiblePropertyCol, desciptionPropertyCol,
-                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol,mediaTagsPropertyCol,planNameCol
+                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol, mediaTagsPropertyCol, planNameCol
         );
-
-
 
 
         this.getColumns().stream().forEach(tableDataTableColumn -> tableDataTableColumn.setSortable(true));
@@ -272,6 +255,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     public TableFilter getTableFilter() {
         return tableFilter;
     }
+
     public void setTextFilter(String containsText) {
         this.containsTextFilter = containsText;
     }
@@ -283,7 +267,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     public void setFilterMedium(ObservableList<String> medium) {
         this.medium = medium;
     }
-
 
 
     public void filter() {
