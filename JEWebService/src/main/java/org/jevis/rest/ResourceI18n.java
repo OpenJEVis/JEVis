@@ -75,13 +75,13 @@ public class ResourceI18n {
                         }
                     } catch (Exception fex) {
                         logger.error("Error while loading i18n file '{}':", file.getName(), fex);
-                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(fex.getMessage()).build();
+                        // return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(fex.getMessage()).build();
                     }
                 }
             }
 
             //@TODO add single class only support
-            if (jclass.isEmpty()) {
+            if (!jclass.isEmpty()) {
                 for (JsonI18nClass i18class : files) {
                     if (i18class.getJevisclass().equalsIgnoreCase(jclass)) {
                         return Response.ok(i18class).build();

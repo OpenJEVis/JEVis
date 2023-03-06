@@ -128,4 +128,6 @@ public class Icon {
     public static final String ARROW_UP = "/icons/MaterialDesignSVG/outlined/arrow_upward.svg";
     public static final String ARROW_DOWN = "/icons/MaterialDesignSVG/outlined/arrow_downward.svg";
 
+    public static final String FILTER_ALT = "/icons/MaterialDesignSVG/outlined/filter_alt.svg";
+    public static final String FILTER_ALT_OFF = "/icons/MaterialDesignSVG/outlined/filter_alt_off.svg";
 }

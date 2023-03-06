@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.action.data;
+package org.jevis.jeconfig.plugin.nonconformities.data;
 
 import com.google.gson.Gson;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.action.ActionPlugin;
+import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
 import org.jevis.jeconfig.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
@@ -24,65 +24,50 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class ActionPlan {
+public class NonconformityPlan {
 
-    protected static final Logger logger = LogManager.getLogger(ActionPlan.class);
+    protected static final Logger logger = LogManager.getLogger(NonconformityPlan.class);
     private JEVisObject object;
-    private ObservableList<String> statusTags;
+    private SimpleStringProperty prefix = new SimpleStringProperty();
     private ObservableList<String> mediumTags;
-    private ObservableList<String> fieldsTags;
     private ObservableList<JEVisObject> enpis;
     private StringProperty name = new SimpleStringProperty("");
-    private ObservableList<ActionData> actions = FXCollections.observableArrayList();
+    private ObservableList<NonconformityData> nonconformityList = FXCollections.observableArrayList();
 
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
 
-    private String initCustomStatus = "";
-    private String initCustomFields = "";
+
     private String initCustomMedium = "";
 
-    private String ATTRIBUTE_CSTATUS = "Custom Status";
-    private String ATTRIBUTE_CFIELD = "Custom Fields";
     private String ATTRIBUTE_CMEDIUM = "Custom Medium";
     private String ATTRIBUTE_EnPI = "EnPI";
+
+    private String ATTRIBUTE_PREFIX = "prefix";
+    private String initNrPrefix = "";
 
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
-    public ActionPlan(JEVisObject obj) {
+    public NonconformityPlan(JEVisObject obj) {
         this.object = obj;
 
         name.set(obj.getName());
 
-        statusTags = FXCollections.observableArrayList();
         try {
-            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CSTATUS);
+            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_PREFIX);
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
-                initCustomStatus = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    statusTags.add(s);
-                }
-            }
+                setPrefix(sample.getValueAsString());
 
+            }else{
+                setPrefix("");
+            }
         } catch (Exception e) {
             logger.error(e);
         }
 
-        fieldsTags = FXCollections.observableArrayList();
-        try {
-            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CFIELD);
-            JEVisSample sample = attribute.getLatestSample();
-            if (sample != null && !sample.getValueAsString().isEmpty()) {
-                initCustomFields = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    fieldsTags.add(s);
-                }
-            }
 
-        } catch (Exception e) {
-            logger.error(e);
-        }
+
 
         mediumTags = FXCollections.observableArrayList();
         try {
@@ -99,13 +84,12 @@ public class ActionPlan {
             logger.error(e);
         }
 
-        actions.addAll(createTestData());
-        actions.addListener(new ListChangeListener<ActionData>() {
+        nonconformityList.addAll(createTestData());
+        nonconformityList.addListener(new ListChangeListener<NonconformityData>() {
             @Override
-            public void onChanged(Change<? extends ActionData> c) {
+            public void onChanged(Change<? extends NonconformityData> c) {
                 while (c.next()) {
-                    Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
-                    System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
+                    Optional<NonconformityData> maxNr = nonconformityList.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
                     biggestActionNr.set(maxNr.get().nrProperty().get());
                 }
             }
@@ -115,9 +99,7 @@ public class ActionPlan {
         try {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
             // JEVisSample sample = attribute.getLatestSample();
-            System.out.println("ENPIS ind DB: " + attribute.getLatestSample().toString());
             TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), attribute);
-            System.out.println("targetHelper: " + targetHelper.getObject());
 
             enpis.setAll(targetHelper.getObject());
 
@@ -126,6 +108,9 @@ public class ActionPlan {
         }
 
 
+    }
+
+    public NonconformityPlan() {
     }
 
 
@@ -149,10 +134,10 @@ public class ActionPlan {
 
     public void reloadActionList() {
         actionsLoaded.set(false);
-        loadActionList();
+        loadNonconformityList();
     }
 
-    public void loadActionList() {
+    public void loadNonconformityList() {
         if (!actionsLoaded.get()) {
             actionsLoaded.set(true);
             //System.out.println("loadIntoList for: " + name.get());
@@ -161,20 +146,19 @@ public class ActionPlan {
                 protected Object call() throws Exception {
                     try {
 
-                        JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Action Plan Directory v2");
-                        JEVisClass actionClass = object.getDataSource().getJEVisClass("Action");
+                        JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Nonconformities Directory");
+                        JEVisClass actionClass = object.getDataSource().getJEVisClass("Nonconformity");
                         for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
-                            //System.out.println("Action Dir: " + dirObj);
                             dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                                 System.out.println("new Action from JEVis: " + actionObj);
                                 try {
-                                    actions.add(loadAction(actionObj));
+                                    nonconformityList.add(loadNonconformties(actionObj));
                                 } catch (Exception e) {
                                     logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                                 }
                             });
                         }
-                        actions.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
+                        nonconformityList.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -185,22 +169,24 @@ public class ActionPlan {
                 }
             };
             Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
-            JEConfig.getStatusBar().addTask(ActionPlugin.class.getName(), task, widgetTaskIcon, true);
+            JEConfig.getStatusBar().addTask(NonconformitiesPlugin.class.getName(), task, widgetTaskIcon, true);
         }
 
 
     }
 
-    public ActionData loadAction(JEVisObject actionObj) throws JEVisException, NullPointerException {
-        JEVisAttribute att = actionObj.getAttribute("Data");
+    public NonconformityData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
+        JEVisAttribute att = actionObj.getAttribute("Data");;
         JEVisSample sample = att.getLatestSample();
         JEVisFile file = sample.getValueAsFile();
         String s = new String(file.getBytes(), StandardCharsets.UTF_8);
-        //System.out.println("Parsed Json:\n" + s);
+
+        logger.info("Json: {}",s);
         Gson gson = GsonBuilder.createDefaultBuilder().create();
-        ActionData actionData = gson.fromJson(s, ActionData.class);
-        actionData.setObject(actionObj);
-        return actionData;
+        NonconformityData nonconformityData = gson.fromJson(s, NonconformityData.class);
+        nonconformityData.setObject(actionObj);
+        nonconformityData.setNonconformityPlan(this);
+        return nonconformityData;
     }
 
 
@@ -216,28 +202,17 @@ public class ActionPlan {
         }
 
         DateTime now = new DateTime();
-
-        if (!initCustomStatus.equals(listToString(statusTags))) {
+        if (!initNrPrefix.equals(getPrefix())) {
             try {
-                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CSTATUS);
-                JEVisSample sample = attribute.buildSample(now, listToString(statusTags));
+                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_PREFIX);
+                JEVisSample sample = attribute.buildSample(now, getPrefix());
                 sample.commit();
             } catch (Exception e) {
                 logger.error(e);
             }
         }
 
-        if (!initCustomStatus.equals(listToString(fieldsTags))) {
-            try {
-                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CFIELD);
-                JEVisSample sample = attribute.buildSample(now, listToString(fieldsTags));
-                sample.commit();
-            } catch (Exception e) {
-                logger.error(e);
-            }
-        }
-
-        if (!initCustomStatus.equals(listToString(mediumTags))) {
+        if (!initCustomMedium.equals(listToString(mediumTags))) {
             try {
                 JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
                 JEVisSample sample = attribute.buildSample(now, listToString(mediumTags));
@@ -245,21 +220,6 @@ public class ActionPlan {
             } catch (Exception e) {
                 logger.error(e);
             }
-        }
-
-        try {
-            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
-            //TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), enpis.sorted(), attribute);
-
-            String targetStrg = "";
-            boolean first = true;
-            for (JEVisObject jeVisObject : enpis) {
-                targetStrg += jeVisObject.getID() + ";";
-            }
-            JEVisSample sample = attribute.buildSample(now, targetStrg);
-            sample.commit();
-        } catch (Exception e) {
-            logger.error(e);
         }
 
 
@@ -273,15 +233,15 @@ public class ActionPlan {
         return object;
     }
 
-    public void removeAction(ActionData actionData) {
-        actions.remove(actionData);
+    public void removeNonconformity(NonconformityData nonconformityData) {
+        this.nonconformityList.remove(nonconformityData);
     }
 
-    public void addAction(ActionData actionData) {
-        actions.add(actionData);
+    public void addAction(NonconformityData nonconformityData) {
+        this.nonconformityList.add(nonconformityData);
     }
 
-    public Integer getNextActionNr() {
+    public Integer getNextNonconformityNr() {
         biggestActionNr.set(biggestActionNr.get() + 1);
         return biggestActionNr.get();
     }
@@ -290,24 +250,18 @@ public class ActionPlan {
         return name;
     }
 
-    public ObservableList<String> getStatustags() {
-        return statusTags;
-    }
 
     public ObservableList<String> getMediumTags() {
         return mediumTags;
     }
 
-    public ObservableList<String> getFieldsTags() {
-        return fieldsTags;
+
+    public ObservableList<NonconformityData> getActionData() {
+        return nonconformityList;
     }
 
-    public ObservableList<ActionData> getActionData() {
-        return actions;
-    }
-
-    private ObservableList<ActionData> createTestData() {
-        ObservableList<ActionData> data = FXCollections.observableArrayList();
+    private ObservableList<NonconformityData> createTestData() {
+        ObservableList<NonconformityData> data = FXCollections.observableArrayList();
 
         //(long toUserID, String fromUserID, String objectID, int actionNr, String desciption, String note, String status,
         // double investment, DateTime createDate) {
@@ -330,5 +284,29 @@ public class ActionPlan {
 */
 
         return data;
+    }
+
+    public void showNotification() {
+
+    }
+
+    public String getPrefix() {
+        return prefix.get();
+    }
+
+    public SimpleStringProperty prefixProperty() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix.set(prefix);
+    }
+
+    public ObservableList<NonconformityData> getNonconformityList() {
+        return nonconformityList;
+    }
+
+    public void setNonconformityList(ObservableList<NonconformityData> nonconformityList) {
+        this.nonconformityList = nonconformityList;
     }
 }

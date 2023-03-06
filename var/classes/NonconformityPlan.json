@@ -1,0 +1,33 @@
+{
+  "name": "NonconformityPlan",
+  "description": "NonconformityPlan",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "NonconformityPlan",
+      "end": "Nonconformities Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Custom Medium",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "NonconformityPlan"
+    },
+    {
+      "name": "prefix",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "NonconformityPlan"
+    }
+  ]
+}
+
+
+

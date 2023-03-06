@@ -23,6 +23,11 @@ public class TextFieldWithUnit extends HBox {
         unitField.setAlignment(Pos.BASELINE_LEFT);
     }
 
+    public void setEditable(boolean edible) {
+        jfxTextField.setEditable(edible);
+        unitField.setEditable(edible);
+    }
+
     public JFXTextField getTextField() {
         return jfxTextField;
     }
