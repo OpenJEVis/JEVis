@@ -11,8 +11,12 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.plugin.action.data.ActionData;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
+import org.jevis.jeconfig.plugin.nonconformities.data.NonconformtiesOverviewData;
 import org.jevis.jeconfig.plugin.nonconformities.data.TableFilter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -105,7 +109,9 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         mediaTagsPropertyCol.setCellFactory(new StringListColumnCell());
         mediaTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
 
-
+        TableColumn<NonconformityData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.action.filter.plan"));
+        planNameCol.setCellValueFactory(param -> param.getValue().getNonconformityPlan().getName());
+        planNameCol.setCellFactory(buildShotTextFactory());
 
 
 
@@ -167,14 +173,19 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         doneDatePropertyCol.setVisible(true);
         plannedDatePropertyCol.setVisible(true);
+        planNameCol.setVisible(nonconformityPlan instanceof NonconformtiesOverviewData);
 
 
         this.tableMenuButtonVisibleProperty().set(true);
 
+
+
         this.getColumns().addAll(actionNrPropertyCol, titlePropertyCol, fromUserCol,
                 responsiblePropertyCol, desciptionPropertyCol,
-                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol,mediaTagsPropertyCol
+                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol,mediaTagsPropertyCol,planNameCol
         );
+
+
 
 
         this.getColumns().stream().forEach(tableDataTableColumn -> tableDataTableColumn.setSortable(true));

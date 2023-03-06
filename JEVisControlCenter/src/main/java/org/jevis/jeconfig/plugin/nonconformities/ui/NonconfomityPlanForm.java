@@ -47,7 +47,7 @@ public class NonconfomityPlanForm extends Alert {
         setHeaderText(I18n.getInstance().getString("planform.editor.header"));
         setResizable(true);
         setWidth(ScreenSize.fitScreenWidth(800));
-        setHeight(ScreenSize.fitScreenHeight(600));
+        setHeight(ScreenSize.fitScreenHeight(400));
 
         Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
         TopMenu.applyActiveTheme(stage.getScene());
@@ -68,8 +68,8 @@ public class NonconfomityPlanForm extends Alert {
         gridPane.add(f_numberPrefix, 1, 1);
         gridPane.add(new Region(), 0, 2);
 
-        gridPane.add(mediumLabel, 3, 0, 2, 1);
-        gridPane.add(mediumPane, 3, 1, 2, 2);
+        gridPane.add(mediumLabel, 0, 3, 1, 1);
+        gridPane.add(mediumPane, 1, 3, 1, 2);
 
         stackPane.getChildren().add(gridPane);
         getDialogPane().setContent(stackPane);
