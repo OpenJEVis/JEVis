@@ -162,7 +162,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         causePropertyCol.setVisible(false);
         immediateMeasuresPropertyCol.setVisible(false);
 
-        createDatePropertyCol.setVisible(false);
+        createDatePropertyCol.setVisible(true);
         titlePropertyCol.setVisible(true);
 
         doneDatePropertyCol.setVisible(true);

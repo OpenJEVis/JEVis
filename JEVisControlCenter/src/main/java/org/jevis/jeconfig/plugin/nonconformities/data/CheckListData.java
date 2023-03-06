@@ -51,7 +51,7 @@ public class CheckListData {
 
     @Expose
     @SerializedName("Metrics")
-    private final SimpleBooleanProperty isMetrics = new SimpleBooleanProperty("Immediate Action Required", I18n.getInstance().getString("plugin.nonconformities.immediateactionrequired"), false);
+    private final SimpleBooleanProperty isMetrics = new SimpleBooleanProperty("Immediate Action Required", I18n.getInstance().getString("plugin.nonconformities.metrics"), false);
 
 
     public boolean isIsProcessInstructions() {

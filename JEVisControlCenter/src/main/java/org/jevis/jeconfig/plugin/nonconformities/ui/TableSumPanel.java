@@ -66,18 +66,23 @@ public class TableSumPanel extends GridPane {
         this.getColumnConstraints().add(3, new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
         this.getColumnConstraints().add(4, new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
 
+        updateData();
         data.addListener((ListChangeListener<? super NonconformityData>) c -> {
             while (c.next()) {
-                updateData();
+                if (c.wasAdded() || c.wasRemoved()) {
+                    updateData();
+                }
             }
         });
 
     }
 
     private void updateData() {
-        f_SumTotal.setText(String.valueOf(data.stream().count()));
-        f_SumNotCompleted.setText(String.valueOf(data.stream().filter(actionData -> actionData.getDoneDate()== null).count()));
-        f_SumCompleted.setText(String.valueOf(data.stream().filter(data1 -> data1.getDoneDate()!= null).count()));
+            f_SumTotal.setText(String.valueOf(data.stream().count()));
+            f_SumNotCompleted.setText(String.valueOf(data.stream().filter(actionData -> actionData.getDoneDate()== null).count()));
+            f_SumCompleted.setText(String.valueOf(data.stream().filter(data1 -> data1.getDoneDate()!= null).count()));
+
+
     }
 
 }

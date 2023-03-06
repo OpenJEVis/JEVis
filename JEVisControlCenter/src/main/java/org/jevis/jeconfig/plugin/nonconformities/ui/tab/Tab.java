@@ -39,7 +39,4 @@ public abstract class Tab extends javafx.scene.control.Tab{
 
         });
     }
-    public void closeNotefication() {
-        notificationPane.hide();
-    }
 }

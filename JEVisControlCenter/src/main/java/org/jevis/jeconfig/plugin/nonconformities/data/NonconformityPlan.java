@@ -28,26 +28,22 @@ public class NonconformityPlan {
 
     protected static final Logger logger = LogManager.getLogger(NonconformityPlan.class);
     private JEVisObject object;
-    private ObservableList<String> statusTags;
     private SimpleStringProperty prefix = new SimpleStringProperty();
     private ObservableList<String> mediumTags;
-    private ObservableList<String> fieldsTags;
     private ObservableList<JEVisObject> enpis;
     private StringProperty name = new SimpleStringProperty("");
     private ObservableList<NonconformityData> nonconformityList = FXCollections.observableArrayList();
 
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
 
-    private String initCustomStatus = "";
-    private String initCustomFields = "";
+
     private String initCustomMedium = "";
 
-    private String ATTRIBUTE_CSTATUS = "Custom Status";
-    private String ATTRIBUTE_CFIELD = "Custom Fields";
     private String ATTRIBUTE_CMEDIUM = "Custom Medium";
     private String ATTRIBUTE_EnPI = "EnPI";
 
     private String ATTRIBUTE_PREFIX = "prefix";
+    private String initNrPrefix = "";
 
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
@@ -63,40 +59,15 @@ public class NonconformityPlan {
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 setPrefix(sample.getValueAsString());
 
+            }else{
+                setPrefix("");
             }
         } catch (Exception e) {
             logger.error(e);
         }
 
-        statusTags = FXCollections.observableArrayList();
-        try {
-            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CSTATUS);
-            JEVisSample sample = attribute.getLatestSample();
-            if (sample != null && !sample.getValueAsString().isEmpty()) {
-                initCustomStatus = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    statusTags.add(s);
-                }
-            }
 
-        } catch (Exception e) {
-            logger.error(e);
-        }
 
-        fieldsTags = FXCollections.observableArrayList();
-        try {
-            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CFIELD);
-            JEVisSample sample = attribute.getLatestSample();
-            if (sample != null && !sample.getValueAsString().isEmpty()) {
-                initCustomFields = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    fieldsTags.add(s);
-                }
-            }
-
-        } catch (Exception e) {
-            logger.error(e);
-        }
 
         mediumTags = FXCollections.observableArrayList();
         try {
@@ -231,28 +202,17 @@ public class NonconformityPlan {
         }
 
         DateTime now = new DateTime();
-
-        if (!initCustomStatus.equals(listToString(statusTags))) {
+        if (!initNrPrefix.equals(getPrefix())) {
             try {
-                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CSTATUS);
-                JEVisSample sample = attribute.buildSample(now, listToString(statusTags));
+                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_PREFIX);
+                JEVisSample sample = attribute.buildSample(now, getPrefix());
                 sample.commit();
             } catch (Exception e) {
                 logger.error(e);
             }
         }
 
-        if (!initCustomStatus.equals(listToString(fieldsTags))) {
-            try {
-                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CFIELD);
-                JEVisSample sample = attribute.buildSample(now, listToString(fieldsTags));
-                sample.commit();
-            } catch (Exception e) {
-                logger.error(e);
-            }
-        }
-
-        if (!initCustomStatus.equals(listToString(mediumTags))) {
+        if (!initCustomMedium.equals(listToString(mediumTags))) {
             try {
                 JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
                 JEVisSample sample = attribute.buildSample(now, listToString(mediumTags));
@@ -260,21 +220,6 @@ public class NonconformityPlan {
             } catch (Exception e) {
                 logger.error(e);
             }
-        }
-
-        try {
-            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
-            //TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), enpis.sorted(), attribute);
-
-            String targetStrg = "";
-            boolean first = true;
-            for (JEVisObject jeVisObject : enpis) {
-                targetStrg += jeVisObject.getID() + ";";
-            }
-            JEVisSample sample = attribute.buildSample(now, targetStrg);
-            sample.commit();
-        } catch (Exception e) {
-            logger.error(e);
         }
 
 
@@ -305,17 +250,11 @@ public class NonconformityPlan {
         return name;
     }
 
-    public ObservableList<String> getStatustags() {
-        return statusTags;
-    }
 
     public ObservableList<String> getMediumTags() {
         return mediumTags;
     }
 
-    public ObservableList<String> getFieldsTags() {
-        return fieldsTags;
-    }
 
     public ObservableList<NonconformityData> getActionData() {
         return nonconformityList;
