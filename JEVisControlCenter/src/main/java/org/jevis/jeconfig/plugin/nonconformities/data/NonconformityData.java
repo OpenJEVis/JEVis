@@ -7,6 +7,8 @@ import com.google.gson.annotations.SerializedName;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
@@ -98,6 +100,19 @@ public class NonconformityData{
     public final SimpleStringProperty medium = new SimpleStringProperty("Medium Tags",
             "Medium", "Strom");
 
+    @Expose
+    @SerializedName("Field Tags")
+    private final SimpleObjectProperty<List<String>> fieldTags = new SimpleObjectProperty<>("Field Tags",
+            "Bereich", new ArrayList<>());
+
+
+    @Expose
+    @SerializedName("Action")
+    private final SimpleStringProperty action = new SimpleStringProperty("Field Tags",
+            "Bereich", "");
+
+
+
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     private ChangeListener changeListener;
     private JEVisObject object;
@@ -107,7 +122,7 @@ public class NonconformityData{
     private NonconformityPlan nonconformityPlan;
 
     public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.immediatemeasures");
-    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.o");
+    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.ok");
 
     public NonconformityData(JEVisObject obj, NonconformityPlan nonconformityPlan) {
         this.nonconformityPlan = nonconformityPlan;
@@ -191,6 +206,10 @@ public class NonconformityData{
     }
 
     public void commit() {
+
+        System.out.println(this);
+
+
         try {
             if (!valueChanged.getValue()) return;
 
@@ -474,5 +493,29 @@ public class NonconformityData{
 
     public String getPrefix() {
         return getNonconformityPlan().getPrefix();
+    }
+
+    public List<String> getFieldTags() {
+        return fieldTags.get();
+    }
+
+    public SimpleObjectProperty<List<String>> fieldTagsProperty() {
+        return fieldTags;
+    }
+
+    public void setFieldTags(List<String> fieldTags) {
+        this.fieldTags.set(fieldTags);
+    }
+
+    public String getAction() {
+        return action.get();
+    }
+
+    public SimpleStringProperty actionProperty() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action.set(action);
     }
 }

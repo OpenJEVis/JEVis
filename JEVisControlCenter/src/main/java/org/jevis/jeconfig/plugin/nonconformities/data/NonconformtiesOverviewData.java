@@ -63,7 +63,8 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
 
             //System.out.println("Add: " + actionPlanData.getStatustags().stream().filter(obj -> !statusTags.contains(obj)).collect(Collectors.toList()));
             mediumTags.addAll(nonconformityPlan.getMediumTags().stream().filter(obj -> !mediumTags.contains(obj)).collect(Collectors.toList()));
-
+            statusTags.addAll(nonconformityPlan.getStausTags().stream().filter(s -> !statusTags.contains(s)).collect(Collectors.toList()));
+            fieldsTags.addAll(nonconformityPlan.getFieldsTags().stream().filter(s -> !fieldsTags.contains(s)).collect(Collectors.toList()));
 
             nonconformityPlan.getActionData().addListener(new ListChangeListener<NonconformityData>() {
                 @Override

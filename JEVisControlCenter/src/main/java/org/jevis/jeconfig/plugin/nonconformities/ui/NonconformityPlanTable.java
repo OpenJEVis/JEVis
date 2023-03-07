@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -50,6 +51,8 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     private boolean showSumRow = false;
     private String containsTextFilter = "";
     private ObservableList<String> medium = FXCollections.observableArrayList();
+    private ObservableList<String> staus = FXCollections.observableArrayList();
+    private ObservableList<String> fields = FXCollections.observableArrayList();
 
     public NonconformityPlanTable(NonconformityPlan nonconformityPlan, ObservableList<NonconformityData> data) {
         this.data = data;
@@ -80,27 +83,13 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         TableColumn<NonconformityData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsiblePersonProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsiblePersonProperty());
+        responsiblePropertyCol.setMinWidth(150);
 
-        TableColumn<NonconformityData, Integer> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
-        actionNrPropertyCol.setCellValueFactory(param -> param.getValue().nrProperty().asObject());
+        TableColumn<NonconformityData, String> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
+        actionNrPropertyCol.setCellValueFactory(param ->new SimpleStringProperty(param.getValue().getPrefix()+param.getValue().getNr()));
         actionNrPropertyCol.setMinWidth(80);
 
-        actionNrPropertyCol.setCellFactory(param -> {
-            return new TableCell<NonconformityData, Integer>() {
-                @Override
-                protected void updateItem(Integer item, boolean empty) {
-                    super.updateItem(item, empty);
 
-                    if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
-                        NonconformityData actionData = (NonconformityData) getTableRow().getItem();
-                        setText(actionData.getNonconformityPlan().getPrefix() + item);
-
-                    } else {
-                        setText(null);
-                    }
-                }
-            };
-        });
 
 
         TableColumn<NonconformityData, String> desciptionPropertyCol = new TableColumn(fakeForName.descriptionProperty().getName());
@@ -124,7 +113,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         mediaTagsPropertyCol.setCellFactory(new StringListColumnCell());
         mediaTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
 
-        TableColumn<NonconformityData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.action.filter.plan"));
+        TableColumn<NonconformityData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.nonconformities.location"));
         planNameCol.setCellValueFactory(param -> param.getValue().getNonconformityPlan().getName());
         planNameCol.setCellFactory(buildShotTextFactory());
 
@@ -135,6 +124,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         TableColumn<NonconformityData, DateTime> createDatePropertyCol = new TableColumn(fakeForName.createDateProperty().getName());
         createDatePropertyCol.setCellValueFactory(param -> param.getValue().createDateProperty());
+        createDatePropertyCol.setMinWidth(120);
         createDatePropertyCol.setCellFactory(buildDateTimeFactory());
 
         TableColumn<NonconformityData, DateTime> plannedDatePropertyCol = new TableColumn(fakeForName.deadLineProperty().getName());
@@ -299,6 +289,38 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                             });
                             if (!mediumMatch.get()) return false;
 
+                            AtomicBoolean fieldMatch = new AtomicBoolean(false);
+                            fields.forEach(s -> {
+                                try {
+                                    for (String s1 : notesRow.getFieldTags()) {
+                                        if (s1.equalsIgnoreCase(s)) {
+                                            fieldMatch.set(true);
+                                        }
+                                    }
+                                } catch (Exception ex) {
+
+                                }
+                            });
+                            if (!fieldMatch.get()) return false;
+
+
+
+                            AtomicBoolean statusMatch = new AtomicBoolean(false);
+                                try {
+                                    if (notesRow.getDoneDate() != null && staus.contains(NonconformityPlan.CLOSE)) {
+                                        statusMatch.set(true);
+                                    } else if (notesRow.getDoneDate() == null && staus.contains(NonconformityPlan.OPEN)) {
+                                        statusMatch.set(true);
+                                    }
+                                } catch (Exception ex) {
+
+                                }
+
+                            if (!statusMatch.get()) return false;
+
+
+
+
 
                             AtomicBoolean containString = new AtomicBoolean(false);
                             if (containsTextFilter != null || containsTextFilter.isEmpty()) {
@@ -337,5 +359,21 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
     public void setMedium(ObservableList<String> medium) {
         this.medium = medium;
+    }
+
+    public ObservableList<String> getStaus() {
+        return staus;
+    }
+
+    public void setStaus(ObservableList<String> staus) {
+        this.staus = staus;
+    }
+
+    public ObservableList<String> getFields() {
+        return fields;
+    }
+
+    public void setFields(ObservableList<String> fields) {
+        this.fields = fields;
     }
 }

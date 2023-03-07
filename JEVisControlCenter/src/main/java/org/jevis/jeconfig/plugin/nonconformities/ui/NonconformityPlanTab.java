@@ -48,7 +48,9 @@ public class NonconformityPlanTab extends Tab {
         JFXTextField fsearch = new JFXTextField();
         fsearch.setPromptText("Suche nach...");
 
-        org.jevis.jeconfig.plugin.action.ui.TagButton mediumButton = new org.jevis.jeconfig.plugin.action.ui.TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), plan.getMediumTags());
+        org.jevis.jeconfig.plugin.action.ui.TagButton mediumButton = new org.jevis.jeconfig.plugin.action.ui.TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), plan.getMediumTags(), plan.getMediumTags());
+        org.jevis.jeconfig.plugin.action.ui.TagButton fieldButton = new org.jevis.jeconfig.plugin.action.ui.TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.field"), plan.getFieldsTags(), plan.getFieldsTags());
+        org.jevis.jeconfig.plugin.action.ui.TagButton stausButton = new org.jevis.jeconfig.plugin.action.ui.TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus"),plan.getStausTags(),plan.getStausTags());
 
         ComboBox<String> datumBox = new ComboBox<>();
         datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
@@ -83,9 +85,11 @@ public class NonconformityPlanTab extends Tab {
         GridPane.setRowSpan(vSep2, 2);
         gridPane.addColumn(0, lSuche, fsearch);
         gridPane.addColumn(1, vSep1);
-        gridPane.addColumn(2, new Region(), mediumButton);
-        gridPane.addColumn(3, vSep2);
-        gridPane.addColumn(4, new Label("Zeitbereich"), dateSelector);
+        gridPane.addColumn(2, new Label("Filter"), stausButton);
+        gridPane.addColumn(3, new Region(), mediumButton);
+        gridPane.addColumn(4, new Region(), fieldButton);
+        gridPane.addColumn(5, vSep2);
+        gridPane.addColumn(6, new Label("Zeitbereich"), dateSelector);
 
 
         mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
@@ -98,8 +102,39 @@ public class NonconformityPlanTab extends Tab {
                 }
             }
         });
+
+
+        stausButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                System.out.println("List Changed: " + c);
+                while (c.next()) {
+                    nonconformityPlanTable.setStaus((ObservableList<String>) c.getList());
+                    nonconformityPlanTable.filter();
+                }
+            }
+        });
+        fieldButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                System.out.println("List Changed: " + c);
+                while (c.next()) {
+                    nonconformityPlanTable.setFields((ObservableList<String>) c.getList());
+                    nonconformityPlanTable.filter();
+                }
+            }
+        });
+
+
+        //nonconformityPlanTable.setStaus(stausButton.getSelectedTags());
         nonconformityPlanTable.setMedium(mediumButton.getSelectedTags());
+        nonconformityPlanTable.setFields(fieldButton.getSelectedTags());
+        nonconformityPlanTable.setStaus(stausButton.getSelectedTags());
         nonconformityPlanTable.filter();
+
+
+
+
 
 
         //HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);

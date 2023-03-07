@@ -220,6 +220,7 @@ public class NonconformitiesController {
 
             NonconformtiesOverviewData overviewData = new NonconformtiesOverviewData(this);
             NonconformityPlanTab overviewTab = new NonconformityPlanTab(overviewData,this);
+            overviewTab.setClosable(false);
             tabPane.getTabs().add(0, overviewTab);
 
 
