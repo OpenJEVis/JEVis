@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.jfoenix.controls.JFXTextField;
+import javafx.collections.ListChangeListener;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -95,9 +96,11 @@ public class NonconfomityPlanForm extends Alert {
         nameField.textProperty().bindBidirectional(nonconformityPlan.getName());
         f_numberPrefix.textProperty().bindBidirectional(nonconformityPlan.prefixProperty());
 
+
         mediumListView.setItems(nonconformityPlan.getMediumTags());
         fieldListView.setItems(nonconformityPlan.getFieldsTags());
         seuListView.setItems(nonconformityPlan.getSignificantEnergyUseTags());
+
 
     }
 

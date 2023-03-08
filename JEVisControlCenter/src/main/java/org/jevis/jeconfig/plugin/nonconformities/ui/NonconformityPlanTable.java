@@ -53,6 +53,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     private ObservableList<String> medium = FXCollections.observableArrayList();
     private ObservableList<String> staus = FXCollections.observableArrayList();
     private ObservableList<String> fields = FXCollections.observableArrayList();
+    private ObservableList<String> seu = FXCollections.observableArrayList();
 
     public NonconformityPlanTable(NonconformityPlan nonconformityPlan, ObservableList<NonconformityData> data) {
         this.data = data;
@@ -387,5 +388,13 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
     public void setFields(ObservableList<String> fields) {
         this.fields = fields;
+    }
+
+    public ObservableList<String> getSeu() {
+        return seu;
+    }
+
+    public void setSeu(ObservableList<String> seu) {
+        this.seu = seu;
     }
 }

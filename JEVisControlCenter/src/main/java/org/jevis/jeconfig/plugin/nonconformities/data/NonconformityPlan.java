@@ -30,38 +30,38 @@ public class NonconformityPlan {
 
     protected static final Logger logger = LogManager.getLogger(NonconformityPlan.class);
     private JEVisObject object;
-    private SimpleStringProperty prefix = new SimpleStringProperty();
-    private ObservableList<String> mediumTags;
+    protected SimpleStringProperty prefix = new SimpleStringProperty();
+    protected StringProperty name = new SimpleStringProperty("");
+    protected ObservableList<String> mediumTags;
     private ObservableList<JEVisObject> enpis;
-    private StringProperty name = new SimpleStringProperty("");
-    private ObservableList<NonconformityData> nonconformityList = FXCollections.observableArrayList();
+    protected ObservableList<NonconformityData> nonconformityList = FXCollections.observableArrayList();
+    protected ObservableList<String> fieldsTags;
 
+    protected ObservableList<String> stausTags = FXCollections.observableArrayList(OPEN,CLOSE);
+
+    protected ObservableList<String> significantEnergyUseTags;
+    private String initCustomMedium = "";
+    protected String initNrPrefix = "";
+
+    private String initCustomFields = "";
+    private String initCustomSEU = "";
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
 
 
-    private String initCustomMedium = "";
 
     private String ATTRIBUTE_CMEDIUM = "Custom Medium";
     private String ATTRIBUTE_EnPI = "EnPI";
 
     private String ATTRIBUTE_PREFIX = "prefix";
-    private String initNrPrefix = "";
 
-    private ObservableList<String> fieldsTags;
-
-    private ObservableList<String> stausTags = FXCollections.observableArrayList(OPEN,CLOSE);
     private String ATTRIBUTE_CFIELD = "Custom Fields";
-
-    private String initCustomFields = "";
-
     private String ATTRIBUTE_SEU = "Custom SEU";
 
-    private String initCustomSEU = "";
+
 
     public static String OPEN = I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus.open");
     public static String CLOSE = I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus.completed");
 
-    private ObservableList<String> significantEnergyUseTags;
 
 
 
@@ -273,6 +273,25 @@ public class NonconformityPlan {
             }
         }
 
+        if (!initCustomSEU.equals(listToString(significantEnergyUseTags))) {
+            try {
+                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_SEU);
+                JEVisSample sample = attribute.buildSample(now, listToString(significantEnergyUseTags));
+                sample.commit();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
+        if (!initCustomFields.equals(listToString(fieldsTags))) {
+            try {
+                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CFIELD);
+                JEVisSample sample = attribute.buildSample(now, listToString(fieldsTags));
+                sample.commit();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
+
 
     }
 
@@ -370,6 +389,7 @@ public class NonconformityPlan {
     }
 
     public ObservableList<String> getSignificantEnergyUseTags() {
+
         return significantEnergyUseTags;
     }
 
@@ -383,5 +403,18 @@ public class NonconformityPlan {
 
     public void setStausTags(ObservableList<String> stausTags) {
         this.stausTags = stausTags;
+    }
+
+    @Override
+    public String toString() {
+        return "NonconformityPlan{" +
+                "prefix=" + prefix +
+                ", mediumTags=" + mediumTags +
+                ", name=" + name +
+                ", nonconformityList=" + nonconformityList +
+                ", fieldsTags=" + fieldsTags +
+                ", stausTags=" + stausTags +
+                ", significantEnergyUseTags=" + significantEnergyUseTags +
+                '}';
     }
 }
