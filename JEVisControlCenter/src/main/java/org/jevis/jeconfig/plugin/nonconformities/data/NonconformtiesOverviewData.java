@@ -15,13 +15,7 @@ import java.util.stream.Collectors;
 public class NonconformtiesOverviewData extends NonconformityPlan {
 
     protected static final Logger logger = LogManager.getLogger(NonconformtiesOverviewData.class);
-    private ObservableList<String> statusTags;
-    private ObservableList<String> mediumTags;
-    private ObservableList<String> fieldsTags;
-    private StringProperty name = new SimpleStringProperty("");
-    private StringProperty nrPrefix = new SimpleStringProperty("");
-    private String initNrPrefix = "";
-    private ObservableList<NonconformityData> nonconformityList;
+
     private NonconformitiesController controller;
 
     public NonconformtiesOverviewData(NonconformitiesController controller) {
@@ -29,9 +23,10 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
         this.controller = controller;
         name.set("Übersicht");
 
-        statusTags = FXCollections.observableArrayList();
+        stausTags = FXCollections.observableArrayList();
         fieldsTags = FXCollections.observableArrayList();
         mediumTags = FXCollections.observableArrayList();
+        significantEnergyUseTags = FXCollections.observableArrayList();
         nonconformityList = FXCollections.observableArrayList();
 
         controller.getNonconformityPlanList().addListener(new ListChangeListener<NonconformityPlan>() {
@@ -50,7 +45,7 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
 
     public void updateData() {
         System.out.println("Update Overview Data");
-        statusTags.clear();
+        stausTags.clear();
         fieldsTags.clear();
         mediumTags.clear();
         nonconformityList.clear();
@@ -63,7 +58,9 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
 
             //System.out.println("Add: " + actionPlanData.getStatustags().stream().filter(obj -> !statusTags.contains(obj)).collect(Collectors.toList()));
             mediumTags.addAll(nonconformityPlan.getMediumTags().stream().filter(obj -> !mediumTags.contains(obj)).collect(Collectors.toList()));
-
+            stausTags.addAll(nonconformityPlan.getStausTags().stream().filter(s -> !stausTags.contains(s)).collect(Collectors.toList()));
+            fieldsTags.addAll(nonconformityPlan.getFieldsTags().stream().filter(s -> !fieldsTags.contains(s)).collect(Collectors.toList()));
+            significantEnergyUseTags.addAll(nonconformityPlan.getSignificantEnergyUseTags().stream().filter(s -> !significantEnergyUseTags.contains(s)).collect(Collectors.toList()));
 
             nonconformityPlan.getActionData().addListener(new ListChangeListener<NonconformityData>() {
                 @Override
@@ -87,7 +84,7 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
         });
 
 
-        System.out.println("Status nach update: " + statusTags);
+        System.out.println("Status nach update: " + stausTags);
 
     }
 
@@ -105,27 +102,6 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
         return name;
     }
 
-    public ObservableList<String> getStatustags() {
-        return statusTags;
-    }
-
-    public ObservableList<String> getMediumTags() {
-        return mediumTags;
-    }
-
-    public ObservableList<String> getFieldsTags() {
-        return fieldsTags;
-    }
-
-
-
-    public String getNrPrefix() {
-        return nrPrefix.get();
-    }
-
-    public StringProperty nrPrefixProperty() {
-        return nrPrefix;
-    }
 
     public ObservableList<NonconformityData> getNonconformityList() {
         return nonconformityList;

@@ -220,6 +220,7 @@ public class NonconformitiesController {
 
             NonconformtiesOverviewData overviewData = new NonconformtiesOverviewData(this);
             NonconformityPlanTab overviewTab = new NonconformityPlanTab(overviewData,this);
+            overviewTab.setClosable(false);
             tabPane.getTabs().add(0, overviewTab);
 
 
@@ -290,11 +291,15 @@ public class NonconformitiesController {
     private static EventHandler getCloseRequest(NonconformityData data, NonconformityForm nonconformityForm) {
         return dialogEvent -> {
             String errorText = data.checkForRequirements();
-            if (errorText != NonconformityData.REQUIREMENTS_MET) {
+            System.out.println(errorText);
+            if (errorText.equals(NonconformityData.IMMEDIATE_ACTION)) {
                 nonconformityForm.showNotification(errorText,Icon.Warning);
                 dialogEvent.consume();
 
-            }else {
+            } else if (errorText.equals(NonconformityData.DONE_DATE_ACTION)) {
+                nonconformityForm.showNotification(errorText,Icon.Warning);
+                dialogEvent.consume();
+            } else {
                 data.commit();
             }
         };

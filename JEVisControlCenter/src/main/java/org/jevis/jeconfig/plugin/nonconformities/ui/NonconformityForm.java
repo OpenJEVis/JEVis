@@ -72,6 +72,13 @@ public class NonconformityForm extends Dialog {
 
     }
     public void showNotification(String text, String path_icon) {
+        if (text.equals(NonconformityData.IMMEDIATE_ACTION)) {
+            basicTab.getF_ImmediateMeasures().getStyleClass().set(0,"nonconformityError");
+        } else if (text.equals(NonconformityData.DONE_DATE_ACTION)) {
+            basicTab.getF_action().getStyleClass().set(0,"nonconformityError");
+        }
+
+        tabPane.getSelectionModel().select(basicTab);
         attachmentTab.showNotification(text,JEConfig.getSVGImage(path_icon,24,24));
         basicTab.showNotification(text,JEConfig.getSVGImage(path_icon,24,24));
         checkListTab.showNotification(text,JEConfig.getSVGImage(path_icon,24,24));

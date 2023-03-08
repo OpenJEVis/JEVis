@@ -1,6 +1,12 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui.tab;
 
+import com.jfoenix.controls.JFXTextArea;
+import com.jfoenix.controls.JFXTextField;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.controlsfx.control.NotificationPane;
@@ -34,6 +40,16 @@ public abstract class Tab extends javafx.scene.control.Tab{
         notificationPane.setOnHiding(event -> {
             this.getTabPane().getTabs().forEach(tab -> {
                 NotificationPane content = (NotificationPane) tab.getContent();
+                GridPane gridPane = (GridPane) content.getContent();
+                gridPane.getChildren().forEach(node -> {
+                    if (node instanceof JFXTextField) {
+                        JFXTextField textField = (JFXTextField) node;
+                        textField.getStyleClass().set(0, "nonconformityOK");
+                    } else if (node instanceof TextArea) {
+                        TextArea textArea = (TextArea) node;
+                        textArea.getStyleClass().set(0, "nonconformityOK");
+                    }
+                });
                 content.hide();
             });
 

@@ -96,7 +96,25 @@ public class NonconformityData{
     @Expose
     @SerializedName("Medium")
     public final SimpleStringProperty medium = new SimpleStringProperty("Medium Tags",
-            "Medium", "Strom");
+            I18n.getInstance().getString("plugin.nonconformities.medium"), "Strom");
+
+    @Expose
+    @SerializedName("Field Tags")
+    private final SimpleObjectProperty<List<String>> fieldTags = new SimpleObjectProperty<>("Field Tags",
+            I18n.getInstance().getString("plugin.nonconformities.field"), new ArrayList<>());
+
+
+    @Expose
+    @SerializedName("Action")
+    private final SimpleStringProperty action = new SimpleStringProperty("Field Tags",
+            I18n.getInstance().getString("plugin.nonconformities.action"), "");
+
+    @Expose
+    @SerializedName("SEU")
+    private final SimpleStringProperty seu = new SimpleStringProperty("Field Tags",
+            I18n.getInstance().getString("plugin.nonconformities.seu"), "");
+
+
 
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     private ChangeListener changeListener;
@@ -107,7 +125,8 @@ public class NonconformityData{
     private NonconformityPlan nonconformityPlan;
 
     public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.immediatemeasures");
-    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.o");
+    public static final String DONE_DATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.donedate");
+    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.ok");
 
     public NonconformityData(JEVisObject obj, NonconformityPlan nonconformityPlan) {
         this.nonconformityPlan = nonconformityPlan;
@@ -141,24 +160,36 @@ public class NonconformityData{
 
 
             registerChanges(title);
-
             registerChanges(creator);
             registerChanges(nr);
-            registerChanges(createDate);
             registerChanges(description);
             registerChanges(cause);
-            registerChanges(getCheckListData().isProcessInstructionsProperty());
-            registerChanges(getCheckListData().isWorkInstructionsProperty());
-            registerChanges(getCheckListData().isTestInstructionsProperty());
-            registerChanges(getCheckListData().isDesignProperty());
-            registerChanges(getCheckListData().isModelProperty());
-            registerChanges(getCheckListData().isMiscellaneousProperty());
-
             registerChanges(immediateMeasures);
             registerChanges(correctiveActions);
             registerChanges(responsiblePerson);
+            registerChanges(createDate);
             registerChanges(deadLine);
             registerChanges(doneDate);
+            registerChanges(deleted);
+            registerChanges(attachment);
+            registerChanges(medium);
+            registerChanges(fieldTags);
+            registerChanges(action);
+            registerChanges(seu);
+
+
+
+            registerChanges(getCheckListData().isImmediateActionRequiredProperty());
+            registerChanges(getCheckListData().isEffectOnOngoingProcessesProperty());
+            registerChanges(getCheckListData().isRoutinelyAffectedProperty());
+            registerChanges(getCheckListData().isEmployeeTrainedProperty());
+            registerChanges(getCheckListData().isDocumentsChangesNeededProperty());
+            registerChanges(getCheckListData().isProcessInstructionsProperty());
+            registerChanges(getCheckListData().isWorkInstructionsProperty());
+            registerChanges(getCheckListData().isDesignProperty());
+            registerChanges(getCheckListData().isModelProperty());
+            registerChanges(getCheckListData().isMiscellaneousProperty());
+            registerChanges(getCheckListData().isMetricsProperty());
             valueChanged.set(false);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -187,10 +218,20 @@ public class NonconformityData{
     }
 
     public String checkForRequirements() {
-        return getCheckListData().isIsImmediateActionRequired() && !immediateMeasures.get().isEmpty() || !getCheckListData().isIsImmediateActionRequired()? REQUIREMENTS_MET : IMMEDIATE_ACTION;
+        if (getCheckListData().isIsImmediateActionRequired() && immediateMeasures.get().isEmpty()) {
+            return IMMEDIATE_ACTION;
+        } else if (getDoneDate() != null && getAction().isEmpty()) {
+            return DONE_DATE_ACTION;
+        } else {
+            return REQUIREMENTS_MET;
+        }
     }
 
     public void commit() {
+
+        System.out.println(this);
+
+
         try {
             if (!valueChanged.getValue()) return;
 
@@ -408,26 +449,6 @@ public class NonconformityData{
     }
 
 
-
-
-    @Override
-    public String toString() {
-        return "NonconformityData{" +
-                "title=" + title+
-                ", fromUser=" + creator +
-                ", nr=" + nr +
-                ", description=" + description +
-                ", cause=" + cause +
-                ", immediateMeasures=" + immediateMeasures +
-                ", correctiveActions=" + correctiveActions +
-                ", responsiblePerson=" + responsiblePerson +
-                ", createDate=" + createDate +
-                ", plannedDate=" + deadLine +
-                ", doneDate=" + doneDate +
-                ", attachment=" + attachment +
-                '}';
-    }
-
     public String getMedium() {
         return medium.get();
     }
@@ -474,5 +495,66 @@ public class NonconformityData{
 
     public String getPrefix() {
         return getNonconformityPlan().getPrefix();
+    }
+
+    public List<String> getFieldTags() {
+        return fieldTags.get();
+    }
+
+    public SimpleObjectProperty<List<String>> fieldTagsProperty() {
+        return fieldTags;
+    }
+
+    public void setFieldTags(List<String> fieldTags) {
+        this.fieldTags.set(fieldTags);
+    }
+
+    public String getAction() {
+        return action.get();
+    }
+
+    public SimpleStringProperty actionProperty() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action.set(action);
+    }
+
+    public String getSeu() {
+        return seu.get();
+    }
+
+    public SimpleStringProperty seuProperty() {
+        return seu;
+    }
+
+    public void setSeu(String seu) {
+        this.seu.set(seu);
+    }
+
+    @Override
+    public String toString() {
+        return "NonconformityData{" +
+                "title=" + title +
+                ", creator=" + creator +
+                ", nr=" + nr +
+                ", description=" + description +
+                ", cause=" + cause +
+                ", immediateMeasures=" + immediateMeasures +
+                ", correctiveActions=" + correctiveActions +
+                ", responsiblePerson=" + responsiblePerson +
+                ", checkListData=" + checkListData +
+                ", createDate=" + createDate +
+                ", deadLine=" + deadLine +
+                ", doneDate=" + doneDate +
+                ", deleted=" + deleted +
+                ", attachment=" + attachment +
+                ", medium=" + medium +
+                ", fieldTags=" + fieldTags +
+                ", action=" + action +
+                ", seu=" + seu +
+                ", valueChanged=" + valueChanged +
+                '}';
     }
 }

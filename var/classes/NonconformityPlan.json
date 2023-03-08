@@ -19,6 +19,22 @@
       "jevisClass": "NonconformityPlan"
     },
     {
+      "name": "Custom Fields",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "NonconformityPlan"
+    },
+    {
+      "name": "Custom SEU",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "NonconformityPlan"
+    },
+    {
       "name": "prefix",
       "primitiveType": 0,
       "guiposition": 1,

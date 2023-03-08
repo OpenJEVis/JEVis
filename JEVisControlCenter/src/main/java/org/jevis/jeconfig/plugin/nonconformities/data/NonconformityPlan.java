@@ -11,11 +11,13 @@ import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
 import org.jevis.jeconfig.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
+import sun.nio.cs.ext.IBM833;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
@@ -28,27 +30,45 @@ public class NonconformityPlan {
 
     protected static final Logger logger = LogManager.getLogger(NonconformityPlan.class);
     private JEVisObject object;
-    private SimpleStringProperty prefix = new SimpleStringProperty();
-    private ObservableList<String> mediumTags;
+    protected SimpleStringProperty prefix = new SimpleStringProperty();
+    protected StringProperty name = new SimpleStringProperty("");
+    protected ObservableList<String> mediumTags;
     private ObservableList<JEVisObject> enpis;
-    private StringProperty name = new SimpleStringProperty("");
-    private ObservableList<NonconformityData> nonconformityList = FXCollections.observableArrayList();
+    protected ObservableList<NonconformityData> nonconformityList = FXCollections.observableArrayList();
+    protected ObservableList<String> fieldsTags;
 
+    protected ObservableList<String> stausTags = FXCollections.observableArrayList(OPEN,CLOSE);
+
+    protected ObservableList<String> significantEnergyUseTags;
+    private String initCustomMedium = "";
+    protected String initNrPrefix = "";
+
+    private String initCustomFields = "";
+    private String initCustomSEU = "";
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
 
 
-    private String initCustomMedium = "";
 
     private String ATTRIBUTE_CMEDIUM = "Custom Medium";
     private String ATTRIBUTE_EnPI = "EnPI";
 
     private String ATTRIBUTE_PREFIX = "prefix";
-    private String initNrPrefix = "";
+
+    private String ATTRIBUTE_CFIELD = "Custom Fields";
+    private String ATTRIBUTE_SEU = "Custom SEU";
+
+
+
+    public static String OPEN = I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus.open");
+    public static String CLOSE = I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus.completed");
+
+
 
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
     public NonconformityPlan(JEVisObject obj) {
+
         this.object = obj;
 
         name.set(obj.getName());
@@ -77,6 +97,37 @@ public class NonconformityPlan {
                 initCustomMedium = sample.getValueAsString();
                 for (String s : sample.getValueAsString().split(";")) {
                     mediumTags.add(s);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+
+        fieldsTags = FXCollections.observableArrayList();
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CFIELD);
+            JEVisSample sample = attribute.getLatestSample();
+            if (sample != null && !sample.getValueAsString().isEmpty()) {
+                initCustomFields = sample.getValueAsString();
+                for (String s : sample.getValueAsString().split(";")) {
+                    fieldsTags.add(s);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        significantEnergyUseTags = FXCollections.observableArrayList();
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_SEU);
+            JEVisSample sample = attribute.getLatestSample();
+            if (sample != null && !sample.getValueAsString().isEmpty()) {
+                initCustomSEU = sample.getValueAsString();
+                for (String s : sample.getValueAsString().split(";")) {
+                    significantEnergyUseTags.add(s);
                 }
             }
 
@@ -222,6 +273,25 @@ public class NonconformityPlan {
             }
         }
 
+        if (!initCustomSEU.equals(listToString(significantEnergyUseTags))) {
+            try {
+                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_SEU);
+                JEVisSample sample = attribute.buildSample(now, listToString(significantEnergyUseTags));
+                sample.commit();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
+        if (!initCustomFields.equals(listToString(fieldsTags))) {
+            try {
+                JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CFIELD);
+                JEVisSample sample = attribute.buildSample(now, listToString(fieldsTags));
+                sample.commit();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
+
 
     }
 
@@ -308,5 +378,43 @@ public class NonconformityPlan {
 
     public void setNonconformityList(ObservableList<NonconformityData> nonconformityList) {
         this.nonconformityList = nonconformityList;
+    }
+
+    public ObservableList<String> getFieldsTags() {
+        return fieldsTags;
+    }
+
+    public void setFieldsTags(ObservableList<String> fieldsTags) {
+        this.fieldsTags = fieldsTags;
+    }
+
+    public ObservableList<String> getSignificantEnergyUseTags() {
+
+        return significantEnergyUseTags;
+    }
+
+    public void setSignificantEnergyUseTags(ObservableList<String> significantEnergyUseTags) {
+        this.significantEnergyUseTags = significantEnergyUseTags;
+    }
+
+    public ObservableList<String> getStausTags() {
+        return stausTags;
+    }
+
+    public void setStausTags(ObservableList<String> stausTags) {
+        this.stausTags = stausTags;
+    }
+
+    @Override
+    public String toString() {
+        return "NonconformityPlan{" +
+                "prefix=" + prefix +
+                ", mediumTags=" + mediumTags +
+                ", name=" + name +
+                ", nonconformityList=" + nonconformityList +
+                ", fieldsTags=" + fieldsTags +
+                ", stausTags=" + stausTags +
+                ", significantEnergyUseTags=" + significantEnergyUseTags +
+                '}';
     }
 }

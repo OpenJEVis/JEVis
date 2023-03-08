@@ -47,8 +47,14 @@ public class NonconformityPlanTab extends Tab {
         Label lSuche = new Label("Suche");
         JFXTextField fsearch = new JFXTextField();
         fsearch.setPromptText("Suche nach...");
+        System.out.println("Plan");
+        System.out.println(plan);
+        System.out.println(plan.getSignificantEnergyUseTags());
 
-        org.jevis.jeconfig.plugin.action.ui.TagButton mediumButton = new org.jevis.jeconfig.plugin.action.ui.TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), plan.getMediumTags());
+        TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), plan.getMediumTags(), plan.getMediumTags());
+        TagButton fieldButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.field"), plan.getFieldsTags(), plan.getFieldsTags());
+        TagButton stausButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus"),plan.getStausTags(),plan.getStausTags());
+        TagButton seuButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.seu"),plan.getSignificantEnergyUseTags(),plan.getSignificantEnergyUseTags());
 
         ComboBox<String> datumBox = new ComboBox<>();
         datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
@@ -83,9 +89,12 @@ public class NonconformityPlanTab extends Tab {
         GridPane.setRowSpan(vSep2, 2);
         gridPane.addColumn(0, lSuche, fsearch);
         gridPane.addColumn(1, vSep1);
-        gridPane.addColumn(2, new Region(), mediumButton);
-        gridPane.addColumn(3, vSep2);
-        gridPane.addColumn(4, new Label("Zeitbereich"), dateSelector);
+        gridPane.addColumn(2, new Label("Filter"), stausButton);
+        gridPane.addColumn(3, new Region(), mediumButton);
+        gridPane.addColumn(4, new Region(), fieldButton);
+        gridPane.addColumn(5, new Region(), seuButton);
+        gridPane.addColumn(6, vSep2);
+        gridPane.addColumn(7, new Label("Zeitbereich"), dateSelector);
 
 
         mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
@@ -98,8 +107,48 @@ public class NonconformityPlanTab extends Tab {
                 }
             }
         });
+
+
+        stausButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                System.out.println("List Changed: " + c);
+                while (c.next()) {
+                    nonconformityPlanTable.setStaus((ObservableList<String>) c.getList());
+                    nonconformityPlanTable.filter();
+                }
+            }
+        });
+        fieldButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                System.out.println("List Changed: " + c);
+                while (c.next()) {
+                    nonconformityPlanTable.setFields((ObservableList<String>) c.getList());
+                    nonconformityPlanTable.filter();
+                }
+            }
+        });
+
+        seuButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> change) {
+                nonconformityPlanTable.setSeu((ObservableList<String>) change.getList());
+                nonconformityPlanTable.filter();
+            }
+        });
+
+
+        //nonconformityPlanTable.setStaus(stausButton.getSelectedTags());
+        nonconformityPlanTable.setSeu(seuButton.getSelectedTags());
         nonconformityPlanTable.setMedium(mediumButton.getSelectedTags());
+        nonconformityPlanTable.setFields(fieldButton.getSelectedTags());
+        nonconformityPlanTable.setStaus(stausButton.getSelectedTags());
         nonconformityPlanTable.filter();
+
+
+
+
 
 
         //HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);

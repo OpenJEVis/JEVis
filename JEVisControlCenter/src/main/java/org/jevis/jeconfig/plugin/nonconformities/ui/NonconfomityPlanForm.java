@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.jfoenix.controls.JFXTextField;
+import javafx.collections.ListChangeListener;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -22,6 +23,8 @@ public class NonconfomityPlanForm extends Alert {
 
 
     Label mediumLabel = new Label("Medien");
+    Label seuLabel = new Label("SEU");
+    Label fieldLabel = new Label("Field");
 
 
     Label numberPrefix = new Label("Nr. Prefix");
@@ -32,6 +35,8 @@ public class NonconfomityPlanForm extends Alert {
 
 
     ListView<String> mediumListView = new ListView<>();
+    ListView<String> seuListView = new ListView<>();
+    ListView<String> fieldListView = new ListView<>();
 
 
     private NonconformityPlan nonconformityPlan;
@@ -55,6 +60,8 @@ public class NonconfomityPlanForm extends Alert {
 
 
         GridPane mediumPane = buildCustomList(mediumListView);
+        GridPane fieldPane = buildCustomList(fieldListView);
+        GridPane seuPane = buildCustomList(seuListView);
 
 
         GridPane gridPane = new GridPane();
@@ -68,8 +75,14 @@ public class NonconfomityPlanForm extends Alert {
         gridPane.add(f_numberPrefix, 1, 1);
         gridPane.add(new Region(), 0, 2);
 
-        gridPane.add(mediumLabel, 0, 3, 1, 1);
-        gridPane.add(mediumPane, 1, 3, 1, 2);
+        gridPane.add(mediumLabel, 3, 0, 2, 1);
+        gridPane.add(mediumPane, 3, 1, 2, 2);
+
+        gridPane.add(fieldLabel, 0, 3, 2, 1);
+        gridPane.add(fieldPane, 0, 4, 2, 1);
+
+        gridPane.add(seuLabel, 3, 3, 2, 1);
+        gridPane.add(seuPane, 3, 4, 2, 1);
 
         stackPane.getChildren().add(gridPane);
         getDialogPane().setContent(stackPane);
@@ -83,7 +96,11 @@ public class NonconfomityPlanForm extends Alert {
         nameField.textProperty().bindBidirectional(nonconformityPlan.getName());
         f_numberPrefix.textProperty().bindBidirectional(nonconformityPlan.prefixProperty());
 
+
         mediumListView.setItems(nonconformityPlan.getMediumTags());
+        fieldListView.setItems(nonconformityPlan.getFieldsTags());
+        seuListView.setItems(nonconformityPlan.getSignificantEnergyUseTags());
+
 
     }
 

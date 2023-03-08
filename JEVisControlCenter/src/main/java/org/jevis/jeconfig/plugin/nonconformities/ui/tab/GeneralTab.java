@@ -3,12 +3,14 @@ package org.jevis.jeconfig.plugin.nonconformities.ui.tab;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.controlsfx.control.CheckComboBox;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.joda.time.*;
@@ -22,12 +24,14 @@ public class GeneralTab extends Tab {
     private final JFXDatePicker f_createDate = new JFXDatePicker();
 
     private JFXComboBox<String> f_mediaTags;
+    private JFXComboBox<String> f_SEU;
 
     private TextArea f_Description = new TextArea();
     private TextArea f_Cause = new TextArea();
     private JFXDatePicker f_CreateDate = new JFXDatePicker();
-    private JFXTextField f_ActionNr = new JFXTextField();
+    private JFXTextField f_Nr = new JFXTextField();
     private JFXTextField f_Title = new JFXTextField();
+    private JFXTextField f_action = new JFXTextField();
     private JFXTextField f_Creator = new JFXTextField();
 
     private JFXTextField f_Attachment = new JFXTextField();
@@ -38,8 +42,11 @@ public class GeneralTab extends Tab {
 
     private TextArea f_CorrectiveActions = new TextArea();
 
+    private CheckComboBox<String> f_fieldTags;
+
     private Label l_Description = new Label();
-    private Label l_ActionNr = new Label();
+    private Label l_SEU = new Label();
+    private Label l_Nr = new Label();
     private Label l_Responsible = new Label();
     private Label l_NoteBewertet = new Label();
     private Label l_Attachment = new Label();
@@ -54,6 +61,10 @@ public class GeneralTab extends Tab {
     private Label l_CreateDate = new Label();
     private Label l_Medium = new Label();
     private Label l_mediaTags = new Label();
+
+    private Label l_fieldTags = new Label();
+
+    private Label l_action = new Label();
 
     public GeneralTab(String s) {
         super(s);
@@ -88,39 +99,46 @@ public class GeneralTab extends Tab {
 
 
 
-        add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_ActionNr);
+        add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_Nr);
         add(gridPane, 1, 2, 1, 1, Priority.NEVER, l_Responsible);
         add(gridPane,1 , 3, 1, 1, Priority.NEVER, l_plannedDate);
         add(gridPane,1,4,1,1,Priority.NEVER,l_CreateDate);
+        add(gridPane,1,5,1,1,Priority.NEVER,l_action);
 
 
-        add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_ActionNr);
+        add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_Nr);
         add(gridPane, 2, 2, 1, 1, Priority.SOMETIMES, f_Responsible);
         add(gridPane, 2, 3, 1, 1, Priority.SOMETIMES, f_deadlineDate);
         add(gridPane, 2, 4, 1, 1, Priority.SOMETIMES, f_createDate);
+        add(gridPane, 2, 5, 1, 1, Priority.SOMETIMES, f_action);
 
 
         add(gridPane, 3, 1, 1, 1, Priority.NEVER, l_Title);
         add(gridPane, 3, 2, 1, 1, Priority.NEVER, l_Creator);
         add(gridPane, 3, 3, 1, 1, Priority.NEVER, l_doneDate);
         add(gridPane, 3, 4, 1, 1, Priority.NEVER, l_mediaTags);
+        add(gridPane, 3, 5, 1, 1, Priority.SOMETIMES, l_fieldTags);
+        add(gridPane, 3, 6, 1, 1, Priority.SOMETIMES, l_SEU);
+
 
         add(gridPane, 4, 1, 1, 1, Priority.NEVER, f_Title);
         add(gridPane, 4, 2, 1, 1, Priority.NEVER, f_Creator);
         add(gridPane, 4, 3, 1, 1, Priority.SOMETIMES, f_doneDate);
         add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, f_mediaTags);
+        add(gridPane, 4, 5, 1, 1, Priority.NEVER, f_fieldTags);
+        add(gridPane, 4, 6, 1, 1, Priority.NEVER, f_SEU);
 
-        add(gridPane, 1, 5, 2, 1, Priority.SOMETIMES, l_Description);
-        add(gridPane, 1, 6, 2, 1, Priority.SOMETIMES, f_Description);
+        add(gridPane, 1, 7, 2, 1, Priority.SOMETIMES, l_Description);
+        add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, f_Description);
 
-        add(gridPane,3,5,2,1,Priority.SOMETIMES,l_Cause);
-        add(gridPane,3,6,2,1,Priority.SOMETIMES,f_Cause);
+        add(gridPane,3,7,2,1,Priority.SOMETIMES,l_Cause);
+        add(gridPane,3,8,2,1,Priority.SOMETIMES,f_Cause);
 
-        add(gridPane, 1, 7, 2, 1, Priority.SOMETIMES, l_ImmediateMeasures);
-        add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, f_ImmediateMeasures);
+        add(gridPane, 1, 9, 2, 1, Priority.SOMETIMES, l_ImmediateMeasures);
+        add(gridPane, 1, 10, 2, 1, Priority.SOMETIMES, f_ImmediateMeasures);
 
-        add(gridPane, 3, 7, 2, 1, Priority.SOMETIMES, l_CorrectiveActions);
-        add(gridPane, 3, 8, 2, 1, Priority.SOMETIMES, f_CorrectiveActions);
+        add(gridPane, 3, 9, 2, 1, Priority.SOMETIMES, l_CorrectiveActions);
+        add(gridPane, 3, 10, 2, 1, Priority.SOMETIMES, f_CorrectiveActions);
 
 
 
@@ -139,14 +157,14 @@ public class GeneralTab extends Tab {
         f_Cause.setMaxHeight(textFieldHeight);
         f_Cause.setPrefWidth(textFieldWeight);
 
-
+        l_Cause.setPadding(new Insets(15, 0, 0, 0));
         l_Description.setPadding(new Insets(15, 0, 0, 0));
         l_NoteBewertet.setPadding(new Insets(15, 0, 0, 0));
         l_NoteEnergiefluss.setPadding(new Insets(15, 0, 0, 0));
 
 
 
-        f_ActionNr.setEditable(false);
+        f_Nr.setEditable(false);
 
 
         //scrollPane.setContent(gridPane);
@@ -173,19 +191,44 @@ public class GeneralTab extends Tab {
         f_ImmediateMeasures.textProperty().bindBidirectional(data.immediateMeasuresProperty());
         f_Creator.textProperty().bindBidirectional(data.creatorProperty());
         f_mediaTags = new JFXComboBox<>(data.getNonconformityPlan().getMediumTags());
+        f_fieldTags = new CheckComboBox<>(data.getNonconformityPlan().getFieldsTags());
+        f_action.textProperty().bindBidirectional(data.actionProperty());
+        f_SEU = new JFXComboBox<>(data.getNonconformityPlan().getSignificantEnergyUseTags());
+        f_SEU.valueProperty().bindBidirectional(data.seuProperty());
+
         f_mediaTags.valueProperty().bindBidirectional(data.mediumProperty());
+
+        data.getFieldTags().forEach(s -> {
+            f_fieldTags.getCheckModel().check(s);
+        });
+        f_fieldTags.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> change) {
+                while (change.next()) {
+                    data.getFieldTags().clear();
+                    data.getFieldTags().addAll(change.getList());
+                }
+            }
+        });
 
 
         f_Title.setMaxWidth(200);
-        f_ActionNr.setMaxWidth(200);
+        f_Nr.setMaxWidth(200);
         f_deadlineDate.setMaxWidth(200);
         f_doneDate.setMaxWidth(200);
         f_createDate.setMaxWidth(200);
         f_Responsible.setMaxWidth(200);
         f_Creator.setMaxWidth(200);
         f_mediaTags.setMaxWidth(200);
+        f_fieldTags.setMaxWidth(200);
+        f_fieldTags.setMinWidth(200);
+        f_action.setMaxWidth(200);
+        f_SEU.minWidth(200);
+        f_SEU.setMaxWidth(200);
 
-
+        l_SEU.setText(fake.getSeu());
+        l_action.setText(fake.actionProperty().getName());
+        l_fieldTags.setText(fake.fieldTagsProperty().getName());
         l_CreateDate.setText(fake.createDateProperty().getName());
         l_doneDate.setText(fake.doneDateProperty().getName());
         l_mediaTags.setText(fake.mediumProperty().getName());
@@ -193,7 +236,7 @@ public class GeneralTab extends Tab {
         l_Title.setText(fake.titleProperty().getName());
         l_Description.setText(fake.descriptionProperty().getName());
         l_Cause.setText(fake.causeProperty().getName());
-        l_ActionNr.setText(fake.nrProperty().getName());
+        l_Nr.setText(fake.nrProperty().getName());
         l_Attachment.setText(fake.attachmentProperty().getName());
         l_Responsible.setText(fake.responsiblePersonProperty().getName());
         l_ImmediateMeasures.setText(fake.immediateMeasuresProperty().getName());
@@ -227,7 +270,16 @@ public class GeneralTab extends Tab {
 
         });
 
-        f_ActionNr.setText(data.getPrefix() + data.nrProperty().get());
+        f_Nr.setText(data.getPrefix() + data.nrProperty().get());
 
+    }
+
+
+    public JFXTextField getF_action() {
+        return f_action;
+    }
+
+    public TextArea getF_ImmediateMeasures() {
+        return f_ImmediateMeasures;
     }
 }

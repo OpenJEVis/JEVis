@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -11,6 +12,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
@@ -50,6 +52,9 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     private boolean showSumRow = false;
     private String containsTextFilter = "";
     private ObservableList<String> medium = FXCollections.observableArrayList();
+    private ObservableList<String> staus = FXCollections.observableArrayList();
+    private ObservableList<String> fields = FXCollections.observableArrayList();
+    private ObservableList<String> seu = FXCollections.observableArrayList();
 
     public NonconformityPlanTable(NonconformityPlan nonconformityPlan, ObservableList<NonconformityData> data) {
         this.data = data;
@@ -80,27 +85,13 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         TableColumn<NonconformityData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsiblePersonProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsiblePersonProperty());
+        responsiblePropertyCol.setMinWidth(150);
 
-        TableColumn<NonconformityData, Integer> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
-        actionNrPropertyCol.setCellValueFactory(param -> param.getValue().nrProperty().asObject());
+        TableColumn<NonconformityData, String> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
+        actionNrPropertyCol.setCellValueFactory(param ->new SimpleStringProperty(param.getValue().getPrefix()+param.getValue().getNr()));
         actionNrPropertyCol.setMinWidth(80);
 
-        actionNrPropertyCol.setCellFactory(param -> {
-            return new TableCell<NonconformityData, Integer>() {
-                @Override
-                protected void updateItem(Integer item, boolean empty) {
-                    super.updateItem(item, empty);
 
-                    if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
-                        NonconformityData actionData = (NonconformityData) getTableRow().getItem();
-                        setText(actionData.getNonconformityPlan().getPrefix() + item);
-
-                    } else {
-                        setText(null);
-                    }
-                }
-            };
-        });
 
 
         TableColumn<NonconformityData, String> desciptionPropertyCol = new TableColumn(fakeForName.descriptionProperty().getName());
@@ -124,7 +115,22 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         mediaTagsPropertyCol.setCellFactory(new StringListColumnCell());
         mediaTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
 
-        TableColumn<NonconformityData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.action.filter.plan"));
+        TableColumn<NonconformityData, String> fieldTagsPropertyCol = new TableColumn(fakeForName.fieldTagsProperty().getName());
+        fieldTagsPropertyCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFieldTags().toString().replaceAll("[^a-zA-Z0-9 ,.;]","")));
+        fieldTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        fieldTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+
+        TableColumn<NonconformityData, String> seuTagsPropertyCol = new TableColumn(fakeForName.seuProperty().getName());
+        seuTagsPropertyCol.setCellValueFactory(param -> param.getValue().seuProperty());
+        seuTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        seuTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+
+
+        TableColumn<NonconformityData, String> actionsCol = new TableColumn(fakeForName.actionProperty().getName());
+        actionsCol.setCellValueFactory(param -> param.getValue().actionProperty());
+        actionsCol.setCellFactory(buildShotTextFactory());
+
+        TableColumn<NonconformityData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.nonconformities.location"));
         planNameCol.setCellValueFactory(param -> param.getValue().getNonconformityPlan().getName());
         planNameCol.setCellFactory(buildShotTextFactory());
 
@@ -135,6 +141,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         TableColumn<NonconformityData, DateTime> createDatePropertyCol = new TableColumn(fakeForName.createDateProperty().getName());
         createDatePropertyCol.setCellValueFactory(param -> param.getValue().createDateProperty());
+        createDatePropertyCol.setMinWidth(120);
         createDatePropertyCol.setCellFactory(buildDateTimeFactory());
 
         TableColumn<NonconformityData, DateTime> plannedDatePropertyCol = new TableColumn(fakeForName.deadLineProperty().getName());
@@ -167,7 +174,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         this.getColumns().addAll(actionNrPropertyCol, titlePropertyCol, fromUserCol,
                 responsiblePropertyCol, desciptionPropertyCol,
-                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol, mediaTagsPropertyCol, planNameCol
+                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol, mediaTagsPropertyCol, planNameCol,actionsCol,fieldTagsPropertyCol,seuTagsPropertyCol
         );
 
 
@@ -286,18 +293,62 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                             }
 
                             AtomicBoolean mediumMatch = new AtomicBoolean(false);
-                            medium.forEach(s -> {
-                                try {
-                                    for (String s1 : notesRow.getMedium().split(";")) {
-                                        if (s1.equalsIgnoreCase(s)) {
-                                            mediumMatch.set(true);
+                            if (!medium.contains("*")) {
+                                medium.forEach(s -> {
+                                    try {
+                                        for (String s1 : notesRow.getMedium().split(";")) {
+                                            if (s1.equalsIgnoreCase(s)) {
+                                                mediumMatch.set(true);
+                                            }
                                         }
+                                    } catch (Exception ex) {
+
+                                    }
+                                });
+                                if (!mediumMatch.get()) return false;
+                            }
+
+
+                            AtomicBoolean fieldMatch = new AtomicBoolean(false);
+
+                            System.out.println(fields);
+
+                            if (!fields.contains("*")) {
+                                fields.forEach(s -> {
+                                    try {
+                                        for (String s1 : notesRow.getFieldTags()) {
+                                            if (s1.equalsIgnoreCase(s)) {
+                                                fieldMatch.set(true);
+                                            }
+                                        }
+                                    } catch (Exception ex) {
+
+                                    }
+                                });
+                                if (!fieldMatch.get()) return false;
+                            }
+
+
+
+
+                            AtomicBoolean statusMatch = new AtomicBoolean(false);
+                            if (!staus.contains("*")) {
+
+                                try {
+                                    if (notesRow.getDoneDate() != null && staus.contains(NonconformityPlan.CLOSE)) {
+                                        statusMatch.set(true);
+                                    } else if (notesRow.getDoneDate() == null && staus.contains(NonconformityPlan.OPEN)) {
+                                        statusMatch.set(true);
                                     }
                                 } catch (Exception ex) {
 
                                 }
-                            });
-                            if (!mediumMatch.get()) return false;
+                                if (!statusMatch.get()) return false;
+                            }
+
+
+
+
 
 
                             AtomicBoolean containString = new AtomicBoolean(false);
@@ -337,5 +388,29 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
     public void setMedium(ObservableList<String> medium) {
         this.medium = medium;
+    }
+
+    public ObservableList<String> getStaus() {
+        return staus;
+    }
+
+    public void setStaus(ObservableList<String> staus) {
+        this.staus = staus;
+    }
+
+    public ObservableList<String> getFields() {
+        return fields;
+    }
+
+    public void setFields(ObservableList<String> fields) {
+        this.fields = fields;
+    }
+
+    public ObservableList<String> getSeu() {
+        return seu;
+    }
+
+    public void setSeu(ObservableList<String> seu) {
+        this.seu = seu;
     }
 }
