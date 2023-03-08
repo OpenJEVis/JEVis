@@ -7,8 +7,6 @@ import com.google.gson.annotations.SerializedName;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
@@ -98,18 +96,18 @@ public class NonconformityData{
     @Expose
     @SerializedName("Medium")
     public final SimpleStringProperty medium = new SimpleStringProperty("Medium Tags",
-            "Medium", "Strom");
+            I18n.getInstance().getString("plugin.nonconformities.medium"), "Strom");
 
     @Expose
     @SerializedName("Field Tags")
     private final SimpleObjectProperty<List<String>> fieldTags = new SimpleObjectProperty<>("Field Tags",
-            "Bereich", new ArrayList<>());
+            I18n.getInstance().getString("plugin.nonconformities.field"), new ArrayList<>());
 
 
     @Expose
     @SerializedName("Action")
     private final SimpleStringProperty action = new SimpleStringProperty("Field Tags",
-            "Bereich", "");
+            I18n.getInstance().getString("plugin.nonconformities.action"), "");
 
 
 
