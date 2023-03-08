@@ -160,24 +160,36 @@ public class NonconformityData{
 
 
             registerChanges(title);
-
             registerChanges(creator);
             registerChanges(nr);
-            registerChanges(createDate);
             registerChanges(description);
             registerChanges(cause);
-            registerChanges(getCheckListData().isProcessInstructionsProperty());
-            registerChanges(getCheckListData().isWorkInstructionsProperty());
-            registerChanges(getCheckListData().isTestInstructionsProperty());
-            registerChanges(getCheckListData().isDesignProperty());
-            registerChanges(getCheckListData().isModelProperty());
-            registerChanges(getCheckListData().isMiscellaneousProperty());
-
             registerChanges(immediateMeasures);
             registerChanges(correctiveActions);
             registerChanges(responsiblePerson);
+            registerChanges(createDate);
             registerChanges(deadLine);
             registerChanges(doneDate);
+            registerChanges(deleted);
+            registerChanges(attachment);
+            registerChanges(medium);
+            registerChanges(fieldTags);
+            registerChanges(action);
+            registerChanges(seu);
+
+
+
+            registerChanges(getCheckListData().isImmediateActionRequiredProperty());
+            registerChanges(getCheckListData().isEffectOnOngoingProcessesProperty());
+            registerChanges(getCheckListData().isRoutinelyAffectedProperty());
+            registerChanges(getCheckListData().isEmployeeTrainedProperty());
+            registerChanges(getCheckListData().isDocumentsChangesNeededProperty());
+            registerChanges(getCheckListData().isProcessInstructionsProperty());
+            registerChanges(getCheckListData().isWorkInstructionsProperty());
+            registerChanges(getCheckListData().isDesignProperty());
+            registerChanges(getCheckListData().isModelProperty());
+            registerChanges(getCheckListData().isMiscellaneousProperty());
+            registerChanges(getCheckListData().isMetricsProperty());
             valueChanged.set(false);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -437,26 +449,6 @@ public class NonconformityData{
     }
 
 
-
-
-    @Override
-    public String toString() {
-        return "NonconformityData{" +
-                "title=" + title+
-                ", fromUser=" + creator +
-                ", nr=" + nr +
-                ", description=" + description +
-                ", cause=" + cause +
-                ", immediateMeasures=" + immediateMeasures +
-                ", correctiveActions=" + correctiveActions +
-                ", responsiblePerson=" + responsiblePerson +
-                ", createDate=" + createDate +
-                ", plannedDate=" + deadLine +
-                ", doneDate=" + doneDate +
-                ", attachment=" + attachment +
-                '}';
-    }
-
     public String getMedium() {
         return medium.get();
     }
@@ -539,5 +531,30 @@ public class NonconformityData{
 
     public void setSeu(String seu) {
         this.seu.set(seu);
+    }
+
+    @Override
+    public String toString() {
+        return "NonconformityData{" +
+                "title=" + title +
+                ", creator=" + creator +
+                ", nr=" + nr +
+                ", description=" + description +
+                ", cause=" + cause +
+                ", immediateMeasures=" + immediateMeasures +
+                ", correctiveActions=" + correctiveActions +
+                ", responsiblePerson=" + responsiblePerson +
+                ", checkListData=" + checkListData +
+                ", createDate=" + createDate +
+                ", deadLine=" + deadLine +
+                ", doneDate=" + doneDate +
+                ", deleted=" + deleted +
+                ", attachment=" + attachment +
+                ", medium=" + medium +
+                ", fieldTags=" + fieldTags +
+                ", action=" + action +
+                ", seu=" + seu +
+                ", valueChanged=" + valueChanged +
+                '}';
     }
 }

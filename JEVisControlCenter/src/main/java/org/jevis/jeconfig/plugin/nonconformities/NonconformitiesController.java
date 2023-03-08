@@ -291,6 +291,7 @@ public class NonconformitiesController {
     private static EventHandler getCloseRequest(NonconformityData data, NonconformityForm nonconformityForm) {
         return dialogEvent -> {
             String errorText = data.checkForRequirements();
+            System.out.println(errorText);
             if (errorText.equals(NonconformityData.IMMEDIATE_ACTION)) {
                 nonconformityForm.showNotification(errorText,Icon.Warning);
                 dialogEvent.consume();

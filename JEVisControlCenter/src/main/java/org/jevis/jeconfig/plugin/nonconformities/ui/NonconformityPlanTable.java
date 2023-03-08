@@ -12,6 +12,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
@@ -114,6 +115,21 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         mediaTagsPropertyCol.setCellFactory(new StringListColumnCell());
         mediaTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
 
+        TableColumn<NonconformityData, String> fieldTagsPropertyCol = new TableColumn(fakeForName.fieldTagsProperty().getName());
+        fieldTagsPropertyCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFieldTags().toString().replaceAll("[^a-zA-Z0-9 ,.;]","")));
+        fieldTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        fieldTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+
+        TableColumn<NonconformityData, String> seuTagsPropertyCol = new TableColumn(fakeForName.seuProperty().getName());
+        seuTagsPropertyCol.setCellValueFactory(param -> param.getValue().seuProperty());
+        seuTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        seuTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+
+
+        TableColumn<NonconformityData, String> actionsCol = new TableColumn(fakeForName.actionProperty().getName());
+        actionsCol.setCellValueFactory(param -> param.getValue().actionProperty());
+        actionsCol.setCellFactory(buildShotTextFactory());
+
         TableColumn<NonconformityData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.nonconformities.location"));
         planNameCol.setCellValueFactory(param -> param.getValue().getNonconformityPlan().getName());
         planNameCol.setCellFactory(buildShotTextFactory());
@@ -158,7 +174,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         this.getColumns().addAll(actionNrPropertyCol, titlePropertyCol, fromUserCol,
                 responsiblePropertyCol, desciptionPropertyCol,
-                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol, mediaTagsPropertyCol, planNameCol
+                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol, mediaTagsPropertyCol, planNameCol,actionsCol,fieldTagsPropertyCol,seuTagsPropertyCol
         );
 
 
@@ -316,7 +332,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
 
                             AtomicBoolean statusMatch = new AtomicBoolean(false);
-                            if (staus.contains("*")) {
+                            if (!staus.contains("*")) {
 
                                 try {
                                     if (notesRow.getDoneDate() != null && staus.contains(NonconformityPlan.CLOSE)) {
