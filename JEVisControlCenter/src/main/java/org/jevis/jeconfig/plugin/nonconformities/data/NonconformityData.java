@@ -109,6 +109,11 @@ public class NonconformityData{
     private final SimpleStringProperty action = new SimpleStringProperty("Field Tags",
             I18n.getInstance().getString("plugin.nonconformities.action"), "");
 
+    @Expose
+    @SerializedName("SEU")
+    private final SimpleStringProperty seu = new SimpleStringProperty("Field Tags",
+            I18n.getInstance().getString("plugin.nonconformities.seu"), "");
+
 
 
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
@@ -522,5 +527,17 @@ public class NonconformityData{
 
     public void setAction(String action) {
         this.action.set(action);
+    }
+
+    public String getSeu() {
+        return seu.get();
+    }
+
+    public SimpleStringProperty seuProperty() {
+        return seu;
+    }
+
+    public void setSeu(String seu) {
+        this.seu.set(seu);
     }
 }

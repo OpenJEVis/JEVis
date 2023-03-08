@@ -24,6 +24,7 @@ public class GeneralTab extends Tab {
     private final JFXDatePicker f_createDate = new JFXDatePicker();
 
     private JFXComboBox<String> f_mediaTags;
+    private JFXComboBox<String> f_SEU;
 
     private TextArea f_Description = new TextArea();
     private TextArea f_Cause = new TextArea();
@@ -44,6 +45,7 @@ public class GeneralTab extends Tab {
     private CheckComboBox<String> f_fieldTags;
 
     private Label l_Description = new Label();
+    private Label l_SEU = new Label();
     private Label l_Nr = new Label();
     private Label l_Responsible = new Label();
     private Label l_NoteBewertet = new Label();
@@ -116,6 +118,7 @@ public class GeneralTab extends Tab {
         add(gridPane, 3, 3, 1, 1, Priority.NEVER, l_doneDate);
         add(gridPane, 3, 4, 1, 1, Priority.NEVER, l_mediaTags);
         add(gridPane, 3, 5, 1, 1, Priority.SOMETIMES, l_fieldTags);
+        add(gridPane, 3, 6, 1, 1, Priority.SOMETIMES, l_SEU);
 
 
         add(gridPane, 4, 1, 1, 1, Priority.NEVER, f_Title);
@@ -123,18 +126,19 @@ public class GeneralTab extends Tab {
         add(gridPane, 4, 3, 1, 1, Priority.SOMETIMES, f_doneDate);
         add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, f_mediaTags);
         add(gridPane, 4, 5, 1, 1, Priority.NEVER, f_fieldTags);
+        add(gridPane, 4, 6, 1, 1, Priority.NEVER, f_SEU);
 
-        add(gridPane, 1, 6, 2, 1, Priority.SOMETIMES, l_Description);
-        add(gridPane, 1, 7, 2, 1, Priority.SOMETIMES, f_Description);
+        add(gridPane, 1, 7, 2, 1, Priority.SOMETIMES, l_Description);
+        add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, f_Description);
 
-        add(gridPane,3,6,2,1,Priority.SOMETIMES,l_Cause);
-        add(gridPane,3,7,2,1,Priority.SOMETIMES,f_Cause);
+        add(gridPane,3,7,2,1,Priority.SOMETIMES,l_Cause);
+        add(gridPane,3,8,2,1,Priority.SOMETIMES,f_Cause);
 
-        add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, l_ImmediateMeasures);
-        add(gridPane, 1, 9, 2, 1, Priority.SOMETIMES, f_ImmediateMeasures);
+        add(gridPane, 1, 9, 2, 1, Priority.SOMETIMES, l_ImmediateMeasures);
+        add(gridPane, 1, 10, 2, 1, Priority.SOMETIMES, f_ImmediateMeasures);
 
-        add(gridPane, 3, 8, 2, 1, Priority.SOMETIMES, l_CorrectiveActions);
-        add(gridPane, 3, 9, 2, 1, Priority.SOMETIMES, f_CorrectiveActions);
+        add(gridPane, 3, 9, 2, 1, Priority.SOMETIMES, l_CorrectiveActions);
+        add(gridPane, 3, 10, 2, 1, Priority.SOMETIMES, f_CorrectiveActions);
 
 
 
@@ -189,6 +193,8 @@ public class GeneralTab extends Tab {
         f_mediaTags = new JFXComboBox<>(data.getNonconformityPlan().getMediumTags());
         f_fieldTags = new CheckComboBox<>(data.getNonconformityPlan().getFieldsTags());
         f_action.textProperty().bindBidirectional(data.actionProperty());
+        f_SEU = new JFXComboBox<>(data.getNonconformityPlan().getSignificantEnergyUseTags());
+        f_SEU.valueProperty().bindBidirectional(data.seuProperty());
 
         f_mediaTags.valueProperty().bindBidirectional(data.mediumProperty());
 
@@ -217,8 +223,10 @@ public class GeneralTab extends Tab {
         f_fieldTags.setMaxWidth(200);
         f_fieldTags.setMinWidth(200);
         f_action.setMaxWidth(200);
+        f_SEU.minWidth(200);
+        f_SEU.setMaxWidth(200);
 
-
+        l_SEU.setText(fake.getSeu());
         l_action.setText(fake.actionProperty().getName());
         l_fieldTags.setText(fake.fieldTagsProperty().getName());
         l_CreateDate.setText(fake.createDateProperty().getName());
