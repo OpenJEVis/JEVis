@@ -276,36 +276,47 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                             }
 
                             AtomicBoolean mediumMatch = new AtomicBoolean(false);
-                            medium.forEach(s -> {
-                                try {
-                                    for (String s1 : notesRow.getMedium().split(";")) {
-                                        if (s1.equalsIgnoreCase(s)) {
-                                            mediumMatch.set(true);
+                            if (!medium.contains("*")) {
+                                medium.forEach(s -> {
+                                    try {
+                                        for (String s1 : notesRow.getMedium().split(";")) {
+                                            if (s1.equalsIgnoreCase(s)) {
+                                                mediumMatch.set(true);
+                                            }
                                         }
-                                    }
-                                } catch (Exception ex) {
+                                    } catch (Exception ex) {
 
-                                }
-                            });
-                            if (!mediumMatch.get()) return false;
+                                    }
+                                });
+                                if (!mediumMatch.get()) return false;
+                            }
+
 
                             AtomicBoolean fieldMatch = new AtomicBoolean(false);
-                            fields.forEach(s -> {
-                                try {
-                                    for (String s1 : notesRow.getFieldTags()) {
-                                        if (s1.equalsIgnoreCase(s)) {
-                                            fieldMatch.set(true);
-                                        }
-                                    }
-                                } catch (Exception ex) {
 
-                                }
-                            });
-                            if (!fieldMatch.get()) return false;
+                            System.out.println(fields);
+
+                            if (!fields.contains("*")) {
+                                fields.forEach(s -> {
+                                    try {
+                                        for (String s1 : notesRow.getFieldTags()) {
+                                            if (s1.equalsIgnoreCase(s)) {
+                                                fieldMatch.set(true);
+                                            }
+                                        }
+                                    } catch (Exception ex) {
+
+                                    }
+                                });
+                                if (!fieldMatch.get()) return false;
+                            }
+
 
 
 
                             AtomicBoolean statusMatch = new AtomicBoolean(false);
+                            if (staus.contains("*")) {
+
                                 try {
                                     if (notesRow.getDoneDate() != null && staus.contains(NonconformityPlan.CLOSE)) {
                                         statusMatch.set(true);
@@ -315,8 +326,9 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                                 } catch (Exception ex) {
 
                                 }
+                                if (!statusMatch.get()) return false;
+                            }
 
-                            if (!statusMatch.get()) return false;
 
 
 
