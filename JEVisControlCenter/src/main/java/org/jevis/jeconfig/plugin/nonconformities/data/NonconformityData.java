@@ -120,6 +120,7 @@ public class NonconformityData{
     private NonconformityPlan nonconformityPlan;
 
     public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.immediatemeasures");
+    public static final String DONE_DATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.donedate");
     public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.ok");
 
     public NonconformityData(JEVisObject obj, NonconformityPlan nonconformityPlan) {
@@ -200,7 +201,13 @@ public class NonconformityData{
     }
 
     public String checkForRequirements() {
-        return getCheckListData().isIsImmediateActionRequired() && !immediateMeasures.get().isEmpty() || !getCheckListData().isIsImmediateActionRequired()? REQUIREMENTS_MET : IMMEDIATE_ACTION;
+        if (getCheckListData().isIsImmediateActionRequired() && immediateMeasures.get().isEmpty()) {
+            return IMMEDIATE_ACTION;
+        } else if (getDoneDate() != null && getAction().isEmpty()) {
+            return DONE_DATE_ACTION;
+        } else {
+            return REQUIREMENTS_MET;
+        }
     }
 
     public void commit() {

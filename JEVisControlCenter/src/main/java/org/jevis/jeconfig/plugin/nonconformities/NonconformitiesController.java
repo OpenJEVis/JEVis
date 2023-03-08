@@ -291,11 +291,14 @@ public class NonconformitiesController {
     private static EventHandler getCloseRequest(NonconformityData data, NonconformityForm nonconformityForm) {
         return dialogEvent -> {
             String errorText = data.checkForRequirements();
-            if (errorText != NonconformityData.REQUIREMENTS_MET) {
+            if (errorText.equals(NonconformityData.IMMEDIATE_ACTION)) {
                 nonconformityForm.showNotification(errorText,Icon.Warning);
                 dialogEvent.consume();
 
-            }else {
+            } else if (errorText.equals(NonconformityData.DONE_DATE_ACTION)) {
+                nonconformityForm.showNotification(errorText,Icon.Warning);
+                dialogEvent.consume();
+            } else {
                 data.commit();
             }
         };

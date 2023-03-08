@@ -265,4 +265,13 @@ public class GeneralTab extends Tab {
         f_Nr.setText(data.getPrefix() + data.nrProperty().get());
 
     }
+
+
+    public JFXTextField getF_action() {
+        return f_action;
+    }
+
+    public TextArea getF_ImmediateMeasures() {
+        return f_ImmediateMeasures;
+    }
 }

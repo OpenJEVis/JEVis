@@ -108,6 +108,15 @@
     -fx-underline: #51aaa5;
 }
 
+.nonconformityOK{
+    -fx-border-color: black ;
+    -fx-border-width: 0 ;
+}
+.nonconformityError{
+    -fx-border-color: red ;
+    -fx-border-width: 2 ;
+}
+
 
 
 /*-------------------------------------------------------------------------------------------------------------
