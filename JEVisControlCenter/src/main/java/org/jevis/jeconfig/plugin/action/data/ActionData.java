@@ -32,6 +32,7 @@ public class ActionData {
 
     private static final Logger logger = LogManager.getLogger(ActionData.class);
     private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    private final StringProperty nrText = new SimpleStringProperty();
 
     @Expose
     @SerializedName("NPV")
@@ -45,6 +46,7 @@ public class ActionData {
     @SerializedName("Nr")
     public final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr",
             I18n.getInstance().getString("plugin.action.nr"), 0);
+    private Gson gson = GsonBuilder.createDefaultBuilder().create();
     @Expose
     @SerializedName("Desciption")
     public final SimpleStringProperty desciption = new SimpleStringProperty("Desciption",
@@ -120,7 +122,7 @@ public class ActionData {
     @SerializedName("Distributor")
     public final SimpleStringProperty distributor = new SimpleStringProperty("Distributor",
             I18n.getInstance().getString("plugin.action.distributor"), "");
-    private Gson gson = GsonBuilder.createDefaultBuilder().create();
+
     @Expose
     @SerializedName("EnpI")
     public final SimpleObjectProperty<ConsumptionData> enpi = new SimpleObjectProperty<>(new ConsumptionData());
@@ -144,15 +146,23 @@ public class ActionData {
     private ActionPlanData actionPlan = null;
     private boolean isNew = false;
 
+
     public ActionData(ActionPlanData actionPlan, JEVisObject obj) {
         this.object = obj;
-        this.actionPlan = actionPlan;
         this.isNew = true;
-        reload();
+        setActionPlan(actionPlan);
+        update();
     }
 
     public ActionData() {
-        reload();
+    }
+
+    public void update() {
+        System.out.println("-ActionData.update: " + this);
+        nr.addListener((observable, oldValue, newValue) -> updateNrText());
+        originalSettings = gson.toJson(this);
+        consumption.get().update();
+        enpi.get().update();
     }
 
     public void setObject(JEVisObject object) {
@@ -165,22 +175,23 @@ public class ActionData {
 
     public void setActionPlan(ActionPlanData actionPlan) {
         this.actionPlan = actionPlan;
+        actionPlan.nrPrefixProperty().addListener((observable, oldValue, newValue) -> updateNrText());
+
+        updateNrText();
     }
 
-    public void reload() {
 
-        //dataNode = JsonNodeFactory.instance.objectNode();
-
-        try {
-            propertyList = new ArrayList<>();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        originalSettings = gson.toJson(this);
-
+    private void updateNrText() {
+        nrText.set(String.format("%s %03d", actionPlan.getNrPrefix(), nrProperty().get()));
     }
 
+    public String getNrText() {
+        return nrText.get();
+    }
+
+    public StringProperty nrTextProperty() {
+        return nrText;
+    }
 
     public JEVisObject getObject() {
         return object;
