@@ -29,6 +29,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.jeconfig.GlobalToolBar;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -664,8 +665,8 @@ public class SCADAPlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("if_dashboard_46791.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.DASHBOARD, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override

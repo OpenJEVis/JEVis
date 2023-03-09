@@ -1,0 +1,19 @@
+{
+  "name": "ISO 50001 Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "ISO 50001 Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "ISO 50001 Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

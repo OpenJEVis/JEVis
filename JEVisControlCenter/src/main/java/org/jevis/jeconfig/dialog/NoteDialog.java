@@ -13,16 +13,19 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.commons.validator.routines.DoubleValidator;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.SelectionTable.ValueFieldTableCellForNotes;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -31,12 +34,14 @@ import java.text.NumberFormat;
 import java.util.Map;
 
 public class NoteDialog extends Dialog<ButtonType> {
-    private final Image imgExpand = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "if_ExpandMore.png"));
+    private final Image imgExpand = ResourceLoader.getImage("if_ExpandMore.png");
     private final Map<String, RowNote> noteMap;
     private final ObservableList<RowNote> observableList = FXCollections.observableArrayList();
+    private final NumberFormat nf;
 
-    public NoteDialog(Map<String, RowNote> map) {
+    public NoteDialog(NumberFormat nf, Map<String, RowNote> map) {
         this.noteMap = map;
+        this.nf = nf;
         init();
     }
 
@@ -45,9 +50,9 @@ public class NoteDialog extends Dialog<ButtonType> {
 
         this.setTitle(I18n.getInstance().getString("graph.dialog.note"));
 
+        boolean areThereXSamples = noteMap.values().stream().anyMatch(rowNote -> rowNote.getXSample() != null);
 
         for (Map.Entry<String, RowNote> entry : noteMap.entrySet()) {
-
             observableList.add(entry.getValue());
         }
 
@@ -62,12 +67,26 @@ public class NoteDialog extends Dialog<ButtonType> {
         });
 
 
-        TableColumn<RowNote, String> columnTimeStamp = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.timestamp"));
-        columnTimeStamp.setSortable(false);
-        columnTimeStamp.setCellValueFactory(param -> {
+        TableColumn<RowNote, String> columnTimeStampY = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.timestamp"));
+        columnTimeStampY.setSortable(false);
+        columnTimeStampY.setCellValueFactory(param -> {
             String s = "";
             try {
-                DateTime timestamp = param.getValue().getSample().getTimestamp();
+                DateTime timestamp = param.getValue().getYSample().getTimestamp();
+                DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+                s = timestamp.toString(dtf);
+            } catch (Exception e) {
+            }
+
+            return new ReadOnlyObjectWrapper<>(s);
+        });
+
+        TableColumn<RowNote, String> columnTimeStampX = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.timestamp") + " X");
+        columnTimeStampX.setSortable(false);
+        columnTimeStampX.setCellValueFactory(param -> {
+            String s = "";
+            try {
+                DateTime timestamp = param.getValue().getXSample().getTimestamp();
                 DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
                 s = timestamp.toString(dtf);
             } catch (Exception e) {
@@ -151,24 +170,21 @@ public class NoteDialog extends Dialog<ButtonType> {
             }
         });
 
-        NumberFormat nf = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-        nf.setMinimumFractionDigits(2);
-        nf.setMaximumFractionDigits(2);
+        TableColumn<RowNote, JEVisSample> columnValueY = new TableColumn<>(I18n.getInstance().getString("alarms.table.captions.currentvalue"));
+        columnValueY.setStyle("-fx-alignment: CENTER;");
+        columnValueY.setSortable(true);
+        columnValueY.setEditable(true);
+        columnValueY.setMinWidth(50);
+        columnValueY.setCellValueFactory(new PropertyValueFactory<>("ySample"));
+        columnValueY.setCellFactory(ValueFieldTableCellForNotes.forTableColumn());
 
-        TableColumn<RowNote, String> columnValue = new TableColumn<>(I18n.getInstance().getString("alarms.table.captions.currentvalue"));
-        columnValue.setSortable(false);
-        columnValue.setEditable(true);
-        columnValue.setMinWidth(50);
-        columnValue.setCellValueFactory(param -> {
-            try {
-                String userValue = nf.format(param.getValue().getSample().getValueAsDouble());
-                return new ReadOnlyObjectWrapper<>(userValue);
-            } catch (Exception e) {
-                return new ReadOnlyObjectWrapper<>("-");
-            }
-        });
-
-        columnValue.setStyle("-fx-alignment: CENTER;");
+        TableColumn<RowNote, JEVisSample> columnValueX = new TableColumn<>(I18n.getInstance().getString("alarms.table.captions.currentvalue") + " X");
+        columnValueX.setStyle("-fx-alignment: CENTER;");
+        columnValueX.setSortable(true);
+        columnValueX.setEditable(true);
+        columnValueX.setMinWidth(50);
+        columnValueX.setCellValueFactory(new PropertyValueFactory<>("xSample"));
+        columnValueX.setCellFactory(ValueFieldTableCellForNotes.forTableColumn());
 
         TableColumn<RowNote, String> columnUserData = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.uservalue"));
         columnUserData.setSortable(false);
@@ -244,7 +260,15 @@ public class NoteDialog extends Dialog<ButtonType> {
         });
 
         TableView<RowNote> tv = new TableView<>();
-        tv.getColumns().setAll(columnName, columnTimeStamp, columnNote, columnUserNote, columnValue, columnUserData);
+        if (!areThereXSamples) {
+            tv.getColumns().setAll(columnName, columnTimeStampY, columnNote, columnUserNote, columnValueY, columnUserData);
+        } else {
+            this.setTitle(I18n.getInstance().getString("plugin.graph.charttype.bubble.name"));
+            columnTimeStampY.setText(columnTimeStampY.getText() + " Y");
+            columnValueY.setText(columnValueY.getText() + " Y");
+
+            tv.getColumns().setAll(columnTimeStampY, columnValueY, columnTimeStampX, columnValueX);
+        }
         tv.setItems(observableList);
 
         hbox.getChildren().add(tv);

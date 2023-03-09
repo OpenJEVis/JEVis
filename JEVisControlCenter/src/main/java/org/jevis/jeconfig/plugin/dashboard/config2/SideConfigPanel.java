@@ -4,75 +4,102 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.dashboard.controls.FontPostureBox;
+import org.jevis.jeconfig.plugin.dashboard.controls.FontWeightBox;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
 public class SideConfigPanel extends GridPane {
 
 
     private static final Logger logger = LogManager.getLogger(SideConfigPanel.class);
-    private DashboardControl control;
+    private final DashboardControl control;
     private boolean isUpdating = false;
-    private double iconSize = 16;
+    private final double iconSize = 16;
 
-    private JFXComboBox<Integer> layerComboBox = new JFXComboBox();
-    private ColorPickerAdv bgColorPicker = new ColorPickerAdv();
-    private ColorPickerAdv fColorPicker = new ColorPickerAdv();
-    private JFXCheckBox showShadowField = new JFXCheckBox();
-    private JFXCheckBox showValueField = new JFXCheckBox();
-    private Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
-    private Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
-    private Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
-    private Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
-    private Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
-    private Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
-    private Label precisionLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.precision"));
-    private Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
-    private Label widthLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.width"));
-    private Label heightLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.height"));
-    private Label moveLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.move"));
-    private Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
-    private Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
-    private Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
-    private JFXTextField widthText = new JFXTextField();
-    private JFXTextField heightText = new JFXTextField();
-    private JFXTextField xPosText = new JFXTextField();
-    private JFXTextField yPosText = new JFXTextField();
-    private JFXButton leftButton = new JFXButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
-    private JFXButton rightButton = new JFXButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
-    private JFXButton downButton = new JFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
-    private JFXButton upButton = new JFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
-    private JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
-    private JFXButton equalizeDataModelButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
-    private TextField pixels = new TextField("25.0");
-    private JFXComboBox<Pos> alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+    private final JFXComboBox<Integer> layerComboBox = new JFXComboBox<>();
+    private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
+    private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
+    private final JFXCheckBox showShadowField = new JFXCheckBox();
+    private final JFXCheckBox showValueField = new JFXCheckBox();
+    private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
+    private final FontWeightBox fontWeightBox = new FontWeightBox();
+    private final FontPostureBox fontPostureBox = new FontPostureBox();
+    private final JFXCheckBox fontUnderlined = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fontunderlined"));
+    private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
+    private final Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
+    private final Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
+    private final Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
+    private final Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
+    private final Label fontWeightLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontweight"));
+    private final Label fontPostureLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontposture"));
+    private final Label precisionLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.precision"));
+    private final Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
+    private final Label widthLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.width"));
+    private final Label heightLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.height"));
+    private final Label moveLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.move"));
+    private final Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
+    private final Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
+    private final Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
+    private final JFXTextField widthText = new JFXTextField();
+    private final JFXTextField heightText = new JFXTextField();
+    private final JFXTextField xPosText = new JFXTextField();
+    private final JFXTextField yPosText = new JFXTextField();
+    //-----------
+    //ObservableList<String> dataItems = FXCollections.observableArrayList("One", "Two", "Three", "Four", "Five", "Six","Seven", "Eight", "Nine", "Ten");
+    JFXComboBox<JEVisObject> objectSelectionBox = new JFXComboBox<>();
+    private final JFXButton leftButton = new JFXButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
+    private final JFXButton rightButton = new JFXButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
+    private final JFXButton downButton = new JFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
+    private final JFXButton upButton = new JFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
+    private final JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
+    private final JFXButton equalizeDataModelButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
+    ListView<JEVisObject> selectedObjectsListView = new ListView();
+    private final JFXComboBox<Pos> alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+    ObservableList<JEVisObject> dataItems = FXCollections.observableArrayList();
+    FilteredList<JEVisObject> filteredItems = new FilteredList<>(dataItems, p -> true);
+    FlowPane dataEditor = new FlowPane();
+    private final JFXTextField titleText = new JFXTextField();
+    private final TextField pixels = new TextField("25");
+    private Widget selectedWidget = null;
+    private final GridPane dataPointConfigPane = new GridPane();
 
 
     public SideConfigPanel(DashboardControl control) {
         super();
         this.control = control;
-        setStyle("-fx-background-color: fcfcfc;");
+        setStyle("-fx-background-color: ffffff;"); //fcfcfc
 
 
         this.setPadding(new Insets(12, 12, 12, 12));
         VBox accordionBox = new VBox();
-        accordionBox.getChildren().addAll(buildMoveTab(), buildLayer(), buildColors());
+        accordionBox.setStyle("-fx-background-color: ffffff;");
+        accordionBox.getChildren().addAll(buildName(), buildMoveTab(), buildLayer(), buildColors(), buildDataSourceTab());
 
-        this.add(switchSide, 0, 0);
+        //this.add(switchSide, 0, 0);
         this.add(accordionBox, 0, 1);
 
         GridPane.setHalignment(switchSide, HPos.CENTER);
@@ -88,28 +115,93 @@ public class SideConfigPanel extends GridPane {
 
         });
 
+        /* add experiment
+        JEVisDataSource ds = control.getDataSource();
+
+        try {
+            JEVisClass dataClass = ds.getJEVisClass(EnvidatecClasses.Data.name);
+            List<JEVisObject> datas = ds.getObjects(dataClass, false);
+            datas.forEach(jeVisObject -> {
+                try {
+                    dataItems.add(jeVisObject);
+                    // dataItems.add(objectRelations.getObjectPath(jeVisObject) +  + jeVisObject.getName());
+                } catch (Exception ex) {
+                }
+            });
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+**/
     }
 
 
     public void setLastSelectedWidget(Widget widget) {
-        System.out.println("-------------------setLastSelectedWidget: " + widget.getConfig().getUuid());
-        System.out.println("Layer in config: " + widget.getConfig().getLayer());
         isUpdating = true;
+        this.selectedWidget = widget;
 
-        layerComboBox.setValue(widget.getConfig().getLayer());
-        fColorPicker.setValue(widget.getConfig().getFontColor());
-        bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
-        showShadowField.setSelected(widget.getConfig().getShowShadow());
-        showValueField.setSelected(widget.getConfig().getShowValue());
-        fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
-        widthText.setText(widget.getConfig().getSize().getWidth() + "");
-        xPosText.setText(widget.getConfig().getxPosition() + "");
-        yPosText.setText(widget.getConfig().getyPosition() + "");
-        heightText.setText(widget.getConfig().getSize().getHeight() + "");
-        pixels.setText(control.getActiveDashboard().getxGridInterval() + "");
-        alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
+        if (widget != null) {
+            this.setDisable(false);
+            layerComboBox.setValue(widget.getConfig().getLayer());
+            fColorPicker.setValue(widget.getConfig().getFontColor());
+            bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
+            showShadowField.setSelected(widget.getConfig().getShowShadow());
+            showValueField.setSelected(widget.getConfig().getShowValue());
+            fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
+            fontWeightBox.getSelectionModel().select(widget.getConfig().getFontWeight());
+            fontPostureBox.getSelectionModel().select(widget.getConfig().getFontPosture());
+            fontUnderlined.setSelected(widget.getConfig().getFontUnderlined());
+            widthText.setText(widget.getConfig().getSize().getWidth() + "");
+            xPosText.setText(widget.getConfig().getxPosition() + "");
+            yPosText.setText(widget.getConfig().getyPosition() + "");
+            heightText.setText(widget.getConfig().getSize().getHeight() + "");
+            pixels.setText(control.getActiveDashboard().getxGridInterval().intValue() + "");
+            alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
+            titleText.setText(widget.getConfig().getTitle());
 
-        isUpdating = false;
+            selectedObjectsListView.getItems().clear();
+            try {
+                DataModelDataHandler sampleHandler = new DataModelDataHandler(
+                        this.control.getDataSource(), this.control,
+                        widget.getConfig().getConfigNode(WidgetConfig.DATA_HANDLER_NODE), widget.getId());
+
+                sampleHandler.getDataModel().forEach(chartDataRow -> {
+
+                    Platform.runLater(() -> {
+                        try {
+                            selectedObjectsListView.getItems().add(chartDataRow.getObject());
+                        } catch (Exception ex) {
+
+                        }
+                    });
+
+                });
+            } catch (Exception ex) {
+
+            }
+        } else {
+            this.setDisable(true);
+            //layerComboBox.setValue();
+            //fColorPicker.setValue(widget.getConfig().getFontColor());
+            //bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
+            //showShadowField.setSelected(widget.getConfig().getShowShadow());
+            //showValueField.setSelected(widget.getConfig().getShowValue());
+            //fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
+            widthText.setText("");
+            xPosText.setText("");
+            yPosText.setText("");
+            heightText.setText("");
+            pixels.setText(control.getActiveDashboard().getxGridInterval().intValue() + "");
+            //alignmentBox.getSelectionModel().select();
+            titleText.setText("");
+
+            selectedObjectsListView.getItems().clear();
+        }
+
+        isUpdating = widget == null;//Workaround to stop all events from happen
+
+
     }
 
 
@@ -143,6 +235,33 @@ public class SideConfigPanel extends GridPane {
         return titledPane;
     }
 
+    private TitledPane buildName() {
+        TitledPane titledPane = new TitledPane();
+        titledPane.setText(I18n.getInstance().getString("plugin.dashboard.edit.general.general"));
+        titledPane.setExpanded(true);
+
+        GridPane gp = new GridPane();
+        //gp.setStyle("-fx-background-color: orange;");
+        gp.setPadding(new Insets(8, 8, 8, 8));
+        gp.setHgap(8);
+        gp.setVgap(8);
+
+        Label label = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.name"));
+
+        titleText.setOnAction(event -> {
+            if (!isUpdating) {
+                control.setWidgetTitle(titleText.getText());
+            }
+        });
+
+        gp.add(label, 0, 0);
+        gp.add(titleText, 1, 0);
+        GridPane.setHgrow(titleText, Priority.ALWAYS);
+        titledPane.setContent(gp);
+
+        return titledPane;
+    }
+
     private TitledPane buildColors() {
         TitledPane titledPane = new TitledPane();
         titledPane.setText(I18n.getInstance().getString("plugin.dashboard.edit.general.coloreffect"));
@@ -155,22 +274,45 @@ public class SideConfigPanel extends GridPane {
 
         fontSizeSpinner.setMaxWidth(80);
         precisionSpinner.setMaxWidth(80);
+        int row = 0;
+        gp.add(fColorLabel, 0, row);
+        gp.add(fColorPicker, 1, row);
+        row++;
 
-        gp.add(fColorLabel, 0, 0);
-        gp.add(fColorPicker, 1, 0);
-        gp.add(bgColorLabel, 0, 1);
-        gp.add(bgColorPicker, 1, 1);
-        gp.add(shadowLabel, 0, 2);
-        gp.add(showShadowField, 1, 2);
-        gp.add(fontSizeLabel, 0, 3);
-        gp.add(fontSizeSpinner, 1, 3);
-        gp.add(precisionLabel, 0, 4);
-        gp.add(precisionSpinner, 1, 4);
-        gp.add(showValueLabel, 0, 5);
-        gp.add(showValueField, 1, 5);
-        gp.add(alignmentLabel, 0, 6);
-        gp.add(alignmentBox, 1, 6);
-        gp.add(equalizeDataModelButton, 0, 7, 2, 1);
+        gp.add(bgColorLabel, 0, row);
+        gp.add(bgColorPicker, 1, row);
+        row++;
+
+        gp.add(shadowLabel, 0, row);
+        gp.add(showShadowField, 1, row);
+        row++;
+
+        gp.add(fontSizeLabel, 0, row);
+        gp.add(fontSizeSpinner, 1, row);
+        row++;
+
+        gp.add(fontWeightLabel, 0, row);
+        gp.add(fontWeightBox, 1, row);
+        row++;
+
+        gp.add(fontPostureLabel, 0, row);
+        gp.add(fontPostureBox, 1, row);
+        row++;
+
+        gp.add(fontUnderlined, 1, row);
+        row++;
+
+        gp.add(precisionLabel, 0, row);
+        gp.add(precisionSpinner, 1, row);
+        row++;
+
+        gp.add(showValueLabel, 0, row);
+        gp.add(showValueField, 1, row);
+        row++;
+
+        gp.add(alignmentLabel, 0, row);
+        gp.add(alignmentBox, 1, row);
+        //gp.add(equalizeDataModelButton, 0, 7, 2, 1);
 
         titledPane.setContent(gp);
 
@@ -192,6 +334,24 @@ public class SideConfigPanel extends GridPane {
             }
         });
 
+        fontWeightBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!isUpdating) {
+                control.fontWeightSelected(newValue);
+            }
+        });
+
+        fontPostureBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!isUpdating) {
+                control.fontPostureSelected(newValue);
+            }
+        });
+
+        fontUnderlined.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!isUpdating) {
+                control.fontUnderlinedSelected(newValue);
+            }
+        });
+
         precisionSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!isUpdating) {
                 control.decimalsSelected(newValue.intValue());
@@ -210,9 +370,6 @@ public class SideConfigPanel extends GridPane {
             }
         });
 
-        equalizeDataModelButton.setOnAction(event -> {
-            control.equalizeDataModel();
-        });
 
         alignmentBox.setPrefWidth(100);
         alignmentBox.setMinWidth(100);
@@ -382,5 +539,218 @@ public class SideConfigPanel extends GridPane {
         return titledPane;
     }
 
+
+    private TitledPane buildDataSourceTab() {
+        TitledPane titledPane = new TitledPane();
+        titledPane.setText(I18n.getInstance().getString("plugin.dashboard.edit.general.tab.data"));
+        titledPane.setExpanded(true);
+
+        GridPane gp = new GridPane();
+        gp.setPadding(new Insets(8, 8, 8, 8));
+        gp.setHgap(8);
+        gp.setVgap(8);
+
+        widthText.setMaxWidth(80);
+        heightText.setMaxWidth(80);
+        xPosText.setMaxWidth(80);
+        yPosText.setMaxWidth(80);
+        pixels.setMaxWidth(40);
+
+        JEVisDataSource ds = control.getDataSource();
+        ObjectRelations objectRelations = new ObjectRelations(ds);
+        JFXTextField filterTextField = new JFXTextField();
+        filterTextField.setPromptText("Type to filter...");
+        filterTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            //System.out.println("newValue: " + newValue);
+            if (newValue.isEmpty()) {
+                // System.out.println("Dont filter");
+                filteredItems.setPredicate(item -> {
+                    return true;
+                });
+            } else {
+                // System.out.println("Filter");
+                filteredItems.setPredicate(item -> {
+                    //TODo split space and make it and
+                    String fullName = (objectRelations.getObjectPath(item) + objectRelations.getRelativePath(item) + item.getName()).toUpperCase();
+                    boolean allMatch = true;
+                    for (String s : newValue.toUpperCase().split(" ")) {
+                        if (!fullName.contains(s.toUpperCase())) {
+                            allMatch = false;
+                        }
+                        //System.out.println("All match: " + allMatch);
+                        return allMatch;
+                    }
+                    return false;
+                    /*
+                    if (fullName.contains(newValue.toUpperCase())) {
+                        return true;
+                    } else {
+                        return false;
+                    }*/
+
+                });
+            }
+
+
+        });
+
+        objectSelectionBox.setEditable(false);
+        //objectSelectionBox.setPromptText("Type to filter...");
+
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(javafx.scene.control.ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject jeVisObject, boolean empty) {
+                        super.updateItem(jeVisObject, empty);
+                        //System.out.println("selListBox: " + jeVisObject + "    empty: " + empty);
+                        if (empty || jeVisObject == null) {
+                            setText(null);
+                        } else {
+                            setText(objectRelations.getObjectPath(jeVisObject) + objectRelations.getRelativePath(jeVisObject) + jeVisObject.getName());
+                            setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
+                            //setText(jeVisObject.getName());
+                            try {
+                                setTooltip(new Tooltip(
+                                        objectRelations.getObjectPath(jeVisObject)
+                                                + objectRelations.getRelativePath(jeVisObject)
+                                                + jeVisObject.getName()));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                };
+            }
+        };
+        //objectSelectionBox.
+
+        objectSelectionBox.setCellFactory(cellFactory);
+        objectSelectionBox.setButtonCell(cellFactory.call(null));
+        objectSelectionBox.setItems(filteredItems);
+
+
+        objectSelectionBox.setMaxWidth(250);
+        selectedObjectsListView.setPrefHeight(100);
+        selectedObjectsListView.setCellFactory(new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject item, boolean empty) {
+                        super.updateItem(item, empty);
+                        //System.out.println("Update Item: " + item + "   is empty: " + empty);
+                        if (item != null) {
+                            setText(item.getName());
+                            try {
+                                setTooltip(new Tooltip(objectRelations.getObjectPath(item) + objectRelations.getRelativePath(item) + item.getName()));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            setText(null);
+                        }
+
+                    }
+                };
+            }
+        });
+
+        Button addButton = new Button("add");
+        addButton.setOnAction(event -> {
+            Platform.runLater(() -> {
+                Object test = objectSelectionBox.getSelectionModel().getSelectedItem();
+                logger.debug("test.class: " + test.getClass());
+                logger.debug("intencof: " + (objectSelectionBox.getSelectionModel().getSelectedItem() instanceof JEVisObject));
+                if (!objectSelectionBox.getSelectionModel().isEmpty() && objectSelectionBox.getSelectionModel().getSelectedItem() instanceof JEVisObject) {
+                    logger.debug("add: " + objectSelectionBox.getSelectionModel().getSelectedItem());
+                    selectedObjectsListView.getItems().add(objectSelectionBox.getSelectionModel().getSelectedItem());
+                    logger.debug("Done");
+                } else {
+                    logger.debug("wrong add: " + objectSelectionBox.getSelectionModel().getSelectedItem());
+                }
+            });
+
+        });
+
+        selectedObjectsListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            logger.debug("selectedObjectsListView: " + newValue);
+            // todo add gui elements by widget support type
+            // add to dataModel
+
+            try {
+                DataModelDataHandler sampleHandler = new DataModelDataHandler(
+                        this.control.getDataSource(),
+                        this.control,
+                        this.selectedWidget.getConfig().getConfigNode(WidgetConfig.DATA_HANDLER_NODE),
+                        this.selectedWidget.getId());
+
+
+                sampleHandler.getDataModel().forEach(chartDataRow -> {
+
+                    if (chartDataRow.getObject().equals(newValue)) {
+                        // System.out.println("Auswahl gefunde");
+                        Platform.runLater(() -> {
+                            TextField color = new TextField(chartDataRow.getUnit().toString());
+                            dataPointConfigPane.add(color, 0, 0);
+                        });
+
+                    } else {
+                        //System.out.println("nö");
+                    }
+
+
+                    /*
+                    Platform.runLater(() -> {
+                        try {
+                            selectedObjectsListView.getItems().add(chartDataRow.getObject());
+                        } catch (Exception ex) {
+
+                        }
+                    });
+*/
+                });
+
+            } catch (Exception ex) {
+
+            }
+        });
+
+
+        equalizeDataModelButton.setOnAction(event -> {
+            control.equalizeDataModel();
+        });
+
+        /**
+         GridPane gpMove = new GridPane();
+         gpMove.setPadding(new Insets(4));
+         gpMove.setHgap(5);
+         gpMove.setVgap(5);
+         gpMove.add(objectSelectionBox, 0, 1);
+         gpMove.add(addButton, 1, 1);
+         gpMove.add(selectedObjectsListView, 2, 1);
+         */
+        //gp.add(filterTextField, 0, 0, 2, 1);
+        //gp.add(objectSelectionBox, 0, 1);
+        //gp.add(addButton, 1, 1);
+        gp.add(selectedObjectsListView, 0, 2, 2, 1);
+        if (JEConfig.getExpert()) {
+            gp.add(equalizeDataModelButton, 0, 3, 1, 1);
+        }
+
+        //gp.add(dataEditor, 0, 3, 2, 1);
+        //gp.add(dataPointConfigPane, 0, 4, 2, 1);
+
+        GridPane.setHalignment(filterTextField, HPos.LEFT);
+        GridPane.setHalignment(objectSelectionBox, HPos.LEFT);
+        GridPane.setHalignment(addButton, HPos.RIGHT);
+        GridPane.setHalignment(selectedObjectsListView, HPos.CENTER);
+
+
+        titledPane.setContent(gp);
+        return titledPane;
+    }
 
 }

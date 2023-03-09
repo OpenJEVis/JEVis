@@ -11,9 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.datetime.CustomPeriodObject;
@@ -22,23 +20,27 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END;
 
 public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
     private static final Logger logger = LogManager.getLogger(PresetDateBox.class);
     private final DateHelper dateHelper = new DateHelper();
+    private final JEVisDataSource ds;
+    private final ChartPlugin chartPlugin;
     private DateTime startDate = DateTime.now();
     private DateTime endDate = DateTime.now();
 
-    public PresetDateBox() {
+    public PresetDateBox(JEVisDataSource ds, ChartPlugin chartPlugin) {
         super();
+        this.ds = ds;
+        this.chartPlugin = chartPlugin;
 
         this.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
@@ -72,7 +74,7 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
 
         List<AnalysisTimeFrame> analysisTimeFrameList = new ArrayList<>();
         for (TimeFrame timeFrame : TimeFrame.values()) {
-            AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(timeFrame);
+            AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(ds, chartPlugin, timeFrame);
 
             if (timeFrame != CUSTOM_START_END) {
                 analysisTimeFrameList.add(analysisTimeFrame);
@@ -178,6 +180,10 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
         };
         setCellFactory(cellFactory);
         setButtonCell(cellFactory.call(null));
+
+        if (chartPlugin != null && chartPlugin.getDataSettings() != null && chartPlugin.getDataSettings().getAnalysisTimeFrame() != null) {
+            getSelectionModel().select(chartPlugin.getDataSettings().getAnalysisTimeFrame());
+        }
     }
 
     public DateTime getStartDate() {
@@ -268,67 +274,41 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
         return endDate;
     }
 
-    public void isWithCustom(JEVisObject object, boolean withCustom) {
-        if (withCustom && object != null) {
-            getItems().addAll(getCustomPeriods(object));
-        } else if (object != null) {
-            getItems().removeAll(getCustomPeriods(object));
+    public void isWithCustom(JEVisDataSource ds, boolean withCustom) {
+        Collection<? extends AnalysisTimeFrame> customPeriods = getCustomPeriods(ds);
+        if (customPeriods != null) {
+            if (withCustom) {
+                getItems().removeAll(customPeriods);
+                getItems().addAll(customPeriods);
+            } else {
+                getItems().removeAll(customPeriods);
+            }
         }
     }
 
-    private Collection<? extends AnalysisTimeFrame> getCustomPeriods(JEVisObject object) {
+    private Collection<? extends AnalysisTimeFrame> getCustomPeriods(JEVisDataSource ds) {
 
         List<JEVisObject> listCalendarDirectories = new ArrayList<>();
         List<JEVisObject> listCustomPeriods = new ArrayList<>();
         List<CustomPeriodObject> listCustomPeriodObjects = new ArrayList<>();
         List<AnalysisTimeFrame> customPeriods = new ArrayList<>();
-        JEVisDataSource ds = null;
         WorkDays workDays = null;
 
-        if (object != null) {
-            workDays = new WorkDays(object);
-            dateHelper.setWorkDays(workDays);
+        if (ds != null) {
             try {
-                ds = object.getDataSource();
-            } catch (JEVisException e) {
-                e.printStackTrace();
+                workDays = new WorkDays(ds.getCurrentUser().getUserObject());
+                dateHelper.setWorkDays(workDays);
+            } catch (Exception e) {
+                logger.error("Could not get current User Object for work days", e);
             }
         }
 
         if (ds == null) return null;
 
         try {
-            try {
-                JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                listCalendarDirectories = ds.getObjects(calendarDirectoryClass, false);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get calendar directories", e);
-            }
-            if (Objects.requireNonNull(listCalendarDirectories).isEmpty()) {
-                List<JEVisObject> listBuildings = new ArrayList<>();
-                try {
-                    JEVisClass building = ds.getJEVisClass("Building");
-                    listBuildings = ds.getObjects(building, false);
-
-                    if (!listBuildings.isEmpty()) {
-                        JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                        if (ds.getCurrentUser().canCreate(listBuildings.get(0).getID())) {
-
-                            JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
-                            calendarDirectory.commit();
-                        }
-                    }
-                } catch (JEVisException e) {
-                    logger.error("Error: could not create new calendar directory", e);
-                }
-
-            }
-            try {
-                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get custom period", e);
-            }
+            listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
         } catch (Exception e) {
+            logger.error("Error: could not get custom period", e);
         }
 
         for (JEVisObject obj : listCustomPeriods) {
@@ -348,7 +328,7 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
                 dateHelper.setWorkDays(workDays);
 
-                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM_START_END, cpo.getObject().getID(), cpo.getObject().getName());
+                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.CUSTOM_START_END, cpo.getObject());
                 newTimeFrame.setStart(dateHelper.getStartDate());
                 newTimeFrame.setEnd(dateHelper.getEndDate());
 

@@ -27,6 +27,23 @@
         "en": "Value",
         "ar": "القيمة"
       }
+    },
+    {
+      "type": "Period",
+      "descriptions": {
+        "de": "Periode der Datenreihe",
+        "ru": "Период ряда данных",
+        "uk": "Період серії даних",
+        "th": "ช่วงเวลาของชุดข้อมูล",
+        "en": "Period of the data series"
+      },
+      "names": {
+        "de": "Periode",
+        "ru": "период",
+        "uk": "період",
+        "th": "งวด",
+        "en": "Period"
+      }
     }
   ]
 }

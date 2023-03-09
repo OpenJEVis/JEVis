@@ -41,7 +41,7 @@ public class AlarmTable {
     protected final String STANDARD_TARGET_ATTRIBUTE_NAME = "Target";
     protected JEVisDataSource ds;
     private final List<JEVisObject> listCheckedData = new ArrayList<>();
-    private String tableString;
+    private String tableString = "";
     private JEVisClass vida350ChannelClass;
     private JEVisClass loytecXMLDLChannelClass;
     private JEVisClass loytecOPCUAChannelClass;
@@ -60,6 +60,8 @@ public class AlarmTable {
 
     private JEVisClass cleanDataClass;
     private JEVisClass channelClass;
+
+    private JEVisClass reportClass;
 
     private JEVisClass outputClass;
     private JEVisClass inputClass;
@@ -157,6 +159,7 @@ public class AlarmTable {
             outputClass = dataSource.getJEVisClass("Output");
             inputClass = dataSource.getJEVisClass("Input");
             calculationClass = dataSource.getJEVisClass("Calculation");
+            reportClass = dataSource.getJEVisClass("Periodic Report");
         } catch (JEVisException e) {
             e.printStackTrace();
         }
@@ -351,5 +354,9 @@ public class AlarmTable {
 
     public JEVisClass getCalculationClass() {
         return calculationClass;
+    }
+
+    public JEVisClass getReportClass() {
+        return reportClass;
     }
 }

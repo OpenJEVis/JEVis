@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -32,15 +33,16 @@ import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.PathReferenceDescription;
 import org.joda.time.DateTime;
-
 import org.joda.time.Period;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
-import java.io.*;
-
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -88,7 +90,6 @@ public class NodeTreeTable {
     public static final String LOG_MODE = "trendMode";
     public static final String LOG_INTERVAL = "POLL";
     private final String mode;
-
 
 
     public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, String backNetRootFolder, StackPane dialogContainer, String mode) {
@@ -159,8 +160,6 @@ public class NodeTreeTable {
                                 PathReferenceDescription x = o;
 
                                 Node node = new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue());
-                                System.out.println("name");
-                                System.out.println(o.getReferenceDescription().getBrowseName().getName());
                                 if (rootSet == false) {
 
                                     currentTreeItem = setRoot(node);
@@ -276,6 +275,7 @@ public class NodeTreeTable {
                                             getTreeTableRow().getTreeItem().getValue().setSelected(box.isSelected());
 
                                             childrenSetSelected(getTreeTableRow().getTreeItem());
+                                            parentSetSelected(getTreeTableRow().getTreeItem());
                                             opcUATreeTableView.refresh();
 
                                         });
@@ -500,40 +500,54 @@ public class NodeTreeTable {
      * @throws JEVisException
      */
 
-    private void createTrendDataTree(TreeItem<Node> node, JEVisObject dataSourceJEVisObject, DateTime dateTime, JEVisObject dataJEVisObject) throws JEVisException {
+    private void createTrendDataTree(TreeItem<Node> node, JEVisObject dataSourceJEVisObject, DateTime dateTime, JEVisObject dataJEVisObject) {
+        try {
 
-        if (node.getValue().getTrendID() == null) {
-            logger.info("OPC-UA Node: {} is a Folder", node.getValue().getDescriptionProperty().getDisplayName());
-            if (node.getValue().isSelected()) {
-                if (node.getValue().getTrendType().equals(Node.BACNET_TREND)) {
-                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_BACNET_DIRECTORY);
-                } else {
-                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_DIRECTORY);
+            if (node.getValue().getTrendID() == null) {
+                logger.info("OPC-UA Node: {} is a Folder", node.getValue().getDescriptionProperty().getDisplayName());
+                if (node.getValue().isSelected()) {
+                    if (node.getValue().getTrendType().equals(Node.BACNET_TREND)) {
+                        dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_BACNET_DIRECTORY);
+                    } else {
+                        dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_DIRECTORY);
+                    }
+
+                    if (dataJEVisObject != null) {
+
+                        dataJEVisObject = createJEVisObject(node, dataJEVisObject, DATA_DIRECTORY);
+                    }
+
                 }
-
-                if (dataJEVisObject != null) {
-
-                    dataJEVisObject = createJEVisObject(node, dataJEVisObject, DATA_DIRECTORY);
+            } else {
+                logger.info("OPC-UA Node: {} is not Folder", node.getValue().getDescriptionProperty().getDisplayName());
+                if (node.getValue().isSelected()) {
+                    dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_CHANNEL);
+                    JEVisAttribute jevisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
+                    if (dataJEVisObject != null && jevisAttributeTarget != null) {
+                        dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
+                        JEVisAttribute dataPeriodAttribute = dataJEVisObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                        if (dataPeriodAttribute != null) {
+                            JEVisSample sample = dataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(node.getValue().getLogInterval()));
+                            sample.commit();
+                        }
+                        jevisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
+                        JEVisObject cleanDataJEVisObject = createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
+                        cleanDataJEVisObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
+                        JEVisAttribute cleanDataPeriodAttribute = cleanDataJEVisObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                        if (cleanDataPeriodAttribute != null) {
+                            JEVisSample sample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(node.getValue().getLogInterval()));
+                            sample.commit();
+                        }
+                        cleanDataJEVisObject.commit();
+                    }
+                    setTrendIdToJEVisObject(node, dataSourceJEVisObject, dateTime);
                 }
-
             }
-        } else {
-            logger.info("OPC-UA Node: {} is not Folder", node.getValue().getDescriptionProperty().getDisplayName());
-            if (node.getValue().isSelected()) {
-                dataSourceJEVisObject = createJEVisObject(node, dataSourceJEVisObject, LOYTEC_XML_DL_CHANNEL);
-                JEVisAttribute jevisAttributeTarget = dataSourceJEVisObject.getAttribute(TARGET_ID);
-                if (dataJEVisObject != null) {
-                    dataJEVisObject = createJEVisObject(node, dataJEVisObject, "Data");
-                    jevisAttributeTarget.buildSample(dateTime, dataJEVisObject.getID() + ":Value").commit();
-                    setLogIntervalToJEVisObject(node, dataJEVisObject);
-                    JEVisObject cleanDataJEVisObject = createJEVisObject(dataJEVisObject, "Clean Data", I18n.getInstance().getString("tree.treehelper.cleandata.name"));
-                    setLogIntervalToJEVisObject(node, cleanDataJEVisObject);
-                }
-                setTrendIdToJEVisObject(node, dataSourceJEVisObject, dateTime);
+            for (TreeItem<Node> nodeChild : node.getChildren()) {
+                createTrendDataTree(nodeChild, dataSourceJEVisObject, dateTime, dataJEVisObject);
             }
-        }
-        for (TreeItem<Node> nodeChild : node.getChildren()) {
-            createTrendDataTree(nodeChild, dataSourceJEVisObject, dateTime, dataJEVisObject);
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
     }
 
@@ -605,6 +619,15 @@ public class NodeTreeTable {
             }
         }
     }
+    private void parentSetSelected(TreeItem<Node> nodeTreeItem) {
+        if (nodeTreeItem.getValue().isSelected()) {
+            if (nodeTreeItem.getParent() != null) {
+                nodeTreeItem.getParent().getValue().setSelected(nodeTreeItem.getValue().isSelected());
+                parentSetSelected(nodeTreeItem.getParent());
+            }
+        }
+
+    }
 
     /**
      * @param xml String of the Loytec config
@@ -622,20 +645,6 @@ public class NodeTreeTable {
         } else {
             return "Asynchronous";
         }
-    }
-
-    /**
-     * @param node            OPC UA node to get the interval from
-     * @param dataJEVisObject JEVis data object where to set up input sample rate
-     * @throws JEVisException
-     */
-    private void setLogIntervalToJEVisObject(TreeItem<Node> node, JEVisObject dataJEVisObject) throws JEVisException {
-        JEVisAttribute jeVisAttribute = dataJEVisObject.getAttribute("Value");
-        jeVisAttribute.setInputSampleRate(convertInterval(node.getValue().getLogInterval()));
-        logger.debug(jeVisAttribute);
-        jeVisAttribute.commit();
-
-
     }
 
     /**

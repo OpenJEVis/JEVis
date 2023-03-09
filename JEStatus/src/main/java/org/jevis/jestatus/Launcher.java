@@ -79,10 +79,10 @@ public class Launcher extends AbstractCliApp {
     protected void runSingle(List<Long> ids) {
 
         for (Long id : ids) {
-            AlarmHandler ah = new AlarmHandler(ds, latestReported);
+            StatusHandler ah = new StatusHandler(ds, latestReported);
 
             try {
-                ah.checkAlarm();
+                ah.checkStatus();
             } catch (JEVisException e) {
                 logger.error(e);
             }
@@ -118,18 +118,18 @@ public class Launcher extends AbstractCliApp {
                 if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                     logger.info("Service is enabled.");
                     try {
-                        AlarmHandler ah = new AlarmHandler(ds, latestReported);
-                        ah.checkAlarm();
+                        StatusHandler ah = new StatusHandler(ds, latestReported);
+                        ah.checkStatus();
                         finishCurrentRun(serviceObject);
 
-                    } catch (JEVisException ex) {
-                        logger.fatal(ex);
+                    } catch (Exception ex) {
+                        logger.error(ex);
                     }
                 } else {
                     logger.info("Service is disabled.");
                 }
             } else if (getEmergency_config() != null) {
-                AlarmHandler ah = new AlarmHandler();
+                StatusHandler ah = new StatusHandler();
                 Config conf = null;
                 try {
                     conf = new Config(getEmergency_config());

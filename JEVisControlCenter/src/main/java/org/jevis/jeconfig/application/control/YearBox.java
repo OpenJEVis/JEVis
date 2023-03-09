@@ -1,10 +1,12 @@
 package org.jevis.jeconfig.application.control;
 
 import com.jfoenix.controls.JFXComboBox;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.joda.time.DateTime;
 
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,20 +46,17 @@ public class YearBox extends JFXComboBox<Integer> {
 
         getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                int selectedIndex = monthBox.getSelectionModel().getSelectedIndex();
-                if (selectedIndex > 0) {
-                    monthBox.getSelectionModel().select(0);
-                } else {
-                    monthBox.getSelectionModel().select(1);
-                }
-                monthBox.getSelectionModel().select(newValue);
+                Integer year = newValue;
+                Integer month = monthBox.getSelectionModel().getSelectedIndex() + 1;
+                YearMonth yearMonthObject = YearMonth.of(year, month);
+                dayBox.setDays(yearMonthObject.lengthOfMonth());
             }
         });
     }
 
     public void setTS(DateTime nextTS) {
         if (nextTS != null) {
-            getSelectionModel().select(Integer.valueOf(nextTS.getYear()));
+            Platform.runLater(() -> getSelectionModel().select(Integer.valueOf(nextTS.getYear())));
         }
     }
 }

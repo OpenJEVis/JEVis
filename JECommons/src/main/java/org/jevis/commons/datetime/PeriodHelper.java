@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
@@ -113,7 +114,7 @@ public class PeriodHelper {
             case CUSTOM:
             case CUSTOM2:
                 resultDate = resultDate.plus(customPeriod);
-                if (wasLastDay) {
+                if (org.joda.time.Period.months(1).equals(customPeriod) && wasLastDay) {
                     resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
                 }
                 break;
@@ -257,7 +258,7 @@ public class PeriodHelper {
                 String targetString = objectWithCustomScheduleAttribute.getAttribute(CUSTOM_SCHEDULE_OBJECT_ATTRIBUTE).getLatestSample().getValueAsString();
                 TargetHelper th = new TargetHelper(objectWithCustomScheduleAttribute.getDataSource(), targetString);
 
-                if (th.targetAccessible())
+                if (th.targetObjectAccessible())
                     cpo = new CustomPeriodObject(th.getObject().get(0), new ObjectHandler(objectWithCustomScheduleAttribute.getDataSource()));
             } catch (JEVisException e) {
                 logger.error("Could not get Target Object.");
@@ -279,27 +280,49 @@ public class PeriodHelper {
         return IntStream.of(period.getYears(), period.getMonths(), period.getWeeks(), period.getDays()).anyMatch(i -> i > 0);
     }
 
+    public static boolean isGreaterThenDays(AggregationPeriod aggregationPeriod) {
+        switch (aggregationPeriod) {
+            default:
+            case NONE:
+            case MINUTELY:
+            case QUARTER_HOURLY:
+            case HOURLY:
+                return false;
+            case DAILY:
+            case WEEKLY:
+            case MONTHLY:
+            case QUARTERLY:
+            case YEARLY:
+            case THREEYEARS:
+            case FIVEYEARS:
+            case TENYEARS:
+                return true;
+        }
+    }
+
     public static String getFormatString(org.joda.time.Period period, boolean isCounter) {
         String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
 
-        try {
-            if (period.equals(org.joda.time.Period.days(1))) {
-                normalPattern = "dd. MMM (EEE)";
-            } else if (period.equals(org.joda.time.Period.weeks(1))) {
-                normalPattern = "'KW'w yyyy";
-            } else if (period.equals(org.joda.time.Period.months(1)) && !isCounter) {
-                normalPattern = "MMMM yyyy";
-            } else if (period.equals(org.joda.time.Period.months(1)) && isCounter) {
-                normalPattern = "dd. MMMM yyyy";
-            } else if (period.equals(org.joda.time.Period.years(1)) && !isCounter) {
-                normalPattern = "yyyy";
-            } else if (period.equals(org.joda.time.Period.years(1)) && isCounter) {
-                normalPattern = "dd. MMMM yyyy";
-            } else {
-                normalPattern = "yyyy-MM-dd HH:mm:ss";
+        if (period != null) {
+            try {
+                if (period.equals(org.joda.time.Period.days(1))) {
+                    normalPattern = "dd. MMM (EEE)";
+                } else if (period.equals(org.joda.time.Period.weeks(1))) {
+                    normalPattern = "'KW'w yyyy";
+                } else if (period.equals(org.joda.time.Period.months(1)) && !isCounter) {
+                    normalPattern = "MMMM yyyy";
+                } else if (period.equals(org.joda.time.Period.months(1)) && isCounter) {
+                    normalPattern = "dd. MMMM yyyy";
+                } else if (period.equals(org.joda.time.Period.years(1)) && !isCounter) {
+                    normalPattern = "yyyy";
+                } else if (period.equals(org.joda.time.Period.years(1)) && isCounter) {
+                    normalPattern = "dd. MMMM yyyy";
+                } else {
+                    normalPattern = "yyyy-MM-dd HH:mm:ss";
+                }
+            } catch (Exception e) {
+                logger.error("Could not determine sample rate, fall back to standard", e);
             }
-        } catch (Exception e) {
-            logger.error("Could not determine sample rate, fall back to standard", e);
         }
         return normalPattern;
     }

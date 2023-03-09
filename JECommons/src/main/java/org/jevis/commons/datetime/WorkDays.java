@@ -40,7 +40,7 @@ public class WorkDays {
         if (currentObject != null) {
             try {
                 siteClass = currentObject.getDataSource().getJEVisClass("Building");
-                organisationClass = currentObject.getDataSource().getJEVisClass("Organisation");
+                organisationClass = currentObject.getDataSource().getJEVisClass("Organization");
             } catch (Exception e) {
                 logger.fatal("Could not get JEVisClass for Building");
             }
@@ -66,7 +66,7 @@ public class WorkDays {
                 } else {
                     logger.warn("Could not get site object parent for object {}:{}. Trying to get next child site", currentObject.getName(), currentObject.getID());
 
-                    JEVisObject organisation = CommonMethods.getFirstParentalObjectOfClass(currentObject, "Organisation");
+                    JEVisObject organisation = CommonMethods.getFirstParentalObjectOfClass(currentObject, "Organization");
 
                     if (organisation != null) {
                         site = getNextChildSiteRecursive(organisation);

@@ -58,10 +58,6 @@ public class DashboadLinkWidget extends Widget {
         super(control, config);
     }
 
-    public DashboadLinkWidget(DashboardControl control) {
-        super(control);
-    }
-
     @Override
     public void debug() {
 
@@ -152,6 +148,7 @@ public class DashboadLinkWidget extends Widget {
     public boolean isStatic() {
         return false;
     }
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {

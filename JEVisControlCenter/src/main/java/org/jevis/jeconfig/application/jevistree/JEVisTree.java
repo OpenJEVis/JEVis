@@ -30,6 +30,7 @@ import javafx.scene.input.TransferMode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.datasource.ChannelTools;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisItemLoader;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -54,9 +55,10 @@ public class JEVisTree extends TreeTableView {
     private boolean isCut = false;
     private SearchFilterBar searchBar;
     private final HashMap<String, Object> configMap = new HashMap<>();
-    private final List<Long> calculationIDs = new ArrayList<>();
+    private final Map<Long, Long> calculationIDs = new HashMap<>();
     private final ItemActionController itemActionController;
     private JEVisObject recycleBinObject;
+    private final Map<Long, Long> targetAndChannel = new HashMap<>();
 
     /**
      * Create an default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
@@ -66,13 +68,12 @@ public class JEVisTree extends TreeTableView {
      */
     public JEVisTree(JEVisDataSource ds, JEVisTreeFilter filter) {
         super();
-        logger.error("Create new JEVis tree: ds: {}", ds);
+
         this.setId("JEVisTree");
         this.ds = ds;
 //        cellFilter = FilterFactory.buildDefaultItemFilter();
         this.cellFilter = filter;
         this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
 
 //        addCellFactory();
         initialize();
@@ -83,6 +84,7 @@ public class JEVisTree extends TreeTableView {
     protected void initialize() {
         try {
             loadCalcFilter();
+            loadChannelFilter();
 
             List<JEVisObject> rootObjects = this.ds.getRootObjects();
             recycleBinObject = new JEVisRecycleBinObject(this.ds);
@@ -106,8 +108,18 @@ public class JEVisTree extends TreeTableView {
         return recycleBinObject;
     }
 
-    public List<Long> getCalculationIDs() {
+    /**
+     * @return Map of objects which are a calculation and there corresponding calculation object
+     */
+    public Map<Long, Long> getCalculationIDs() {
         return calculationIDs;
+    }
+
+    /**
+     * @return Map of objects which are a channel target and there corresponding channel object
+     */
+    public Map<Long, Long> getTargetAndChannel() {
+        return targetAndChannel;
     }
 
     /**
@@ -115,16 +127,33 @@ public class JEVisTree extends TreeTableView {
      */
     private void loadCalcFilter() {
         try {
+            this.calculationIDs.clear();
             JEVisClass outputClass = ds.getJEVisClass("Output");
             ds.getObjects(outputClass, true).forEach(object -> {
                 try {
                     TargetHelper th = new TargetHelper(ds, object.getAttribute("Output"));
-                    calculationIDs.add(th.getObject().get(0).getID());
+                    calculationIDs.put(th.getObject().get(0).getID(), object.getParent().getID());
                 } catch (Exception e) {
                     logger.error("Found calculation without valid target; {}", object.getID());
                 }
             });
 
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Find all channel used to select icon
+     */
+    private void loadChannelFilter() {
+        try {
+            ChannelTools channelTools = new ChannelTools();
+            channelTools.createChannelMaps(ds);
+
+            this.targetAndChannel.clear();
+            this.targetAndChannel.putAll(channelTools.getTargetAndChannel());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -448,20 +477,20 @@ public class JEVisTree extends TreeTableView {
     public void setCopyObjectsBySelection(boolean cut) {
         List<JEVisObject> selection = new ArrayList<>();
 
-        logger.error("--COPY--");
+        logger.trace("--COPY--");
         getSelectionModel().getSelectedItems().forEach(o -> {
             try {
                 JEVisObject toCopy = ((JEVisTreeItem) o).getValue().getJEVisObject();
                 if (!isParentInList(selection, toCopy)) {
                     selection.add(toCopy);
-                    logger.error("--add: " + toCopy);
+                    logger.trace("--add: " + toCopy);
                 }
 
             } catch (Exception ex) {
                 logger.error(ex, ex);
             }
         });
-        logger.error("--------");
+        logger.trace("--------");
 
         setCopyObjects(selection, false);
         this.isCut = cut;

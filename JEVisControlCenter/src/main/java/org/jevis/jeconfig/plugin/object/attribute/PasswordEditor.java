@@ -49,6 +49,7 @@ public class PasswordEditor implements AttributeEditor {
     private boolean _hasChanged = false;
     private JFXButton _setPW;
     private boolean _readOnly = true;
+    private boolean initialized = false;
 
     public PasswordEditor(JEVisAttribute att) {
         _attribute = att;
@@ -94,7 +95,9 @@ public class PasswordEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            buildTextField();
+            if (!initialized) {
+                buildTextField();
+            }
         } catch (Exception ex) {
 
         }
@@ -122,6 +125,7 @@ public class PasswordEditor implements AttributeEditor {
                             if (_attribute.hasSample()) {
                                 sample = _attribute.getLatestSample();
                                 sample.setValue(dia.getPassword());
+                                sample.setNote(note);
                             } else {
                                 sample = _attribute.buildSample(new DateTime(), dia.getPassword(), note);
 
@@ -136,7 +140,9 @@ public class PasswordEditor implements AttributeEditor {
                     }
                 }
             });
-            box.getChildren().add(_setPW);
+            box.getChildren().setAll(_setPW);
+
+            initialized = true;
         }
 
     }

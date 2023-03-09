@@ -95,7 +95,6 @@ public class DataValueTable {
 
 
         filteredList.addAll(list);
-        System.out.println("filteredList; " + filteredList.size());
 
         tableView.setItems(filteredList);
 
@@ -122,7 +121,7 @@ public class DataValueTable {
     }
 
     public void updateTable(NodeId nodeID) {
-        System.out.println("updateTable: " + nodeID);
+        logger.debug("updateTable: " + nodeID);
         selectedtNodeId = nodeID;
         if (selectedtNodeId != null) {
             if (runningTask != null) {
@@ -144,13 +143,13 @@ public class DataValueTable {
                         List<DataValue> valueList = opcClient.getDateValues(historyReadResult);
                         valueList.forEach(dataValue -> {
                             try {
-                                System.out.println("sample: " + dataValue);
+                                logger.debug("sample: " + dataValue);
                                 list.add(new DataValueRow(dataValue));
                             } catch (Exception ex) {
                                 logger.error("DataValue error; {}", ex);
                             }
                         });
-                        System.out.println("done");
+                        logger.debug("done");
                         super.done();
                     } catch (Exception ex) {
                         super.failed();

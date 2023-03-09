@@ -20,7 +20,6 @@ import javafx.print.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -39,10 +38,7 @@ import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.GlobalToolBar;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -96,16 +92,17 @@ public class AccountingPlugin extends TablePlugin {
     private final AccountingTemplateHandler ath = new AccountingTemplateHandler();
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
     private final ObjectMapper mapper = new ObjectMapper();
-    private final ToggleButton newButton = new ToggleButton("", JEConfig.getImage("list-add.png", toolBarIconSize, toolBarIconSize));
-    private final ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
-    private final ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", toolBarIconSize, toolBarIconSize));
-    private final ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
-    private final ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", toolBarIconSize, toolBarIconSize));
-    private final ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", toolBarIconSize, toolBarIconSize));
+    private final ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton xlsxButton = new ToggleButton("", JEConfig.getSVGImage(Icon.EXPORT, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton printButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PRINT, toolBarIconSize, toolBarIconSize));
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(toolBarIconSize, toolBarIconSize);
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(toolBarIconSize, toolBarIconSize);
-    private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", toolBarIconSize, toolBarIconSize));
-    private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", toolBarIconSize, toolBarIconSize));
+    private final ToggleButton zoomIn = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_IN, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, toolBarIconSize, toolBarIconSize));
+    private final ToggleButton importPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.IMPORT, toolBarIconSize, toolBarIconSize));
     private final BorderPane borderPane = new BorderPane();
     private final StackPane dialogPane = new StackPane(borderPane);
     private final TabPane motherTabPane = new TabPane();
@@ -196,6 +193,7 @@ public class AccountingPlugin extends TablePlugin {
     private final JFXTextField marketLocationNumberField = new JFXTextField();
     private final JFXDatePicker contractDatePicker = new JFXDatePicker();
     private final JFXDatePicker firstRatePicker = new JFXDatePicker();
+
     private final JFXDatePicker periodOfNoticePicker = new JFXDatePicker();
     private final JFXDatePicker contractStartPicker = new JFXDatePicker();
     private final JFXDatePicker contractEndPicker = new JFXDatePicker();
@@ -272,10 +270,15 @@ public class AccountingPlugin extends TablePlugin {
         save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.save.tooltip")));
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.new.tooltip")));
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.tooltip.print")));
+        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.accounting.toolbar.delete.tooltip")));
 
         boolean canWriteToContracts = false;
         try {
-            canWriteToContracts = ds.getCurrentUser().canWrite(accountingDirectories.getEnergyContractingDir().getID());
+            if (accountingDirectories != null && accountingDirectories.getEnergyContractingDir() != null) {
+                canWriteToContracts = ds.getCurrentUser().canWrite(accountingDirectories.getEnergyContractingDir().getID());
+            } else {
+                logger.warn("Missing Accounting Directory");
+            }
         } catch (Exception e) {
             logger.error("Failed to check user permissions to write to contracts directory", e);
             try {
@@ -621,6 +624,33 @@ public class AccountingPlugin extends TablePlugin {
         zoomIn.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomin")));
         zoomOut.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.zoomout")));
 
+        Separator sep5 = new Separator(Orientation.VERTICAL);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(importPDF);
+        importPDF.setTooltip(new Tooltip(I18n.getInstance().getString("jevistree.menu.import")));
+
+        importPDF.setOnAction(actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle(I18n.getInstance().getString("jevistree.menu.import"));
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("PDF", "*.pdf"),
+                    new FileChooser.ExtensionFilter("All Files", "*.*"));
+            File selectedFile = fileChooser.showOpenDialog(null);
+            if (selectedFile != null) {
+                try {
+//                    InputStream inputStream = Files.newInputStream(selectedFile.toPath());
+//                    ZUGFeRDImporter zugFeRDImporter = new ZUGFeRDImporter(inputStream);
+//                    for (Map.Entry<String, byte[]> entry : zugFeRDImporter.getAdditionalData().entrySet()) {
+//                        String s = entry.getKey();
+//                        byte[] bytes = entry.getValue();
+//                    }
+//
+//                    inputStream.close();
+                } catch (Exception ex) {
+                    logger.fatal(ex);
+                }
+            }
+        });
+
         zoomIn.setOnAction(event -> {
             fontSize += 1;
             viewTab.setFontSize(fontSize);
@@ -643,6 +673,7 @@ public class AccountingPlugin extends TablePlugin {
                 sep2, save, newButton, delete,
                 sep3, xlsxButton, printButton,
                 sep4, zoomIn, zoomOut,
+//                sep5, importPDF,
                 JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(AccountingPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
@@ -686,8 +717,6 @@ public class AccountingPlugin extends TablePlugin {
                 }
             }
         }
-
-        viewTab.sortMultiInputFormulaOutputs(multiInputFormulaOutputs);
 
         List<TemplateOutput> sortedList = new ArrayList<>();
         sortedList.addAll(noInputOutputs);
@@ -1085,12 +1114,6 @@ public class AccountingPlugin extends TablePlugin {
                     protected Object call() throws Exception {
                         try {
                             this.updateTitle(I18n.getInstance().getString("plugin.accounting.load"));
-                            if (initialized) {
-                                ds.clearCache();
-                                ds.preload();
-                            } else {
-                                initialized = true;
-                            }
 
                             JEVisObject selectedItem = configComboBox.getSelectionModel().getSelectedItem();
                             List<JEVisObject> allAccountingConfigurations = getAllAccountingConfigurations();
@@ -1153,8 +1176,8 @@ public class AccountingPlugin extends TablePlugin {
 
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("accounting.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.ACCOUNTING, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override
@@ -1201,10 +1224,6 @@ public class AccountingPlugin extends TablePlugin {
     }
 
     public void initGUI() throws JEVisException {
-
-        viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(0, 2);
-        viewTab.getIntervalSelector().getTimeFactoryBox().getItems().remove(2, viewTab.getIntervalSelector().getTimeFactoryBox().getItems().size());
-
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -1703,7 +1722,7 @@ public class AccountingPlugin extends TablePlugin {
                             JEVisSample latestSample = attribute.getLatestSample();
                             if (latestSample != null) {
                                 TargetHelper th = new TargetHelper(ds, latestSample.getValueAsString());
-                                if (th.isValid() && th.targetAccessible()) {
+                                if (th.isValid() && th.targetObjectAccessible()) {
                                     contractor = th.getObject().get(0);
                                 }
                             }

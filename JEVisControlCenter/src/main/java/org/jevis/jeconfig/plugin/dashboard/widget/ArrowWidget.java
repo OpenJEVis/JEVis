@@ -19,6 +19,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.ArrowConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -51,10 +52,6 @@ public class ArrowWidget extends Widget {
     public ArrowWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         this.setId(WIDGET_ID + UUID.randomUUID());
-    }
-
-    public ArrowWidget(DashboardControl control) {
-        super(control);
     }
 
     @Override

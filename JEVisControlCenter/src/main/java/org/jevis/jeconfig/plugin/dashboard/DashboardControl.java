@@ -22,6 +22,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
@@ -50,11 +52,13 @@ import org.joda.time.Period;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 public class DashboardControl {
 
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
+    private final StackPane dialogPane;
     private double zoomFactor = 1.0d;
     private final double defaultZoom = 1.0d;
     private final DashBordPlugIn dashBordPlugIn;
@@ -77,6 +81,7 @@ public class DashboardControl {
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty showSideEditorProperty = new SimpleBooleanProperty(true);
     public BooleanProperty snapToGridProperty = new SimpleBooleanProperty(false);
     private final Interval previousActiveInterval = null;
     public BooleanProperty showWidgetHelpProperty = new SimpleBooleanProperty(false);
@@ -109,6 +114,7 @@ public class DashboardControl {
     public DashboardControl(DashBordPlugIn plugin) {
         this.configManager = new ConfigManager(plugin.getDialogPane(), plugin.getDataSource());
         this.dashBordPlugIn = plugin;
+        this.dialogPane = dashBordPlugIn.getDialogPane();
         this.jevisDataSource = plugin.getDataSource();
 
         //TaskWindow taskWindow = new TaskWindow(runningUpdateTaskList);
@@ -122,8 +128,11 @@ public class DashboardControl {
         Task task = new Task() {
             @Override
             protected Object call() throws Exception {
+                logger.debug("---- Control.updateWidgets");
                 widget.updateConfig(widget.getConfig());
+                widget.updateConfig();
                 widget.updateData(activeInterval);
+
                 super.done();
                 return null;
             }
@@ -238,6 +247,20 @@ public class DashboardControl {
     }
 
     public Widget createNewWidget(WidgetPojo widgetPojo) {
+        System.out.println("Contol.createnewWidgets: " + widgetPojo);
+
+        System.out.println("---- newWidgetS.getSe...");
+        try {
+            Class<?> clazz = Class.forName("org.jevis.jeconfig.plugin.dashboard.widget.TitleWidget");
+            Constructor<?> ctor = clazz.getConstructor(DashboardControl.class);
+            Object object = ctor.newInstance(this);
+            Widget widget = (Widget) object;
+            System.out.println("hmmmmmmmm: " + widget.getControl());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
+
         widgetPojo.setUuid(getNextFreeUUID());
 //        System.out.println("createNewWidget: "+widgetPojo.getUuid());
         return configManager.createWidget(this, widgetPojo);
@@ -288,10 +311,26 @@ public class DashboardControl {
     }
 
     public void zoomIn() {
+
+        /*
+        if the zoom level is to one of the dynamic sizes start at 100%.
+        There might be a better ways to calculate a better factor
+         */
+        if (zoomFactor >= fitToHeight) {
+            zoomFactor = 1;
+        }
+
         setZoomFactor(zoomFactor + zoomSteps);
     }
 
     public void zoomOut() {
+         /*
+        if the zoom level is to one of the dynamic sizes start at 100%.
+        There might be a better ways to calculate a better factor
+         */
+        if (zoomFactor >= fitToHeight) {
+            zoomFactor = 1;
+        }
         setZoomFactor(zoomFactor - zoomSteps);
     }
 
@@ -353,6 +392,26 @@ public class DashboardControl {
         }
     }
 
+    public void deleteDashboard() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(I18n.getInstance().getString("plugin.dashboard.dia.delete.title"));
+        alert.setContentText(I18n.getInstance().getString("plugin.dashboard.dia.delete.content"));
+        alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.dia.delete.header"));
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            try {
+                JEVisObject toDeleteObj = this.activeDashboard.getDashboardObject();
+                toDeleteObj.delete();
+                loadDashboardObjects();
+                selectDashboard(this.dashboardObjects.get(0));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
     public ObservableList<JEVisObject> getAllDashboards() {
         ObservableList<JEVisObject> observableList = FXCollections.observableList(this.dashboardObjects);
         DashboardSorter.sortDashboards(this.jevisDataSource, observableList);
@@ -385,7 +444,7 @@ public class DashboardControl {
         logger.debug("selectDashboard: {}", object);
         stopAllUpdates();
         try {
-            /** check if the last dashboard was saved and if not ask user **/
+            /* check if the last dashboard was saved and if not ask user */
             if (firstLoadedConfigHash != null) {
                 String newConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
                 if (!firstLoadedConfigHash.equals(newConfigHash)) {
@@ -401,12 +460,14 @@ public class DashboardControl {
                     });
                 }
             }
+            /* reset controls */
             this.firstLoadedConfigHash = null;
             this.editableProperty.setValue(false);
             this.snapToGridProperty.setValue(true);
             this.backgroundImage = null;
             this.newBackgroundFile = null;
             this.selectedWidgets = new ArrayList<>();
+            this.showGridProperty.setValue(false);
 
 
             showConfig();//if list is empty=reset
@@ -418,14 +479,14 @@ public class DashboardControl {
                 this.activeDashboard.setTitle("New Dashboard");
                 this.activeDashboard.setTimeFrame(timeFrameFactory.day());
 
-                /** Now we use 1920 x 1080 (minus the boarders) as default for all **/
+                /* Now we use 1920 x 1080 (minus the boarders) as default for all */
                 Size pluginSize = new Size(886.0, 1863.0);
                 //Size pluginSize = dashBordPlugIn.getPluginSize();
 
                 pluginSize.setHeight(pluginSize.getHeight() - 10);
                 pluginSize.setWidth(pluginSize.getWidth() - 10);
                 this.activeDashboard.setSize(pluginSize);
-            } else { /** load existing Dashboard**/
+            } else { /* load existing Dashboard*/
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
                     this.wd = new WorkDays(object);
@@ -462,12 +523,15 @@ public class DashboardControl {
 
             /** init configuration of widgets **/
             this.widgetList.forEach(widget -> {
+                //if (!widget.getId().equals(TimeFrameWidget.WIDGET_ID)) {
                 try {
                     widget.updateConfig();
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
+                // }
             });
+
 
             this.activeTimeFrame = activeDashboard.getTimeFrame();
             //setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
@@ -481,6 +545,11 @@ public class DashboardControl {
             });
 
             sideConfigPanel = new SideConfigPanel(this);
+
+            this.dashBordPlugIn.getWidgetControlPane().setContent(sideConfigPanel);
+            this.toolBar.updateView(activeDashboard);
+
+
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -488,7 +557,7 @@ public class DashboardControl {
     }
 
     /**
-     * Calculate an fitting DateTime based on available Samples.
+     * Calculate a fitting DateTime based on available Samples.
      * For now we use get maximum of all samples.
      *
      * @return
@@ -539,9 +608,11 @@ public class DashboardControl {
         });
         if (!editable) {
             selectedWidgets.clear();
-            showConfig();
+
             updateHighlightSelected();
         }
+
+        showConfig();
 
         this.toolBar.updateView(activeDashboard);
     }
@@ -561,7 +632,7 @@ public class DashboardControl {
     }
 
     public void setActiveTimeFrame(TimeFrame activeTimeFrame) {
-        logger.error("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
+        logger.debug("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
         this.activeTimeFrame = activeTimeFrame;
         DateTime start = activeInterval.getStart();
         if (wd != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart()) && activeInterval.toDuration().getStandardDays() > 1) {
@@ -1009,14 +1080,6 @@ public class DashboardControl {
         });
         updateHighlightSelected();
         showConfig();
-        /**
-         if (this.editableProperty.get()) {
-         selectedWidgets.addAll(widgets);
-         updateHighlightSelected();
-         showConfig();
-         }
-         **/
-
     }
 
     public void setSelectedWidget(Widget widget) {
@@ -1041,7 +1104,8 @@ public class DashboardControl {
             selectedWidgets.clear();
             selectedWidgets.addAll(widgets);
             updateHighlightSelected();
-
+            /* dashboard need focus so the key events work*/
+            dashBordPlugIn.getScrollPane().requestFocus();
             showConfig();
         }
     }
@@ -1170,6 +1234,38 @@ public class DashboardControl {
         });
     }
 
+    public void fontWeightSelected(FontWeight fontWeight) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontWeight(fontWeight);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void fontPostureSelected(FontPosture fontPosture) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontPosture(fontPosture);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void fontUnderlinedSelected(Boolean underlined) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setFontUnderlined(underlined);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
+    public void setWidgetTitle(String name) {
+        selectedWidgets.forEach(widget -> {
+            widget.getConfig().setTitle(name);
+            widget.updateConfig();
+            requestViewUpdate(widget);
+        });
+    }
+
     public void decimalsSelected(int size) {
         selectedWidgets.forEach(widget -> {
             widget.getConfig().setDecimals(size);
@@ -1179,12 +1275,33 @@ public class DashboardControl {
     }
 
     private void showConfig() {
-        if (selectedWidgets.isEmpty()) {
-            dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
-        } else {
-            configPanePos(configSideProperty.get(), sideConfigPanel);
-            sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+
+        if (sideConfigPanel != null) {
+            if (!selectedWidgets.isEmpty()) {
+                sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+            } else {
+                sideConfigPanel.setLastSelectedWidget(null);
+            }
         }
+
+
+        if (editableProperty.get()) {
+            this.dashBordPlugIn.showWidgetControlPane(showSideEditorProperty.get());
+        } else {
+            this.dashBordPlugIn.showWidgetControlPane(false);
+        }
+
+
+        /**
+         if (selectedWidgets.isEmpty()) {
+         //dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
+         this.dashBordPlugIn.showWidgetControlPane(false);
+         } else {
+         //configPanePos(configSideProperty.get(), sideConfigPanel);
+         sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+         this.dashBordPlugIn.showWidgetControlPane(true);
+         }
+         */
     }
 
     public void configPanePos(Side pos, Node node) {
@@ -1204,4 +1321,7 @@ public class DashboardControl {
         return configSideProperty;
     }
 
+    public StackPane getDialogPane() {
+        return dialogPane;
+    }
 }

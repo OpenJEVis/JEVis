@@ -47,7 +47,7 @@ import org.jevis.jeconfig.application.control.ReportManipulationBox;
 import org.jevis.jeconfig.application.control.ReportPeriodBox;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
@@ -67,7 +67,7 @@ public class AlarmWizardDialog {
     private static final Logger logger = LogManager.getLogger(AlarmWizardDialog.class);
     public static String ICON = "Startup Wizard_18228.png";
     private final List<ReportLink> reportLinkList = new ArrayList<>();
-    Image imgMarkAll = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
+    Image imgMarkAll = ResourceLoader.getImage("jetxee-check-sign-and-cross-sign-3.png");
     Tooltip tooltipMarkAll = new Tooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
     private JEVisDataSource ds;
     private JEVisObject reportLinkDirectory;
@@ -132,7 +132,7 @@ public class AlarmWizardDialog {
                                 object.commit();
 
                                 JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
-                                JEVisSample jevisIdSample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
+                                JEVisSample jevisIdSample = jeVis_id.buildSample(new DateTime(), rl.getJEVisId());
                                 jevisIdSample.commit();
 
                                 JEVisAttribute optionalAttribute = object.getAttribute("Optional");
@@ -559,8 +559,8 @@ public class AlarmWizardDialog {
         });
 
         AtomicReference<String> targetString = new AtomicReference<>();
-        if (reportLink.getjEVisID() != null) {
-            targetString.set(reportLink.getjEVisID().toString());
+        if (reportLink.getJEVisId() != null) {
+            targetString.set(reportLink.getJEVisId().toString());
         }
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
@@ -569,15 +569,15 @@ public class AlarmWizardDialog {
         allFilter.add(basicFilter);
         allFilter.add(allAttributeFilter);
 
-        if (reportLink.getjEVisID() != null) {
+        if (reportLink.getJEVisId() != null) {
             String target = "";
             if (reportLink.getReportAttribute() != null) {
-                target = reportLink.getjEVisID() + ":" + reportLink.getReportAttribute().getAttributeName();
+                target = reportLink.getJEVisId() + ":" + reportLink.getReportAttribute().getAttributeName();
             } else {
-                target = reportLink.getjEVisID().toString();
+                target = reportLink.getJEVisId().toString();
             }
             TargetHelper th = new TargetHelper(ds, target);
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
                 logger.info("Target Is valid");
                 setButtonText(target, targetsButton);
             }
@@ -587,7 +587,7 @@ public class AlarmWizardDialog {
             TargetHelper th = null;
             if (targetString.get() != null) {
                 th = new TargetHelper(ds, targetString.get());
-                if (th.isValid() && th.targetAccessible()) {
+                if (th.isValid() && th.targetObjectAccessible()) {
                     logger.info("Target Is valid");
                     setButtonText(targetString.get(), targetsButton);
                 }
@@ -615,7 +615,7 @@ public class AlarmWizardDialog {
                         if (index > 0) newTarget += ";";
 
                         newTarget += us.getSelectedObject().getID();
-                        reportLink.setjEVisID(us.getSelectedObject().getID());
+                        reportLink.setJEVisId(us.getSelectedObject().getID());
 
                         Platform.runLater(() -> updateName(reportLink));
 
@@ -706,9 +706,9 @@ public class AlarmWizardDialog {
     private void updateName(ReportLink reportLink) {
         JEVisObject object = null;
         try {
-            object = ds.getObject(reportLink.getjEVisID());
+            object = ds.getObject(reportLink.getJEVisId());
         } catch (JEVisException e) {
-            logger.error("Could not update name for object with id: {}", reportLink.getjEVisID(), e);
+            logger.error("Could not update name for object with id: {}", reportLink.getJEVisId(), e);
         }
 
         if (object != null) {
@@ -719,7 +719,7 @@ public class AlarmWizardDialog {
                     reportLink.setName(object.getName());
                 }
             } catch (JEVisException e) {
-                logger.error("Could not set new Report Link Name for object with id: {}", reportLink.getjEVisID(), e);
+                logger.error("Could not set new Report Link Name for object with id: {}", reportLink.getJEVisId(), e);
             }
 
             try {
@@ -733,7 +733,7 @@ public class AlarmWizardDialog {
                     reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object));
                 }
             } catch (JEVisException e) {
-                logger.error("Could not set new Variable Name for object with id: {}", reportLink.getjEVisID(), e);
+                logger.error("Could not set new Variable Name for object with id: {}", reportLink.getJEVisId(), e);
             }
         }
     }
@@ -748,7 +748,7 @@ public class AlarmWizardDialog {
                 th = new TargetHelper(ds, targetString);
             }
 
-            if (th.isValid() && th.targetAccessible()) {
+            if (th.isValid() && th.targetObjectAccessible()) {
 
                 StringBuilder bText = new StringBuilder();
 
@@ -776,7 +776,7 @@ public class AlarmWizardDialog {
                     bText.append("] ");
                     bText.append(obj.getName());
 
-                    if (th.hasAttribute()) {
+                    if (th.isAttribute()) {
 
                         bText.append(" - ");
                         bText.append(th.getAttribute().get(index).getName());

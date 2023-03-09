@@ -1,0 +1,303 @@
+{
+  "name": "Action",
+  "description": "Action",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Action",
+      "end": "Action Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Data",
+      "primitiveType": 3,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "From User",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Nr",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Status Tags",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Field Tags",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Medium Tags",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Desciption",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Note",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Create Date",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Planned Date",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Done Date",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Attachment",
+      "primitiveType": 3,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Correction",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Additional Meter",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Consumption Documented",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Target Reached",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "New EnPI",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Additional Action",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Document Correction",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Process Document",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Test Instruction",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Drawing",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Other",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Affect Others",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Document Correction",
+      "primitiveType": 4,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Follow Action",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Alternative Measures",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Responsible",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Affected Process",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Evaluation Note",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Energy Flow Note",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Affected Process Note",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Investment",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "Saving Year",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    },
+    {
+      "name": "EnPI Link",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action"
+    }
+  ]
+}

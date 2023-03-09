@@ -73,6 +73,7 @@ public class Config {
     private static String _jeccFile = "";
     private static String _javaVersion = "0";
     private static String _javaFile = "";
+    private static String _webDir = "";
     private static ConcurrentHashMap<String, JsonJEVisClass> _classCache = new ConcurrentHashMap<>();
 
 
@@ -134,6 +135,10 @@ public class Config {
         return _freemarkerDir;
     }
 
+    public static String getWebDir() {
+        return _webDir;
+    }
+
     public static void setFreemarkerDir(File _freemarkerDir) {
         Config._freemarkerDir = _freemarkerDir;
     }
@@ -141,7 +146,7 @@ public class Config {
 
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (_classCache.isEmpty()) {
-            logger.info("initialize class cache");
+            logger.info("initializing class cache");
             try {
                 //        Gson gson = new GsonBuilder().create();
 
@@ -170,7 +175,7 @@ public class Config {
                 }
 
                 JEVisClassHelper.completeClasses(_classCache);
-                logger.info("Done");
+                logger.info("initialized class cache");
             } catch (Exception ex) {
                 logger.error("Error while caching classes", ex);
             }
@@ -241,6 +246,7 @@ public class Config {
                     _demoGroup = getParameter(config, "webservice.registration.demogroup", -1);
                     _registratioKey = getParameter(config, "webservice.registration.apikey", UUID.randomUUID().toString());
 
+                    _webDir = getParameter(config, "webservice.webpage", "");
 
                     _fileIsLoaded = true;
                 } else {
@@ -315,7 +321,7 @@ public class Config {
         Config._jeccVersion = _jeccVersion;
     }
 
-    public static String getRigestrationAPIKey() {
+    public static String getRegistrationAPIKey() {
 //        readConfigurationFile();
         return _registratioKey;
     }

@@ -9,6 +9,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 
@@ -16,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FontTester {
-
+    private static final Logger logger = LogManager.getLogger(FontTester.class);
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(20, 20);
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(20, 20);
     int i = 0;
@@ -44,7 +46,7 @@ public class FontTester {
                 tooltip.setFont(font);
                 newB.setTooltip(tooltip);
                 newB.setOnAction(event -> {
-                    System.out.println("Font Fanaly: " + s);
+                    logger.debug("Font Fanaly: " + s);
                 });
                 toolBar.getItems().add(newB);
             } else {

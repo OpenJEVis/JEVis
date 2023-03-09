@@ -3,6 +3,7 @@ package org.jevis.commons.dataprocessing.processor.steps;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
@@ -129,22 +130,40 @@ public class MathStep implements ProcessStep {
                 case CUSTOM:
                 case CUSTOM2:
                     start = mathDataObject.getStartDate().minusYears(ending.getYear() - beginning.getYear());
-                    int maxDay = start.dayOfMonth().getMaximumValue();
-                    if (dayOfMonthBeginning > maxDay) {
-                        dayOfMonthBeginning = maxDay;
+
+                    Period periodForDate = CleanDataObject.getPeriodForDate(mathDataObject.getPeriodAlignment(), start);
+
+                    if (Period.months(1).equals(periodForDate)) {
+                        int maxDay = start.dayOfMonth().getMaximumValue();
+                        if (dayOfMonthBeginning > maxDay) {
+                            dayOfMonthBeginning = maxDay;
+                        }
+                        start = mathDataObject.getStartDate().minusYears(ending.getYear() - beginning.getYear())
+                                .withDayOfMonth(dayOfMonthBeginning)
+                                .withHourOfDay(beginning.getHourOfDay())
+                                .withMinuteOfHour(beginning.getMinuteOfHour())
+                                .withSecondOfMinute(beginning.getSecondOfMinute())
+                                .withMillisOfSecond(beginning.getMillisOfSecond());
+                        end = mathDataObject.getStartDate()
+                                .withDayOfMonth(dayOfMonthEnding)
+                                .withHourOfDay(ending.getHourOfDay())
+                                .withMinuteOfHour(ending.getMinuteOfHour())
+                                .withSecondOfMinute(ending.getSecondOfMinute())
+                                .withMillisOfSecond(ending.getMillisOfSecond());
+                    } else if (Period.days(1).equals(periodForDate)) {
+
+                        start = mathDataObject.getStartDate().minusYears(ending.getYear() - beginning.getYear())
+                                .withHourOfDay(beginning.getHourOfDay())
+                                .withMinuteOfHour(beginning.getMinuteOfHour())
+                                .withSecondOfMinute(beginning.getSecondOfMinute())
+                                .withMillisOfSecond(beginning.getMillisOfSecond());
+                        end = mathDataObject.getStartDate()
+                                .withHourOfDay(ending.getHourOfDay())
+                                .withMinuteOfHour(ending.getMinuteOfHour())
+                                .withSecondOfMinute(ending.getSecondOfMinute())
+                                .withMillisOfSecond(ending.getMillisOfSecond());
                     }
-                    start = mathDataObject.getStartDate().minusYears(ending.getYear() - beginning.getYear())
-                            .withDayOfMonth(dayOfMonthBeginning)
-                            .withHourOfDay(beginning.getHourOfDay())
-                            .withMinuteOfHour(beginning.getMinuteOfHour())
-                            .withSecondOfMinute(beginning.getSecondOfMinute())
-                            .withMillisOfSecond(beginning.getMillisOfSecond());
-                    end = mathDataObject.getStartDate()
-                            .withDayOfMonth(dayOfMonthEnding)
-                            .withHourOfDay(ending.getHourOfDay())
-                            .withMinuteOfHour(ending.getMinuteOfHour())
-                            .withSecondOfMinute(ending.getSecondOfMinute())
-                            .withMillisOfSecond(ending.getMillisOfSecond());
+
                     break;
             }
 
@@ -223,7 +242,11 @@ public class MathStep implements ProcessStep {
 
         for (JEVisSample sample : samples) {
             if (Period.months(1).equals(periodRule.getPeriod())) {
-                if (sample.getTimestamp().getMonthOfYear() != date.getMonthOfYear()) {
+                if (sample.getTimestamp().withZone(date.getZone()).getMonthOfYear() != date.getMonthOfYear()) {
+                    toRemove.add(sample);
+                }
+            } else if (Period.days(1).equals(periodRule.getPeriod())) {
+                if (sample.getTimestamp().withZone(date.getZone()).getDayOfYear() != date.getDayOfYear()) {
                     toRemove.add(sample);
                 }
             }

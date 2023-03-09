@@ -22,6 +22,7 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -31,11 +32,13 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
@@ -47,11 +50,12 @@ import java.util.stream.Collectors;
 public class HeatMapChart implements Chart {
     private static final Logger logger = LogManager.getLogger(HeatMapChart.class);
     private final WorkDays workDays;
-    private final List<ChartDataRow> chartDataRows;
-    private final ChartSetting chartSetting;
+    private final List<ChartDataRow> chartDataRows = new ArrayList<>();
+    private final ChartModel chartModel;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private final Color backgroundColor;
     private final Color fontColor;
+    private final JEVisDataSource ds;
     private Long ROWS;
     private Long COLS;
 
@@ -67,35 +71,155 @@ public class HeatMapChart implements Chart {
     private List<DateTime> yAxisList;
     private Period period;
 
-    public HeatMapChart(List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
-        this(chartDataRows, chartSetting, null, null);
+    public HeatMapChart(JEVisDataSource ds, ChartModel chartModel) {
+        this(ds, chartModel, new ArrayList<>(), null, null);
     }
 
-    public HeatMapChart(List<ChartDataRow> chartDataRows, ChartSetting chartSetting, Color backgroundColor, Color fontColor) {
+    public HeatMapChart(JEVisDataSource ds, ChartModel chartModel, List<ChartDataRow> chartDataRows, Color backgroundColor, Color fontColor) {
         this.backgroundColor = backgroundColor;
         this.fontColor = fontColor;
 
-        this.chartDataRows = chartDataRows;
-        this.chartSetting = chartSetting;
+        this.ds = ds;
+        this.chartModel = chartModel;
         this.ROWS = 24L;
         this.COLS = 4L;
-        this.workDays = new WorkDays(chartDataRows.get(0).getObject());
+
+        if (chartDataRows.isEmpty()) {
+            chartModel.getChartData().stream().map(chartData -> new ChartDataRow(ds, chartData)).forEach(this.chartDataRows::add);
+        } else this.chartDataRows.addAll(chartDataRows);
+
+        this.workDays = new WorkDays(this.chartDataRows.get(0).getObject());
 
         init();
     }
+
+    private final long SECOND_MILLIS = 1000;
+
+    public final Double getValueAt(final LinearGradient GRADIENT, Color color) {
+        List<Stop> stops = GRADIENT.getStops();
+        Stop foundStop = null;
+
+        for (Stop stop : stops) {
+            if (stop.getColor().equals(color)) {
+                foundStop = stop;
+                break;
+            }
+        }
+
+        if (foundStop != null) {
+            return foundStop.getOffset();
+        } else return null;
+    }
+
+    @Override
+    public String getChartName() {
+        return chartModel.getChartName();
+    }
+
+    @Override
+    public void setTitle(String s) {
+
+    }
+
+    @Override
+    public Integer getChartId() {
+        return chartModel.getChartId();
+    }
+
+    @Override
+    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
+
+    }
+
+    @Override
+    public void updateTableZoom(double lowerBound, double upperBound) {
+
+    }
+
+    @Override
+    public void applyColors() {
+
+    }
+
+    @Override
+    public de.gsi.chart.XYChart getChart() {
+        return null;
+    }
+
+    @Override
+    public void setChart(de.gsi.chart.Chart chart) {
+        if (chart == null) {
+            chartRegion = null;
+        }
+    }
+
+    @Override
+    public org.jevis.jeconfig.application.Chart.ChartType getChartType() {
+        return chartType;
+    }
+
+    @Override
+    public Region getRegion() {
+        return chartRegion;
+    }
+
+    @Override
+    public void setRegion(Region region) {
+        this.chartRegion = region;
+    }
+
+    @Override
+    public List<ChartDataRow> getChartDataRows() {
+        return chartDataRows;
+    }
+
+    @Override
+    public ChartModel getChartModel() {
+        return chartModel;
+    }
+
+    @Override
+    public List<XYChartSerie> getXyChartSerieList() {
+        return null;
+    }
+
+    @Override
+    public ObservableList<TableEntry> getTableData() {
+        return tableData;
+    }
+
+    @Override
+    public Period getPeriod() {
+        return null;
+    }
+
+    @Override
+    public void setPeriod(Period period) {
+        this.period = period;
+    }
+
+    private final long MINUTE_MILLIS = SECOND_MILLIS * 60L;
+    private final long QUARTER_HOUR_MILLIS = MINUTE_MILLIS * 15L;
+    private final long HOUR_MILLIS = MINUTE_MILLIS * 60L;
+    private final long DAY_MILLIS = HOUR_MILLIS * 24L;
+    private final long WEEK_MILLIS = DAY_MILLIS * 7L;
+    private final long MIN_MONTH_MILLIS = DAY_MILLIS * 28L;
+    private final long MAX_MONTH_MILLIS = DAY_MILLIS * 31L;
+    private final long MIN_YEAR_MILLIS = DAY_MILLIS * 365L;
+    private final long MAX_YEAR_MILLIS = DAY_MILLIS * 366L;
 
     private void init() {
         List<MatrixChartItem> matrixData1 = new ArrayList<>();
 
         ChartDataRow chartDataRow = chartDataRows.get(0);
         unit = UnitManager.getInstance().format(chartDataRow.getUnit());
-        Period period = new Period(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
+        Interval interval = new Interval(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
         Period inputSampleRate = chartDataRow.getPeriod();
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
-        numberFormat.setMinimumFractionDigits(chartSetting.getMinFractionDigits());
-        numberFormat.setMaximumFractionDigits(chartSetting.getMaxFractionDigits());
+        numberFormat.setMinimumFractionDigits(chartModel.getMinFractionDigits());
+        numberFormat.setMaximumFractionDigits(chartModel.getMaxFractionDigits());
 
-        HeatMapXY heatMapXY = getHeatMapXY(period, inputSampleRate);
+        HeatMapXY heatMapXY = getHeatMapXY(interval, inputSampleRate);
         COLS = heatMapXY.getX();
         ROWS = heatMapXY.getY();
         X_FORMAT = heatMapXY.getX_FORMAT();
@@ -191,7 +315,7 @@ public class HeatMapChart implements Chart {
 
         MatrixPane<MatrixChartItem> matrixHeatMap = new MatrixPane<>(matrixItemSeries1);
         matrixHeatMap.setMaxHeight(8192);
-        matrixHeatMap.setColorMapping(chartSetting.getColorMapping());
+        matrixHeatMap.setColorMapping(chartModel.getColorMapping());
         matrixHeatMap.getMatrix().setUseSpacer(false);
         matrixHeatMap.getMatrix().setColsAndRows(COLS.intValue(), ROWS.intValue());
 
@@ -278,7 +402,7 @@ public class HeatMapChart implements Chart {
 
         HBox titleBox = new HBox();
         titleBox.setAlignment(Pos.CENTER);
-        Label titleLabel = new Label(chartSetting.getName());
+        Label titleLabel = new Label(chartModel.getChartName());
         if (fontColor != null) {
             titleLabel.setTextFill(fontColor);
             titleLabel.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(fontColor) + "!important;");
@@ -332,148 +456,23 @@ public class HeatMapChart implements Chart {
         setRegion(sp);
     }
 
-    public final Double getValueAt(final LinearGradient GRADIENT, Color color) {
-        List<Stop> stops = GRADIENT.getStops();
-        Stop foundStop = null;
-
-        for (Stop stop : stops) {
-            if (stop.getColor().equals(color)) {
-                foundStop = stop;
-                break;
-            }
-        }
-
-        if (foundStop != null) {
-            return foundStop.getOffset();
-        } else return null;
-    }
-
-    @Override
-    public String getChartName() {
-        return chartSetting.getName();
-    }
-
-    @Override
-    public void setTitle(String s) {
-
-    }
-
-    @Override
-    public Integer getChartId() {
-        return chartSetting.getId();
-    }
-
-    @Override
-    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
-
-    }
-
-    @Override
-    public void updateTableZoom(double lowerBound, double upperBound) {
-
-    }
-
-    @Override
-    public void applyColors() {
-
-    }
-
-    @Override
-    public de.gsi.chart.XYChart getChart() {
-        return null;
-    }
-
-    @Override
-    public void setChart(de.gsi.chart.Chart chart) {
-        if (chart == null) {
-            chartRegion = null;
-        }
-    }
-
-    @Override
-    public org.jevis.jeconfig.application.Chart.ChartType getChartType() {
-        return chartType;
-    }
-
-    @Override
-    public Region getRegion() {
-        return chartRegion;
-    }
-
-    @Override
-    public void setRegion(Region region) {
-        this.chartRegion = region;
-    }
-
-    @Override
-    public List<ChartDataRow> getChartDataRows() {
-        return chartDataRows;
-    }
-
-    @Override
-    public ChartSetting getChartSetting() {
-        return chartSetting;
-    }
-
-    @Override
-    public ObservableList<TableEntry> getTableData() {
-        return tableData;
-    }
-
-    @Override
-    public Period getPeriod() {
-        return null;
-    }
-
-    @Override
-    public void setPeriod(Period period) {
-        this.period = period;
-    }
-
-    private HeatMapXY getHeatMapXY(Period period, Period inputSampleRate) {
+    private HeatMapXY getHeatMapXY(Interval interval, Period inputSampleRate) {
         long y;
         String y_Format = "HH";
         String y2_Format = "EEEE";
         long x;
         String x_Format = "mm";
         AggregationPeriod aggregationPeriod;
+        Long intervalMillis = interval.getEndMillis() - interval.getStartMillis();
 
-        if (period.getYears() > 1 || period.getMonths() >= 12 || period.getWeeks() >= 52 || period.getDays() >= 365) {
-            int years = period.getYears();
-            int months = period.getMonths();
-            Period newPeriod = period.minusYears(years).minusMonths(months);
-            y = newPeriod.toStandardDays().getDays();
-            y += (years * 365.25) + (months * 31);
+        if (intervalMillis > MIN_YEAR_MILLIS) {
+            y = Math.round((double) (intervalMillis / DAY_MILLIS));
             y_Format = "yyyy-MM";
-            if (inputSampleRate.equals(Period.minutes(15))) {
-                x = 31;
-                x_Format = "dd";
-                aggregationPeriod = AggregationPeriod.DAILY;
-            } else {
-                x = 31;
-                x_Format = "dd";
-                aggregationPeriod = AggregationPeriod.DAILY;
-            }
-        } else if (period.getYears() == 1 || period.getMonths() >= 12 || period.getWeeks() >= 52 || period.getDays() >= 365) {
-            int months = period.getMonths();
-            Period newPeriod = period.minusYears(1).minusMonths(months);
-            y = newPeriod.toStandardDays().getDays();
-            y += months * 31;
-            y_Format = "yyyy-MM";
-            if (inputSampleRate.equals(Period.minutes(15))) {
-                x = 31;
-                x_Format = "dd";
-                aggregationPeriod = AggregationPeriod.DAILY;
-            } else {
-                x = 31;
-                x_Format = "dd";
-                aggregationPeriod = AggregationPeriod.DAILY;
-            }
-        } else if (period.getMonths() > 1 || period.getWeeks() >= 4 || period.getDays() >= 31) {
-            int months = period.getMonths();
-            Period newPeriod = period.minusMonths(months);
-            y = newPeriod.toStandardDays().getDays() + 1;
-            y += months * 31;
+            x = 31;
+            x_Format = "dd";
+            aggregationPeriod = AggregationPeriod.DAILY;
+        } else if (intervalMillis > MIN_MONTH_MILLIS) {
+            y = Math.round((double) (intervalMillis / DAY_MILLIS));
             y_Format = "yyyy-MM-dd";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 24 * 4;
@@ -484,22 +483,8 @@ public class HeatMapChart implements Chart {
                 x_Format = "HH";
                 aggregationPeriod = AggregationPeriod.HOURLY;
             }
-        } else if (period.getMonths() == 1 || period.getWeeks() >= 4 || period.getDays() >= 31) {
-            Period newPeriod = period.minusMonths(1);
-            y = newPeriod.toStandardDays().getDays() * 7 + 1;
-            y += 4 * 7;
-            y_Format = "yyyy-MM-dd";
-            if (inputSampleRate.equals(Period.minutes(15))) {
-                x = 24 * 4;
-                x_Format = "HH:mm";
-                aggregationPeriod = AggregationPeriod.NONE;
-            } else {
-                x = 24;
-                x_Format = "HH";
-                aggregationPeriod = AggregationPeriod.HOURLY;
-            }
-        } else if (period.getWeeks() > 1 || period.getDays() >= 7) {
-            y = period.getWeeks() * 7 + 1;
+        } else if (intervalMillis > WEEK_MILLIS) {
+            y = Math.round((double) (intervalMillis / DAY_MILLIS));
             y_Format = "MM-dd";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 24 * 4;
@@ -510,8 +495,8 @@ public class HeatMapChart implements Chart {
                 x_Format = "HH";
                 aggregationPeriod = AggregationPeriod.HOURLY;
             }
-        } else if (period.getWeeks() == 1 || period.getDays() >= 7) {
-            y = period.toStandardDays().getDays() + 1;
+        } else if (intervalMillis > DAY_MILLIS) {
+            y = Math.round((double) (intervalMillis / DAY_MILLIS));
             y_Format = "dd";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 24 * 4;
@@ -522,35 +507,15 @@ public class HeatMapChart implements Chart {
                 x_Format = "HH";
                 aggregationPeriod = AggregationPeriod.HOURLY;
             }
-        } else if (period.getDays() > 1) {
-            y = period.getDays() + 1;
-            y_Format = "dd";
-            if (inputSampleRate.equals(Period.minutes(15))) {
-                x = 24 * 4;
-                x_Format = "HH:mm";
-                aggregationPeriod = AggregationPeriod.NONE;
-            } else {
-                x = 24;
-                x_Format = "HH";
-                aggregationPeriod = AggregationPeriod.HOURLY;
-            }
-        } else if (period.getDays() == 1) {
-            y = period.toStandardHours().getHours();
-            x = 4;
-            aggregationPeriod = AggregationPeriod.NONE;
-        } else if (period.getHours() > 1) {
-            y = period.getHours();
-            y_Format = "HH";
-            x = 4;
-            x_Format = "mm";
-            aggregationPeriod = AggregationPeriod.NONE;
         } else {
-            y = 1;
+            y = Math.round((double) (intervalMillis / HOUR_MILLIS));
             y_Format = "HH";
             x = 4;
             x_Format = "mm";
             aggregationPeriod = AggregationPeriod.NONE;
         }
+
+        y++;
 
         return new HeatMapXY(x, x_Format, y, y_Format, y2_Format, aggregationPeriod);
     }

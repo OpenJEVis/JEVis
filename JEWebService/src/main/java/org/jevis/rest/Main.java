@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.grizzly.http.CompressionConfig;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.grizzly.ssl.SSLContextConfigurator;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -64,6 +65,7 @@ public class Main {
                 Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
         ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
 
+
         Connection dbConn = ConnectionFactory.getInstance().getConnection();
         if (dbConn.isValid(2000)) {
             logger.info("Database Connection is working");
@@ -73,7 +75,7 @@ public class Main {
         }
 
 
-        final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest");
+        final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest", "org.jevis.web");
         rc.setApplicationName("JEWebservice");
         rc.register(MultiPartFeature.class);
         rc.register(GZipEncoder.class);
@@ -86,7 +88,7 @@ public class Main {
             sslCon.setKeyStoreFile(Config.getKeyStoreFile());
             sslCon.setKeyStorePass(Config.getKeyStorePW());
 
-            if(!Config.getKeyType().isEmpty()){
+            if (!Config.getKeyType().isEmpty()) {
                 sslCon.setKeyStoreType(Config.getKeyType());//PKCS12
             }
 
@@ -99,6 +101,13 @@ public class Main {
         } else {
             server = GrizzlyHttpServerFactory.createHttpServer(URI.create(Config.getURI()), rc);
         }
+
+        if (Config.getWebDir() != null && !Config.getWebDir().isEmpty()) {
+            logger.info("Init webpage: " + Config.getWebDir());
+            server.getServerConfiguration().addHttpHandler(new StaticHttpHandler(
+                    Config.getWebDir()), "/web");
+        }
+
 
         CompressionConfig compressionConfig =
                 server.getListener("grizzly").getCompressionConfig();

@@ -31,6 +31,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
             return "";
         }
 
+
         @Override
         public Interval nextPeriod(Interval interval, int addAmount) {
             return interval;
@@ -113,7 +114,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
                 applyNewDate(interval);
                 dateButton.setText(activeTimeFrame.get().format(interval));
 
-                update.set(true);
+                setUpdate(true);
             }
         });
 
@@ -131,6 +132,8 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         timeFactoryBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 activeTimeFrame.set(newValue);
+
+                setUpdate(true);
             }
         });
 

@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Iterables;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
@@ -12,9 +13,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisFile;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.jevistree.TreeHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.ImageConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
@@ -38,16 +41,11 @@ public class ImageWidget extends Widget {
     private ImageConfig imageConfig;
     public static String IMAGE_NODE_NAME = "image";
     private ImageView imageView;
-    private JEVisFile imageFile;
 
 
     public ImageWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         this.setId(WIDGET_ID + UUID.randomUUID());
-    }
-
-    public ImageWidget(DashboardControl control) {
-        super(control);
     }
 
     @Override
@@ -82,7 +80,7 @@ public class ImageWidget extends Widget {
 
     @Override
     public void updateConfig() {
-        logger.debug("UpdateConfig");
+        logger.error("UpdateConfig");
         Platform.runLater(() -> {
             try {
 
@@ -113,6 +111,7 @@ public class ImageWidget extends Widget {
         return true;
     }
 
+
     @Override
     public List<DateTime> getMaxTimeStamps() {
         return new ArrayList<>();
@@ -136,8 +135,29 @@ public class ImageWidget extends Widget {
             logger.error(ex);
             ex.printStackTrace();
         }
-        //anchorPane.heightProperty().addListener(observable -> updateConfig());
-        //anchorPane.widthProperty().addListener(observable -> updateConfig());
+
+    }
+
+    public void restImageConfig() {
+        try {
+            JEVisObject originalIconObj = getDataSource().getObject(this.imageConfig.getObjectID());
+            TreeHelper.copyObjectUnder(
+                    originalIconObj,
+                    originalIconObj.getParents().get(0),
+                    "Copy_" + originalIconObj.getName(),
+                    true,
+                    true,
+                    false);
+
+            JEVisObject copyObject = Iterables.getLast(originalIconObj.getParents().get(0).getChildren());
+            if (copyObject.getJEVisClassName().equals("File")) {
+                this.imageConfig.setObjectID(copyObject.getID());
+            }
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -156,7 +176,6 @@ public class ImageWidget extends Widget {
             try {
                 widgetConfigDialog.commitSettings();
                 control.updateWidget(this);
-
             } catch (Exception ex) {
                 logger.error(ex);
             }

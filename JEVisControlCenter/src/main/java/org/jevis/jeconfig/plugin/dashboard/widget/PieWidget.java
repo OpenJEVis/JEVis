@@ -44,28 +44,22 @@ public class PieWidget extends Widget implements DataModelWidget {
     public static String WIDGET_ID = "Pie";
     private final PieChart chart = new PieChart();
     private final NumberFormat nf = NumberFormat.getInstance();
-    private DataModelDataHandler sampleHandler;
     private final WidgetLegend legend = new WidgetLegend();
     private final ObjectMapper mapper = new ObjectMapper();
     private final BorderPane borderPane = new BorderPane();
     private final VBox legendPane = new VBox();
-    private Interval lastInterval;
+    //private Interval lastInterval;
     private Boolean customWorkday = true;
 
     public PieWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
     }
 
-    public PieWidget(DashboardControl control) {
-        super(control);
-    }
-
     @Override
     public void debug() {
-        this.sampleHandler.debug();
+
     }
 
-    @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.piewidget.newname"));
@@ -80,7 +74,6 @@ public class PieWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Pie.Update: [{}] {}", getConfig().getUuid(), interval);
 
-        this.lastInterval = interval;
         if (sampleHandler == null) {
             return;
         } else {
@@ -98,7 +91,6 @@ public class PieWidget extends Widget implements DataModelWidget {
         List<PieChart.Data> series = new ArrayList<>();
         List<Legend.LegendItem> legendItemList = new ArrayList<>();
         List<Color> colors = new ArrayList<>();
-
 
         /** data Update **/
         AtomicDouble total = new AtomicDouble(0);
@@ -148,18 +140,17 @@ public class PieWidget extends Widget implements DataModelWidget {
 
 
                 legendItemList.add(this.legend.buildVerticalLegendItem(
-                        chartDataRow.getTitle(), ColorHelper.toColor(chartDataRow.getColor()), this.config.getFontColor(), this.config.getFontSize(),
+                        chartDataRow.getName(), chartDataRow.getColor(), this.config.getFontColor(), this.config.getFontSize(),
                         chartDataRow.getObject(), hasNoData, I18n.getInstance().getString("plugin.dashboard.alert.nodata"), true));
 
                 if (!hasNoData) {
                     PieChart.Data pieData = new PieChart.Data(textValue, value);
                     series.add(pieData);
-                    colors.add(ColorHelper.toColor(chartDataRow.getColor()));
+                    colors.add(chartDataRow.getColor());
                 }
 
 
 //                applyColors(colors);
-
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -175,9 +166,9 @@ public class PieWidget extends Widget implements DataModelWidget {
         Platform.runLater(() -> {
             try {
                 this.chart.getData().clear();
+                this.legend.getItems().clear();
                 this.legend.getItems().setAll(legendItemList);
                 this.chart.getData().setAll(series);
-                applyColors(colors);
                 this.chart.setStartAngle(180);
                 this.chart.setLabelLineLength(15d);
                 this.chart.setClockwise(false);
@@ -187,6 +178,7 @@ public class PieWidget extends Widget implements DataModelWidget {
                 this.chart.requestLayout();
 
                 updateConfig();
+                applyColors(colors);
                 showProgressIndicator(false);
             } catch (Exception ex) {
                 logger.error(ex);
@@ -214,8 +206,8 @@ public class PieWidget extends Widget implements DataModelWidget {
                 this.legend.setBackground(bgColorTrans);
                 this.borderPane.setBackground(bgColor);
                 this.borderPane.setMaxWidth(this.config.getSize().getWidth());
-                this.nf.setMinimumFractionDigits(0);
-                this.nf.setMaximumFractionDigits(2);
+                this.nf.setMinimumFractionDigits(this.config.getDecimals());
+                this.nf.setMaximumFractionDigits(this.config.getDecimals());
                 this.layout();
             } catch (Exception ex) {
                 logger.error(ex);
@@ -228,6 +220,7 @@ public class PieWidget extends Widget implements DataModelWidget {
         return false;
     }
 
+
     @Override
     public List<DateTime> getMaxTimeStamps() {
         return sampleHandler.getMaxTimeStamps();
@@ -238,7 +231,7 @@ public class PieWidget extends Widget implements DataModelWidget {
     public void init() {
 
         try {
-            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -319,10 +312,11 @@ public class PieWidget extends Widget implements DataModelWidget {
             Color currentColor = colors.get(i);
             String hexColor = ColorHelper.toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
-            Node node = this.chart.lookup(preIdent + ".chart-pie");
-            node.setStyle("-fx-pie-color: " + hexColor + ";");
+            Node node = chart.lookup(preIdent + ".chart-pie");
 
-//            System.out.println(preIdent + ".chart-pie " + "-fx-pie-color: " + hexColor + ";" + " color: " + currentColor.toString());
+            if (node != null) {
+                node.setStyle("-fx-pie-color: " + hexColor + ";");
+            }
         }
     }
 

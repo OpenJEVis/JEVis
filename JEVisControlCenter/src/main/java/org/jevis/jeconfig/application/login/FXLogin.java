@@ -122,6 +122,7 @@ public class FXLogin extends AnchorPane {
     private final NotificationPane notificationPane = new NotificationPane();
     private JFXComboBox<Locale> langSelect;
     private boolean hasCredentials = false;
+    public static String checkMarkSymbol = "\uD83D\uDDF8";
 
 
     private FXLogin() {
@@ -133,16 +134,16 @@ public class FXLogin extends AnchorPane {
         this.mainStage = stage;
         this.app = app;
 
+        this.messageBox.getStylesheets().add(FXLogin.class.getResource("/styles/LoginMessageBox.css").toExternalForm());
+//
+        this.messageBox.setId("LoginMessageBox");
         this.messageBox.setBorder(null);
+        this.messageBox.setPadding(new Insets(0));
+        this.messageBox.setEditable(false);
+        this.messageBox.setMouseTransparent(true);
+        this.messageBox.setFocusTraversable(false);
 
-        //this.loginButton.getStyleClass().add("button-raised");
-        //loginButton.setId("ok-button");
 
-
-        //loginButton.setRipplerFill(javafx.scene.paint.Paint.valueOf("#FFFFFF"));
-        //closeButton.getStyleClass().add("button-raised");
-        //closeButton.setButtonType(JFXButton.ButtonType.RAISED);
-        //loginButton.setButtonType(JFXButton.ButtonType.RAISED);
         loginButton.setStyle("-fx-background-color: #4dadf7");
         loginButton.setTextFill(javafx.scene.paint.Paint.valueOf("#FFFFFF"));
         closeButton.setStyle("-fx-background-color: #adb5bd");
@@ -372,7 +373,7 @@ public class FXLogin extends AnchorPane {
                                 HBox box = new HBox(5);
                                 box.setAlignment(Pos.CENTER_LEFT);
 
-                                Image img = new Image("/icons/" + item.getLanguage() + ".png");
+                                Image img = new Image("/icons/flags2/" + item.getLanguage() + ".png");
                                 ImageView iv = new ImageView(img);
                                 iv.fitHeightProperty().setValue(20);
                                 iv.fitWidthProperty().setValue(20);
@@ -437,7 +438,7 @@ public class FXLogin extends AnchorPane {
     private Node buildHeader() {
         AnchorPane header = new AnchorPane();
         header.setId("fxlogin-header");
-        setDefaultStyle(header, "-fx-background-color: " + Color.LIGHT_BLUE);
+        setDefaultStyle(header, "-fx-background-color: " + Color.MID_GREY);
 
         ImageView logo = null;
 
@@ -475,14 +476,14 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Build an footer GUI element
+     * Build a footer GUI element
      *
      * @return
      */
     private Node buildFooter() {
         AnchorPane footer = new AnchorPane();
         footer.setId("fx-login-footer");
-        setDefaultStyle(footer, "-fx-background-color: " + Color.LIGHT_BLUE);
+        setDefaultStyle(footer, "-fx-background-color: " + Color.MID_GREY);
 
         Node buildInfo = buildBuildInfo();
         buildInfo.setId("fx-login-footer-info");
@@ -522,7 +523,6 @@ public class FXLogin extends AnchorPane {
 //        Node serverConfigBox = buildServerSelection();
         Region serverConfigBox = new Region();
         this.langSelect = buildLanguageBox();
-        loadPreference(true);
 
         Label userL = new Label("Username:");
         userL.setId("fxlogin-form-user-label");
@@ -597,74 +597,14 @@ public class FXLogin extends AnchorPane {
         row++;
         this.authGrid.add(buttonBox, 0, row, columns, 1);
 
-        this.storeConfig.setId("fxlogin-form-remeberme");
+        this.storeConfig.setId("fxlogin-form-rememberme");
 
         return this.authGrid;
     }
 
-    /**
-     * Initilize this class, this will build most of the GUI
-     */
-    private void init() {
-        loadPreference(true);
-
-        //TODO load from URL/RESOURCE
-        ImageView logo = new ImageView(new Image("/icons/openjevislogo_simple2.png"));
-        logo.setPreserveRatio(true);
-
-        AnchorPane leftSpacer = new AnchorPane();
-        AnchorPane rightSpacer = new AnchorPane();
-
-        leftSpacer.setId("fxlogin-body-left");
-        rightSpacer.setId("fxlogin-body-right");
-        this.progress.setId("fxlogin-body-progress");
-
-        this.progress.setPrefSize(80, 80);
-        this.progress.setVisible(false);
-        AnchorPane.setTopAnchor(this.progress, 70d);
-        AnchorPane.setLeftAnchor(this.progress, 100d);
-        rightSpacer.getChildren().setAll(this.progress);
-
-        leftSpacer.setMinWidth(200);//todo 20%
-
-        Node authForm = buildAuthForm();
-
-        HBox body = new HBox();
-        body.setId("fxlogin-body");
-        body.getChildren().setAll(leftSpacer, authForm, rightSpacer);
-        HBox.setHgrow(authForm, Priority.NEVER);
-        HBox.setHgrow(leftSpacer, Priority.NEVER);
-        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
-
-        Node header = buildHeader();
-        Node footer = buildFooter();
-
-        this.mainHBox = new VBox();
-        this.mainHBox.getChildren().setAll(header, body, footer);
-        VBox.setVgrow(body, Priority.NEVER);
-        VBox.setVgrow(header, Priority.ALWAYS);
-        VBox.setVgrow(footer, Priority.ALWAYS);
-
-        setDefaultStyle(body, "-fx-background-color: white;");
-        setDefaultStyle(leftSpacer, "-fx-background-color: white;");
-        setDefaultStyle(rightSpacer, "-fx-background-color: white;");
-        setDefaultStyle(this.mainHBox, "-fx-background-color: yellow;");
-
-        AnchorPane.setTopAnchor(this.mainHBox, 0.0);
-        AnchorPane.setRightAnchor(this.mainHBox, 0.0);
-        AnchorPane.setLeftAnchor(this.mainHBox, 0.0);
-        AnchorPane.setBottomAnchor(this.mainHBox, 0.0);
-        notificationPane.setContent(this.mainHBox);
-
-        AnchorPane root = new AnchorPane(notificationPane);
-        Layouts.setAnchor(notificationPane, 0);
-        Layouts.setAnchor(root, 0);
-        getChildren().setAll(root);
-
-    }
+    private final StringBuilder messageText = new StringBuilder();
 
     private void initSlim() {
-        loadPreference(true);
 
         //TODO load from URL/RESOURCE
         ImageView logo = new ImageView(new Image("/icons/openjevislogo_simple2.png"));
@@ -890,7 +830,7 @@ public class FXLogin extends AnchorPane {
      */
     private void loadPreference(boolean showServer) {
 //        logger.info("load from disk");
-        if (!this.jevisPref.get("JEVisUser", "").isEmpty()) {
+        if (!this.jevisPref.get("JEVisUser", "").isEmpty() && !hasCredentials) {
             this.storeConfig.setSelected(true);
 //            logger.info("username: " + jevisPref.get("JEVisUser", ""));
             this.userName.setText(this.jevisPref.get("JEVisUser", ""));
@@ -969,14 +909,75 @@ public class FXLogin extends AnchorPane {
         return vbox;
     }
 
-    public void addLoginMessage(String message) {
-        StringBuilder stringBuilder = new StringBuilder(messageBox.getText());
-        if (stringBuilder.toString().length() > 0) {
-            stringBuilder.append(System.getProperty("line.separator"));
+    /**
+     * Initilize this class, this will build most of the GUI
+     */
+    private void init() {
+        loadPreference(true);
+
+        //TODO load from URL/RESOURCE
+        ImageView logo = new ImageView(new Image("/icons/openjevislogo_simple2.png"));
+        logo.setPreserveRatio(true);
+
+        AnchorPane leftSpacer = new AnchorPane();
+        AnchorPane rightSpacer = new AnchorPane();
+
+        leftSpacer.setId("fxlogin-body-left");
+        rightSpacer.setId("fxlogin-body-right");
+        this.progress.setId("fxlogin-body-progress");
+
+        this.progress.setPrefSize(80, 80);
+        this.progress.setVisible(false);
+        AnchorPane.setTopAnchor(this.progress, 70d);
+        AnchorPane.setLeftAnchor(this.progress, 100d);
+        rightSpacer.getChildren().setAll(this.progress);
+
+        leftSpacer.setMinWidth(200);//todo 20%
+
+        Node authForm = buildAuthForm();
+
+        HBox body = new HBox();
+        body.setId("fxlogin-body");
+        body.getChildren().setAll(leftSpacer, authForm, rightSpacer, messageBox);
+        HBox.setHgrow(authForm, Priority.NEVER);
+        HBox.setHgrow(leftSpacer, Priority.NEVER);
+        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+
+        Node header = buildHeader();
+        Node footer = buildFooter();
+
+        this.mainHBox = new VBox();
+        this.mainHBox.getChildren().setAll(header, body, footer);
+        VBox.setVgrow(body, Priority.NEVER);
+        VBox.setVgrow(header, Priority.ALWAYS);
+        VBox.setVgrow(footer, Priority.ALWAYS);
+
+        setDefaultStyle(body, "-fx-background-color: white;");
+        setDefaultStyle(leftSpacer, "-fx-background-color: white;");
+        setDefaultStyle(rightSpacer, "-fx-background-color: white;");
+        setDefaultStyle(this.mainHBox, "-fx-background-color: yellow;");
+
+        AnchorPane.setTopAnchor(this.mainHBox, 0.0);
+        AnchorPane.setRightAnchor(this.mainHBox, 0.0);
+        AnchorPane.setLeftAnchor(this.mainHBox, 0.0);
+        AnchorPane.setBottomAnchor(this.mainHBox, 0.0);
+        notificationPane.setContent(this.mainHBox);
+
+        AnchorPane root = new AnchorPane(notificationPane);
+        Layouts.setAnchor(notificationPane, 0);
+        Layouts.setAnchor(root, 0);
+        getChildren().setAll(root);
+
+    }
+
+    public void addLoginMessage(String message, boolean newLIne) {
+        messageText.append(message);
+        if (messageText.length() > 0 && newLIne) {
+            messageText.append(System.getProperty("line.separator"));
         }
-        stringBuilder.append(message);
+
         Platform.runLater(() -> {
-            messageBox.setText(stringBuilder.toString());
+            messageBox.setText(messageText.toString());
             messageBox.setScrollTop(Double.MAX_VALUE);
         });
     }

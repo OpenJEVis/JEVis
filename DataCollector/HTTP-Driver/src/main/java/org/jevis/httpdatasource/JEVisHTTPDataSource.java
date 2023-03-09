@@ -9,7 +9,10 @@ import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisType;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
@@ -149,27 +152,26 @@ public class JEVisHTTPDataSource implements DataSource {
             _httpdatasource.setDateTimeZone(timezone);
 
 
-
             String authString = DatabaseHelper.getObjectAsString(httpObject, authType);
             if (authString != null && !authString.isEmpty()) {
-                try{
+                try {
                     HTTPDataSource.AUTH_SCHEME aut = HTTPDataSource.AUTH_SCHEME.valueOf(authString.toUpperCase());
                     _httpdatasource.setAuthScheme(aut);
-                }catch (Exception ex){
-                    logger.error("Cannot parse Authentication config, using NONE",ex,ex);
+                } catch (Exception ex) {
+                    logger.error("Cannot parse Authentication config, using NONE", ex, ex);
                     _httpdatasource.setAuthScheme(HTTPDataSource.AUTH_SCHEME.NONE);
-                };
+                }
             } else {
                 _httpdatasource.setAuthScheme(HTTPDataSource.AUTH_SCHEME.NONE);
-                if(userName!=null && !userName.isEmpty()){
+                if (userName != null && !userName.isEmpty()) {
                     /* Default fallback for old configuration **/
                     _httpdatasource.setAuthScheme(HTTPDataSource.AUTH_SCHEME.BASIC);
                 }
             }
 
 
-        } catch (JEVisException ex) {
-            logger.fatal(ex);
+        } catch (Exception ex) {
+            logger.fatal(ex, ex);
         }
     }
 
@@ -193,7 +195,7 @@ public class JEVisHTTPDataSource implements DataSource {
             httpChannel.setChannelObject(channel);
             return _httpdatasource.sendSampleRequest(httpChannel);
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error(ex, ex);
         }
 
         return new ArrayList<>();

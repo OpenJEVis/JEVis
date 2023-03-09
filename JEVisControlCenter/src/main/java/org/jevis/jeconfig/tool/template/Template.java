@@ -1,10 +1,14 @@
 package org.jevis.jeconfig.tool.template;
 
+import javafx.scene.Node;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class Template {
 
@@ -27,6 +31,10 @@ public abstract class Template {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public Map<String, Node> getOptions() {
+        return new HashMap<>();
     }
 
     public boolean isNotAnTemplate() {

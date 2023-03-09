@@ -54,7 +54,7 @@ public class Percent {
 
 
         AnchorPane editorPane = new AnchorPane();
-        PercentPane percentPane = new PercentPane(this, dashboardControl.getWidgetList());
+        PercentPane percentPane = new PercentPane(dashboardControl, this, dashboardControl.getWidgetList());
 
         editorPane.getChildren().add(percentPane);
 

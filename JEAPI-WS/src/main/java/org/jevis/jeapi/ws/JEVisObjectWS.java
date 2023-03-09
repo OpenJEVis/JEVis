@@ -69,7 +69,6 @@ public class JEVisObjectWS implements JEVisObject {
     public void addEventListener(JEVisEventListener listener) {
         if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
             logger.debug("Duplicate Listener: {}", json.getId());
-            System.out.println();
         }
 
         this.listeners.add(JEVisEventListener.class, listener);
@@ -218,6 +217,12 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
+    public JEVisObject getParent() throws JEVisException {
+        JEVisObject obj = getParents().isEmpty() ? null : getParents().get(0);
+        return obj;
+    }
+
+    @Override
     public String getJEVisClassName() {
         return this.json.getJevisClass();
     }
@@ -300,7 +305,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public JEVisAttribute getAttribute(JEVisType type) throws JEVisException {
-        //TODO not optimal, getAttribute() will not cached if we call all this in a loop we do N Webserive calls
+        //TODO not optimal, getAttribute() will not cached if we call all this in a loop we do no Webservice calls
         for (JEVisAttribute att : getAttributes()) {
             if (att.getName().equals(type.getName())) {
                 return att;
@@ -389,8 +394,7 @@ public class JEVisObjectWS implements JEVisObject {
          * Delete form cache and other objects
          */
         if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
-            rel.getEndObject().notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_CHILD_DELETED, rel.getStartObject().getID()));
-
+            rel.getEndObject().notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_CHILD_DELETED, rel.getStartObject()));
         }
 
         notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED, this));

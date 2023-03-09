@@ -99,7 +99,7 @@ public class ImpulseFunction implements ProcessFunction {
                     long bestDiff = 99999999999999999l;
                     try {
                         long middelMili = ((interval.getEndMillis() - interval.getStartMillis()) / 2) + interval.getStartMillis();
-                        long diff = Math.abs(sample.getTimestamp().getMillis() - middelMili);
+                        long diff = java.lang.Math.abs(sample.getTimestamp().getMillis() - middelMili);
 //                    logger.info("Diff for: " + sample.getTimestamp() + "      -> " + diff);
 
                         if (bestmatch != null) {

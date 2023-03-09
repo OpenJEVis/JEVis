@@ -67,6 +67,7 @@ public class FileEditor implements AttributeEditor {
     //Enable the automatic download of the smaple fo rthe filename
     //This function is suboptial and gives a abd user experience.
     private final boolean _autoDownload = true;
+    private boolean initialized = false;
 
     public FileEditor(JEVisAttribute att) {
         attribute = att;
@@ -103,7 +104,9 @@ public class FileEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            init();
+            if (!initialized) {
+                init();
+            }
         } catch (Exception ex) {
 
         }
@@ -290,6 +293,7 @@ public class FileEditor implements AttributeEditor {
 
         uploadButton.setDisable(readOnly);
 
+        initialized = true;
     }
 
 

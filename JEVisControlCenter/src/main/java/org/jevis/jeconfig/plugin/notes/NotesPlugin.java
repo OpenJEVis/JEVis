@@ -17,7 +17,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
@@ -30,9 +29,9 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
+import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -109,7 +108,9 @@ public class NotesPlugin implements Plugin {
         this.numberFormat.setMaximumFractionDigits(2);
 
         this.startDatePicker.setPrefWidth(120d);
+        this.startDatePicker.getStyleClass().add("ToolBarDatePicker");
         this.endDatePicker.setPrefWidth(120d);
+        this.endDatePicker.getStyleClass().add("ToolBarDatePicker");
 
         tableView.setItems(filteredData);
 
@@ -738,7 +739,7 @@ public class NotesPlugin implements Plugin {
     }
 
     private Object getAnalysisRequest(NotesRow notesRow, JEVisObject noteItem) {
-        System.out.println("getAnalysisRequest: " + notesRow + " item: " + noteItem);
+        logger.debug("getAnalysisRequest: " + notesRow + " item: " + noteItem);
         DateTime start = notesRow.getTimeStamp().minusHours(12);
         DateTime end = notesRow.getTimeStamp().plusHours(12);
 
@@ -759,18 +760,20 @@ public class NotesPlugin implements Plugin {
             logger.error("Could not get parallel item for note object {}:{}", noteItem.getName(), noteItem.getID());
         }
 
-        AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
-        return new AnalysisRequest(parallelItem, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+        return new AnalysisRequest(parallelItem, AggregationPeriod.NONE, ManipulationMode.NONE, start, end);
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
 
-        ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
-        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+        ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 18, 18));
+        newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.add")));
+        ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.save")));
+        ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.delete")));
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
@@ -879,7 +882,7 @@ public class NotesPlugin implements Plugin {
         save.setOnAction(event -> {
             this.data.forEach(notesRow -> {
                 if (notesRow.hasChanged()) {
-                    System.out.println("Note Has changed commit:");
+                    logger.debug("Note Has changed commit:");
                     notesRow.commit();
                 }
             });
@@ -1181,8 +1184,8 @@ public class NotesPlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("data_note.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.NOTE, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
     }
 
     @Override

@@ -84,12 +84,12 @@ public class Statusbar extends ToolBar {
     private final ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
     private final ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
     private JEVisDataSource _ds;
-    private final Tooltip tt = new Tooltip("Warning:\nConnection to server lost. Trying to reconnect...  ");
+    private final Tooltip tt = new Tooltip(I18n.getInstance().getString("statusbar.connection.lost"));
     private int retryCount = 0;
     private final JFXProgressBar progressBar = new JFXProgressBar();
     private final HBox progressbox = new HBox();
     private final Label messageBox = new Label();
-    private final TaskProgressView taskProgressView = new TaskProgressView();
+    private final TaskProgressView taskProgressView = new TaskProgressView<>();
     private final JFXPopup popup = new JFXPopup();
     private final JFXButton showTaskViewButton = new JFXButton("", JEConfig.getImage("TaskList.png", 15, 15));
     private final Map<String, Image> imageList = new HashMap<>();
@@ -241,7 +241,7 @@ public class Statusbar extends ToolBar {
     }
 
     /**
-     * Add an new task to the process monitor.
+     * Add a new task to the process monitor.
      *
      * @param owner     id of the function to start the task, used to stop the task if needed
      * @param task      task
@@ -338,9 +338,9 @@ public class Statusbar extends ToolBar {
             return;
         }
 
-        double procent = (((100 / totalJobs) * doneJobs) / 100);
+        double percent = (((100 / totalJobs) * doneJobs) / 100);
         Platform.runLater(() -> {
-            progressBar.setProgress(procent);
+            progressBar.setProgress(percent);
             if (doneJobs >= totalJobs) {
                 progressBar.setProgress(0);
                 //progressbox.setVisible(false);
@@ -399,24 +399,41 @@ public class Statusbar extends ToolBar {
         //TODO implement notification
         root.getChildren().setAll(userIcon, this.userName, spacerLeft, progressbox, spacer, versionLabel, versionNumber, spacer2, this.conBox, this.onlineInfo);
 
-        String sinfo = "";
+        StringBuilder builder = new StringBuilder(I18n.getInstance().getString("statusbar.tooltips.status.connection"));
+        builder.append("\n");
 
         for (JEVisOption opt : _ds.getConfiguration()) {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
                 for (JEVisOption dsOption : opt.getOptions()) {
-                    sinfo += dsOption.getKey() + ": " + dsOption.getValue() + "\n";
+                    if (dsOption.equals(CommonOptions.DataSource.HOST)) {
+                        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.host"))
+                                .append(" : ")
+                                .append(dsOption.getValue()).append("\n");
+                    } else if (dsOption.equals(CommonOptions.DataSource.PORT)) {
+                        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.port"))
+                                .append(" : ")
+                                .append(dsOption.getValue()).append("\n");
+                    } else if (dsOption.equals(CommonOptions.DataSource.LOCALE)) {
+                        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.locale"))
+                                .append(" : ")
+                                .append(dsOption.getValue()).append("\n");
+                    } else if (dsOption.equals(CommonOptions.DataSource.SSLTRUST)) {
+                        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.ssltrust"))
+                                .append(" : ")
+                                .append(dsOption.getValue()).append("\n");
+                    }
                 }
             }
         }
 
 
-        NumberFormat numberFormate = DecimalFormat.getNumberInstance(java.util.Locale.getDefault());
+        NumberFormat nf = DecimalFormat.getNumberInstance(I18n.getInstance().getLocale());
         double memNumber = ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024);
 
-        sinfo += "\nMemory usage: " + numberFormate.format(memNumber) + " mb";
+        builder.append(I18n.getInstance().getString("statusbar.tooltips.status.memoryusage")).append(" : ")
+                .append(nf.format(memNumber)).append(" Mb");
 
-        Tooltip serverTip = new Tooltip("Connection Info:\n"
-                + sinfo);
+        Tooltip serverTip = new Tooltip(builder.toString());
         this.onlineInfo.setTooltip(serverTip);
 
         HBox.setHgrow(root, Priority.ALWAYS);
@@ -461,7 +478,7 @@ public class Statusbar extends ToolBar {
                                 @Override
                                 public void run() {
 //                                    logger.info("still online");
-                                    Statusbar.this.onlineInfo.setText("Online");
+                                    Statusbar.this.onlineInfo.setText(I18n.getInstance().getString("statusbar.tooltips.status.online"));
                                     Statusbar.this.onlineInfo.setTextFill(Color.BLACK);
                                     Statusbar.this.conBox.getChildren().setAll(Statusbar.this.connectIcon);
 
@@ -477,7 +494,7 @@ public class Statusbar extends ToolBar {
                                 @Override
                                 public void run() {
 //                                    logger.info("whaa were are offline");
-                                    Statusbar.this.onlineInfo.setText("Offline");
+                                    Statusbar.this.onlineInfo.setText(I18n.getInstance().getString("statusbar.tooltips.status.offline"));
                                     Statusbar.this.onlineInfo.setTextFill(Color.web("#D62748"));//red
                                     Statusbar.this.conBox.getChildren().setAll(Statusbar.this.notConnectIcon);
 
@@ -494,7 +511,7 @@ public class Statusbar extends ToolBar {
                         }
                     }
 
-                    //TODO checlk is alive
+                    //TODO check if alive
                 } catch (InterruptedException ex) {
                     logger.fatal(ex);
                 } catch (JEVisException ex) {

@@ -33,6 +33,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -57,6 +58,7 @@ import org.jevis.jeconfig.tool.template.Template;
 import org.jevis.jeconfig.tool.template.Templates;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * @author fs
@@ -90,6 +92,7 @@ public class NewObjectDialog {
         dialog.setHeaderText(I18n.getInstance().getString("jevistree.dialog.new.header"));
         dialog.getDialogPane().getButtonTypes().setAll();
         dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
+        dialog.setResizable(true);
         VBox root = new VBox();
 
         dialog.getDialogPane().setContent(root);
@@ -196,11 +199,16 @@ public class NewObjectDialog {
 
         Label templateLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.template"));
         JFXComboBox<Template> templateBox = new JFXComboBox<>();
-        templateBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Template>() {
-            @Override
-            public void changed(ObservableValue<? extends Template> observable, Template oldValue, Template newValue) {
-                template = newValue;
+        templateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+
+            root.getChildren().remove(1, root.getChildren().size());
+            template = newValue;
+            for (Map.Entry<String, Node> entry : template.getOptions().entrySet()) {
+                String s = entry.getKey();
+                Node node = entry.getValue();
+                Platform.runLater(() -> root.getChildren().add(node));
             }
+            Platform.runLater(() -> dialog.getDialogPane().autosize());
         });
         templateBox.setCellFactory(templateCellFactory);
         templateBox.setButtonCell(templateCellFactory.call(null));
@@ -223,19 +231,20 @@ public class NewObjectDialog {
                 } else {
                     Platform.runLater(() -> createCleanData.setVisible(false));
                 }
-                Platform.runLater(() -> {
-                    ObservableList observableList = FXCollections.observableArrayList();
-                    observableList.add(new NullTemplate());
-                    Templates.getAllTemplates().forEach(template -> {
-                        try {
-                            if (template.supportsClass(newValue)) {
-                                observableList.add(template);
-                            }
-                        } catch (JEVisException e) {
-                            e.printStackTrace();
-                        }
 
-                    });
+                ObservableList observableList = FXCollections.observableArrayList();
+                observableList.add(new NullTemplate());
+                Templates.getAllTemplates().forEach(template -> {
+                    try {
+                        if (template.supportsClass(newValue)) {
+                            observableList.add(template);
+                        }
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+
+                });
+                Platform.runLater(() -> {
                     templateBox.setItems(observableList);
                     templateBox.getSelectionModel().selectFirst();
                 });
@@ -345,7 +354,8 @@ public class NewObjectDialog {
 
                         createName = fName.getText();
                         createClass = jeVisClassComboBox.getSelectionModel().getSelectedItem();
-                        createCount = Integer.parseInt(count.getNumber().toString());//dirty :)
+//                        createCount = Integer.parseInt(count.getNumber().toString());//dirty :)
+                        createCount = count.getNumber().intValue(); //haha
 
                         NewObjectDialog.this.response = Response.YES;
                     } else {

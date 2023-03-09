@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.tool;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 
@@ -7,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IDFetcher {
-
+    private static final Logger logger = LogManager.getLogger(IDFetcher.class);
 
     public IDFetcher(JEVisObject obj) {
         List<JEVisObject> object = new ArrayList<>();
@@ -35,11 +37,11 @@ public class IDFetcher {
     }
 
     public void printIDs(List<JEVisObject> object) {
-        System.out.println("==============");
+        logger.debug("==============");
         object.forEach(object1 -> {
-            System.out.print(object1.getID() + ",");
+            logger.debug(object1.getID() + ",");
         });
-        System.out.println("==============");
+        logger.debug("==============");
     }
 
 }

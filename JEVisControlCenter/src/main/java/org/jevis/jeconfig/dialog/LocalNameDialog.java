@@ -18,19 +18,19 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.util.Callback;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.jevis.jeconfig.plugin.object.attribute.LanguageEditor;
 import org.jevis.jeconfig.tool.Layouts;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 public class LocalNameDialog {
 
@@ -43,6 +43,7 @@ public class LocalNameDialog {
     private String newName = "";
 
     private static Method columnToFitMethod;
+
     static {
         try {
             columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
@@ -54,7 +55,7 @@ public class LocalNameDialog {
 
     public LocalNameDialog(JEVisObject object) {
         this.object = object;
-        this.newName=object.getName();
+        this.newName = object.getLocalName(I18n.getInstance().getLocale().getLanguage());
     }
 
     public Response show() {
@@ -68,64 +69,71 @@ public class LocalNameDialog {
 
         /** build form **/
 
-        Label objNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        JFXTextField objectNameTest = new JFXTextField();
-        objectNameTest.setText(object.getLocalName("default"));
-        objectNameTest.textProperty().addListener((observable, oldValue, newValue) -> {
-            newName=newValue;
+
+
+
+        Label objLocalNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
+        JFXTextField objectLocalNameTest = new JFXTextField();
+        Image img = new Image("/icons/flags2/" + I18n.getInstance().getLocale().getLanguage() + ".png");
+        ImageView imageViewFlag = new ImageView(img);
+        imageViewFlag.fitHeightProperty().setValue(20);
+        imageViewFlag.fitWidthProperty().setValue(20);
+        imageViewFlag.setSmooth(true);
+        objectLocalNameTest.setText(object.getLocalName(I18n.getInstance().getLocale().getLanguage()));
+        objectLocalNameTest.textProperty().addListener((observable, oldValue, newValue) -> {
+            newName = newValue;
         });
-        objectNameTest.focusedProperty().addListener(new ChangeListener<Boolean>() {
+        objectLocalNameTest.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue ov, Boolean t, Boolean t1) {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        if (objectNameTest.isFocused() && !objectNameTest.getText().isEmpty()) {
-                            objectNameTest.selectAll();
+                        if (objectLocalNameTest.isFocused() && !objectLocalNameTest.getText().isEmpty()) {
+                            objectLocalNameTest.selectAll();
                         }
                     }
                 });
             }
         });
-        Platform.runLater(() -> objectNameTest.requestFocus());
-
+        Platform.runLater(() -> objectLocalNameTest.requestFocus());
 
 
         object.getLocalNameList().forEach((s, s2) -> {
-            translationRows.add(new TranslationRow(s,s2));
+            translationRows.add(new TranslationRow(s, s2));
         });
 
         /** add new language row **/
-        translationRows.add(new TranslationRow(null,""));
+        translationRows.add(new TranslationRow(null, ""));
 
         TableView<TranslationRow> table = new TableView(translationRows);
         TableColumn firstNameCol = new TableColumn(I18n.getInstance().getString("jevistree.dialog.translate.table.language"));
         firstNameCol.setPrefWidth(200);
         firstNameCol.setMinWidth(200);
-        firstNameCol.setCellValueFactory(new PropertyValueFactory<TranslationRow,String>("language"));
-        firstNameCol.setCellFactory(param -> new TableCell<TranslationRow,String>(){
+        firstNameCol.setCellValueFactory(new PropertyValueFactory<TranslationRow, String>("language"));
+        firstNameCol.setCellFactory(param -> new TableCell<TranslationRow, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if(empty){
+                if (empty) {
                     setGraphic(null);
                     setText(null);
-                }else{
+                } else {
                     try {
-                        if(item==null){
+                        if (item == null) {
                             TranslationRow rowItem = (TranslationRow) getTableRow().getItem();
                             JFXComboBox<Locale> langBox = buildLangBox(null);
                             langBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     rowItem.setLanguage(newValue.getLanguage());
-                                    translationRows.add(new TranslationRow(null,""));
+                                    translationRows.add(new TranslationRow(null, ""));
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
 
                                 }
                             });
                             setGraphic(langBox);
-                        }else {
+                        } else {
                             TranslationRow rowItem = (TranslationRow) getTableRow().getItem();
                             JFXComboBox<Locale> langBox = buildLangBox(new Locale(item));
                             langBox.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -141,7 +149,7 @@ public class LocalNameDialog {
                             setGraphic(langBox);
 
                         }
-                    }catch (Exception ex){
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -151,7 +159,7 @@ public class LocalNameDialog {
 
         TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("jevistree.dialog.translate.table.name"));
         lastNameCol.setPrefWidth(220);
-        lastNameCol.setCellValueFactory(new PropertyValueFactory<TranslationRow,String>("name"));
+        lastNameCol.setCellValueFactory(new PropertyValueFactory<TranslationRow, String>("name"));
         lastNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
         lastNameCol.setEditable(true);
 
@@ -164,12 +172,12 @@ public class LocalNameDialog {
 
         gridPane.setVgap(8);
         gridPane.setHgap(8);
-        Layouts.setAnchor(gridPane,5);
+        Layouts.setAnchor(gridPane, 5);
 
-        gridPane.addRow(0,objNameLabel,objectNameTest);
-        gridPane.add(table,0,1,2,1);
+        gridPane.addRow(0, objLocalNameLabel,imageViewFlag, objectLocalNameTest);
+        gridPane.add(table, 0, 1, 3, 1);
 
-        GridPane.setHgrow(objectNameTest, Priority.ALWAYS);
+        GridPane.setHgrow(objectLocalNameTest, Priority.ALWAYS);
         GridPane.setHgrow(table, Priority.ALWAYS);
 
 
@@ -181,26 +189,39 @@ public class LocalNameDialog {
         dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
 
 
-
-
         dialog.showAndWait()
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode().equals(ButtonType.FINISH.getButtonData().getTypeCode())) {
                         this.response = Response.YES;
                         try {
-                            object.setName(newName);
-                            Map<String, String> commitLangMap = new HashedMap();
+                            Map<String, String> commitLangMap = new HashMap<>();
                             translationRows.forEach(translationRow -> {
                                 if (translationRow != null && !translationRow.getName().isEmpty()) {
                                     commitLangMap.put(translationRow.getLanguage(), translationRow.getName());
+
                                 }
 
                             });
+                            if(commitLangMap.containsKey(I18n.getInstance().getLocale().getLanguage())) {
+                                commitLangMap.replace(I18n.getInstance().getLocale().getLanguage(), newName);
+                            }else {
 
+                                commitLangMap.put(I18n.getInstance().getLocale().getLanguage(), newName);
+                            }
                             object.setLocalNames(commitLangMap);
+                            if(!object.getLocalName("en").isEmpty()){
+                                object.setName(object.getLocalName("en"));
+                            }else if(!object.getLocalName("de").isEmpty()){
+                                object.setName(object.getLocalName("de"));
+                            }else {
+                                Optional<String> firstKey = object.getLocalNameList().keySet().stream().findFirst();
+                                if (firstKey.isPresent()) {
+                                    object.setName(object.getLocalName(firstKey.get()));
+                                }
+                            }
                             object.commit();
 
-                        }catch (Exception ex){
+                        } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                     } else {
@@ -217,11 +238,9 @@ public class LocalNameDialog {
         NO, YES, CANCEL
     }
 
-    private JFXComboBox<Locale> buildLangBox(Locale selected){
-        ObservableList<Locale> langList = LanguageEditor.getEnumList();
+    private JFXComboBox<Locale> buildLangBox(Locale selected) {
+        ObservableList<Locale> langList = FXCollections.observableArrayList(I18n.getInstance().getAvailableLang());
         JFXComboBox picker = new JFXComboBox(langList);
-
-
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
@@ -235,13 +254,13 @@ public class LocalNameDialog {
                             setText(null);
                         } else {
                             try {
-                                Image img = new Image("/icons/flags/" + item.getLanguage() + ".gif");
+                                Image img = new Image("/icons/flags2/" + item.getLanguage() + ".png");
                                 ImageView iv = new ImageView(img);
                                 iv.fitHeightProperty().setValue(20);
                                 iv.fitWidthProperty().setValue(20);
                                 iv.setSmooth(true);
                                 setGraphic(iv);
-                            }catch (Exception ex){
+                            } catch (Exception ex) {
                                 /** warning we have missing flags for some Languages **/
                                 logger.trace(ex);
                             }
@@ -256,19 +275,18 @@ public class LocalNameDialog {
         picker.setCellFactory(cellFactory);
         picker.setButtonCell(cellFactory.call(null));
 
-        if(selected!=null && !selected.equals("emty")){
-            picker.getSelectionModel().select(selected);
+        if (selected != null && !selected.equals("empty")) {
+          int index =  langList.indexOf(langList.stream().filter(locale -> locale.getLanguage().equals(selected.getLanguage())).findAny().get());
+          picker.getSelectionModel().select(index);
         }
 
         return picker;
     }
 
 
-
-    public class TranslationRow{
+    public class TranslationRow {
         private final SimpleStringProperty language;
         private final SimpleStringProperty name;
-
 
 
         public TranslationRow(String language, String name) {
@@ -300,13 +318,13 @@ public class LocalNameDialog {
             this.name.set(name);
         }
 
-    @Override
-    public String toString() {
-        return "TranslationRow{" +
-                "language=" + language +
-                ", name=" + name +
-                '}';
+        @Override
+        public String toString() {
+            return "TranslationRow{" +
+                    "language=" + language +
+                    ", name=" + name +
+                    '}';
+        }
     }
-}
 
 }

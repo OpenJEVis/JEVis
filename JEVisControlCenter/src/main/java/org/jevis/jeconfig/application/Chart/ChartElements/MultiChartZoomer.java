@@ -10,6 +10,7 @@ import de.gsi.chart.plugins.Panner;
 import de.gsi.chart.plugins.Zoomer;
 import de.gsi.chart.ui.ObservableDeque;
 import de.gsi.chart.ui.geometry.Side;
+import de.gsi.dataset.DataSet;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -37,9 +38,12 @@ import org.controlsfx.control.RangeSlider;
 import org.controlsfx.glyphfont.Glyph;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.jeconfig.application.Chart.Charts.PieChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -797,8 +801,8 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
                         }
                     });
                 } else if (chart instanceof PieChart) {
-                    double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMin();
-                    double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
+                    double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getPrimaryDateAxis().getMin();
+                    double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getPrimaryDateAxis().getMax();
                     chart.updateTableZoom(min, max);
                 }
             });
@@ -1119,9 +1123,9 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         }
 
         if (currentChart != null) {
-            valueForDisplayLeft = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getValueForDisplay(zoomRectangle.getX());
+            valueForDisplayLeft = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getPrimaryDateAxis().getValueForDisplay(zoomRectangle.getX());
             double x2 = zoomRectangle.getX() + zoomRectangle.getWidth();
-            valueForDisplayRight = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getValueForDisplay(x2);
+            valueForDisplayRight = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getPrimaryDateAxis().getValueForDisplay(x2);
 
             currentChart.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
         }
@@ -1250,6 +1254,31 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
     private void zoomInEnded() {
 
         zoomRectangle.setVisible(false);
+
+        org.jevis.jeconfig.application.Chart.Charts.XYChart xyChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart;
+        double min = xyChart.getPrimaryDateAxis().getMin();
+        DateTime minDateTime = new DateTime(new Double(min * 1000).longValue());
+        double max = xyChart.getPrimaryDateAxis().getMax();
+        DateTime maxDateTime = new DateTime(new Double(max * 1000).longValue());
+        Period periodForZoom = new Period(minDateTime, maxDateTime);
+
+        boolean isValidZoomDistance = false;
+        PeriodComparator periodComparator = new PeriodComparator();
+
+        for (XYChartSerie xyChartSerie : xyChart.getXyChartSerieList()) {
+            if (xyChartSerie.getValueDataSet().getValues(DataSet.DIM_X).length >= 2) {
+                DateTime dateTime0 = new DateTime(new Double(xyChartSerie.getValueDataSet().getValues(DataSet.DIM_X)[0] * 1000).longValue());
+                DateTime dateTime1 = new DateTime(new Double(xyChartSerie.getValueDataSet().getValues(DataSet.DIM_X)[1] * 1000).longValue());
+                Period periodForSerie = new Period(dateTime0, dateTime1);
+                if (periodComparator.compare(periodForZoom, periodForSerie) > -1) {
+                    isValidZoomDistance = true;
+                    break;
+                }
+            }
+        }
+
+        if (!isValidZoomDistance) return;
+
         if (zoomRectangle.getWidth() > ZOOM_RECT_MIN_SIZE && zoomRectangle.getHeight() > ZOOM_RECT_MIN_SIZE) {
             performZoomIn();
         }
@@ -1259,8 +1288,6 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
 
         if (zoomRectangle.getHeight() != 0 && zoomRectangle.getWidth() != 0) {
 
-            double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMin();
-            double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
             chartPlugin.setxAxisLowerBound(min);
             chartPlugin.setxAxisUpperBound(max);
 
@@ -1268,8 +1295,8 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
             if (!followUpZoom) {
                 notActive.forEach(chart -> {
                     if (chart instanceof org.jevis.jeconfig.application.Chart.Charts.XYChart) {
-                        double displayPositionLeftX = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getDateAxis().getDisplayPosition(valueForDisplayLeft);
-                        double displayPositionRightX = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getDateAxis().getDisplayPosition(valueForDisplayRight);
+                        double displayPositionLeftX = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getPrimaryDateAxis().getDisplayPosition(valueForDisplayLeft);
+                        double displayPositionRightX = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getPrimaryDateAxis().getDisplayPosition(valueForDisplayRight);
                         double width = displayPositionRightX - displayPositionLeftX;
                         chart.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
                         double height = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getY1Axis().getHeight();
@@ -1321,8 +1348,8 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         performZoom(zoomWindows, false);
 
 
-        double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMin();
-        double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
+        double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getPrimaryDateAxis().getMin();
+        double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getPrimaryDateAxis().getMax();
 
         currentChart.updateTableZoom(min, max);
         chartPlugin.setxAxisLowerBound(min);

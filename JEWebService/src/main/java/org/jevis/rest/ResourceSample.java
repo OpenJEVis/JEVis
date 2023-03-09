@@ -61,17 +61,15 @@ public class ResourceSample {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceSample.class);
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    /**
+     * List of classes which can be updated with execute permission
+     **/
+    String[] executeClasses = new String[]{"Data Notes", "User Data", "Alarm Configuration", "Clean Data"};
+    public final List<String> executeUpdateExceptions = Arrays.asList(executeClasses);
     private SQLDataSource ds = null;
     private List<JsonSample> list;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    /**
-     * List of classes which can be updated with the execute permission
-     **/
-    String[] executeClasses = new String[]{"Data Notes", "User Data", "Clean Data"};
-    public final List<String> executeUpdateExceptions = Arrays.asList(executeClasses);
     //public final List<String> executeUpdateExceptions = Lists.newArrayList("Data Notes", "User Data", "Clean Data");
-
 
     //JEWebService/v1/files/8598/attributes/File/samples/files/20180604T141441?filename=nb-configuration.xml
     //JEWebService/v1/objects/{id}/attributes/{attribute}/samples
@@ -96,22 +94,25 @@ public class ResourceSample {
             JsonObject obj = ds.getObject(id);
             if (obj == null) {
                 return Response.status(Status.NOT_FOUND)
-                        .entity("Object is not accessable").build();
+                        .entity("Object is not accessible").build();
             }
 
             if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
                 if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                    throw new JEVisException("permission denied", 3022);
+                    return Response.status(Status.FORBIDDEN).entity("User is not allowed to change its own status").build();
+                } else {
+                    // allow user to change its own user attributes
                 }
             } else {
-                ds.getUserManager().canWrite(obj);//thows exception
+                ds.getUserManager().canWrite(obj);
             }
 
             if (timestamp.equals("now")) {
                 timestamp = fmt.print(new DateTime());
             }
 
-            ds.getUserManager().canWrite(obj);//can throw exception
+            // this is invalidating the user check
+            // ds.getUserManager().canWrite(obj);//can throw exception
 
             //Your local disk path where you want to store the file
             String uploadedFileLocation = createFilePattern(id, attribute, filename, fmt.parseDateTime(timestamp));
@@ -140,7 +141,7 @@ public class ResourceSample {
 
             int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
             samples.clear();
-            return Response.status(200).build();
+            return Response.status(Status.OK).build();
 
         } catch (AuthenticationException ex) {
             logger.error("Auth error: {}", ex);
@@ -199,9 +200,19 @@ public class ResourceSample {
             ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject obj = ds.getObject(id);
-            if (obj == null || !ds.getUserManager().canRead(obj)) {
+            if (obj == null) {
                 return Response.status(Status.NOT_FOUND)
                         .entity("Object is not accessible").build();
+            }
+
+            if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
+                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    return Response.status(Status.FORBIDDEN).entity("User is not allowed to change its own status").build();
+                } else {
+                    // allow user to read its own user attributes
+                }
+            } else {
+                ds.getUserManager().canRead(obj);
             }
 
             DateTime ts = null;
@@ -339,65 +350,10 @@ public class ResourceSample {
             }
 
             return Response.ok(list).build();
-
-            /*
-            for (JsonAttribute att : attributes) {
-                if (att.getType().equals(attribute)) {
-                    DateTime startDate = null;
-                    DateTime endDate = null;
-                    if (start != null) {
-                        startDate = fmt.parseDateTime(start);
-                        if (startDate.getYear() < 1980) {
-                            Response.ok(new ArrayList<JsonSample>()).build();
-                        }
-                    }
-                    if (end != null) {
-                        endDate = fmt.parseDateTime(end);
-                        if (endDate.getYear() < 1980) {
-                            Response.ok(new ArrayList<JsonSample>()).build();
-                        }
-                    }
-
-                    if (onlyLatest) {
-                        logger.trace("Last sample mode");
-
-                        JsonSample sample = ds.getLastSample(id, attribute);
-                        if (sample != null) {
-                            return Response.ok(sample).build();
-                        } else {
-                            return Response.status(Status.NOT_FOUND).entity("Has no samples").build();
-                        }
-
-                    }
-
-                    if ((aggregationPeriod.equals("") && manipulationMode.equals(""))
-                            || (aggregationPeriod.equals("NONE") && manipulationMode.equals("NONE"))) {
-                        list = ds.getSamples(id, attribute, startDate, endDate, limit);
-                    } else {
-                        AggregationPeriod ap = AggregationPeriod.parseAggregation(aggregationPeriod);
-                        ManipulationMode mm = ManipulationMode.parseManipulation(manipulationMode);
-                        DateTimeZone dateTimeZone = DateTimeZone.forID(timeZone);
-                        JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap, dateTimeZone);
-
-                        list = sg.getAggregatedSamples();
-                        sg = null;
-                    }
-
-                    return Response.ok(list).build();
-
-                }
-            }
-
-            return Response.status(Status.NOT_FOUND)
-                    .entity("No such Attribute").build();
-
-            */
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception jex) {
-            logger.error("Error while fetching sample: {}-{} {}->{}", id, attribute, start, end);
-            logger.error(jex);
-            //jex.printStackTrace();
+            logger.error("Error while fetching sample: {}-{} {}->{}", id, attribute, start, end, jex);
             return Response.serverError().entity(jex).build();
         } finally {
             Config.CloseDS(ds);
@@ -427,21 +383,19 @@ public class ResourceSample {
 
                 if (object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()) {
                     if (attribute.equals("Sys Admin")) {
-                        throw new JEVisException("permission denied", 3023);
+                        return Response.status(Status.FORBIDDEN)
+                                .entity("Only Sys Admin is allowed do declare other Sys Admins").build();
                     }
                 }
 
 
                 if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
                     if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                        throw new JEVisException("permission denied", 3022);
-                    } else if (attribute.equals("Password")) {
-                        canWrite = true;
+                        return Response.status(Status.FORBIDDEN)
+                                .entity("User is not allowed to change its own status").build();
                     } else {
-                        canWrite = ds.getUserManager().canWriteWOE(object);
+                        canWrite = true;
                     }
-
-
                 } else {
 
                     /**
@@ -458,7 +412,8 @@ public class ResourceSample {
                     }
 
                     if (!canWrite && !canExecute) {
-                        throw new JEVisException("permission denied", 3021);
+                        return Response.status(Status.FORBIDDEN)
+                                .entity("User is not allowed to post samples").build();
                     }
                 }
 
@@ -472,10 +427,10 @@ public class ResourceSample {
                     // If user can write -> OK
                     // If user can execute and only Note changed -> OK
                     int result = 0;
-                    if (canWrite || (canExecute && (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")))) {
+                    if (canWrite || (canExecute && (object.getJevisClass().equals(this.executeUpdateExceptions.get(0)) || object.getJevisClass().equals(this.executeUpdateExceptions.get(1))))) {
                         logger.debug("canWrite import");
                         result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-                    } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(2))) {
+                    } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(3))) {
                         /** update notes but not samples **/
                         logger.debug("canExecute Sample: {}-{} for: {}", id, att, ds.getCurrentUser().getAccountName());
                         for (JsonSample jsonSample : samples) {
@@ -496,6 +451,9 @@ public class ResourceSample {
                             logger.debug("Add Notes: {}", sampleList);
                             result += ds.setSamples(id, attribute, type.getPrimitiveType(), sampleList);
                         }
+                    } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(2)) && attribute.equals("Alarm Checked")) {
+                        logger.debug("canWrite alarm configuration:alarm checked");
+                        result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
                     }
 
                     ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE, String.format("%s:%s|%s|%s", id, attribute, result, Samples.getDuration(samples)));
@@ -553,6 +511,13 @@ public class ResourceSample {
             ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject object = ds.getObject(id);
+
+            if (object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()) {
+                if (attribute.equals("Sys Admin")) {
+                    throw new JEVisException("permission denied", 3023);
+                }
+            }
+
             if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
                 if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
                     throw new JEVisException("permission denied", 3022);

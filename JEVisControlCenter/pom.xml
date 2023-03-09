@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.9.62</version>
+    <version>3.9.67</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -107,8 +107,8 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>2.0.0-alpha0</version>
+            <artifactId>slf4j-reload4j</artifactId>
+            <version>2.0.5</version>
         </dependency>
         <dependency>
             <groupId>com.jfoenix</groupId>
@@ -152,7 +152,7 @@
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>71.1</version>
+            <version>72.1</version>
         </dependency>
         <dependency>
             <groupId>de.jollyday</groupId>
@@ -164,10 +164,26 @@
             <artifactId>netty-codec</artifactId>
             <version>4.1.76.Final</version>
         </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.mustangproject</groupId>-->
+        <!--            <artifactId>library</artifactId>-->
+        <!--            <version>2.5.6</version>-->
+        <!--        </dependency>-->
         <dependency>
-            <groupId>org.mustangproject</groupId>
-            <artifactId>library</artifactId>
-            <version>2.5.0</version>
+            <groupId>eu.hansolo</groupId>
+            <artifactId>Medusa</artifactId>
+            <version>8.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.9.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hildan.fxgson</groupId>
+            <artifactId>fx-gson</artifactId>
+            <version>3.1.2</version>
         </dependency>
         <!-- nice javafx stuff
         <dependency>

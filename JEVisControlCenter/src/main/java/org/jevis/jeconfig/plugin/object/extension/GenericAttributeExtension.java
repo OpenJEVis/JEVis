@@ -135,6 +135,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         editor = new WebViewEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.PERIOD.getId())) {
                         editor = new PeriodEditor(dialogContainer, att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.RANGING_VALUE.getId())) {
+                        editor = new RangingValueEditor(dialogContainer, att);
                     }
                 } catch (Exception e) {
                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());

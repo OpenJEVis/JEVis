@@ -137,6 +137,15 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
     List<JEVisObject> getParents() throws JEVisException;
 
     /**
+     * Returns first parent of this JEVisObject entity.
+     *
+     * @return Parent as JEVisObject
+     * @throws org.jevis.api.JEVisException
+     */
+    JEVisObject getParent() throws JEVisException;
+
+
+    /**
      * Set the parent JEVisObject.
      *
      * @param object parent as JEVisObject

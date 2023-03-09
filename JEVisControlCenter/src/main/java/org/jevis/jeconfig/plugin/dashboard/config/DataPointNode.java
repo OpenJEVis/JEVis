@@ -11,8 +11,8 @@ public class DataPointNode {
     private Long cleanObjectID;
     private String attribute;
     private ChartType chartType;
-    private ManipulationMode manipulationMode;
-    private AggregationPeriod aggregationPeriod;
+    private ManipulationMode manipulationMode = ManipulationMode.NONE;
+    private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private Color color;
     private boolean absolute;
     private String unit;
@@ -63,11 +63,7 @@ public class DataPointNode {
 
     public void setCalculationID(Long calculationID) {
         this.calculationID = calculationID;
-        if (calculationID != null && calculationID > 0l) {
-            this.setEnpi(true);
-        } else {
-            this.setEnpi(false);
-        }
+        this.setEnpi(calculationID != null && calculationID > 0l);
 
     }
 

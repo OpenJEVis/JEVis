@@ -28,6 +28,7 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.DragResizeMod;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -54,6 +55,8 @@ public abstract class Widget extends Region {
     private final Label label = new Label();
     private final Tooltip tt = new Tooltip("");
 
+    protected DataModelDataHandler sampleHandler;
+
 
     private final DragResizeMod.OnDragResizeEventListener onDragResizeEventListener = DragResizeMod.defaultListener;
 
@@ -71,6 +74,7 @@ public abstract class Widget extends Region {
 
     }
 
+/*
     public Widget() {
         super();
         this.config = new WidgetPojo();
@@ -78,13 +82,20 @@ public abstract class Widget extends Region {
         this.control = null;
         this.jeVisDataSource = null;
     }
+*/
 
     public Widget(DashboardControl control, WidgetPojo config) {
         super();
         logger.debug("new Widget with config");
         this.control = control;
         this.jeVisDataSource = control.getDataSource();
-        this.config = config;
+
+        if (config != null) {
+            this.config = config;
+        } else {
+            this.config = createDefaultConfig();
+        }
+
 
         initLayout();
         setCacheHint(CacheHint.QUALITY);
@@ -92,8 +103,9 @@ public abstract class Widget extends Region {
     }
 
     /**
-     * creates an new Widget with an default configuration
+     * creates a new Widget with a default configuration
      **/
+    /*
     public Widget(DashboardControl control) {
         super();
         logger.debug("new Widget without config");
@@ -101,13 +113,11 @@ public abstract class Widget extends Region {
         this.jeVisDataSource = control.getDataSource();
         this.config = createDefaultConfig();
 
-        try {
-            initLayout();
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
+        initLayout();
+        setCacheHint(CacheHint.QUALITY);
+        setCache(true);
     }
-
+*/
     public DashboardControl getControl() {
         return this.control;
     }
@@ -188,7 +198,7 @@ public abstract class Widget extends Region {
 
         try {
             setBackgroundColor(this.config.getBackgroundColor());
-            updateConfig();
+            //updateConfig();
 
         } catch (Exception ex) {
             logger.debug(ex);
@@ -348,11 +358,12 @@ public abstract class Widget extends Region {
 
         contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, layerUPItem, layerDownItem, new SeparatorMenuItem(), delete);
 
+        //this.editPane.setMouseTransparent(false);
         this.editPane.setOnMouseClicked(event -> {
-            logger.debug("EditPane. Event: {}", event);
             if (event.getClickCount() == 2) {
                 try {
                     Widget.this.openConfig();
+                    event.consume();
                 } catch (Exception ex) {
                     logger.error(ex);
                     ex.printStackTrace();
@@ -360,14 +371,13 @@ public abstract class Widget extends Region {
             }
 
             if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
-
                 if (event.isControlDown()) {
                     ArrayList arrayList = new ArrayList<>();
                     arrayList.add(this);
                     control.addToWidgetSelection(arrayList);
                     event.consume();
                 } else if (event.isAltDown()) {
-                    System.out.println("Is alt selected: " + this);
+                    logger.debug("Is alt selected: " + this);
                     control.setSelectAllFromType(this);
                     event.consume();
                 } else {
@@ -413,11 +423,10 @@ public abstract class Widget extends Region {
     }
 
     private void debugLayers() {
-        System.out.println("Layers:");
+        logger.debug("Layers:");
         control.getWidgets().stream().sorted((o1, o2) -> o1.getConfig().getLayer().compareTo(o2.getConfig().getLayer())).forEach(widget -> {
-            System.out.println("L: " + widget.getConfig().getLayer() + "  " + widget.getConfig().getTitle());
+            logger.debug("L: " + widget.getConfig().getLayer() + "  " + widget.getConfig().getTitle());
         });
-        System.out.println();
     }
 
     public void setNodeSize(double width, double height) {
@@ -511,8 +520,6 @@ public abstract class Widget extends Region {
         AnchorPane.setTopAnchor(node, 0.0);
         AnchorPane.setLeftAnchor(node, 0.0);
         AnchorPane.setRightAnchor(node, 0.0);
-
-
     }
 
     /**
@@ -531,6 +538,7 @@ public abstract class Widget extends Region {
      */
     public abstract boolean isStatic();
 
+
     /**
      * @return
      */
@@ -543,7 +551,7 @@ public abstract class Widget extends Region {
 
 
     /**
-     * Unique ID of this Widget
+     * Unique ID of this Widget for CSS
      */
     public abstract String typeID();
 
@@ -566,6 +574,9 @@ public abstract class Widget extends Region {
                 .put(JsonNames.Widget.BACKGROUND_COLOR, this.config.getBackgroundColor().toString())
                 .put(JsonNames.Widget.FONT_COLOR, this.config.getFontColor().toString())
                 .put(JsonNames.Widget.FONT_SIZE, this.config.getFontSize())
+                .put(JsonNames.Widget.FONT_WEIGHT, this.config.getFontWeight().toString())
+                .put(JsonNames.Widget.FONT_POSTURE, this.config.getFontPosture().toString())
+                .put(JsonNames.Widget.FONT_UNDERLINED, this.config.getFontUnderlined())
                 .put(JsonNames.Widget.TITLE_POSITION, this.config.getTitlePosition().toString())
                 .put(JsonNames.Widget.BORDER_SIZE, this.config.getBorderSize().getTop())
                 .put(JsonNames.Widget.SHOW_SHADOW, this.config.getShowShadow())
@@ -584,11 +595,10 @@ public abstract class Widget extends Region {
     @Override
     public Widget clone() {
         try {
-            Widget newWidget = this.getClass().getDeclaredConstructor(DashboardControl.class).newInstance(control);
-
+            logger.debug("Clone Widget: " + config);
             ObjectNode json = this.toNode();
             WidgetPojo newConfig = new WidgetPojo(json);
-            newWidget.updateConfig(newConfig);
+            Widget newWidget = Widgets.createWidget(typeID(), control, newConfig);
             return newWidget;
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -598,6 +608,8 @@ public abstract class Widget extends Region {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         return null;
@@ -618,4 +630,16 @@ public abstract class Widget extends Region {
 
         return false;
     }
+
+    public Interval getCurrentInterval(Interval interval) {
+        if (sampleHandler != null) {
+            sampleHandler.setInterval(interval);
+            return new Interval(sampleHandler.getDuration().getStart(), sampleHandler.getDuration().getEnd());
+        } else {
+            return null;
+        }
+
+
+    }
+
 }

@@ -58,8 +58,31 @@ public class TemplateHandler {
             removeOldStyleFormulaInputs();
 
             createFormulaInputs();
+
+            checkFormulaInputs();
         } catch (JsonProcessingException e) {
             logger.error("Could not parse json model", e);
+        }
+    }
+
+    private void checkFormulaInputs() {
+
+        for (TemplateFormula templateFormula : getRcTemplate().getTemplateFormulas()) {
+            List<String> inputIdsToRemove = new ArrayList<>();
+            for (String inputId : templateFormula.getInputIds()) {
+                boolean found = getRcTemplate().getTemplateFormulas().stream().anyMatch(formula -> inputId.equals(formula.getId()));
+
+                if (!found) {
+                    found = getRcTemplate().getTemplateInputs().stream().anyMatch(input -> inputId.equals(input.getId()));
+                }
+
+                if (!found) {
+                    inputIdsToRemove.add(inputId);
+                    logger.debug("Could not find input with Id {} in formula {} with formula of {}. Will be removed on save.", inputId, templateFormula.getName(), templateFormula.getFormula());
+                }
+            }
+
+            templateFormula.getInputIds().removeAll(inputIdsToRemove);
         }
     }
 
@@ -93,12 +116,17 @@ public class TemplateHandler {
             ObjectNode inputNode = JsonNodeFactory.instance.objectNode();
             inputNode.put("objectClass", templateInput.getObjectClass());
             inputNode.put("id", templateInput.getId());
+            inputNode.put("quantity", templateInput.isQuantity());
             inputNode.put("attributeName", templateInput.getAttributeName());
             inputNode.put("variableName", templateInput.getVariableName());
             inputNode.put("variableType", templateInput.getVariableType());
             inputNode.put("templateFormula", templateInput.getTemplateFormula());
+            inputNode.put("dependency", templateInput.getDependency());
             inputNode.put("filter", templateInput.getFilter());
             inputNode.put("group", templateInput.getGroup());
+            inputNode.put("timeRestrictionEnabled", templateInput.getTimeRestrictionEnabled());
+            inputNode.put("fixedTimeFrame", templateInput.getFixedTimeFrame());
+            inputNode.put("reducingTimeFrame", templateInput.getReducingTimeFrame());
 
             templateInputsArrayNode.add(inputNode);
         });
@@ -111,9 +139,12 @@ public class TemplateHandler {
             outputNode.put("name", templateOutput.getName());
             outputNode.put("nameBold", templateOutput.getNameBold());
             outputNode.put("variableName", templateOutput.getVariableName());
+            outputNode.put("tooltip", templateOutput.getTooltip());
+            outputNode.put("showTooltip", templateOutput.getShowTooltip());
             outputNode.put("resultBold", templateOutput.getResultBold());
             outputNode.put("unit", templateOutput.getUnit());
             outputNode.put("showLabel", templateOutput.getShowLabel());
+            outputNode.put("showAnalysisLink", templateOutput.getShowAnalysisLink());
             outputNode.put("link", templateOutput.getLink());
             outputNode.put("column", templateOutput.getColumn());
             outputNode.put("row", templateOutput.getRow());
@@ -132,6 +163,9 @@ public class TemplateHandler {
             formulaNode.put("name", templateFormula.getName());
             formulaNode.put("formula", templateFormula.getFormula());
             formulaNode.put("output", templateFormula.getOutput());
+            formulaNode.put("timeRestrictionEnabled", templateFormula.getTimeRestrictionEnabled());
+            formulaNode.put("fixedTimeFrame", templateFormula.getFixedTimeFrame());
+            formulaNode.put("reducingTimeFrame", templateFormula.getReducingTimeFrame());
 
             ArrayNode inputIdsArrayNode = JsonNodeFactory.instance.arrayNode();
             templateFormula.getInputIds().forEach(id -> inputIdsArrayNode.add(JsonNodeFactory.instance.textNode(id)));
@@ -141,10 +175,12 @@ public class TemplateHandler {
             formulasArrayNode.add(formulaNode);
         });
 
+        ObjectNode intervalConfiguration = mapper.valueToTree(this.rcTemplate.getIntervalSelectorConfiguration());
 
         dataHandlerNode.set("templateInputs", templateInputsArrayNode);
         dataHandlerNode.set("templateOutputs", templateOutputsArrayNode);
         dataHandlerNode.set("templateFormulas", formulasArrayNode);
+        dataHandlerNode.set("intervalSelectorConfiguration", intervalConfiguration);
 
         dataHandlerNode.set("type", JsonNodeFactory.instance.textNode(TYPE));
 

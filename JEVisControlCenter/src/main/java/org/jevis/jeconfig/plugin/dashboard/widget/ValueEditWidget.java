@@ -45,7 +45,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     private final JFXTextField labelValue = new JFXTextField();
     private final Label labelTimeStamp = new Label();
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private final NumberFormat nf = NumberFormat.getInstance();
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private Limit limit;
@@ -62,9 +62,6 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         super(control, config);
     }
 
-    public ValueEditWidget(DashboardControl control) {
-        super(control);
-    }
 
     @Override
     public WidgetPojo createDefaultConfig() {
@@ -82,6 +79,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Value.Update: {}", interval);
         lastInterval = interval;
+        //setCurrentInterval(interval);
 
         Platform.runLater(() -> {
             showAlertOverview(false, "");
@@ -146,7 +144,6 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
                 displayedSample.set(Double.NaN);//or NaN?
             }
-
 
         } catch (Exception ex) {
             logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
@@ -264,6 +261,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         return false;
     }
 
+
     @Override
     public List<DateTime> getMaxTimeStamps() {
         if (sampleHandler != null) {
@@ -278,7 +276,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
 
         GridPane gridPane = new GridPane();

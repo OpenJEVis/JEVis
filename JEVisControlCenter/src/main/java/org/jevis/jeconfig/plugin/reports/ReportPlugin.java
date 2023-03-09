@@ -21,10 +21,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
@@ -39,10 +36,7 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.report.JEVisFileWithSample;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.FileNames;
-import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.GlobalToolBar;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.resource.PDFModel;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.joda.time.DateTime;
@@ -209,13 +203,13 @@ public class ReportPlugin implements Plugin {
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> handleRequest(Constants.Plugin.Command.RELOAD));
-        ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
+        ToggleButton pdfButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PDF, iconSize, iconSize));
         Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
         pdfButton.setTooltip(pdfTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(pdfButton);
@@ -240,7 +234,7 @@ public class ReportPlugin implements Plugin {
             }
         });
 
-        ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", iconSize, iconSize));
+        ToggleButton xlsxButton = new ToggleButton("", JEConfig.getSVGImage(Icon.FILE_DOWNLOAD, iconSize, iconSize));
         Tooltip xlsxTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
         xlsxButton.setTooltip(xlsxTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(xlsxButton);
@@ -266,7 +260,7 @@ public class ReportPlugin implements Plugin {
         });
 
 
-        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
+        ToggleButton printButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PRINT, iconSize, iconSize));
         Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
@@ -284,8 +278,8 @@ public class ReportPlugin implements Plugin {
             }
         });
 
-        ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
-        ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
+        ToggleButton zoomIn = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_IN, this.iconSize, this.iconSize));
+        ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, this.iconSize, this.iconSize));
 
         zoomIn.setOnAction(event -> zoomFactor.set(zoomFactor.get() + 0.05));
         zoomOut.setOnAction(event -> zoomFactor.set(zoomFactor.get() - 0.05));
@@ -606,7 +600,7 @@ public class ReportPlugin implements Plugin {
                                     return null;
                                 }
                             };
-                            JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadLastReport, getIcon().getImage(), true);
+                            JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadLastReport, (JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize)).getImage(), true);
 
                             for (JEVisSample pdfSample : allPDFSamples) {
                                 try {
@@ -663,15 +657,15 @@ public class ReportPlugin implements Plugin {
                     }
                 }
                 if (!hasActiveLoadTask.get()) {
-                    JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadOtherFilesInBackground, getIcon().getImage(), true);
+                    JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadOtherFilesInBackground, (JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize)).getImage(), true);
                 } else {
                     Thread.sleep(500);
-                    JEConfig.getStatusBar().addTask("Waiting", this, ReportPlugin.this.getIcon().getImage(), true);
+                    JEConfig.getStatusBar().addTask("Waiting", this, (JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize)).getImage(), true);
                 }
                 return null;
             }
         };
-        JEConfig.getStatusBar().addTask("Waiting", checkForActiveLoading, ReportPlugin.this.getIcon().getImage(), true);
+        JEConfig.getStatusBar().addTask("Waiting", checkForActiveLoading, (JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize)).getImage(), true);
     }
 
     private void setupCellFactory(ListView<JEVisObject> listView) {
@@ -731,8 +725,8 @@ public class ReportPlugin implements Plugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("Report.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.REPORT, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override

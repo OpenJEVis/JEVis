@@ -1,18 +1,15 @@
 package org.jevis.httpdatasource;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.auth.DigestScheme;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,12 +39,15 @@ public class HTTPDataSource {
     private String password;
     private DateTimeZone timeZone;
     private Boolean ssl = false;
+
     public enum AUTH_SCHEME {
         BASIC, DIGEST, NONE
     }
+
     private AUTH_SCHEME authScheme;
     private Long id;
     private String name;
+    private boolean needUrlConfig = true;
 
 
     /**
@@ -55,7 +55,9 @@ public class HTTPDataSource {
      * @return
      */
     public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
-        logger.info("sendSampleRequest to http channel: {}", channel.getChannelObject());
+        logger.info("sendSampleRequest to http channel: {}", channel);
+
+        String channelID = channel.getChannelObject().getID().toString();
         List<InputStream> answer = new ArrayList<InputStream>();
 
         String path = channel.getPath();
@@ -65,86 +67,90 @@ public class HTTPDataSource {
             path = path.substring(1);
         }
 
-        logger.info("Connection Setting: Server: {} User: {} PW: {}", serverURL, userName, password);
+        logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
 
-        /* Workaround if the protocol is not in the url**/
-        if (ssl) {
-            if (!serverURL.startsWith("https")) {
-                serverURL = "https://" + serverURL;
+        if (needUrlConfig) {/*only the first channel needs to configure the server url*/
+            if (ssl) {/* Workaround if the protocol is not in the url**/
+                if (!serverURL.startsWith("https")) {
+                    serverURL = "https://" + serverURL;
+                }
+                /* We trust self signed certificates for now, this way is not save **/
+                DataSourceHelper.doTrustToCertificates();
+            } else {
+                if (!serverURL.startsWith("http")) {
+                    serverURL = "http://" + serverURL;
+                }
             }
-            /* We trust self signed certificates for now, this way is not save **/
-            DataSourceHelper.doTrustToCertificates();
-        } else {
-            if (!serverURL.startsWith("http")) {
-                serverURL = "http://" + serverURL;
+
+            if (serverURL.endsWith("/")) {
+                serverURL = serverURL.substring(0, serverURL.length() - 1);
             }
-        }
 
-        if (serverURL.endsWith("/")) {
+            if (port != null) {
+                serverURL += ":" + port;
+            }
 
-        } else {
             serverURL += "/";
-        }
-
-        String contentURL = serverURL + path;
-
-        contentURL = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), contentURL, timeZone);
-
-        contentURL=HTTPDataSource.FixURL(contentURL);
-        logger.debug("Channel URL: {}", contentURL);
 
 
-        URL url = new URL(serverURL);
-        if(url.getPort()>-1 && port==null){
-            logger.info("Port not set in Attribute, using port from URL: {}",port);
-            setPort(url.getPort());
-        }
-        HttpHost targetHost = new HttpHost(url.getHost(), port, url.getProtocol());
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpClientContext context = HttpClientContext.create();
-
-        if (getAuthScheme() != null) {
-            CredentialsProvider credsProvider = new BasicCredentialsProvider();
-            credsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, password));
-
-            AuthCache authCache = new BasicAuthCache();
-            context.setAuthCache(authCache);
-
-            setAuthScheme(AUTH_SCHEME.DIGEST);
-            if (getAuthScheme() == AUTH_SCHEME.BASIC) {
-                BasicScheme basicScheme = new BasicScheme();
-                authCache.put(targetHost, basicScheme);
-            } else if (getAuthScheme() == AUTH_SCHEME.DIGEST) {
-                DigestScheme digestScheme = new DigestScheme();
-                authCache.put(targetHost, digestScheme);
+            /** Fallback if the URL does contain the port and the Port attribute has non **/
+            URL url = new URL(serverURL);
+            if (port == null && url.getPort() > -1) {
+                logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, port);
+                setPort(url.getPort());
             }
-
-            context.setCredentialsProvider(credsProvider);
+            needUrlConfig = false;
         }
 
-
-        if (pathFollower.isActive()) {
-            logger.info("Using Dynamic Link");
-            pathFollower.setConnection(httpClient, context);
-            contentURL = pathFollower.startFetching(serverURL, contentURL);
-            logger.info("Final target url after following links: {}", contentURL);
-        }
-        logger.info("Content URL: {}", contentURL);
 
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(connectionTimeout)
-                .setSocketTimeout(readTimeout)
+                .setConnectTimeout(connectionTimeout * 1000)
+                .setSocketTimeout(readTimeout * 1000)
                 .build();
-        HttpGet get = new HttpGet(contentURL);
+
+        //HttpHost targetHost = new HttpHost(url.getHost(), port, url.getProtocol());
+
+        CloseableHttpClient httpClient;
+        if (userName != null && !userName.isEmpty()) {
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            provider.setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials(userName, password)
+            );
+            httpClient = HttpClientBuilder.create()
+                    .setDefaultCredentialsProvider(provider)
+                    .build();
+        } else {
+            httpClient = HttpClientBuilder.create()
+                    .build();
+        }
+
+        String contentURL = path;
+        contentURL = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), contentURL, timeZone);
+        contentURL = HTTPDataSource.FixURL(contentURL);
+        logger.debug("[{}] Channel URL: {}", channelID, contentURL);
+
+        String getRequest = "";
+        if (pathFollower.isActive()) {
+            logger.debug("[{}] Using Dynamic Link", channelID, channelID);
+            pathFollower.setConnection(httpClient, requestConfig);
+            getRequest = pathFollower.startFetching(serverURL, contentURL);
+            logger.debug("[{}] Final target url after following links: {}", channelID, getRequest);
+        } else {
+            getRequest = serverURL + contentURL;
+        }
+        logger.info("[{}] send HTTP.get: {}", channelID, getRequest);
+
+        HttpGet get = new HttpGet(getRequest);
         get.setConfig(requestConfig);
 
-        HttpResponse oResponse = httpClient.execute(get, context);
-
+        HttpResponse oResponse = httpClient.execute(get);
+        logger.info("[{}] HTTP response status code: {}", channelID, oResponse.getStatusLine());
         HttpEntity oEntity = oResponse.getEntity();
         String oXmlString = EntityUtils.toString(oEntity);
-        logger.info("Content length to parse: {}",oXmlString.length());
-        logger.debug("Content to parse: {}",oXmlString);
+        logger.info("[{}] Content length to parse: {}", channelID, oXmlString.length());
+        logger.debug("[{}] Content to parse: {}", channelID, oXmlString);
         EntityUtils.consume(oEntity);
         InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
         answer.add(stream);
@@ -191,7 +197,6 @@ public class HTTPDataSource {
         String SSL = "SSL";
         String USER = "User";
     }
-
 
 
     interface HTTPChannelDirectory extends DataCollectorTypes.ChannelDirectory {

@@ -43,7 +43,7 @@ public class TableWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(TableWidget.class);
     public static String WIDGET_ID = "Table";
     private NumberFormat nf = NumberFormat.getInstance();
-    private DataModelDataHandler sampleHandler;
+    //private DataModelDataHandler sampleHandler;
     private TableView<TableData> table;
     private Interval lastInterval = null;
     private Boolean customWorkday = true;
@@ -53,9 +53,6 @@ public class TableWidget extends Widget implements DataModelWidget {
         super(control, config);
     }
 
-    public TableWidget(DashboardControl control) {
-        super(control);
-    }
 
     @Override
     public void debug() {
@@ -97,7 +94,7 @@ public class TableWidget extends Widget implements DataModelWidget {
             try {
                 chartDataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
-                if (chartDataModel.getEnPI()) {
+                if (chartDataModel.isCalculation()) {
                     CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                     CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
@@ -113,9 +110,8 @@ public class TableWidget extends Widget implements DataModelWidget {
 
                 if (!results.isEmpty()) {
 
-
                     tableDatas.add(new TableData(
-                            chartDataModel.getObject().getName(),
+                            chartDataModel.getName(),
                             this.nf.format(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, chartDataModel)),
                             chartDataModel.getUnitLabel()));
 
@@ -175,6 +171,7 @@ public class TableWidget extends Widget implements DataModelWidget {
         return false;
     }
 
+
     @Override
     public List<DateTime> getMaxTimeStamps() {
         if (sampleHandler != null) {
@@ -188,7 +185,7 @@ public class TableWidget extends Widget implements DataModelWidget {
     @Override
     public void init() {
         nf = NumberFormat.getInstance();
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
 
         this.table = new TableView<>();

@@ -49,17 +49,14 @@ public class Benchmark {
     public void printBechmark(String text) {
         String unit = "s";
         long milis = DateTime.now().getMillis() - _start.getMillis();
-        long secound = (milis / 1000);
-        if (secound == 0 && milis > 0) {
+        long seconds = (milis / 1000);
+        if (seconds == 0 && milis > 0) {
             unit = "ms";
         } else {
-            milis = secound;
+            milis = seconds;
         }
 
-//        System.out.printf("[  |%4d|%n  %s  ] for - %s", milis, unit, text);
-//        System.out.printf("[%4d %s] %s\n", milis, unit, text);
-        logger.error("[{} {}] {}", milis, unit, text);
-//        logger.info("[" + (milis) + unit + "] for - " + text);
+        logger.info("[{} {}] {}", milis, unit, text);
     }
 
     public void printBenchmarkDetail(String text) {
@@ -69,22 +66,21 @@ public class Benchmark {
         long milisSStart = DateTime.now().getMillis() - _start.getMillis();
         long milisSPrint = DateTime.now().getMillis() - _lastPrint.getMillis();
 
-        long secound = (milisSStart / 1000);
-        if (secound == 0 && milisSStart > 0) {
+        long seconds = (milisSStart / 1000);
+        if (seconds == 0 && milisSStart > 0) {
             unit = "ms";
         } else {
-            milisSStart = secound;
+            milisSStart = seconds;
         }
 
-        long secoundPrint = (milisSPrint / 1000);
-        if (secoundPrint == 0 && milisSPrint > 0) {
+        long secondPrint = (milisSPrint / 1000);
+        if (secondPrint == 0 && milisSPrint > 0) {
             unitPrint = "ms";
         } else {
-            milisSPrint = secoundPrint;
+            milisSPrint = secondPrint;
         }
 
-//        System.out.printf("[%4d %s | %4d %s] %s\n", milisSPrint, unitPrint, milisSStart, unit, text);
-        logger.error("[{} {} | {} {}] {}", milisSPrint, unitPrint, milisSStart, unit, text);
+        logger.info("[{} {} | {} {}] {}", milisSPrint, unitPrint, milisSStart, unit, text);
         _lastPrint = DateTime.now();
 
     }

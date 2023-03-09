@@ -20,11 +20,12 @@ package org.jevis.jeconfig.application.jevistree;
  * published at <http://www.OpenJEVis.org/>.
  */
 
-import org.apache.commons.collections.map.HashedMap;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,10 +36,11 @@ import java.util.Map;
  */
 public class JEVisRecycleBinObject implements JEVisObject {
 
-    private String _name = "Recycle Bin";
-    private List<JEVisObject> children = new ArrayList<>();
+    private final List<JEVisObject> children = new ArrayList<>();
+    private final List<JEVisObject> childrenList = new ArrayList<>();
     final JEVisDataSource ds;
-    private List<JEVisObject> childrenList = new ArrayList<>();
+    private String _name = I18n.getInstance().getString("plugin.object.recyclebin.name");
+    public static String CLASS_NAME = "Recycle Bin";
 
     public JEVisRecycleBinObject(JEVisDataSource ds) {
         this.ds = ds;
@@ -47,6 +49,11 @@ public class JEVisRecycleBinObject implements JEVisObject {
     @Override
     public List<JEVisObject> getParents() throws JEVisException {
         return new ArrayList<>();
+    }
+
+    @Override
+    public JEVisObject getParent() throws JEVisException {
+        return null;
     }
 
     @Override
@@ -88,7 +95,7 @@ public class JEVisRecycleBinObject implements JEVisObject {
 
     @Override
     public Map<String, String> getLocalNameList() {
-        return new HashedMap();
+        return new HashMap<>();
     }
 
     @Override
@@ -99,7 +106,7 @@ public class JEVisRecycleBinObject implements JEVisObject {
     @Override
     public JEVisClass getJEVisClass() {
         try {
-            return ds.getJEVisClass("Recycle Bin");
+            return ds.getJEVisClass(CLASS_NAME);
         } catch (JEVisException e) {
             e.printStackTrace();
         }

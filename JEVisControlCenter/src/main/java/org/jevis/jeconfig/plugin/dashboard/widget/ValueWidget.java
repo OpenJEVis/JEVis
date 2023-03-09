@@ -64,7 +64,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
     private final Label label = new Label();
     private final NumberFormat nf = new DecimalFormat("#,##0.##");//NumberFormat.getInstance();
     private final NumberFormat nfPercent = new DecimalFormat("0");
-    private DataModelDataHandler sampleHandler;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
     private Limit limit;
@@ -86,14 +85,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
         setId(WIDGET_ID);
     }
 
-    public ValueWidget(DashboardControl control) {
-        super(control);
-    }
-
-    public ValueWidget() {
-        super();
-        setId(WIDGET_ID);
-    }
 
     @Override
     public WidgetPojo createDefaultConfig() {
@@ -111,6 +102,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
+
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
@@ -134,6 +126,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
             widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setAutoAggregation(true);
             this.sampleHandler.setInterval(interval);
+//            setIntervalForLastValue(interval);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
@@ -159,7 +152,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 logger.warn("ValueWidget is missing SampleHandler.datamodel: [ID:{}]", widgetUUID);
             }
 
-
         } catch (Exception ex) {
             logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
             Platform.runLater(() -> {
@@ -172,7 +164,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
             showProgressIndicator(false);
         });
 
-        updateLayout();
+        //updateLayout();
+        updateText();
         logger.debug("Value.updateData.done: {}", this.getConfig().getTitle());
     }
 
@@ -192,14 +185,36 @@ public class ValueWidget extends Widget implements DataModelWidget {
             }
         }
 
-        if (!percentText.isEmpty()) {
-            if (getConfig().getShowValue()) {
-                valueText.setValue(valueText.getValue() + " (" + percentText + ")");
-            } else {
+        String displayedText = "";
+
+        if (getConfig().getShowValue() && !percentText.isEmpty()) {
+            displayedText = valueText.getValue() + " (" + percentText + ")";
+        }
+        if (getConfig().getShowValue() && percentText.isEmpty()) {
+            displayedText = valueText.getValue();
+        }
+        if (!getConfig().getShowValue() && !percentText.isEmpty()) {
+            displayedText = percentText;
+        }
+        if (!getConfig().getShowValue() && percentText.isEmpty()) {
+            displayedText = "- %";
+        }
+        valueText.setValue(displayedText);
+
+        //if (!percentText.isEmpty()) {
+        /*
+        if (getConfig().getShowValue()) {
+            valueText.setValue(valueText.getValue() + " (" + percentText + ")");
+        } else {
+            if (!percentText.isEmpty()) {
                 valueText.setValue(percentText);
+            } else {
+                valueText.setValue("- %");
             }
 
         }
+        */
+        // }
 
         Platform.runLater(() -> {
             this.label.setText(valueText.getValue());
@@ -230,7 +245,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateLayout() {
-        updateText();
+        //updateText();
     }
 
     @Override
@@ -294,6 +309,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
                     }
 
                 }
+            } else {
+                checkLimit();
+                updateText();
             }
 
         } catch (Exception exception) {
@@ -325,6 +343,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
                         break;
                     }
                 }
+            } else {
+                percentText = "";
+                updateText();
             }
         } catch (Exception exception) {
             logger.error("Error while updating percent: {}", exception, exception);
@@ -338,6 +359,10 @@ public class ValueWidget extends Widget implements DataModelWidget {
     }
 
     private void checkPercent(double reference) {
+        if (percent.getPercentWidgetID() <= 0) {
+            return;
+        }
+
         Double value = ValueWidget.this.displayedSample.get();
         Double result = value / reference * 100;
         if (!result.isNaN()) {
@@ -386,7 +411,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 this.label.setTextFill(this.config.getFontColor());
                 this.label.setContentDisplay(ContentDisplay.CENTER);
                 this.label.setAlignment(this.config.getTitlePosition());
-
+                Font font = Font.font(this.label.getFont().getFamily(), this.getConfig().getFontWeight(), this.getConfig().getFontPosture(), this.config.getFontSize());
+                this.label.setFont(font);
+                this.label.setUnderline(this.getConfig().getFontUnderlined());
             });
         });
     }
@@ -395,6 +422,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public boolean isStatic() {
         return false;
     }
+
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {
@@ -410,7 +439,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));
@@ -453,14 +482,14 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 gp.setVgap(8);
 
                 for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
-                    if (chartDataRow.getEnPI()) {
+                    if (chartDataRow.isCalculation()) {
                         try {
                             alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));
 
                             CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
-                                    this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
+                                    this.getDataHandler().getDuration().getStart(), this.getDataHandler().getDuration().getEnd(), true);
 
                             for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 
@@ -516,7 +545,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
     }
 
 
-
     @Override
     public String typeID() {
         return WIDGET_ID;
@@ -526,18 +554,15 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public ObjectNode toNode() {
 
         ObjectNode dashBoardNode = super.createDefaultNode();
-        dashBoardNode
-                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        dashBoardNode.set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
 
 
         if (limit != null) {
-            dashBoardNode
-                    .set(LIMIT_NODE_NAME, limit.toJSON());
+            dashBoardNode.set(LIMIT_NODE_NAME, limit.toJSON());
         }
 
         if (percent != null) {
-            dashBoardNode
-                    .set(PERCENT_NODE_NAME, percent.toJSON());
+            dashBoardNode.set(PERCENT_NODE_NAME, percent.toJSON());
         }
 
 

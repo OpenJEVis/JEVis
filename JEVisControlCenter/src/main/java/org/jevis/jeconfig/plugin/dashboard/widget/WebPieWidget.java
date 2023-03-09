@@ -17,7 +17,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
@@ -41,7 +40,7 @@ public class WebPieWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(WebPieWidget.class);
     public static String WIDGET_ID = "Web Pie";
     private final NumberFormat nf = NumberFormat.getInstance();
-    private DataModelDataHandler sampleHandler;
+
     private final ObjectMapper mapper = new ObjectMapper();
     private final BorderPane borderPane = new BorderPane();
     private final VBox legendPane = new VBox();
@@ -52,9 +51,6 @@ public class WebPieWidget extends Widget {
         super(control, config);
     }
 
-    public WebPieWidget(DashboardControl control) {
-        super(control);
-    }
 
     @Override
     public void debug() {
@@ -135,7 +131,7 @@ public class WebPieWidget extends Widget {
                     proC = 8;
                 }
 
-                PieData pieData = new PieData(ColorHelper.toColor(chartDataModel.getColor())
+                PieData pieData = new PieData(chartDataModel.getColor()
                         , value, proC, UnitManager.getInstance().format(chartDataModel.getUnitLabel()), dataName, dataName);
 
                 pieDataList.add(pieData);
@@ -173,6 +169,7 @@ public class WebPieWidget extends Widget {
     public boolean isStatic() {
         return false;
     }
+
 
     @Override
     public List<DateTime> getMaxTimeStamps() {

@@ -12,8 +12,8 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,10 +25,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
-import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.GlobalToolBar;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.TablePlugin;
@@ -224,7 +221,7 @@ public class BaseDataPlugin extends TablePlugin {
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
+        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, toolBarIconSize, toolBarIconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.basedata.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
@@ -235,11 +232,12 @@ public class BaseDataPlugin extends TablePlugin {
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(20, 20);
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
+        Separator sep2 = new Separator(Orientation.VERTICAL);
 
         reduceFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
         increaseFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
 
-        toolBar.getItems().setAll(filterInput, reload, sep1, reduceFractionDigitsButton, increaseFractionDigitsButton, JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        toolBar.getItems().setAll(filterInput, reload, sep1, reduceFractionDigitsButton, increaseFractionDigitsButton, sep2, xlsxButton, JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(BaseDataPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
 
@@ -634,8 +632,8 @@ public class BaseDataPlugin extends TablePlugin {
     }
 
     @Override
-    public ImageView getIcon() {
-        return JEConfig.getImage("base_data.png", Plugin.IconSize, Plugin.IconSize);
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.DATABASE, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override

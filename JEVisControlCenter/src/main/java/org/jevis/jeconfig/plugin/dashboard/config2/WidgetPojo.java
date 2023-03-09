@@ -6,6 +6,8 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,6 +29,9 @@ public class WidgetPojo {
     private Size size = Size.DEFAULT;
     private Font font = Font.getDefault();
     private Double fontSize = 13d;
+    private FontWeight fontWeight = FontWeight.NORMAL;
+    private FontPosture fontPosture = FontPosture.REGULAR;
+    private Boolean fontUnderlined = false;
     private Pos titlePosition = Pos.CENTER;
     private Boolean showShadow = true;
     private Integer decimals = 2;
@@ -114,9 +119,27 @@ public class WidgetPojo {
                 logger.debug("Could not parse {}: {}", FONT_COLOR, ex.getMessage());
             }
             try {
-                this.size = new Size(jsonNode.get(HEIGHT).asDouble(), jsonNode.get(WIDTH).asDouble());
+                this.size = new Size(jsonNode.get(HEIGHT).asDouble(25), jsonNode.get(WIDTH).asDouble(25));
             } catch (Exception ex) {
                 logger.debug("Could not parse {} : {}", HEIGHT, ex.getMessage());
+            }
+
+            try {
+                this.fontWeight = FontWeight.findByName(jsonNode.get(FONT_WEIGHT).asText());
+            } catch (Exception ex) {
+                logger.debug("Could not parse {} : {}", FONT_WEIGHT, ex.getMessage());
+            }
+
+            try {
+                this.fontPosture = FontPosture.findByName(jsonNode.get(FONT_POSTURE).asText());
+            } catch (Exception ex) {
+                logger.debug("Could not parse {} : {}", FONT_POSTURE, ex.getMessage());
+            }
+
+            try {
+                this.fontUnderlined = jsonNode.get(FONT_UNDERLINED).asBoolean();
+            } catch (Exception ex) {
+                logger.debug("Could not parse {} : {}", FONT_UNDERLINED, ex.getMessage());
             }
 
             try {
@@ -284,6 +307,30 @@ public class WidgetPojo {
         this.fontSize = fontSize;
     }
 
+    public FontWeight getFontWeight() {
+        return fontWeight;
+    }
+
+    public void setFontWeight(FontWeight fontWeight) {
+        this.fontWeight = fontWeight;
+    }
+
+    public FontPosture getFontPosture() {
+        return fontPosture;
+    }
+
+    public void setFontPosture(FontPosture fontPosture) {
+        this.fontPosture = fontPosture;
+    }
+
+    public Boolean getFontUnderlined() {
+        return fontUnderlined;
+    }
+
+    public void setFontUnderlined(Boolean fontUnderlined) {
+        this.fontUnderlined = fontUnderlined;
+    }
+
     public Pos getTitlePosition() {
         return this.titlePosition;
     }
@@ -340,10 +387,12 @@ public class WidgetPojo {
         copy.setSize(this.getSize());
         copy.setDecimals(this.getDecimals());
         copy.setFontSize(this.getFontSize());
+        copy.setFontWeight(this.getFontWeight());
+        copy.setFontPosture(this.getFontPosture());
+        copy.setFontUnderlined(this.getFontUnderlined());
         copy.setType(this.getType());
         copy.setyPosition(this.getyPosition());
         copy.setLayer(this.getLayer());
-
 
         return copy;
     }

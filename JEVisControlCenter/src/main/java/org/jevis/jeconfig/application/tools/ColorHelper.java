@@ -17,6 +17,11 @@ public class ColorHelper {
                 .toUpperCase();
     }
 
+    public static String toShortRGBCode(Color value) {
+        return "#" + (format(value.getRed()) + format(value.getGreen()) + format(value.getBlue()))
+                .toUpperCase();
+    }
+
     public static String colorToBrighter(String colorString) {
         Color color = ColorHelper.toColor(colorString);
 
@@ -31,6 +36,21 @@ public class ColorHelper {
         if (blue > 255) blue = 255;
 
         return String.format("#%02x%02x%02x", red, green, blue);
+    }
+
+    public static Color colorToBrighter(Color color) {
+
+        int red = (int) (color.getRed() * 255);
+        red += 0.9 * red;
+        if (red > 255) red = 255;
+        int green = (int) (color.getGreen() * 255);
+        green += 0.9 * green;
+        if (green > 255) green = 255;
+        int blue = (int) (color.getBlue() * 255);
+        blue += 0.9 * blue;
+        if (blue > 255) blue = 255;
+
+        return ColorHelper.toColor(String.format("#%02x%02x%02x", red, green, blue));
     }
 
     public static Color getHighlightColor(Color color) {

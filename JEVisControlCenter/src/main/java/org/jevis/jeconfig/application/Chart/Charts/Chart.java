@@ -3,16 +3,19 @@ package org.jevis.jeconfig.application.Chart.Charts;
 import javafx.collections.ObservableList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
+import org.jetbrains.annotations.NotNull;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.List;
 
-public interface Chart {
+public interface Chart extends Comparable<Chart> {
 
     String getChartName();
 
@@ -44,5 +47,15 @@ public interface Chart {
 
     List<ChartDataRow> getChartDataRows();
 
-    ChartSetting getChartSetting();
+    ChartModel getChartModel();
+
+    List<XYChartSerie> getXyChartSerieList();
+
+    AlphanumComparator alphanumComparator = new AlphanumComparator();
+
+    @Override
+    default int compareTo(@NotNull Chart o) {
+        return alphanumComparator.compare(this.getChartName(), o.getChartName());
+    }
 }
+

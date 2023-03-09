@@ -44,6 +44,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.export.ExportMaster;
@@ -57,6 +58,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.TimeZoneBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PresetDateBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.jevistree.dialog.NewObject;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.methods.AutoLimitSetting;
@@ -64,10 +66,7 @@ import org.jevis.jeconfig.application.jevistree.methods.CalculationMethods;
 import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
-import org.jevis.jeconfig.dialog.CommonDialogs;
-import org.jevis.jeconfig.dialog.FindDialog;
-import org.jevis.jeconfig.dialog.ProgressForm;
-import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.object.attribute.GapFillingEditor;
 import org.jevis.jeconfig.plugin.object.extension.calculation.FormulaBox;
 import org.jevis.jeconfig.plugin.object.extension.calculation.VariablesBox;
@@ -149,12 +148,8 @@ public class TreeHelper {
                                                 }
                                             }
 
-                                            if (deleteforever) {
-                                                object.getDataSource().deleteObject(id, true);
-                                            } else {
-                                                object.getDataSource().deleteObject(id, false);
-                                            }
-                                            
+                                            object.getDataSource().deleteObject(id, deleteforever);
+
 
                                         } else {
                                             Platform.runLater(() -> {
@@ -859,7 +854,7 @@ public class TreeHelper {
                     JFXCheckBox auto = new JFXCheckBox("Automatische Festlegung");
 
                     Label presetDateLabel = new Label("Zeitbereich zur Bestimmung");
-                    PresetDateBox presetDateBox = new PresetDateBox();
+                    PresetDateBox presetDateBox = new PresetDateBox(tree.getJEVisDataSource(), null);
                     JFXCheckBox minIsZero = new JFXCheckBox("Untere Grenze ist immer 0");
 
                     Label limit1MinSubLabel = new Label("Toleranz der unteren Grenze [%]");
@@ -1360,7 +1355,6 @@ public class TreeHelper {
 
                 try {
                     if (obj.getDeleteTS() != null) {
-                        System.out.println("Set Delete TS");
                         obj.setDeleteTS(null);
                         obj.commit();
 
@@ -1506,7 +1500,6 @@ public class TreeHelper {
                 } else if (re == CopyObjectDialog.Response.LINK) {
                     buildLink(dragObj, targetParent, dia.getCreateName());
                 } else if (re == CopyObjectDialog.Response.COPY) {
-                    System.out.println("--- Copy object: " + dragObj + " newParent: " + targetParent);
                     copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), recursion, dia.getCreateCount());
                 }
             } else {
@@ -1575,6 +1568,12 @@ public class TreeHelper {
         logger.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
+        Map<String, String> commitLangMap = toCopyObj.getLocalNameList();
+        if (commitLangMap.containsValue(I18n.getInstance().getLocale().getLanguage())) {
+            commitLangMap.replace((I18n.getInstance().getLocale().getLanguage()), newName);
+        }else {
+            commitLangMap.put(I18n.getInstance().getLocale().getLanguage(), newName);
+        }
         newObject.setLocalNames(toCopyObj.getLocalNameList());
         newObject.commit();
 
@@ -1753,11 +1752,11 @@ public class TreeHelper {
             JEVisException {
         logger.debug("Event Create new Input");
 
-        List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
-        JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
-        allFilter.add(allDataFilter);
-        allFilter.add(allAttributesFilter);
+        List<JEVisClass> classes = new ArrayList<>();
+
+        for (String className : TreeSelectionDialog.allData) {
+            classes.add(calcObject.getDataSource().getJEVisClass(className));
+        }
 
         List<UserSelection> openList = new ArrayList<>();
         TargetHelper th = new TargetHelper(calcObject.getDataSource(), currentTarget);
@@ -1769,10 +1768,10 @@ public class TreeHelper {
                 openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
         }
 
-        SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.MULTIPLE, calcObject.getDataSource(), openList);
+        TreeSelectionDialog selectTargetDialog = new TreeSelectionDialog(dialogContainer, calcObject.getDataSource(), classes, SelectionMode.MULTIPLE, openList, true);
         selectTargetDialog.setOnDialogClosed(event -> {
             try {
-                if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
+                if (selectTargetDialog.getResponse() == Response.OK) {
                     if (selectTargetDialog.getUserSelection() != null && !selectTargetDialog.getUserSelection().isEmpty()) {
                         JEVisClass cleanDataClass = null;
 
@@ -1781,8 +1780,7 @@ public class TreeHelper {
                         JEVisClass baseDataClass = calcObject.getDataSource().getJEVisClass("Base Data");
                         for (UserSelection us : selectTargetDialog.getUserSelection()) {
                             JEVisObject correspondingCleanObject = null;
-                            if (selectTargetDialog.getSelectedFilter().equals(allDataFilter) && (
-                                    us.getSelectedObject().getJEVisClass().equals(dataClass) || us.getSelectedObject().getJEVisClass().equals(baseDataClass))) {
+                            if ((us.getSelectedObject().getJEVisClass().equals(dataClass) || us.getSelectedObject().getJEVisClass().equals(baseDataClass))) {
                                 List<JEVisObject> children = us.getSelectedObject().getChildren(cleanDataClass, false);
                                 if (!children.isEmpty()) {
                                     correspondingCleanObject = children.get(0);
@@ -1790,9 +1788,9 @@ public class TreeHelper {
                             }
 
                             String inputName = CalculationNameFormatter.createVariableName(us.getSelectedObject());
-
-                            JEVisClass inputClass = calcObject.getDataSource().getJEVisClass("Input");
+                            JEVisClass inputClass = calcObject.getDataSource().getJEVisClass(JC.Input.name);
                             JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
+                            newInputObj.setLocalNames(us.getSelectedObject().getLocalNameList());
                             newInputObj.commit();
 
                             DateTime now = new DateTime();
@@ -1816,7 +1814,7 @@ public class TreeHelper {
                                 th2 = new TargetHelper(us.getSelectedObject().getDataSource(), correspondingCleanObject, targetAtt);
                             }
 
-                            if (th2.isValid() && th2.targetAccessible()) {
+                            if (th2.isValid() && th2.targetObjectAccessible()) {
                                 logger.info("Target Is valid");
                                 JEVisSample newTarget = aInputData.buildSample(now, th2.getSourceString());
                                 newTarget.commit();
@@ -2074,21 +2072,67 @@ public class TreeHelper {
         TopMenu.applyActiveTheme(warning.getDialogPane().getScene());
 
         JFXTextField textField = new JFXTextField();
-        Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples their period x field");
+        Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples between start and end their period x field");
+
+        Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));
+        JFXDatePicker datePickerFrom = new JFXDatePicker();
+        JFXTimePicker timePickerFrom = new JFXTimePicker();
+        timePickerFrom.set24HourView(true);
+        timePickerFrom.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+        AtomicBoolean changedFrom = new AtomicBoolean(false);
+
+        datePickerFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                changedFrom.set(true);
+            }
+        });
+
+        timePickerFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                changedFrom.set(true);
+            }
+        });
+
+        Label dateLabelTo = new Label(I18n.getInstance().getString("tree.treehelper.to"));
+        JFXDatePicker datePickerTo = new JFXDatePicker();
+        JFXTimePicker timePickerTo = new JFXTimePicker();
+        timePickerTo.set24HourView(true);
+        timePickerTo.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+        AtomicBoolean changedTo = new AtomicBoolean(false);
+
+        datePickerTo.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                changedTo.set(true);
+            }
+        });
+
+        datePickerTo.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                changedTo.set(true);
+            }
+        });
+
         JFXCheckBox correctUTC = new JFXCheckBox("Correct UTC diff");
-        JFXCheckBox allObjects = new JFXCheckBox("All objects");
-        Label tzInputLabel = new Label("input timezone");
-        Label tzOutputLabel = new Label("output timezone");
+        JFXCheckBox dataObjectsCheckBox = new JFXCheckBox("Data Objects");
+        JFXCheckBox cleanDataObjectsCheckBox = new JFXCheckBox("Clean Data Objects");
+        JFXCheckBox onlyConversionToDiffObjectsCheckBox = new JFXCheckBox("Only Conversion To Diff Clean Objects");
+        JFXCheckBox allObjects = new JFXCheckBox("All Objects");
+        Label tzInputLabel = new Label("Input Timezone");
+        Label tzOutputLabel = new Label("Output Timezone");
         TimeZoneBox timeZoneBoxInput = new TimeZoneBox();
         TimeZoneBox timeZoneBoxOutput = new TimeZoneBox();
 
         HBox inputBox = new HBox(6, tzInputLabel, timeZoneBoxInput);
         HBox outputBox = new HBox(6, tzOutputLabel, timeZoneBoxOutput);
 
-        JFXTextArea textArea = new JFXTextArea();
-        textArea.setPrefRowCount(20);
 
-        VBox vBox = new VBox(6, message, textField, correctUTC, allObjects, inputBox, outputBox, textArea);
+        Label periodLabel = new Label("Period count");
+        HBox periodBox = new HBox(6, periodLabel, textField);
+
+        HBox fromBox = new HBox(6, dateLabelFrom, datePickerFrom, timePickerFrom);
+        HBox toBox = new HBox(6, dateLabelTo, datePickerTo, timePickerTo);
+
+        VBox vBox = new VBox(6, message, periodBox, fromBox, toBox, correctUTC, dataObjectsCheckBox, cleanDataObjectsCheckBox, onlyConversionToDiffObjectsCheckBox, allObjects, inputBox, outputBox);
         warning.getDialogPane().setContent(vBox);
 
         ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
@@ -2096,6 +2140,12 @@ public class TreeHelper {
         warning.showAndWait().ifPresent(buttonType -> {
             if (buttonType.equals(ButtonType.OK)) {
                 JEVisDataSource ds = tree.getJEVisDataSource();
+                JFXTextArea textArea = new JFXTextArea();
+                textArea.setPrefRowCount(20);
+                Alert info = new Alert(AlertType.INFORMATION);
+                info.getDialogPane().setContent(textArea);
+                info.show();
+
 
                 try {
                     JEVisClass dataClass = ds.getJEVisClass("Data");
@@ -2103,14 +2153,24 @@ public class TreeHelper {
 
                     if (!correctUTC.isSelected()) {
 
-                        Integer periodIncrease = Integer.parseInt(textField.getText());
+                        Long periodMultiplier = Long.parseLong(textField.getText());
+                        Long periodIncrease = Math.abs(periodMultiplier);
+                        List<JEVisObject> objectsToWorkWith = new ArrayList<>();
                         List<JEVisObject> dataObjects = CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), dataClass);
+                        if (dataObjectsCheckBox.isSelected()) {
+                            objectsToWorkWith.addAll(dataObjects);
+                        }
+
                         List<JEVisObject> ctdObjects = new ArrayList<>();
                         for (JEVisObject dataObject : dataObjects) {
                             JEVisAttribute valueAttribute = dataObject.getAttribute("Value");
                             Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " Check"));
 
                             List<JEVisObject> cleanDataChildren = dataObject.getChildren(cleanDataClass, false);
+                            if (cleanDataObjectsCheckBox.isSelected()) {
+                                objectsToWorkWith.addAll(cleanDataChildren);
+                            }
+
                             if (!cleanDataChildren.isEmpty() && valueAttribute != null) {
                                 JEVisObject cleanDataObject = cleanDataChildren.get(0);
                                 JEVisAttribute ctdAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
@@ -2124,13 +2184,62 @@ public class TreeHelper {
                             }
                         }
 
+                        if (onlyConversionToDiffObjectsCheckBox.isSelected()) {
+                            objectsToWorkWith.clear();
+                            objectsToWorkWith.addAll(ctdObjects);
+                        }
+
                         final String formatStr = "yyyy-MM-dd HH:mm:ss";
-                        for (JEVisObject dataObject : ctdObjects) {
-                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " moving samples"));
+                        for (JEVisObject dataObject : objectsToWorkWith) {
+                            Platform.runLater(() -> textArea.setText(textArea.getText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " moving samples"));
 
                             JEVisAttribute value = dataObject.getAttribute("Value");
                             if (value != null) {
-                                List<JEVisSample> allSamples = value.getAllSamples();
+                                List<JEVisSample> allSamples = new ArrayList<>();
+
+                                if (!changedFrom.get() && !changedTo.get()) {
+                                    allSamples = value.getAllSamples();
+                                } else if (changedFrom.get() && !changedTo.get()) {
+                                    DateTime dateTimeFrom = new DateTime(
+                                            datePickerFrom.valueProperty().get().getYear(),
+                                            datePickerFrom.valueProperty().get().getMonthValue(),
+                                            datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                            timePickerFrom.valueProperty().get().getHour(),
+                                            timePickerFrom.valueProperty().get().getMinute(),
+                                            timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                    allSamples = value.getSamples(dateTimeFrom, new DateTime(2500, 1, 1, 0, 0, 0, 0));
+                                } else if (!changedFrom.get() && changedTo.get()) {
+                                    DateTime dateTimeTo = new DateTime(
+                                            datePickerTo.valueProperty().get().getYear(),
+                                            datePickerTo.valueProperty().get().getMonthValue(),
+                                            datePickerTo.valueProperty().get().getDayOfMonth(),
+                                            timePickerTo.valueProperty().get().getHour(),
+                                            timePickerTo.valueProperty().get().getMinute(),
+                                            timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                    allSamples = value.getSamples(new DateTime(1900, 1, 1, 0, 0, 0, 0), dateTimeTo);
+                                } else {
+                                    DateTime dateTimeFrom = new DateTime(
+                                            datePickerFrom.valueProperty().get().getYear(),
+                                            datePickerFrom.valueProperty().get().getMonthValue(),
+                                            datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                            timePickerFrom.valueProperty().get().getHour(),
+                                            timePickerFrom.valueProperty().get().getMinute(),
+                                            timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                    DateTime dateTimeTo = new DateTime(
+                                            datePickerTo.valueProperty().get().getYear(),
+                                            datePickerTo.valueProperty().get().getMonthValue(),
+                                            datePickerTo.valueProperty().get().getDayOfMonth(),
+                                            timePickerTo.valueProperty().get().getHour(),
+                                            timePickerTo.valueProperty().get().getMinute(),
+                                            timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                    allSamples = value.getSamples(dateTimeFrom, dateTimeTo);
+                                }
+
+
                                 List<JEVisSample> virtualSamples = new ArrayList<>();
 
                                 for (JEVisSample sample : allSamples) {
@@ -2139,26 +2248,76 @@ public class TreeHelper {
                                     Period p = CleanDataObject.getPeriodForDate(dataObject, oldTS);
 
                                     if (p.equals(Period.years(1))) {
-                                        movedTimeStamp = oldTS.plusYears(periodIncrease).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                        if (periodMultiplier > 0)
+                                            movedTimeStamp = oldTS.plusYears(periodIncrease.intValue()).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                        else if (periodMultiplier < 0)
+                                            movedTimeStamp = oldTS.minusYears(periodIncrease.intValue()).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
                                     } else if (p.equals(Period.months(1))) {
-                                        movedTimeStamp = oldTS.plusMonths(periodIncrease).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                        if (periodMultiplier > 0)
+                                            movedTimeStamp = oldTS.plusMonths(periodIncrease.intValue()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                        else if (periodMultiplier < 0)
+                                            movedTimeStamp = oldTS.minusMonths(periodIncrease.intValue()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
                                     } else {
-                                        movedTimeStamp = oldTS.plusMillis(Math.toIntExact(p.toStandardDuration().getMillis() * periodIncrease));
+                                        if (periodMultiplier > 0)
+                                            movedTimeStamp = oldTS.plusMillis(Math.toIntExact(p.toStandardDuration().getMillis() * periodIncrease));
+                                        else if (periodMultiplier < 0)
+                                            movedTimeStamp = oldTS.minusMillis(Math.toIntExact(p.toStandardDuration().getMillis() * periodIncrease));
                                     }
 
                                     JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());
                                     virtualSample.setNote(sample.getNote());
                                     DateTime finalMovedTimeStamp = movedTimeStamp;
-                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
+                                    Platform.runLater(() -> textArea.setText(textArea.getText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
                                     virtualSamples.add(virtualSample);
                                 }
 
-                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
+                                List<JEVisSample> finalAllSamples = allSamples;
+                                Platform.runLater(() -> textArea.setText(textArea.getText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + finalAllSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
 
                                 if (allSamples.size() == virtualSamples.size()) {
-                                    value.deleteAllSample();
+                                    if (!changedFrom.get() && !changedTo.get()) {
+                                        value.deleteAllSample();
+                                    } else if (changedFrom.get() && !changedTo.get()) {
+                                        DateTime dateTimeFrom = new DateTime(
+                                                datePickerFrom.valueProperty().get().getYear(),
+                                                datePickerFrom.valueProperty().get().getMonthValue(),
+                                                datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                timePickerFrom.valueProperty().get().getHour(),
+                                                timePickerFrom.valueProperty().get().getMinute(),
+                                                timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        value.deleteSamplesBetween(dateTimeFrom, new DateTime(2500, 1, 1, 0, 0, 0, 0));
+                                    } else if (!changedFrom.get() && changedTo.get()) {
+                                        DateTime dateTimeTo = new DateTime(
+                                                datePickerTo.valueProperty().get().getYear(),
+                                                datePickerTo.valueProperty().get().getMonthValue(),
+                                                datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                timePickerTo.valueProperty().get().getHour(),
+                                                timePickerTo.valueProperty().get().getMinute(),
+                                                timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        value.deleteSamplesBetween(new DateTime(1900, 1, 1, 0, 0, 0, 0), dateTimeTo);
+                                    } else {
+                                        DateTime dateTimeFrom = new DateTime(
+                                                datePickerFrom.valueProperty().get().getYear(),
+                                                datePickerFrom.valueProperty().get().getMonthValue(),
+                                                datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                timePickerFrom.valueProperty().get().getHour(),
+                                                timePickerFrom.valueProperty().get().getMinute(),
+                                                timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        DateTime dateTimeTo = new DateTime(
+                                                datePickerTo.valueProperty().get().getYear(),
+                                                datePickerTo.valueProperty().get().getMonthValue(),
+                                                datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                timePickerTo.valueProperty().get().getHour(),
+                                                timePickerTo.valueProperty().get().getMinute(),
+                                                timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                        value.deleteSamplesBetween(dateTimeFrom, dateTimeTo);
+                                    }
                                     value.addSamples(virtualSamples);
-                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " finished moving samples"));
+                                    Platform.runLater(() -> textArea.setText(textArea.getText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " finished moving samples"));
                                 }
                             }
                         }

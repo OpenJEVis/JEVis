@@ -8,7 +8,6 @@
         <artifactId>JEVisCore</artifactId>
         <version>3.4</version>
     </parent>
-    <groupId>org.jevis</groupId>
     <artifactId>mysqldb</artifactId>
     <version>1.0</version>
     <name>mysqldb</name>

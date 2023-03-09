@@ -17,7 +17,7 @@ public class ChartSetting {
     private Integer minFractionDigits = 2;
     private Integer maxFractionDigits = 2;
 
-    private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+    private Boolean filterEnabled = false;
 
     public ChartSetting(String name) {
         this.name = name;
@@ -77,15 +77,6 @@ public class ChartSetting {
     public void setGroupingInterval(Double groupingInterval) {
         this.groupingInterval = groupingInterval;
     }
-
-    public AnalysisTimeFrame getAnalysisTimeFrame() {
-        return analysisTimeFrame;
-    }
-
-    public void setAnalysisTimeFrame(AnalysisTimeFrame analysisTimeFrame) {
-        this.analysisTimeFrame = analysisTimeFrame;
-    }
-
     public Orientation getOrientation() {
         return orientation;
     }
@@ -108,5 +99,13 @@ public class ChartSetting {
 
     public void setMaxFractionDigits(Integer maxFractionDigits) {
         this.maxFractionDigits = maxFractionDigits;
+    }
+
+    public Boolean getFilterEnabled() {
+        return filterEnabled;
+    }
+
+    public void setFilterEnabled(Boolean filterEnabled) {
+        this.filterEnabled = filterEnabled;
     }
 }

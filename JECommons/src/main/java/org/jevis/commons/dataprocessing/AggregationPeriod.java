@@ -1,8 +1,68 @@
 package org.jevis.commons.dataprocessing;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import org.jevis.commons.i18n.I18n;
+import org.joda.time.Period;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public enum AggregationPeriod {
 
     NONE, MINUTELY, QUARTER_HOURLY, HOURLY, DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY, THREEYEARS, FIVEYEARS, TENYEARS, CUSTOM, CUSTOM2;
+
+    public static Period getJodaPeriod(AggregationPeriod aggregationPeriod) {
+        Period period = Period.ZERO;
+
+        switch (aggregationPeriod) {
+            default:
+            case NONE:
+                break;
+            case MINUTELY:
+                period = Period.minutes(1);
+                break;
+            case QUARTER_HOURLY:
+                period = Period.minutes(15);
+                break;
+            case HOURLY:
+                period = Period.hours(1);
+                break;
+            case DAILY:
+                period = Period.days(1);
+                break;
+            case WEEKLY:
+                period = Period.weeks(1);
+                break;
+            case MONTHLY:
+                period = Period.months(1);
+                break;
+            case QUARTERLY:
+                period = Period.months(3);
+                break;
+            case YEARLY:
+                period = Period.years(1);
+                break;
+            case THREEYEARS:
+                period = Period.years(3);
+                break;
+            case FIVEYEARS:
+                period = Period.years(5);
+                break;
+            case TENYEARS:
+                period = Period.years(10);
+                break;
+        }
+
+        return period;
+    }
+
+    public boolean isGreaterThenDays() {
+        AggregationPeriod aggregationPeriod = this;
+        return aggregationPeriod == AggregationPeriod.DAILY || aggregationPeriod == AggregationPeriod.WEEKLY || aggregationPeriod == AggregationPeriod.MONTHLY
+                || aggregationPeriod == AggregationPeriod.QUARTERLY || aggregationPeriod == AggregationPeriod.YEARLY || aggregationPeriod == AggregationPeriod.THREEYEARS
+                || aggregationPeriod == AggregationPeriod.FIVEYEARS || aggregationPeriod == AggregationPeriod.TENYEARS;
+    }
 
     public static AggregationPeriod get(String modeName) {
         String[] modeArray = modeName.split("_");
@@ -91,5 +151,92 @@ public enum AggregationPeriod {
                 return NONE;
 
         }
+    }
+
+    public static Integer parseAggregationIndex(AggregationPeriod aggregationPeriod) {
+        if (aggregationPeriod != null) {
+            switch (aggregationPeriod) {
+                case MINUTELY:
+                    return 1;
+                case QUARTER_HOURLY:
+                    return 2;
+                case HOURLY:
+                    return 3;
+                case DAILY:
+                    return 4;
+                case WEEKLY:
+                    return 5;
+                case MONTHLY:
+                    return 6;
+                case QUARTERLY:
+                    return 7;
+                case YEARLY:
+                    return 8;
+                default:
+                case NONE:
+                    return 0;
+            }
+        } else return 0;
+    }
+
+    public static AggregationPeriod parseAggregationIndex(Integer aggregationIndex) {
+        switch (aggregationIndex) {
+            case (1):
+                return MINUTELY;
+            case (2):
+                return QUARTER_HOURLY;
+            case (3):
+                return HOURLY;
+            case (4):
+                return DAILY;
+            case (5):
+                return WEEKLY;
+            case (6):
+                return MONTHLY;
+            case (7):
+                return QUARTERLY;
+            case (8):
+                return YEARLY;
+            case (0):
+            default:
+                return NONE;
+        }
+    }
+
+    public static ObservableList<String> getListNamesAggregationPeriods() {
+        List<String> tempList = new ArrayList<>();
+
+        for (AggregationPeriod aggregationPeriod : AggregationPeriod.values()) {
+            switch (aggregationPeriod) {
+                case MINUTELY:
+                    tempList.add(I18n.getInstance().getString("plugin.unit.samplingrate.everyminute"));
+                    break;
+                case QUARTER_HOURLY:
+                    tempList.add(I18n.getInstance().getString("plugin.graph.interval.quarterhourly"));
+                    break;
+                case HOURLY:
+                    tempList.add(I18n.getInstance().getString("plugin.graph.interval.hourly"));
+                    break;
+                case DAILY:
+                    tempList.add(I18n.getInstance().getString("plugin.graph.interval.daily"));
+                    break;
+                case WEEKLY:
+                    tempList.add(I18n.getInstance().getString("plugin.graph.interval.weekly"));
+                    break;
+                case MONTHLY:
+                    tempList.add(I18n.getInstance().getString("plugin.graph.interval.monthly"));
+                    break;
+                case QUARTERLY:
+                    tempList.add(I18n.getInstance().getString("plugin.graph.interval.quarterly"));
+                    break;
+                case YEARLY:
+                    tempList.add(I18n.getInstance().getString("plugin.graph.interval.yearly"));
+                    break;
+                case NONE:
+                    tempList.add(I18n.getInstance().getString("plugin.graph.interval.preset"));
+                    break;
+            }
+        }
+        return FXCollections.observableArrayList(tempList);
     }
 }
