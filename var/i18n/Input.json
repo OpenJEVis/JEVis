@@ -3,7 +3,8 @@
   "names": {
     "de": "Eingangsvariable",
     "ru": "Input",
-    "en": "Input"
+    "en": "Input",
+    "ar": "مدخل"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Definiert den Variablennamen für die Formel",
         "ru": "Identifier desctiption",
-        "en": "Variable Identifier used in calculation object."
+        "en": "Variable Identifier used in calculation object.",
+        "ar": "يعرّف اسم المتغير للصيغة"
       },
       "names": {
         "de": "Variablenname",
         "ru": "Identifier",
-        "en": "Identifier"
+        "en": "Identifier",
+        "ar": "اسم المتغير"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Definiert die Quelldatenreihe",
         "ru": "Input Data desctiption",
-        "en": "Defines source input data"
+        "en": "Defines source input data",
+        "ar": "ادخال البيانات"
       },
       "names": {
         "de": "Quelldatenreihe",
         "ru": "Input Data",
-        "en": "Input Data"
+        "en": "Input Data",
+        "ar": "سلاسل بيانات المصدر"
       }
     },
     {
@@ -38,40 +43,46 @@
       "descriptions": {
         "de": "Definiert den Typ der Datenreihe.\n\n        <ul>\n        <li>PERIODIC: Die\n        Eingangsvariable\n        ist\n        eine\n        Datenreihe\n        mit\n        fester\n        Periode.\n        Die\n        Berechnung\n        stoppt,\n        wenn\n        eine\n        Datenlücke\n        existiert.</li>\n        <li>STATIC: Die\n        Eingangsvariable\n        ist\n        ein\n        fester\n        Wert.\n        Der\n        letzte\n        Wert\n        gilt\n        unabhängig\n        seines\n        Zeitstempels\n        für\n        die\n        ganze\n        Berechnung.</li>\n        <li>NON_PERIODIC: Die\n        Eingangsvariable\n        ist\n        eine\n        Datenreihe\n        ohne\n        feste\n        Periode.\n        Die\n        Berechnung\n        nutzt\n        jeweiligen\n        Zeitraum\n        letzten\n        gültigen\n        Wert.</li>\n        </ul>\n        ",
         "ru": "Type of input data\n\n        <ul>\n        <li>PERIODIC: The\n        input\n        is\n        a\n        data\n        series\n        with\n        a\n        fixed\n        period.\n        The\n        calculation\n        stopps\n        when\n        data\n        is\n        missing.</li>\n        <li>STATIC: The\n        input\n        is\n        a\n        fixed\n        value.\n        The\n        calculation\n        will\n        use\n        this\n        value\n        for\n        the\n        whole\n        calculation.</li>\n        <li>NON_PERIODIC: The\n        input\n        is\n        a\n        data\n        series\n        with\n        a\n        no\n        fixed\n        period.\n        The\n        calculation\n        uses\n        the\n        last\n        value\n        for\n        the\n        calculated\n        time\n        frame.</li>\n        </ul>\n        ",
-        "en": "Type of input data\n\n        <ul>\n        <li>PERIODIC: The\n        input\n        is\n        a\n        data\n        series\n        with\n        a\n        fixed\n        period.\n        The\n        calculation\n        stopps\n        when\n        data\n        is\n        missing.</li>\n        <li>STATIC: The\n        input\n        is\n        a\n        fixed\n        value.\n        The\n        calculation\n        will\n        use\n        this\n        value\n        for\n        the\n        whole\n        calculation.</li>\n        <li>NON_PERIODIC: The\n        input\n        is\n        a\n        data\n        series\n        with\n        a\n        no\n        fixed\n        period.\n        The\n        calculation\n        uses\n        the\n        last\n        value\n        for\n        the\n        calculated\n        time\n        frame.</li>\n        </ul>\n        "
+        "en": "Type of input data\n\n        <ul>\n        <li>PERIODIC: The\n        input\n        is\n        a\n        data\n        series\n        with\n        a\n        fixed\n        period.\n        The\n        calculation\n        stopps\n        when\n        data\n        is\n        missing.</li>\n        <li>STATIC: The\n        input\n        is\n        a\n        fixed\n        value.\n        The\n        calculation\n        will\n        use\n        this\n        value\n        for\n        the\n        whole\n        calculation.</li>\n        <li>NON_PERIODIC: The\n        input\n        is\n        a\n        data\n        series\n        with\n        a\n        no\n        fixed\n        period.\n        The\n        calculation\n        uses\n        the\n        last\n        value\n        for\n        the\n        calculated\n        time\n        frame.</li>\n        </ul>\n        ",
+        "ar": "يحدد نوع سلسلة البيانات.\n\n         <ul>\n         <li> دوري: ملف\n         متغير الإدخال\n         هو\n         واحد\n         سلسلة البيانات\n         مع\n         أكثر إحكاما\n         فترة.\n         ال\n         عملية حسابية\n         توقف ،\n         لو\n         واحد\n         فجوة البيانات\n         موجود. </ li>\n         <li> ثابت: ملف\n         متغير الإدخال\n         هو\n         أ \n         أكثر إحكاما\n         قيمة.\n         التابع\n         الاخير\n         القيمة\n         قابل للتطبيق\n         بشكل مستقل\n         له\n         الطابع الزمني\n         ل\n         ال\n         كل\n         الحساب. </ li>\n         <li> NON_PERIODIC: ملف\n         متغير الإدخال\n         هو\n         واحد\n         سلسلة البيانات\n         بدون\n         مُثَبَّت\n         فترة.\n         ال\n         عملية حسابية\n         الاستخدامات\n         خاص به\n         فترة\n         الاخير\n         صالح\n         قيمة. </li>\n         </ul>"
       },
       "names": {
         "de": "Datenreihentyp",
         "ru": "Data Type",
-        "en": "Data Type"
+        "en": "Data Type",
+        "ar": "نوع البيانات"
       },
       "enums" : {
         "PERIODIC" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Periodisch",
-            "en" : "Periodic"
+            "de": "Periodisch",
+            "en": "Periodic",
+            "ar": "دوريا"
           }
         },
         "STATIC": {
           "descriptions": null,
           "names": {
             "de": "Statisch",
-            "en": "Static"
+            "en": "Static",
+            "ar": "ساكنة"
           }
         },
         "NON_PERIODIC": {
           "descriptions": null,
           "names": {
             "de": "Nicht Periodisch",
-            "en": "Non periodic"
+            "en": "Non periodic",
+            "ar": "غير دوري"
           }
         },
         "ASYNC": {
           "descriptions": null,
           "names": {
             "de": "Asynchron",
-            "en": "Asynchronous"
+            "en": "Asynchronous",
+            "ar": "غير متزامن"
           }
         }
       }

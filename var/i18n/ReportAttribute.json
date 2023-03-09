@@ -3,12 +3,14 @@
   "names": {
     "de": "Berichtsattribut",
     "ru": "Report Attribute",
-    "en": "Report Attribute"
+    "en": "Report Attribute",
+    "ar": "سمة التقرير"
   },
   "descriptions": {
     "de": "Jedes JEVis-Objekt, das über die Berichtsverknüpfung verbunden ist, kann mehrere Attribute haben. Für jedes Attribut können die Anforderungen variieren. Wenn Sie zum Beispiel ein Gebäudeobjekt haben, möchten Sie vielleicht den im JEVis-System gespeicherten Nachnamen sammeln, aber alle Adressen. Ein weiteres Beispiel könnte sein, wenn Sie ein Datenobjekt haben und die Daten aus der aktuellen Periode und/oder der letzten Periode sammeln müssen.",
     "ru": "Every JEVisObject linked by the Report Link can have several attributes. For each attributes the requirements could vary. So for example if you have a Building object maybe you want to collect the last name saved in the JEVis system, but all adresses. Another example could be, if you have a Data Object and you need to collect the data from the current period and/or the last period.\n",
-    "en": "Every JEVisObject linked by the Report Link can have several attributes. For each attributes the requirements could vary. So for example if you have a Building object maybe you want to collect the last name saved in the JEVis system, but all adresses. Another example could be, if you have a Data Object and you need to collect the data from the current period and/or the last period.\n"
+    "en": "Every JEVisObject linked by the Report Link can have several attributes. For each attributes the requirements could vary. So for example if you have a Building object maybe you want to collect the last name saved in the JEVis system, but all adresses. Another example could be, if you have a Data Object and you need to collect the data from the current period and/or the last period.\n",
+    "ar": "يمكن أن يكون لكل كائن JEVis متصل عبر رابط التقرير سمات متعددة. قد تختلف المتطلبات لكل سمة. على سبيل المثال ، إذا كان لديك كائن بناء ، فقد ترغب في جمع الاسم الأخير المخزن في نظام JEVis ، ولكن كل العناوين. مثال آخر يمكن أن يكون عندما يكون لديك كائن بيانات وتحتاج إلى جمع البيانات من الفترة الحالية و / أو الفترة الماضية."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Der Name des Attributs, mit dem es sich in der Berichts-Vorlage ansteuern lässt.",
         "ru": "Attribute Name description",
-        "en": "Attribute Name description"
+        "en": "Attribute Name description",
+        "ar": "اسم السمة التي يمكن استخدامها للتحكم بها في قالب التقرير."
       },
       "names": {
         "de": "Attributname",
         "ru": "Attribute Name",
-        "en": "Attribute Name"
+        "en": "Attribute Name",
+        "ar": "اسم الصفة"
       }
     }
   ]

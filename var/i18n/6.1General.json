@@ -3,12 +3,14 @@
   "names": {
     "de": "6.1 Allgemeines",
     "ru": "6.1 General",
-    "en": "6.1 General"
+    "en": "6.1 General",
+    "ar": "6.1 عام"
   },
   "descriptions": {
     "de": "Die Planung muss aus einer Überprüfung der Tätigkeiten und Prozesse der Organisation bestehen, die sich auf die energiebezogene Leistung auswirken können. Die Planung muss in Einklang mit der Energiepolitik stehen (siehe 5.2) und zu Maßnahmen führen, die in einer fortlaufenden Verbesserung der energiebezogenen Leistung resultieren. Die Organisation muss dokumentierte Information zum Planungsprozess aufrechterhalten. \n\nANMERKUNG 1 Bild A.1 enthält ein Konzeptdiagramm, das den Energieplanungsprozess veranschaulicht.\nANMERKUNG 2 Das Ergebnis der energetischen Bewertung wird zum Erkennen von Risiken und Chancen im integrierten Management in der Organisation verwendet und dient als Eingabe in den nachfolgenden Energieplanungsprozess.",
     "ru": "Planning shall consist of a review of the organization\u0027s activities and processes that can affect energy  performance. Planning shall be consistent with the energy policy (see 5.2) and shall lead to actions that  result in continual improvement of energy performance. The organization shall maintain documented  information on the planning process.  \nNOTE 1 A concept diagram illustrating the energy planning process is shown in Figure A.1.  \nNOTE 2 The output of the energy review is used to identify risks and opportunities in the integrated management  in the organization and input of subsequent energy planning process. ",
-    "en": "Planning shall consist of a review of the organization\u0027s activities and processes that can affect energy  performance. Planning shall be consistent with the energy policy (see 5.2) and shall lead to actions that  result in continual improvement of energy performance. The organization shall maintain documented  information on the planning process.  \nNOTE 1 A concept diagram illustrating the energy planning process is shown in Figure A.1.  \nNOTE 2 The output of the energy review is used to identify risks and opportunities in the integrated management  in the organization and input of subsequent energy planning process. "
+    "en": "Planning shall consist of a review of the organization\u0027s activities and processes that can affect energy  performance. Planning shall be consistent with the energy policy (see 5.2) and shall lead to actions that  result in continual improvement of energy performance. The organization shall maintain documented  information on the planning process.  \nNOTE 1 A concept diagram illustrating the energy planning process is shown in Figure A.1.  \nNOTE 2 The output of the energy review is used to identify risks and opportunities in the integrated management  in the organization and input of subsequent energy planning process. ",
+    "ar": "يجب أن يتكون التخطيط من مراجعة لأنشطة وعمليات المنظمة التي قد تؤثر على أداء الطاقة. يجب أن يتماشى التخطيط مع سياسة الطاقة (انظر 5.2) ويؤدي إلى تدابير تؤدي إلى التحسين المستمر للأداء المرتبط بالطاقة. يجب أن تحتفظ المنظمة بمعلومات موثقة حول عملية التخطيط.\n\nملاحظة 1 يحتوي الشكل أ -1 على مخطط مفاهيمي يوضح عملية تصميم الطاقة.\nملاحظة 2: تُستخدم نتيجة تقييم الطاقة لتحديد المخاطر والفرص في الإدارة المتكاملة في المنظمة وتعمل كمدخل لعملية تخطيط الطاقة اللاحقة."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الإنشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "نشر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان المستند"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "العنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

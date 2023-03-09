@@ -3,7 +3,8 @@
   "names": {
     "de": "05 Verbesserung",
     "ru": "05 Act",
-    "en": "05 Act"
+    "en": "05 Act",
+    "ar": "05 نفذ"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Auditdatum Beschreibung",
         "ru": "Audit Date description",
-        "en": "Audit Date description"
+        "en": "Audit Date description",
+        "ar": "وصف تاريخ المراجعة"
       },
       "names": {
         "de": "Auditdatum",
         "ru": "Audit Date",
-        "en": "Audit Date"
+        "en": "Audit Date",
+        "ar": "تاريخ مراجعة"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Auditor Beschreibung",
         "ru": "Auditor description",
-        "en": "Auditor description"
+        "en": "Auditor description",
+        "ar": "مدقق حسابات"
       },
       "names": {
         "de": "Auditor",
         "ru": "Auditor",
-        "en": "Auditor"
+        "en": "Auditor",
+        "ar": "مدقق حسابات"
       }
     }
   ]

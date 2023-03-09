@@ -3,12 +3,14 @@
   "names": {
     "de": "FTP Kanalverzeichnis",
     "ru": "FTP Channel Directory",
-    "en": "FTP Channel Directory"
+    "en": "FTP Channel Directory",
+    "ar": "دليل قناة FTP"
   },
   "descriptions": {
     "de": "Die Klasse FTP Kanalverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Daten dar.",
     "ru": "The class FTP Channel Directory represents a specific directory for the management of data.\n",
-    "en": "The class FTP Channel Directory represents a specific directory for the management of data.\n"
+    "en": "The class FTP Channel Directory represents a specific directory for the management of data.\n",
+    "ar": "تمثل فئة دليل قناة FTP دليلاً محددًا لإدارة البيانات."
   },
   "types": []
 }

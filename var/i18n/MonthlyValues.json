@@ -3,7 +3,8 @@
   "names": {
     "de": "Monatswerte",
     "ru": "Monthly Values",
-    "en": "Monthly Values"
+    "en": "Monthly Values",
+    "ar": "القيم الشهرية"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "01 January description",
         "ru": "01 January description",
-        "en": "01 January description"
+        "en": "01 January description",
+        "ar": "01 كانون الثاني "
       },
       "names": {
         "de": "01 January",
         "ru": "01 January",
-        "en": "01 January"
+        "en": "01 January",
+        "ar": ""
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "02 February description",
         "ru": "02 February description",
-        "en": "02 February description"
+        "en": "02 February description",
+        "ar": ""
       },
       "names": {
         "de": "02 February",
         "ru": "02 February",
-        "en": "02 February"
+        "en": "02 February",
+        "ar": ""
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "03 March description",
         "ru": "03 March description",
-        "en": "03 March description"
+        "en": "03 March description",
+        "ar": ""
       },
       "names": {
         "de": "03 March",
         "ru": "03 March",
-        "en": "03 March"
+        "en": "03 March",
+        "ar": ""
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "04 April description",
         "ru": "04 April description",
-        "en": "04 April description"
+        "en": "04 April description",
+        "ar": ""
       },
       "names": {
         "de": "04 April",
         "ru": "04 April",
-        "en": "04 April"
+        "en": "04 April",
+        "ar": ""
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "05 May description",
         "ru": "05 May description",
-        "en": "05 May description"
+        "en": "05 May description",
+        "ar": ""
       },
       "names": {
         "de": "05 May",
         "ru": "05 May",
-        "en": "05 May"
+        "en": "05 May",
+        "ar": ""
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "06 June description",
         "ru": "06 June description",
-        "en": "06 June description"
+        "en": "06 June description",
+        "ar": ""
       },
       "names": {
         "de": "06 June",
         "ru": "06 June",
-        "en": "06 June"
+        "en": "06 June",
+        "ar": ""
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "07 July description",
         "ru": "07 July description",
-        "en": "07 July description"
+        "en": "07 July description",
+        "ar": ""
       },
       "names": {
         "de": "07 July",
         "ru": "07 July",
-        "en": "07 July"
+        "en": "07 July",
+        "ar": ""
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "08 August description",
         "ru": "08 August description",
-        "en": "08 August description"
+        "en": "08 August description",
+        "ar": ""
       },
       "names": {
         "de": "08 August",
         "ru": "08 August",
-        "en": "08 August"
+        "en": "08 August",
+        "ar": ""
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "09 September description",
         "ru": "09 September description",
-        "en": "09 September description"
+        "en": "09 September description",
+        "ar": ""
       },
       "names": {
         "de": "09 September",
         "ru": "09 September",
-        "en": "09 September"
+        "en": "09 September",
+        "ar": ""
       }
     },
     {
@@ -129,12 +148,14 @@
       "descriptions": {
         "de": "10 October description",
         "ru": "10 October description",
-        "en": "10 October description"
+        "en": "10 October description",
+        "ar": ""
       },
       "names": {
         "de": "10 October",
         "ru": "10 October",
-        "en": "10 October"
+        "en": "10 October",
+        "ar": ""
       }
     },
     {
@@ -142,12 +163,14 @@
       "descriptions": {
         "de": "11 November description",
         "ru": "11 November description",
-        "en": "11 November description"
+        "en": "11 November description",
+        "ar": ""
       },
       "names": {
         "de": "11 November",
         "ru": "11 November",
-        "en": "11 November"
+        "en": "11 November",
+        "ar": ""
       }
     },
     {
@@ -155,12 +178,14 @@
       "descriptions": {
         "de": "12 December description",
         "ru": "12 December description",
-        "en": "12 December description"
+        "en": "12 December description",
+        "ar": ""
       },
       "names": {
         "de": "12 December",
         "ru": "12 December",
-        "en": "12 December"
+        "en": "12 December",
+        "ar": ""
       }
     },
     {
@@ -168,12 +193,14 @@
       "descriptions": {
         "de": "Energy Supplier description",
         "ru": "Energy Supplier description",
-        "en": "Energy Supplier description"
+        "en": "Energy Supplier description",
+        "ar": ""
       },
       "names": {
         "de": "Energy Supplier",
         "ru": "Energy Supplier",
-        "en": "Energy Supplier"
+        "en": "Energy Supplier",
+        "ar": ""
       }
     },
     {
@@ -181,12 +208,14 @@
       "descriptions": {
         "de": "Year description",
         "ru": "Year description",
-        "en": "Year description"
+        "en": "Year description",
+        "ar": ""
       },
       "names": {
         "de": "Year",
         "ru": "Year",
-        "en": "Year"
+        "en": "Year",
+        "ar": ""
       }
     }
   ]

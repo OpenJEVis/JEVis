@@ -3,12 +3,14 @@
   "names": {
     "de": "Importeur Treiberverzeichnis",
     "ru": "Importer Driver Directory",
-    "en": "Importer Driver Directory"
+    "en": "Importer Driver Directory",
+    "ar": "دليل برنامج تشغيل المستورد"
   },
   "descriptions": {
     "de": "Die Klasse Importeur Treiberverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Importtreiberdaten dar.",
     "ru": "The class Importer Driver Directory represents a specific directory for the management of importer driver data.",
-    "en": "The class Importer Driver Directory represents a specific directory for the management of importer driver data."
+    "en": "The class Importer Driver Directory represents a specific directory for the management of importer driver data.",
+    "ar": "تمثل فئة Importer Driver Directory دليلاً محددًا لإدارة بيانات برنامج تشغيل الاستيراد."
   },
   "types": []
 }

@@ -3,12 +3,14 @@
   "names": {
     "de": "View Directory",
     "ru": "Ansichtsverzeichnis",
-    "en": "View Directory"
+    "en": "View Directory",
+    "ar": "دليل العرض "
   },
   "descriptions": {
     "de": "Die Klasse Ansichtsverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung einzelner Ansichten dar. Innerhalb eines Ansichtsverzeichnisses kann ein Benutzer Strukturen ohne Systembeschränkungen anlegen. Der Inhalt eines Ansichtsverzeichnisses ist immer nur eine Verknüpfung zu den referenzierten Objekten im eingeschränkten Teil des JEVis-Systems. Änderungen am Inhalt des Ansichtsverzeichnisses wirken sich immer auf die verweisenden Objekte aus.",
     "ru": "The class View Directory represents a specific directory for the management of individual views. Within a View Directory a user is able to create structures without any system limitations. The content of a View Directory is always just a link to the referred objects in the restricted part of the JEVis system. Modifications on the content of the View Directory will always affect on the referring objects.",
-    "en": "The class View Directory represents a specific directory for the management of individual views. Within a View Directory a user is able to create structures without any system limitations. The content of a View Directory is always just a link to the referred objects in the restricted part of the JEVis system. Modifications on the content of the View Directory will always affect on the referring objects."
+    "en": "The class View Directory represents a specific directory for the management of individual views. Within a View Directory a user is able to create structures without any system limitations. The content of a View Directory is always just a link to the referred objects in the restricted part of the JEVis system. Modifications on the content of the View Directory will always affect on the referring objects.",
+    "ar": "تمثل فئة دليل العرض دليلاً محددًا لإدارة العروض الفردية. ضمن دليل العرض ، يمكن للمستخدم إنشاء هياكل بدون قيود النظام. دائمًا ما يكون محتوى دليل العرض مجرد رابط للكائنات المشار إليها في الجزء المقيد من نظام JEVis. تؤثر التغييرات التي يتم إجراؤها على محتويات دليل العرض دائمًا على الكائنات المرجعية."
   },
   "types": []
 }

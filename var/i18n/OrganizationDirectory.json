@@ -3,12 +3,14 @@
   "names": {
     "de": "Organisationsverzeichnis",
     "ru": "Organization Directory",
-    "en": "Organization Directory"
+    "en": "Organization Directory",
+    "ar": "دليل المنظمة"
   },
   "descriptions": {
     "de": "In einem Organisationsverzeichnis werden Organisationen, wie z.B. Firmen, verwaltet.",
     "ru": "Organziations, such as companies, are managed in a Organization Directory.",
-    "en": "Organziations, such as companies, are managed in a Organization Directory."
+    "en": "Organziations, such as companies, are managed in a Organization Directory.",
+    "ar": "المنظمات مثل الشركات تدار في دليل تنظيمي."
   },
   "types": []
 }

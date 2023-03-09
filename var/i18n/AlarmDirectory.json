@@ -4,12 +4,14 @@
     "de": "Alarme",
     "ru": "Папка сповіщення",
     "uk": "Папка сповіщення",
-    "en": "Alarm Directory"
+    "en": "Alarm Directory",
+    "ar": "دليل الإنذار"
   },
   "descriptions": {
     "de": "Ein Alarmverzeichnis kann zur Ordnung verschiedener Alarme verwendet werden. Die Klasse ist unique, d.h. es kann auf oberster Ebene nur ein Objekt dieser Klasse existieren.",
     "ru": "The class Alarm Directory represents a specific directory for the management of alarms.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
-    "en": "A Alarm Directory can be used for the sortation of alarms. The class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+    "en": "A Alarm Directory can be used for the sortation of alarms. The class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ar": "يمكن استخدام دليل الإنذار لتنظيم أجهزة الإنذار المختلفة. الفئة فريدة ، بمعنى أنه يمكن أن يوجد كائن واحد فقط من هذه الفئة في المستوى الأعلى."
   },
   "types": []
 }

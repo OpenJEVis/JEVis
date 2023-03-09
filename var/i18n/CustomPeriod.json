@@ -3,12 +3,14 @@
   "names": {
     "de": "Benutzerdefinierter Zeitraum",
     "ru": "Custom Period",
-    "en": "Custom Period"
+    "en": "Custom Period",
+    "ar": "فترة مخصصة"
   },
   "descriptions": {
     "de": "In benutzerdefinierten Zeiträumen werden besondere Zeiträume gespeichert.",
     "ru": "Special periods are stored in user-defined periods.",
-    "en": "Special periods are stored in user-defined periods."
+    "en": "Special periods are stored in user-defined periods.",
+    "ar": "يتم تخزين الفترات الخاصة في فترات يحددها المستخدم."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "مرئي"
       },
       "names": {
-        "de": "Sichbar",
+        "de": "Sichtbar",
         "ru": "Visible",
-        "en": "Visible"
+        "en": "Visible",
+        "ar": "مرئي"
       }
     },
     {
@@ -29,61 +33,70 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "بدء نقطة مرجعية"
       },
       "names": {
         "de": "Anfangsbezugspunkt",
         "ru": "Start Reference Point",
-        "en": "Start Reference Point"
+        "en": "Start Reference Point",
+        "ar": "نقطة البداية"
       },
       "enums" : {
         "NOW" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Jetzt",
-            "en" : "Now"
+            "de": "Jetzt",
+            "en": "Now",
+            "ar": "الآن"
           }
         },
         "CUSTOM_PERIOD" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Benutzerdefinierter Zeitbereich",
-            "en" : "Custom time range"
+            "de": "Benutzerdefinierter Zeitbereich",
+            "en": "Custom time range",
+            "ar": "نطاق زمني مخصص"
           }
         },
         "CURRENT_DAY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Aktueller Tag",
-            "en" : "Current day"
+            "de": "Aktueller Tag",
+            "en": "Current day",
+            "ar": "اليوم الحالي"
           }
         },
         "CURRENT_WEEK" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Aktuelle Woche",
-            "en": "Current week"
+            "de": "Aktuelle Woche",
+            "en": "Current week",
+            "ar": "الأسبوع الحالي"
           }
         },
         "CURRENT_MONTH": {
           "descriptions": null,
           "names": {
             "de": "Aktueller Monat",
-            "en": "Current month"
+            "en": "Current month",
+            "ar": "الشهر الحالي"
           }
         },
         "CURRENT_YEAR": {
           "descriptions": null,
           "names": {
             "de": "Aktuelles Jahr",
-            "en": "Current year"
+            "en": "Current year",
+            "ar": "السنة الحالية"
           }
         },
         "SPECIFIED_DATE": {
           "descriptions": null,
           "names": {
             "de": "Fester Zeitpunkt",
-            "en": "Fixed date"
+            "en": "Fixed date",
+            "ar": "الوقت المحدد"
           }
         }
       }
@@ -93,12 +106,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "سنوات البدء"
       },
       "names": {
         "de": "Anfang +/- Jahre",
         "ru": "Start +/- Years",
-        "en": "Start +/- Years"
+        "en": "Start +/- Years",
+        "ar": ""
       }
     },
     {
@@ -106,12 +121,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "Anfang +/- Monate",
         "ru": "Start +/- Months",
-        "en": "Start +/- Months"
+        "en": "Start +/- Months",
+        "ar": ""
       }
     },
     {
@@ -119,12 +136,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "Anfang +/- Wochen",
         "ru": "Start +/- Weeks",
-        "en": "Start +/- Weeks"
+        "en": "Start +/- Weeks",
+        "ar": ""
       }
     },
     {
@@ -132,12 +151,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": ""
       },
       "names": {
         "de": "Anfang +/- Tage",
         "ru": "Start +/- Days",
-        "en": "Start +/- Days"
+        "en": "Start +/- Days",
+        "ar": ""
       }
     },
     {
@@ -145,12 +166,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "ساعات البدء"
       },
       "names": {
         "de": "Anfang +/- Stunden",
         "ru": "Start +/- Hours",
-        "en": "Start +/- Hours"
+        "en": "Start +/- Hours",
+        "ar": "بداية +/- ساعة"
       }
     },
     {
@@ -158,12 +181,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "بدء دقائق"
       },
       "names": {
         "de": "Anfang +/- Minuten",
         "ru": "Start +/- Minutes",
-        "en": "Start +/- Minutes"
+        "en": "Start +/- Minutes",
+        "ar": "ابدأ +/- دقائق"
       }
     },
     {
@@ -171,12 +196,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "بدء \"كائن مرجعي\""
       },
       "names": {
         "de": "Anfangsbezugsobjekt",
         "ru": "Start Reference Object",
-        "en": "Start Reference Object"
+        "en": "Start Reference Object",
+        "ar": "كائن مرجعي أولي"
       }
     },
     {
@@ -184,12 +211,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "بدء الفاصل الزمني"
       },
       "names": {
         "de": "Anfangsintervall +/-",
         "ru": "Start Interval +/-",
-        "en": "Start Interval +/-"
+        "en": "Start Interval +/-",
+        "ar": "الفاصل الزمني الأولي +/-"
       }
     },
     {
@@ -197,61 +226,70 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "نقطة النهاية المرجعية"
       },
       "names": {
         "de": "Endbezugspunkt",
         "ru": "End Reference Point",
-        "en": "End Reference Point"
+        "en": "End Reference Point",
+        "ar": "النقطة المرجعية النهائية"
       },
       "enums" : {
         "NOW" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Jetzt",
-            "en" : "Now"
+            "de": "Jetzt",
+            "en": "Now",
+            "ar": "الآن"
           }
         },
         "CUSTOM_PERIOD" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Benutzerdefinierter Zeitbereich",
-            "en" : "Custom time range"
+            "de": "Benutzerdefinierter Zeitbereich",
+            "en": "Custom time range",
+            "ar": "نطاق زمني مخصص"
           }
         },
         "CURRENT_DAY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Aktueller Tag",
-            "en" : "Current day"
+            "de": "Aktueller Tag",
+            "en": "Current day",
+            "ar": "اليوم الحالي"
           }
         },
         "CURRENT_WEEK" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Aktuelle Woche",
-            "en": "Current week"
+            "de": "Aktuelle Woche",
+            "en": "Current week",
+            "ar": "الأسبوع الحالي"
           }
         },
         "CURRENT_MONTH": {
           "descriptions": null,
           "names": {
             "de": "Aktueller Monat",
-            "en": "Current month"
+            "en": "Current month",
+            "ar": "الشهر الحالي"
           }
         },
         "CURRENT_YEAR": {
           "descriptions": null,
           "names": {
             "de": "Aktuelles Jahr",
-            "en": "Current year"
+            "en": "Current year",
+            "ar": "السنة الحالية"
           }
         },
         "SPECIFIED_DATE": {
           "descriptions": null,
           "names": {
             "de": "Fester Zeitpunkt",
-            "en": "Fixed date"
+            "en": "Fixed date",
+            "ar": "الوقت المحدد"
           }
         }
       }
@@ -261,12 +299,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "سنوات النهاية"
       },
       "names": {
         "de": "Ende +/- Jahre",
         "ru": "End +/- Years",
-        "en": "End +/- Years"
+        "en": "End +/- Years",
+        "ar": "نهاية +/- سنوات"
       }
     },
     {
@@ -274,12 +314,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "أشهر الانتهاء"
       },
       "names": {
         "de": "Ende +/- Monate",
         "ru": "End +/- Months",
-        "en": "End +/- Months"
+        "en": "End +/- Months",
+        "ar": "نهاية +/- أشهر"
       }
     },
     {
@@ -287,12 +329,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "نهاية الأسابيع"
       },
       "names": {
         "de": "Ende +/- Wochen",
         "ru": "End +/- Weeks",
-        "en": "End +/- Weeks"
+        "en": "End +/- Weeks",
+        "ar": "نهاية +/- أسابيع"
       }
     },
     {
@@ -300,12 +344,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "أيام النهاية"
       },
       "names": {
         "de": "Ende +/- Tage",
         "ru": "End +/- Days",
-        "en": "End +/- Days"
+        "en": "End +/- Days",
+        "ar": "نهاية +/- يوم"
       }
     },
     {
@@ -313,12 +359,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "ساعات الانتهاء"
       },
       "names": {
         "de": "Ende +/- Stunden",
         "ru": "End +/- Hours",
-        "en": "End +/- Hours"
+        "en": "End +/- Hours",
+        "ar": "نهاية +/- ساعة"
       }
     },
     {
@@ -326,12 +374,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "دقائق النهاية"
       },
       "names": {
         "de": "Ende +/- Minuten",
         "ru": "End +/- Minutes",
-        "en": "End +/- Minutes"
+        "en": "End +/- Minutes",
+        "ar": "نهاية +/- دقيقة"
       }
     },
     {
@@ -339,12 +389,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "كائن مرجعي نهائي"
       },
       "names": {
         "de": "Endbezugsobjekt",
         "ru": "End Reference Object",
-        "en": "End Reference Object"
+        "en": "End Reference Object",
+        "ar": "كائن مرجعي نهائي"
       }
     },
     {
@@ -352,12 +404,14 @@
       "descriptions": {
         "de": "",
         "ru": "",
-        "en": ""
+        "en": "",
+        "ar": "الفاصل الزمني للنهاية"
       },
       "names": {
         "de": "Schlussintervall +/-",
         "ru": "End Interval +/-",
-        "en": "End Interval +/-"
+        "en": "End Interval +/-",
+        "ar": "الفاصل الزمني للإغلاق +/-"
       }
     }
   ]

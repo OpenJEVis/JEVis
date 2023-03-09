@@ -3,12 +3,14 @@
   "names": {
     "de": "6.5 Energetische Ausgangsbasis (EnB)",
     "ru": "6.5 Energy Baseline",
-    "en": "6.5 Energy Baseline"
+    "en": "6.5 Energy Baseline",
+    "ar": "6.5 خط الأساس للطاقة"
   },
   "descriptions": {
     "de": "Die Organisation muss eine oder mehrere EnBs unter Verwendung der Informationen aus der/den energetischen Bewertung(en) (siehe 6.3) und unter Berücksichtigung einer angemessenen Zeitspanne erstellen.\nDie EnB(s) muss/müssen modifiziert werden, um den Vergleich der energiebezogenen Leistung unter gleichwertigen Bedingungen zu ermöglichen, oder angepasst werden, falls einer oder mehrere der folgenden Fälle eintreten:\na) EnPIs spiegeln nicht länger die energiebezogene Leistung der Organisation wider;\nb) es gab wesentliche Veränderungen an den statischen Faktoren; oder\nc) in Übereinstimmung mit einem im Voraus bestimmten Verfahren.\nWo die Organisation Daten besitzt, die darauf hinweisen, dass relevante Variablen sich wesentlich auf die energiebezogene Leistung auswirken, muss die Organisation eine Normalisierung der EnPI(s) und der entsprechenden EnB(s) vornehmen, um die Änderungen der energiebezogenen Leistung zu vergleichen.\nDie Daten zu der/den EnB(s), zu relevanten Variablen und Änderungen der EnB(s) müssen als dokumentierte Information aufbewahrt werden (siehe 7.5).",
     "ru": "The organization shall establish an EnB(s) using the information from the energy review(s) (see 6.3), taking into account a suitable period of time.   \nEnB(s) shall be modified to enable energy performance comparison under equivalent conditions or revised in case of one or more of the following: \na) EnPI(s) no longer reflect the organization",
-    "en": "The organization shall establish an EnB(s) using the information from the energy review(s) (see 6.3), taking into account a suitable period of time.   \nEnB(s) shall be modified to enable energy performance comparison under equivalent conditions or revised in case of one or more of the following: \na) EnPI(s) no longer reflect the organization"
+    "en": "The organization shall establish an EnB(s) using the information from the energy review(s) (see 6.3), taking into account a suitable period of time.   \nEnB(s) shall be modified to enable energy performance comparison under equivalent conditions or revised in case of one or more of the following: \na) EnPI(s) no longer reflect the organization",
+    "ar": "يجب على المنظمة إعداد واحد أو أكثر من الهيئات البيئية باستخدام المعلومات من تقييم (تقييمات) الطاقة (انظر 6.3) والنظر في إطار زمني معقول.\nيجب تعديل EnB (s) للسماح بمقارنة الأداء المرتبط بالطاقة في ظل ظروف معادلة ، أو تعديلها في حالة حدوث واحد أو أكثر مما يلي:\nأ) لم تعد مؤشرات EnPI تعكس أداء الطاقة في المنظمة ؛\nب) كانت هناك تغييرات كبيرة في العوامل الثابتة ؛ أو\nج) وفقا لإجراء محدد سلفا.\nعندما يكون لدى المنظمة بيانات تشير إلى أن المتغيرات ذات الصلة لها تأثير كبير على أداء الطاقة ، يجب على المنظمة تطبيع EnPI (s) و EnB (s) المقابلة لمقارنة التغييرات في أداء الطاقة.\nيجب الاحتفاظ بالبيانات الموجودة على EnB (s) والمتغيرات ذات الصلة والتغييرات على EnB (s) كمعلومات موثقة (انظر 7.5)."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

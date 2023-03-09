@@ -5,14 +5,16 @@
     "ru": "Каталог основных данных",
     "uk": "Головний каталог даних",
     "th": "ไดเร็กทอรีข้อมูลหลัก",
-    "en": "Base Data Directory"
+    "en": "Base Data Directory",
+    "ar": "دليل البيانات الأساسية"
   },
   "descriptions": {
     "de": "Im Stammdatenverzeichnis werden die Datenreihen verwaltet.",
     "ru": "Серии данных управляются в каталоге основных данных.",
     "uk": "Серією даних керує в головному каталозі даних.",
     "th": "ชุดข้อมูลถูกจัดการในไดเร็กทอรีข้อมูลหลัก",
-    "en": "In the Base Data Directory base data series are managed."
+    "en": "In the Base Data Directory base data series are managed.",
+    "ar": "تدار سلسلة البيانات في دليل البيانات الرئيسي."
   },
   "types": []
 }

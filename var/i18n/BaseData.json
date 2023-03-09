@@ -5,14 +5,16 @@
     "ru": "базовые данные",
     "uk": "базові дані",
     "th": "ข้อมูลพื้นฐาน",
-    "en": "Base Data"
+    "en": "Base Data",
+    "ar": "البيانات الأساسية"
   },
   "descriptions": {
     "de": "In Stammdaten werden numerische Datenreihen gespeichert.",
     "ru": "Ряды числовых данных хранятся в основных данных.",
     "uk": "Числові ряди даних зберігаються в основних даних.",
     "th": "ชุดข้อมูลตัวเลขจะถูกเก็บไว้ในข้อมูลหลัก",
-    "en": "Storage of numerical data."
+    "en": "Storage of numerical data.",
+    "ar": "يتم تخزين سلاسل البيانات الرقمية في البيانات الرئيسية."
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "Значение ряда данных",
         "uk": "Значення ряду даних",
         "th": "ค่าของชุดข้อมูล",
-        "en": "Value of the data series"
+        "en": "Value of the data series",
+        "ar": "قيمة سلسلة البيانات"
       },
       "names": {
         "de": "Wert",
         "ru": "ценность",
         "uk": "Значення",
         "th": "ความคุ้มค่า",
-        "en": "Value"
+        "en": "Value",
+        "ar": "قيمة"
       }
     },
     {

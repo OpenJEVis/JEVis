@@ -5,7 +5,8 @@
     "ru": "Почтовый сервер IMAP",
     "en": "IMAP E-Mail Server",
     "uk": "Сервер електронної пошти IMAP",
-    "th": "เซิร์ฟเวอร์อีเมล IMAP"
+    "th": "เซิร์ฟเวอร์อีเมล IMAP",
+    "ar": "خادم البريد الإلكتروني لـ IMAP"
   },
   "descriptions": {},
   "types": [
@@ -16,14 +17,16 @@
         "ru": "Каталог IMAP сервера для чтения",
         "en": "The IMAP folder of the server",
         "uk": "Каталог IMAP сервера, який слід прочитати",
-        "th": "ไดเร็กทอรี IMAP ของเซิร์ฟเวอร์ที่จะอ่าน"
+        "th": "ไดเร็กทอรี IMAP ของเซิร์ฟเวอร์ที่จะอ่าน",
+        "ar": "مجلد"
       },
       "names": {
         "de": "Verzeichnis",
         "ru": "папка",
         "en": "Folder",
         "uk": "папку",
-        "th": "โฟลเดอร์"
+        "th": "โฟลเดอร์",
+        "ar": "مجلد"
       }
     },
     {
@@ -33,14 +36,16 @@
         "ru": "Решает, какой метод аутентификации используется",
         "en": "Datermines the authentication method to use for server login",
         "uk": "Визначає, який метод автентифікації використовуватиметься",
-        "th": "ตัดสินใจว่าจะใช้วิธีการรับรองความถูกต้องใด"
+        "th": "ตัดสินใจว่าจะใช้วิธีการรับรองความถูกต้องใด",
+        "ar": "يقرر طريقة المصادقة التي يجب استخدامها"
       },
       "names": {
         "de": "SSL",
         "ru": "SSL",
         "en": "SSL",
         "uk": "SSL",
-        "th": "SSL"
+        "th": "SSL",
+        "ar": "SSL"
       },
       "enums": {
         "SSL/TLS": {
@@ -50,7 +55,8 @@
             "en": "SSL/TLS",
             "ru": "SSL/TLS",
             "uk": "SSL/TLS",
-            "th": "SSL/TLS"
+            "th": "SSL/TLS",
+            "ar": "SSL/TLS"
           }
         },
         "STARTTLS": {
@@ -60,7 +66,8 @@
             "en": "STARTTLS",
             "ru": "STARTTLS",
             "uk": "STARTTLS",
-            "th": "STARTTLS"
+            "th": "STARTTLS",
+            "ar": "STARTTLS"
           }
         }
       }

@@ -3,7 +3,8 @@
   "names": {
     "de": "VIDA350 Kanal",
     "ru": "VIDA350 Channel",
-    "en": "VIDA350 Channel"
+    "en": "VIDA350 Channel",
+    "ar": "قناة VIDA350"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Index description",
         "ru": "Index description",
-        "en": "Index description"
+        "en": "Index description",
+        "ar": "مؤشر"
       },
       "names": {
         "de": "Index",
         "ru": "Index",
-        "en": "Index"
+        "en": "Index",
+        "ar": "مؤشر"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Datum und Zeit der letzten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
         "ru": "Last Readout description",
-        "en": "Date and Time of last readout in time zone setup in the server object"
+        "en": "Date and Time of last readout in time zone setup in the server object",
+        "ar": "تاريخ ووقت آخر قراءة في المنطقة الزمنية المحددة في كائن الخادم"
       },
       "names": {
         "de": "Letzte Auslesung",
         "ru": "Last Readout",
-        "en": "Last Readout"
+        "en": "Last Readout",
+        "ar": "القراءة الأخيرة"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Datum und Zeit der letzten versuchten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
         "ru": "Last Readout try description",
-        "en": "Date and Time of last readout try in time zone setup in the server object"
+        "en": "Date and Time of last readout try in time zone setup in the server object",
+        "ar": "تاريخ ووقت آخر محاولة قراءة في المنطقة الزمنية المحددة في كائن الخادم"
       },
       "names": {
         "de": "Letzte versuchte Auslesung",
         "ru": "Last Readout Try",
-        "en": "Last Readout Try"
+        "en": "Last Readout Try",
+        "ar": "آخر محاولة للقراءة"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Target description",
         "ru": "Target description",
-        "en": "Target description"
+        "en": "Target description",
+        "ar": "هدف"
       },
       "names": {
         "de": "Ziel",
         "ru": "Target",
-        "en": "Target"
+        "en": "Target",
+        "ar": "هدف"
       }
     }
   ]

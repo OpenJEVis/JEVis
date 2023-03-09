@@ -3,12 +3,14 @@
   "names": {
     "de": "Druckluftzähler",
     "ru": "Compressed-Air Measurement Instrument",
-    "en": "Compressed-Air Measurement Instrument"
+    "en": "Compressed-Air Measurement Instrument",
+    "ar": "عداد الهواء المضغوط"
   },
   "descriptions": {
     "de": "Stellt einen Druckluftzähler in einem Messaufbau dar.",
     "ru": "Represents a compressed-air meter in a test setup.",
-    "en": "Represents a compressed-air meter in a test setup."
+    "en": "Represents a compressed-air meter in a test setup.",
+    "ar": "يمثل عداد هواء مضغوط في إعداد قياس."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Gibt den Rohrdurchmesser des Druckluftzählers an.",
         "ru": "Specifies the pipe diameter of the compressed-air meter.",
-        "en": "Specifies the pipe diameter of the compressed-air meter."
+        "en": "Specifies the pipe diameter of the compressed-air meter.",
+        "ar": "يشير إلى قطر أنبوب مقياس الهواء المضغوط."
       },
       "names": {
         "de": "Durchmesser",
         "ru": "Diameter",
-        "en": "Diameter"
+        "en": "Diameter",
+        "ar": "قطر الدائرة"
       }
     }
   ]
