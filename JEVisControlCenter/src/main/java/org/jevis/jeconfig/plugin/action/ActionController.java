@@ -87,6 +87,7 @@ public class ActionController {
         ActionTab tab = new ActionTab(this, plan);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
+        /*
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
             if (newValue instanceof ActionTab) {
@@ -94,6 +95,8 @@ public class ActionController {
                 //actionPlan.loadActionList();
             }
         });
+
+         */
 
     }
 
@@ -195,7 +198,7 @@ public class ActionController {
             newAction.fromUser.set(actionDirObj.getDataSource().getCurrentUser().getAccountName());
             newAction.commit();
             tab.getActionPlan().addAction(newAction);
-
+            tab.getActionTable().filter();
             tab.getActionTable().getSelectionModel().select(newAction);
 
             openDataForm();//tab.getActionTable().getSelectionModel().getSelectedItem()
@@ -239,7 +242,7 @@ public class ActionController {
             overviewData.updateData();
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -272,6 +275,7 @@ public class ActionController {
     }
 
     public void openDataForm() {
+        System.out.println("openDataForm()");
         ActionData data = getSelectedData();
         ActionForm actionForm = new ActionForm(getActiveActionPlan(), data);
 
