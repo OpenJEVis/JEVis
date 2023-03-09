@@ -78,7 +78,6 @@ public class TableSumPanel extends GridPane {
 
         actionPlan.getMediumTags().addListener((ListChangeListener<String>) c -> {
             while (c.next()) {
-                System.out.println("mediumtages changed: ");
                 updateLayout();
                 updateData();
             }
@@ -97,7 +96,7 @@ public class TableSumPanel extends GridPane {
     }
 
     private void updateLayout() {
-        System.out.println("UpdateSumTableLayout: " + actionPlan.getName());
+        //System.out.println("UpdateSumTableLayout: " + actionPlan.getName());
         ObservableList<String> mediums = actionPlan.getMediumTags();
         //System.out.println("Sum Table mdeiums: " + actionPlan.getMediumTags() + " plan: " + actionPlan.getName());
         //int column = 2;
@@ -127,7 +126,7 @@ public class TableSumPanel extends GridPane {
 
 
     private void updateData() {
-        System.out.println("UpdateSumTable:" + actionPlan.getName() + " data:" + data.size());
+        //System.out.println("UpdateSumTable:" + actionPlan.getName() + " data:" + data.size());
 
 
         Platform.runLater(() -> {
@@ -145,16 +144,12 @@ public class TableSumPanel extends GridPane {
 
 
         if (actionPlan != null) {
-            //ActionPlanData actionPlanData = data.get(0).getActionPlan();
-            ObservableList<String> mediums = actionPlan.getMediumTags();
-
             Map<String, DoubleProperty> mediumSum = new HashMap<>();
             columns.forEach((s, jfxTextField) -> {
                 mediumSum.put(s, new SimpleDoubleProperty(0));
             });
 
             actionPlan.getActionData().forEach(actionData -> {
-                System.out.println("Add: " + actionData.consumption.get().diffProperty());
                 if (mediumSum.containsKey(actionData.mediaTagsProperty().get())) {
                     DoubleProperty value = mediumSum.get(actionData.mediaTagsProperty().get());
                     if (!actionData.consumption.get().diffProperty().getValue().isNaN()) {
