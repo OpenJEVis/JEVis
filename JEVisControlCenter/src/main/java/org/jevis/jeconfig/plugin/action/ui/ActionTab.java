@@ -14,16 +14,15 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.ActionController;
-import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
+import org.jevis.jeconfig.plugin.action.ui.control.TagButton;
 
 import java.util.stream.Collectors;
 
@@ -43,14 +42,7 @@ public class ActionTab extends Tab {
 
         textProperty().bind(plan.getName());
         this.plan = plan;
-        plan.getActionData().addListener(new ListChangeListener<ActionData>() {
-            @Override
-            public void onChanged(Change<? extends ActionData> c) {
-                while (c.next()) {
-                }
-                setTooltip(new Tooltip("Elemente: " + c.getList().size()));
-            }
-        });
+
 
         actionTable = new ActionTable(plan, plan.getActionData());
 
@@ -69,24 +61,22 @@ public class ActionTab extends Tab {
 
         ObservableList<String> allPlans = FXCollections.observableArrayList();
         ObservableList<String> selectedPlans = FXCollections.observableArrayList();
-
-
-        //ObservableList<String> allPlans = FXCollections.observableArrayList(controller.getActionPlans().stream().map(aplan -> aplan.getName().get()).collect(Collectors.toList()));
-        //ObservableList<String> selectedPlans = FXCollections.observableArrayList(controller.getActionPlans().stream().map(aplan -> aplan.getName().get()).collect(Collectors.toList()));
-
         ObservableList<String> selectedStatus = FXCollections.observableArrayList(plan.getStatustags());
         ObservableList<String> selectedMedium = FXCollections.observableArrayList(plan.getMediumTags());
         ObservableList<String> selectedFields = FXCollections.observableArrayList(plan.getFieldsTags());
+        ObservableList<String> selectedSEU = FXCollections.observableArrayList(plan.getFieldsTags());
 
 
         TagButton planFilterButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.plan"), allPlans, selectedPlans);
         TagButton statusButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.status"), plan.getStatustags(), selectedStatus);
         TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), selectedMedium);
         TagButton fieldsButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.bereich"), plan.getFieldsTags(), selectedFields);
+        TagButton seuButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.seu"), plan.significantEnergyUseTags(), selectedSEU);
 
         actionTable.setFilterStatus(selectedStatus);
         actionTable.setFilterMedium(selectedMedium);
         actionTable.setFilterField(selectedFields);
+        actionTable.setFilterSEU(selectedSEU);
 
         isOverview.set(plan instanceof ActionPlanOverviewData);
         this.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -102,16 +92,25 @@ public class ActionTab extends Tab {
                 @Override
                 public void onChanged(Change<? extends ActionPlanData> c) {
                     while (c.next()) {
+                        System.out.println("!!!!!! ActionTab: " + c);
+                        if (c.wasAdded() || c.wasRemoved()) {
+                            try {
+
+                                planFilterButton.allTags().setAll(FXCollections.observableArrayList(
+                                        controller.getActionPlans().stream().map(aplan -> aplan.getName().get()).collect(Collectors.toList())));
+
+                                planFilterButton.selectedTags().setAll(FXCollections.observableArrayList(
+                                        controller.getActionPlans().stream().map(aplan -> aplan.getName().get()).collect(Collectors.toList()))
+                                );
+
+                                planFilterButton.updateList();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
                     }
 
-                    planFilterButton.allTags.setAll(FXCollections.observableArrayList(
-                            controller.getActionPlans().stream().map(aplan -> aplan.getName().get()).collect(Collectors.toList())));
-                    planFilterButton.selectedTags().setAll(FXCollections.observableArrayList(
-                            controller.getActionPlans().stream().map(aplan -> aplan.getName().get()).collect(Collectors.toList()))
-                    );
 
-
-                    planFilterButton.updateList();
                 }
             });
         } else {
@@ -137,22 +136,24 @@ public class ActionTab extends Tab {
             @Override
             public void onChanged(Change<? extends String> c) {
                 while (c.next()) {
+                    if (c.wasAdded() || c.wasRemoved()) {
+                        // System.out.println("!!!!!! actiontab.ststus: " + c);
+                        if (!c.wasPermutated()) actionTable.setFilterStatus((ObservableList<String>) c.getList());
+                    }
 
                 }
-                System.out.println("StatusButton predd: " + c.getList());
-                actionTable.setFilterStatus((ObservableList<String>) c.getList());
-                actionTable.filter();
             }
         });
         mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
                 while (c.next()) {
+                    if (c.wasAdded() || c.wasRemoved()) {
+                        //System.out.println("!!!!!! actiontab.medium: " + c);
+                        if (!c.wasPermutated()) actionTable.setFilterMedium((ObservableList<String>) c.getList());
+                    }
 
                 }
-                actionTable.setFilterMedium((ObservableList<String>) c.getList());
-                actionTable.filter();
             }
         });
 
@@ -160,22 +161,40 @@ public class ActionTab extends Tab {
         fieldsButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
                 while (c.next()) {
+                    if (c.wasAdded() || c.wasRemoved()) {
+                        //System.out.println("!!!!!! actiontab.field: " + c);
+                        if (!c.wasPermutated()) actionTable.setFilterField((ObservableList<String>) c.getList());
+                    }
 
                 }
-                actionTable.setFilterField((ObservableList<String>) c.getList());
-                actionTable.filter();
+
+
             }
         });
 
         planFilterButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
                 while (c.next()) {
-                    actionTable.setPlanFilter((ObservableList<String>) c.getList());
-                    actionTable.filter();
+                    if (c.wasAdded() || c.wasRemoved()) {
+                        //System.out.println("!!!!!! actiontab.plan: " + c);
+                        if (!c.wasPermutated()) actionTable.setPlanFilter((ObservableList<String>) c.getList());
+                    }
+
+                }
+            }
+        });
+
+        seuButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                while (c.next()) {
+                    if (c.wasAdded() || c.wasRemoved()) {
+                        // System.out.println("!!!!!! actiontab.seu: " + c);
+                        if (!c.wasPermutated()) actionTable.setFilterSEU((ObservableList<String>) c.getList());
+                    }
+
                 }
             }
         });
@@ -191,17 +210,19 @@ public class ActionTab extends Tab {
         gridPane.addColumn(2, new Label("Filter"), statusButton);
         gridPane.addColumn(3, new Region(), mediumButton);
         gridPane.addColumn(4, new Region(), fieldsButton);
-        gridPane.addColumn(5, new Region(), planFilterButton);
+        gridPane.addColumn(5, new Region(), seuButton);
+        gridPane.addColumn(6, new Region(), planFilterButton);
 
-        gridPane.addColumn(6, vSep2);
-        gridPane.addColumn(7, new Label("Zeitbereich"), dateSelector);
+
+        gridPane.addColumn(7, vSep2);
+        gridPane.addColumn(8, new Label("Zeitbereich"), dateSelector);
 
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
         borderPane.setCenter(actionTable);
 
-        TableSumPanel tableSumPanel = new TableSumPanel(actionTable.getItems());
+        TableSumPanel tableSumPanel = new TableSumPanel(plan, actionTable.getItems());
         borderPane.setBottom(tableSumPanel);
 
         actionTable.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -236,4 +257,5 @@ public class ActionTab extends Tab {
     public ActionTable getActionTable() {
         return actionTable;
     }
+
 }

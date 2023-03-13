@@ -1,0 +1,121 @@
+{
+  "jevisclass": "Action Plan v2",
+  "names": {
+    "de": "Maßnahmenplan",
+    "ru": "",
+    "uk": "",
+    "th": "",
+    "en": "Action Plan"
+  },
+  "descriptions": {
+    "de": "Maßnahmenplan",
+    "ru": "",
+    "uk": "",
+    "th": "",
+    "en": ""
+  },
+  "types": [
+    {
+      "type": "Custom Status",
+      "descriptions": {
+        "de": "Auswahl der erlaubten Status",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Selection of the allowed statuses"
+      },
+      "names": {
+        "de": "Status",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Status"
+      }
+    },
+    {
+      "type": "Custom Fields",
+      "descriptions": {
+        "de": "Auswahl der erlaubten Bereiche",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Selection of the allowed Fields"
+      },
+      "names": {
+        "de": "Bereiche",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Fields"
+      }
+    },
+    {
+      "type": "Custom Medium",
+      "descriptions": {
+        "de": "Auswahl der erlaubten Medien",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Selection of the allowed media"
+      },
+      "names": {
+        "de": "Medien",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Media"
+      }
+    },
+    {
+      "type": "Custom SUE",
+      "descriptions": {
+        "de": "Auswahl der erlaubten SUE",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Selection of the allowed SUE"
+      },
+      "names": {
+        "de": "SUE",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "SUE"
+      }
+    },
+    {
+      "type": "Nr Prefix",
+      "descriptions": {
+        "de": "Prefix des Nummernkreislaufes ",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Prefix for the number cycle"
+      },
+      "names": {
+        "de": "Nr. Prefix",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Nr. Prefix"
+      }
+    },
+    {
+      "type": "EnPI",
+      "descriptions": {
+        "de": "Definierte EnPI Datenpunkte die zur Verfügung stehenden",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Defined EnPI data points are available"
+      },
+      "names": {
+        "de": "EnPI Datenpunkte",
+        "ru": "ценность",
+        "uk": "Значення",
+        "th": "ความคุ้มค่า",
+        "en": "EnPI Data Points"
+      }
+    }
+  ]
+}

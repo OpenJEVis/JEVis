@@ -24,7 +24,8 @@ public class ActionForm extends Dialog {
         super();
         this.initOwner(JEConfig.getStage());
         this.actionPlan = actionPlan;
-
+        //System.out.println("Open Form for: ");
+        //System.out.println(GsonBuilder.createDefaultBuilder().create().toJson(action));
 
         setTitle(I18n.getInstance().getString("actionform.editor.title"));
         setHeaderText(null);

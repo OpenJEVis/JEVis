@@ -18,6 +18,7 @@ public class ActionPlanOverviewData extends ActionPlanData {
     private ObservableList<String> statusTags;
     private ObservableList<String> mediumTags;
     private ObservableList<String> fieldsTags;
+    private ObservableList<String> significantEnergyUseTags;
     private StringProperty name = new SimpleStringProperty("");
     private StringProperty nrPrefix = new SimpleStringProperty("");
     private String initNrPrefix = "";
@@ -33,14 +34,25 @@ public class ActionPlanOverviewData extends ActionPlanData {
         fieldsTags = FXCollections.observableArrayList();
         mediumTags = FXCollections.observableArrayList();
         actions = FXCollections.observableArrayList();
+        significantEnergyUseTags = FXCollections.observableArrayList();
 
         controller.getActionPlans().addListener(new ListChangeListener<ActionPlanData>() {
             @Override
             public void onChanged(Change<? extends ActionPlanData> c) {
                 while (c.next()) {
+                    System.out.println("!!!!!! Overview: " + c);
+                    if (c.getList().equals(actions)) {
+                        System.out.println("is master Liste");
+                    } else {
+                        System.out.println("is not master list");
+                        if (c.wasAdded() || c.wasRemoved()) {
+                            System.out.println("new list: " + c.getList());
+                            updateData();
+                        }
+                    }
+
 
                 }
-                updateData();
             }
         });
 
@@ -56,7 +68,13 @@ public class ActionPlanOverviewData extends ActionPlanData {
         actions.clear();
 
         controller.getActionPlans().forEach(actionPlanData -> {
-            actionPlanData.loadActionList();
+            if (actionPlanData instanceof ActionPlanOverviewData) {
+                return;
+            }
+            System.out.println("Add actionPlan to overview: " + actionPlanData);
+
+            //actionPlanData.loadActionList();
+
             // System.out.println("Action to add: " + actionPlanData.getName());
             actions.addAll(actionPlanData.getActionData());
             //actions.addAll(actionPlanData.getActionData().stream().filter(actionData -> !actions.contains(actionData)).collect(Collectors.toList()));
@@ -65,27 +83,23 @@ public class ActionPlanOverviewData extends ActionPlanData {
             statusTags.addAll(actionPlanData.getStatustags().stream().filter(obj -> !statusTags.contains(obj)).collect(Collectors.toList()));
             mediumTags.addAll(actionPlanData.getMediumTags().stream().filter(obj -> !mediumTags.contains(obj)).collect(Collectors.toList()));
             fieldsTags.addAll(actionPlanData.getFieldsTags().stream().filter(obj -> !fieldsTags.contains(obj)).collect(Collectors.toList()));
-
+            significantEnergyUseTags.addAll(actionPlanData.significantEnergyUseTags().stream().filter(obj -> !significantEnergyUseTags.contains(obj)).collect(Collectors.toList()));
 
             actionPlanData.getActionData().addListener(new ListChangeListener<ActionData>() {
                 @Override
                 public void onChanged(Change<? extends ActionData> c) {
                     while (c.next()) {
-                        //actions.addAll(c.getAddedSubList().stream().filter(actionData -> !actions.contains(actionData)).collect(Collectors.toList()));
-
-                        c.getAddedSubList().forEach(actionData -> {
-                            if (!actions.contains(actionData)) {
-                                actions.add(actionData);
-                            }
-                        });
-                        //actions.addAll(c.getAddedSubList());
-                        actions.removeAll(c.getRemoved());
+                        System.out.println("!!!!!! Overview.actions: " + c);
+                        if (c.wasAdded()) {
+                            actions.addAll(c.getAddedSubList());
+                        }
+                        if (c.wasRemoved()) {
+                            actions.removeAll(c.getRemoved());
+                        }
                     }
 
                 }
             });
-
-
         });
 
 
@@ -126,6 +140,10 @@ public class ActionPlanOverviewData extends ActionPlanData {
 
     public ObservableList<ActionData> getActionData() {
         return actions;
+    }
+
+    public ObservableList<String> significantEnergyUseTags() {
+        return significantEnergyUseTags;
     }
 
     public String getNrPrefix() {

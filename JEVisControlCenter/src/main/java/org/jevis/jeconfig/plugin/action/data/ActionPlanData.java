@@ -6,15 +6,11 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.action.ActionPlugin;
 import org.jevis.jeconfig.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
@@ -152,9 +148,13 @@ public class ActionPlanData {
             @Override
             public void onChanged(Change<? extends ActionData> c) {
                 while (c.next()) {
-                    Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
-                    //System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
-                    biggestActionNr.set(maxNr.get().nrProperty().get());
+                    //System.out.println("!!!!!! Plan: " + c);
+                    if (c.wasAdded() || c.wasRemoved()) {
+                        Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
+                        //System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
+                        biggestActionNr.set(maxNr.get().nrProperty().get());
+                    }
+
                 }
             }
         });
@@ -175,9 +175,10 @@ public class ActionPlanData {
             enpis.add(FreeObject.getInstance());
         }
 
-        loadActionList();
+        // loadActionList();
 
     }
+
 
     /**
      * Set default values for the Action Plan in a locale
@@ -223,6 +224,7 @@ public class ActionPlanData {
         if (!actionsLoaded.get()) {
             actionsLoaded.set(true);
             //System.out.println("loadIntoList for: " + name.get());
+            /*
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
@@ -237,6 +239,7 @@ public class ActionPlanData {
                                 try {
                                     ActionData action = loadAction(actionObj);
                                     actions.add(action);
+                                    action.consumption.get().updateData();
                                     // if (!action.isDeletedProperty().get()) actions.add(action);
 
                                 } catch (Exception e) {
@@ -255,7 +258,36 @@ public class ActionPlanData {
                 }
             };
             Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
-            JEConfig.getStatusBar().addTask(ActionPlugin.class.getName(), task, widgetTaskIcon, true);
+           // JEConfig.getStatusBar().addTask(ActionPlugin.class.getName(), task, widgetTaskIcon, true);
+*/
+
+            try {
+
+                JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Action Plan Directory v2");
+                JEVisClass actionClass = object.getDataSource().getJEVisClass("Action");
+                for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
+                    //System.out.println("Action Dir: " + dirObj);
+                    dirObj.getChildren(actionClass, false).forEach(actionObj -> {
+                        System.out.println("new Action from JEVis: " + actionObj);
+                        try {
+                            ActionData action = loadAction(actionObj);
+                            actions.add(action);
+                            action.update();
+                            //action.consumption.get().updateData();
+                            // if (!action.isDeletedProperty().get()) actions.add(action);
+
+                        } catch (Exception e) {
+                            logger.error("Could not load Action: {},{},{}", actionObj, e, e);
+                        }
+                    });
+                }
+                actions.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+
         }
 
 

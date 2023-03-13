@@ -24,17 +24,17 @@ public class CheckListTab extends Tab {
     private CheckBox f_isNeedCorrection = new CheckBox();
     private CheckBox f_isNeedAdditionalAction = new CheckBox();
     private CheckBox f_isTargetReached = new CheckBox();
-    private ActionData names = new ActionData();
-    Label l_isNeedProcessDocument = new Label(names.checkListDataProperty().get().isNeedProcessDocumentProperty().getName());
-    Label l_isNeedWorkInstruction = new Label(names.checkListDataProperty().get().isNeedWorkInstructionProperty().getName());
-    Label l_isNeedTestInstruction = new Label(names.checkListDataProperty().get().isNeedTestInstructionProperty().getName());
-    Label l_isNeedDrawing = new Label(names.checkListDataProperty().get().isNeedDrawingProperty().getName());
-    Label l_isNeedOther = new Label(names.checkListDataProperty().get().isNeedOtherProperty().getName());
-    Label l_isNeedAdditionalAction = new Label(names.checkListDataProperty().get().isNeedAdditionalActionProperty().getName());
-    Label l_isAffectsOtherProcess = new Label(names.checkListDataProperty().get().isAffectsOtherProcessProperty().getName());
-    Label l_isTargetReached = new Label(names.checkListDataProperty().get().isTargetReachedProperty().getName());
-    Label l_isNeedCorrection = new Label(names.checkListDataProperty().get().isNeedCorrectionProperty().getName());
-    Label l_IsNeedAdditionalMeters = new Label(names.checkListDataProperty().get().isNeedAdditionalMetersProperty().getName());
+    //private ActionData names = new ActionData();
+    Label l_isNeedProcessDocument = new Label("Prozessanweisungen");
+    Label l_isNeedWorkInstruction = new Label("Arbeitsanweisungen");
+    Label l_isNeedTestInstruction = new Label("Prüfanweisungen");
+    Label l_isNeedDrawing = new Label("Prüfanweisungen");
+    Label l_isNeedOther = new Label("Zeichnungen");
+    Label l_isNeedAdditionalAction = new Label("Prüfanweisungen");
+    Label l_isAffectsOtherProcess = new Label("Sind vor- oder nachgelagerte Prozesse betroffen?");
+    Label l_isTargetReached = new Label("Wurde das Ziel der Maßnahme erreicht?");
+    Label l_isNeedCorrection = new Label("Müssen Unterlagen geändert werden?");
+    Label l_IsNeedAdditionalMeters = new Label("Zusätzliche Messtechnik notwendig?");
 
     public CheckListTab(ActionData data) {
         super(I18n.getInstance().getString("actionform.editor.tab.checklist"));
@@ -60,6 +60,10 @@ public class CheckListTab extends Tab {
         f_isNeedOther.selectedProperty().bindBidirectional((data.checkListDataProperty().get().isNeedOtherProperty()));
         f_isTargetReached.selectedProperty().bindBidirectional((data.checkListDataProperty().get().isTargetReachedProperty()));
         f_IsConsumptionDocumented.selectedProperty().bindBidirectional((data.checkListDataProperty().get().isConsumptionDocumentedProperty()));
+        f_isNeedDrawing.selectedProperty().bindBidirectional((data.checkListDataProperty().get().isNeedDrawingProperty()));
+        f_isNeedTestInstruction.selectedProperty().bindBidirectional((data.checkListDataProperty().get().isNeedTestInstructionProperty()));
+        f_isNeedWorkInstruction.selectedProperty().bindBidirectional((data.checkListDataProperty().get().isNeedWorkInstructionProperty()));
+        f_isNeedProcessDocument.selectedProperty().bindBidirectional((data.checkListDataProperty().get().isNeedProcessDocumentProperty()));
 
         HBox q1 = new HBox(f_IsNeedAdditionalMeters, l_IsNeedAdditionalMeters);
         HBox q2 = new HBox(f_IsAffectsOtherProcess, l_isAffectsOtherProcess);

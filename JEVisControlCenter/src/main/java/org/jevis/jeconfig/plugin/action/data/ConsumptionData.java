@@ -60,10 +60,6 @@ public class ConsumptionData {
     private SimpleStringProperty unit = new SimpleStringProperty("kWh");
     private ActionData actionData = null;
 
-    {
-        diff.bind(Bindings.subtract(after, actual));
-    }
-
     private boolean isManual() {
         return dataObject.get() == 0;
     }
@@ -76,32 +72,47 @@ public class ConsumptionData {
         return unit;
     }
 
-    private void addActionData(ActionData actionData) {
-        this.actionData = actionData;
+    public ConsumptionData() {
     }
 
-    public void updateData() {
-        try {
-            JEVisObject dataObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.dataObject.get());
-            JEVisObject calcObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.calcObject.get());
+    public void update() {
+        diff.bind(Bindings.subtract(after, actual).multiply(-1));
+        //actual.addListener((observable, oldValue, newValue) -> System.out.println("new Value. " + newValue));
+        //after.addListener((observable, oldValue, newValue) -> System.out.println("new Value. " + newValue));
+    }
 
-            try {
-                unit.setValue(dataObj.getAttribute("Unit").getLatestSample().getValueAsString());
-            } catch (Exception ex) {
-                logger.error("no Unit set in Data Object", ex, ex);
+    public void updateEnPIData() {
+        try {
+            if (jevisLink.get().isEmpty()) {
+                System.out.println("Update manual Consumption");
+                diff.bind(Bindings.subtract(after, actual));
+
+            } else {
+                System.out.println("Update EnPI Consumption");
+                JEVisObject dataObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.dataObject.get());
+                JEVisObject calcObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.calcObject.get());
+                diff.bind(Bindings.subtract(after, actual));
+
+                try {
+                    unit.setValue(dataObj.getAttribute("Unit").getLatestSample().getValueAsString());
+                } catch (Exception ex) {
+                    logger.error("no Unit set in Data Object", ex, ex);
+                }
+
+                JEVisUnit unit = dataObj.getAttribute("Value").getDisplayUnit();
+                double before = calcEnpi(dataObj, calcObj, unit,
+                        beforeFromDate.get(),
+                        beforeUntilDate.get());
+
+                double after = calcEnpi(dataObj, calcObj, unit,
+                        afterFromDate.get(),
+                        afterUntilDate.get());
+
+                this.actual.set(before);
+                this.after.set(after);
             }
 
-            JEVisUnit unit = dataObj.getAttribute("Value").getDisplayUnit();
-            double before = calcEnpi(dataObj, calcObj, unit,
-                    beforeFromDate.get(),
-                    beforeUntilDate.get());
 
-            double after = calcEnpi(dataObj, calcObj, unit,
-                    afterFromDate.get(),
-                    afterUntilDate.get());
-
-            this.actual.set(before);
-            this.after.set(after);
         } catch (Exception ex) {
             logger.error(ex, ex);
         }
@@ -194,6 +205,10 @@ public class ConsumptionData {
 
     public SimpleStringProperty jevisLinkProperty() {
         return jevisLink;
+    }
+
+    private void addActionData(ActionData actionData) {
+        this.actionData = actionData;
     }
 
 

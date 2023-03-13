@@ -6,16 +6,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
-import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
 import org.jevis.jeconfig.plugin.action.data.TableFilter;
+import org.jevis.jeconfig.plugin.action.ui.control.CurrencyColumnCell;
+import org.jevis.jeconfig.plugin.action.ui.control.StringListColumnCell;
+import org.jevis.jeconfig.plugin.action.ui.control.TagButton;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -28,6 +33,7 @@ import java.util.function.Predicate;
 
 public class ActionTable extends TableView<ActionData> {
 
+    private static final Logger logger = LogManager.getLogger(ActionTable.class);
 
     private static Method columnToFitMethod;
 
@@ -45,10 +51,11 @@ public class ActionTable extends TableView<ActionData> {
     private ObservableList<String> statusFilter = FXCollections.observableArrayList();
     private ObservableList<String> mediumFilter = FXCollections.observableArrayList();
     private ObservableList<String> fieldFilter = FXCollections.observableArrayList();
+    private ObservableList<String> fieldSEU = FXCollections.observableArrayList();
     private ObservableList<String> planFilters = FXCollections.observableArrayList();
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
-    private ActionData sumRow = new ActionData();
+    // private ActionData sumRow = new ActionData();
     private DateFilter dateFilter;
     private boolean showSumRow = false;
     private String containsTextFilter = "";
@@ -56,24 +63,25 @@ public class ActionTable extends TableView<ActionData> {
     NumberFormat currencyFormat = NumberFormat.getNumberInstance();
 
     public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data) {
-        System.out.println("New Action Table: " + data);
+        //System.out.println("New Action Table: " + data);
         this.data = data;
-        this.filteredData = new FilteredList<>(data);
-        setItems(filteredData);
+        this.filteredData = new FilteredList<>(this.data);
+        //setItems(filteredData);
+
+        // FilteredList cannot be sorted so we create a SortedList based on the provided ObservableList
+        SortedList sortedList = new SortedList(this.filteredData);
+        setItems(sortedList);
+        sortedList.comparatorProperty().bind(this.comparatorProperty());
+
         setId("Action Table");
+        setTableMenuButtonVisible(true);
 
-        data.addListener(new ListChangeListener<ActionData>() {
-            @Override
-            public void onChanged(Change<? extends ActionData> c) {
-                while (c.next()) ;
-
-                System.out.println("Daten in tabelle " + actionPlanData.getName() + " geändert: " + c.getList());
-            }
-        });
-
+        /*
         actionPlanData.nrPrefixProperty().addListener((observable, oldValue, newValue) -> {
             filter();
         });
+
+         */
 
         ActionData fakeForName = new ActionData();
         TableColumn<ActionData, String> fromUserCol = new TableColumn(fakeForName.fromUserProperty().getName());
@@ -84,9 +92,12 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsibleProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsibleProperty());
 
-        TableColumn<ActionData, Integer> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
-        actionNrPropertyCol.setCellValueFactory(param -> param.getValue().nrProperty().asObject());
+        TableColumn<ActionData, String> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
+        actionNrPropertyCol.setCellValueFactory(param -> param.getValue().nrTextProperty());
         actionNrPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        actionNrPropertyCol.setSortable(true);
+        actionNrPropertyCol.setSortType(TableColumn.SortType.ASCENDING);
+        /*
         actionNrPropertyCol.setCellFactory(param -> {
             return new TableCell<ActionData, Integer>() {
                 @Override
@@ -104,6 +115,8 @@ public class ActionTable extends TableView<ActionData> {
                 }
             };
         });
+
+         */
 
         TableColumn<ActionData, String> desciptionPropertyCol = new TableColumn(fakeForName.desciptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().desciptionProperty());
@@ -232,13 +245,13 @@ public class ActionTable extends TableView<ActionData> {
             }
         });
 
-        planNameCol.setVisible(actionPlanData instanceof ActionPlanOverviewData);
+        //planNameCol.setVisible(actionPlanData instanceof ActionPlanOverviewData);
         actionNrPropertyCol.setVisible(true);
         fromUserCol.setVisible(false);
         responsiblePropertyCol.setVisible(true);
         desciptionPropertyCol.setVisible(false);
         notePropertyCol.setVisible(true);
-        createDatePropertyCol.setVisible(false);
+        createDatePropertyCol.setVisible(true);
         titlePropertyCol.setVisible(true);
         mediaTagsPropertyCol.setVisible(true);
         statusTagsPropertyCol.setVisible(true);
@@ -253,24 +266,31 @@ public class ActionTable extends TableView<ActionData> {
         investPropertyCol.setVisible(true);
         savingYearPropertyCol.setVisible(true);
         fieldTagsPropertyCol.setVisible(false);
-        enpiDevelopmentPropertyCol.setVisible(true);
+        enpiDevelopmentPropertyCol.setVisible(false);
         consumptionDevelopmentPropertyCol.setVisible(true);
 
-        this.tableMenuButtonVisibleProperty().set(true);
+        //setPrefHeight(1000);
+        titlePropertyCol.setPrefWidth(370);
+        notePropertyCol.setPrefWidth(220);
+
 
         this.getColumns().addAll(actionNrPropertyCol, planNameCol, titlePropertyCol, fromUserCol,
                 responsiblePropertyCol, desciptionPropertyCol, notePropertyCol,
                 mediaTagsPropertyCol, statusTagsPropertyCol, fieldTagsPropertyCol,
-                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol, noteAlternativeMeasuresPropertyCol, noteBewertetPropertyCol,
+                createDatePropertyCol, plannedDatePropertyCol, doneDatePropertyCol, noteAlternativeMeasuresPropertyCol, noteBewertetPropertyCol,
                 noteCorrectionPropertyCol, noteBetroffenerProzessPropertyCol, noteEnergieflussPropertyCol, noteFollowUpActionPropertyCol,
                 investPropertyCol, savingYearPropertyCol, enpiDevelopmentPropertyCol, consumptionDevelopmentPropertyCol
         );
 
 
-        this.getColumns().stream().forEach(tableDataTableColumn -> tableDataTableColumn.setSortable(true));
+        this.getColumns().forEach(tableDataTableColumn -> tableDataTableColumn.setSortable(true));
         this.getVisibleLeafColumns().addListener((ListChangeListener<TableColumn<ActionData, ?>>) c -> {
-            while (c.next()) autoFitTable();
+            while (c.next()) {
+                if (c.wasAdded() || c.wasRemoved()) autoFitTable();
+            }
         });
+
+        getSortOrder().addAll(createDatePropertyCol, actionNrPropertyCol);
 
 
     }
@@ -278,10 +298,10 @@ public class ActionTable extends TableView<ActionData> {
     public void enableSumRow(boolean enable) {
         showSumRow = enable;
         if (enable) {
-            sumRow.nrProperty().set(Integer.MAX_VALUE);
-            data.add(sumRow);
+            //sumRow.nrProperty().set(Integer.MAX_VALUE);
+            // data.add(sumRow);
         } else {
-            data.remove(sumRow);
+            // data.remove(sumRow);
         }
     }
 
@@ -354,130 +374,183 @@ public class ActionTable extends TableView<ActionData> {
 
     public void setFilterStatus(ObservableList<String> status) {
         this.statusFilter = status;
+        filter();
     }
 
     public void setDateFilter(DateFilter filter) {
         this.dateFilter = filter;
+        filter();
     }
 
     public void setFilterMedium(ObservableList<String> medium) {
         this.mediumFilter = medium;
+        filter();
     }
 
     public void setFilterField(ObservableList<String> field) {
         this.fieldFilter = field;
+        filter();
+    }
+
+    public void setFilterSEU(ObservableList<String> field) {
+        this.fieldSEU = field;
+        filter();
     }
 
     public void setTextFilter(String containsText) {
         this.containsTextFilter = containsText;
+        filter();
     }
 
     public void setPlanFilter(ObservableList<String> planNames) {
         planFilters = planNames;
+        filter();
     }
 
     public void filter() {
-        filteredData.setPredicate(
-                new Predicate<ActionData>() {
-                    @Override
-                    public boolean test(ActionData notesRow) {
-                        //System.out.println("-----");
-                        //System.out.println("Filter.predict: " + notesRow.nr);
-                        try {
+        //System.out.println("Start Table filter for: " + getItems().size() + "  " + filteredData.size() + " Plan Filter: " + planFilters);
+        //if (true) return;
 
-                            if (notesRow.isDeletedProperty().get()) return false;
-                            //System.out.println("Filter.pass.delete");
+        Platform.runLater(() -> {
+            filteredData.setPredicate(
+                    new Predicate<ActionData>() {
+                        @Override
+                        public boolean test(ActionData notesRow) {
+                            //System.out.println("-----" + notesRow.nr);
+                            //if (true) return true; // hotfix
 
-                            if (planFilters != null && !planFilters.isEmpty()) {
-                                if (!planFilters.contains(notesRow.getActionPlan().getName().get())) return false;
-                            }
-                            //System.out.println("Filter.pass.plan");
+                            //String debugJson = GsonBuilder.createDefaultBuilder().create().toJson(notesRow);
+                            try {
+
+                                if (notesRow.isDeletedProperty().get()) return false;
+                                //System.out.println("Filter.pass.delete");
+
+                                //System.out.println("Plan Filter: " + planFilters);
+                                if (planFilters != null && !planFilters.isEmpty() && !planFilters.contains(TagButton.ALL)) {
+                                    if (!planFilters.contains(notesRow.getActionPlan().getName().get())) return false;
+                                }
+                                // System.out.println("Filter.pass.plan");
 
 
-                            AtomicBoolean statusMatch = new AtomicBoolean(false);
-                            statusFilter.forEach(s -> {
-                                try {
-                                    for (String s1 : notesRow.statusTagsProperty().get().split(";")) {
-                                        if (s1.equalsIgnoreCase(s)) {
-                                            statusMatch.set(true);
+                                AtomicBoolean statusMatch = new AtomicBoolean(false);
+                                if (statusFilter != null && !statusFilter.contains(TagButton.ALL)) {
+                                    statusFilter.forEach(s -> {
+                                        try {
+                                            if (s.equals(TagButton.ALL)) {
+                                                statusMatch.set(true);
+                                                return;
+                                            }
+
+                                            for (String s1 : notesRow.statusTagsProperty().get().split(";")) {
+                                                if (s1.equalsIgnoreCase(s)) {
+                                                    statusMatch.set(true);
+                                                }
+                                            }
+                                        } catch (Exception ex) {
+
                                         }
-                                    }
-                                } catch (Exception ex) {
-
+                                    });
+                                    if (!statusMatch.get()) return false;
                                 }
-                            });
-                            if (!statusMatch.get()) return false;
-                            // System.out.println("Filter.pass.status");
+                                //System.out.println("Filter.pass.status");
 
 
-                            AtomicBoolean mediumMatch = new AtomicBoolean(false);
-                            mediumFilter.forEach(s -> {
-                                try {
-                                    for (String s1 : notesRow.mediaTagsProperty().get().split(";")) {
-                                        if (s1.equalsIgnoreCase(s)) {
-                                            mediumMatch.set(true);
+                                if (mediumFilter != null && !mediumFilter.contains(TagButton.ALL)) {
+                                    if (mediumFilter != null) {
+                                        AtomicBoolean mediumMatch = new AtomicBoolean(false);
+                                        mediumFilter.forEach(s -> {
+                                            try {
+                                                //System.out.println("Medium: " + s + " in " + notesRow.mediaTagsProperty());
+                                                for (String s1 : notesRow.mediaTagsProperty().get().split(";")) {
+                                                    if (s1.equalsIgnoreCase(s)) {
+                                                        mediumMatch.set(true);
+                                                    }
+                                                }
+                                            } catch (Exception ex) {
+
+                                            }
+                                        });
+                                        if (!mediumMatch.get()) return false;
+                                    }
+                                }
+                                //System.out.println("Filter.pass.medium");
+
+                                //System.out.println("Filter.field: " + fieldFilter + "  in  " + notesRow.fieldTagsProperty().get());
+                                if (fieldFilter != null && !fieldFilter.contains(TagButton.ALL)) {
+                                    AtomicBoolean fieldMatch = new AtomicBoolean(false);
+                                    fieldFilter.forEach(s -> {
+                                        try {
+                                            for (String s1 : notesRow.fieldTagsProperty().get().split(";")) {
+                                                if (s1.equalsIgnoreCase(s)) {
+                                                    fieldMatch.set(true);
+                                                }
+                                            }
+                                        } catch (Exception ex) {
+
                                         }
-                                    }
-                                } catch (Exception ex) {
-
+                                    });
+                                    if (!fieldMatch.get()) return false;
                                 }
-                            });
-                            if (!mediumMatch.get()) return false;
-                            //System.out.println("Filter.pass.medium");
+                                // System.out.println("Filter.pass.field");
 
-                            AtomicBoolean fieldMatch = new AtomicBoolean(false);
-                            fieldFilter.forEach(s -> {
-                                try {
-                                    for (String s1 : notesRow.fieldTagsProperty().get().split(";")) {
-                                        if (s1.equalsIgnoreCase(s)) {
-                                            fieldMatch.set(true);
+                                //System.out.println("Filter.fieldSEU: " + fieldSEU + "  in  " + notesRow.seuTagsProperty().get());
+                                if (fieldSEU != null && !fieldSEU.contains(TagButton.ALL)) {
+                                    AtomicBoolean fieldMatch = new AtomicBoolean(false);
+                                    fieldSEU.forEach(s -> {
+                                        try {
+                                            for (String s1 : notesRow.seuTagsProperty().get().split(";")) {
+                                                if (s1.equalsIgnoreCase(s)) {
+                                                    fieldMatch.set(true);
+                                                }
+                                            }
+                                        } catch (Exception ex) {
+
                                         }
+                                    });
+                                    if (!fieldMatch.get()) return false;
+                                }
+                                //System.out.println("Filter.pass.fieldSEU");
+
+                                if (dateFilter != null) {
+                                    if (!dateFilter.show(notesRow)) return false;
+                                }
+                                //System.out.println("Filter.pass.date");
+
+
+                                AtomicBoolean containString = new AtomicBoolean(false);
+                                if (containsTextFilter != null || containsTextFilter.isEmpty()) {
+                                    if (notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.responsible.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.note.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.desciption.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.noteAlternativeMeasures.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.noteCorrection.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.noteBetroffenerProzess.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.noteFollowUpAction.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.getActionPlan().getName().get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.noteBewertet.get().toLowerCase().contains(containsTextFilter.toLowerCase())) {
+
+                                        containString.set(true);
                                     }
-                                } catch (Exception ex) {
 
-                                }
-                            });
-                            if (!fieldMatch.get()) return false;
-                            //System.out.println("Filter.pass.field");
-
-
-                            if (dateFilter != null) {
-                                if (!dateFilter.show(notesRow)) return false;
-                            }
-                            //System.out.println("Filter.pass.date");
-
-
-                            AtomicBoolean containString = new AtomicBoolean(false);
-                            if (containsTextFilter != null || containsTextFilter.isEmpty()) {
-                                if (notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.responsible.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.note.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.desciption.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.noteAlternativeMeasures.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.noteCorrection.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.noteBetroffenerProzess.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.noteFollowUpAction.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.getActionPlan().getName().get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                        || notesRow.noteBewertet.get().toLowerCase().contains(containsTextFilter.toLowerCase())) {
-
-                                    containString.set(true);
+                                    //TODO: may also check if column is visible
+                                    if (!containString.get()) return false;
                                 }
 
-                                //TODO: may also check if column is visible
-                                if (!containString.get()) return false;
+                                //System.out.println("Return true");
+                                return true;
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
                             }
-
-                            //System.out.println("Return true");
-                            return true;
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                            return false;
                         }
-                        return false;
-                    }
-                });
-        //Platform.runLater(() -> autoFitTable(tableView));
-        Platform.runLater(() -> sort());
+                    });
+            //Platform.runLater(() -> autoFitTable(tableView));
+            //Platform.runLater(() -> sort());
+
+        });
+
 
     }
 

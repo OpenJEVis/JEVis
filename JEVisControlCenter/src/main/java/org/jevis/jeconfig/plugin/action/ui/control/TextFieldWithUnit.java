@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.action.ui;
+package org.jevis.jeconfig.plugin.action.ui.control;
 
 import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Pos;

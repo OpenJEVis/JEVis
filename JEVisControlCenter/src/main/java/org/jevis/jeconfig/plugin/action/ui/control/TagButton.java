@@ -1,8 +1,9 @@
-package org.jevis.jeconfig.plugin.action.ui;
+package org.jevis.jeconfig.plugin.action.ui.control;
 
 import com.jfoenix.controls.JFXCheckBox;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -21,23 +22,21 @@ import java.util.List;
 
 public class TagButton extends Button {
 
+    public final static String ALL = "*";
     ObservableList<String> selectedTags = FXCollections.observableArrayList();
     HashMap<String, BooleanProperty> activeTags = new HashMap<>();
     ObservableList<String> allTags = FXCollections.observableArrayList();
 
     private List<JFXCheckBox> boxes = new ArrayList<>();
+    private BooleanProperty allSelected = new SimpleBooleanProperty(true);
 
     public TagButton(String text, ObservableList<String> entry, ObservableList<String> selected) {
         super(text);
         this.allTags = entry;
         this.selectedTags.addAll(selected);
 
-        this.allTags.addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                updateList();
-            }
-        });
+        allSelected.set(allTags.size() == selected.size());
+        this.allTags.addListener((ListChangeListener<String>) c -> updateList());
 
 
         updateList();
@@ -57,12 +56,14 @@ public class TagButton extends Button {
         MenuItem selectAllMenuItem = new MenuItem(I18n.getInstance().getString("plugin.notes.contextmenu.selectall"));
         selectAllMenuItem.setOnAction(event -> {
             boxes.forEach(jfxCheckBox -> jfxCheckBox.setSelected(true));
+            allSelected.set(true);
             updateValue();
         });
 
         MenuItem deselectAllMenuItem = new MenuItem(I18n.getInstance().getString("plugin.notes.contextmenu.selectnone"));
         deselectAllMenuItem.setOnAction(event -> {
             boxes.forEach(jfxCheckBox -> jfxCheckBox.setSelected(false));
+            allSelected.set(false);
             updateValue();
         });
 
@@ -76,6 +77,7 @@ public class TagButton extends Button {
             cb.setSelected(true);
             boxes.add(cb);
             cb.setOnAction(event -> {
+                allSelected.set(false);
                 updateValue();
             });
             CustomMenuItem cmi = new CustomMenuItem(cb);
@@ -87,8 +89,11 @@ public class TagButton extends Button {
         setOnAction(event -> {
             cm.show(this, Side.BOTTOM, 0, 0);
         });
-        updateButton();
-        updateValue();
+
+        Platform.runLater(() -> {
+            updateValue();
+        });
+
     }
 
     private void updateValue() {
@@ -101,19 +106,27 @@ public class TagButton extends Button {
         });
         System.out.println("## selectedBoxes" + selected);
 
-        //System.out.println("selected: " + selected);
-        if (selected.isEmpty()) {
+        if (allSelected.get()) {
+            selectedTags.clear();
+            selectedTags.add(ALL);
+        } else if (selected.isEmpty()) {
             selectedTags.clear();
         } else {
             selectedTags.setAll(selected);
         }
-        //updateButton();
+
+        if (selected.size() >= allTags.size()) allSelected.set(true);
+
+        if (allSelected.get()) selectedTags.add(ALL);
+
+
+        updateButton();
 
     }
 
     private void updateButton() {
         Platform.runLater(() -> {
-            if (selectedTags.size() == allTags.size()) {
+            if (isAllSelected()) {
                 setStyle("-fx-border-color: #51aaa5;");
                 setGraphic(JEConfig.getSVGImage(Icon.FILTER_ALT_OFF, 20, 20));
             } else {
@@ -122,6 +135,14 @@ public class TagButton extends Button {
             }
         });
 
+    }
+
+    public boolean isAllSelected() {
+        return allSelected.get();
+    }
+
+    public BooleanProperty allSelectedProperty() {
+        return allSelected;
     }
 
     public ObservableList<String> getSelectedTags() {

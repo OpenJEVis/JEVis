@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.action;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -49,11 +50,11 @@ public class ActionController {
         actionPlanNames = FXCollections.observableArrayList();
         actionPlansFilters = FXCollections.observableArrayList();
 
-
         actionPlans.addListener(new ListChangeListener<ActionPlanData>() {
             @Override
             public void onChanged(Change<? extends ActionPlanData> c) {
                 while (c.next()) {
+                    //System.out.println("!!!!!! Controller: " + c);
                     if (c.wasAdded()) {
                         c.getAddedSubList().forEach(actionPlan -> {
                             buildTabPane(actionPlan);
@@ -82,19 +83,9 @@ public class ActionController {
 
 
     private void buildTabPane(ActionPlanData plan) {
-        //ActionTable actionTable = new ActionTable(plan, plan.getActionData());
-        //actionTable.enableSumRow(true);
         ActionTab tab = new ActionTab(this, plan);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
-        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-
-            if (newValue instanceof ActionTab) {
-                ActionPlanData actionPlan = ((ActionTab) newValue).getActionPlan();
-                //actionPlan.loadActionList();
-            }
-        });
-
     }
 
     public ObservableList<ActionPlanData> getActionPlans() {
@@ -195,7 +186,7 @@ public class ActionController {
             newAction.fromUser.set(actionDirObj.getDataSource().getCurrentUser().getAccountName());
             newAction.commit();
             tab.getActionPlan().addAction(newAction);
-
+            tab.getActionTable().filter();
             tab.getActionTable().getSelectionModel().select(newAction);
 
             openDataForm();//tab.getActionTable().getSelectionModel().getSelectedItem()
@@ -215,32 +206,27 @@ public class ActionController {
 
     public void loadActionPlans() {
         try {
+            //System.out.println("loadActionPlans.start()");
             JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass("Action Plan v2");
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
-            //AtomicBoolean isFirstPlan = new AtomicBoolean(true);
-
-
-            ActionPlanOverviewData overviewData = new ActionPlanOverviewData(this);
-            ActionTab overviewTab = new ActionTab(this, overviewData);
-            tabPane.getTabs().add(0, overviewTab);
-
             planObjs.forEach(jeVisObject -> {
+                //System.out.println("loadActionPlans: " + jeVisObject.getID());
                 ActionPlanData plan = new ActionPlanData(jeVisObject);
                 plan.loadActionList();
                 actionPlans.add(plan);
-
-
-                /* the new Overview need all data ready :(
-                if (isFirstPlan.get()) plan.loadActionList();
-                isFirstPlan.set(false);
-                 */
             });
+            ActionPlanOverviewData overviewData = new ActionPlanOverviewData(this);
+            ActionTab overviewTab = new ActionTab(this, overviewData);
+            tabPane.getTabs().add(0, overviewTab);
             overviewData.updateData();
 
+            Platform.runLater(() -> tabPane.getSelectionModel().selectFirst());
+
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        //System.out.println("Done loading actionplans");
     }
 
     public Node getContent() {
@@ -272,6 +258,7 @@ public class ActionController {
     }
 
     public void openDataForm() {
+        System.out.println("openDataForm()");
         ActionData data = getSelectedData();
         ActionForm actionForm = new ActionForm(getActiveActionPlan(), data);
 

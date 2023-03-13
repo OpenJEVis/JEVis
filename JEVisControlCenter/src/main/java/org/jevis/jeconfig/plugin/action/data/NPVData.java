@@ -11,6 +11,8 @@ import javafx.collections.ObservableList;
 import org.jevis.commons.i18n.I18n;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NPVData {
 
@@ -32,6 +34,10 @@ public class NPVData {
     @SerializedName("Inflation")
     public final SimpleDoubleProperty inflation = new SimpleDoubleProperty(3.1);
     public final ObservableList<NPVYearData> npvYears = FXCollections.observableArrayList();
+
+    @Expose
+    @SerializedName("Years")
+    public final SimpleIntegerProperty amoutYear = new SimpleIntegerProperty(10);
     @Expose
     @SerializedName("Duration")
     public final SimpleIntegerProperty overXYear = new SimpleIntegerProperty(3);
@@ -58,42 +64,47 @@ public class NPVData {
     public final SimpleDoubleProperty sumNetto = new SimpleDoubleProperty(0d);
 
     private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+    private boolean initDone = false;
 
     public NPVData() {
+    }
 
-        //NPVYearData year0invest = new NPVYearData(0, this);
-        //year0invest.setDeposit(0);
-        //year0invest.setInvestment(10000);
+    public void update() {
+        int amountToCreate = amoutYear.get();
+        npvYears.clear();
+        //System.out.println("Update NPV: " + amountToCreate);
+        List<NPVYearData> tmp = new ArrayList<>();
+        for (int i = 1; i <= amountToCreate; i++) {
+            // System.out.println("Add: " + i);
+            tmp.add(new NPVYearData(i, this));
+        }
+        npvYears.addAll(tmp);
 
-        npvYears.addAll(
-                new NPVYearData(1, this),
-                new NPVYearData(2, this),
-                new NPVYearData(3, this),
-                new NPVYearData(4, this),
-                new NPVYearData(5, this));
-        /*
-                new NPVYearData(6, this),
-                new NPVYearData(7, this),
-                new NPVYearData(8, this),
-                new NPVYearData(9, this),
-                new NPVYearData(10, this));
+        if (initDone = false) {
+            initDone = true;
 
-         */
-
-        ChangeListener<Number> changeListener = new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+            amoutYear.addListener((observable, oldValue, newValue) -> {
+                //  System.out.println("amoutYear.listener: " + newValue);
+                update();
                 npvYears.forEach(NPVYearData::updateSums);
-                System.out.println("Value changed: " + newValue);
-                //updateResults();
-            }
-        };
+            });
 
-        interestRate.addListener(changeListener);
-        investment.addListener(changeListener);
-        einsparung.addListener(changeListener);
-        runningCost.addListener(changeListener);
-        inflation.addListener(changeListener);
+            ChangeListener<Number> changeListener = new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    npvYears.forEach(NPVYearData::updateSums);
+                    System.out.println("Value changed: " + newValue);
+                    //updateResults();
+                }
+            };
+
+            interestRate.addListener(changeListener);
+            investment.addListener(changeListener);
+            einsparung.addListener(changeListener);
+            runningCost.addListener(changeListener);
+            inflation.addListener(changeListener);
+        }
+
 
     }
 

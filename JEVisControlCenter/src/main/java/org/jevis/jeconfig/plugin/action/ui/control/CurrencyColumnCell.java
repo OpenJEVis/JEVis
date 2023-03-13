@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.action.ui;
+package org.jevis.jeconfig.plugin.action.ui.control;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -9,7 +9,7 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
-public class StringListColumnCell implements Callback<TableColumn<ActionData, String>, TableCell<ActionData, String>> {
+public class CurrencyColumnCell implements Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>> {
 
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
@@ -20,14 +20,14 @@ public class StringListColumnCell implements Callback<TableColumn<ActionData, St
     ;
 
     @Override
-    public TableCell<ActionData, String> call(TableColumn<ActionData, String> param) {
-        return new TableCell<ActionData, String>() {
+    public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> param) {
+        return new TableCell<ActionData, Double>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
+            protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
 
                 if (item != null && !empty) {
-                    setText(item.replace(";", ", "));
+                    setText(currencyFormat.format(item));
                 } else {
                     setText(null);
                 }

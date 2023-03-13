@@ -20,8 +20,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
 import org.jevis.jeconfig.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -31,7 +29,10 @@ import java.util.List;
 public class ActionData {
 
     private static final Logger logger = LogManager.getLogger(ActionData.class);
-    private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    @Expose
+    @SerializedName("SEU Tags")
+    private final SimpleObjectProperty<String> seuTags = new SimpleObjectProperty<>("");
+    private final StringProperty nrText = new SimpleStringProperty();
 
     @Expose
     @SerializedName("NPV")
@@ -45,6 +46,7 @@ public class ActionData {
     @SerializedName("Nr")
     public final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr",
             I18n.getInstance().getString("plugin.action.nr"), 0);
+
     @Expose
     @SerializedName("Desciption")
     public final SimpleStringProperty desciption = new SimpleStringProperty("Desciption",
@@ -120,7 +122,7 @@ public class ActionData {
     @SerializedName("Distributor")
     public final SimpleStringProperty distributor = new SimpleStringProperty("Distributor",
             I18n.getInstance().getString("plugin.action.distributor"), "");
-    private Gson gson = GsonBuilder.createDefaultBuilder().create();
+
     @Expose
     @SerializedName("EnpI")
     public final SimpleObjectProperty<ConsumptionData> enpi = new SimpleObjectProperty<>(new ConsumptionData());
@@ -130,6 +132,7 @@ public class ActionData {
     @Expose
     @SerializedName("Check List")
     private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
+    private Gson gson = GsonBuilder.createDefaultBuilder().create();
     @Expose
     @SerializedName("Deleted")
     private final SimpleBooleanProperty isDeleted = new SimpleBooleanProperty(false);
@@ -144,15 +147,24 @@ public class ActionData {
     private ActionPlanData actionPlan = null;
     private boolean isNew = false;
 
+
     public ActionData(ActionPlanData actionPlan, JEVisObject obj) {
         this.object = obj;
-        this.actionPlan = actionPlan;
         this.isNew = true;
-        reload();
+        setActionPlan(actionPlan);
+        update();
     }
 
     public ActionData() {
-        reload();
+    }
+
+    public void update() {
+        System.out.println("-ActionData.update: " + this);
+        nr.addListener((observable, oldValue, newValue) -> updateNrText());
+        originalSettings = gson.toJson(this);
+        consumption.get().update();
+        enpi.get().update();
+        npv.get().update();
     }
 
     public void setObject(JEVisObject object) {
@@ -165,22 +177,23 @@ public class ActionData {
 
     public void setActionPlan(ActionPlanData actionPlan) {
         this.actionPlan = actionPlan;
+        actionPlan.nrPrefixProperty().addListener((observable, oldValue, newValue) -> updateNrText());
+
+        updateNrText();
     }
 
-    public void reload() {
 
-        //dataNode = JsonNodeFactory.instance.objectNode();
-
-        try {
-            propertyList = new ArrayList<>();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        originalSettings = gson.toJson(this);
-
+    private void updateNrText() {
+        nrText.set(String.format("%s %03d", actionPlan.getNrPrefix(), nrProperty().get()));
     }
 
+    public String getNrText() {
+        return nrText.get();
+    }
+
+    public StringProperty nrTextProperty() {
+        return nrText;
+    }
 
     public JEVisObject getObject() {
         return object;
@@ -365,6 +378,7 @@ public class ActionData {
         return enpi;
     }
 
+
     public ConsumptionData getConsumption() {
         return consumption.get();
     }
@@ -385,5 +399,8 @@ public class ActionData {
         return isDeleted;
     }
 
+    public SimpleObjectProperty<String> seuTagsProperty() {
+        return seuTags;
+    }
 
 }
