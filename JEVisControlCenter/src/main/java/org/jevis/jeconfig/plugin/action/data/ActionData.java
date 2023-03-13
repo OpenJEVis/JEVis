@@ -20,8 +20,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
 import org.jevis.jeconfig.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -31,7 +29,9 @@ import java.util.List;
 public class ActionData {
 
     private static final Logger logger = LogManager.getLogger(ActionData.class);
-    private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    @Expose
+    @SerializedName("SEU Tags")
+    private final SimpleObjectProperty<String> seuTags = new SimpleObjectProperty<>("");
     private final StringProperty nrText = new SimpleStringProperty();
 
     @Expose
@@ -46,7 +46,7 @@ public class ActionData {
     @SerializedName("Nr")
     public final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr",
             I18n.getInstance().getString("plugin.action.nr"), 0);
-    private Gson gson = GsonBuilder.createDefaultBuilder().create();
+
     @Expose
     @SerializedName("Desciption")
     public final SimpleStringProperty desciption = new SimpleStringProperty("Desciption",
@@ -132,6 +132,7 @@ public class ActionData {
     @Expose
     @SerializedName("Check List")
     private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
+    private Gson gson = GsonBuilder.createDefaultBuilder().create();
     @Expose
     @SerializedName("Deleted")
     private final SimpleBooleanProperty isDeleted = new SimpleBooleanProperty(false);
@@ -163,6 +164,7 @@ public class ActionData {
         originalSettings = gson.toJson(this);
         consumption.get().update();
         enpi.get().update();
+        npv.get().update();
     }
 
     public void setObject(JEVisObject object) {
@@ -376,6 +378,7 @@ public class ActionData {
         return enpi;
     }
 
+
     public ConsumptionData getConsumption() {
         return consumption.get();
     }
@@ -396,5 +399,8 @@ public class ActionData {
         return isDeleted;
     }
 
+    public SimpleObjectProperty<String> seuTagsProperty() {
+        return seuTags;
+    }
 
 }

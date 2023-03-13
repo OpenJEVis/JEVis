@@ -148,9 +148,13 @@ public class ActionPlanData {
             @Override
             public void onChanged(Change<? extends ActionData> c) {
                 while (c.next()) {
-                    Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
-                    //System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
-                    biggestActionNr.set(maxNr.get().nrProperty().get());
+                    System.out.println("!!!!!! Plan: " + c);
+                    if (c.wasAdded() || c.wasRemoved()) {
+                        Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
+                        //System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
+                        biggestActionNr.set(maxNr.get().nrProperty().get());
+                    }
+
                 }
             }
         });
@@ -171,7 +175,7 @@ public class ActionPlanData {
             enpis.add(FreeObject.getInstance());
         }
 
-        loadActionList();
+        // loadActionList();
 
     }
 
