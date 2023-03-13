@@ -46,7 +46,6 @@ public class ActionToolbar extends ToolBar {
 
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
 
-
     }
 
     private void setOverview(boolean isOverview) {
