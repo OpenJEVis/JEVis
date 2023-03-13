@@ -11,6 +11,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.MenuItem;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
@@ -20,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class TagButton extends Button {
+    private static final Logger logger = LogManager.getLogger(TagButton.class);
+
 
     ObservableList<String> selectedTags = FXCollections.observableArrayList();
     HashMap<String, BooleanProperty> activeTags = new HashMap<>();
@@ -97,11 +101,10 @@ public class TagButton extends Button {
 
         List<String> selected = new ArrayList();
         boxes.forEach(jfxCheckBox -> {
-            //System.out.println("jfxCheckBox: " + jfxCheckBox.isSelected() + "  " + jfxCheckBox.getText());
             if (jfxCheckBox.isSelected()) selected.add(jfxCheckBox.getText());
 
         });
-        System.out.println("## selectedBoxes" + selected);
+        logger.debug("## selectedBoxes: {}",selected);
 
         if (selected.isEmpty()) {
             selectedTags.clear();

@@ -19,12 +19,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesController;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.TableFilter;
 
 public class NonconformityPlanTab extends Tab {
+
+    private static final Logger logger = LogManager.getLogger(NonconformityPlanTab.class);
 
     private NonconformityPlan plan;
     private NonconformityPlanTable nonconformityPlanTable;
@@ -47,9 +51,7 @@ public class NonconformityPlanTab extends Tab {
         Label lSuche = new Label("Suche");
         JFXTextField fsearch = new JFXTextField();
         fsearch.setPromptText("Suche nach...");
-        System.out.println("Plan");
-        System.out.println(plan);
-        System.out.println(plan.getSignificantEnergyUseTags());
+
 
         TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), plan.getMediumTags(), plan.getMediumTags());
         TagButton fieldButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.field"), plan.getFieldsTags(), plan.getFieldsTags());
@@ -100,7 +102,7 @@ public class NonconformityPlanTab extends Tab {
         mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
+                logger.debug("List Changed: {}",c);
                 while (c.next()) {
                     nonconformityPlanTable.setFilterMedium((ObservableList<String>) c.getList());
                     nonconformityPlanTable.filter();
@@ -112,7 +114,7 @@ public class NonconformityPlanTab extends Tab {
         stausButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
+                logger.debug("List Changed: {}",c);
                 while (c.next()) {
                     nonconformityPlanTable.setStaus((ObservableList<String>) c.getList());
                     nonconformityPlanTable.filter();
@@ -122,7 +124,7 @@ public class NonconformityPlanTab extends Tab {
         fieldButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
+                logger.debug("List Changed: {}",c);
                 while (c.next()) {
                     nonconformityPlanTable.setFields((ObservableList<String>) c.getList());
                     nonconformityPlanTable.filter();

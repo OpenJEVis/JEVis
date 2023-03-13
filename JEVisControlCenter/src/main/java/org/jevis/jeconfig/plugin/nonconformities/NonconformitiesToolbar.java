@@ -3,11 +3,15 @@ package org.jevis.jeconfig.plugin.nonconformities;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 
 public class NonconformitiesToolbar extends ToolBar {
+    private static final Logger logger = LogManager.getLogger(NonconformitiesController.class);
+
 
     private final double iconSize = 20;
 
@@ -41,7 +45,7 @@ public class NonconformitiesToolbar extends ToolBar {
 
         setOverview(nonconformitiesController.isOverviewTabProperty().get());
         nonconformitiesController.isOverviewTabProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue);
+            logger.debug(newValue);
             setOverview(newValue);
         });
 

@@ -12,6 +12,8 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
@@ -27,6 +29,8 @@ import java.util.function.Predicate;
 
 
 public class NonconformityPlanTable extends TableView<NonconformityData> {
+
+    private static final Logger logger = LogManager.getLogger(NonconformityPlanTable.class);
 
 
     private static Method columnToFitMethod;
@@ -68,8 +72,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
             @Override
             public void onChanged(Change<? extends NonconformityData> c) {
                 while (c.next()) ;
-
-                System.out.println("Daten in tabelle " + nonconformityPlan.getName() + " geändert: " + c.getList());
+                logger.debug("Daten in tabelle: {} + geändert: {}",nonconformityPlan.getName(),c.getList());
             }
         });
 
@@ -313,7 +316,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                 new Predicate<NonconformityData>() {
                     @Override
                     public boolean test(NonconformityData notesRow) {
-                        //System.out.println("Filter.predict: " + notesRow.getTags());
                         try {
                             if (notesRow.isDeleted()) {
                                 return false;
@@ -359,9 +361,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                                 if (!fieldMatch.get()) return false;
                             }
 
-
-                            System.out.println("seu");
-                            System.out.println(seu);
                             AtomicBoolean seuMatch = new AtomicBoolean(false);
                             if (!seu.contains("*")) {
                                 seu.forEach(s -> {
