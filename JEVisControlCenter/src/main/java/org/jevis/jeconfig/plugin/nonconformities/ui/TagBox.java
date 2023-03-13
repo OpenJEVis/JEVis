@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.action.ui;
+package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.property.BooleanProperty;

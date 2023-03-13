@@ -11,6 +11,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.plugin.action.ui.ActionToolbar;
 
 public class ActionPlugin implements Plugin {
 
@@ -28,17 +29,17 @@ public class ActionPlugin implements Plugin {
         this.ds = ds;
         this.nameProperty.set(name);
 
-        initGUI();
+        actionController = new ActionController(this);
+        toolbar = new ActionToolbar(actionController);
+        rootPane.setCenter(actionController.getContent());
+        //initGUI();
     }
 
     private void initGUI() {
         if (isInit) return;
-
-        actionController = new ActionController(this);
-        rootPane.setCenter(actionController.getContent());
-        actionController.loadActionView();
-        toolbar = new ActionToolbar(actionController);
         isInit = true;
+
+        actionController.loadActionView();
         actionController.loadActionPlans();
     }
 
@@ -149,6 +150,6 @@ public class ActionPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 0;
+        return 3;
     }
 }

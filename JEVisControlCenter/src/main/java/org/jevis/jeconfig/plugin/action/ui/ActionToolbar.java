@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.action;
+package org.jevis.jeconfig.plugin.action.ui;
 
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
@@ -6,6 +6,7 @@ import javafx.scene.control.ToolBar;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.action.ActionController;
 
 public class ActionToolbar extends ToolBar {
 
@@ -38,8 +39,26 @@ public class ActionToolbar extends ToolBar {
         deletePlan.setOnAction(event -> actionController.deletePlan());
         //calender.setOnAction(event -> actionCalendar.showAndWait());
 
+        setOverview(actionController.isOverviewTabProperty().get());
+        actionController.isOverviewTabProperty().addListener((observable, oldValue, newValue) -> {
+            setOverview(newValue);
+        });
+
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
 
+    }
+
+    private void setOverview(boolean isOverview) {
+
+        actionPlanConfig.setDisable(isOverview);
+        newAction.setDisable(isOverview);
+        deleteAction.setDisable(isOverview);
+        deletePlan.setDisable(isOverview);
+        exportPDF.setDisable(true);//Disabled because implementation is missing
+        reloadButton.setDisable(true); //Disabled because implementation is missing
+        //newPlan.setDisable(isOverview);
+        //openForm.setDisable(isOverview);
+        //reloadButton.setDisable(isOverview);
 
     }
 

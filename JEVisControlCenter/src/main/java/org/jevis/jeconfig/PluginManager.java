@@ -45,6 +45,7 @@ import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Plugin;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
+import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
 import org.jevis.jeconfig.plugin.dtrc.TRCPlugin;
 import org.jevis.jeconfig.plugin.equipment.EquipmentPlugin;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
@@ -178,6 +179,7 @@ public class PluginManager {
                         new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")),
                         new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")),
                         new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")),
+                        new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.deviation.name")),
                         new TRCPlugin(this._ds)
                 ));
             } else {
@@ -216,10 +218,14 @@ public class PluginManager {
                                         _plugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
                                     } else if (plugObj.getJEVisClassName().equals(ActionPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
+                                    } else if (plugObj.getJEVisClassName().equals(NonconformitiesPlugin.PLUGIN_NAME)) {
+                                        _plugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")));
                                     } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new TRCPlugin(this._ds));
                                     }
                                 }
+
+
                             }
 
                         } catch (Exception ex) {
@@ -229,6 +235,7 @@ public class PluginManager {
                         ex.printStackTrace();
                     }
                 }
+
                 //_plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
                 this._plugins.addAll(enabledPlugins);
 

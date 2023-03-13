@@ -1,0 +1,36 @@
+{
+  "jevisclass": "Action Plan Plugin",
+  "names": {
+    "de": "Action Plan Plugin",
+    "ru": "",
+    "uk": "",
+    "en": "Action Plan Plugin",
+    "th": ""
+  },
+  "descriptions": {
+    "de": "",
+    "ru": "",
+    "uk": "",
+    "th": "",
+    "en": ""
+  },
+  "types": [
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Aktiviert oder deaktiviert das Action plugin",
+        "ru": "",
+        "en": "Enable or disable the Action Plugin",
+        "uk": "",
+        "th": ""
+      },
+      "names": {
+        "de": "Aktiviert",
+        "ru": "Активирован",
+        "en": "Enabled",
+        "uk": "Активоване",
+        "th": ""
+      }
+    }
+  ]
+}

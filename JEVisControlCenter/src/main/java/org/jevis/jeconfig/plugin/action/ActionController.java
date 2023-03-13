@@ -1,45 +1,44 @@
 package org.jevis.jeconfig.plugin.action;
 
-import com.jfoenix.controls.JFXTextField;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
-import org.jevis.jeconfig.plugin.action.data.ActionPlan;
-import org.jevis.jeconfig.plugin.action.data.TableFilter;
-import org.jevis.jeconfig.plugin.action.ui.*;
-import org.joda.time.DateTime;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
+import org.jevis.jeconfig.plugin.action.ui.ActionForm;
+import org.jevis.jeconfig.plugin.action.ui.ActionPlanForm;
+import org.jevis.jeconfig.plugin.action.ui.ActionTab;
+import org.jevis.jeconfig.plugin.action.ui.NewActionDialog;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ActionController {
     private static final Logger logger = LogManager.getLogger(ActionController.class);
-
     private final ActionPlugin plugin;
-
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
-    private ObservableList<ActionPlan> actionPlans;
+    private ObservableList<ActionPlanData> actionPlans;
+    private ObservableList<ActionPlanData> actionPlansFilters;
+
+    private ObservableList<String> actionPlanNames;
     private TabPane tabPane = new TabPane();
+    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
+
 
     public ActionController(ActionPlugin plugin) {
         this.plugin = plugin;
@@ -48,21 +47,30 @@ public class ActionController {
     public void loadActionView() {
 
         actionPlans = FXCollections.observableArrayList();
-        actionPlans.addListener(new ListChangeListener<ActionPlan>() {
+        actionPlanNames = FXCollections.observableArrayList();
+        actionPlansFilters = FXCollections.observableArrayList();
+
+        actionPlans.addListener(new ListChangeListener<ActionPlanData>() {
             @Override
-            public void onChanged(Change<? extends ActionPlan> c) {
+            public void onChanged(Change<? extends ActionPlanData> c) {
                 while (c.next()) {
+                    //System.out.println("!!!!!! Controller: " + c);
                     if (c.wasAdded()) {
                         c.getAddedSubList().forEach(actionPlan -> {
                             buildTabPane(actionPlan);
+                            actionPlanNames.add(actionPlan.getName().get());
                         });
 
                     }
                 }
-
-
             }
         });
+
+
+        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            isOverviewTab.set(getActiveActionPlan() instanceof ActionPlanOverviewData);
+        });
+
 
         AnchorPane.setBottomAnchor(tabPane, 0.0);
         AnchorPane.setTopAnchor(tabPane, 0.0);
@@ -74,113 +82,14 @@ public class ActionController {
     }
 
 
-    private void buildTabPane(ActionPlan plan) {
-        ActionTable actionTable = new ActionTable(plan.getActionData());
-        //actionTable.enableSumRow(true);
-        ActionTab tab = new ActionTab(plan, actionTable);
+    private void buildTabPane(ActionPlanData plan) {
+        ActionTab tab = new ActionTab(this, plan);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
-        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("new tab selected: " + newValue);
+    }
 
-            ActionPlan actionPlan = ((ActionTab) newValue).getActionPlan();
-            actionPlan.loadActionList();
-
-        });
-
-        GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(25));
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        double maxListHeight = 100;
-
-        ComboBox<String> datumBox = new ComboBox<>();
-        datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
-        datumBox.getSelectionModel().selectFirst();
-        JFXTextField filterDatumText = new JFXTextField();
-        filterDatumText.setPromptText("Datum...");
-        ComboBox<String> comparatorBox = new ComboBox<>();
-        comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));
-        comparatorBox.getSelectionModel().selectFirst();
-        HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
-        EventHandler<ActionEvent> dateFilerEvent = new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (comparatorBox.getSelectionModel().getSelectedItem().equals(">")) {
-                    actionTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.BIGGER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("<")) {
-                    actionTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.SMALLER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("=")) {
-                    actionTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.EQUALS);
-                }
-                actionTable.getTableFilter().setPlannedDateFilter(filterDatumText.getText());
-                actionTable.filter();
-
-            }
-        };
-
-        comparatorBox.setOnAction(dateFilerEvent);
-
-
-        TagButton statusButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.status"), plan.getStatustags(), plan.getStatustags());
-        TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.medium"), plan.getMediumTags(), plan.getMediumTags());
-        TagButton fieldsButton = new TagButton(I18n.getInstance().getString("plugin.action.filter.bereich"), plan.getFieldsTags(), plan.getFieldsTags());
-
-        actionTable.setFilterStatus(plan.getStatustags());
-        actionTable.setFilterMedium(plan.getMediumTags());
-        actionTable.setFilterField(plan.getFieldsTags());
-
-        statusButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                while (c.next()) {
-                    actionTable.setFilterStatus((ObservableList<String>) c.getList());
-                    actionTable.filter();
-                }
-            }
-        });
-        mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
-                while (c.next()) {
-                    actionTable.setFilterMedium((ObservableList<String>) c.getList());
-                    actionTable.filter();
-                }
-            }
-        });
-        fieldsButton.getSelectedTags().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                System.out.println("List Changed: " + c);
-                while (c.next()) {
-                    actionTable.setFilterField((ObservableList<String>) c.getList());
-                    actionTable.filter();
-                }
-            }
-        });
-
-        gridPane.add(statusButton, 0, 0);
-        gridPane.add(mediumButton, 1, 0);
-        gridPane.add(fieldsButton, 2, 0);
-        gridPane.add(hBox, 0, 1, 3, 1);
-
-
-        BorderPane borderPane = new BorderPane();
-        borderPane.setTop(gridPane);
-        borderPane.setCenter(actionTable);
-
-        actionTable.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-                    openDataForm();//actionTable.getSelectionModel().getSelectedItem()
-                }
-            }
-        });
-        tab.setContent(borderPane);
-        //actionTable.setItems(createTestData());
-
+    public ObservableList<ActionPlanData> getActionPlans() {
+        return actionPlans;
     }
 
     public void deletePlan() {
@@ -217,17 +126,13 @@ public class ActionController {
 
                 JEVisObject newObject = parentDir.buildObject(newActionDialog.getCreateName(), actionPlanClass);
                 newObject.commit();
-                ActionPlan actionPlan = new ActionPlan(newObject);
+                ActionPlanData actionPlan = new ActionPlanData(newObject);
+
+                actionPlan.setDefaultValues(Locale.GERMANY);//For now only German is Supportet
+                actionPlan.commit();
                 actionPlans.add(actionPlan);
                 tabPane.getSelectionModel().selectLast();
 
-                DateTime now = new DateTime();
-                JEVisSample statusAtt = newObject.getAttribute("Custom Status").buildSample(now, "Offen;Geschlosse");
-                JEVisSample fieldsAtt = newObject.getAttribute("Custom Fields").buildSample(now, "Büro,Lager,Produktion");
-                JEVisSample mediumAtt = newObject.getAttribute("Custom Medium").buildSample(now, "Strom;Gas;Wasser");
-                statusAtt.commit();
-                fieldsAtt.commit();
-                mediumAtt.commit();
             }
 
         } catch (Exception ex) {
@@ -251,14 +156,14 @@ public class ActionController {
         if (result.get() == ButtonType.OK) {
             try {
                 getSelectedData().delete();
-                tab.getActionPlan().removeAction(tab.getActionTable().getSelectionModel().getSelectedItem());
+                tab.getActionTable().filter();
+                //tab.getActionPlan().removeAction(tab.getActionTable().getSelectionModel().getSelectedItem());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-
-
     }
+
 
     public void createNewAction() {
         ActionTab tab = getActiveTab();
@@ -273,13 +178,17 @@ public class ActionController {
                 actionDirObj = getActiveActionPlan().getObject().getChildren(actionDirClass, false).get(0);
             }
 
-            JEVisObject actionObject = actionDirObj.buildObject(getActiveActionPlan().getNextActionNr().toString(), actionClass);
+            int nextNr = getActiveActionPlan().getNextActionNr();
+            JEVisObject actionObject = actionDirObj.buildObject(nextNr + "", actionClass);
             actionObject.commit();
-            ActionData newAction = new ActionData(actionObject);
-            newAction.nrProperty().set(tab.getActionPlan().getNextActionNr());
+            ActionData newAction = new ActionData(tab.getActionPlan(), actionObject);
+            newAction.nrProperty().set(nextNr);
+            newAction.fromUser.set(actionDirObj.getDataSource().getCurrentUser().getAccountName());
+            newAction.commit();
             tab.getActionPlan().addAction(newAction);
-
+            tab.getActionTable().filter();
             tab.getActionTable().getSelectionModel().select(newAction);
+
             openDataForm();//tab.getActionTable().getSelectionModel().getSelectedItem()
         } catch (Exception ex) {
             logger.error(ex);
@@ -297,21 +206,27 @@ public class ActionController {
 
     public void loadActionPlans() {
         try {
+            //System.out.println("loadActionPlans.start()");
             JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass("Action Plan v2");
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
-            AtomicBoolean isFirstPlan = new AtomicBoolean(true);
-
             planObjs.forEach(jeVisObject -> {
-                ActionPlan plan = new ActionPlan(jeVisObject);
+                //System.out.println("loadActionPlans: " + jeVisObject.getID());
+                ActionPlanData plan = new ActionPlanData(jeVisObject);
+                plan.loadActionList();
                 actionPlans.add(plan);
-                if (isFirstPlan.get()) plan.loadActionList();
-                isFirstPlan.set(false);
             });
+            ActionPlanOverviewData overviewData = new ActionPlanOverviewData(this);
+            ActionTab overviewTab = new ActionTab(this, overviewData);
+            tabPane.getTabs().add(0, overviewTab);
+            overviewData.updateData();
+
+            Platform.runLater(() -> tabPane.getSelectionModel().selectFirst());
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        //System.out.println("Done loading actionplans");
     }
 
     public Node getContent() {
@@ -323,7 +238,7 @@ public class ActionController {
         return tab;
     }
 
-    public ActionPlan getActiveActionPlan() {
+    public ActionPlanData getActiveActionPlan() {
         return getActiveTab().getActionPlan();
     }
 
@@ -343,9 +258,9 @@ public class ActionController {
     }
 
     public void openDataForm() {
-        ActionForm actionForm = new ActionForm(getActiveActionPlan());
+        System.out.println("openDataForm()");
         ActionData data = getSelectedData();
-        actionForm.setData(data);
+        ActionForm actionForm = new ActionForm(getActiveActionPlan(), data);
 
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -356,13 +271,29 @@ public class ActionController {
 
         Optional<ButtonType> optional = actionForm.showAndWait();
         if (optional.get() == buttonTypeOne) {
+            data.setNew(false);
             data.commit();
         } else {
-            data.reload();
+            if (data.isNew()) {
+                data.getActionPlan().removeAction(data);
+            } else {
+                try {
+                    getActiveActionPlan().reloadAction(data);
+                } catch (Exception ex) {
+                    logger.error(ex, ex);
+                }
+            }
+
         }
 
 
     }
 
+    public boolean isIsOverviewTab() {
+        return isOverviewTab.get();
+    }
 
+    public BooleanProperty isOverviewTabProperty() {
+        return isOverviewTab;
+    }
 }

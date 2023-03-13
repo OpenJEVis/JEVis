@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -14,7 +15,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
-import org.jevis.jeconfig.plugin.action.data.ActionPlan;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.tool.ScreenSize;
 
 import java.util.ArrayList;
@@ -24,11 +25,14 @@ import java.util.Optional;
 public class ActionPlanForm extends Alert {
 
 
-    Label nameLabel = new Label("Name: ");
+    Label nameLabel = new Label("Name");
     Label statusLabel = new Label("Status");
     Label fieldsLabel = new Label("Bereiche");
     Label mediumLabel = new Label("Medien");
     Label enpiLabel = new Label("EnPI");
+    Label sueLabel = new Label("SEU");
+    Label numberPrefix = new Label("Nr. Prefix");
+    JFXTextField f_numberPrefix = new JFXTextField();
 
     JFXTextField nameField = new JFXTextField();
 
@@ -36,10 +40,12 @@ public class ActionPlanForm extends Alert {
     ListView<String> fieldsListView = new ListView<>();
     ListView<String> mediumListView = new ListView<>();
     ListView<JEVisObject> enpiListView = new ListView<>();
-    private ActionPlan actionPlan;
+    ListView<String> sueListView = new ListView<>();
+    private ActionPlanData actionPlan;
     StackPane stackPane = new StackPane();
+    private double iconSize = 12;
 
-    public ActionPlanForm(ActionPlan actionPlan) {
+    public ActionPlanForm(ActionPlanData actionPlan) {
         super(AlertType.INFORMATION);
         this.actionPlan = actionPlan;
         this.initOwner(JEConfig.getStage());
@@ -56,6 +62,7 @@ public class ActionPlanForm extends Alert {
 
         GridPane statusPane = buildCustomList(statusListView);
         GridPane mediumPane = buildCustomList(mediumListView);
+        GridPane suePane = buildCustomList(sueListView);
         GridPane fieldPane = buildCustomList(fieldsListView);
         GridPane enpiPane = buildENPIList(enpiListView);
 
@@ -63,18 +70,27 @@ public class ActionPlanForm extends Alert {
         gridPane.setHgap(12);
         gridPane.setVgap(8);
 
+
         gridPane.add(nameLabel, 0, 0);
-        gridPane.add(statusLabel, 0, 1);
-        gridPane.add(statusPane, 0, 2, 3, 1);
-        gridPane.add(mediumLabel, 0, 3);
-        gridPane.add(mediumPane, 0, 4, 3, 1);
-        gridPane.add(fieldsLabel, 0, 5);
-        gridPane.add(fieldPane, 0, 6, 3, 1);
-        gridPane.add(enpiLabel, 0, 7);
-        gridPane.add(enpiPane, 0, 8, 3, 1);
-
-
         gridPane.add(nameField, 1, 0);
+        gridPane.add(numberPrefix, 0, 1);
+        gridPane.add(f_numberPrefix, 1, 1);
+        gridPane.add(new Region(), 0, 2);
+
+        gridPane.add(statusLabel, 3, 0, 2, 1);
+        gridPane.add(statusPane, 3, 1, 2, 2);
+
+        gridPane.add(mediumLabel, 0, 3, 2, 1);
+        gridPane.add(mediumPane, 0, 4, 2, 1);
+
+        gridPane.add(sueLabel, 0, 5, 2, 1);
+        gridPane.add(suePane, 0, 6, 2, 1);
+
+        gridPane.add(fieldsLabel, 3, 3, 2, 1);
+        gridPane.add(fieldPane, 3, 4, 2, 1);
+
+        gridPane.add(enpiLabel, 3, 5, 2, 1);
+        gridPane.add(enpiPane, 3, 6, 2, 1);
 
         stackPane.getChildren().add(gridPane);
         getDialogPane().setContent(stackPane);
@@ -82,14 +98,16 @@ public class ActionPlanForm extends Alert {
     }
 
 
-    public void updateView(ActionPlan actionPlan) {
+    public void updateView(ActionPlanData actionPlan) {
         //nameField.setText(actionPlan.getName());
 
         nameField.textProperty().bindBidirectional(actionPlan.getName());
-        System.out.println("Init status: " + actionPlan.getStatustags());
+        f_numberPrefix.textProperty().bindBidirectional(actionPlan.nrPrefixProperty());
         statusListView.setItems(actionPlan.getStatustags());
         fieldsListView.setItems(actionPlan.getFieldsTags());
         mediumListView.setItems(actionPlan.getMediumTags());
+        sueListView.setItems(actionPlan.significantEnergyUseTags());
+
     }
 
     private GridPane buildENPIList(ListView<JEVisObject> listView) {
@@ -125,8 +143,8 @@ public class ActionPlanForm extends Alert {
             }
         });
 
-        Button addButton = new Button("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 8, 14));
-        Button removeButton = new Button("", JEConfig.getSVGImage(Icon.MINUS_CIRCLE, 8, 14));
+        Button addButton = new Button("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
+        Button removeButton = new Button("", JEConfig.getSVGImage(Icon.MINUS_CIRCLE, iconSize, iconSize));
         addButton.setOnAction(event -> {
             try {
                 List<JEVisClass> classes = new ArrayList<>();
@@ -169,8 +187,8 @@ public class ActionPlanForm extends Alert {
     }
 
     private GridPane buildCustomList(ListView<String> listView) {
-        Button addButton = new Button("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 8, 14));
-        Button removeButton = new Button("", JEConfig.getSVGImage(Icon.MINUS_CIRCLE, 8, 14));
+        Button addButton = new Button("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
+        Button removeButton = new Button("", JEConfig.getSVGImage(Icon.MINUS_CIRCLE, iconSize, iconSize));
 
         addButton.setOnAction(event -> {
             TextInputDialog dialog = new TextInputDialog("");

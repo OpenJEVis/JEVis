@@ -158,7 +158,9 @@ public class ResourceSample {
     }
 
 
-    private String createFilePattern(long id, String attribute, String fileName, DateTime dateTime) {
+    private String createFilePattern(long id, String attribute, String fileName, DateTime dateTime) throws JEVisException {
+        if (fileName.contains("..")) throw new JEVisException("Invalid file", 9472);
+
         String absoluteFileDir = Config.getFileDir().getAbsolutePath()
                 + File.separator + id
                 + File.separator + attribute

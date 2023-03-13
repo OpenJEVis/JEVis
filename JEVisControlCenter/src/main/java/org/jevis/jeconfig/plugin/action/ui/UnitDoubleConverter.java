@@ -17,7 +17,7 @@ public class UnitDoubleConverter extends DoubleStringConverter {
         try {
             dvalue = NumberFormat.getNumberInstance(I18n.getInstance().getLocale()).parse(value).doubleValue();
         } catch (ParseException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return dvalue;
     }

@@ -19,6 +19,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -104,6 +105,10 @@ public class NotesPlugin implements Plugin {
         this.tableView.setPlaceholder(label);
 
         this.tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        tableView.setBorder(new Border(new BorderStroke(Paint.valueOf("#b5bbb7"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN, new Insets(20, 20, 20, 20))));
+        //this.tableView.setPadding(new Insets(20));
+
+
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
 
@@ -273,7 +278,7 @@ public class NotesPlugin implements Plugin {
                                         });
                                     }
                                 } catch (Exception ex) {
-                                    
+
                                 }
                             });
 
@@ -623,7 +628,15 @@ public class NotesPlugin implements Plugin {
                                         }
                                     });
 
-                                    setTextFill(Color.BLUE);
+                                    /*
+                                    if (getTableRow().isSelected()) {
+                                        setTextFill(Paint.valueOf("white"));//Color.BLUE
+                                    } else {
+                                        setTextFill(Paint.valueOf("#51aaa5"));//Color.BLUE
+                                    }
+                                    */
+                                    //LinkColor
+
                                     setUnderline(true);
 
                                 }
@@ -1185,7 +1198,7 @@ public class NotesPlugin implements Plugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.NOTE, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.NOTE, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override

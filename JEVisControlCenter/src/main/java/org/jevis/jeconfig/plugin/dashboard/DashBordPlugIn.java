@@ -77,6 +77,7 @@ public class DashBordPlugIn implements Plugin {
 
         scrollPane.setFitToHeight(true);
         scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: -fx-base;");
         zoomPane.getChildren().add(dashBoardPane);
         this.scrollPane.setContent(zoomPane);
 
