@@ -17,10 +17,8 @@ import javafx.scene.text.TextAlignment;
 import javafx.util.converter.NumberStringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
-import org.jevis.jeconfig.plugin.action.data.NPVYearData;
 import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
 import org.jevis.jeconfig.plugin.action.ui.NPVTableView;
-import org.jevis.jeconfig.tool.gson.GsonBuilder;
 
 import java.text.DecimalFormat;
 
@@ -79,7 +77,8 @@ public class CapitalTab extends Tab {
 
         ChoiceBox<Integer> f_period = new ChoiceBox<>();
         f_period.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); // only 15 years by lore
-        f_period.setValue(data.npv.get().npvYears.size());
+        //f_period.valueProperty().bindBidirectional(data.npv.get().amoutYear.asObject());
+        f_period.setValue(data.npv.get().amoutYear.get());
 
         ChoiceBox<Integer> f_amortizedDuration = new ChoiceBox<>();
         f_amortizedDuration.valueProperty().bindBidirectional(data.npv.get().overXYear.asObject());
@@ -110,38 +109,26 @@ public class CapitalTab extends Tab {
         f_auszahlungGesamt.setEditable(false);
 
 
-        f_period.setOnAction(event -> {
-            int diff = f_period.getValue() - data.npv.get().npvYears.size();
-            if (diff > 0) {
-                for (int i = data.npv.get().npvYears.size(); i <= f_period.getValue(); i++) {
-                    NPVYearData npvYearData = new NPVYearData();
-                    npvYearData.year.set(i);
-                    npvYearData.setNpvData(data.npv.get());
-                    npvYearData.setDeposit(data.npv.get().einsparung.get());
-                    data.npv.get().npvYears.add(npvYearData);
-                }
-
-            } else if (diff < 0) {
-                data.npv.get().npvYears.remove(f_period.getValue() + 1, data.npv.get().npvYears.size());
-            }
-
-            data.npv.get().npvYears.forEach(NPVYearData::updateSums);
-            data.npv.get().updateResults();
+        f_period.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            data.npv.get().amoutYear.set(newValue);
         });
 
 
         NumberStringConverter nsc = DoubleConverter.getInstance().getCurrencyConverter();
         NumberStringConverter nscNoUnit = DoubleConverter.getInstance().getDoubleConverter();
 
-        l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.get() + " Jahre");
+        //l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.get() + " Jahre");
         data.npv.get().overXYear.addListener(observable -> l_periodOverX.setText("Amortisation über " + observable.toString() + " Year"));
         DecimalFormat decimalFormat = new DecimalFormat();
         decimalFormat.setMinimumFractionDigits(4);
 
+        /*
         System.out.println("=== NPV Data ===");
         System.out.println(GsonBuilder.createDefaultBuilder().create().toJson(data.npv.get()));
         System.out.println("Saving: " + data.npv.get().einsparung.get());
         System.out.println("nscNoUnit: " + nscNoUnit.toString(data.npv.get().einsparung.get()));
+
+         */
         //f_einsparrung.textProperty().set("test");
 
         Bindings.bindBidirectional(f_zinssatz.textProperty(), data.npv.get().interestRate, new NumberStringConverter());
