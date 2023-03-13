@@ -482,7 +482,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 gp.setVgap(8);
 
                 for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
-                    if (chartDataRow.getEnPI()) {
+                    if (chartDataRow.isCalculation()) {
                         try {
                             alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));
 

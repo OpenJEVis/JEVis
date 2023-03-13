@@ -3,12 +3,14 @@
   "names": {
     "de": "Enum-Verzeichnis",
     "ru": "Enum Directory",
-    "en": "Enum Directory"
+    "en": "Enum Directory",
+    "ar": "دليل التعداد"
   },
   "descriptions": {
     "de": "In einem Enum-Verzeichnis werden systemweite Enumerationen verwaltet.",
     "ru": "In a Enum Directory system-wude enumerations are managed.",
-    "en": "In a Enum Directory system-wude enumerations are managed."
+    "en": "In a Enum Directory system-wude enumerations are managed.",
+    "ar": "تتم إدارة التعدادات على مستوى النظام في دليل تعداد."
   },
   "types": []
 }

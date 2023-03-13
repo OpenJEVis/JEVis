@@ -3,12 +3,14 @@
   "names": {
     "de": "Wasserzähler",
     "ru": "Water Measurement Instrument",
-    "en": "Water Measurement Instrument"
+    "en": "Water Measurement Instrument",
+    "ar": "جهاز قياس المياه"
   },
   "descriptions": {
     "de": "Stellt einen Wasserzähler in einem Messaufbau dar.",
     "ru": "Represents a water meter in a test setup.",
-    "en": "Represents a water meter in a test setup."
+    "en": "Represents a water meter in a test setup.",
+    "ar": "يمثل عداد المياه في إعداد القياس."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Gibt den Rohrdurchmesser des Wasserzählers an.",
         "ru": "Specifies the pipe diameter of the water meter.",
-        "en": "Specifies the pipe diameter of the water meter."
+        "en": "Specifies the pipe diameter of the water meter.",
+        "ar": "يشير إلى قطر أنبوب عداد المياه."
       },
       "names": {
         "de": "Durchmesser",
         "ru": "Diameter",
-        "en": "Diameter"
+        "en": "Diameter",
+        "ar": "القطر"
       }
     }
   ]

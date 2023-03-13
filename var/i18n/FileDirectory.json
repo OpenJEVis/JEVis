@@ -3,12 +3,14 @@
   "names": {
     "de": "Dateien",
     "ru": "File Directory",
-    "en": "File Directory"
+    "en": "File Directory",
+    "ar": "دليل الملفات"
   },
   "descriptions": {
     "de": "Die Klasse Dateiverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Dateien dar.",
     "ru": "The class File Directory represents a specific directory for the management of files.",
-    "en": "The class File Directory represents a specific directory for the management of files."
+    "en": "The class File Directory represents a specific directory for the management of files.",
+    "ar": "تمثل فئة File Directory دليلاً محددًا لإدارة الملفات."
   },
   "types": []
 }

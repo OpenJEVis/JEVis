@@ -3,12 +3,14 @@
   "names": {
     "de": "Verzeichnis",
     "ru": "Directory",
-    "en": "Directory"
+    "en": "Directory",
+    "ar": "الدليل"
   },
   "descriptions": {
     "de": "Die Klasse Verzeichnis stellt ein unspezifisches Verzeichnis für die Strukturierung des Systems dar. Die Klasse Verzeichnis wird nur für die Vererbung bestimmter Verzeichnistypen verwendet.",
     "ru": "The class Directory represents a none-specific directory for the structuring of the system. The class Directory is only used for the inheritance of specific directory types.",
-    "en": "The class Directory represents a none-specific directory for the structuring of the system. The class Directory is only used for the inheritance of specific directory types."
+    "en": "The class Directory represents a none-specific directory for the structuring of the system. The class Directory is only used for the inheritance of specific directory types.",
+    "ar": "تمثل فئة الدليل دليلاً غير محدد لهيكلة النظام ، حيث يتم استخدام فئة الدليل فقط لوراثة أنواع معينة من الأدلة."
   },
   "types": []
 }

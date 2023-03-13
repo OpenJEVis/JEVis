@@ -216,7 +216,9 @@ public class CleanDataObject {
             int compare = periodComparator.compare(outputPeriod, inputPeriod);
 
             if (timestampLatestCleanSample != null && timestampLatestRawSample != null && compare < 1) {
-                if (!timestampLatestRawSample.isAfter(timestampLatestCleanSample)) {
+                boolean equalRawAndCleanTs = timestampLatestRawSample.equals(timestampLatestCleanSample);
+                boolean rawTsAfterCleanTs = timestampLatestRawSample.isAfter(timestampLatestCleanSample);
+                if (!equalRawAndCleanTs && !rawTsAfterCleanTs) {
                     errors.add(("No new Samples for cleaning"));
                 }
             } else if (timestampLatestCleanSample != null && compare < 1) {

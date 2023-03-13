@@ -3,12 +3,14 @@
   "names": {
     "de": "XML Datenpunktverzeichnis",
     "ru": "XML Data Point Directory",
-    "en": "XML Data Point Directory"
+    "en": "XML Data Point Directory",
+    "ar": "دليل نقطة بيانات XML"
   },
   "descriptions": {
     "de": "Die Klasse XML Datenpunktverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von XML-Daten dar.",
     "ru": "The class XML Data Point Directory represents a specific directory for the management of XML data.\n",
-    "en": "The class XML Data Point Directory represents a specific directory for the management of XML data.\n"
+    "en": "The class XML Data Point Directory represents a specific directory for the management of XML data.\n",
+    "ar": "تمثل فئة دليل نقطة بيانات XML دليلاً محددًا لإدارة بيانات XML."
   },
   "types": []
 }

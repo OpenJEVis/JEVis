@@ -3,7 +3,8 @@
   "names": {
     "de": "Audit",
     "ru": "Audit",
-    "en": "Audit"
+    "en": "Audit",
+    "ar": "التدقيق"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Audit Date description",
         "ru": "Audit Date description",
-        "en": "Audit Date description"
+        "en": "Audit Date description",
+        "ar": "تاريخ المراجعة"
       },
       "names": {
         "de": "Audit Date",
         "ru": "Audit Date",
-        "en": "Audit Date"
+        "en": "Audit Date",
+        "ar": "تاريخ المراجعة"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Auditor description",
         "ru": "Auditor description",
-        "en": "Auditor description"
+        "en": "Auditor description",
+        "ar": "المدقق"
       },
       "names": {
         "de": "Auditor",
         "ru": "Auditor",
-        "en": "Auditor"
+        "en": "Auditor",
+        "ar": "مُراجِع"
       }
     }
   ]

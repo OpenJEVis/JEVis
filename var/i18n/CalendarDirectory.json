@@ -3,12 +3,14 @@
   "names": {
     "de": "Kalender",
     "ru": "Calendar",
-    "en": "Calendar"
+    "en": "Calendar",
+    "ar": "الدليل التقويمي"
   },
   "descriptions": {
     "de": "Im Kalender werden die Kalenderspezifischen Einstellungen verwaltet.",
     "ru": "The calendar manages the calendar-specific settings.",
-    "en": "The calendar manages the calendar-specific settings."
+    "en": "The calendar manages the calendar-specific settings.",
+    "ar": "تتم إدارة الإعدادات الخاصة بالتقويم في التقويم."
   },
   "types": []
 }

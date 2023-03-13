@@ -3,12 +3,14 @@
   "names": {
     "de": "EMail Kanalverzeichnis",
     "ru": "EMail Channel Directory",
-    "en": "EMail Channel Directory"
+    "en": "EMail Channel Directory",
+    "ar": "دليل قناة البريد الإلكتروني"
   },
   "descriptions": {
     "de": "Die Klasse EMail Kanalverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von E-Mail-Daten dar.",
     "ru": "The class EMail Channel Directory represents a specific directory for the management of Email concerning data.\n",
-    "en": "The class EMail Channel Directory represents a specific directory for the management of Email concerning data.\n"
+    "en": "The class EMail Channel Directory represents a specific directory for the management of Email concerning data.\n",
+    "ar": "تمثل فئة دليل قناة البريد الإلكتروني دليلاً محددًا لإدارة بيانات البريد الإلكتروني."
   },
   "types": []
 }

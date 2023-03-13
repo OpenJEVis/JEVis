@@ -3,10 +3,12 @@
   "names": {
     "de": "5.2 Energiepolitik",
     "ru": "5.2 Energy Policy",
-    "en": "5.2 Energy Policy"
+    "en": "5.2 Energy Policy",
+    "ar": "5.2 سياسة الطاقة"
   },
   "descriptions": {
-    "de": "Die oberste Leitung muss eine Energiepolitik festlegen, die\na) für den Zweck und Kontext der Organisation angemessen ist (siehe 4.1).\nb) einen Rahmen zum Festlegen und Überprüfen von Zielen und Energiezielen bietet (siehe 6.6);\nc) eine Verpflichtung enthält, die Verfügbarkeit von Informationen und erforderlichen Ressourcen zum Erreichen von Zielen und Energiezielen sicher stellt;\nd) eine Verpflichtung zur Erfüllung zutreffender gesetzlicher und anderer Anforderungen (siehe 4.2) bezüglich Energieeinsatz, Energieverbrauch und Energieeffizienz enthält;\ne) eine Verpflichtung zur fortlaufenden Verbesserung (siehe 10.2) der energiebezogene Leistung und des EnMS enthält;\nf) die Beschaffung (siehe 8.3) von energieeffizienten Produkten und Dienstleistungen unterstützt, die Auswirkung auf die energiebezogene Leistung haben; und\ng) auslegungsbezogene Tätigkeiten (siehe 8.2) unterstützt, die die Verbesserung der energiebezogenen Leistung berücksichtigen.\n\nDie Energiepolitik muss:\n— als dokumentierte Information verfügbar sein;\n— innerhalb der Organisation bekanntgemacht werden;\n— für interessierte Parteien verfügbar sein, soweit angemessen;\n— regelmäßig überprüft und bei Bedarf aktualisiert werden."
+    "de": "Die oberste Leitung muss eine Energiepolitik festlegen, die\na) für den Zweck und Kontext der Organisation angemessen ist (siehe 4.1).\nb) einen Rahmen zum Festlegen und Überprüfen von Zielen und Energiezielen bietet (siehe 6.6);\nc) eine Verpflichtung enthält, die Verfügbarkeit von Informationen und erforderlichen Ressourcen zum Erreichen von Zielen und Energiezielen sicher stellt;\nd) eine Verpflichtung zur Erfüllung zutreffender gesetzlicher und anderer Anforderungen (siehe 4.2) bezüglich Energieeinsatz, Energieverbrauch und Energieeffizienz enthält;\ne) eine Verpflichtung zur fortlaufenden Verbesserung (siehe 10.2) der energiebezogene Leistung und des EnMS enthält;\nf) die Beschaffung (siehe 8.3) von energieeffizienten Produkten und Dienstleistungen unterstützt, die Auswirkung auf die energiebezogene Leistung haben; und\ng) auslegungsbezogene Tätigkeiten (siehe 8.2) unterstützt, die die Verbesserung der energiebezogenen Leistung berücksichtigen.\n\nDie Energiepolitik muss:\n— als dokumentierte Information verfügbar sein;\n— innerhalb der Organisation bekanntgemacht werden;\n— für interessierte Parteien verfügbar sein, soweit angemessen;\n— regelmäßig überprüft und bei Bedarf aktualisiert werden.",
+    "ar": "يجب على الإدارة العليا وضع سياسة الطاقة التي\nأ) مناسبة لغرض وسياق المنظمة (انظر 4.1).\nب) يوفر إطارًا لتحديد ومراجعة الأهداف وأهداف الطاقة (انظر 6.6) ؛\nج) يتضمن التزامًا بضمان توافر المعلومات والموارد اللازمة لتحقيق الأهداف وأهداف الطاقة ؛\nد) يحتوي على التزام بالامتثال للمتطلبات القانونية المعمول بها والمتطلبات الأخرى (انظر 4.2) فيما يتعلق باستخدام الطاقة واستهلاك الطاقة وكفاءة الطاقة ؛\nهـ) يحتوي على التزام بالتحسين المستمر (انظر 10.2) للأداء المتصل بالطاقة ونظام إدارة الطاقة ؛\nو) يدعم شراء (انظر 8.3) المنتجات والخدمات الموفرة للطاقة والتي لها تأثير على الأداء المرتبط بالطاقة ؛ و\nز) يدعم الأنشطة المتعلقة بالتصميم (انظر 8.2) التي تأخذ في الاعتبار تحسين الأداء المرتبط بالطاقة.\n\nسياسة الطاقة يجب أن:\n- تكون متاحة كمعلومات موثقة ؛\n- أن تكون معروفة داخل المنظمة ؛\n- تكون متاحة للأطراف المعنية حسب الاقتضاء ؛\n- يتم مراجعتها وتحديثها بانتظام حسب الضرورة."
   },
   "types": [
     {
@@ -14,12 +16,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "وصف نطاق نظام الإدارة"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -27,12 +31,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -40,12 +46,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الإنشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -53,12 +61,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -66,12 +76,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -79,12 +91,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -92,12 +106,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "العنوان"
       }
     },
     {
@@ -105,12 +121,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

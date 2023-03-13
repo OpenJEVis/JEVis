@@ -3,12 +3,14 @@
   "names": {
     "de": "Treiberverzeichnis",
     "ru": "Driver Directory",
-    "en": "Driver Directory"
+    "en": "Driver Directory",
+    "ar": "دليل التشغيل"
   },
   "descriptions": {
     "de": "Die Klasse Treiberverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Daten zu verschiedenen Treibern dar.",
     "ru": "The class Driver Directory represents a specific directory for the management of  data concerning miscellaneous drivers.\n",
-    "en": "The class Driver Directory represents a specific directory for the management of  data concerning miscellaneous drivers.\n"
+    "en": "The class Driver Directory represents a specific directory for the management of  data concerning miscellaneous drivers.\n",
+    "ar": "تمثل فئة دليل التشغيل دليلاً محددًا لإدارة البيانات المتعلقة ببرامج التشغيل المختلفة."
   },
   "types": []
 }

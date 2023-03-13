@@ -3,12 +3,14 @@
   "names": {
     "de": "Verzeichnis der Kompressoren",
     "ru": "Compressor Equipment Directory",
-    "en": "Compressor Equipment Directory"
+    "en": "Compressor Equipment Directory",
+    "ar": "دليل معدات الضاغط"
   },
   "descriptions": {
     "de": "The class Compressor Equipment Directory represents a specific directory for the management of the compressors of an organization.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
     "ru": "The class Compressor Equipment Directory represents a specific directory for the management of the compressors of an organization.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
-    "en": "The class Compressor Equipment Directory represents a specific directory for the management of the compressors of an organization.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+    "en": "The class Compressor Equipment Directory represents a specific directory for the management of the compressors of an organization.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ar": "يمثل دليل معدات الضاغط الصنف دليلًا محددًا لإدارة ضواغط المؤسسة.\n\nالفئة فريدة ، مما يعني أنه لا يمكن إنشاء كائن من هذه الفئة بالتوازي مع كائن موجود بالفعل من نفس الفئة."
   },
   "types": []
 }

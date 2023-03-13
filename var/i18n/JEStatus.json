@@ -3,12 +3,14 @@
   "names": {
     "de": "JEStatus",
     "ru": "JEStatus",
-    "en": "JEStatus"
+    "en": "JEStatus",
+    "ar": "JE حالة"
   },
   "descriptions": {
     "de": "JEStatus stellt einen automatisierten Benachrichtigungsservice zur Verfügung. Er berichtet im System oder per E-Mail über den Zustand der einzelnen Dienste und über die Auslesung / Berechnung / Bereinigung aller Datenobjekte im System.",
     "ru": "JEStatus предоставляет услугу автоматического уведомления. Он сообщает в системе или по электронной почте о состоянии отдельных служб и о считывании / расчете / очистке всех объектов данных в системе.",
-    "en": "JEStatus provides an automated notification service. It reports in the system or by e-mail on the status of the individual services and on the reading / calculation / cleaning of all data objects in the system."
+    "en": "JEStatus provides an automated notification service. It reports in the system or by e-mail on the status of the individual services and on the reading / calculation / cleaning of all data objects in the system.",
+    "ar": "توفر JEStatus خدمة إعلام آلية. يقدم تقارير في النظام أو عبر البريد الإلكتروني عن حالة الخدمات الفردية وعن قراءة / حساب / تنظيف جميع كائنات البيانات في النظام."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Die Treiber Datei des Benachrichtigungssystems, die verwendet wird.",
         "ru": "Описание файла уведомления",
-        "en": "Notification File description"
+        "en": "Notification File description",
+        "ar": "وصف ملف الاشعارات"
       },
       "names": {
         "de": "Benachrichtigungsdatei",
         "ru": "Файл уведомления",
-        "en": "Notification File"
+        "en": "Notification File",
+        "ar": "ملف الاشعارات"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Die ID des Objekts, dass für die Benachrichtigung verwendet wird, ist hier definiert.",
         "ru": "Сообщение Описание идентификатора уведомления",
-        "en": "Report Notification ID description"
+        "en": "Report Notification ID description",
+        "ar": "وصف ID الإعلام بالتقرير"
       },
       "names": {
         "de": "Benachrichtigungs-ID",
         "ru": "ID уведомления отчета",
-        "en": "Notification ID"
+        "en": "Notification ID",
+        "ar": "إشعار ID"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Dieser Schalter schaltet den Dienst ein oder aus.",
         "ru": "Этот переключатель включает или выключает службу.",
-        "en": "This switch turns the service on or off."
+        "en": "This switch turns the service on or off.",
+        "ar": "ممكن"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Активированный",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die Anzahl der parallelen Threads, die dem Dienst zur Verfügung stehen.",
         "ru": "Количество параллельных потоков, доступных сервису.",
-        "en": "The number of parallel threads available to the service."
+        "en": "The number of parallel threads available to the service.",
+        "ar": "عدد سلاسل الرسائل المتوازية المتاحة للخدمة."
       },
       "names": {
         "de": "Anzahl an Threads",
         "ru": "Количество потоков",
-        "en": "Number of Threads"
+        "en": "Number of Threads",
+        "ar": "عدد المواضيع"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Die Zeit, nach der der Dienst eine neue Abfragerunde startet. Angegeben in Millisekunden.",
         "ru": "Время, по истечении которого служба начинает новый раунд голосования. Указано в миллисекундах.",
-        "en": "The time after which the service starts a new polling round. Specified in milliseconds."
+        "en": "The time after which the service starts a new polling round. Specified in milliseconds.",
+        "ar": "الوقت الذي تبدأ بعده الخدمة جولة اقتراع جديدة. محدد بالمللي ثانية."
       },
       "names": {
         "de": "Taktzeit",
         "ru": "продолжительность цикла",
-        "en": "Cycle Time"
+        "en": "Cycle Time",
+        "ar": "دورة الزمن"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Der letzte bekannte Status des Dienstes. Möglich sind: 0 = aus, 1 = an und wartend, 2 = an und arbeitend.",
         "ru": "Последний известный статус службы. Возможны следующие варианты: 0 = выключен, 1 = включен и ждет, 2 = включен и работает.",
-        "en": "The last known status of the service. Possible are: 0 = off, 1 = on and waiting, 2 = on and working."
+        "en": "The last known status of the service. Possible are: 0 = off, 1 = on and waiting, 2 = on and working.",
+        "ar": "آخر حالة معروفة للخدمة. ما يلي ممكن: 0 = إيقاف ، 1 = قيد التشغيل والانتظار ، 2 = قيد التشغيل والعمل."
       },
       "names": {
         "de": "Status",
         "ru": "Статус",
-        "en": "State"
+        "en": "State",
+        "ar": "حالة"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Dieser Schalter definiert, ob eine E-Mail mit den Stati versendet werden soll.",
         "ru": "Этот переключатель определяет, нужно ли отправлять сообщения электронной почты со статусами.",
-        "en": "This switch defines whether an e-mail should be sent with the statuses."
+        "en": "This switch defines whether an e-mail should be sent with the statuses.",
+        "ar": "يحدد رمز التبديل هذا ما إذا كان يجب إرسال بريد إلكتروني بالحالة أم لا."
       },
       "names": {
         "de": "Status E-Mail aktiviert",
         "ru": "Электронная почта с информацией о состоянии активирована",
-        "en": "Status e-mail enabled"
+        "en": "Status e-mail enabled",
+        "ar": "تم تمكين البريد الإلكتروني للحالة"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Dieses Feld zeigt die letzte Status E-mail in einem Embedded-Mini-Browser.",
         "ru": "В этом поле отображается последнее сообщение электронной почты со статусом во встроенном мини-браузере.",
-        "en": "This field shows the last status e-mail in an embedded mini browser."
+        "en": "This field shows the last status e-mail in an embedded mini browser.",
+        "ar": "يعرض هذا الحقل آخر رسالة بريد إلكتروني للحالة في متصفح صغير مضمن."
       },
       "names": {
         "de": "Status Log",
         "ru": "Журнал статуса",
-        "en": "Status Log"
+        "en": "Status Log",
+        "ar": "سجل الحالة"
       }
     },
     {
@@ -120,12 +138,14 @@
       "descriptions": {
         "de": "Dieses Feld definiert ab wann ein Datepunkt gelistet wird. Angegeben in Stunden.",
         "ru": "Это поле определяет, с какого момента отображается точка привязки. Указано в часах.",
-        "en": "This field defines from when a datepoint is listed. Specified in hours."
+        "en": "This field defines from when a datepoint is listed. Specified in hours.",
+        "ar": "يحدد هذا الحقل وقت إدراج نقطة البيانات. محدد بالساعات."
       },
       "names": {
         "de": "Kürzest berichtet",
         "ru": "Последний раз сообщалось.",
-        "en": "Latest back reported"
+        "en": "Latest back reported",
+        "ar": "تم الإبلاغ عنها آخر مرة."
       }
     }
   ]

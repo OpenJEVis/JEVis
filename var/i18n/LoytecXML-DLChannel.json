@@ -3,12 +3,14 @@
   "names": {
     "de": "Loytec XML-DL Kanal",
     "ru": "Loytec XML-DL Channel",
-    "en": "Loytec XML-DL Channel"
+    "en": "Loytec XML-DL Channel",
+    "ar": "قناة Loytec XML DL"
   },
   "descriptions": {
     "de": "Der Loytec XML-DL Kanal definiert den Zugriff auf ein Trendobjekt vom LINX Automation Server oder LIOB Controller:\nJEVis Data target ID\n- Trend ID: 4-stellige Hex-Kennung",
     "ru": "The Loytec XML-DL Channel defines how to access a trend object from LINX Automation Server or LIOB Controller.\n\n- Target ID: JEVis Data target ID\n- Trend ID: 4 digit hex identifier\n",
-    "en": "The Loytec XML-DL Channel defines how to access a trend object from LINX Automation Server or LIOB Controller.\n\n- Target ID: JEVis Data target ID\n- Trend ID: 4 digit hex identifier\n"
+    "en": "The Loytec XML-DL Channel defines how to access a trend object from LINX Automation Server or LIOB Controller.\n\n- Target ID: JEVis Data target ID\n- Trend ID: 4 digit hex identifier\n",
+    "ar": "تحدد قناة Loytec XML-DL الوصول إلى كائن الاتجاه من LINX Automation Server أو LIOB Controller:\nمعرف هدف بيانات JEVis\n- معرف الاتجاه: معرف سداسي عشري مكون من 4 أرقام"
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Datum und Zeit der letzten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
         "ru": "Last Readout description",
-        "en": "Date and Time of last readout in time zone setup in the server object"
+        "en": "Date and Time of last readout in time zone setup in the server object",
+        "ar": "القراءة الأخيرة"
       },
       "names": {
         "de": "Letzte Auslesung",
         "ru": "Last Readout",
-        "en": "Last Readout"
+        "en": "Last Readout",
+        "ar": "القراءة الأخيرة"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Definiert die Datenreihe zur Speicherung der ausgelesenen Daten",
         "ru": "Defines the data row for the storage of the received data",
-        "en": "Defines the data row for the storage of the received data"
+        "en": "Defines the data row for the storage of the received data",
+        "ar": "يحدد سلسلة البيانات لتخزين البيانات المقروءة"
       },
       "names": {
         "de": "Ziel ID",
         "ru": "Target ID",
-        "en": "Target ID"
+        "en": "Target ID",
+        "ar": "ID الهدف"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Definiert die sog. Trend ID - die Adresse im Ringspeicher des Geräts",
         "ru": "Defines the so called Trend ID - the address within the circuit buffer of the device",
-        "en": "Defines the so called Trend ID - the address within the circuit buffer of the device"
+        "en": "Defines the so called Trend ID - the address within the circuit buffer of the device",
+        "ar": "اتجاه ID"
       },
       "names": {
         "de": "Trend ID",
         "ru": "Trend ID",
-        "en": "Trend ID"
+        "en": "Trend ID",
+        "ar": "Trend ID"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Status Log description",
         "ru": "Status Log description",
-        "en": "Status Log description"
+        "en": "Status Log description",
+        "ar": "سجل الحالة"
       },
       "names": {
         "de": "Status Log",
         "ru": "Status Log",
-        "en": "Status Log"
+        "en": "Status Log",
+        "ar": "سجل الحالة"
       }
     }
   ]

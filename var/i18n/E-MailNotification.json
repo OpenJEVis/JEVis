@@ -3,7 +3,8 @@
   "names": {
     "de": "E-Mail Benachrichtigung",
     "ru": "E-Mail Notification",
-    "en": "E-Mail Notification"
+    "en": "E-Mail Notification",
+    "ar": "إعلام البريد الإلكتروني"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Attachments description",
         "ru": "Attachments description",
-        "en": "Attachments description"
+        "en": "Attachments description",
+        "ar": "المرفقات"
       },
       "names": {
         "de": "Anhänge",
         "ru": "Attachments",
-        "en": "Attachments"
+        "en": "Attachments",
+        "ar": "المرفقات"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Blind Carbon Copys description",
         "ru": "Blind Carbon Copys description",
-        "en": "Blind Carbon Copys description"
+        "en": "Blind Carbon Copys description",
+        "ar": "نسخ كربونية عمياء"
       },
       "names": {
         "de": "Blind Carbon Copys",
         "ru": "Blind Carbon Copys",
-        "en": "Blind Carbon Copys"
+        "en": "Blind Carbon Copys",
+        "ar": "نسخ كربونية عمياء"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Carbon Copys description",
         "ru": "Carbon Copys description",
-        "en": "Carbon Copys description"
+        "en": "Carbon Copys description",
+        "ar": "نسخ الكربون"
       },
       "names": {
         "de": "CC",
         "ru": "CC",
-        "en": "CC"
+        "en": "CC",
+        "ar": "CC"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "HTML E-Mail description",
         "ru": "HTML E-Mail description",
-        "en": "HTML E-Mail description"
+        "en": "HTML E-Mail description",
+        "ar": "HTML E-Mail"
       },
       "names": {
         "de": "HTML E-Mail",
         "ru": "HTML E-Mail",
-        "en": "HTML E-Mail"
+        "en": "HTML E-Mail",
+        "ar": "HTML E-Mail"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Message description",
         "ru": "Message description",
-        "en": "Message description"
+        "en": "Message description",
+        "ar": "رسائل"
       },
       "names": {
         "de": "Nachricht",
         "ru": "Message",
-        "en": "Message"
+        "en": "Message",
+        "ar": "رسائل"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Recipients description",
         "ru": "Recipients description",
-        "en": "Recipients description"
+        "en": "Recipients description",
+        "ar": "المتلقين"
       },
       "names": {
         "de": "Empfänger",
         "ru": "Recipients",
-        "en": "Recipients"
+        "en": "Recipients",
+        "ar": "المتلقين"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Sent Time description",
         "ru": "Sent Time description",
-        "en": "Sent Time description"
+        "en": "Sent Time description",
+        "ar": "وقت الإرسال"
       },
       "names": {
         "de": "Versandzeitpunkt",
         "ru": "Sent Time",
-        "en": "Sent Time"
+        "en": "Sent Time",
+        "ar": "وقت الشحن"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "Subject description",
         "ru": "Subject description",
-        "en": "Subject description"
+        "en": "Subject description",
+        "ar": "الموضوع"
       },
       "names": {
         "de": "Betreff",
         "ru": "Subject",
-        "en": "Subject"
+        "en": "Subject",
+        "ar": "الموضوع"
       }
     }
   ]

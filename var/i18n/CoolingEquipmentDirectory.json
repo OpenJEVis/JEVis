@@ -3,12 +3,14 @@
   "names": {
     "de": "Verzeichnis der Verdichter",
     "ru": "Cooling Equipment Directory",
-    "en": "Cooling Equipment Directory"
+    "en": "Cooling Equipment Directory",
+    "ar": "دليل معدات التبريد"
   },
   "descriptions": {
     "de": "The class Cooling Equipment Directory represents a specific directory for the management of the cooler and recooler/condenser of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
     "ru": "The class Cooling Equipment Directory represents a specific directory for the management of the cooler and recooler/condenser of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
-    "en": "The class Cooling Equipment Directory represents a specific directory for the management of the cooler and recooler/condenser of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+    "en": "The class Cooling Equipment Directory represents a specific directory for the management of the cooler and recooler/condenser of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ar": "يمثل دليل معدات التبريد للفئة دليلًا محددًا لإدارة المبرد والمبرد / المكثف للمؤسسة.\n\nالفئة فريدة ، مما يعني أنه لا يمكن إنشاء كائن من هذه الفئة بالتوازي مع كائن موجود بالفعل من نفس الفئة."
   },
   "types": []
 }

@@ -3,7 +3,8 @@
   "names": {
     "de": "CSV Parser",
     "ru": "CSV Parser",
-    "en": "CSV Parser"
+    "en": "CSV Parser",
+    "ar": "محلل CSV"
   },
   "descriptions": {},
   "types": [
@@ -11,22 +12,26 @@
       "type": "Charset",
       "descriptions": {
         "de": "Die Zeichenkodierung der zu parsenden Datei.",
-        "en": "The encoding of the file which will be parsed."
+        "en": "The encoding of the file which will be parsed.",
+        "ar": "ترميز الأحرف للملف المراد تحليله."
       },
       "names": {
         "de": "Kodierung",
-        "en": "Charset"
+        "en": "Charset",
+        "ar": "التشفير"
       }
     },
     {
       "type": "Datapoint Alignment",
       "descriptions": {
         "de": "Die Richtung in der die Daten in der Datei zeitbasiert aufgetragen sind",
-        "en": "The time-based direction in which data is written in the file."
+        "en": "The time-based direction in which data is written in the file.",
+        "ar": "الاتجاه الذي يتم فيه رسم البيانات الموجودة في الملف بمرور الوقت"
       },
       "names": {
         "de": "Datenausrichtung",
-        "en": "Datapoint Alignment"
+        "en": "Datapoint Alignment",
+        "ar": "محاذاة البيانات"
       }
     },
     {
@@ -34,106 +39,124 @@
       "descriptions": {
         "de": "Der Datenpunkt Index definiert die Spalte bzw. Zeile der CSV-Datei in der der Datenpunkt angegeben wird.",
         "ru": "Datapoint Index description",
-        "en": "The Datapoint Index defines the column or row of the CSV file where the data point is specified."
+        "en": "The Datapoint Index defines the column or row of the CSV file where the data point is specified.",
+        "ar": "يحدد فهرس نقطة البيانات العمود أو السطر من ملف CSV الذي يتم فيه تحديد نقطة البيانات."
       },
       "names": {
         "de": "Datenpunkt Index",
-        "en": "Datapoint Index"
+        "en": "Datapoint Index",
+        "ar": "مؤشر نقطة البيانات"
       }
     },
     {
       "type": "Date Format",
       "descriptions": {
         "de": "Gibt die Formatierung des Zeitstempels an.",
-        "en": "Defines the format of the timestemp."
+        "en": "Defines the format of the timestemp.",
+        "ar": "تنسيق التاريخ"
       },
       "names": {
         "de": "Datumsformat",
         "ru": "Формат даты",
-        "en": "Date Format"
+        "en": "Date Format",
+        "ar": "تنسيق التاريخ"
       }
     },
     {
       "type": "Date Index",
       "descriptions": {
         "de": "Gibt die Spalte bzw. Zeile an, in der das Datum angegeben wird.",
-        "en": "Defines the column or row, where the date is stored."
+        "en": "Defines the column or row, where the date is stored.",
+        "ar": "فهرس التاريخ"
       },
       "names": {
         "de": "Datum Index",
         "ru": "Индекс даты",
-        "en": "Date Index"
+        "en": "Date Index",
+        "ar": "فهرس التاريخ"
       }
     },
     {
       "type": "Decimal Separator",
       "descriptions": {
         "de": "Definiert das Dezimaltrennzeichen",
-        "en": "Defines the character for separating decimals."
+        "en": "Defines the character for separating decimals.",
+        "ar": "يحدد الفاصل العشري"
       },
       "names": {
         "de": "Dezimaltrennzeichen",
         "ru": "Десятичный разделитель",
-        "en": "Decimal Separator"
+        "en": "Decimal Separator",
+        "ar": "الفاصل العشري"
       }
     },
     {
       "type": "Delimiter",
       "descriptions": {
         "de": "Definiert das Trennzeichen zwischen zwei CSV Daten",
-        "en": "Defines the delimiter between two CSV values"
+        "en": "Defines the delimiter between two CSV values",
+        "ar": "يحدد الفاصل بين اثنين من بيانات CSV"
       },
       "names": {
         "de": "Trennzeichen",
         "ru": "Разделитель",
-        "en": "Delimiter"
+        "en": "Delimiter",
+        "ar": "علامة الفصل"
       }
     },
     {
       "type": "Number Of Headlines",
       "descriptions": {
         "de": "Definiert die Anzahl der Kopfzeilen der CSV-Datei, welche ignoriert werden.",
-        "en": "Defines the number of headlines of the CSV file to be ignored."
+        "en": "Defines the number of headlines of the CSV file to be ignored.",
+        "ar": "يحدد عدد رؤوس ملفات CSV التي يتم سوف يتم تجاهلها."
       },
       "names": {
         "de": "Anzahl Kopfzeilen",
         "ru": "Количество заголовков",
-        "en": "Number Of Headlines"
+        "en": "Number Of Headlines",
+        "ar": "عدد الرؤوس"
       }
     },
     {
       "type": "Quote",
       "descriptions": {
         "de": "Definiert ob bzw. mit welchen Anführungszeichen CSV Daten umfasst werden",
-        "en": "Defines if or respectively which quote characeters are used to surround CSV data."
+        "en": "Defines if or respectively which quote characeters are used to surround CSV data.",
+        "ar": "يحدد ما إذا كانت علامات الاقتباس متضمنة مع بيانات CSV أم لا"
       },
       "names": {
         "de": "Anführungszeichen",
         "ru": "Квота",
-        "en": "Quote"
+        "en": "Quote",
+        "ar": "علامات الاقتباس"
       }
     },
     {
       "type": "Thousand Separator",
       "descriptions": {
         "de": "Definiert welches Tausender-Trennzeichen verwendet wird",
-        "en": "Defines which character is used to separate thousands."
+        "en": "Defines which character is used to separate thousands.",
+        "ar": "يحدد أي آلاف فاصل يتم استخدامه"
       },
       "names": {
         "de": "Tausender-Trennzeichen",
         "ru": "Разделитель тысяч",
-        "en": "Thousand Separator"
+        "en": "Thousand Separator",
+        "ar": "فاصل الآلاف"
       }
     },
     {
       "type": "Time Format",
       "descriptions": {
         "de": "Definiert das verwendete Zeitformat",
-        "en": "Defines the used time format."
+        "en": "Defines the used time format.",
+        "ar": "يحدد تنسيق الوقت المستخدم"
       },
       "names": {
         "de": "Zeitformat",
-        "en": "Time Format"
+        "en": "Time Format",
+        "ar": "تنسيق الوقت"
       }
     },
     {
@@ -141,12 +164,14 @@
       "descriptions": {
         "de": "Gibt die Spalte bzw. Zeile an, in der die Zeit angegeben wird.",
         "ru": "Определяет столбец или строку, где хранится время.",
-        "en": "Defines the column or row, where the time is stored."
+        "en": "Defines the column or row, where the time is stored.",
+        "ar": "يحدد العمود أو الصف الذي يتم إعطاء الوقت فيه."
       },
       "names": {
         "de": "Zeitspalte",
         "ru": "Индекс времени",
-        "en": "Time Index"
+        "en": "Time Index",
+        "ar": "مؤشر الوقت"
       }
     }
   ]

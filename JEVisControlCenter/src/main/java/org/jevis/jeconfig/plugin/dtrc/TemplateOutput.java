@@ -24,6 +24,8 @@ public class TemplateOutput {
     private Boolean resultBold = false;
     private Boolean separator = false;
 
+    private TemplateFormula templateFormula;
+
     public TemplateOutput() {
         id = UUID.randomUUID().toString();
     }
@@ -162,6 +164,14 @@ public class TemplateOutput {
 
     public void setSeparator(Boolean separator) {
         this.separator = separator;
+    }
+
+    public TemplateFormula getTemplateFormula() {
+        return templateFormula;
+    }
+
+    public void setTemplateFormula(TemplateFormula templateFormula) {
+        this.templateFormula = templateFormula;
     }
 
     @Override

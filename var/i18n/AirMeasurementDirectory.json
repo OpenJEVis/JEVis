@@ -3,11 +3,13 @@
   "names": {
     "de": "Messstellen (Luft)",
     "ru": "Measurement (air)",
-    "en": "Measurement (air)"
+    "en": "Measurement (air)",
+    "ar": "دليل قياس الهواء"
   },
   "descriptions": {
     "de": "Dient der Verwaltung von Messstellen (Luft).",
     "ru": "For managing measurements (air).",
-    "en": "For managing measurements (air)."
+    "en": "For managing measurements (air).",
+    "ar": "تستخدم لإدارة نقاط القياس (الهواء)."
   }
 }

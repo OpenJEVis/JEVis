@@ -3,12 +3,14 @@
   "names": {
     "de": "FTP Kanal",
     "ru": "FTP Channel",
-    "en": "FTP Channel"
+    "en": "FTP Channel",
+    "ar": "قناة FTP"
   },
   "descriptions": {
     "de": "The class FTP Channel ",
     "ru": "The class FTP Channel ",
-    "en": "The class FTP Channel "
+    "en": "The class FTP Channel ",
+    "ar": "فئة قناة FTP"
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Datum und Zeit der letzten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
         "ru": "Last Readout description",
-        "en": "Date and Time of last readout in time zone setup in the server object"
+        "en": "Date and Time of last readout in time zone setup in the server object",
+        "ar": "تاريخ ووقت آخر قراءة في المنطقة الزمنية المحددة في كائن الخادم"
       },
       "names": {
         "de": "Letzte Auslesung",
         "ru": "Last Readout",
-        "en": "Last Readout"
+        "en": "Last Readout",
+        "ar": "القراءة الأخيرة"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Path description",
         "ru": "Path description",
-        "en": "Path description"
+        "en": "Path description",
+        "ar": "طريق"
       },
       "names": {
         "de": "Pfad",
         "ru": "Path",
-        "en": "Path"
+        "en": "Path",
+        "ar": "طريق"
       }
     }
   ]

@@ -3,12 +3,14 @@
   "names": {
     "de": "Channel Verzeichnis",
     "ru": "Channel Directory",
-    "en": "Channel Directory"
+    "en": "Channel Directory",
+    "ar": "دليل القناة"
   },
   "descriptions": {
     "de": "Das Channel Verzeichnis kann zur Ordnung verschiedener Dateikanäle bzw. Dateipfade verwendet werden.",
     "ru": "The class Channel Directory represents a specific directory for the management of different channel data.\n\n",
-    "en": "The Channel Directory can be used to sort different data channels or data paths."
+    "en": "The Channel Directory can be used to sort different data channels or data paths.",
+    "ar": "يمكن استخدام دليل القناة لتنظيم قنوات الملفات المختلفة أو مسارات الملفات."
   },
   "types": []
 }

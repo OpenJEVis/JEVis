@@ -3,12 +3,14 @@
   "names": {
     "de": "03 Begriffe",
     "ru": "03 Terms and Definitions",
-    "en": "03 Terms and Definitions"
+    "en": "03 Terms and Definitions",
+    "ar": "03 المصطلحات والتعاريف"
   },
   "descriptions": {
     "de": "Für die Anwendung dieses Dokuments gelten die folgenden Begriffe.\n\nISO und IEC stellen terminologische Datenbanken für die Verwendung in der Normung unter den folgenden\n\nAdressen bereit:\n\n— IEC Electropedia: unter http://www.electropedia.org/\n\n— ISO Online Browsing Platform: unter http://www.iso.org/obp",
     "ru": "For the purposes of this document, the following terms and definitions apply.\n\nISO and IEC maintain terminological databases for use in standardization at the following addresses:\n",
-    "en": "For the purposes of this document, the following terms and definitions apply.\n\nISO and IEC maintain terminological databases for use in standardization at the following addresses:\n"
+    "en": "For the purposes of this document, the following terms and definitions apply.\n\nISO and IEC maintain terminological databases for use in standardization at the following addresses:\n",
+    "ar": "لأغراض هذا المستند ، تنطبق الشروط التالية.\n\nتوفر ISO و IEC قواعد بيانات مصطلحات لاستخدامها في التقييس وفقًا لما يلي\n\nالعناوين جاهزة:\n\n- IEC Electropedia: على http://www.electropedia.org/\n\n- منصة تصفح الإنترنت ISO: http://www.iso.org/obp"
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Liste der im Managementhandbuch verwendeten Begriffe und Definitionen.",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "قائمة المصطلحات والتعاريف المستخدمة في دليل الإدارة."
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "محتويات"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "مؤلف المستند"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ إنشاء المستند"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "Veröffentlichungsdatum"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "الشخص المسؤول عن النشر"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "نشر من قبل"
       }
     }
   ]

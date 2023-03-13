@@ -3,7 +3,8 @@
   "names": {
     "de": "CSV Export",
     "ru": "CSV Export",
-    "en": "CSV Export"
+    "en": "CSV Export",
+    "ar": "تصدير CSV"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Trennzeichen",
         "ru": "Seperator",
-        "en": "Seperator"
+        "en": "Seperator",
+        "ar": "فاصل"
       },
       "names": {
         "de": "Trennzeichen",
         "ru": "Seperator",
-        "en": "Seperator"
+        "en": "Seperator",
+        "ar": "فاصل"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Textbegrenzer",
         "ru": "Description",
-        "en": "Description"
+        "en": "Description",
+        "ar": "محدد النص"
       },
       "names": {
         "de": "Textbegrenzer",
         "ru": "Enclosed by",
-        "en": "Enclosed by"
+        "en": "Enclosed by",
+        "ar": "محدد النص"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Dataname",
         "ru": "File Name",
-        "en": "File Name"
+        "en": "File Name",
+        "ar": "اسم الملف"
       },
       "names": {
         "de": "Dataname",
         "ru": "File Name",
-        "en": "File Name"
+        "en": "File Name",
+        "ar": "اسم الملف"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Date in Element description",
         "ru": "Date in Element description",
-        "en": "Date in Element description"
+        "en": "Date in Element description",
+        "ar": "التاريخ في العنصر"
       },
       "names": {
         "de": "Daum im Element",
         "ru": "Date in Element",
-        "en": "Date in Element"
+        "en": "Date in Element",
+        "ar": "التاريخ في العنصر"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Kopfzeile",
         "ru": "Header line",
-        "en": "Header line"
+        "en": "Header line",
+        "ar": "العنوان"
       },
       "names": {
         "de": "Kopfzeile",
         "ru": "Header Line",
-        "en": "Header Line"
+        "en": "Header Line",
+        "ar": "العنوان"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Datumsformat",
         "ru": "Date Format",
-        "en": "Date Format"
+        "en": "Date Format",
+        "ar": "تنسيق الطابع الزمني"
       },
       "names": {
         "de": "Datumsformat",
         "ru": "Date Format",
-        "en": "Date Format"
+        "en": "Date Format",
+        "ar": "تنسيق التاريخ"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Export Datum",
         "ru": "Export Date",
-        "en": "Export Date"
+        "en": "Export Date",
+        "ar": "تاريخ التصدير"
       },
       "names": {
         "de": "Export Datum",
         "ru": "Export Date",
-        "en": "Export Date"
+        "en": "Export Date",
+        "ar": "تاريخ التصدير"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "Export Status",
         "ru": "Export Status",
-        "en": "Export Status"
+        "en": "Export Status",
+        "ar": "حالة التصدير"
       },
       "names": {
         "de": "Export Status",
         "ru": "Export Status",
-        "en": "Export Status"
+        "en": "Export Status",
+        "ar": "حالة التصدير"
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "Aktiviert",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "ممكن"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "ممكن"
       }
     },
     {
@@ -129,12 +148,14 @@
       "descriptions": {
         "de": "Zeitzone",
         "ru": "Time Zone",
-        "en": "Time Zone"
+        "en": "Time Zone",
+        "ar": "المنطقة الزمنية"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "Time Zone",
-        "en": "Time Zone"
+        "en": "Time Zone",
+        "ar": "المنطقة الزمنية"
       }
     }
   ]

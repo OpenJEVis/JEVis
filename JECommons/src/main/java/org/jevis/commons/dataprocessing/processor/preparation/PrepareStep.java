@@ -171,7 +171,7 @@ public class PrepareStep implements ProcessStep {
                 currentDateLocal = currentDateLocal.minusWeeks(1).withDayOfWeek(1);
 
                 offsetMillis = maxEndDateLocal.getMillis() - maxEndDateLocal.plusWeeks(1).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).getMillis();
-                maxEndDateLocal = maxEndDateLocal.plusWeeks(1).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                maxEndDateLocal = maxEndDateLocal.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             }
             if (compare < 0 && firstRawPeriod.getWeeks() > 0) {
                 currentDateLocal = currentDateLocal.minusWeeks(1).withDayOfWeek(1);
@@ -202,7 +202,11 @@ public class PrepareStep implements ProcessStep {
             }
 
             if (firstCleanPeriod.getMinutes() > 0) {
-                currentDateLocal = currentDateLocal.minusMinutes(firstCleanPeriod.getMinutes()).withSecondOfMinute(0);
+                currentDateLocal = currentDateLocal.minusMinutes(firstCleanPeriod.getMinutes());
+            }
+
+            if (firstCleanPeriod.getSeconds() > 0) {
+                currentDateLocal = currentDateLocal.minusSeconds(firstCleanPeriod.getSeconds());
             }
 
             currentDate = currentDateLocal.withZone(DateTimeZone.UTC);

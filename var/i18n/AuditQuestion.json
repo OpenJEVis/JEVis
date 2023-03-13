@@ -3,7 +3,8 @@
   "names": {
     "de": "Auditfrage",
     "ru": "Audit Question",
-    "en": "Audit Question"
+    "en": "Audit Question",
+    "ar": "سؤال تدقيق"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Audit Observation description",
         "ru": "Audit Observation description",
-        "en": "Audit Observation description"
+        "en": "Audit Observation description",
+        "ar": "مراقبة المراجعة"
       },
       "names": {
         "de": "Audit Beobachtung",
         "ru": "Audit Observation",
-        "en": "Audit Observation"
+        "en": "Audit Observation",
+        "ar": "مراقبة التدقيق"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Evaluation 000 points description",
         "ru": "Evaluation 000 points description",
-        "en": "Evaluation 000 points description"
+        "en": "Evaluation 000 points description",
+        "ar": "التقييم 000 نقاط"
       },
       "names": {
         "de": "Bewertung 0 Punkte",
         "ru": "Evaluation 000 points",
-        "en": "Evaluation 000 points"
+        "en": "Evaluation 000 points",
+        "ar": "التقييم 0 نقطة"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Evaluation 025 points description",
         "ru": "Evaluation 025 points description",
-        "en": "Evaluation 025 points description"
+        "en": "Evaluation 025 points description",
+        "ar": "تقييم 025 نقطة"
       },
       "names": {
         "de": "Bewertung 25 Punkte",
         "ru": "Evaluation 025 points",
-        "en": "Evaluation 025 points"
+        "en": "Evaluation 025 points",
+        "ar": "تقييم 25 نقطة"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Evaluation 050 points description",
         "ru": "Evaluation 050 points description",
-        "en": "Evaluation 050 points description"
+        "en": "Evaluation 050 points description",
+        "ar": "تقييم 050 نقطة"
       },
       "names": {
         "de": "Bewertung 50 Punkte",
         "ru": "Evaluation 050 points",
-        "en": "Evaluation 050 points"
+        "en": "Evaluation 050 points",
+        "ar": "تقييم 50 نقطة"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Evaluation 075 points description",
         "ru": "Evaluation 075 points description",
-        "en": "Evaluation 075 points description"
+        "en": "Evaluation 075 points description",
+        "ar": "التقييم 075 نقطة"
       },
       "names": {
         "de": "Bewertung 75 Punkte",
         "ru": "Evaluation 075 points",
-        "en": "Evaluation 075 points"
+        "en": "Evaluation 075 points",
+        "ar": "التقييم 75 نقطة"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Evaluation 100 points description",
         "ru": "Evaluation 100 points description",
-        "en": "Evaluation 100 points description"
+        "en": "Evaluation 100 points description",
+        "ar": "التقييم 100 نقطة"
       },
       "names": {
         "de": "Bewertung 100 Punkte",
         "ru": "Evaluation 100 points",
-        "en": "Evaluation 100 points"
+        "en": "Evaluation 100 points",
+        "ar": "التقييم 100 نقطة"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Norm Chapter description",
         "ru": "Norm Chapter description",
-        "en": "Norm Chapter description"
+        "en": "Norm Chapter description",
+        "ar": "فصل المعيار"
       },
       "names": {
         "de": "Norm Kapitel",
         "ru": "Norm Chapter",
-        "en": "Norm Chapter"
+        "en": "Norm Chapter",
+        "ar": "فصل المعيار"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "Proposed Measures description",
         "ru": "Proposed Measures description",
-        "en": "Proposed Measures description"
+        "en": "Proposed Measures description",
+        "ar": "التدابير المقترحة"
       },
       "names": {
         "de": "Vorgeschlagene Maßnahme",
         "ru": "Proposed Measures",
-        "en": "Proposed Measures"
+        "en": "Proposed Measures",
+        "ar": "الإجراء المقترح"
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "Question description",
         "ru": "Question description",
-        "en": "Question description"
+        "en": "Question description",
+        "ar": "سؤال"
       },
       "names": {
         "de": "Frage",
         "ru": "Question",
-        "en": "Question"
+        "en": "Question",
+        "ar": "سؤال"
       }
     }
   ]

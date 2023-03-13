@@ -324,7 +324,7 @@ public class TableChartV extends XYChart {
                         Double d = aDouble;
                         if (!isQuantity) {
                             d = d / singleRow.getSamples().size();
-                            if (singleRow.getEnPI()) {
+                            if (singleRow.isCalculation()) {
                                 enpis.put(columnSums.indexOf(aDouble), singleRow.getCalculationObject());
                             }
                         }

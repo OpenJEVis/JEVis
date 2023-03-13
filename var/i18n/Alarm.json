@@ -3,12 +3,14 @@
   "names": {
     "de": "Alarm",
     "ru": "Alarm",
-    "en": "Alarm"
+    "en": "Alarm",
+    "ar": "إنذار بخطر"
   },
   "descriptions": {
     "de": "Ein Alarm ist eine allgemeingültige Klassen, von der verschiedene Alarmklassen abgeleitet werden ",
     "ru": "The class Alarm represents a none-specific directory for the structuring of the system. It contains different alarm types.",
-    "en": "A Alarm represents a generic class, to be inherited by different alarm types."
+    "en": "A Alarm represents a generic class, to be inherited by different alarm types.",
+    "ar": "التنبيه هو فئة عامة يتم اشتقاق فئات إنذار مختلفة منها"
   },
   "types": []
 }

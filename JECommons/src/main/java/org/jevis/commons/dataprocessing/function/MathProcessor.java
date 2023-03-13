@@ -69,7 +69,7 @@ public class MathProcessor {
             AggregationProcessor aggregation = null;
             if (aggregationPeriod != AggregationPeriod.NONE && aggregationTools != null) {
                 aggregation = new AggregationProcessor(ds, aggregationTools, workDays, aggregationPeriod);
-                intervals.addAll(aggregationTools.getIntervals(from, to, aggregationPeriod));
+                intervals.addAll(aggregationTools.buildIntervals(from, to));
             }
 
             Double value = 0d;

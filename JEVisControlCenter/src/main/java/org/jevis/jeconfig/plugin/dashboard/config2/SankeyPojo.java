@@ -30,6 +30,7 @@ import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.widget.SankeyWidget;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SankeyPojo {
 
@@ -48,36 +49,30 @@ public class SankeyPojo {
 
     private TableView sankeyTable;
 
+    private JFXCheckBox jfxCheckBoxShowValue;
 
-    private boolean showFlow = true;
+    private JFXCheckBox jfxCheckBoxAutoGap;
+    private JFXCheckBox jfxCheckBoxShowPercent;
+    private JFXComboBox<String> jfxComboBoxRefersTo;
+    private JFXTextField jfxTextFieldGap;
+    private JFXTextField jfxTextFieldErrorTolerance;
+    private Map<Integer, Spinner<Integer>> offsetUIList = new HashMap<>();
+    private Map<Integer, Integer> offsetMap = new HashMap<>();
+
 
     private boolean autoGap;
 
+    private boolean showValue = true;
+    private boolean showPercent = true;
     private int gap;
 
-    public static final String UNIT = I18n.getInstance().getString("plugin.dashboard.sankey.unit");
-
-    public static final String PERCENT = I18n.getInstance().getString("plugin.dashboard.sankey.percent");
+    private double errorTolerance = 0;
 
     public static final String PARENT = I18n.getInstance().getString("plugin.dashboard.sankey.parent");
 
     public static final String ROOT = I18n.getInstance().getString("plugin.dashboard.sankey.root");
 
-
-    private SankeyWidget.SHOW_VALUE_IN showValueIn = SankeyWidget.SHOW_VALUE_IN.UNIT;
-
     private SankeyWidget.REFERS_TO percentRefersTo = SankeyWidget.REFERS_TO.PARENT;
-
-    private JFXComboBox<String> jfxComboBoxShowValueIn;
-    private JFXComboBox<String> jfxComboBoxRefersTo;
-
-    private JFXCheckBox jfxCheckBoxAutoGap;
-    private JFXTextField jfxTextFieldGap;
-    private JFXCheckBox jfxCheckBoxShowFlow;
-
-    private Map<Integer, Spinner<Integer>> offsetUIList = new HashMap<>();
-
-    private Map<Integer, Integer> offsetMap = new HashMap<>();
 
 
     public SankeyPojo(DashboardControl control) {
@@ -94,11 +89,11 @@ public class SankeyPojo {
         sankeyTable = sankeyTableFactory.buildTable(netGraphDataRows);
 
         if (jsonNode != null) {
-            if (jsonNode.has("showFlow")) {
-                showFlow = jsonNode.get("showFlow").asBoolean(true);
+            if (jsonNode.has("showValue")) {
+                showValue = jsonNode.get("showValue").asBoolean(true);
             }
-            if (jsonNode.has("showValueIn")) {
-                showValueIn = SankeyWidget.SHOW_VALUE_IN.valueOf(jsonNode.get("showValueIn").asText());
+            if (jsonNode.has("showPercent")) {
+                showPercent = jsonNode.get("showPercent").asBoolean(true);
             }
             if (jsonNode.has("refersTo")) {
                 percentRefersTo = SankeyWidget.REFERS_TO.valueOf(jsonNode.get("refersTo").asText());
@@ -108,6 +103,9 @@ public class SankeyPojo {
             }
             if (jsonNode.has("gap")) {
                 gap = jsonNode.get("gap").asInt(0);
+            }
+            if (jsonNode.has("errorTolerance")) {
+                errorTolerance = jsonNode.get("errorTolerance").asDouble();
             }
 
 
@@ -148,86 +146,37 @@ public class SankeyPojo {
     public Tab getConfigTab(ObservableList<ChartData> tableList) {
         GridPane gridPane = createGridpane();
 
-        jfxCheckBoxShowFlow = new JFXCheckBox();
-        jfxCheckBoxShowFlow.setSelected(showFlow);
+        jfxCheckBoxShowValue = new JFXCheckBox();
+        jfxCheckBoxShowValue.setSelected(showValue);
 
-        jfxComboBoxShowValueIn = new JFXComboBox<>();
-        jfxComboBoxShowValueIn.getItems().addAll(UNIT, PERCENT);
-        if (showValueIn.equals(SankeyWidget.SHOW_VALUE_IN.UNIT)) {
-            jfxComboBoxShowValueIn.setValue(UNIT);
-        } else if (showValueIn.equals(SankeyWidget.SHOW_VALUE_IN.PERCENT)) {
-            jfxComboBoxShowValueIn.setValue(PERCENT);
-        }
+        jfxCheckBoxShowPercent = new JFXCheckBox();
+        jfxCheckBoxShowPercent.setSelected(showPercent);
 
-        jfxComboBoxRefersTo = new JFXComboBox<>();
-        if (percentRefersTo.equals(SankeyWidget.REFERS_TO.PARENT)) {
-            jfxComboBoxRefersTo.setValue(PARENT);
-        } else if (percentRefersTo.equals(SankeyWidget.REFERS_TO.ROOT)) {
-            jfxComboBoxRefersTo.setValue(ROOT);
-        }
+        createRefersToComboBox();
+        Label labelRefersTo = new Label(I18n.getInstance().getString("plugin.dashboard.sankey.refersto"));
 
-        jfxComboBoxRefersTo.getItems().addAll(PARENT, ROOT);
-        Label label = new Label(I18n.getInstance().getString("plugin.dashboard.sankey.refersto"));
-
-        if (jfxComboBoxShowValueIn.getValue().equals(UNIT)) {
-            label.setVisible(false);
-            label.setDisable(true);
-            jfxComboBoxRefersTo.setVisible(false);
-            jfxComboBoxRefersTo.setDisable(true);
-        }
-
-        jfxComboBoxShowValueIn.setOnAction(actionEvent -> {
-            if (jfxComboBoxShowValueIn.getValue().equals(PERCENT)) {
-                label.setVisible(true);
-                label.setDisable(false);
-                jfxComboBoxRefersTo.setVisible(true);
-                jfxComboBoxRefersTo.setDisable(false);
-            } else {
-                label.setVisible(false);
-                label.setDisable(true);
-                jfxComboBoxRefersTo.setVisible(false);
-                jfxComboBoxRefersTo.setDisable(true);
-            }
-        });
-
+        setVisibiltyRefersTo(labelRefersTo);
 
         jfxTextFieldGap = new JFXTextField();
         jfxTextFieldGap.setText(String.valueOf(gap));
-        Label label1 = new Label();
-        label1.setText(I18n.getInstance().getString("plugin.dashboard.sankey.gap"));
-
-        if (autoGap) {
-            jfxTextFieldGap.setDisable(true);
-            jfxTextFieldGap.setVisible(false);
-            label1.setDisable(true);
-            label1.setVisible(false);
-        }
-
-
+        Label labelGap = new Label();
+        labelGap.setText(I18n.getInstance().getString("plugin.dashboard.sankey.gap"));
         jfxCheckBoxAutoGap = new JFXCheckBox();
         jfxCheckBoxAutoGap.setSelected(autoGap);
-        jfxCheckBoxAutoGap.setOnAction(actionEvent -> {
-            if (jfxCheckBoxAutoGap.isSelected()) {
-                jfxTextFieldGap.setDisable(true);
-                jfxTextFieldGap.setVisible(false);
-                label1.setDisable(true);
-                label1.setVisible(false);
-            } else {
-                jfxTextFieldGap.setDisable(false);
-                jfxTextFieldGap.setVisible(true);
-                label1.setDisable(false);
-                label1.setVisible(true);
-            }
-        });
+        setGapVisbilty(labelGap);
 
 
-        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showflow")), jfxCheckBoxShowFlow);
+        jfxTextFieldErrorTolerance = new JFXTextField();
+        jfxTextFieldErrorTolerance.setText(String.valueOf(errorTolerance));
 
-        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 1, 5, 1);
 
-        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showvaluein")), jfxComboBoxShowValueIn, label, jfxComboBoxRefersTo);
 
-        gridPane.addRow(3, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.autogap")), jfxCheckBoxAutoGap, label1, jfxTextFieldGap);
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showvaluein")), jfxCheckBoxShowValue);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.showpercent")), jfxCheckBoxShowPercent, labelRefersTo, jfxComboBoxRefersTo);
+
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.autogap")), jfxCheckBoxAutoGap, labelGap, jfxTextFieldGap);
+
+        gridPane.addRow(3, new Label(I18n.getInstance().getString("plugin.dashboard.sankey.errortolerance")), jfxTextFieldErrorTolerance);
 
 
         gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 4, 5, 1);
@@ -269,6 +218,60 @@ public class SankeyPojo {
         return tab;
 
 
+    }
+
+    private void setGapVisbilty(Label label1) {
+        if (autoGap) {
+            jfxTextFieldGap.setDisable(true);
+            jfxTextFieldGap.setVisible(false);
+            label1.setDisable(true);
+            label1.setVisible(false);
+        }
+
+        jfxCheckBoxAutoGap.setOnAction(actionEvent -> {
+            if (jfxCheckBoxAutoGap.isSelected()) {
+                jfxTextFieldGap.setDisable(true);
+                jfxTextFieldGap.setVisible(false);
+                label1.setDisable(true);
+                label1.setVisible(false);
+            } else {
+                jfxTextFieldGap.setDisable(false);
+                jfxTextFieldGap.setVisible(true);
+                label1.setDisable(false);
+                label1.setVisible(true);
+            }
+        });
+    }
+
+    private void setVisibiltyRefersTo(Label label) {
+        if (jfxCheckBoxShowPercent.isSelected()) {
+            jfxComboBoxRefersTo.setVisible(true);
+            label.setVisible(true);
+        } else {
+            jfxComboBoxRefersTo.setVisible(false);
+            label.setVisible(false);
+        }
+
+        jfxCheckBoxShowPercent.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
+            if (t1) {
+                jfxComboBoxRefersTo.setVisible(true);
+                label.setVisible(true);
+            } else {
+                jfxComboBoxRefersTo.setVisible(false);
+                label.setVisible(false);
+            }
+        });
+    }
+
+    private void createRefersToComboBox() {
+        jfxComboBoxRefersTo = new JFXComboBox<>();
+        if (percentRefersTo.equals(SankeyWidget.REFERS_TO.PARENT)) {
+            jfxComboBoxRefersTo.setValue(PARENT);
+        } else if (percentRefersTo.equals(SankeyWidget.REFERS_TO.ROOT)) {
+            jfxComboBoxRefersTo.setValue(ROOT);
+        }
+
+        jfxComboBoxRefersTo.getItems().addAll(PARENT, ROOT);
     }
 
     @NotNull
@@ -361,6 +364,46 @@ public class SankeyPojo {
 
 
     private void addChangeListenerForDataTable(ObservableList<ChartData> tableList) {
+
+
+        tableList.forEach(chartData -> {
+            chartData.idProperty().addListener((observableValue, oldVal, newVal) -> {
+
+                logger.info("old Value: {} new Value: {}", oldVal, newVal);
+
+                netGraphDataRows.forEach(sankeyDataRow -> {
+                    if (sankeyDataRow.getJeVisObject().getID().longValue() == oldVal.longValue()) {
+
+                        try {
+                            sankeyDataRow.setJeVisObject(dashboardControl.getDataSource().getObject(newVal.longValue()));
+                        } catch (JEVisException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    if (sankeyDataRow.getChildren().stream().filter(jeVisObject -> jeVisObject.getID().longValue() == oldVal.longValue()).count() > 0) {
+                        try {
+                            sankeyDataRow.getChildren().remove(dashboardControl.getDataSource().getObject(oldVal.longValue()));
+                        } catch (JEVisException e) {
+                            throw new RuntimeException(e);
+                        }
+                        try {
+                            sankeyDataRow.getChildren().add(dashboardControl.getDataSource().getObject(newVal.longValue()));
+                        } catch (JEVisException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                });
+                sankeyTable.refresh();
+
+            });
+
+        });
+
+
+
+
+
         tableList.addListener(new ListChangeListener<ChartData>() {
             @Override
             public void onChanged(Change<? extends ChartData> c) {
@@ -403,11 +446,12 @@ public class SankeyPojo {
 
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-        dataNode.put("showFlow", showFlow);
-        dataNode.put("showValueIn", showValueIn.toString());
+        dataNode.put("showValue", showValue);
+        dataNode.put("showPercent", showPercent);
         dataNode.put("refersTo", percentRefersTo.toString());
         dataNode.put("autoGap", autoGap);
         dataNode.put("gap", gap);
+        dataNode.put("errorTolerance", errorTolerance);
         ArrayNode arrayNode = dataNode.putArray("sankeyDataRows");
         netGraphDataRows.forEach(sankeyDataRow -> {
             ObjectNode sankeyData = arrayNode.addObject();
@@ -449,22 +493,6 @@ public class SankeyPojo {
         this.netGraphDataRows = netGraphDataRows;
     }
 
-    public boolean isShowFlow() {
-        return showFlow;
-    }
-
-    public void setShowFlow(boolean showFlow) {
-        this.showFlow = showFlow;
-    }
-
-    public SankeyWidget.SHOW_VALUE_IN getShowValueIn() {
-        return showValueIn;
-    }
-
-    public void setShowValueIn(String showValueIn) {
-        this.showValueIn = SankeyWidget.SHOW_VALUE_IN.valueOf(showValueIn);
-    }
-
     public SankeyWidget.REFERS_TO getPercentRefersTo() {
         return percentRefersTo;
     }
@@ -498,6 +526,30 @@ public class SankeyPojo {
         this.offsetMap = offsetMap;
     }
 
+    public boolean isShowValue() {
+        return showValue;
+    }
+
+    public void setShowValue(boolean showValue) {
+        this.showValue = showValue;
+    }
+
+    public boolean isShowPercent() {
+        return showPercent;
+    }
+
+    public void setShowPercent(boolean showPercent) {
+        this.showPercent = showPercent;
+    }
+
+    public double getErrorTolerance() {
+        return errorTolerance;
+    }
+
+    public void setErrorTolerance(double errorTolerance) {
+        this.errorTolerance = errorTolerance;
+    }
+
     private class GaugeDesignTab extends Tab implements ConfigTab {
         SankeyPojo sankeyPojo;
 
@@ -508,12 +560,8 @@ public class SankeyPojo {
 
         @Override
         public void commitChanges() {
-            showFlow = jfxCheckBoxShowFlow.isSelected();
-            if (jfxComboBoxShowValueIn.getValue().equals(PERCENT)) {
-                showValueIn = SankeyWidget.SHOW_VALUE_IN.PERCENT;
-            } else if (jfxComboBoxShowValueIn.getValue().equals(UNIT)) {
-                showValueIn = SankeyWidget.SHOW_VALUE_IN.UNIT;
-            }
+            showPercent = jfxCheckBoxShowPercent.isSelected();
+            showValue = jfxCheckBoxShowValue.isSelected();
             if (jfxComboBoxRefersTo.getValue().equals(PARENT)) {
                 percentRefersTo = SankeyWidget.REFERS_TO.PARENT;
             } else if (jfxComboBoxRefersTo.getValue().equals(ROOT)) {
@@ -528,6 +576,7 @@ public class SankeyPojo {
             offsetUIList.forEach((integer, integerSpinner) -> {
                 offsetMap.put(integer, integerSpinner.getValue());
             });
+            errorTolerance = Double.parseDouble(jfxTextFieldErrorTolerance.getText());
 
         }
     }

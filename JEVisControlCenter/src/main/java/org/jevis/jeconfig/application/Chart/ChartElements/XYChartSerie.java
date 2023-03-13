@@ -277,7 +277,7 @@ public class XYChartSerie {
             finalAvg.append("- ").append(getUnit());
             finalSum.append("- ").append(getUnit());
         } else {
-            if (!singleRow.getEnPI()) {
+            if (!singleRow.isCalculation()) {
                 finalAvg.append(nf.format(avg)).append(" ").append(getUnit());
             } else {
                 DateTime finalFirstTS1 = firstTS;

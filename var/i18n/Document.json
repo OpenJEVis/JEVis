@@ -3,7 +3,8 @@
   "names": {
     "de": "Dokument",
     "ru": "Document",
-    "en": "Document"
+    "en": "Document",
+    "ar": "المستند"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "File description",
         "ru": "File description",
-        "en": "File description"
+        "en": "File description",
+        "ar": "وصف الملف"
       },
       "names": {
         "de": "File",
         "ru": "File",
-        "en": "File"
+        "en": "File",
+        "ar": "الملف"
       }
     }
   ]

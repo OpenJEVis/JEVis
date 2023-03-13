@@ -3,7 +3,8 @@
   "names": {
     "de": "Initialkontakt",
     "ru": "Initial Contact",
-    "en": "Initial Contact"
+    "en": "Initial Contact",
+    "ar": "التواصل المبدئي"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Comment description",
         "ru": "Comment description",
-        "en": "Comment description"
+        "en": "Comment description",
+        "ar": "تعليق"
       },
       "names": {
         "de": "Comment",
         "ru": "Comment",
-        "en": "Comment"
+        "en": "Comment",
+        "ar": "تعليق"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Contact Date description",
         "ru": "Contact Date description",
-        "en": "Contact Date description"
+        "en": "Contact Date description",
+        "ar": "تاريخ الاتصال"
       },
       "names": {
         "de": "Contact Date",
         "ru": "Contact Date",
-        "en": "Contact Date"
+        "en": "Contact Date",
+        "ar": "تاريخ جهة الاتصال"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Contact File description",
         "ru": "Contact File description",
-        "en": "Contact File description"
+        "en": "Contact File description",
+        "ar": "ملف الاتصال"
       },
       "names": {
         "de": "Contact File",
         "ru": "Contact File",
-        "en": "Contact File"
+        "en": "Contact File",
+        "ar": "ملف الاتصال"
       }
     }
   ]
