@@ -96,6 +96,7 @@ public class TableSumPanel extends GridPane {
     }
 
     private void updateLayout() {
+        //if (true) return;
         //System.out.println("UpdateSumTableLayout: " + actionPlan.getName());
         ObservableList<String> mediums = actionPlan.getMediumTags();
         //System.out.println("Sum Table mdeiums: " + actionPlan.getMediumTags() + " plan: " + actionPlan.getName());
