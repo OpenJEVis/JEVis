@@ -3,7 +3,8 @@
   "names": {
     "de": "SQL Parser",
     "ru": "SQL Parser",
-    "en": "SQL Parser"
+    "en": "SQL Parser",
+    "ar": "محلل SQL"
   },
   "descriptions": {},
   "types": []

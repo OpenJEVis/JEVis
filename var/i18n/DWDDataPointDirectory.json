@@ -3,12 +3,14 @@
   "names": {
     "de": "DWD Datenpunktverzeichnis",
     "ru": "DWD Data Point Directory",
-    "en": "DWD Data Point Directory"
+    "en": "DWD Data Point Directory",
+    "ar": "دليل نقطة بيانات DWD"
   },
   "descriptions": {
     "de": "Die Klasse DWD Datenpunktverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von DWD-Daten dar.",
     "ru": "The class DWD Data Point Directory represents a specific directory for the management of DWD data.\n",
-    "en": "The class DWD Data Point Directory represents a specific directory for the management of DWD data.\n"
+    "en": "The class DWD Data Point Directory represents a specific directory for the management of DWD data.\n",
+    "ar": "تمثل فئة دليل نقطة بيانات DWD دليلاً محددًا لإدارة بيانات DWD."
   },
   "types": []
 }

@@ -12,13 +12,11 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
-import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
-import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
-import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.dataprocessing.processor.workflow.*;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -126,17 +124,45 @@ public class DifferentialStep implements ProcessStep {
 
         if (listConversionToDifferential != null) {
 
-            DateTime firstTS = intervals.get(0).getDate();
+            DateTime firstTS = null;
+            for (CleanInterval interval : intervals) {
+                if (!interval.getRawSamples().isEmpty()) {
+                    firstTS = interval.getRawSamples().get(0).getTimestamp();
+                    break;
+                }
+            }
+
             DateTime lastDiffTS = firstTS;
             Double lastDiffVal = rawSamples.get(0).getValueAsDouble();
             CleanInterval lastInterval = null;
             boolean found = false;
 
             for (JEVisSample smp : rawSamples) {
-                if (smp.getTimestamp().isBefore(firstTS)) {
-                    lastDiffVal = smp.getValueAsDouble();
-                    lastDiffTS = smp.getTimestamp();
-                    found = true;
+                if (smp.getTimestamp().equals(firstTS) || smp.getTimestamp().isBefore(firstTS)) {
+                    if (smp.getTimestamp().equals(firstTS)) {
+                        logger.debug("Searching for new first diff value");
+                        List<PeriodRule> periods = new ArrayList<>();
+                        periods.addAll(cleanDataObject.getCleanDataPeriodAlignment());
+                        periods.addAll(cleanDataObject.getRawDataPeriodAlignment());
+                        Period maxPeriod = cleanDataObject.getMaxPeriod(periods);
+                        DateTime newFirstTs = firstTS.minus(maxPeriod).minus(maxPeriod);
+                        List<JEVisSample> samples = cleanDataObject.getRawAttribute().getSamples(newFirstTs, firstTS);
+
+                        for (int i = samples.size() - 1; i > -1; i--) {
+                            JEVisSample sample = samples.get(i);
+                            if (sample.getTimestamp().isBefore(firstTS)) {
+                                lastDiffVal = sample.getValueAsDouble();
+                                lastDiffTS = sample.getTimestamp();
+                                found = true;
+                                break;
+                            }
+                        }
+
+                    } else if (smp.getTimestamp().isBefore(firstTS)) {
+                        lastDiffVal = smp.getValueAsDouble();
+                        lastDiffTS = smp.getTimestamp();
+                        found = true;
+                    }
                 } else break;
             }
 
@@ -162,6 +188,10 @@ public class DifferentialStep implements ProcessStep {
                         DateTime tmpTimeStamp = curSample.getTimestamp();
 
                         Double rawValue = curSample.getValueAsDouble();
+
+                        if (rawValue == null) {
+                            continue;
+                        }
 
                         if (curSample.getNote().contains(NoteConstants.Differential.COUNTER_CHANGE)) {
                             lastDiffVal = rawValue;

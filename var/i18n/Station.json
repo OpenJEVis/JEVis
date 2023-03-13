@@ -3,7 +3,8 @@
   "names": {
     "de": "Station",
     "ru": "Station",
-    "en": "Station"
+    "en": "Station",
+    "ar": "المحطة"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Device ID description",
         "ru": "Device ID description",
-        "en": "Device ID description"
+        "en": "Device ID description",
+        "ar": "معرف الجهاز"
       },
       "names": {
         "de": "Device ID",
         "ru": "Device ID",
-        "en": "Device ID"
+        "en": "Device ID",
+        "ar": "رقم تعريف الجهاز"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "IP Address description",
         "ru": "IP Address description",
-        "en": "IP Address description"
+        "en": "IP Address description",
+        "ar": "عنوان IP"
       },
       "names": {
         "de": "IP Address",
         "ru": "IP Address",
-        "en": "IP Address"
+        "en": "IP Address",
+        "ar": "عنوان IP"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "SubNet Mask description",
         "ru": "SubNet Mask description",
-        "en": "SubNet Mask description"
+        "en": "SubNet Mask description",
+        "ar": "قناع الشبكة الفرعية"
       },
       "names": {
         "de": "SubNet Mask",
         "ru": "SubNet Mask",
-        "en": "SubNet Mask"
+        "en": "SubNet Mask",
+        "ar": "قناع الشبكة الفرعية"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Type description",
         "ru": "Type description",
-        "en": "Type description"
+        "en": "Type description",
+        "ar": "يكتب على الالة"
       },
       "names": {
         "de": "Type",
         "ru": "Type",
-        "en": "Type"
+        "en": "Type",
+        "ar": "يكتب"
       }
     }
   ]

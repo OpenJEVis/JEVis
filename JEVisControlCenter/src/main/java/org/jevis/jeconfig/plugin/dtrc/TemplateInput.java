@@ -235,8 +235,14 @@ public class TemplateInput extends TemplateSelected {
                     if (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())) {
                         resultMap.put(start, sum);
                     } else if (getVariableType().equals(InputVariableType.MIN.toString())) {
+                        if (min == Double.MAX_VALUE) {
+                            min = 0d;
+                        }
                         resultMap.put(start, min);
                     } else if (getVariableType().equals(InputVariableType.MAX.toString())) {
+                        if (max == -Double.MAX_VALUE) {
+                            max = 0d;
+                        }
                         resultMap.put(start, max);
                     }
                 } else if (getVariableType() != null
@@ -314,8 +320,14 @@ public class TemplateInput extends TemplateSelected {
                     if (getVariableType().equals(InputVariableType.AVG.toString()) || getVariableType().equals(InputVariableType.SUM.toString())) {
                         returnValue = String.valueOf(sum);
                     } else if (getVariableType().equals(InputVariableType.MIN.toString())) {
+                        if (min == Double.MAX_VALUE) {
+                            min = 0d;
+                        }
                         returnValue = String.valueOf(min);
                     } else if (getVariableType().equals(InputVariableType.MAX.toString())) {
+                        if (max == -Double.MAX_VALUE) {
+                            max = 0d;
+                        }
                         returnValue = String.valueOf(max);
                     }
                 } else if (getVariableType() != null

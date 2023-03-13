@@ -556,10 +556,7 @@ public class AnalysisDataModel {
                     newData.setUnit(unit);
                     if (mdl.getAxis() != null) newData.setAxis(Integer.parseInt(mdl.getAxis()));
 
-                    if (mdl.getIsEnPI() != null) newData.setEnPI(Boolean.parseBoolean(mdl.getIsEnPI()));
-                    if (mdl.getCalculation() != null) {
-                        newData.setCalculationObject(mdl.getCalculation());
-                    }
+                    if (mdl.getIsEnPI() != null) newData.setCalculation(Boolean.parseBoolean(mdl.getIsEnPI()));
 
                     if (mdl.getBubbleType() != null) {
                         newData.setBubbleType(BubbleType.parseBubbleType(mdl.getBubbleType()));

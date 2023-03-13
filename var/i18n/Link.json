@@ -3,12 +3,14 @@
   "names": {
     "de": "Verknüpfung",
     "ru": "Link",
-    "en": "Link"
+    "en": "Link",
+    "ar": "ربط"
   },
   "descriptions": {
     "de": "Ein Verweis auf ein anderes Objekt. Das verknüpfte Objekt zeigt alle Attribute und Beispiele des Originalobjekts.",
     "ru": "An link to an other object. The linked object will show all attributes and samples of original object",
-    "en": "An link to an other object. The linked object will show all attributes and samples of original object"
+    "en": "An link to an other object. The linked object will show all attributes and samples of original object",
+    "ar": "إشارة إلى كائن آخر. يعرض الكائن المرتبط جميع سمات ومثيلات الكائن الأصلي."
   },
   "types": []
 }

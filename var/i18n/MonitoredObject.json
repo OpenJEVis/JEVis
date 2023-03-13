@@ -3,12 +3,14 @@
   "names": {
     "de": "Überwachtes Objekt",
     "ru": "Monitored Object",
-    "en": "Monitored Object"
+    "en": "Monitored Object",
+    "ar": "كائن مراقب"
   },
   "descriptions": {
     "de": "Ein überwachtes Objekt: ein Standort, wie ein Gebäude oder ein Schiff",
     "ru": "Monitored object like an building or ship",
-    "en": "Monitored object like an building or ship"
+    "en": "Monitored object like an building or ship",
+    "ar": "كائن خاضع للمراقبة: موقع ، مثل مبنى أو سفينة"
   },
   "types": []
 }

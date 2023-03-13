@@ -3,7 +3,8 @@
   "names": {
     "de": "Energieträger",
     "ru": "Energy Source",
-    "en": "Energy Source"
+    "en": "Energy Source",
+    "ar": "مصدر طاقة"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "CO2 Emission Factor description",
         "ru": "CO2 Emission Factor description",
-        "en": "CO2 Emission Factor description"
+        "en": "CO2 Emission Factor description",
+        "ar": "معامل انبعاث ثاني أكسيد الكربون"
       },
       "names": {
         "de": "CO2 Emission Factor",
         "ru": "CO2 Emission Factor",
-        "en": "CO2 Emission Factor"
+        "en": "CO2 Emission Factor",
+        "ar": "معامل انبعاث ثاني أكسيد الكربون"
       }
     }
   ]

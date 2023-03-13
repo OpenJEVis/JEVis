@@ -3,11 +3,13 @@
   "names": {
     "de": "Messstellen (Wärme)",
     "ru": "Measurement (Heat)",
-    "en": "Measurement (Heat)"
+    "en": "Measurement (Heat)",
+    "ar": "دليل قياس الحرارة"
   },
   "descriptions": {
     "de": "Dient der Verwaltung von Messstellen (Wärme).",
     "ru": "For managing measurements (Heat).",
-    "en": "For managing measurements (Heat)."
+    "en": "For managing measurements (Heat).",
+    "ar": "يعمل على إدارة نقاط القياس (الحرارة)."
   }
 }

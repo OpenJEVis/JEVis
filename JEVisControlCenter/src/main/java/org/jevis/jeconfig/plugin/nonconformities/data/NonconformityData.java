@@ -1,14 +1,19 @@
 package org.jevis.jeconfig.plugin.nonconformities.data;
 
 
+import com.beust.jcommander.Strings;
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -25,6 +30,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -100,8 +106,8 @@ public class NonconformityData{
 
     @Expose
     @SerializedName("Field Tags")
-    private final SimpleObjectProperty<List<String>> fieldTags = new SimpleObjectProperty<>("Field Tags",
-            I18n.getInstance().getString("plugin.nonconformities.field"), new ArrayList<>());
+    private final ListProperty<String> fieldTags = new SimpleListProperty<>("Field Tags",
+            I18n.getInstance().getString("plugin.nonconformities.field"), FXCollections.observableArrayList());
 
 
     @Expose
@@ -113,7 +119,6 @@ public class NonconformityData{
     @SerializedName("SEU")
     private final SimpleStringProperty seu = new SimpleStringProperty("Field Tags",
             I18n.getInstance().getString("plugin.nonconformities.seu"), "");
-
 
 
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
@@ -233,7 +238,7 @@ public class NonconformityData{
 
 
         try {
-            if (!valueChanged.getValue()) return;
+            //if (!valueChanged.getValue()) return;
 
             Task task = new Task() {
                 @Override
@@ -497,17 +502,19 @@ public class NonconformityData{
         return getNonconformityPlan().getPrefix();
     }
 
+
+
     public List<String> getFieldTags() {
         return fieldTags.get();
     }
 
-    public SimpleObjectProperty<List<String>> fieldTagsProperty() {
+    public ListProperty<String> fieldTagsProperty() {
         return fieldTags;
     }
 
-    public void setFieldTags(List<String> fieldTags) {
-        this.fieldTags.set(fieldTags);
-    }
+//    public void setFieldTags(List<String> fieldTags) {
+//        this.fieldTags.set(fieldTags);
+//    }
 
     public String getAction() {
         return action.get();
@@ -531,6 +538,10 @@ public class NonconformityData{
 
     public void setSeu(String seu) {
         this.seu.set(seu);
+    }
+
+    public SimpleStringProperty getPrefixProperty() {
+        return getNonconformityPlan().prefix;
     }
 
     @Override
@@ -557,4 +568,38 @@ public class NonconformityData{
                 ", valueChanged=" + valueChanged +
                 '}';
     }
+
+    public StringProperty getPrefixPlusNumber() {
+        StringProperty stringProperty = new SimpleStringProperty();
+        stringProperty.bind(Bindings.concat(getPrefixProperty(), nr));
+
+        return stringProperty;
+
+    }
+    public StringProperty getfieldAsString() {
+
+
+        StringProperty stringProperty = new SimpleStringProperty();
+        stringProperty.bindBidirectional(fieldTags, new StringConverter<ObservableList<String>>() {
+            @Override
+            public String toString(ObservableList<String> strings) {
+                return String.join(",", strings);
+            }
+
+            @Override
+            public ObservableList<String> fromString(String s) {
+                return FXCollections.observableArrayList(Arrays.asList(s.split(",")));
+            }
+        });
+
+
+
+
+        return stringProperty;
+
+    }
+
+
+
+
 }

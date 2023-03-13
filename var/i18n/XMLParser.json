@@ -3,7 +3,8 @@
   "names": {
     "de": "XML Parser",
     "ru": "XML Parser",
-    "en": "XML Parser"
+    "en": "XML Parser",
+    "ar": "محلل XML"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Date Attribute description",
         "ru": "Date Attribute description",
-        "en": "Date Attribute description"
+        "en": "Date Attribute description",
+        "ar": "سمة التاريخ"
       },
       "names": {
         "de": "Datumsattribut",
         "ru": "Date Attribute",
-        "en": "Date Attribute"
+        "en": "Date Attribute",
+        "ar": "سمات التاريخ"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Date Element description",
         "ru": "Date Element description",
-        "en": "Date Element description"
+        "en": "Date Element description",
+        "ar": "عنصر التاريخ"
       },
       "names": {
         "de": "Datumselement",
         "ru": "Date Element",
-        "en": "Date Element"
+        "en": "Date Element",
+        "ar": "عنصر التاريخ"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Date Format description",
         "ru": "Date Format description",
-        "en": "Date Format description"
+        "en": "Date Format description",
+        "ar": "صيغة التاريخ"
       },
       "names": {
         "de": "Datumsformat",
         "ru": "Date Format",
-        "en": "Date Format"
+        "en": "Date Format",
+        "ar": "صيغة التاريخ"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Date in Element description",
         "ru": "Date in Element description",
-        "en": "Date in Element description"
+        "en": "Date in Element description",
+        "ar": "التاريخ في العنصر"
       },
       "names": {
         "de": "Daum im Element",
         "ru": "Date in Element",
-        "en": "Date in Element"
+        "en": "Date in Element",
+        "ar": "الإبهام في العنصر"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Decimal Separator description",
         "ru": "Decimal Separator description",
-        "en": "Decimal Separator description"
+        "en": "Decimal Separator description",
+        "ar": "الفاصل العشري"
       },
       "names": {
         "de": "Dezimaltrennzeichen",
         "ru": "Decimal Separator",
-        "en": "Decimal Separator"
+        "en": "Decimal Separator",
+        "ar": "الفاصل العشري"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Main Attribute description",
         "ru": "Main Attribute description",
-        "en": "Main Attribute description"
+        "en": "Main Attribute description",
+        "ar": "السمة الرئيسية"
       },
       "names": {
         "de": "Hauptattribut",
         "ru": "Main Attribute",
-        "en": "Main Attribute"
+        "en": "Main Attribute",
+        "ar": "السمة الرئيسية"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Main Element description",
         "ru": "Main Element description",
-        "en": "Main Element description"
+        "en": "Main Element description",
+        "ar": "العنصر الرئيسي"
       },
       "names": {
         "de": "Hauptelement",
         "ru": "Main Element",
-        "en": "Main Element"
+        "en": "Main Element",
+        "ar": "العنصر الرئيسي"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "Thousand Separator description",
         "ru": "Thousand Separator description",
-        "en": "Thousand Separator description"
+        "en": "Thousand Separator description",
+        "ar": "ألف فاصل"
       },
       "names": {
         "de": "Tausendertrennzeichen",
         "ru": "Thousand Separator",
-        "en": "Thousand Separator"
+        "en": "Thousand Separator",
+        "ar": "فاصل الآلاف"
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "Time Attribute description",
         "ru": "Time Attribute description",
-        "en": "Time Attribute description"
+        "en": "Time Attribute description",
+        "ar": "سمة الوقت"
       },
       "names": {
         "de": "Zeitattribut",
         "ru": "Time Attribute",
-        "en": "Time Attribute"
+        "en": "Time Attribute",
+        "ar": "سمة الوقت"
       }
     },
     {
@@ -129,12 +148,14 @@
       "descriptions": {
         "de": "Time Element description",
         "ru": "Time Element description",
-        "en": "Time Element description"
+        "en": "Time Element description",
+        "ar": "عنصر الوقت"
       },
       "names": {
         "de": "Zeitelement",
         "ru": "Time Element",
-        "en": "Time Element"
+        "en": "Time Element",
+        "ar": "عنصر الوقت"
       }
     },
     {
@@ -142,12 +163,14 @@
       "descriptions": {
         "de": "Time Format description",
         "ru": "Time Format description",
-        "en": "Time Format description"
+        "en": "Time Format description",
+        "ar": "تنسيق الوقت"
       },
       "names": {
         "de": "Zeitformat",
         "ru": "Time Format",
-        "en": "Time Format"
+        "en": "Time Format",
+        "ar": "تنسيق الوقت"
       }
     },
     {
@@ -155,12 +178,14 @@
       "descriptions": {
         "de": "Time in Element description",
         "ru": "Time in Element description",
-        "en": "Time in Element description"
+        "en": "Time in Element description",
+        "ar": "الوقت في العنصر"
       },
       "names": {
         "de": "Zeit im Element",
         "ru": "Time in Element",
-        "en": "Time in Element"
+        "en": "Time in Element",
+        "ar": "الوقت في العنصر"
       }
     },
     {
@@ -168,12 +193,14 @@
       "descriptions": {
         "de": "Value Attribute description",
         "ru": "Value Attribute description",
-        "en": "Value Attribute description"
+        "en": "Value Attribute description",
+        "ar": "سمة القيمة"
       },
       "names": {
         "de": "Wertattribut",
         "ru": "Value Attribute",
-        "en": "Value Attribute"
+        "en": "Value Attribute",
+        "ar": "سمة القيمة"
       }
     },
     {
@@ -181,12 +208,14 @@
       "descriptions": {
         "de": "Value Element description",
         "ru": "Value Element description",
-        "en": "Value Element description"
+        "en": "Value Element description",
+        "ar": "عنصر القيمة"
       },
       "names": {
         "de": "Wertelement",
         "ru": "Value Element",
-        "en": "Value Element"
+        "en": "Value Element",
+        "ar": "عنصر القيمة"
       }
     },
     {
@@ -194,12 +223,14 @@
       "descriptions": {
         "de": "Value in Element description",
         "ru": "Value in Element description",
-        "en": "Value in Element description"
+        "en": "Value in Element description",
+        "ar": "القيمة في العنصر"
       },
       "names": {
         "de": "Wert im Element",
         "ru": "Value in Element",
-        "en": "Value in Element"
+        "en": "Value in Element",
+        "ar": "القيمة في العنصر"
       }
     }
   ]

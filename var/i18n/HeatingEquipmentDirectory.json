@@ -3,12 +3,14 @@
   "names": {
     "de": "Verzeichnis der Wärmeerzeuger",
     "ru": "Heating Equipment Directory",
-    "en": "Heating Equipment Directory"
+    "en": "Heating Equipment Directory",
+    "ar": "دليل معدات التدفئة"
   },
   "descriptions": {
     "de": "The class Heating Equipment Directory represents a specific directory for the management of the heatings and their pumps of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
     "ru": "The class Heating Equipment Directory represents a specific directory for the management of the heatings and their pumps of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
-    "en": "The class Heating Equipment Directory represents a specific directory for the management of the heatings and their pumps of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+    "en": "The class Heating Equipment Directory represents a specific directory for the management of the heatings and their pumps of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ar": "يمثل دليل معدات التدفئة للفئة دليلًا محددًا لإدارة التسخين ومضخاتها في المؤسسة.\n\nالفئة فريدة ، مما يعني أنه لا يمكن إنشاء كائن من هذه الفئة بالتوازي مع كائن موجود بالفعل من نفس الفئة."
   },
   "types": []
 }

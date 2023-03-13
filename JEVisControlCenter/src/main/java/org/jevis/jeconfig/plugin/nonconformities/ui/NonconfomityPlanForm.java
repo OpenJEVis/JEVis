@@ -48,8 +48,8 @@ public class NonconfomityPlanForm extends Alert {
         this.nonconformityPlan = nonconformityPlan;
         this.initOwner(JEConfig.getStage());
 
-        setTitle(I18n.getInstance().getString("planform.editor.title"));
-        setHeaderText(I18n.getInstance().getString("planform.editor.header"));
+        setTitle(I18n.getInstance().getString("plugin.nonconformities.nonconformityplan.dialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.nonconformities.nonconformityplan.dialog.header"));
         setResizable(true);
         setWidth(ScreenSize.fitScreenWidth(800));
         setHeight(ScreenSize.fitScreenHeight(400));

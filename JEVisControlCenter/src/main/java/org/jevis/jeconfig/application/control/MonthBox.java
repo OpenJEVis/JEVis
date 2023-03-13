@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.control;
 
 import com.jfoenix.controls.JFXComboBox;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
@@ -81,6 +82,7 @@ public class MonthBox extends JFXComboBox<Months> {
         setCellFactory(cellFactory);
         setButtonCell(cellFactory.call(null));
 
+        getSelectionModel().selectFirst();
     }
 
     public void setRelations(YearBox yearBox, DayBox dayBox, DateTime nextTS) {
@@ -96,10 +98,12 @@ public class MonthBox extends JFXComboBox<Months> {
         });
 
         if (nextTS != null) {
-            getSelectionModel().select(nextTS.getMonthOfYear() - 1);
-            dayBox.getSelectionModel().select(Integer.valueOf(nextTS.getDayOfMonth()));
+            Platform.runLater(() -> {
+                getSelectionModel().select(nextTS.getMonthOfYear() - 1);
+                dayBox.getSelectionModel().select(Integer.valueOf(nextTS.getDayOfMonth()));
+            });
         } else {
-            getSelectionModel().select(DateTime.now().getMonthOfYear() - 1);
+            Platform.runLater(() -> getSelectionModel().select(DateTime.now().getMonthOfYear() - 1));
         }
     }
 

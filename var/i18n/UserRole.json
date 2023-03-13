@@ -4,13 +4,15 @@
     "de": "Benutzerrolle",
     "ru": "Роль пользователя",
     "uk": "Роль користувача",
-    "en": "User role"
+    "en": "User role",
+    "ar": "دور المستخدم"
   },
   "descriptions": {
     "de": "Benutzer für den Zugang zum JEVis",
     "ru": "User to access the JEVis",
     "en": "User to access the JEVis",
-    "uk": "Користувач для доступу до JEVis"
+    "uk": "Користувач для доступу до JEVis",
+    "ar": "مستخدم للوصول إلى JEVis"
   },
   "types": [
     {
@@ -18,12 +20,14 @@
       "descriptions": {
         "de": "Protokolliert die Aktivitäten eines Benutzers",
         "ru": "Records the activities of a user",
-        "en": "Records the activities of a user"
+        "en": "Records the activities of a user",
+        "ar": "يسجل أنشطة المستخدم"
       },
       "names": {
         "de": "Aktivität",
         "ru": "Activities",
-        "en": "Activities"
+        "en": "Activities",
+        "ar": "نشاط"
       }
     },
     {
@@ -31,12 +35,14 @@
       "descriptions": {
         "de": "E-Mail des Benutzers",
         "ru": "E-Mail of the user",
-        "en": "E-Mail of the user"
+        "en": "E-Mail of the user",
+        "ar": "البريد الإلكتروني من Benutzers"
       },
       "names": {
         "de": "E-Mail",
         "ru": "E-Mail",
-        "en": "E-Mail"
+        "en": "E-Mail",
+        "ar": "بريد الالكتروني"
       }
     },
     {
@@ -44,12 +50,14 @@
       "descriptions": {
         "de": "Aktiviert/Deaktiviert den Benutzer",
         "ru": "Enables/Disables the user",
-        "en": "Enables/Disables the user"
+        "en": "Enables/Disables the user",
+        "ar": "ينشط / يلغي تنشيط المستخدم"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -57,12 +65,14 @@
       "descriptions": {
         "de": "Vorname des Benutzers",
         "ru": "User's first name",
-        "en": "User's first name"
+        "en": "User's first name",
+        "ar": ""
       },
       "names": {
         "de": "Vorname",
         "ru": "First Name",
-        "en": "First Name"
+        "en": "First Name",
+        "ar": "الاسم الأول"
       }
     },
     {
@@ -70,12 +80,14 @@
       "descriptions": {
         "de": "Definiert die Sprache des Benutzers",
         "ru": "Defines the user's language",
-        "en": "Defines the user's language"
+        "en": "Defines the user's language",
+        "ar": "يحدد لغة المستخدم"
       },
       "names": {
         "de": "Sprache",
         "ru": "Language",
-        "en": "Language"
+        "en": "Language",
+        "ar": "لغة"
       }
     },
     {
@@ -83,12 +95,14 @@
       "descriptions": {
         "de": "Protokolliert die Logins des Benutzers",
         "ru": "Records the logins of the user",
-        "en": "Records the logins of the user"
+        "en": "Records the logins of the user",
+        "ar": "يسجل تسجيلات دخول المستخدم"
       },
       "names": {
         "de": "Letzter Login",
         "ru": "Last Login",
-        "en": "Last Login"
+        "en": "Last Login",
+        "ar": "آخر تسجيل دخول"
       }
     },
     {
@@ -96,12 +110,14 @@
       "descriptions": {
         "de": "Nachname des Benutzers",
         "ru": "Last Name description",
-        "en": "Last Name description"
+        "en": "Last Name description",
+        "ar": "اسم العائلة للمستخدم"
       },
       "names": {
         "de": "Nachname",
         "ru": "User's last name",
-        "en": "User's last name"
+        "en": "User's last name",
+        "ar": "اسم العائلة للمستخدم"
       }
     },
     {
@@ -109,12 +125,14 @@
       "descriptions": {
         "de": "Passwort des Benutzers",
         "ru": "User's password",
-        "en": "User's password"
+        "en": "User's password",
+        "ar": "كلمه السر"
       },
       "names": {
         "de": "Passwort",
         "ru": "Password",
-        "en": "Password"
+        "en": "Password",
+        "ar": "كلمة السر"
       }
     },
     {
@@ -122,12 +140,14 @@
       "descriptions": {
         "de": "Telefonnummer des Benutzers",
         "ru": "User's phone number",
-        "en": "User's phone number"
+        "en": "User's phone number",
+        "ar": "رقم هاتف المستخدم"
       },
       "names": {
         "de": "Telefon",
         "ru": "Phone",
-        "en": "Phone"
+        "en": "Phone",
+        "ar": "هاتف"
       }
     },
     {
@@ -135,12 +155,14 @@
       "descriptions": {
         "de": "Position/Funktion des Benutzers in der Organisation",
         "ru": "Position/Function of the user within the organization",
-        "en": "Position/Function of the user within the organization"
+        "en": "Position/Function of the user within the organization",
+        "ar": "منصب / وظيفة المستخدم في المنظمة"
       },
       "names": {
         "de": "Position",
         "ru": "Position",
-        "en": "Position"
+        "en": "Position",
+        "ar": "موقع"
       }
     },
     {
@@ -148,12 +170,14 @@
       "descriptions": {
         "de": "Erteilt dem Benutzer uneingeschränkte Rechte als Systemadministrator",
         "ru": "Grants all priveleges to the user as a system administrator",
-        "en": "Grants all priveleges to the user as a system administrator"
+        "en": "Grants all priveleges to the user as a system administrator",
+        "ar": "يمنح المستخدم الحقوق الكاملة كمسؤول عن النظام"
       },
       "names": {
         "de": "Sys Admin",
         "ru": "Sys Admin",
-        "en": "Sys Admin"
+        "en": "Sys Admin",
+        "ar": "مسؤول النظام"
       }
     },
     {
@@ -161,12 +185,14 @@
       "descriptions": {
         "de": "Zeitzone des Benutzers",
         "ru": "User's time zone",
-        "en": "User's time zone"
+        "en": "User's time zone",
+        "ar": "المنطقة الزمنية"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "Time Zone",
-        "en": "Time Zone"
+        "en": "Time Zone",
+        "ar": "المنطقة الزمنية"
       }
     },
     {
@@ -174,12 +200,14 @@
       "descriptions": {
         "de": "Titel des Benutzers",
         "ru": "User's title",
-        "en": "User's title"
+        "en": "User's title",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     }
   ]

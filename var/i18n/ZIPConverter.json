@@ -3,12 +3,14 @@
   "names": {
     "de": "ZIP Konverter",
     "ru": "ZIP Converter",
-    "en": "ZIP Converter"
+    "en": "ZIP Converter",
+    "ar": "محول ZIP"
   },
   "descriptions": {
     "de": "Die Klasse ZIP Konverter ",
     "ru": "The Class ZIP Converter ",
-    "en": "The Class ZIP Converter "
+    "en": "The Class ZIP Converter ",
+    "ar": "فئة محول ZIP"
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Path description",
         "ru": "Path description",
-        "en": "Path description"
+        "en": "Path description",
+        "ar": "مسار"
       },
       "names": {
         "de": "Pfad",
         "ru": "Path",
-        "en": "Path"
+        "en": "Path",
+        "ar": "مسار"
       }
     }
   ]

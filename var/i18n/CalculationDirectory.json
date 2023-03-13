@@ -4,12 +4,14 @@
     "de": "Berechnungen",
     "ru": "Pасчеты",
     "uk": "Розрахунки",
-    "en": "Calculation Directory"
+    "en": "Calculation Directory",
+    "ar": "دليل الحساب"
   },
   "descriptions": {
     "de": "Im Kalkulationsverzeichnis werden Berechnungen verwaltet.",
     "ru": "Calculations are managed in the Calculation Directory.",
-    "en": "Calculations are managed in the Calculation Directory."
+    "en": "Calculations are managed in the Calculation Directory.",
+    "ar": "تدار الحسابات في دليل الحساب."
   },
   "types": []
 }

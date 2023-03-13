@@ -3,7 +3,8 @@
   "names": {
     "de": "Energieeinsparmaßnahme",
     "ru": "Energy Saving Action",
-    "en": "Energy Saving Action"
+    "en": "Energy Saving Action",
+    "ar": "عمل توفير الطاقة"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Investment Costs description",
         "ru": "Investment Costs description",
-        "en": "Investment Costs description"
+        "en": "Investment Costs description",
+        "ar": "التكاليف الاستثمارية"
       },
       "names": {
         "de": "Investment Costs",
         "ru": "Investment Costs",
-        "en": "Investment Costs"
+        "en": "Investment Costs",
+        "ar": "التكاليف الاستثمارية"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Measure description",
         "ru": "Measure description",
-        "en": "Measure description"
+        "en": "Measure description",
+        "ar": "معيار"
       },
       "names": {
         "de": "Measure",
         "ru": "Measure",
-        "en": "Measure"
+        "en": "Measure",
+        "ar": "معيار"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Payback Time description",
         "ru": "Payback Time description",
-        "en": "Payback Time description"
+        "en": "Payback Time description",
+        "ar": "وقت الاسترداد"
       },
       "names": {
         "de": "Payback Time",
         "ru": "Payback Time",
-        "en": "Payback Time"
+        "en": "Payback Time",
+        "ar": "وقت الاسترداد"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Reponsible Person description",
         "ru": "Reponsible Person description",
-        "en": "Reponsible Person description"
+        "en": "Reponsible Person description",
+        "ar": "الشخص المسؤول"
       },
       "names": {
         "de": "Reponsible Person",
         "ru": "Reponsible Person",
-        "en": "Reponsible Person"
+        "en": "Reponsible Person",
+        "ar": "الشخص المسؤول"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Savings Potential Capital description",
         "ru": "Savings Potential Capital description",
-        "en": "Savings Potential Capital description"
+        "en": "Savings Potential Capital description",
+        "ar": "رأس المال المدخر المحتمل"
       },
       "names": {
         "de": "Savings Potential Capital",
         "ru": "Savings Potential Capital",
-        "en": "Savings Potential Capital"
+        "en": "Savings Potential Capital",
+        "ar": "رأس المال المدخر المحتمل"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Savings Potential CO2 description",
         "ru": "Savings Potential CO2 description",
-        "en": "Savings Potential CO2 description"
+        "en": "Savings Potential CO2 description",
+        "ar": "التوفير المحتمل لثاني أكسيد الكربون co2"
       },
       "names": {
         "de": "Savings Potential CO2",
         "ru": "Savings Potential CO2",
-        "en": "Savings Potential CO2"
+        "en": "Savings Potential CO2",
+        "ar": "التوفير المحتمل لثاني أكسيد الكربون co2"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Savings Potential Energy description",
         "ru": "Savings Potential Energy description",
-        "en": "Savings Potential Energy description"
+        "en": "Savings Potential Energy description",
+        "ar": "توفير الطاقة المحتملة"
       },
       "names": {
         "de": "Savings Potential Energy",
         "ru": "Savings Potential Energy",
-        "en": "Savings Potential Energy"
+        "en": "Savings Potential Energy",
+        "ar": "توفير الطاقة المحتملة"
       }
     }
   ]

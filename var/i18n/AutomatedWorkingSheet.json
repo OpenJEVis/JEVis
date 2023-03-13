@@ -1,9 +1,10 @@
 {
-  "jevisclass": "Automated Working Sheet",
+  "jevisclass": "ة",
   "names": {
     "de": "Automatisiertes Arbeitsblatt",
     "ru": "Automated Working Sheet",
-    "en": "Automated Working Sheet"
+    "en": "Automated Working Sheet",
+    "ar": "ورقة العمل الآلية"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Attribute Name description",
         "ru": "Attribute Name description",
-        "en": "Attribute Name description"
+        "en": "Attribute Name description",
+        "ar": "اسم الخاصية"
       },
       "names": {
         "de": "Attributname",
         "ru": "Attribute Name",
-        "en": "Attribute Name"
+        "en": "Attribute Name",
+        "ar": "اسم الخاصية"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Condition Enabled description",
         "ru": "Condition Enabled description",
-        "en": "Condition Enabled description"
+        "en": "Condition Enabled description",
+        "ar": "تم تمكين/تفعيل الشرط"
       },
       "names": {
         "de": "Bedingung Aktiviert",
         "ru": "Condition Enabled",
-        "en": "Condition Enabled"
+        "en": "Condition Enabled",
+        "ar": "تم تمكين الشرط"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Enabled description",
         "ru": "Enabled description",
-        "en": "Enabled description"
+        "en": "Enabled description",
+        "ar": "تم التمكين"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "JEVis ID description",
         "ru": "JEVis ID description",
-        "en": "JEVis ID description"
+        "en": "JEVis ID description",
+        "ar": "معرف JEVis ID"
       },
       "names": {
         "de": "JEVis ID",
         "ru": "JEVis ID",
-        "en": "JEVis ID"
+        "en": "JEVis ID",
+        "ar": "معرف JEVis ID"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Last Report description",
         "ru": "Last Report description",
-        "en": "Last Report description"
+        "en": "Last Report description",
+        "ar": "التقرير الأخير"
       },
       "names": {
         "de": "Letzter Bericht",
         "ru": "Last Report",
-        "en": "Last Report"
+        "en": "Last Report",
+        "ar": "التقرير الأخير"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Limit description",
         "ru": "Limit description",
-        "en": "Limit description"
+        "en": "Limit description",
+        "ar": "حدود"
       },
       "names": {
         "de": "Grenze",
         "ru": "Limit",
-        "en": "Limit"
+        "en": "Limit",
+        "ar": "حدود"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Operator description",
         "ru": "Operator description",
-        "en": "Operator description"
+        "en": "Operator description",
+        "ar": "المشغل"
       },
       "names": {
         "de": "Betreiber",
         "ru": "Operator",
-        "en": "Operator"
+        "en": "Operator",
+        "ar": "المشغل"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "PDF description",
         "ru": "PDF description",
-        "en": "PDF description"
+        "en": "PDF description",
+        "ar": "PDF"
       },
       "names": {
         "de": "PDF",
         "ru": "PDF",
-        "en": "PDF"
+        "en": "PDF",
+        "ar": "PDF"
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "PDF Pages description",
         "ru": "PDF Pages description",
-        "en": "PDF Pages description"
+        "en": "PDF Pages description",
+        "ar": "الصفحات PDF"
       },
       "names": {
         "de": "Anzahl PDF Seiten",
         "ru": "PDF Pages",
-        "en": "PDF Pages"
+        "en": "PDF Pages",
+        "ar": "عدد صفحات PDF"
       }
     },
     {
@@ -129,12 +148,14 @@
       "descriptions": {
         "de": "Schedule description",
         "ru": "Schedule description",
-        "en": "Schedule description"
+        "en": "Schedule description",
+        "ar": "جدول"
       },
       "names": {
         "de": "Zeitplan",
         "ru": "Schedule",
-        "en": "Schedule"
+        "en": "Schedule",
+        "ar": "الجدول الزمني"
       }
     },
     {
@@ -142,12 +163,14 @@
       "descriptions": {
         "de": "Start Record description",
         "ru": "Start Record description",
-        "en": "Start Record description"
+        "en": "Start Record description",
+        "ar": "بدء التسجيل"
       },
       "names": {
         "de": "Startzeitpunkt",
         "ru": "Start Record",
-        "en": "Start Record"
+        "en": "Start Record",
+        "ar": "وقت البدء"
       }
     },
     {
@@ -155,12 +178,14 @@
       "descriptions": {
         "de": "Template description",
         "ru": "Template description",
-        "en": "Template description"
+        "en": "Template description",
+        "ar": "نموذج"
       },
       "names": {
         "de": "Vorlage",
         "ru": "Template",
-        "en": "Template"
+        "en": "Template",
+        "ar": "نموذج"
       }
     },
     {
@@ -168,12 +193,14 @@
       "descriptions": {
         "de": "Time Zone description",
         "ru": "Time Zone description",
-        "en": "Time Zone description"
+        "en": "Time Zone description",
+        "ar": "منطقة زمنية"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "Time Zone",
-        "en": "Time Zone"
+        "en": "Time Zone",
+        "ar": "منطقة زمنية"
       }
     }
   ]

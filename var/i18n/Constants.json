@@ -3,12 +3,14 @@
   "names": {
     "de": "Konstanten",
     "ru": "Constants",
-    "en": "Constants"
+    "en": "Constants",
+    "ar": "الثوابت"
   },
   "descriptions": {
     "de": "Mit Konstanten werden die Enumerationen eines Attributs definiert.",
     "ru": "Constants are used to define the enumerations of a attribute.",
-    "en": "Constants are used to define the enumerations of a attribute."
+    "en": "Constants are used to define the enumerations of a attribute.",
+    "ar": "يتم تعريف تعداد السمة بالثوابت."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Definiert das Attribut der JEVis-Klasse für das diese Enumerationen gelten.",
         "ru": "Defines the Attribute of the JEVis Class where these enumerations are used.",
-        "en": "Defines the Attribute of the JEVis Class where these enumerations are used."
+        "en": "Defines the Attribute of the JEVis Class where these enumerations are used.",
+        "ar": "يحدد سمة فئة JEVis التي تنطبق عليها هذه التعدادات."
       },
       "names": {
         "de": "Attribut",
         "ru": "Attribute",
-        "en": "Attribute"
+        "en": "Attribute",
+        "ar": "يصف"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Definiert ob die Enumerationen für Benutzer editierbar sind",
         "ru": "Defines if the enumeration is editable for users",
-        "en": "Defines if the enumeration is editable for users"
+        "en": "Defines if the enumeration is editable for users",
+        "ar": "يحدد ما إذا كانت التعدادات قابلة للتحرير للمستخدمين أم لا"
       },
       "names": {
         "de": "Editierbar",
         "ru": "Editable",
-        "en": "Editable"
+        "en": "Editable",
+        "ar": "شريط التحرير"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Definiert die möglichen Einträge, welche ein Benutzer zur Auswahl des Attributswert hat",
         "ru": "Defines the selection of attribute values a user can choose",
-        "en": "Defines the selection of attribute values a user can choose"
+        "en": "Defines the selection of attribute values a user can choose",
+        "ar": "يحدد الإدخالات المحتملة التي يجب على المستخدم تحديدها لقيمة السمة"
       },
       "names": {
         "de": "Einträge",
         "ru": "Entries",
-        "en": "Entries"
+        "en": "Entries",
+        "ar": "إدخالات"
       }
     }
   ]

@@ -70,7 +70,7 @@ public class TreeSelectionDialog extends Dialog {
         setResizable(true);
         buildClasses(ds);
         setOnCloseRequest(event -> {
-            System.out.println("why close?");
+            logger.debug("why close?");
         });
 
         VBox box = new VBox();

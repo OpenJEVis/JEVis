@@ -3,7 +3,8 @@
   "names": {
     "de": "Externes Audit",
     "ru": "External Audit",
-    "en": "External Audit"
+    "en": "External Audit",
+    "ar": "التدقيق الخارجي"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Audit Date description",
         "ru": "Audit Date description",
-        "en": "Audit Date description"
+        "en": "Audit Date description",
+        "ar": "تاريخ مراجعة"
       },
       "names": {
         "de": "Audit Date",
         "ru": "Audit Date",
-        "en": "Audit Date"
+        "en": "Audit Date",
+        "ar": "تاريخ مراجعة"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Auditor description",
         "ru": "Auditor description",
-        "en": "Auditor description"
+        "en": "Auditor description",
+        "ar": "مدقق حسابات"
       },
       "names": {
         "de": "Auditor",
         "ru": "Auditor",
-        "en": "Auditor"
+        "en": "Auditor",
+        "ar": ""
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Certifier description",
         "ru": "Certifier description",
-        "en": "Certifier description"
+        "en": "Certifier description",
+        "ar": "مدقق حسابات"
       },
       "names": {
         "de": "Certifier",
         "ru": "Certifier",
-        "en": "Certifier"
+        "en": "Certifier",
+        "ar": "تصديق"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Report File description",
         "ru": "Report File description",
-        "en": "Report File description"
+        "en": "Report File description",
+        "ar": "ملف التقرير"
       },
       "names": {
         "de": "Report File",
         "ru": "Report File",
-        "en": "Report File"
+        "en": "Report File",
+        "ar": "ملف التقرير"
       }
     }
   ]

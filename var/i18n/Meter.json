@@ -3,7 +3,8 @@
   "names": {
     "de": "Messzähler",
     "ru": "Meter",
-    "en": "Meter"
+    "en": "Meter",
+    "ar": "متر"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Conversion Factor description",
         "ru": "Conversion Factor description",
-        "en": "Conversion Factor description"
+        "en": "Conversion Factor description",
+        "ar": "عامل التحويل"
       },
       "names": {
         "de": "Conversion Factor",
         "ru": "Conversion Factor",
-        "en": "Conversion Factor"
+        "en": "Conversion Factor",
+        "ar": "عامل التحويل"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Current Transformer description",
         "ru": "Current Transformer description",
-        "en": "Current Transformer description"
+        "en": "Current Transformer description",
+        "ar": "محول الحالي"
       },
       "names": {
         "de": "Current Transformer",
         "ru": "Current Transformer",
-        "en": "Current Transformer"
+        "en": "Current Transformer",
+        "ar": "محول الحالي"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Installation Date description",
         "ru": "Installation Date description",
-        "en": "Installation Date description"
+        "en": "Installation Date description",
+        "ar": "تاريخ التثبيت"
       },
       "names": {
         "de": "Installation Date",
         "ru": "Installation Date",
-        "en": "Installation Date"
+        "en": "Installation Date",
+        "ar": "تاريخ التثبيت"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Interface description",
         "ru": "Interface description",
-        "en": "Interface description"
+        "en": "Interface description",
+        "ar": "الواجهة"
       },
       "names": {
         "de": "Interface",
         "ru": "Interface",
-        "en": "Interface"
+        "en": "Interface",
+        "ar": "الواجهة"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Type description",
         "ru": "Type description",
-        "en": "Type description"
+        "en": "Type description",
+        "ar": ""
       },
       "names": {
         "de": "Type",
         "ru": "Type",
-        "en": "Type"
+        "en": "Type",
+        "ar": ""
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Voltage Transformer description",
         "ru": "Voltage Transformer description",
-        "en": "Voltage Transformer description"
+        "en": "Voltage Transformer description",
+        "ar": ""
       },
       "names": {
         "de": "Voltage Transformer",
         "ru": "Voltage Transformer",
-        "en": "Voltage Transformer"
+        "en": "Voltage Transformer",
+        "ar": ""
       }
     }
   ]

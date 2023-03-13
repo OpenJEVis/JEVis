@@ -3,12 +3,14 @@
   "names": {
     "de": "7.5.1 Allgemeines",
     "ru": "7.5.1 General",
-    "en": "7.5.1 General"
+    "en": "7.5.1 General",
+    "ar": "7.5.1 عام"
   },
   "descriptions": {
     "de": "Das EnMS der Organisation muss einschließen:\na) nach diesem Dokument erforderliche dokumentierte Information;\nb) dokumentierte Information, welche die Organisation als notwendig für die Wirksamkeit des EnMS und den Nachweis der Verbesserung der energiebezogenen Leistung bestimmt hat.\n\nANMERKUNG Der Umfang dokumentierter Information für ein EnMS kann sich von Organisation zu Organisation unterscheiden, und zwar aufgrund:\n— der Größe der Organisation und der Art ihrer Tätigkeiten, Prozesse, Produkte und Dienstleistungen; \n— der Komplexität ihrer Prozesse und deren Wechselwirkungen; \n— der Kompetenz der Personen.",
     "ru": "The organization",
-    "en": "The organization"
+    "en": "The organization",
+    "ar": "يجب أن يشمل نظام إدارة الطاقة الخاص بالمنظمة ما يلي:\nأ) المعلومات الموثقة التي تتطلبها هذه الوثيقة ؛\nب) المعلومات الموثقة التي قررت المنظمة أنها ضرورية لفعالية نظام إدارة الطاقة ولإثبات التحسن في أداء الطاقة.\n\nملاحظة يمكن أن يختلف نطاق المعلومات الموثقة لنظام إدارة الطاقة من منظمة إلى أخرى بسبب:\n- حجم المنظمة وطبيعة أنشطتها وعملياتها ومنتجاتها وخدماتها ؛\n- مدى تعقيد عملياتها وتفاعلاتها ؛\n- اختصاص الاشخاص العاملين."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibt die allgemeinen Anforderungen an die Dokumentation",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الإنشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

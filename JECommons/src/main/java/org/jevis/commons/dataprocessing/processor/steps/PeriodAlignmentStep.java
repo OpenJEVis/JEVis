@@ -203,6 +203,15 @@ public class PeriodAlignmentStep implements ProcessStep {
                 int halfDaysOfYear = rawSampleTS.dayOfYear().getMaximumValue() / 2;
                 lowerTS = rawSampleTS.minusDays(halfDaysOfYear).minusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 higherTS = rawSampleTS.plusDays(halfDaysOfYear).plusHours(15).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            } else {
+                try {
+                    long halfPeriod = periodForRawSample.toStandardDuration().getMillis();
+                    lowerTS = rawSampleTS.minus(halfPeriod);
+                    higherTS = rawSampleTS.plus(halfPeriod);
+
+                } catch (Exception e) {
+                    logger.error("Could not determine period duration", e);
+                }
             }
 
             if (isGreaterThenDays && lowerTS != null) {

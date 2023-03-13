@@ -27,8 +27,6 @@ public class NonconformitiesPlugin implements Plugin {
     public NonconformitiesPlugin(JEVisDataSource ds, String name) {
         this.ds = ds;
         this.nameProperty.set(name);
-
-        initGUI();
     }
 
     private void initGUI() {
@@ -149,6 +147,6 @@ public class NonconformitiesPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 0;
+        return 4;
     }
 }

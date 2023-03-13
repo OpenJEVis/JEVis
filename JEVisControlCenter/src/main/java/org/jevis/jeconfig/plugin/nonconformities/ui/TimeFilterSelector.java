@@ -12,6 +12,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
@@ -24,6 +26,8 @@ import static org.jevis.jeconfig.plugin.nonconformities.ui.DateFilter.DateField.
 
 
 public class TimeFilterSelector extends GridPane {
+
+    private static final Logger logger = LogManager.getLogger(TimeFilterSelector.class);
 
 
     //TODo locale name from Column
@@ -122,7 +126,7 @@ public class TimeFilterSelector extends GridPane {
     }
 
     private void initValues(NonconformityPlan nonconformityPlan) {
-        System.out.println("MonthSelector.initValues: " + nonconformityPlan + "  " + nonconformityPlan.getActionData().size());
+        logger.debug("MonthSelector.initValues: {} {}",nonconformityPlan, nonconformityPlan.getActionData().size());
         DateTime minDate = null;
         DateTime maxDate = null;
 
@@ -152,7 +156,6 @@ public class TimeFilterSelector extends GridPane {
             fFromMonth.setValue(Month.of(maxDate.getMonthOfYear()));
             fToYear.setValue(maxDate.getYear());
         } else {
-            System.out.println("default value");
             fFromMonth.setValue(Month.of(1));
             fFromYear.setValue(2018);
 
@@ -212,7 +215,6 @@ public class TimeFilterSelector extends GridPane {
     }
 
     private void updateValue() {
-        System.out.println("Update value");
         try {
             DateTime from = new DateTime(fFromYear.getValue(), fFromMonth.getValue().getValue(), 1, 0, 0);
             DateTime until = new DateTime(fToYear.getValue(), fToMonth.getValue().getValue(), fToMonth.getValue().maxLength(), 23, 59);
@@ -220,7 +222,7 @@ public class TimeFilterSelector extends GridPane {
             DateFilter dateRange = new DateFilter(fDateField.getValue(), from, until);
             valueProperty.set(dateRange);
         } catch (Exception ex) {
-            System.out.println("Unfinished Filter");
+            logger.error(ex);
         }
     }
 

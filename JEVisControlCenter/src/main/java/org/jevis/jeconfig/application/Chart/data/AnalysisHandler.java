@@ -222,8 +222,8 @@ public class AnalysisHandler {
 
                     chartData.setAttributeString(chartDataRow.getAttribute().getName());
 
-                    chartData.setCalculation(chartDataRow.getEnPI());
-                    if (chartDataRow.getEnPI()) {
+                    chartData.setCalculation(chartDataRow.isCalculation());
+                    if (chartDataRow.isCalculation()) {
                         chartData.setCalculationId(chartDataRow.getCalculationObject().getID());
                     }
 

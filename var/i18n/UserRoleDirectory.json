@@ -3,12 +3,14 @@
   "names": {
     "de": "Benutzerverzeichniss",
     "ru": "Каталог пользователей",
-    "en": "User directory"
+    "en": "User directory",
+    "ar": "دليل دور المستخدم"
   },
   "descriptions": {
     "de": "Die Klasse Benutzerverzeichniss stellt ein Benutzerverzeichniss für die Strukturierung des Systems dar.",
     "ru": "The class Directory represents a user directory directory for the structuring of the system.",
-    "en": "The class Directory represents a user directory directory for the structuring of the system."
+    "en": "The class Directory represents a user directory directory for the structuring of the system.",
+    "ar": "تمثل فئة دليل المستخدم دليل مستخدم لهيكلة النظام"
   },
   "types": []
 }

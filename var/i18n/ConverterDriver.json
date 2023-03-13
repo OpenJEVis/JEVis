@@ -3,7 +3,8 @@
   "names": {
     "de": "Konvertertreiber",
     "ru": "Converter Driver",
-    "en": "Converter Driver"
+    "en": "Converter Driver",
+    "ar": "برنامج تشغيل المحول"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Enabled description",
         "ru": "Enabled description",
-        "en": "Enabled description"
+        "en": "Enabled description",
+        "ar": "وصف ممكّن"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "JEVis Class description",
         "ru": "JEVis Class description",
-        "en": "JEVis Class description"
+        "en": "JEVis Class description",
+        "ar": "فئة JEVis"
       },
       "names": {
         "de": "JEVis-Klasse",
         "ru": "JEVis Class",
-        "en": "JEVis Class"
+        "en": "JEVis Class",
+        "ar": "فئة JEVis"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Main Class description",
         "ru": "Main Class description",
-        "en": "Main Class description"
+        "en": "Main Class description",
+        "ar": "الفئة الرئيسية"
       },
       "names": {
         "de": "Hauptklasse",
         "ru": "Main Class",
-        "en": "Main Class"
+        "en": "Main Class",
+        "ar": "الفئة الرئيسية"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Source File description",
         "ru": "Source File description",
-        "en": "Source File description"
+        "en": "Source File description",
+        "ar": "مصدر الملف"
       },
       "names": {
         "de": "Quelldatei",
         "ru": "Source File",
-        "en": "Source File"
+        "en": "Source File",
+        "ar": "مصدر الملف"
       }
     }
   ]

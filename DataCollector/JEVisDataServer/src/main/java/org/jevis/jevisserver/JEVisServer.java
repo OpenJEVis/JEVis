@@ -67,11 +67,10 @@ public class JEVisServer implements DataSource {
                         + sourceAttribute + "/"
                         + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH;
 
-                if (lastReadout != null) {
-                    resource += "?" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.FROM + HTTPConnection.FMT.print(lastReadout);
-                } else {
-                    resource += "?" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.FROM + HTTPConnection.FMT.print(new DateTime(1990, 1, 1, 0, 0, 0, 0));
+                if (lastReadout == null) {
+                    lastReadout = new DateTime(1990, 1, 1, 0, 0, 0, 0);
                 }
+                resource += "?" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.FROM + HTTPConnection.FMT.print(lastReadout);
 
                 resource += "&";
                 resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(DateTime.now());
@@ -101,13 +100,12 @@ public class JEVisServer implements DataSource {
                     logger.error("Interrupted exception. Error in getting samples.", e);
                 }
 
-                DateTime lastTs = new DateTime(1990, 1, 1, 0, 0, 0, 0);
                 for (JsonSample sample : jsons) {
                     try {
                         DateTime dateTime = new DateTime(sample.getTs());
                         samples.add(targetAttribute.buildSample(dateTime, sample.getValue(), sample.getNote()));
-                        if (lastTs.isBefore(dateTime)) {
-                            lastTs = dateTime;
+                        if (lastReadout.isBefore(dateTime)) {
+                            lastReadout = dateTime;
                         }
                     } catch (Exception ex) {
                         logger.error("Error parsing sample {} of sourceAttribute {}:{}", sample.toString(), targetAttribute.getObject().getID(), targetAttribute.getName());
@@ -115,7 +113,7 @@ public class JEVisServer implements DataSource {
                 }
 
                 targetAttribute.addSamples(samples);
-                JEVisSample sample = lastReadoutAttribute.buildSample(new DateTime(), lastTs);
+                JEVisSample sample = lastReadoutAttribute.buildSample(new DateTime(), lastReadout);
                 sample.commit();
             } catch (Exception e) {
                 logger.error("Could not complete channel {}:{}", channel.getName(), channel.getID(), e);

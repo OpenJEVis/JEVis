@@ -2,20 +2,19 @@ package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.plugin.action.data.ActionData;
-import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformtiesOverviewData;
@@ -31,6 +30,8 @@ import java.util.function.Predicate;
 
 public class NonconformityPlanTable extends TableView<NonconformityData> {
 
+    private static final Logger logger = LogManager.getLogger(NonconformityPlanTable.class);
+
 
     private static Method columnToFitMethod;
 
@@ -45,6 +46,8 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
     ObservableList<NonconformityData> data = FXCollections.observableArrayList();
     FilteredList<NonconformityData> filteredData;
+
+    SortedList<NonconformityData> sortedData;
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
     private NonconformityData sumRow = new NonconformityData();
@@ -56,18 +59,25 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     private ObservableList<String> fields = FXCollections.observableArrayList();
     private ObservableList<String> seu = FXCollections.observableArrayList();
 
+    private static int DATE_TIME_WIDTH = 120;
+    private static int BIG_WIDTH = 200;
+    private static int SMALL_WIDTH = 60;
+
+
     public NonconformityPlanTable(NonconformityPlan nonconformityPlan, ObservableList<NonconformityData> data) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
-        setItems(filteredData);
+        sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(this.comparatorProperty());
+        //sortedData.setAll(filteredData);
+        setItems(sortedData);
         setId("Action Table");
 
         data.addListener(new ListChangeListener<NonconformityData>() {
             @Override
             public void onChanged(Change<? extends NonconformityData> c) {
                 while (c.next()) ;
-
-                System.out.println("Daten in tabelle " + nonconformityPlan.getName() + " geändert: " + c.getList());
+                logger.debug("Daten in tabelle: {} + geändert: {}",nonconformityPlan.getName(),c.getList());
             }
         });
 
@@ -81,77 +91,104 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         TableColumn<NonconformityData, String> fromUserCol = new TableColumn(fakeForName.creatorProperty().getName());
         fromUserCol.setCellValueFactory(param -> param.getValue().creatorProperty());
         fromUserCol.setCellFactory(buildShotTextFactory());
+        fromUserCol.setStyle("-fx-alignment: CENTER;");
+        fromUserCol.setMinWidth(BIG_WIDTH);
 
 
         TableColumn<NonconformityData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsiblePersonProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsiblePersonProperty());
-        responsiblePropertyCol.setMinWidth(150);
+        responsiblePropertyCol.setStyle("-fx-alignment: CENTER;");
+        responsiblePropertyCol.setMinWidth(BIG_WIDTH);
 
         TableColumn<NonconformityData, String> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
-        actionNrPropertyCol.setCellValueFactory(param ->new SimpleStringProperty(param.getValue().getPrefix()+param.getValue().getNr()));
-        actionNrPropertyCol.setMinWidth(80);
+        actionNrPropertyCol.setCellValueFactory(param ->param.getValue().getPrefixPlusNumber());
+        actionNrPropertyCol.setStyle("-fx-alignment: CENTER;");
+        actionNrPropertyCol.setMinWidth(SMALL_WIDTH);
 
 
 
 
         TableColumn<NonconformityData, String> desciptionPropertyCol = new TableColumn(fakeForName.descriptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().descriptionProperty());
+        desciptionPropertyCol.setStyle("-fx-alignment: CENTER;");
         desciptionPropertyCol.setCellFactory(buildShotTextFactory());
+
 
         TableColumn<NonconformityData, String> causePropertyCol = new TableColumn(fakeForName.causeProperty().getName());
         causePropertyCol.setCellValueFactory(param -> param.getValue().causeProperty());
+        causePropertyCol.setStyle("-fx-alignment: CENTER;");
         causePropertyCol.setCellFactory(buildShotTextFactory());
 
         TableColumn<NonconformityData, String> immediateMeasuresPropertyCol = new TableColumn(fakeForName.immediateMeasuresProperty().getName());
         immediateMeasuresPropertyCol.setCellValueFactory(param -> param.getValue().immediateMeasuresProperty());
+        immediateMeasuresPropertyCol.setStyle("-fx-alignment: CENTER;");
         immediateMeasuresPropertyCol.setCellFactory(buildShotTextFactory());
 
         TableColumn<NonconformityData, String> correctiveActionsCol = new TableColumn(fakeForName.correctiveActionsProperty().getName());
         correctiveActionsCol.setCellValueFactory(param -> param.getValue().correctiveActionsProperty());
+        correctiveActionsCol.setStyle("-fx-alignment: CENTER;");
         correctiveActionsCol.setCellFactory(buildShotTextFactory());
 
         TableColumn<NonconformityData, String> mediaTagsPropertyCol = new TableColumn(fakeForName.mediumProperty().getName());
         mediaTagsPropertyCol.setCellValueFactory(param -> param.getValue().mediumProperty());
         mediaTagsPropertyCol.setCellFactory(new StringListColumnCell());
         mediaTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+        mediaTagsPropertyCol.setMinWidth(BIG_WIDTH);
+
+
 
         TableColumn<NonconformityData, String> fieldTagsPropertyCol = new TableColumn(fakeForName.fieldTagsProperty().getName());
-        fieldTagsPropertyCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFieldTags().toString().replaceAll("[^a-zA-Z0-9 ,.;]","")));
-        fieldTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        fieldTagsPropertyCol.setCellValueFactory(param -> param.getValue().getfieldAsString());
+        fieldTagsPropertyCol.setCellFactory(buildShotTextFactory());
         fieldTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+        fieldTagsPropertyCol.setMinWidth(BIG_WIDTH);
 
         TableColumn<NonconformityData, String> seuTagsPropertyCol = new TableColumn(fakeForName.seuProperty().getName());
         seuTagsPropertyCol.setCellValueFactory(param -> param.getValue().seuProperty());
         seuTagsPropertyCol.setCellFactory(new StringListColumnCell());
         seuTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+        seuTagsPropertyCol.setMinWidth(BIG_WIDTH);
 
 
         TableColumn<NonconformityData, String> actionsCol = new TableColumn(fakeForName.actionProperty().getName());
         actionsCol.setCellValueFactory(param -> param.getValue().actionProperty());
         actionsCol.setCellFactory(buildShotTextFactory());
+        actionsCol.setStyle("-fx-alignment: CENTER;");
+        actionsCol.setMinWidth(BIG_WIDTH);
 
         TableColumn<NonconformityData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.nonconformities.location"));
         planNameCol.setCellValueFactory(param -> param.getValue().getNonconformityPlan().getName());
         planNameCol.setCellFactory(buildShotTextFactory());
+        planNameCol.setStyle("-fx-alignment: CENTER;");
+        planNameCol.setMinWidth(BIG_WIDTH);
 
 
         TableColumn<NonconformityData, DateTime> doneDatePropertyCol = new TableColumn(fakeForName.doneDateProperty().getName());
         doneDatePropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
         doneDatePropertyCol.setCellFactory(buildDateTimeFactory());
+        doneDatePropertyCol.setStyle("-fx-alignment: CENTER;");
+        doneDatePropertyCol.setMinWidth(DATE_TIME_WIDTH);
 
         TableColumn<NonconformityData, DateTime> createDatePropertyCol = new TableColumn(fakeForName.createDateProperty().getName());
         createDatePropertyCol.setCellValueFactory(param -> param.getValue().createDateProperty());
-        createDatePropertyCol.setMinWidth(120);
         createDatePropertyCol.setCellFactory(buildDateTimeFactory());
+        createDatePropertyCol.setStyle("-fx-alignment: CENTER;");
+        createDatePropertyCol.setMinWidth(DATE_TIME_WIDTH);
 
         TableColumn<NonconformityData, DateTime> plannedDatePropertyCol = new TableColumn(fakeForName.deadLineProperty().getName());
         plannedDatePropertyCol.setCellValueFactory(param -> param.getValue().deadLineProperty());
         plannedDatePropertyCol.setCellFactory(buildDateTimeFactory());
+        plannedDatePropertyCol.setStyle("-fx-alignment: CENTER;");
+        plannedDatePropertyCol.setMinWidth(DATE_TIME_WIDTH);
 
 
         TableColumn<NonconformityData, String> titlePropertyCol = new TableColumn(fakeForName.titleProperty().getName());
         titlePropertyCol.setCellValueFactory(param -> param.getValue().titleProperty());
+        titlePropertyCol.setStyle("-fx-alignment: CENTER;");
         titlePropertyCol.setCellFactory(buildShotTextFactory());
+        titlePropertyCol.setMinWidth(BIG_WIDTH);
+
+        this.getSortOrder().addAll(planNameCol,actionNrPropertyCol);
 
 
         actionNrPropertyCol.setVisible(true);
@@ -172,9 +209,9 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         this.tableMenuButtonVisibleProperty().set(true);
 
 
-        this.getColumns().addAll(actionNrPropertyCol, titlePropertyCol, fromUserCol,
+        this.getColumns().addAll(actionNrPropertyCol,planNameCol, titlePropertyCol, fromUserCol,
                 responsiblePropertyCol, desciptionPropertyCol,
-                plannedDatePropertyCol, doneDatePropertyCol, createDatePropertyCol, mediaTagsPropertyCol, planNameCol,actionsCol,fieldTagsPropertyCol,seuTagsPropertyCol
+                createDatePropertyCol,plannedDatePropertyCol, doneDatePropertyCol, mediaTagsPropertyCol,actionsCol,fieldTagsPropertyCol,seuTagsPropertyCol
         );
 
 
@@ -220,13 +257,16 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                         setTextOverrun(OverrunStyle.ELLIPSIS);
                         setWrapText(false);
                         setGraphic(null);
-                        if (!empty) {
-                            if (item.contains("\n")) {
-                                setText(item.substring(0, item.indexOf("\n")));
-                            } else {
-                                setText(item);
+                        if (item != null) {
+                            if (!empty) {
+                                if (item.contains("\n")) {
+                                    setText(item.substring(0, item.indexOf("\n")));
+                                } else {
+                                    setText(item);
+                                }
                             }
-                        } else {
+                        }
+                         else {
                             setText(null);
                         }
 
@@ -281,7 +321,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                 new Predicate<NonconformityData>() {
                     @Override
                     public boolean test(NonconformityData notesRow) {
-                        //System.out.println("Filter.predict: " + notesRow.getTags());
                         try {
                             if (notesRow.isDeleted()) {
                                 return false;
@@ -311,7 +350,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
                             AtomicBoolean fieldMatch = new AtomicBoolean(false);
 
-                            System.out.println(fields);
 
                             if (!fields.contains("*")) {
                                 fields.forEach(s -> {
@@ -326,6 +364,22 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                                     }
                                 });
                                 if (!fieldMatch.get()) return false;
+                            }
+
+                            AtomicBoolean seuMatch = new AtomicBoolean(false);
+                            if (!seu.contains("*")) {
+                                seu.forEach(s -> {
+                                    try {
+                                        for (String s1 : notesRow.getFieldTags()) {
+                                            if (s1.equalsIgnoreCase(s)) {
+                                                seuMatch.set(true);
+                                            }
+                                        }
+                                    } catch (Exception ex) {
+
+                                    }
+                                });
+                                if (!seuMatch.get()) return false;
                             }
 
 
@@ -376,7 +430,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                         return false;
                     }
                 });
-        //Platform.runLater(() -> autoFitTable(tableView));
         Platform.runLater(() -> sort());
 
     }
