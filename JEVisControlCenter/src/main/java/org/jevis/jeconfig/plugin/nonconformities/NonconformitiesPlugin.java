@@ -147,6 +147,6 @@ public class NonconformitiesPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 0;
+        return 4;
     }
 }
