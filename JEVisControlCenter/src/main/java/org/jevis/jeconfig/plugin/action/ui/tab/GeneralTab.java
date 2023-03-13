@@ -26,7 +26,6 @@ import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.ui.CheckBoxData;
 import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
-import org.jevis.jeconfig.plugin.action.ui.JFXCheckComboBox;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -35,7 +34,7 @@ public class GeneralTab extends Tab {
 
     private final JFXDatePicker f_plannedDate = new JFXDatePicker();
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
-    private ActionData names = new ActionData();
+    //private ActionData names = new ActionData();
     private Label l_Note = new Label();
     private Label l_Description = new Label();
     private Label l_ActionNr = new Label();
@@ -51,7 +50,6 @@ public class GeneralTab extends Tab {
     private Label l_statusTags = new Label();
     private Label l_fieldTags = new Label();
     private Region col3Spacer = new Region();
-
     private JFXTextField f_savingYear = new JFXTextField();
     private JFXTextField f_Investment = new JFXTextField();
     private JFXTextField f_ActionNr = new JFXTextField();
@@ -61,17 +59,17 @@ public class GeneralTab extends Tab {
     private TextArea f_NoteBewertet = new TextArea();
     private JFXComboBox<String> f_statusTags;
     private CheckComboBox<String> f_fieldTags;
-    private JFXCheckComboBox f_fieldTags2;
+    //private JFXCheckComboBox f_fieldTags2;
     private JFXTextField f_Attachment = new JFXTextField();
     private TextArea f_Note = new TextArea();
     private TextArea f_NoteEnergiefluss = new TextArea();
     private Label l_seu = new Label(I18n.getInstance().getString("actionform.editor.tab.general.seu"));
     private JFXComboBox<String> f_sueTags = new JFXComboBox<>();
-    private Label l_FromUser = new Label(names.fromUserProperty().getName());
+    private Label l_FromUser = new Label(I18n.getInstance().getString("plugin.action.fromuser"));
     private JFXTextField f_FromUser = new JFXTextField();
-    private Label l_CreateDate = new Label(names.createDateProperty().getName());
+    private Label l_CreateDate = new Label("Erstellt");
     private JFXDatePicker f_CreateDate = new JFXDatePicker();
-    private Label l_distributor = new Label(names.distributorProperty().getName());
+    private Label l_distributor = new Label(I18n.getInstance().getString("plugin.action.distributor"));
     private JFXTextField f_distributor = new JFXTextField();
 
 
@@ -111,15 +109,20 @@ public class GeneralTab extends Tab {
 
  */
 
+        /*
         f_fieldTags2 = new JFXCheckComboBox(data.getActionPlan().getFieldsTags(), data.fieldTagsProperty().get());
         f_fieldTags2.textProperty().addListener((observable, oldValue, newValue) -> {
-            data.getActionPlan().getFieldsTags().setAll(f_fieldTags2.getValue());
+            System.out.println("FieldTags2: " + newValue + "     " + f_fieldTags2.getValue());
+            data.getActionPlan().getFieldsTags().setAll(newValue);
         });
+
+         */
 
         f_Title.widthProperty().addListener((observable, oldValue, newValue) -> {
             f_statusTags.setPrefWidth(newValue.doubleValue());
             f_fieldTags.setPrefWidth(newValue.doubleValue());
-            f_fieldTags2.setPrefWidth(newValue.doubleValue());
+            //  f_fieldTags2.setPrefWidth(newValue.doubleValue());
+            f_sueTags.setPrefWidth(newValue.doubleValue());
             //f_mediaTags.setPrefWidth(newValue.doubleValue());
             //f_Enpi.setPrefWidth(newValue.doubleValue());
         });
@@ -146,14 +149,17 @@ public class GeneralTab extends Tab {
         for (String s : data.fieldTagsProperty().getValue().split(";")) {
             f_fieldTags.getCheckModel().check(s);
         }
-
         f_fieldTags.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
             public void onChanged(ListChangeListener.Change<? extends String> c) {
                 while (c.next()) {
+                    System.out.println("!!!!!! general.field: " + c);
                     //do something with changes here
+                    if (c.wasAdded() || c.wasRemoved()) {
+                        System.out.println(f_fieldTags.getCheckModel().getCheckedItems());
+                        data.fieldTagsProperty().set(ActionPlanData.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
+                    }
                 }
-                System.out.println(f_fieldTags.getCheckModel().getCheckedItems());
-                data.fieldTagsProperty().set(ActionPlanData.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
+
             }
         });
 
@@ -241,7 +247,7 @@ public class GeneralTab extends Tab {
         add(gridPane, 4, 7, 1, 1, Priority.SOMETIMES, l_Attachment);
 
         add(gridPane, 5, 1, 1, 1, Priority.SOMETIMES, f_statusTags);
-        add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags2);//f_fieldTags);
+        add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags);//f_fieldTags2);
         add(gridPane, 5, 3, 1, 1, Priority.SOMETIMES, f_sueTags);
         add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, investBox);
         add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, savingsBox);//f_Investment
@@ -280,21 +286,20 @@ public class GeneralTab extends Tab {
         scrollPane.setContent(gridPane);
 
 
-        l_doneDate.setText(names.doneDateProperty().getName());
-        l_plannedDate.setText(names.plannedDateProperty().getName());
-        l_Note.setText(names.noteProperty().getName());
-        l_Description.setText(names.desciptionProperty().getName());
-        System.out.println("nr later:" + names.nrProperty().getName());
-        l_ActionNr.setText(names.nrProperty().getName());
-        l_Attachment.setText(names.attachmentProperty().getName());
-        l_statusTags.setText(names.statusTagsProperty().getName());
-        l_fieldTags.setText(names.fieldTagsProperty().getName());
+        l_doneDate.setText("Abgeschlossen");
+        l_plannedDate.setText("Umsetzung");
+        l_Note.setText(I18n.getInstance().getString("plugin.action.note"));
+        l_Description.setText(I18n.getInstance().getString("plugin.action.description"));
+        l_ActionNr.setText(I18n.getInstance().getString("plugin.action.nr"));
+        l_Attachment.setText("Anhang");
+        l_statusTags.setText("Status");
+        l_fieldTags.setText("Bereich");
 
-        l_Responsible.setText(names.responsibleProperty().getName());
+        l_Responsible.setText("Verantwortlichkeit");
 
-        l_Title.setText(names.noteBetroffenerProzessProperty().getName());
-        l_NoteBewertet.setText(names.noteBewertetProperty().getName());
-        l_NoteEnergiefluss.setText(names.noteEnergieflussProperty().getName());
+        l_Title.setText(I18n.getInstance().getString("plugin.action.affectedprocess"));
+        l_NoteBewertet.setText(I18n.getInstance().getString("plugin.action.noteBewertet"));
+        l_NoteEnergiefluss.setText("Maßnahmenbeschreibung");
 
         l_Title.setWrapText(true);
         l_NoteBewertet.setWrapText(true);
