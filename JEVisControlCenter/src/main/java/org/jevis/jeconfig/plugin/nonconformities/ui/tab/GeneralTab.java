@@ -256,19 +256,6 @@ public class GeneralTab extends Tab {
         l_Creator.setText(fake.creatorProperty().getName());
         l_Title.setWrapText(true);
 
-        f_fieldTags.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> change) {
-                while (change.next()) {
-
-                    System.out.println("change filed");
-                    System.out.println(data.fieldTagsProperty());
-                }
-            }
-        });
-
-
-
 
         data.fieldTagsProperty().get().stream();
         if (data.deadLineProperty().isNotNull().get()) {

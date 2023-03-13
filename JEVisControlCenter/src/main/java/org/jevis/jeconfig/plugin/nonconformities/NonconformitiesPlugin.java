@@ -27,8 +27,6 @@ public class NonconformitiesPlugin implements Plugin {
     public NonconformitiesPlugin(JEVisDataSource ds, String name) {
         this.ds = ds;
         this.nameProperty.set(name);
-
-        initGUI();
     }
 
     private void initGUI() {

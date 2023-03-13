@@ -2,11 +2,11 @@ package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -46,6 +46,8 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
     ObservableList<NonconformityData> data = FXCollections.observableArrayList();
     FilteredList<NonconformityData> filteredData;
+
+    SortedList<NonconformityData> sortedData;
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
     private NonconformityData sumRow = new NonconformityData();
@@ -65,7 +67,10 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     public NonconformityPlanTable(NonconformityPlan nonconformityPlan, ObservableList<NonconformityData> data) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
-        setItems(filteredData);
+        sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(this.comparatorProperty());
+        //sortedData.setAll(filteredData);
+        setItems(sortedData);
         setId("Action Table");
 
         data.addListener(new ListChangeListener<NonconformityData>() {
@@ -425,7 +430,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                         return false;
                     }
                 });
-        //Platform.runLater(() -> autoFitTable(tableView));
         Platform.runLater(() -> sort());
 
     }
