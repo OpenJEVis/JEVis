@@ -3,12 +3,14 @@
   "names": {
     "de": "Systemdienste-Verzeichnis",
     "ru": "Service Directory",
-    "en": "Service Directory"
+    "en": "Service Directory",
+    "ar": "دليل الخدمة"
   },
   "descriptions": {
     "de": "Im Systemdienste-Verzeichnis werden alle Backend-Dienste des JEVis Servers verwaltet.",
     "ru": "In the Service Directory all backend services of the JEVis server are managed.",
-    "en": "In the Service Directory all backend services of the JEVis server are managed."
+    "en": "In the Service Directory all backend services of the JEVis server are managed.",
+    "ar": "تتم إدارة جميع خدمات الواجهة الخلفية لخادم JEVis في دليل خدمات النظام."
   },
   "types": []
 }

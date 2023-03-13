@@ -4,55 +4,65 @@
     "de": "Benutzer",
     "ru": "Пользователь",
     "uk": "Користувач",
-    "en": "User"
+    "en": "User",
+    "ar": "مستخدم"
   },
   "descriptions": {
     "de": "Benutzer für den Zugang zum JEVis",
-    "en": "User to access the JEVis"
+    "en": "User to access the JEVis",
+    "ar": "مستخدم للوصول إلى JEVis"
   },
   "types": [
     {
       "type": "Activities",
       "descriptions": {
         "de": "Protokolliert die Aktivitäten eines Benutzers",
-        "en": "Records the activities of a user"
+        "en": "Records the activities of a user",
+        "ar": "يقوم بتسجيل أنشطة المستخدم"
       },
       "names": {
         "de": "Aktivität",
-        "en": "Activities"
+        "en": "Activities",
+        "ar": "نشاط"
       }
     },
     {
       "type": "E-Mail",
       "descriptions": {
         "de": "E-Mail des Benutzers",
-        "en": "E-Mail of the user"
+        "en": "E-Mail of the user",
+        "ar": "E-Mail"
       },
       "names": {
         "de": "E-Mail",
-        "en": "E-Mail"
+        "en": "E-Mail",
+        "ar": "بريد الالكتروني"
       }
     },
     {
       "type": "Enabled",
       "descriptions": {
         "de": "Aktiviert/Deaktiviert den Benutzer",
-        "en": "Enables/Disables the user"
+        "en": "Enables/Disables the user",
+        "ar": "ينشط / يلغي تنشيط المستخدم"
       },
       "names": {
         "de": "Aktiviert",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
       "type": "Analysis File",
       "descriptions": {
         "de": "Speicherort der temporären Analyse",
-        "en": "File destination of temporary analysis"
+        "en": "File destination of temporary analysis",
+        "ar": "مكان تخزين التحليل المؤقت"
       },
       "names": {
         "de": "Analysen Datei",
-        "en": "Analysis File"
+        "en": "Analysis File",
+        "ar": "ملف التحليل"
       }
     },
     {
@@ -70,110 +80,130 @@
       "type": "First Name",
       "descriptions": {
         "de": "Vorname des Benutzers",
-        "en": "User's first name"
+        "en": "User's first name",
+        "ar": "الاسم الأول"
       },
       "names": {
         "de": "Vorname",
-        "en": "First Name"
+        "en": "First Name",
+        "ar": "الاسم الأول"
       }
     },
     {
       "type": "Language",
       "descriptions": {
         "de": "Definiert die Sprache des Benutzers",
-        "en": "Defines the user's language"
+        "en": "Defines the user's language",
+        "ar": "يحدد لغة المستخدم"
       },
       "names": {
         "de": "Sprache",
-        "en": "Language"
+        "en": "Language",
+        "ar": "لغة"
       }
     },
     {
       "type": "Last Login",
       "descriptions": {
         "de": "Protokolliert die Logins des Benutzers",
-        "en": "Records the logins of the user"
+        "en": "Records the logins of the user",
+        "ar": "يسجل عمليات تسجيل دخول المستخدم"
       },
       "names": {
         "de": "Letzter Login",
-        "en": "Last Login"
+        "en": "Last Login",
+        "ar": "آخر تسجيل دخول"
       }
     },
     {
       "type": "Last Name",
       "descriptions": {
         "de": "Nachname des Benutzers",
-        "en": "Last Name description"
+        "en": "Last Name description",
+        "ar": "اسم العائلة"
       },
       "names": {
         "de": "Nachname",
-        "en": "User's last name"
+        "en": "User's last name",
+        "ar": "اسم العائلة"
       }
     },
     {
       "type": "Password",
       "descriptions": {
         "de": "Passwort des Benutzers",
-        "en": "User's password"
+        "en": "User's password",
+        "ar": "كلمه السر"
       },
       "names": {
         "de": "Passwort",
-        "en": "Password"
+        "en": "Password",
+        "ar": "كلمه السر"
       }
     },
     {
       "type": "Phone",
       "descriptions": {
         "de": "Telefonnummer des Benutzers",
-        "en": "User's phone number"
+        "en": "User's phone number",
+        "ar": "هاتف"
       },
       "names": {
         "de": "Telefon",
-        "en": "Phone"
+        "en": "Phone",
+        "ar": "هاتف"
       }
     },
     {
       "type": "Position",
       "descriptions": {
         "de": "Position/Funktion des Benutzers in der Organisation",
-        "en": "Position/Function of the user within the organization"
+        "en": "Position/Function of the user within the organization",
+        "ar": "منصب / وظيفة المستخدم في المنظمة"
       },
       "names": {
         "de": "Position",
-        "en": "Position"
+        "en": "Position",
+        "ar": "موقع"
       }
     },
     {
       "type": "Sys Admin",
       "descriptions": {
         "de": "Erteilt dem Benutzer uneingeschränkte Rechte als Systemadministrator",
-        "en": "Grants all priveleges to the user as a system administrator"
+        "en": "Grants all priveleges to the user as a system administrator",
+        "ar": "يمنح المستخدم الحقوق الكاملة كمسؤول عن النظام"
       },
       "names": {
         "de": "Sys Admin",
-        "en": "Sys Admin"
+        "en": "Sys Admin",
+        "ar": "مسؤول النظام"
       }
     },
     {
       "type": "Timezone",
       "descriptions": {
         "de": "Zeitzone des Benutzers",
-        "en": "User's time zone"
+        "en": "User's time zone",
+        "ar": "المنطقة الزمنية"
       },
       "names": {
         "de": "Zeitzone",
-        "en": "Time Zone"
+        "en": "Time Zone",
+        "ar": "المنطقة الزمنية"
       }
     },
     {
       "type": "Title",
       "descriptions": {
         "de": "Titel des Benutzers",
-        "en": "User's title"
+        "en": "User's title",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
-        "en": "Title"
+        "en": "Title",
+        "ar": "العنوان"
       }
     }
   ]

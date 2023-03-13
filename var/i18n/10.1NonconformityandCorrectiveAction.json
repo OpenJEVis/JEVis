@@ -3,12 +3,14 @@
   "names": {
     "de": "10.1 Nichtkonformität und Korrekturmaßnahmen",
     "ru": "10.1 Nonconformity and Corrective Action",
-    "en": "10.1 Nonconformity and Corrective Action"
+    "en": "10.1 Nonconformity and Corrective Action",
+    "ar": "10.1 عدم المطابقة والإجراءات التصحيحية"
   },
   "descriptions": {
     "de": "Wenn eine Nichtkonformität auftritt erkannt wird, muss die Organisation:\na) darauf reagieren und, falls zutreffend:\n\t1) Maßnahmen zur Überwachung und zur Korrektur ergreifen;\n\t2) mit den Folgen umgehen;\nb) die Notwendigkeit von Maßnahmen zur Beseitigung der Ursache von Nichtkonformitäten bewerten, damit diese nicht erneut oder an anderer Stelle auftreten, und zwar durch:\n\t1) Überprüfen der Nichtkonformität;\n\t2) Bestimmen der Ursachen der Nichtkonformität;\n\t3) Bestimmen, ob vergleichbare Nichtkonformitäten bestehen, oder möglicherweise auftreten können;\nc) jegliche erforderliche Maßnahme einleiten;\nd) die Wirksamkeit jeglicher ergriffener Korrekturmaßnahme überprüfen;\ne) sofern erforderlich, das EnMS ändern.\nKorrekturmaßnahmen müssen den Auswirkungen der aufgetretenen Nichtkonformitäten angemessen sein.\nDie Organisation muss dokumentierte Information aufbewahren, als Nachweis:\n\t— der Art der Nichtkonformität sowie jeder daraufhin getroffenen Maßnahme;\n\t— der Ergebnisse jeder Korrekturmaßnahme.",
     "ru": "When a nonconformity is identified occurs, the organization shall:  \na) react to the nonconformity and, as applicable:  \n1. take action to control and correct it;  \n2. deal with the consequences;  \nb) evaluate the need for action to eliminate the cause(s) of the nonconformity, in order that it does  not recur or occur elsewhere, by:   \n1. reviewing the nonconformity;  \n2. determining the causes of the nonconformity;  \n3. determining if similar nonconformities exist, or could can potentially occur;  \nc) implement any action needed;  \nd) review the effectiveness of any corrective action taken;  \ne) make changes to the EnMS, if necessary.  \nCorrective actions shall be appropriate to the effects of the nonconformities encountered.    \nThe organization shall retain documented information as evidence of:  \n",
-    "en": "When a nonconformity is identified occurs, the organization shall:  \na) react to the nonconformity and, as applicable:  \n1. take action to control and correct it;  \n2. deal with the consequences;  \nb) evaluate the need for action to eliminate the cause(s) of the nonconformity, in order that it does  not recur or occur elsewhere, by:   \n1. reviewing the nonconformity;  \n2. determining the causes of the nonconformity;  \n3. determining if similar nonconformities exist, or could can potentially occur;  \nc) implement any action needed;  \nd) review the effectiveness of any corrective action taken;  \ne) make changes to the EnMS, if necessary.  \nCorrective actions shall be appropriate to the effects of the nonconformities encountered.    \nThe organization shall retain documented information as evidence of:  \n"
+    "en": "When a nonconformity is identified occurs, the organization shall:  \na) react to the nonconformity and, as applicable:  \n1. take action to control and correct it;  \n2. deal with the consequences;  \nb) evaluate the need for action to eliminate the cause(s) of the nonconformity, in order that it does  not recur or occur elsewhere, by:   \n1. reviewing the nonconformity;  \n2. determining the causes of the nonconformity;  \n3. determining if similar nonconformities exist, or could can potentially occur;  \nc) implement any action needed;  \nd) review the effectiveness of any corrective action taken;  \ne) make changes to the EnMS, if necessary.  \nCorrective actions shall be appropriate to the effects of the nonconformities encountered.    \nThe organization shall retain documented information as evidence of:  \n",
+    "ar": "عندما يتم الكشف عن عدم المطابقة ، يجب على المنظمة:\nأ) الرد عليها ، وإذا أمكن:\n1) اتخاذ الإجراءات اللازمة للمراقبة والتصحيح ؛\n2) التعامل مع العواقب ؛\nب) تقييم الحاجة إلى اتخاذ إجراء لإزالة السبب الجذري لحالات عدم المطابقة بحيث لا تتكرر أو تحدث في أي مكان آخر ، من خلال:\n1) التحقق من عدم المطابقة ؛\n2) تحديد أسباب عدم المطابقة.\n3) تحديد ما إذا كانت حالات عدم المطابقة مماثلة موجودة أو قد تحدث ؛\nج) اتخاذ أي إجراء ضروري ؛\nد) التحقق من فعالية أي إجراء تصحيحي تم اتخاذه ؛\nهـ) إذا لزم الأمر ، قم بتغيير نظام إدارة الطاقة.\nيجب أن تكون الإجراءات التصحيحية متناسبة مع تأثير حالات عدم المطابقة.\nيجب على المنظمة الاحتفاظ بالمعلومات الموثقة كدليل:\n- طبيعة عدم المطابقة وأي إجراء تم اتخاذه نتيجة لذلك ؛\n- نتائج كل إجراء تصحيحي."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الانشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

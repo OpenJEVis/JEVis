@@ -3,7 +3,8 @@
   "names": {
     "de": "HTTP Server",
     "ru": "HTTP Server",
-    "en": "HTTP Server"
+    "en": "HTTP Server",
+    "ar": "خادم HTTP"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Connection Timeout description",
         "ru": "Connection Timeout description",
-        "en": "Connection Timeout description"
+        "en": "Connection Timeout description",
+        "ar": "انتهى وقت محاولة الاتصال"
       },
       "names": {
         "de": "Verbindungs-Timeout",
         "ru": "Connection Timeout",
-        "en": "Connection Timeout"
+        "en": "Connection Timeout",
+        "ar": "انتهى وقت محاولة الاتصال"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Enabled description",
         "ru": "Enabled description",
-        "en": "Enabled description"
+        "en": "Enabled description",
+        "ar": "تم التمكين"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Host description",
         "ru": "Host description",
-        "en": "Host description"
+        "en": "Host description",
+        "ar": "مضيف"
       },
       "names": {
         "de": "Host",
         "ru": "Host",
-        "en": "Host"
+        "en": "Host",
+        "ar": "مضيف"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Password description",
         "ru": "Password description",
-        "en": "Password description"
+        "en": "Password description",
+        "ar": "كلمه السر"
       },
       "names": {
         "de": "Passwort",
         "ru": "Password",
-        "en": "Password"
+        "en": "Password",
+        "ar": "كلمه السر"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Port description",
         "ru": "Port description",
-        "en": "Port description"
+        "en": "Port description",
+        "ar": "المنفذ"
       },
       "names": {
         "de": "Port",
         "ru": "Port",
-        "en": "Port"
+        "en": "Port",
+        "ar": "المنفذ"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Read Timeout description",
         "ru": "Read Timeout description",
-        "en": "Read Timeout description"
+        "en": "Read Timeout description",
+        "ar": "إنتهى وقت القراءة"
       },
       "names": {
         "de": "Lese-Timeout",
         "ru": "Read Timeout",
-        "en": "Read Timeout"
+        "en": "Read Timeout",
+        "ar": "إنتهى وقت القراءة"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "SSL description",
         "ru": "SSL description",
-        "en": "SSL description"
+        "en": "SSL description",
+        "ar": "SSL"
       },
       "names": {
         "de": "SSL",
         "ru": "SSL",
-        "en": "SSL"
+        "en": "SSL",
+        "ar": "SSL"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "Timezone description",
         "ru": "Timezone description",
-        "en": "Timezone description"
+        "en": "Timezone description",
+        "ar": "المنطقة الزمنية"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "Timezone",
-        "en": "Timezone"
+        "en": "Timezone",
+        "ar": "المنطقة الزمنية"
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "User description",
         "ru": "User description",
-        "en": "User description"
+        "en": "User description",
+        "ar": "المستخدم"
       },
       "names": {
         "de": "Benutzer",
         "ru": "User",
-        "en": "User"
+        "en": "User",
+        "ar": "المستخدم"
       }
     }
   ]

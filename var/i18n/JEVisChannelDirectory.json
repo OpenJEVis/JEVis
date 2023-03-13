@@ -2,11 +2,13 @@
   "jevisclass": "JEVis Channel Directory",
   "names": {
     "de": "JEVis Kanalverzeichnis",
-    "en": "JEVis Channel Directory"
+    "en": "JEVis Channel Directory",
+    "ar": "دليل قناة JEVis"
   },
   "descriptions": {
     "de": "Die Klasse JEVis Kanalverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Daten dar.",
-    "en": "The class JEVis Channel Directory represents a specific directory for the management of data.\n"
+    "en": "The class JEVis Channel Directory represents a specific directory for the management of data.\n",
+    "ar": "تمثل فئة دليل قناة JEVis دليلاً محددًا لإدارة البيانات"
   },
   "types": []
 }

@@ -3,12 +3,14 @@
   "names": {
     "de": "Berichtskonfiguration",
     "ru": "Report Configuration",
-    "en": "Report Configuration"
+    "en": "Report Configuration",
+    "ar": "تكوين التقرير"
   },
   "descriptions": {
     "de": "Die Berichtskonfiguration beeinflusst die Art der Datenbeschaffung. Der wichtigste Teil für die Berichtskonfiguration ist zur Zeit die Periodenkonfiguration. Hier können Sie festlegen, ob der Datenzeitraum der aktuelle oder der letzte ist. In Zukunft werden weitere Periodenarten hinzugefügt, z.B. die Periode des letzten Jahres etc.",
     "ru": "The Report Configuration influences the type of data collection. The most important part for the Report Configuration are at the moment the period configuration. Here you can define if the data period is the current or the last one. In the future other period types are added, for example the period the last year etc.",
-    "en": "The Report Configuration influences the type of data collection. The most important part for the Report Configuration are at the moment the period configuration. Here you can define if the data period is the current or the last one. In the future other period types are added, for example the period the last year etc."
+    "en": "The Report Configuration influences the type of data collection. The most important part for the Report Configuration are at the moment the period configuration. Here you can define if the data period is the current or the last one. In the future other period types are added, for example the period the last year etc.",
+    "ar": "يؤثر تكوين التقرير على نوع جمع البيانات. الجزء الأكثر أهمية لتكوين التقرير في الوقت الحالي هو تكوين الفترة. هنا يمكنك تحديد ما إذا كانت فترة البيانات هي الحالية أو الأخيرة. سيتم إضافة المزيد من أنواع الفترات الزمنية في المستقبل ، على سبيل المثال فترة العام الماضي وما إلى ذلك."
   },
   "types": []
 }

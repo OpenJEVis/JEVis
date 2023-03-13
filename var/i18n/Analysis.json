@@ -5,14 +5,16 @@
     "ru": "Анализ",
     "en": "Analysis",
     "th": "การวิเคราะห์",
-    "uk": "Аналіз"
+    "uk": "Аналіз",
+    "ar": "التحليلات"
   },
   "descriptions": {
     "de": "Das Analyseobjekt beinhaltet das Datenmodell aus dem Diagramm Plugin. Alle wichtigen Einstellungen zu der entsprechenden Analyse sind hier abgelegt.",
     "ru": "Объект анализа содержит модель данных из плагина диаграммы. Здесь хранятся все важные настройки для соответствующего анализа.",
     "en": "The analysis object contains the data model from graph. All important settings for the corresponding analysis are stored here.",
     "th": "ออบเจ็กต์การวิเคราะห์ประกอบด้วยโมเดลข้อมูลจากปลั๊กอินไดอะแกรม การตั้งค่าที่สำคัญทั้งหมดสำหรับการวิเคราะห์ที่เกี่ยวข้องจะถูกเก็บไว้ที่นี่",
-    "uk": "Об'єкт аналізу містить модель даних із плагіна діаграми. Тут зберігаються всі важливі налаштування для відповідного аналізу."
+    "uk": "Об'єкт аналізу містить модель даних із плагіна діаграми. Тут зберігаються всі важливі налаштування для відповідного аналізу.",
+    "ar": "يحتوي عنصر التحليل على نموذج البيانات من البرنامج المساعد للمخطط.يتم هنا تخزين كافة الإعدادات المهمة الخاصة بالتحليل المقابل."
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "Содержит модель данных для сохраненного анализа",
         "en": "Includes the data model for stored analysis",
         "th": "มีโมเดลข้อมูลสำหรับการวิเคราะห์ที่บันทึกไว้",
-        "uk": "Містить модель даних для збереженого аналізу"
+        "uk": "Містить модель даних для збереженого аналізу",
+        "ar": "نموذج البيانات"
       },
       "names": {
         "de": "Datenmodell",
         "ru": "Модель данных",
         "en": "Data Model",
         "th": "แบบจำลองข้อมูล",
-        "uk": "Модель даних"
+        "uk": "Модель даних",
+        "ar": "نموذج البيانات"
       }
     },
     {
@@ -39,58 +43,68 @@
         "ru": "Содержит настройки диаграмм для сохраненного анализа.",
         "en": "Includes the settings of the charts for stored analysis",
         "th": "ประกอบด้วยการตั้งค่าของไดอะแกรมสำหรับการวิเคราะห์ที่บันทึกไว้",
-        "uk": "Містить налаштування діаграм для збереженого аналізу"
+        "uk": "Містить налаштування діаграм для збереженого аналізу",
+        "ar": "يحتوي على إعدادات الرسوم البيانية للتحليل المحفوظ"
       },
       "names": {
         "de": "Diagramme",
         "ru": "Диаграммы",
         "en": "Charts",
         "th": "ไดอะแกรม",
-        "uk": "Діаграми"
+        "uk": "Діаграми",
+        "ar": "الرسوم البيانية"
       }
     },
     {
       "type": "Analysis File",
       "descriptions": {
         "de": "Speicherort der Analysendatei",
-        "en": "File destination of analysis"
+        "en": "File destination of analysis",
+        "ar": "ملف التحليل"
       },
       "names": {
         "de": "Analysen Datei",
-        "en": "Analysis File"
+        "en": "Analysis File",
+        "ar": "ملف التحليل"
       }
     },
     {
       "type": "Number of Charts per Screen",
       "descriptions": {
         "de": "Definiert die Anzahl der Diagramme einer Analyse, die auf einem Bildschirm untereinander dargestellt werden",
-        "en": "Defines the number of diagrams of an analysis that are displayed one below the other on a screen"
+        "en": "Defines the number of diagrams of an analysis that are displayed one below the other on a screen",
+        "ar": "يحدد عدد الرسوم التخطيطية للتحليل التي يتم عرضها واحدة أسفل الأخرى على الشاشة"
       },
       "names": {
         "de": "Anzahl Diagramme pro Bildschirm",
-        "en": "Number of Charts per Screen"
+        "en": "Number of Charts per Screen",
+        "ar": "عدد الرسوم البيانية لكل شاشة"
       }
     },
     {
       "type": "Number of Horizontal Pies",
       "descriptions": {
         "de": "Definiert die Anzahl an Kuchendiagrammen einer Analyse, die nebeneinander dargestellt werden",
-        "en": "Defines the number of pie charts of an analysis that are displayed side by side"
+        "en": "Defines the number of pie charts of an analysis that are displayed side by side",
+        "ar": "يحدد عدد المخططات الدائرية للتحليل التي يتم عرضها جنبًا إلى جنب"
       },
       "names": {
         "de": "Anzahl horizontaler Kuchen",
-        "en": "Number of Horizontal Pies"
+        "en": "Number of Horizontal Pies",
+        "ar": "عدد الأقراص الأفقية"
       }
     },
     {
       "type": "Number of Horizontal Tables",
       "descriptions": {
         "de": "Definiert die Anzahl an Tabellen einer Analyse, die nebeneinander dargestellt werden",
-        "en": "Defines the number of tables of an analysis that are displayed side by side"
+        "en": "Defines the number of tables of an analysis that are displayed side by side",
+        "ar": "يحدد عدد جداول التحليل التي يتم عرضها جنبًا إلى جنب"
       },
       "names": {
         "de": "Anzahl horizontaler Tabellen",
-        "en": "Number of Horizontal Tables"
+        "en": "Number of Horizontal Tables",
+        "ar": "عدد الجداول الأفقية"
       }
     }
   ]

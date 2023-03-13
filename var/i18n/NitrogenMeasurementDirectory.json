@@ -3,11 +3,13 @@
   "names": {
     "de": "Messstellen (Stickstoff)",
     "ru": "Measurement (nitrogen)",
-    "en": "Measurement (nitrogen)"
+    "en": "Measurement (nitrogen)",
+    "ar": "دليل قياس النيتروجين"
   },
   "descriptions": {
     "de": "Dient der Verwaltung von Messstellen (Stickstoff).",
     "ru": "For managing measurements (nitrogen).",
-    "en": "For managing measurements (nitrogen)."
+    "en": "For managing measurements (nitrogen).",
+    "ar": "يستخدم لإدارة نقاط القياس (النيتروجين)."
   }
 }

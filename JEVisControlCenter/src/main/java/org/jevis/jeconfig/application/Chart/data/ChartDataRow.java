@@ -18,7 +18,6 @@ import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
-import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
@@ -45,7 +44,6 @@ public class ChartDataRow extends ChartData {
     private List<JEVisSample> forecastSamples = new ArrayList<>();
     private boolean somethingChanged = true;
     private List<Integer> selectedCharts = new ArrayList<>();
-    private Boolean isEnPI = false;
     private JEVisObject calculationObject;
     private Boolean absolute = false;
     private boolean isStringData = false;
@@ -66,6 +64,14 @@ public class ChartDataRow extends ChartData {
 
     public ChartDataRow(JEVisDataSource dataSource) {
         this(dataSource, null);
+
+        this.calculationProperty().addListener((observableValue, aBoolean, t1) -> {
+            if (t1) {
+                setCalculationId(ChartTools.isObjectCalculated(getObject()));
+            } else {
+                setCalculationId(-1);
+            }
+        });
     }
 
     public ChartDataRow(JEVisDataSource ds, ChartData chartData) {
@@ -327,7 +333,7 @@ public class ChartDataRow extends ChartData {
 
                 if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                     try {
-                        if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
+                        if (!isCalculation() || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
                             List<JEVisSample> unmodifiedSamples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString(), DateTimeZone.getDefault().getID());
                             if (!isStringData) {
                                 applyUserData(unmodifiedSamples);
@@ -343,17 +349,17 @@ public class ChartDataRow extends ChartData {
 
                             if (!getAbsolute()) {
                                 logger.debug("Getting calc job not absolute for object {}:{} from {} to {} with period {}",
-                                        calculationObject.getName(), calculationObject.getID(),
+                                        getCalculationObject().getName(), getCalculationObject().getID(),
                                         selectedStart.toString("yyyy-MM-dd HH:mm:ss"), selectedEnd.toString("yyyy-MM-dd HH:mm:ss"),
                                         aggregationPeriod.toString());
-                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, getCalculationObject(),
                                         selectedStart, selectedEnd, aggregationPeriod);
                             } else {
                                 logger.debug("Getting calc job absolute for object {}:{} from {} to {} with period {}",
-                                        calculationObject.getName(), calculationObject.getID(),
+                                        getCalculationObject().getName(), getCalculationObject().getID(),
                                         selectedStart.toString("yyyy-MM-dd HH:mm:ss"), selectedEnd.toString("yyyy-MM-dd HH:mm:ss"),
                                         aggregationPeriod.toString());
-                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, getCalculationObject(),
                                         selectedStart, selectedEnd, true);
                             }
 
@@ -579,14 +585,14 @@ public class ChartDataRow extends ChartData {
                 ChartUnits cu = new ChartUnits();
                 scaleFactor = cu.scaleValue(inputUnit, outputUnit);
 
+                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                PeriodComparator periodComparator = new PeriodComparator();
+
                 if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
                         && (outputUnit.equals("kW") || outputUnit.equals("W") || outputUnit.equals("MW") || outputUnit.equals("GW"))) {
-                    Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
                     if (inputList.size() > 1) {
-                        Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
-                        PeriodComparator periodComparator = new PeriodComparator();
+                        Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
                         int compare = periodComparator.compare(currentPeriod, rowPeriod);
-
                         if (!currentPeriod.equals(rowPeriod) && compare > 0) {
                             if (currentPeriod.equals(Period.hours(1))) {
                                 timeFactor *= 1 / 4d;
@@ -604,6 +610,15 @@ public class ChartDataRow extends ChartData {
                         }
                     } else {
                         logger.debug("Can not determine time factor for fewer than two samples");
+                    }
+                }
+
+                if (cu.areComplementary(inputUnit, outputUnit)) {
+                    Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+                    int compare = periodComparator.compare(currentPeriod, rowPeriod);
+
+                    if (currentPeriod.equals(Period.hours(1)) && compare == 0) {
+                        timeFactor *= 1 / 4d;
                     }
                 }
 
@@ -741,7 +756,7 @@ public class ChartDataRow extends ChartData {
             try {
 
                 String jevisClassName = getObject().getJEVisClassName();
-                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data") || jevisClassName.equals("Base Data")) {
+                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data") || jevisClassName.equals("Base Data") || jevisClassName.equals("Math Data")) {
                     if (dataProcessorObject == null) {
                         this.attribute = getObject().getAttribute("Value");
                     } else {
@@ -853,27 +868,16 @@ public class ChartDataRow extends ChartData {
 
     }
 
-    public Boolean getEnPI() {
-        return isEnPI;
-    }
-
-    public void setEnPI(Boolean enPI) {
-        isEnPI = enPI;
-    }
-
     public JEVisObject getCalculationObject() {
-        return calculationObject;
-    }
-
-    public void setCalculationObject(String calculationObject) {
-        TargetHelper th = new TargetHelper(dataSource, calculationObject);
-        if (th.getObject() != null && !th.getObject().isEmpty()) {
-            this.calculationObject = th.getObject().get(0);
+        if (calculationObject == null && getCalculationId() != -1) {
+            try {
+                calculationObject = dataSource.getObject(getCalculationId());
+            } catch (Exception e) {
+                logger.error("Could not get object for id {}", getCalculationId(), e);
+            }
         }
-    }
 
-    public void setCalculationObject(JEVisObject calculationObject) {
-        this.calculationObject = calculationObject;
+        return calculationObject;
     }
 
     @Override
@@ -885,8 +889,7 @@ public class ChartDataRow extends ChartData {
         newModel.setAttribute(this.getAttribute());
         newModel.setSelectedEnd(this.getSelectedEnd());
         newModel.setSelectedStart(this.getSelectedStart());
-        newModel.setEnPI(this.getEnPI());
-        newModel.setCalculationObject(getCalculationObject());
+        newModel.setCalculation(this.isCalculation());
         newModel.setAxis(this.getAxis());
         newModel.setColor(this.getColor());
         newModel.setName(this.getName());

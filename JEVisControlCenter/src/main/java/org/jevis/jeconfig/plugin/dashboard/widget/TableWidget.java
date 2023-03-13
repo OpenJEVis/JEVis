@@ -94,7 +94,7 @@ public class TableWidget extends Widget implements DataModelWidget {
             try {
                 chartDataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
-                if (chartDataModel.getEnPI()) {
+                if (chartDataModel.isCalculation()) {
                     CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                     CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(

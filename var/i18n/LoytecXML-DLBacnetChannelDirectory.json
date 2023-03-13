@@ -3,12 +3,14 @@
   "names": {
     "de": "Loytec XML-DL Bacnet Kanalverzeichnis",
     "ru": "Loytec XML-DL Bacnet Channel Directory",
-    "en": "Loytec XML-DL Bacnet Channel Directory"
+    "en": "Loytec XML-DL Bacnet Channel Directory",
+    "ar": "دليل قنوات Loytec XML-DL Bacnet"
   },
   "descriptions": {
     "de": "Das Loytec XML-DL Bacnet Kanalverzeichnis enthält Loytec XML-DL Channels, die die Bacnet-Technologie verwenden.",
     "ru": "The Loytec XML-DL Bacnet Channel Directory contains Loytec XML-DL Channels that use Bacnet technology.",
-    "en": "The Loytec XML-DL Bacnet Channel Directory contains Loytec XML-DL Channels that use Bacnet technology."
+    "en": "The Loytec XML-DL Bacnet Channel Directory contains Loytec XML-DL Channels that use Bacnet technology.",
+    "ar": "يحتوي دليل قنوات Loytec XML-DL Bacnet على قنوات Loytec XML-DL التي تستخدم تقنية Bacnet."
   },
   "types": []
 }

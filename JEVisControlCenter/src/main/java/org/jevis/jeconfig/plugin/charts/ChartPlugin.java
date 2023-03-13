@@ -202,7 +202,7 @@ public class ChartPlugin implements Plugin {
 //        border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
 
         dataSettings.currentAnalysisProperty().addListener((observableValue, jeVisObject, t1) -> {
-            if (t1 != null && !t1.equals(jeVisObject)) {
+            if (t1 != null) {
 
                 dataSettings.setWorkDays(new WorkDays(t1));
                 analysisHandler.loadDataModel(t1, dataModel);
@@ -541,6 +541,7 @@ public class ChartPlugin implements Plugin {
         });
 
         allCharts.clear();
+        dataRowMap.clear();
 
         Integer horizontalPies = dataModel.getHorizontalPies();
         Integer horizontalTables = dataModel.getHorizontalTables();

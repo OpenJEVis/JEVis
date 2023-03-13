@@ -5,7 +5,8 @@
     "ru": "Почтовый сервер POP3",
     "en": "POP3 E-Mail Server",
     "uk": "Сервер електронної пошти POP3",
-    "th": "เซิร์ฟเวอร์อีเมล POP3"
+    "th": "เซิร์ฟเวอร์อีเมล POP3",
+    "ar": "خادم البريد الإلكتروني POP3"
   },
   "descriptions": {},
   "types": [
@@ -16,14 +17,16 @@
         "ru": "Решает, какой метод аутентификации используется",
         "en": "Datermines the authentication method to use for server login",
         "uk": "Визначає, який метод автентифікації використовуватиметься",
-        "th": "ตัดสินใจว่าจะใช้วิธีการรับรองความถูกต้องใด"
+        "th": "ตัดสินใจว่าจะใช้วิธีการรับรองความถูกต้องใด",
+        "ar": "حدد طريقة المصادقة التي تريد استخدامها."
       },
       "names": {
         "de": "SSL",
         "ru": "SSL",
         "en": "SSL",
         "uk": "SSL",
-        "th": "SSL"
+        "th": "SSL",
+        "ar": "SSL"
       },
       "enums": {
         "SSL/TLS": {
@@ -33,7 +36,8 @@
             "en": "SSL/TLS",
             "ru": "SSL/TLS",
             "uk": "SSL/TLS",
-            "th": "SSL/TLS"
+            "th": "SSL/TLS",
+            "ar": "SSL / TLS"
           }
         },
         "STARTTLS": {
@@ -43,7 +47,8 @@
             "en": "STARTTLS",
             "ru": "STARTTLS",
             "uk": "STARTTLS",
-            "th": "STARTTLS"
+            "th": "STARTTLS",
+            "ar": "STARTTLS"
           }
         }
       }

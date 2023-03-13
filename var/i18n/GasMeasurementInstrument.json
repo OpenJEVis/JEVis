@@ -3,12 +3,14 @@
   "names": {
     "de": "Gaszähler",
     "ru": "Gas Measurement Instrument",
-    "en": "Gas Measurement Instrument"
+    "en": "Gas Measurement Instrument",
+    "ar": "أداة قياس الغاز"
   },
   "descriptions": {
     "de": "Stellt einen Gaszähler in einem Messaufbau dar.",
     "ru": "Represents a gas meter in a test setup.",
-    "en": "Represents a gas meter in a test setup."
+    "en": "Represents a gas meter in a test setup.",
+    "ar": "يمثل عداد غاز في إعداد قياس."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Gibt den Rohrdurchmesser des Gaszählers an.",
         "ru": "Specifies the pipe diameter of the gas meter.",
-        "en": "Specifies the pipe diameter of the gas meter."
+        "en": "Specifies the pipe diameter of the gas meter.",
+        "ar": "قطر الدائرة"
       },
       "names": {
         "de": "Durchmesser",
         "ru": "Diameter",
-        "en": "Diameter"
+        "en": "Diameter",
+        "ar": "قطر الدائرة"
       }
     }
   ]

@@ -3,7 +3,8 @@
   "names": {
     "de": "Aktionsplan",
     "ru": "Action Plan",
-    "en": "Action Plan"
+    "en": "Action Plan",
+    "ar": "خطة عمل"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Action Plan File description",
         "ru": "Action Plan File description",
-        "en": "Action Plan File description"
+        "en": "Action Plan File description",
+        "ar": "ملف خطة العمل"
       },
       "names": {
         "de": "Datei des Aktionsplans",
         "ru": "Action Plan File",
-        "en": "Action Plan File"
+        "en": "Action Plan File",
+        "ar": "ملف خطة العمل"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Content description",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Created by description",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Date of Creation description",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الانشاء"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Document Number description",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Participants description",
         "ru": "Participants description",
-        "en": "Participants description"
+        "en": "Participants description",
+        "ar": "المشاركين"
       },
       "names": {
         "de": "Teilnehmer",
         "ru": "Participants",
-        "en": "Participants"
+        "en": "Participants",
+        "ar": "المشارك"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Release Date description",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Datum der Veröffentlichung",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "Released by description",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "Title description",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -129,12 +148,14 @@
       "descriptions": {
         "de": "Version description",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

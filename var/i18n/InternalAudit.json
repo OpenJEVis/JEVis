@@ -3,7 +3,8 @@
   "names": {
     "de": "Internes Audit",
     "ru": "Internal Audit",
-    "en": "Internal Audit"
+    "en": "Internal Audit",
+    "ar": "التدقيق الداخلي"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Audit Date description",
         "ru": "Audit Date description",
-        "en": "Audit Date description"
+        "en": "Audit Date description",
+        "ar": "تاريخ مراجعة"
       },
       "names": {
         "de": "Audit Date",
         "ru": "Audit Date",
-        "en": "Audit Date"
+        "en": "Audit Date",
+        "ar": "تاريخ مراجعة"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Auditor description",
         "ru": "Auditor description",
-        "en": "Auditor description"
+        "en": "Auditor description",
+        "ar": "مدقق حسابات"
       },
       "names": {
         "de": "Auditor",
         "ru": "Auditor",
-        "en": "Auditor"
+        "en": "Auditor",
+        "ar": "مدقق حسابات"
       }
     }
   ]

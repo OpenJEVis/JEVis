@@ -706,7 +706,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         set.setOnSucceeded(event -> {
             Platform.runLater(() -> pForm.getDialogStage().close());
             try {
-                for (JEVisObject childObj : obj.getChildren()) {
+                for (JEVisObject childObj : CommonMethods.getChildrenRecursive(obj)) {
                     recleanCleanData(allRadioButton, nowRadioButton, fromRadioButton, fromDatePicker, fromTimePicker, childObj);
                 }
             } catch (Exception ex) {

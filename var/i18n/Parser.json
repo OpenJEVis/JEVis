@@ -3,7 +3,8 @@
   "names": {
     "de": "Parser",
     "ru": "Parser",
-    "en": "Parser"
+    "en": "Parser",
+    "ar": "المعرب اللغوي"
   },
   "descriptions": {},
   "types": []

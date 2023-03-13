@@ -3,7 +3,8 @@
   "names": {
     "de": "02 Planung",
     "ru": "02 Plan",
-    "en": "02 Plan"
+    "en": "02 Plan",
+    "ar": " التخطيط 02"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Auditdatum Beschreibung",
         "ru": "Audit Date description",
-        "en": "Audit Date description"
+        "en": "Audit Date description",
+        "ar": "وصف تاريخ المراجعة"
       },
       "names": {
         "de": "Auditdatum",
         "ru": "Audit Date",
-        "en": "Audit Date"
+        "en": "Audit Date",
+        "ar": "تاريخ المراجعة"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Auditor Beschreibung",
         "ru": "Auditor description",
-        "en": "Auditor description"
+        "en": "Auditor description",
+        "ar": "وصف مراجع الحسابات"
       },
       "names": {
         "de": "Auditor",
         "ru": "Auditor",
-        "en": "Auditor"
+        "en": "Auditor",
+        "ar": "مدقق الحسابات"
       }
     }
   ]

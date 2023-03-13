@@ -289,9 +289,9 @@ public class ReportLinkProperty implements ReportData {
         try {
             JEVisClass cleanDataClass = dataObject.getDataSource().getJEVisClass("Data");
 
-            if (dataObject.getJEVisClass().equals(cleanDataClass)) {
+            if (!dataObject.getJEVisClass().equals(cleanDataClass)) {
                 JEVisObject firstParentalDataObject = CommonMethods.getFirstParentalDataObject(dataObject);
-                name += firstParentalDataObject.getName() + "|";
+                name += firstParentalDataObject.getName() + " \\ ";
             }
         } catch (Exception e) {
             logger.error("Could not get parental data object name", e);
@@ -299,9 +299,7 @@ public class ReportLinkProperty implements ReportData {
 
         name += dataObject.getName();
 
-        String s = "No data available for data object " + name + " with id " + dataObject.getID();
-
-        return s;
+        return "No data available for data object " + name + " with id " + dataObject.getID();
     }
 
     @Override
