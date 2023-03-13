@@ -3,6 +3,8 @@ package org.jevis.jeconfig.plugin.nonconformities.ui.tab;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -16,6 +18,7 @@ import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.joda.time.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class GeneralTab extends Tab {
     private final JFXDatePicker f_deadlineDate = new JFXDatePicker();
@@ -211,6 +214,15 @@ public class GeneralTab extends Tab {
             }
         });
 
+        data.fieldTagsProperty().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> change) {
+                while (change.next()) {
+                    System.out.println(change.getList());
+                }
+            }
+        });
+
 
         f_Title.setMaxWidth(200);
         f_Nr.setMaxWidth(200);
@@ -226,7 +238,7 @@ public class GeneralTab extends Tab {
         f_SEU.minWidth(200);
         f_SEU.setMaxWidth(200);
 
-        l_SEU.setText(fake.getSeu());
+        l_SEU.setText(fake.seuProperty().getName());
         l_action.setText(fake.actionProperty().getName());
         l_fieldTags.setText(fake.fieldTagsProperty().getName());
         l_CreateDate.setText(fake.createDateProperty().getName());
@@ -243,6 +255,22 @@ public class GeneralTab extends Tab {
         l_CorrectiveActions.setText(fake.correctiveActionsProperty().getName());
         l_Creator.setText(fake.creatorProperty().getName());
         l_Title.setWrapText(true);
+
+        f_fieldTags.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> change) {
+                while (change.next()) {
+
+                    System.out.println("change filed");
+                    System.out.println(data.fieldTagsProperty());
+                }
+            }
+        });
+
+
+
+
+        data.fieldTagsProperty().get().stream();
         if (data.deadLineProperty().isNotNull().get()) {
             f_deadlineDate.setValue(LocalDate.of(data.getDeadLine().getYear(),data.getDeadLine().getMonthOfYear(),data.getDeadLine().getDayOfMonth()));
         }

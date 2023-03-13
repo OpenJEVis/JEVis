@@ -24,7 +24,6 @@ public class TagButton extends Button {
     ObservableList<String> selectedTags = FXCollections.observableArrayList();
     HashMap<String, BooleanProperty> activeTags = new HashMap<>();
     ObservableList<String> allTags = FXCollections.observableArrayList();
-    private boolean selectAll;
 
     private List<JFXCheckBox> boxes = new ArrayList<>();
 
@@ -32,6 +31,7 @@ public class TagButton extends Button {
         super(text);
         this.allTags = entry;
         this.selectedTags.addAll(selected);
+
 
         this.allTags.addListener(new ListChangeListener<String>() {
             @Override
@@ -53,20 +53,17 @@ public class TagButton extends Button {
     }
 
     public void updateList() {
-        selectAll = false;
         selectedTags.clear();
         boxes.clear();
 
         MenuItem selectAllMenuItem = new MenuItem(I18n.getInstance().getString("plugin.notes.contextmenu.selectall"));
         selectAllMenuItem.setOnAction(event -> {
-            selectAll = true;
             boxes.forEach(jfxCheckBox -> jfxCheckBox.setSelected(true));
             updateValue();
         });
 
         MenuItem deselectAllMenuItem = new MenuItem(I18n.getInstance().getString("plugin.notes.contextmenu.selectnone"));
         deselectAllMenuItem.setOnAction(event -> {
-            selectAll = false;
             boxes.forEach(jfxCheckBox -> jfxCheckBox.setSelected(false));
             updateValue();
         });
@@ -81,7 +78,6 @@ public class TagButton extends Button {
             cb.setSelected(true);
             boxes.add(cb);
             cb.setOnAction(event -> {
-                selectAll = false;
                 updateValue();
             });
             CustomMenuItem cmi = new CustomMenuItem(cb);
@@ -93,13 +89,11 @@ public class TagButton extends Button {
         setOnAction(event -> {
             cm.show(this, Side.BOTTOM, 0, 0);
         });
-        updateButton();
-        updateValue();
+        selectAllMenuItem.fire();
     }
 
     private void updateValue() {
-        System.out.println("selectall");
-        System.out.println(selectAll);
+
 
         List<String> selected = new ArrayList();
         boxes.forEach(jfxCheckBox -> {
@@ -109,22 +103,21 @@ public class TagButton extends Button {
         });
         System.out.println("## selectedBoxes" + selected);
 
-        //System.out.println("selected: " + selected);
         if (selected.isEmpty()) {
             selectedTags.clear();
-        }else if(!selectAll) {
+        }else if(!(selected.size() == allTags.size())) {
             selectedTags.setAll(selected);
-        } else if (selectAll) {
+        } else if (selected.size() == allTags.size()) {
             selectedTags.clear();
             selectedTags.add("*");
         }
-        //updateButton();
+        updateButton(selected);
 
     }
 
-    private void updateButton() {
+    private void updateButton( List<String> selected) {
         Platform.runLater(() -> {
-            if (selectedTags.size() == allTags.size()) {
+            if (selected.size() == allTags.size()) {
                 setStyle("-fx-border-color: #51aaa5;");
                 setGraphic(JEConfig.getSVGImage(Icon.FILTER_ALT_OFF, 20, 20));
             } else {

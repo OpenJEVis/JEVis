@@ -33,7 +33,7 @@ public class NonconformitiesToolbar extends ToolBar {
 
 
         nonconformityPlanConfig.setOnAction(event -> nonconformitiesController.openPlanSettings());
-        openForm.setOnAction(event -> nonconformitiesController.openDataForm());
+        openForm.setOnAction(event -> nonconformitiesController.openDataForm(false));
         newNonconformityPlan.setOnAction(event -> nonconformitiesController.createNewNonconformityPlan());
         newNonconformity.setOnAction(event -> nonconformitiesController.createNonconformity());
         deleteNonconformity.setOnAction(event -> nonconformitiesController.deleteNonconformity());

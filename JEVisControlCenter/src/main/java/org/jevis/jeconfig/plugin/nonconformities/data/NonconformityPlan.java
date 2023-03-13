@@ -191,36 +191,24 @@ public class NonconformityPlan {
     public void loadNonconformityList() {
         if (!actionsLoaded.get()) {
             actionsLoaded.set(true);
-            //System.out.println("loadIntoList for: " + name.get());
-            Task task = new Task() {
-                @Override
-                protected Object call() throws Exception {
+            try {
+
+            JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Nonconformities Directory");
+            JEVisClass actionClass = object.getDataSource().getJEVisClass("Nonconformity");
+            for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
+                dirObj.getChildren(actionClass, false).forEach(actionObj -> {
+                    System.out.println("new Action from JEVis: " + actionObj);
                     try {
-
-                        JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Nonconformities Directory");
-                        JEVisClass actionClass = object.getDataSource().getJEVisClass("Nonconformity");
-                        for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
-                            dirObj.getChildren(actionClass, false).forEach(actionObj -> {
-                                System.out.println("new Action from JEVis: " + actionObj);
-                                try {
-                                    nonconformityList.add(loadNonconformties(actionObj));
-                                } catch (Exception e) {
-                                    logger.error("Could not load Action: {},{},{}", actionObj, e, e);
-                                }
-                            });
-                        }
-                        nonconformityList.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                        nonconformityList.add(loadNonconformties(actionObj));
+                    } catch (Exception e) {
+                        logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                     }
-
-                    super.done();
-                    return null;
-                }
-            };
-            Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
-            JEConfig.getStatusBar().addTask(NonconformitiesPlugin.class.getName(), task, widgetTaskIcon, true);
+                });
+            }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            nonconformityList.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
         }
 
 

@@ -187,7 +187,7 @@ public class NonconformityPlanTab extends Tab {
             @Override
             public void handle(MouseEvent event) {
                 if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-                    controller.openDataForm();//actionTable.getSelectionModel().getSelectedItem()
+                    controller.openDataForm(false);//actionTable.getSelectionModel().getSelectedItem()
                 }
             }
         });

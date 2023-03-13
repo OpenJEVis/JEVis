@@ -12,6 +12,8 @@ import org.jevis.jeconfig.tool.ScreenSize;
 
 public class NonconformityForm extends Dialog {
 
+    private boolean isNew;
+
     public NonconformityForm() {
     }
 
@@ -86,4 +88,11 @@ public class NonconformityForm extends Dialog {
     }
 
 
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean aNew) {
+        isNew = aNew;
+    }
 }

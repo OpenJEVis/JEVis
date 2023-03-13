@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
@@ -95,6 +96,7 @@ public class NonconformitiesController {
 
         });
 
+        nonconformityPlanTable.sort();
 
         //actionTable.setItems(createTestData());
 
@@ -198,7 +200,7 @@ public class NonconformitiesController {
             tab.getNonconformityPlan().addAction(newNonconformityData);
 
             tab.getActionTable().getSelectionModel().select(newNonconformityData);
-            openDataForm();//tab.getActionTable().getSelectionModel().getSelectedItem()
+            openDataForm(true);//tab.getActionTable().getSelectionModel().getSelectedItem()
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -266,10 +268,11 @@ public class NonconformitiesController {
         }
     }
 
-    public void openDataForm() {
+    public void openDataForm(boolean isNew) {
         NonconformityForm nonconformityForm = new NonconformityForm(getActiveNonconformityPlan());
         NonconformityData data = getSelectedData();
         nonconformityForm.setData(data);
+        nonconformityForm.setNew(isNew);
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.nonconformities.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.nonconformities.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
@@ -279,7 +282,17 @@ public class NonconformitiesController {
         final Button btCancel = (Button) nonconformityForm.getDialogPane().lookupButton(buttonTypeTwo);
         btOk.addEventFilter(ActionEvent.ACTION,getCloseRequest(data, nonconformityForm));
         btCancel.addEventFilter(ActionEvent.ACTION,event -> {
-            reload(data);
+            if (nonconformityForm.isNew()) {
+                try {
+                    data.getObject().delete();
+                    getActiveTab().getNonconformityPlan().getNonconformityList().remove(data);
+
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+            }else {
+                reload(data);
+            }
         });
         nonconformityForm.show();
 
