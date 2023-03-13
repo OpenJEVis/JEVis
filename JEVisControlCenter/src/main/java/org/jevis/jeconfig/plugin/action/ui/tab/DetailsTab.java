@@ -23,8 +23,8 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.FreeObject;
 import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
-import org.jevis.jeconfig.plugin.action.ui.TextFieldWithUnit;
 import org.jevis.jeconfig.plugin.action.ui.TimeRangeDialog;
+import org.jevis.jeconfig.plugin.action.ui.control.TextFieldWithUnit;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -53,20 +53,17 @@ public class DetailsTab extends Tab {
     private Label l_EnpiSelection = new Label("EnPI");
     private Label l_mediaTags = new Label();
     private JFXComboBox<String> f_mediaTags;
-    private TextArea f_correctionIfNeeded = new TextArea("Korrekturmaßnahmen");
+    private TextArea f_correctionIfNeeded = new TextArea("");
     private TextFieldWithUnit f_enpiAfter = new TextFieldWithUnit();
     private TextFieldWithUnit f_enpiBefore = new TextFieldWithUnit();
     private TextFieldWithUnit f_enpiDiff = new TextFieldWithUnit();
-    private TextArea f_nextActionIfNeeded = new TextArea("Folgemaßnahmen");
-    private TextArea f_alternativAction = new TextArea("Alternativmaßnahmen");
+    private TextArea f_nextActionIfNeeded = new TextArea("");
+    private TextArea f_alternativAction = new TextArea("");
     private TextFieldWithUnit f_consumptionBefore = new TextFieldWithUnit();
     private TextFieldWithUnit f_consumptionAfter = new TextFieldWithUnit();
     private TextFieldWithUnit f_consumptionDiff = new TextFieldWithUnit();
 
     private JFXTextField f_toUser = new JFXTextField();
-
-
-    private ActionData names = new ActionData();
 
 
     public DetailsTab(ActionData data) {
@@ -148,10 +145,9 @@ public class DetailsTab extends Tab {
             ex.printStackTrace();
         }
 
-
+        l_mediaTags.setText("Medium");
         f_mediaTags = new JFXComboBox<>(data.getActionPlan().getMediumTags());
         f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
-        l_mediaTags.setText(names.mediaTagsProperty().getName());
         f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -223,6 +219,8 @@ public class DetailsTab extends Tab {
         NumberStringConverter nsc = DoubleConverter.getInstance().getCurrencyConverter();
         NumberStringConverter nscNoUnit = DoubleConverter.getInstance().getDoubleConverter();
 
+        System.out.println("Consumption field: " + data.consumptionProperty());
+        f_consumptionBefore.getTextField().textProperty().addListener((observable, oldValue, newValue) -> System.out.println("text event: " + newValue));
         Bindings.bindBidirectional(f_consumptionBefore.getTextField().textProperty(), data.consumptionProperty().get().actualProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_consumptionBefore.getUnitField().textProperty(), data.consumptionProperty().get().unitProperty());
         Bindings.bindBidirectional(f_consumptionAfter.getTextField().textProperty(), data.consumptionProperty().get().afterProperty(), nscNoUnit);
@@ -237,10 +235,14 @@ public class DetailsTab extends Tab {
         Bindings.bindBidirectional(f_enpiDiff.getTextField().textProperty(), data.enpiProperty().get().diffProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_enpiDiff.getUnitField().textProperty(), data.enpiProperty().get().unitProperty());
 
+        Bindings.bindBidirectional(f_nextActionIfNeeded.textProperty(), data.noteAlternativeMeasuresProperty());
+        Bindings.bindBidirectional(f_correctionIfNeeded.textProperty(), data.noteCorrectionProperty());
+
 
         f_correctionIfNeeded.setPrefWidth(400);
         f_nextActionIfNeeded.setPrefWidth(400);
-        f_alternativAction.setPrefWidth(400);
+        //f_alternativAction.setPrefWidth(400);
+
         f_enpiAfter.setAlignment(Pos.CENTER_RIGHT);
         f_enpiBefore.setAlignment(Pos.CENTER_RIGHT);
         f_enpiDiff.setAlignment(Pos.CENTER_RIGHT);
@@ -249,9 +251,6 @@ public class DetailsTab extends Tab {
         GridPane.setFillWidth(f_EnpiSelection, true);
         GridPane.setFillWidth(f_mediaTags, true);
 
-        f_correctionIfNeeded.widthProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("With: " + newValue);
-        });
 
         //Workaround
         f_EnpiSelection.setPrefWidth(320);
@@ -267,8 +266,13 @@ public class DetailsTab extends Tab {
         // gridPane.addRow(5, l_FromUser, f_FromUser, new Region(), l_CreateDate, f_CreateDate);
         // gridPane.addRow(6, l_distributor, f_distributor);
 
-        gridPane.addRow(7, l_correctionIfNeeded, new Region(), new Region(), l_nextActionIfNeeded, new Region());
-        gridPane.addRow(8, f_correctionIfNeeded, new Region(), new Region(), f_nextActionIfNeeded, new Region());
+        gridPane.add(l_correctionIfNeeded, 0, 7);
+        gridPane.add(f_correctionIfNeeded, 0, 8);
+
+        gridPane.add(l_nextActionIfNeeded, 3, 7);
+        gridPane.add(f_nextActionIfNeeded, 3, 8);
+        //gridPane.addRow(7, l_correctionIfNeeded, new Region(), new Region(), l_nextActionIfNeeded, new Region());
+        //gridPane.addRow(8, f_correctionIfNeeded, new Region(), new Region(), f_nextActionIfNeeded, new Region());
         // gridPane.addRow(8, l_alternativAction);
         // gridPane.addRow(9, f_alternativAction, new Region(), new Region(), new Region(), new Region());
 
