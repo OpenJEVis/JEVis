@@ -263,7 +263,7 @@ public class ActionPlanData {
 
             try {
 
-                JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Action Plan Directory v2");
+                JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Action Directory");//"Action Plan Directory v2"
                 JEVisClass actionClass = object.getDataSource().getJEVisClass("Action");
                 for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
                     //System.out.println("Action Dir: " + dirObj);

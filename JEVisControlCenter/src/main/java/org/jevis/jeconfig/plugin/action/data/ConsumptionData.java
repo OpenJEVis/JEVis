@@ -123,8 +123,9 @@ public class ConsumptionData {
             System.out.println("ENPI changed: " + dataObj);
             ChartDataRow chartDataRow = new ChartDataRow(actionData.getActionPlan().getObject().getDataSource());
             chartDataRow.setId(dataObj.getID());
-            chartDataRow.setEnPI(true);
-            chartDataRow.setCalculationObject(calcObj);
+            /* TODO implement changed to the ChartDataRow */
+            //chartDataRow.setEnPI(true);
+            //chartDataRow.setCalculationObject(calcObj);
             chartDataRow.setSelectedStart(from);
             chartDataRow.setSelectedEnd(until);
             chartDataRow.setAggregationPeriod(AggregationPeriod.NONE);

@@ -168,7 +168,7 @@ public class ActionController {
     public void createNewAction() {
         ActionTab tab = getActiveTab();
         try {
-            JEVisClass actionDirClass = getActiveActionPlan().getObject().getDataSource().getJEVisClass("Action Plan Directory v2");
+            JEVisClass actionDirClass = getActiveActionPlan().getObject().getDataSource().getJEVisClass("Action Directory");
             JEVisClass actionClass = getActiveActionPlan().getObject().getDataSource().getJEVisClass("Action");
             JEVisObject actionDirObj = null;
             if (getActiveActionPlan().getObject().getChildren(actionDirClass, false).isEmpty()) {

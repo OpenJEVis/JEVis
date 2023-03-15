@@ -370,11 +370,10 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                             if (!seu.contains("*")) {
                                 seu.forEach(s -> {
                                     try {
-                                        for (String s1 : notesRow.getFieldTags()) {
-                                            if (s1.equalsIgnoreCase(s)) {
+                                            if (s.equalsIgnoreCase(notesRow.getSeu())) {
                                                 seuMatch.set(true);
                                             }
-                                        }
+
                                     } catch (Exception ex) {
 
                                     }

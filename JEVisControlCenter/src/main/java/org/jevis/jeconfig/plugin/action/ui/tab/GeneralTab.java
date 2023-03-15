@@ -96,6 +96,7 @@ public class GeneralTab extends Tab {
 
         f_statusTags = new JFXComboBox<>(actionPlan.getStatustags());
         f_fieldTags = new CheckComboBox<>(actionPlan.getFieldsTags());
+        f_sueTags = new JFXComboBox<>(actionPlan.significantEnergyUseTags());
         //f_mediaTags.setCellFactory();
 
         ObservableList<CheckBoxData> f_fieldTags2Data = FXCollections.observableArrayList();
@@ -152,7 +153,6 @@ public class GeneralTab extends Tab {
         f_fieldTags.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
             public void onChanged(ListChangeListener.Change<? extends String> c) {
                 while (c.next()) {
-                    System.out.println("!!!!!! general.field: " + c);
                     //do something with changes here
                     if (c.wasAdded() || c.wasRemoved()) {
                         System.out.println(f_fieldTags.getCheckModel().getCheckedItems());
@@ -163,6 +163,14 @@ public class GeneralTab extends Tab {
             }
         });
 
+
+        f_sueTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//                System.out.println("Status change: " + newValue + " = " + ActionPlanData.STATUS_DONE + " = " + newValue.equals(ActionPlanData.STATUS_DONE));
+                data.seuTagsProperty().set(newValue);
+            }
+        });
 
         data.doneDateProperty().addListener((observable, oldValue, newValue) -> {
             f_doneDate.setValue(LocalDate.of(newValue.getYear(), newValue.getMonthOfYear(), newValue.getDayOfMonth()));
@@ -184,6 +192,12 @@ public class GeneralTab extends Tab {
         f_plannedDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
         });
+
+        f_plannedDate.valueProperty().setValue(LocalDate.of(plan.getYear(), plan.getMonthOfYear(), plan.getDayOfMonth()));
+        f_plannedDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            data.plannedDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+        });
+
 
         Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, DoubleConverter.getInstance().getDoubleConverter());
         Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, DoubleConverter.getInstance().getDoubleConverter());
@@ -219,7 +233,7 @@ public class GeneralTab extends Tab {
         add(gridPane, 1, 3, 1, 1, Priority.NEVER, l_Responsible);
         add(gridPane, 1, 4, 1, 1, Priority.NEVER, l_plannedDate);
         add(gridPane, 1, 5, 1, 1, Priority.NEVER, l_doneDate);
-        add(gridPane, 1, 6, 1, 1, Priority.NEVER, l_CreateDate); //
+        add(gridPane, 1, 6, 1, 1, Priority.NEVER, l_CreateDate);
         // add(gridPane, 1, 7, 1, 1, Priority.NEVER, l_distributor);
 
         add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_ActionNr);

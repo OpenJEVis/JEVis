@@ -4,8 +4,8 @@
   "unique": true,
   "relationships": [
     {
-      "start": "Action Plan v2",
-      "end": "Action Directory",
+      "start": "Action Directory",
+      "end": "Action Plan v2",
       "type": 3
     }
   ]
