@@ -236,7 +236,11 @@ public class ActionTable extends TableView<ActionData> {
 
                         if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
                             ActionData actionData = (ActionData) getTableRow().getItem();
-                            setText(currencyFormat.format(item) + " " + actionData.consumption.get().unitProperty().get());
+                            if (item.equals(-0d)) {
+                                setText(currencyFormat.format(0d) + " " + actionData.consumption.get().unitProperty().get());
+                            } else {
+                                setText(currencyFormat.format(item) + " " + actionData.consumption.get().unitProperty().get());
+                            }
                         } else {
                             setText(null);
                         }
