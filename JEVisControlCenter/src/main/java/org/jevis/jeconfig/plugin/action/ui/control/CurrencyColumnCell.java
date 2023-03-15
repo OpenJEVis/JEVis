@@ -27,7 +27,13 @@ public class CurrencyColumnCell implements Callback<TableColumn<ActionData, Doub
                 super.updateItem(item, empty);
 
                 if (item != null && !empty) {
-                    setText(currencyFormat.format(item));
+                    if (item.equals(0d) || item.equals(-0d)) {
+                        System.out.println("Formate 0d");
+                        setText(currencyFormat.format(0d));
+                    } else {
+                        setText(currencyFormat.format(item));
+                    }
+
                 } else {
                     setText(null);
                 }
