@@ -61,19 +61,19 @@ public class TableSumPanel extends GridPane {
         f_sumSavingsYear.setAlignment(Pos.CENTER_RIGHT);
         f_sumSavingEnergy.setAlignment(Pos.CENTER_RIGHT);
 
-        addRow(0, new Region(), l_sumInvestment, l_sumSavingsYear);
-        addRow(1, l_sumLabel, f_sumInvestment, f_sumSavingsYear);
+        // addRow(0, new Region(), l_sumInvestment, l_sumSavingsYear);
+        // addRow(1, l_sumLabel, f_sumInvestment, f_sumSavingsYear);
 
 
         this.getColumnConstraints().add(0, new ColumnConstraints(100, 150, 300, Priority.NEVER, HPos.RIGHT, true));
         this.getColumnConstraints().add(1, new ColumnConstraints(100, 175, 300, Priority.NEVER, HPos.RIGHT, true));
-        this.getColumnConstraints().add(2, new ColumnConstraints(180, 180, 300, Priority.NEVER, HPos.RIGHT, true));
+        //this.getColumnConstraints().add(2, new ColumnConstraints(180, 180, 300, Priority.NEVER, HPos.RIGHT, true));
         //this.getColumnConstraints().add(3, new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
         //this.getColumnConstraints().add(4, new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
 
         getChildren().clear();
-        addRow(0, new Region(), l_sumInvestment, l_sumSavingsYear);
-        addRow(1, l_sumLabel, f_sumInvestment, f_sumSavingsYear);
+        addRow(0, new Region(), l_sumSavingsYear); //l_sumInvestment
+        addRow(1, l_sumLabel, f_sumSavingsYear); //f_sumInvestment
         updateLayout();
 
         actionPlan.getMediumTags().addListener((ListChangeListener<String>) c -> {
@@ -96,20 +96,13 @@ public class TableSumPanel extends GridPane {
     }
 
     private void updateLayout() {
-        //if (true) return;
-        //System.out.println("UpdateSumTableLayout: " + actionPlan.getName());
         ObservableList<String> mediums = actionPlan.getMediumTags();
-        //System.out.println("Sum Table mdeiums: " + actionPlan.getMediumTags() + " plan: " + actionPlan.getName());
-        //int column = 2;
         for (String s : mediums) {
-            //System.out.println("-s: " + s + " precol: " + column);
             if (!columns.containsKey(s)) {
-                // System.out.println("--create fields: " + s);
-                //column++;
                 Label label = new Label(s);
                 JFXTextField field = new JFXTextField();
                 field.setAlignment(Pos.CENTER_RIGHT);
-                int newColumn = columns.size() + 3;
+                int newColumn = columns.size() + 2;
                 columns.put(s, field);
                 this.getColumnConstraints().add(newColumn,
                         new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
@@ -119,8 +112,6 @@ public class TableSumPanel extends GridPane {
                 Platform.runLater(() -> {
 
                 });
-
-                //addColumn(column, label, field);
             }
         }
     }
