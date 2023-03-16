@@ -183,7 +183,11 @@ public class ActionController {
             actionObject.commit();
             ActionData newAction = new ActionData(tab.getActionPlan(), actionObject);
             newAction.nrProperty().set(nextNr);
-            newAction.fromUser.set(actionDirObj.getDataSource().getCurrentUser().getAccountName());
+            String userName = actionDirObj.getDataSource().getCurrentUser().getFirstName() + " " + actionDirObj.getDataSource().getCurrentUser().getLastName();
+            if (userName.trim().isEmpty()) userName = actionDirObj.getDataSource().getCurrentUser().getFirstName();
+            newAction.fromUser.set(userName);
+
+
             newAction.commit();
             tab.getActionPlan().addAction(newAction);
             tab.getActionTable().filter();
