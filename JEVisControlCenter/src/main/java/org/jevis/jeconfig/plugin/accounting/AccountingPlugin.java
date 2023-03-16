@@ -1831,7 +1831,7 @@ public class AccountingPlugin extends TablePlugin {
 
     @Override
     public int getPrefTapPos() {
-        return 8;
+        return 9;
     }
 
     private org.apache.poi.ss.usermodel.Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {

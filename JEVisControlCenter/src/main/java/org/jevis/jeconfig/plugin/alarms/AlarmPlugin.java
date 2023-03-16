@@ -1285,7 +1285,7 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 4;
+        return 3;
     }
 
     public SimpleBooleanProperty hasAlarmsProperty() {

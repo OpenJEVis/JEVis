@@ -55,33 +55,22 @@ public class ActionTable extends TableView<ActionData> {
     private ObservableList<String> planFilters = FXCollections.observableArrayList();
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
-    // private ActionData sumRow = new ActionData();
     private DateFilter dateFilter;
     private boolean showSumRow = false;
     private String containsTextFilter = "";
 
-    NumberFormat currencyFormat = NumberFormat.getNumberInstance();
+    NumberFormat currencyFormat = DoubleConverter.getInstance().getCurrencyFormat();
 
     public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data) {
-        //System.out.println("New Action Table: " + data);
         this.data = data;
         this.filteredData = new FilteredList<>(this.data);
-        //setItems(filteredData);
 
-        // FilteredList cannot be sorted so we create a SortedList based on the provided ObservableList
         SortedList sortedList = new SortedList(this.filteredData);
         setItems(sortedList);
         sortedList.comparatorProperty().bind(this.comparatorProperty());
 
         setId("Action Table");
         setTableMenuButtonVisible(true);
-
-        /*
-        actionPlanData.nrPrefixProperty().addListener((observable, oldValue, newValue) -> {
-            filter();
-        });
-
-         */
 
         ActionData fakeForName = new ActionData();
         TableColumn<ActionData, String> fromUserCol = new TableColumn(fakeForName.fromUserProperty().getName());
@@ -97,26 +86,7 @@ public class ActionTable extends TableView<ActionData> {
         actionNrPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         actionNrPropertyCol.setSortable(true);
         actionNrPropertyCol.setSortType(TableColumn.SortType.ASCENDING);
-        /*
-        actionNrPropertyCol.setCellFactory(param -> {
-            return new TableCell<ActionData, Integer>() {
-                @Override
-                protected void updateItem(Integer item, boolean empty) {
-                    super.updateItem(item, empty);
 
-                    if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
-                        ActionData actionData = (ActionData) getTableRow().getItem();
-                        setText(actionData.getActionPlan().getNrPrefix() + item);
-
-                        //if (actionPlanData != null) setText(actionPlanData.getNrPrefix() + item);
-                    } else {
-                        setText(null);
-                    }
-                }
-            };
-        });
-
-         */
 
         TableColumn<ActionData, String> desciptionPropertyCol = new TableColumn(fakeForName.desciptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().desciptionProperty());
@@ -282,7 +252,7 @@ public class ActionTable extends TableView<ActionData> {
                 responsiblePropertyCol, desciptionPropertyCol, notePropertyCol,
                 mediaTagsPropertyCol, statusTagsPropertyCol, fieldTagsPropertyCol,
                 createDatePropertyCol, plannedDatePropertyCol, doneDatePropertyCol, noteAlternativeMeasuresPropertyCol, noteBewertetPropertyCol,
-                noteCorrectionPropertyCol, noteBetroffenerProzessPropertyCol, noteEnergieflussPropertyCol, noteFollowUpActionPropertyCol,
+                noteCorrectionPropertyCol, noteEnergieflussPropertyCol, noteFollowUpActionPropertyCol,
                 investPropertyCol, savingYearPropertyCol, enpiDevelopmentPropertyCol, consumptionDevelopmentPropertyCol
         );
 

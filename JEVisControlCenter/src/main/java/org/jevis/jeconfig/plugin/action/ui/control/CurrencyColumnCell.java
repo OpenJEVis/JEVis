@@ -4,20 +4,13 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
+import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
 
 import java.text.NumberFormat;
-import java.util.Currency;
-import java.util.Locale;
 
 public class CurrencyColumnCell implements Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>> {
 
-    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
-
-    {
-        currencyFormat.setCurrency(Currency.getInstance(Locale.GERMANY));
-    }
-
-    ;
+    NumberFormat currencyFormat = DoubleConverter.getInstance().getCurrencyFormat();
 
     @Override
     public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> param) {

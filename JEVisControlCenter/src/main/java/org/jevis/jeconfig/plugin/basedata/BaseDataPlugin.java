@@ -679,7 +679,7 @@ public class BaseDataPlugin extends TablePlugin {
 
     @Override
     public int getPrefTapPos() {
-        return 7;
+        return 5;
     }
 
 }

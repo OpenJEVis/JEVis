@@ -154,7 +154,7 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 5;
+        return 10;
     }
 
     @Override
@@ -738,7 +738,7 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.CONFIG, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.CONFIG, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     //@AITBilal - Edit a new Table!
