@@ -76,15 +76,14 @@ public class ActionToolbar extends ToolBar {
         //newPlan.setDisable(true);
 
         try {
-            JEVisDataSource ds = actionController.getActiveActionPlan().getObject().getDataSource();
-            ActionPlanData plan = actionController.getActiveActionPlan();
+            if (actionController.getActiveActionPlan() != null) {
+                JEVisDataSource ds = JEConfig.getDataSource();
+                ActionPlanData plan = actionController.getActiveActionPlan();
 
-            deletePlan.setDisable(!ds.getCurrentUser().canDelete(plan.getObject().getID()));
-            deleteAction.setDisable(!ds.getCurrentUser().canDelete(actionController.getSelectedData().getObject().getID()));
-
+                deletePlan.setDisable(!ds.getCurrentUser().canDelete(plan.getObject().getID()));
+                deleteAction.setDisable(!ds.getCurrentUser().canDelete(actionController.getSelectedData().getObject().getID()));
+            }
             //newPlan.setDisable(!da.getCurrentUser().canCreate(plan.getObject().getID()));
-
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -59,7 +59,7 @@ public class ActionTable extends TableView<ActionData> {
     private boolean showSumRow = false;
     private String containsTextFilter = "";
 
-    NumberFormat currencyFormat = NumberFormat.getNumberInstance();
+    NumberFormat currencyFormat = DoubleConverter.getInstance().getCurrencyFormat();
 
     public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data) {
         this.data = data;

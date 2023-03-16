@@ -243,6 +243,9 @@ public class ActionController {
     }
 
     public ActionPlanData getActiveActionPlan() {
+        if (getActiveTab() == null) {
+            return null;
+        }
         return getActiveTab().getActionPlan();
     }
 

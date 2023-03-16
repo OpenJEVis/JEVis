@@ -36,7 +36,7 @@ public class TableSumPanel extends GridPane {
     Label l_sumSavingsYear = new Label(fakeNames.npv.get().einsparung.getName());
     Label l_sumSavingEnergy = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
     ObservableList<ActionData> data;
-    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+    NumberFormat currencyFormat = DoubleConverter.getInstance().getCurrencyFormat();
     NumberStringConverter nsc = new NumberStringConverter() {
         @Override
         public String toString(Number value) {
