@@ -55,7 +55,6 @@ public class ActionTable extends TableView<ActionData> {
     private ObservableList<String> planFilters = FXCollections.observableArrayList();
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
-    // private ActionData sumRow = new ActionData();
     private DateFilter dateFilter;
     private boolean showSumRow = false;
     private String containsTextFilter = "";

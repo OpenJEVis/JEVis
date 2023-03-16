@@ -3,10 +3,12 @@ package org.jevis.jeconfig.plugin.action.ui;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.ActionController;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 
 public class ActionToolbar extends ToolBar {
 
@@ -49,11 +51,27 @@ public class ActionToolbar extends ToolBar {
     }
 
     private void setOverview(boolean isOverview) {
+        deletePlan.setDisable(true);
+        deleteAction.setDisable(true);
+        //newPlan.setDisable(true);
 
+        try {
+            JEVisDataSource ds = actionController.getActiveActionPlan().getObject().getDataSource();
+            ActionPlanData plan = actionController.getActiveActionPlan();
+
+            deletePlan.setDisable(!ds.getCurrentUser().canDelete(plan.getObject().getID()));
+            deleteAction.setDisable(!ds.getCurrentUser().canDelete(actionController.getSelectedData().getObject().getID()));
+
+            //newPlan.setDisable(!da.getCurrentUser().canCreate(plan.getObject().getID()));
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         actionPlanConfig.setDisable(isOverview);
         newAction.setDisable(isOverview);
-        deleteAction.setDisable(isOverview);
-        deletePlan.setDisable(isOverview);
+
+
         exportPDF.setDisable(true);//Disabled because implementation is missing
         reloadButton.setDisable(true); //Disabled because implementation is missing
         //newPlan.setDisable(isOverview);
