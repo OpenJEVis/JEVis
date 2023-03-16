@@ -282,7 +282,7 @@ public class ActionTable extends TableView<ActionData> {
                 responsiblePropertyCol, desciptionPropertyCol, notePropertyCol,
                 mediaTagsPropertyCol, statusTagsPropertyCol, fieldTagsPropertyCol,
                 createDatePropertyCol, plannedDatePropertyCol, doneDatePropertyCol, noteAlternativeMeasuresPropertyCol, noteBewertetPropertyCol,
-                noteCorrectionPropertyCol, noteBetroffenerProzessPropertyCol, noteEnergieflussPropertyCol, noteFollowUpActionPropertyCol,
+                noteCorrectionPropertyCol, noteEnergieflussPropertyCol, noteFollowUpActionPropertyCol,
                 investPropertyCol, savingYearPropertyCol, enpiDevelopmentPropertyCol, consumptionDevelopmentPropertyCol
         );
 
