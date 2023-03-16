@@ -1,13 +1,18 @@
 package org.jevis.jeconfig.plugin.action.ui;
 
+import javafx.application.Platform;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.action.ActionController;
+import org.jevis.jeconfig.plugin.action.ActionPlugin;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 
 public class ActionToolbar extends ToolBar {
@@ -22,16 +27,20 @@ public class ActionToolbar extends ToolBar {
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
     private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.PDF, this.iconSize, this.iconSize));
     private final ToggleButton calender = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, this.iconSize, this.iconSize));
+    private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+    private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
     private ActionController actionController;
 
     public ActionToolbar(ActionController actionController) {
         this.actionController = actionController;
 
+
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
         getItems().setAll(newPlan, actionPlanConfig, deletePlan, reloadButton,
                 sep1, newAction, deleteAction, openForm,
-                sep2, exportPDF);
+                sep2, exportPDF,
+                JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
         actionPlanConfig.setOnAction(event -> actionController.openPlanSettings());
         openForm.setOnAction(event -> actionController.openDataForm());
@@ -41,12 +50,23 @@ public class ActionToolbar extends ToolBar {
         deletePlan.setOnAction(event -> actionController.deletePlan());
         //calender.setOnAction(event -> actionCalendar.showAndWait());
 
+        actionPlanConfig.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.panconfig")));
+        openForm.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.openaction")));
+        newPlan.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.newplan")));
+        newAction.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.newaction")));
+        deleteAction.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.deleteaction")));
+        deletePlan.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.deleteplan")));
+        reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.reload")));
+        exportPDF.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.exportpdf")));
+
         setOverview(actionController.isOverviewTabProperty().get());
         actionController.isOverviewTabProperty().addListener((observable, oldValue, newValue) -> {
             setOverview(newValue);
         });
 
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
+
+        Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(ActionPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
     }
 
@@ -79,5 +99,6 @@ public class ActionToolbar extends ToolBar {
         //reloadButton.setDisable(isOverview);
 
     }
+
 
 }
