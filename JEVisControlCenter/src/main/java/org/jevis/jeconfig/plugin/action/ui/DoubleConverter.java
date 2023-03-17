@@ -13,15 +13,19 @@ public class DoubleConverter {
     private NumberStringConverter nsc;
     private NumberStringConverter nscNoUnit;
 
+    private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+
     public DoubleConverter() {
 
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+        currencyFormat = NumberFormat.getCurrencyInstance();
+        currencyFormat.setCurrency(Currency.getInstance(Locale.GERMANY));
         NumberFormat doubleFormat = NumberFormat.getNumberInstance();
-        doubleFormat.setMinimumFractionDigits(2);
-        doubleFormat.setMaximumFractionDigits(2);
         doubleFormat.setGroupingUsed(true);
 
-        currencyFormat.setCurrency(Currency.getInstance(Locale.GERMANY));
+        //doubleFormat.setMinimumFractionDigits(-1);
+        doubleFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMaximumFractionDigits(0);
+        //currencyFormat.setMinimumFractionDigits(0);
 
         nsc = new NumberStringConverter() {
             @Override
@@ -36,6 +40,10 @@ public class DoubleConverter {
                 return doubleFormat.format(value);
             }
         };
+    }
+
+    public NumberFormat getCurrencyFormat() {
+        return currencyFormat;
     }
 
     public static synchronized DoubleConverter getInstance() {

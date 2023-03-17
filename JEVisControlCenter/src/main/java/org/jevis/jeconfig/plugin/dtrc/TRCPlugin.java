@@ -858,7 +858,7 @@ public class TRCPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 9;
+        return 11;
     }
 
 }

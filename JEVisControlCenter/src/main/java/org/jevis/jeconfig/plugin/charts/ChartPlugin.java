@@ -1320,6 +1320,7 @@ public class ChartPlugin implements Plugin {
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
                     dataSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
+                    dataSettings.setCurrentAnalysis(null);
                     dataSettings.setCurrentAnalysis(analysisRequest.getObject());
 
                     Platform.runLater(() -> toolBarView.setChanged(false));
