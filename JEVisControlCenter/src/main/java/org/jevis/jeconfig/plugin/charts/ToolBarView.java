@@ -24,7 +24,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
@@ -59,7 +58,6 @@ public class ToolBarView {
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
     private final DataModel dataModel;
-    private final ObjectRelations objectRelations;
     private final AnalysesComboBox analysesComboBox;
     private final ToolBarSettings toolBarSettings = new ToolBarSettings();
     private final SimpleBooleanProperty disabledIcons = new SimpleBooleanProperty(true);
@@ -118,9 +116,8 @@ public class ToolBarView {
     public ToolBarView(DataModel dataModel, JEVisDataSource ds, ChartPlugin chartPlugin) {
         this.dataModel = dataModel;
         this.ds = ds;
-        this.objectRelations = new ObjectRelations(ds);
         this.chartPlugin = chartPlugin;
-        this.toolBarFunctions = new ToolBarFunctions(chartPlugin.getDialogContainer(), ds, chartPlugin.getDataSettings(), toolBarSettings, chartPlugin);
+        this.toolBarFunctions = new ToolBarFunctions(ds, chartPlugin.getDataSettings(), toolBarSettings, chartPlugin);
 
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
         analysesComboBox.setPrefWidth(300);
@@ -156,9 +153,9 @@ public class ToolBarView {
 
     private void loadNewDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin.getDialogContainer(), chartPlugin, ds, analysesComboBox.getObservableListAnalyses());
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin, ds, analysesComboBox.getObservableListAnalyses());
 
-        dialog.setOnDialogClosed(event -> {
+        dialog.setOnCloseRequest(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();
             if (dialog.getResponse() == Response.NEW) {
 
@@ -187,7 +184,20 @@ public class ToolBarView {
         changed = false;
     }
 
-    private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
+    private void changeSettings2() {
+        NewSelectionDialog dia = new NewSelectionDialog(ds, dataModel);
+
+        dia.setOnCloseRequest(event -> {
+            if (dia.getResponse() == Response.OK) {
+
+                changed = true;
+                chartPlugin.update();
+            }
+            JEVisHelp.getInstance().deactivatePluginModule();
+        });
+
+        dia.show();
+    }    private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
             if (changed) {
@@ -201,8 +211,8 @@ public class ToolBarView {
                     if (buttonType.equals(ButtonType.OK)) {
                         changed = false;
 
-                        SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(chartPlugin.getDialogContainer(), getDs(), chartPlugin.getDataSettings(), chartPlugin, this);
-                        saveAnalysisDialog.setOnDialogClosed(jfxDialogEvent -> changeAnalysis(newValue));
+                        SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(getDs(), chartPlugin.getDataSettings(), chartPlugin, this);
+                        saveAnalysisDialog.setOnCloseRequest(DialogEvent -> changeAnalysis(newValue));
 
                         saveAnalysisDialog.show();
                     } else {
@@ -508,20 +518,7 @@ public class ToolBarView {
         return analysesComboBox;
     }
 
-    private void changeSettings2() {
-        NewSelectionDialog dia = new NewSelectionDialog(chartPlugin.getDialogContainer(), ds, dataModel);
 
-        dia.setOnDialogClosed(event -> {
-            if (dia.getResponse() == Response.OK) {
-
-                changed = true;
-                chartPlugin.update();
-            }
-            JEVisHelp.getInstance().deactivatePluginModule();
-        });
-
-        dia.show();
-    }
 
     public void select(JEVisObject obj) {
         getAnalysesComboBox().setSelectedAnalysis(obj);

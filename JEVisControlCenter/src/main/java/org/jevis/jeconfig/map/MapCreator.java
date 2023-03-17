@@ -22,8 +22,8 @@ import org.jxmapviewer.viewer.WaypointPainter;
 
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 /**
  *

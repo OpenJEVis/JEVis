@@ -76,7 +76,6 @@ public class TRCPlugin implements Plugin {
     private OutputView viewTab;
     private boolean initialized = false;
     private JFXComboBox<JEVisObject> trcs;
-    private StackPane dialogStackPane;
     private final Map<String, JFXCheckBox> intervalSelectorMap = new HashMap<>();
 
     public TRCPlugin(JEVisDataSource ds) {
@@ -366,7 +365,7 @@ public class TRCPlugin implements Plugin {
                 try {
                     JEVisClass templateClass = ds.getJEVisClass(TEMPLATE_CLASS);
 
-                    SaveUnderDialog saveUnderDialog = new SaveUnderDialog(dialogStackPane, ds, TEMPLATE_DIRECTORY_CLASS, templateHandler.getTemplateObject(), templateClass, templateHandler.getTitle(), (target, sameObject) -> {
+                    SaveUnderDialog saveUnderDialog = new SaveUnderDialog(ds, TEMPLATE_DIRECTORY_CLASS, templateHandler.getTemplateObject(), templateClass, templateHandler.getTitle(), (target, sameObject) -> {
 
                         JEVisAttribute dataModel = null;
                         try {
@@ -384,7 +383,7 @@ public class TRCPlugin implements Plugin {
                         }
                         return true;
                     });
-                    saveUnderDialog.setOnDialogClosed(event -> {
+                    saveUnderDialog.setOnCloseRequest(event -> {
                         if (saveUnderDialog.getResponse() == Response.OK) {
                             handleRequest(Constants.Plugin.Command.RELOAD);
                         }
@@ -589,9 +588,7 @@ public class TRCPlugin implements Plugin {
         configScrollPane.setFitToHeight(true);
         configScrollPane.setFitToWidth(true);
 
-        dialogStackPane = new StackPane(configScrollPane);
-
-        configurationTab.setContent(dialogStackPane);
+        configurationTab.setContent(configScrollPane);
 
         VBox intervalSelectionVBox = new VBox(6);
         intervalSelectionVBox.setPadding(new Insets(15));
@@ -620,9 +617,9 @@ public class TRCPlugin implements Plugin {
         addFormulaButton.setOnAction(event -> {
             TemplateFormula templateFormula = new TemplateFormula();
             List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula, allowedTimeFrames);
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(ds, templateHandler.getRcTemplate(), templateFormula, allowedTimeFrames);
             templateCalculationFormulaDialog.show();
-            templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
+            templateCalculationFormulaDialog.setOnCloseRequest(event1 -> {
                 if (templateCalculationFormulaDialog.getResponse() == Response.OK) {
                     templateHandler.getRcTemplate().getTemplateFormulas().add(templateFormula);
 
@@ -660,10 +657,10 @@ public class TRCPlugin implements Plugin {
         addInputButton.setOnAction(event -> {
             TemplateInput templateInput = new TemplateInput();
             List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput, allowedTimeFrames);
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(ds, templateHandler.getRcTemplate(), templateInput, allowedTimeFrames);
             templateCalculationInputDialog.show();
 
-            templateCalculationInputDialog.setOnDialogClosed(event1 -> {
+            templateCalculationInputDialog.setOnCloseRequest(event1 -> {
                 if (templateCalculationInputDialog.getResponse() == Response.OK) {
                     templateHandler.getRcTemplate().getTemplateInputs().add(templateInput);
                     updateInputs();
@@ -684,10 +681,10 @@ public class TRCPlugin implements Plugin {
             templateOutput.setColumn(0);
             templateOutput.setRow(index);
 
-            TemplateCalculationOutputDialog templateCalculationOutputDialog = new TemplateCalculationOutputDialog(dialogStackPane, ds, templateOutput);
+            TemplateCalculationOutputDialog templateCalculationOutputDialog = new TemplateCalculationOutputDialog(ds, templateOutput);
             templateCalculationOutputDialog.show();
 
-            templateCalculationOutputDialog.setOnDialogClosed(event1 -> {
+            templateCalculationOutputDialog.setOnCloseRequest(event1 -> {
                 if (templateCalculationOutputDialog.getResponse() == Response.OK) {
                     templateHandler.getRcTemplate().getTemplateOutputs().add(templateOutput);
                     updateOutputs();
@@ -780,10 +777,10 @@ public class TRCPlugin implements Plugin {
         formulaButton.setOnAction(event -> {
             List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
             allowedTimeFrames.add(0, TimeFrameFactory.NONE);
-            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateFormula, allowedTimeFrames);
+            TemplateCalculationFormulaDialog templateCalculationFormulaDialog = new TemplateCalculationFormulaDialog(ds, templateHandler.getRcTemplate(), templateFormula, allowedTimeFrames);
             templateCalculationFormulaDialog.show();
 
-            templateCalculationFormulaDialog.setOnDialogClosed(event1 -> {
+            templateCalculationFormulaDialog.setOnCloseRequest(event1 -> {
                 if (templateCalculationFormulaDialog.getResponse() == Response.DELETE) {
                     templateHandler.getRcTemplate().getTemplateFormulas().remove(templateFormula);
 
@@ -816,10 +813,10 @@ public class TRCPlugin implements Plugin {
         inputButton.setOnAction(event -> {
             List<TimeFrame> allowedTimeFrames = new ArrayList<>(viewTab.getIntervalSelector().getTimeFactoryBox().getItems());
             allowedTimeFrames.add(0, TimeFrameFactory.NONE);
-            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(dialogStackPane, ds, templateHandler.getRcTemplate(), templateInput, allowedTimeFrames);
+            TemplateCalculationInputDialog templateCalculationInputDialog = new TemplateCalculationInputDialog(ds, templateHandler.getRcTemplate(), templateInput, allowedTimeFrames);
             templateCalculationInputDialog.show();
 
-            templateCalculationInputDialog.setOnDialogClosed(event1 -> {
+            templateCalculationInputDialog.setOnCloseRequest(event1 -> {
                 if (templateCalculationInputDialog.getResponse() == Response.DELETE) {
                     templateHandler.getRcTemplate().getTemplateInputs().remove(templateInput);
                 }
@@ -835,10 +832,10 @@ public class TRCPlugin implements Plugin {
         outputButton.setMnemonicParsing(false);
 
         outputButton.setOnAction(event -> {
-            TemplateCalculationOutputDialog templateCalculationOutputDialog = new TemplateCalculationOutputDialog(dialogStackPane, ds, templateOutput);
+            TemplateCalculationOutputDialog templateCalculationOutputDialog = new TemplateCalculationOutputDialog(ds, templateOutput);
             templateCalculationOutputDialog.show();
 
-            templateCalculationOutputDialog.setOnDialogClosed(event1 -> {
+            templateCalculationOutputDialog.setOnCloseRequest(event1 -> {
                 if (templateCalculationOutputDialog.getResponse() == Response.DELETE) {
                     templateHandler.getRcTemplate().getTemplateOutputs().remove(templateOutput);
                 }

@@ -1,16 +1,13 @@
 package org.jevis.jeconfig.dialog;
 
 import com.ibm.icu.text.NumberFormat;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.control.Separator;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -21,6 +18,8 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.Charts.Chart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.charts.Values;
@@ -34,13 +33,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ValuesDialog extends JFXDialog {
+public class ValuesDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(ValuesDialog.class);
     final NumberFormat nf = NumberFormat.getNumberInstance();
 
-    public ValuesDialog(StackPane dialogContainer, JEVisDataSource ds, ValuesSetting settings, HashMap<Integer, Chart> model) {
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+    public ValuesDialog(JEVisDataSource ds, ValuesSetting settings, HashMap<Integer, Chart> model) {
+        setTitle(I18n.getInstance().getString("plugin.graph.valuesdialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.graph.valuesdialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         this.nf.setMinimumFractionDigits(model.values().stream().findFirst().get().getChartModel().getMinFractionDigits());
         this.nf.setMaximumFractionDigits(model.values().stream().findFirst().get().getChartModel().getMaxFractionDigits());
@@ -155,21 +160,18 @@ public class ValuesDialog extends JFXDialog {
 
         ValuesTable baseLoadTable = new ValuesTable(FXCollections.observableList(data));
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
 
-        Separator separator = new Separator(Orientation.HORIZONTAL);
-        separator.setPadding(new Insets(8, 0, 8, 0));
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
 
-        VBox vBox = new VBox(6, baseLoadTable, separator, buttonBar);
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             try {
 
 
@@ -179,9 +181,9 @@ public class ValuesDialog extends JFXDialog {
             close();
         });
 
-        cancel.setOnAction(event -> close());
+        cancelButton.setOnAction(event -> close());
 
-        setContent(vBox);
+        getDialogPane().setContent(baseLoadTable);
     }
 
 }

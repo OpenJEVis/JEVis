@@ -3,8 +3,6 @@ package org.jevis.jeconfig.plugin.nonconformities.ui.tab;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -13,12 +11,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import org.controlsfx.control.CheckComboBox;
-import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
-import org.joda.time.*;
+import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
+import org.joda.time.DateTime;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class GeneralTab extends Tab {
     private final JFXDatePicker f_deadlineDate = new JFXDatePicker();

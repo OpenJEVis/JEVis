@@ -6,7 +6,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
@@ -38,13 +37,11 @@ public class Table extends TableView<ChartData> {
     private final TableColumn<ChartData, ManipulationMode> manipulationModeColumn;
     private final TableColumn<ChartData, Boolean> mathColumn;
     private final TableColumn<ChartData, String> cssColumn;
-    private final StackPane dialogContainer;
     private final ChartModel chartModel;
     private final JEVisDataSource ds;
 
-    public Table(StackPane dialogContainer, JEVisDataSource ds, ChartModel chartModel) {
+    public Table(JEVisDataSource ds, ChartModel chartModel) {
         super();
-        this.dialogContainer = dialogContainer;
         this.chartModel = chartModel;
         this.ds = ds;
 
@@ -78,7 +75,7 @@ public class Table extends TableView<ChartData> {
         column.setMinWidth(250);
         column.setStyle("-fx-alignment: CENTER-LEFT;");
         column.setCellValueFactory(new PropertyValueFactory<>("objectName"));
-        column.setCellFactory(SelectionTableCell.forTableColumn(dialogContainer));
+        column.setCellFactory(SelectionTableCell.forTableColumn());
         column.setEditable(true);
         column.setOnEditCommit(chartDataJEVisObjectCellEditEvent -> {
             ChartData chartData = chartDataJEVisObjectCellEditEvent.getTableView().getItems().get(chartDataJEVisObjectCellEditEvent.getTablePosition().getRow());

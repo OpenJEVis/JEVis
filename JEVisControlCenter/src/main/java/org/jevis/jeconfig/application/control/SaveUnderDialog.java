@@ -1,50 +1,52 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.dialog.Response;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SaveUnderDialog extends JFXDialog {
+public class SaveUnderDialog extends Dialog {
 
     private static final Logger logger = LogManager.getLogger(SaveUnderDialog.class);
     private JEVisObject target;
     private Response response = Response.CANCEL;
 
-    public SaveUnderDialog(StackPane dialogContainer, JEVisDataSource jeVisDataSource, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {
-        this(dialogContainer, jeVisDataSource, "Analyses Directory", selectedObj, analysisClass, promptName, saver);
+    public SaveUnderDialog(JEVisDataSource jeVisDataSource, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {
+        this(jeVisDataSource, "Analyses Directory", selectedObj, analysisClass, promptName, saver);
     }
 
-    public SaveUnderDialog(StackPane dialogContainer, JEVisDataSource jeVisDataSource, String directoryClass, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {
+    public SaveUnderDialog(JEVisDataSource jeVisDataSource, String directoryClass, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {
         super();
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+        setTitle(I18n.getInstance().getString("plugin.trc.saveunderdialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.trc.saveunderdialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
@@ -60,7 +62,7 @@ public class SaveUnderDialog extends JFXDialog {
             listSaveDirectories = jeVisDataSource.getObjects(saveDirectory, false);
             hasMultiDirs.set(listSaveDirectories.size() > 1);
 
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -123,10 +125,16 @@ public class SaveUnderDialog extends JFXDialog {
             }
         }));
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         GridPane gridLayout = new GridPane();
         gridLayout.setPadding(new Insets(10, 10, 10, 10));
@@ -140,17 +148,10 @@ public class SaveUnderDialog extends JFXDialog {
         gridLayout.add(name, 0, 3, 2, 1);
         GridPane.setFillWidth(name, true);
 
-        HBox buttonBox = new HBox(6, cancel, ok);
-        buttonBox.setAlignment(Pos.CENTER_RIGHT);
-        Separator separator = new Separator(Orientation.HORIZONTAL);
-        separator.setPadding(new Insets(8, 0, 8, 0));
-        VBox vBox = new VBox(6, gridLayout, separator, buttonBox);
-        vBox.setPadding(new Insets(12));
-
-        setContent(vBox);
+        getDialogPane().setContent(gridLayout);
 
         ObjectProperty<JEVisObject> finalTarget = new SimpleObjectProperty<>();
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             List<String> check = new ArrayList<>();
             JEVisObject toOverwriteObj = null;
             AtomicBoolean userWantOverwrite = new AtomicBoolean(false);
@@ -159,34 +160,39 @@ public class SaveUnderDialog extends JFXDialog {
                 for (JEVisObject jeVisObject : currentSaveDirectory.getValue().getChildren()) {
                     if (jeVisObject.getName().equals(name.getText())) toOverwriteObj = jeVisObject;
                 }
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Error in current analysis directory: " + e);
             }
 
 
             if (toOverwriteObj != null) {
-                JFXAlert dialogOverwrite = new JFXAlert(this.getScene().getWindow());
-                dialogOverwrite.setResizable(true);
+                Dialog dialogOverwrite = new Dialog();
+                dialogOverwrite.initOwner(JEConfig.getStage());
+                dialogOverwrite.initModality(Modality.APPLICATION_MODAL);
+                Stage overwriteStage = (Stage) dialogOverwrite.getDialogPane().getScene().getWindow();
+                TopMenu.applyActiveTheme(overwriteStage.getScene());
+                overwriteStage.setAlwaysOnTop(true);
                 dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
+                dialogOverwrite.setResizable(true);
                 Label message = new Label(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
-                final JFXButton overwrite_ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"));
-                overwrite_ok.setDefaultButton(true);
-                final JFXButton overwrite_cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"));
-                overwrite_cancel.setOnAction(event1 -> dialogOverwrite.close());
 
-                HBox overwriteButtonBox = new HBox(6, overwrite_cancel, overwrite_ok);
-                overwriteButtonBox.setAlignment(Pos.CENTER_RIGHT);
+                ButtonType overwriteOkType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
+                ButtonType overwriteCancelType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-                Separator separator2 = new Separator(Orientation.HORIZONTAL);
-                separator2.setPadding(new Insets(8, 0, 8, 0));
+                dialogOverwrite.getDialogPane().getButtonTypes().setAll(overwriteOkType, overwriteCancelType);
 
-                VBox vBox1 = new VBox(6, message, separator2, overwriteButtonBox);
-                vBox1.setPadding(new Insets(12));
+                Button overwriteOkButton = (Button) dialogOverwrite.getDialogPane().lookupButton(overwriteOkType);
+                overwriteOkButton.setDefaultButton(true);
 
-                dialogOverwrite.setContent(vBox1);
+                Button overwriteCancelButton = (Button) dialogOverwrite.getDialogPane().lookupButton(overwriteCancelType);
+                overwriteCancelButton.setCancelButton(true);
+
+                overwriteCancelButton.setOnAction(event1 -> dialogOverwrite.close());
+
+                dialogOverwrite.getDialogPane().setContent(message);
 
                 JEVisObject finalToOverwriteObj = toOverwriteObj;
-                overwrite_ok.setOnAction(event1 -> {
+                overwriteOkButton.setOnAction(event1 -> {
                     userWantOverwrite.set(true);
 
                     try {
@@ -225,7 +231,7 @@ public class SaveUnderDialog extends JFXDialog {
 
                     response = Response.OK;
                     this.close();
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -233,7 +239,7 @@ public class SaveUnderDialog extends JFXDialog {
 
         });
 
-        cancel.setOnAction(event -> close());
+        cancelButton.setOnAction(event -> close());
     }
 
     public JEVisObject getTarget() {

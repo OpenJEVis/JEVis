@@ -1,26 +1,32 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
@@ -34,7 +40,7 @@ import org.joda.time.Interval;
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
-public class LoadDashboardDialog extends JFXDialog {
+public class LoadDashboardDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(LoadDashboardDialog.class);
     private final ObjectRelations objectRelations;
     private Response response = Response.CANCEL;
@@ -44,9 +50,6 @@ public class LoadDashboardDialog extends JFXDialog {
     private final FilteredList<JEVisObject> filteredData;
     private final JFXListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
-    private JFXButton loadButton;
-    private JFXButton newButton;
-    private JFXButton cancelButton;
     private final ToolBarIntervalSelector toolBarIntervalSelector;
     private Interval selectedInterval = null;
     private final DateTime selectedDateTime = null;
@@ -54,14 +57,19 @@ public class LoadDashboardDialog extends JFXDialog {
     JFXButton dateButton = new JFXButton("");
     private TimeFrame selectedTimeFactory = null;
 
-    public LoadDashboardDialog(StackPane dialogContainer, JEVisDataSource ds, DashboardControl control) {
+    public LoadDashboardDialog(JEVisDataSource ds, DashboardControl control) {
         this.control = control;
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
 
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
-
+        setTitle(I18n.getInstance().getString("plugin.dashboards.loaddashboard.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.dashboards.loaddashboard.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         toolBarIntervalSelector = new ToolBarIntervalSelector(control);
 
@@ -134,17 +142,26 @@ public class LoadDashboardDialog extends JFXDialog {
             }
         });
 
-        updateGridLayout();
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("plugin.dashboard.load"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("plugin.graph.changedate.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType newType = new ButtonType(I18n.getInstance().getString("plugin.dashboard.new"), ButtonBar.ButtonData.NEXT_FORWARD);
 
-        JEVisHelp.getInstance().setActiveSubModule(this.getClass().getSimpleName());
-        JEVisHelp.getInstance().update();
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType, newType);
 
-        JEVisHelp.getInstance().deactivatePluginModule();
-    }
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+        okButton.setId("ok-button");
+        okButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.loaddialog.load")));
 
-    private void addListener() {
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+        cancelButton = new JFXButton(I18n.getInstance().getString(""));
+        cancelButton.setId("cancel-button");
 
-        loadButton.setOnAction(event -> {
+        Button newButton = (Button) this.getDialogPane().lookupButton(newType);
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.loaddialog.new")));
+
+        okButton.setOnAction(event -> {
             response = Response.LOAD;
             selectedDashboard = analysisListView.getSelectionModel().getSelectedItem();
 
@@ -160,6 +177,12 @@ public class LoadDashboardDialog extends JFXDialog {
             this.close();
         });
 
+        updateGridLayout();
+
+        JEVisHelp.getInstance().setActiveSubModule(this.getClass().getSimpleName());
+        JEVisHelp.getInstance().update();
+
+        JEVisHelp.getInstance().deactivatePluginModule();
     }
 
     public JEVisObject getSelectedDashboard() {
@@ -258,47 +281,15 @@ public class LoadDashboardDialog extends JFXDialog {
             GridPane.setHgrow(analysisListView, Priority.ALWAYS);
             GridPane.setVgrow(analysisListView, Priority.ALWAYS);
 
-            HBox buttonBox = new HBox(10);
-            Region spacer = new Region();
-            cancelButton = new JFXButton(I18n.getInstance().getString("plugin.graph.changedate.cancel"));
-            cancelButton.setId("cancel-button");
-            loadButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.load"));
-            newButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.new"));
-            loadButton.setId("ok-button");
-            loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.loaddialog.load")));
-            newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.loaddialog.new")));
-            cancelButton.setCancelButton(true);
-            loadButton.setDefaultButton(true);
-
-            HBox.setHgrow(loadButton, Priority.NEVER);
-            HBox.setHgrow(newButton, Priority.NEVER);
-            HBox.setHgrow(cancelButton, Priority.NEVER);
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            HBox.setMargin(cancelButton, new Insets(10));
-            HBox.setMargin(loadButton, new Insets(10));
-            HBox.setMargin(newButton, new Insets(10));
             //HBox.setMargin(drawOptimization, new Insets(10));
-
-            buttonBox.getChildren().setAll(cancelButton, spacer, newButton, loadButton);
-            VBox vBox = new VBox(4);
-            vBox.setPadding(new Insets(15));
-
-            Separator sep = new Separator(Orientation.HORIZONTAL);
-
-            vBox.getChildren().setAll(gridLayout, sep, buttonBox);
 
             VBox.setVgrow(analysisListView, Priority.ALWAYS);
             VBox.setVgrow(gridLayout, Priority.ALWAYS);
-            VBox.setVgrow(sep, Priority.NEVER);
-            VBox.setVgrow(buttonBox, Priority.NEVER);
 
-            setContent(vBox);
-
-            addListener();
+            getDialogPane().setContent(gridLayout);
 
             JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), this.getClass().getSimpleName(),
-                    JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, pickerDateEnd, analysisListView,
-                    loadButton, newButton);
+                    JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, pickerDateEnd, analysisListView);
         });
     }
 

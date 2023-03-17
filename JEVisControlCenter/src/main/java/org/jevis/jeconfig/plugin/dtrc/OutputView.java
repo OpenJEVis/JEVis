@@ -14,10 +14,15 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +37,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 import org.jevis.jeconfig.application.application.I18nWS;
@@ -81,8 +87,6 @@ public class OutputView extends Tab {
     private final GridPane headerGP = new GridPane();
     private final HBox dateBox;
     private final DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
-    private StackPane contractsDialogContainer;
-    private StackPane viewDialogContainer;
     private SelectionTemplate selectionTemplate;
     private GridPane contractsGP;
     private Label timeframeField;
@@ -90,8 +94,6 @@ public class OutputView extends Tab {
 
     public OutputView(String title, JEVisDataSource ds, TemplateHandler templateHandler) {
         super(title);
-        this.contractsDialogContainer = new StackPane();
-        setContent(contractsDialogContainer);
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.templateHandler = templateHandler;
@@ -183,7 +185,7 @@ public class OutputView extends Tab {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        contractsDialogContainer.getChildren().add(scrollPane);
+        setContent(scrollPane);
 
         showDatePicker.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -199,8 +201,8 @@ public class OutputView extends Tab {
                         dateBox, separator1,
                         inputsLabel, viewInputs, separator2,
                         outputsLabel, gridPane);
-                if (!contractsDialogContainer.getChildren().contains(viewVBox)) {
-                    contractsDialogContainer.getChildren().add(viewVBox);
+                if (!getContent().equals(viewVBox)) {
+                    setContent(viewVBox);
                 }
             } else {
                 viewVBox.getChildren().setAll(headerGP, billLabel, gridPane);
@@ -408,21 +410,35 @@ public class OutputView extends Tab {
 
                                     if (attribute.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.STRING
                                             && guiDisplayType.equalsIgnoreCase(GUIConstants.RANGING_VALUE.getId())) {
-                                        AttributeEditor editor = new RangingValueEditor(viewDialogContainer, attribute);
+                                        AttributeEditor editor = new RangingValueEditor(attribute);
                                         Label editorLabel = new Label(I18nWS.getInstance().getAttributeName(attribute));
                                         VBox editorLabelVBox = new VBox(editorLabel);
                                         editorLabelVBox.setAlignment(Pos.CENTER);
 
                                         HBox content = new HBox(6, editorLabelVBox, editor.getEditor());
 
-                                        JFXDialog dialog = new JFXDialog();
-                                        dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
-                                        dialog.setOverlayClose(false);
-                                        dialog.setContent(content);
+                                        Dialog dialog = new Dialog();
+                                        dialog.setResizable(true);
+                                        dialog.initOwner(JEConfig.getStage());
+                                        dialog.initModality(Modality.APPLICATION_MODAL);
+                                        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+                                        TopMenu.applyActiveTheme(stage.getScene());
+                                        stage.setAlwaysOnTop(true);
+                                        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+                                        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                                        dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+                                        Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+                                        okButton.setDefaultButton(true);
+
+                                        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+                                        cancelButton.setCancelButton(true);
+                                        dialog.getDialogPane().setContent(content);
 
                                         dialog.show();
                                     } else {
-                                        EnterDataDialog enterDataDialog = new EnterDataDialog(viewDialogContainer, ds);
+                                        EnterDataDialog enterDataDialog = new EnterDataDialog(ds);
                                         enterDataDialog.setShowDetailedTarget(false);
                                         enterDataDialog.setTarget(false, attribute);
                                         enterDataDialog.setSample(lastValue);
@@ -1102,10 +1118,10 @@ public class OutputView extends Tab {
                         openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
                 }
 
-                selectTargetDialog = new SelectTargetDialog(contractsDialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, ds, openList);
+                selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE, ds, openList);
 
                 SelectTargetDialog finalSelectTargetDialog = selectTargetDialog;
-                selectTargetDialog.setOnDialogClosed(event -> {
+                selectTargetDialog.setOnCloseRequest(event -> {
                     try {
                         if (finalSelectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
                             logger.trace("Selection Done");
@@ -1427,14 +1443,6 @@ public class OutputView extends Tab {
 
     public GridPane getHeaderGP() {
         return headerGP;
-    }
-
-    public void setContractsDialogContainer(StackPane contractsTabDialogContainer) {
-        this.contractsDialogContainer = contractsTabDialogContainer;
-    }
-
-    public void setViewDialogContainer(StackPane viewDialogContainer) {
-        this.viewDialogContainer = viewDialogContainer;
     }
 
     public double getFontSize() {

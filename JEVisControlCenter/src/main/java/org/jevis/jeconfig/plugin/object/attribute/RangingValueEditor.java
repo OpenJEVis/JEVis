@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -16,13 +15,11 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,6 +31,7 @@ import org.jevis.commons.object.plugin.RangingValue;
 import org.jevis.commons.object.plugin.RangingValues;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
@@ -41,7 +39,6 @@ import java.text.NumberFormat;
 public class RangingValueEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(RangingValueEditor.class);
     private final static String TYPE = "RangingValuesHandler";
-    private final StackPane dialogContainer;
     private final JEVisAttribute attribute;
     private final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(this, "valueChanged", false);
     private final HBox box = new HBox(12);
@@ -52,8 +49,7 @@ public class RangingValueEditor implements AttributeEditor {
     private JEVisSample newSample;
     private boolean initialized = false;
 
-    public RangingValueEditor(StackPane dialogContainer, JEVisAttribute attribute) {
-        this.dialogContainer = dialogContainer;
+    public RangingValueEditor(JEVisAttribute attribute) {
         this.attribute = attribute;
         this.lastSample = attribute.getLatestSample();
 
@@ -125,11 +121,17 @@ public class RangingValueEditor implements AttributeEditor {
 
         TabPane tabPane = new TabPane();
 
-        JFXDialog dialog = new JFXDialog();
-        dialog.setDialogContainer(dialogContainer);
-        dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
-        //dialog.setHeight(450);
-        //dialog.setWidth(620);
+        Dialog dialog = new Dialog();
+        dialog.setTitle(I18n.getInstance().getString("plugin.configuration.rangingvalueeditor.title"));
+        dialog.setHeaderText(I18n.getInstance().getString("plugin.configuration.rangingvalueeditor.header"));
+        dialog.setResizable(true);
+        dialog.initOwner(JEConfig.getStage());
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
+        dialog.setHeight(450);
+        dialog.setWidth(620);
 
         for (RangingValue rangingValue : rangingValues.get().getRangingValues()) {
             Tab newTab = new Tab(String.valueOf(rangingValues.get().getRangingValues().indexOf(rangingValue)));
@@ -157,22 +159,24 @@ public class RangingValueEditor implements AttributeEditor {
 
         tabPane.getTabs().add(addTab);
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox vBox = new VBox(6, tabPane, separator, buttonBar);
-        dialog.setContent(vBox);
+        VBox vBox = new VBox(6, tabPane, separator);
+        dialog.getDialogPane().setContent(vBox);
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             try {
                 JsonNode rangingValuesNode = toJsonNode();
                 String jsonString = this.mapper.writeValueAsString(rangingValuesNode);
@@ -186,7 +190,7 @@ public class RangingValueEditor implements AttributeEditor {
             dialog.close();
         });
 
-        cancel.setOnAction(event -> dialog.close());
+        cancelButton.setOnAction(event -> dialog.close());
 
         dialog.show();
     }

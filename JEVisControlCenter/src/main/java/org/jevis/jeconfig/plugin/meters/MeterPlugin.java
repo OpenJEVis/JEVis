@@ -280,8 +280,8 @@ public class MeterPlugin extends TablePlugin {
             JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
             TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
 
-            MeterDialog meterDialog = new MeterDialog(dialogContainer, getDataSource(), selectedItem.getJeVisClass());
-            meterDialog.setOnDialogClosed(event1 -> {
+            MeterDialog meterDialog = new MeterDialog(getDataSource(), selectedItem.getJeVisClass());
+            meterDialog.setOnCloseRequest(event1 -> {
                 if (meterDialog.getResponse() == Response.OK) {
                     handleRequest(Constants.Plugin.Command.RELOAD);
                 }
@@ -529,8 +529,8 @@ public class MeterPlugin extends TablePlugin {
             case Constants.Plugin.Command.EXPAND:
                 break;
             case Constants.Plugin.Command.NEW:
-                MeterDialog meterDialog = new MeterDialog(dialogContainer, getDataSource(), ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
-                meterDialog.setOnDialogClosed(event -> {
+                MeterDialog meterDialog = new MeterDialog(getDataSource(), ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
+                meterDialog.setOnCloseRequest(event -> {
                     if (meterDialog.getResponse() == Response.OK) {
                         handleRequest(Constants.Plugin.Command.RELOAD);
                     }
@@ -849,7 +849,7 @@ public class MeterPlugin extends TablePlugin {
 
             if (tableView.getSelectionModel().getSelectedItem() != null) {
                 try {
-                    MeterRenameDialog meterRenameDialog = new MeterRenameDialog(dialogContainer, tableView.getSelectionModel().getSelectedItem());
+                    MeterRenameDialog meterRenameDialog = new MeterRenameDialog(tableView.getSelectionModel().getSelectedItem());
                     meterRenameDialog.show();
                 } catch (JEVisException e) {
                     e.printStackTrace();

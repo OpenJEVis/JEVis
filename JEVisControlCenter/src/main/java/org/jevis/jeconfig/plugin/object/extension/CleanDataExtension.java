@@ -15,7 +15,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.commons.validator.routines.LongValidator;
@@ -57,7 +56,6 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private static final Logger logger = LogManager.getLogger(CleanDataExtension.class);
     private final BorderPane view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final StackPane dialogContainer;
     private final JEVisObject _obj;
     private final List<JEVisAttribute> changedAttributes = new ArrayList<>();
     private JEVisAttribute conversionToDifferentialAttribute;
@@ -99,8 +97,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private JEVisAttribute deltaConfigurationAttribute;
     private final NumberFormat nf = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
 
-    public CleanDataExtension(StackPane dialogContainer, JEVisObject _obj) {
-        this.dialogContainer = dialogContainer;
+    public CleanDataExtension(JEVisObject _obj) {
         this._obj = _obj;
         this.nf.setMinimumFractionDigits(0);
         this.nf.setMaximumFractionDigits(6);
@@ -294,7 +291,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttLimitsConfiguration.getText().isEmpty()) {
             nameLimitsConfiguration.setTooltip(ttLimitsConfiguration);
         }
-        LimitEditor limitsConfiguration = new LimitEditor(dialogContainer, limitsConfigurationAttribute);
+        LimitEditor limitsConfiguration = new LimitEditor(limitsConfigurationAttribute);
 
         /**
          *  Delta
@@ -314,7 +311,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttDeltaConfiguration.getText().isEmpty()) {
             nameDeltaConfiguration.setTooltip(ttDeltaConfiguration);
         }
-        DeltaEditor deltaConfiguration = new DeltaEditor(dialogContainer, deltaConfigurationAttribute);
+        DeltaEditor deltaConfiguration = new DeltaEditor(deltaConfigurationAttribute);
 
         /**
          *  Gaps
@@ -334,7 +331,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttGapsConfiguration.getText().isEmpty()) {
             nameGapsConfiguration.setTooltip(ttGapsConfiguration);
         }
-        GapFillingEditor gapsConfiguration = new GapFillingEditor(dialogContainer, gapFillingConfigAttribute);
+        GapFillingEditor gapsConfiguration = new GapFillingEditor(gapFillingConfigAttribute);
 
         /**
          *  Alarm
@@ -354,7 +351,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttAlarmConfiguration.getText().isEmpty()) {
             nameAlarmConfiguration.setTooltip(ttAlarmConfiguration);
         }
-        AlarmEditor alarmConfiguration = new AlarmEditor(dialogContainer, alarmConfigAttribute);
+        AlarmEditor alarmConfiguration = new AlarmEditor(alarmConfigAttribute);
 
         Label nameAlarmLog = new Label(I18nWS.getInstance().getAttributeName(alarmLogAttribute));
         Tooltip ttAlarmLog = new Tooltip(I18nWS.getInstance().getAttributeDescription(alarmLogAttribute));
@@ -474,7 +471,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         } else {
             selectedUnit = valueAttribute.getInputUnit();
         }
-        FavUnitList unitValue = new FavUnitList(dialogContainer, valueAttribute, selectedUnit, true);
+        FavUnitList unitValue = new FavUnitList(valueAttribute, selectedUnit, true);
 
         if (valueLastSample != null) {
             value.setText(nf.format(valueLastSample.getValueAsDouble()));

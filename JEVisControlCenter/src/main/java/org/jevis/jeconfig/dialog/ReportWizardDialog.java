@@ -7,20 +7,18 @@ package org.jevis.jeconfig.dialog;
 import com.google.common.collect.Lists;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +39,7 @@ import org.jevis.commons.report.*;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.ReportSheet;
@@ -70,7 +69,7 @@ public class ReportWizardDialog {
     private final List<String> sheetList = new ArrayList<>();
     private ReportType reportType = ReportType.STANDARD;
     private final TabPane tabPane = new TabPane();
-    private JFXDialog reportWizardDialog;
+    private Dialog reportWizardDialog;
     private Map<String, Map<CellAddress, JEVisObject>> cellJevisMap;
     private JEVisObject allAttributesRootObject;
     public static final String NEW = "NEW";
@@ -150,7 +149,7 @@ public class ReportWizardDialog {
         JEVisClass finalReportLinkClass = reportLinkClass;
         JEVisClass finalReportAttributeClass = reportAttributeClass;
         JEVisClass finalReportPeriodConfigurationClass = reportPeriodConfigurationClass;
-        reportWizardDialog.setOnDialogClosed(event -> {
+        reportWizardDialog.setOnCloseRequest(event -> {
             logger.debug("wizard");
             logger.debug(event.toString());
             if (getResult() == Result.OK) {
@@ -427,9 +426,15 @@ public class ReportWizardDialog {
 
 
     private void init() {
-        reportWizardDialog = new JFXDialog();
-        reportWizardDialog.setDialogContainer(JEConfig.getStackPane());
-        reportWizardDialog.setOverlayClose(false);
+        reportWizardDialog = new Dialog();
+        reportWizardDialog.setTitle(I18n.getInstance().getString("plugin.configuration.reportwizard.title"));
+        reportWizardDialog.setHeaderText(I18n.getInstance().getString("plugin.configuration.reportwizard.header"));
+        reportWizardDialog.setResizable(true);
+        reportWizardDialog.initOwner(JEConfig.getStage());
+        reportWizardDialog.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) reportWizardDialog.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         Node header = DialogHeader.getDialogHeader(JEConfig.getSVGImage(Icon.WIZARD_HAT, 32, 32), I18n.getInstance().getString("plugin.object.report.dialog.header"));
 
@@ -456,23 +461,26 @@ public class ReportWizardDialog {
         });
 
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        ok.setOnAction(event -> {
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        reportWizardDialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) reportWizardDialog.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) reportWizardDialog.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+
+        okButton.setOnAction(event -> {
             this.result = Result.OK;
             reportWizardDialog.close();
         });
 
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
-        cancel.setOnAction(event -> {
+        cancelButton.setOnAction(event -> {
             result = Result.CANCEL;
             reportWizardDialog.close();
         });
-
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
@@ -482,11 +490,10 @@ public class ReportWizardDialog {
         vBox.getChildren().add(reportTypeComboBox);
         vBox.getChildren().add(addMultiple);
         vBox.getChildren().add(separator);
-        vBox.getChildren().add(buttonBar);
 
         VBox.setVgrow(tabPane, Priority.ALWAYS);
 
-        reportWizardDialog.setContent(vBox);
+        reportWizardDialog.getDialogPane().setContent(vBox);
     }
 
     private void updateTabPane() {
@@ -553,9 +560,9 @@ public class ReportWizardDialog {
 
     private void openMultiSelect() {
 
-        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, new ArrayList<>(), SelectionMode.MULTIPLE, new ArrayList<>(), true);
+        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(ds, new ArrayList<>(), SelectionMode.MULTIPLE, new ArrayList<>(), true);
 
-        selectionDialog.setOnDialogClosed(event -> {
+        selectionDialog.setOnCloseRequest(event -> {
             if (selectionDialog.getResponse() == Response.OK) {
                 logger.trace("Selection Done");
 
@@ -611,9 +618,9 @@ public class ReportWizardDialog {
             }
         }
 
-        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, classes, SelectionMode.SINGLE, new ArrayList<>(), true);
+        TreeSelectionDialog selectionDialog = new TreeSelectionDialog(ds, classes, SelectionMode.SINGLE, new ArrayList<>(), true);
 
-        selectionDialog.setOnDialogClosed(event -> {
+        selectionDialog.setOnCloseRequest(event -> {
             if (selectionDialog.getResponse() == Response.OK) {
                 logger.trace("Selection Done");
 
@@ -1035,11 +1042,6 @@ public class ReportWizardDialog {
             }
             return false;
         }).collect(Collectors.toList());
-    }
-
-
-    public StackPane getDialogContainer() {
-        return reportWizardDialog.getDialogContainer();
     }
 
     public String getWizardType() {

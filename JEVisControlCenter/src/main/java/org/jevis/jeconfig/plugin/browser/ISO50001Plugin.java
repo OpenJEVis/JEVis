@@ -15,7 +15,6 @@ import javafx.concurrent.Worker;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
@@ -44,7 +43,6 @@ public class ISO50001Plugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ISO50001Plugin.class);
     public static String PLUGIN_NAME = "ISO 50001 Plugin";
     protected final BorderPane borderPane = new BorderPane();
-    protected final StackPane dialogContainer = new StackPane(borderPane);
     protected final String title;
     private final StringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.isobrowser"));
     private final StringProperty id = new SimpleStringProperty("*NO_ID*");
@@ -251,7 +249,7 @@ public class ISO50001Plugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return dialogContainer;
+        return borderPane;
     }
 
     @Override

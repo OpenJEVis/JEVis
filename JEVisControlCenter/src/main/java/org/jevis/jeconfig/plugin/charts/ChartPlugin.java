@@ -108,7 +108,6 @@ public class ChartPlugin implements Plugin {
     private final ScrollPane sp = new ScrollPane();
     private final VBox vBox = new VBox();
     private final BorderPane border = new BorderPane(sp);
-    private final StackPane dialogContainer = new StackPane(border);
     private final Tooltip tp = new Tooltip("");
     private final HashMap<Integer, Chart> allCharts = new HashMap<>();
     private final Image taskImage = JEConfig.getImage("Analysis.png");
@@ -391,9 +390,9 @@ public class ChartPlugin implements Plugin {
 
     private void openDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(dialogContainer, this, ds, toolBarView.getAnalysesComboBox().getObservableListAnalyses());
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(this, ds, toolBarView.getAnalysesComboBox().getObservableListAnalyses());
 
-        dialog.setOnDialogClosed(event -> {
+        dialog.setOnCloseRequest(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();
             if (dialog.getResponse() == Response.NEW) {
 
@@ -414,7 +413,7 @@ public class ChartPlugin implements Plugin {
         dialog.show();
         Platform.runLater(() -> dialog.getFilterInput().requestFocus());
 
-        JEVisHelp.getInstance().registerHotKey((Stage) dialog.getScene().getWindow());
+        JEVisHelp.getInstance().registerHotKey((Stage) dialog.getDialogPane().getScene().getWindow());
         JEVisHelp.getInstance().setActiveSubModule(LoadAnalysisDialog.class.getSimpleName());
 
     }
@@ -429,7 +428,7 @@ public class ChartPlugin implements Plugin {
         try {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
-                    SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(dialogContainer, ds, dataSettings, this, toolBarView);
+                    SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(ds, dataSettings, this, toolBarView);
                     saveAnalysisDialog.show();
                     break;
                 case Constants.Plugin.Command.DELETE:
@@ -438,7 +437,7 @@ public class ChartPlugin implements Plugin {
                 case Constants.Plugin.Command.EXPAND:
                     break;
                 case Constants.Plugin.Command.NEW:
-                    new NewAnalysisDialog(dialogContainer, ds, dataModel, this, toolBarView.getChanged());
+                    new NewAnalysisDialog(ds, dataModel, this, toolBarView.getChanged());
                     break;
                 case Constants.Plugin.Command.RELOAD:
                     try {
@@ -492,7 +491,7 @@ public class ChartPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return dialogContainer;
+        return border;
     }
 
     @Override
@@ -1464,10 +1463,6 @@ public class ChartPlugin implements Plugin {
 
     public HashMap<Integer, Chart> getAllCharts() {
         return allCharts;
-    }
-
-    public StackPane getDialogContainer() {
-        return dialogContainer;
     }
 
     public ToolBarView getToolBarView() {

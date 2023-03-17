@@ -34,7 +34,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -1708,16 +1707,16 @@ public class TreeHelper {
         NewObject.NewObject(tree, parent);
     }
 
-    public static void EventExportTree(StackPane dialogContainer, JEVisObject obj) throws JEVisException {
+    public static void EventExportTree(JEVisObject obj) throws JEVisException {
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
         JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
         allFilter.add(basicFilter);
 
         List<UserSelection> userSelection = new ArrayList<>();
         userSelection.add(new UserSelection(UserSelection.SelectionType.Object, obj));
-        SelectTargetDialog dia = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.SINGLE, obj.getDataSource(), userSelection);
+        SelectTargetDialog dia = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE, obj.getDataSource(), userSelection);
 
-        dia.setOnDialogClosed(event -> {
+        dia.setOnCloseRequest(event -> {
             SelectTargetDialog.Response response = dia.getResponse();
             if (response == SelectTargetDialog.Response.OK) {
                 List<JEVisObject> objects = new ArrayList<>();
@@ -1748,7 +1747,7 @@ public class TreeHelper {
         });
     }
 
-    public static void createCalcInput(StackPane dialogContainer, JEVisObject calcObject, JEVisAttribute currentTarget, VariablesBox variablesBox, FormulaBox formulaBox) throws
+    public static void createCalcInput(JEVisObject calcObject, JEVisAttribute currentTarget, VariablesBox variablesBox, FormulaBox formulaBox) throws
             JEVisException {
         logger.debug("Event Create new Input");
 
@@ -1768,8 +1767,8 @@ public class TreeHelper {
                 openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
         }
 
-        TreeSelectionDialog selectTargetDialog = new TreeSelectionDialog(dialogContainer, calcObject.getDataSource(), classes, SelectionMode.MULTIPLE, openList, true);
-        selectTargetDialog.setOnDialogClosed(event -> {
+        TreeSelectionDialog selectTargetDialog = new TreeSelectionDialog(calcObject.getDataSource(), classes, SelectionMode.MULTIPLE, openList, true);
+        selectTargetDialog.setOnCloseRequest(event -> {
             try {
                 if (selectTargetDialog.getResponse() == Response.OK) {
                     if (selectTargetDialog.getUserSelection() != null && !selectTargetDialog.getUserSelection().isEmpty()) {

@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.nonconformities.ui;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
-import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 
 import java.text.NumberFormat;

@@ -16,7 +16,10 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config2.*;
+import org.jevis.jeconfig.plugin.dashboard.config2.Size;
+import org.jevis.jeconfig.plugin.dashboard.config2.TimeFramePojo;
+import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
+import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
@@ -27,7 +30,6 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public class TimeFrameWidget extends Widget {
 

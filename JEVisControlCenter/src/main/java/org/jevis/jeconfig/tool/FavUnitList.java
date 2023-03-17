@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.StackPane;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -26,7 +25,7 @@ import javax.measure.quantity.Dimensionless;
 public class FavUnitList extends JFXComboBox<JEVisUnit> {
     private static final Logger logger = LogManager.getLogger(FavUnitList.class);
 
-    public FavUnitList(StackPane dialogContainer, JEVisAttribute att, JEVisUnit selectedUnit, boolean autoCommit) {
+    public FavUnitList(JEVisAttribute att, JEVisUnit selectedUnit, boolean autoCommit) {
         ObservableList<JEVisUnit> units = FXCollections.observableArrayList();
 
         units.add(selectedUnit);
@@ -46,7 +45,7 @@ public class FavUnitList extends JFXComboBox<JEVisUnit> {
             try {
                 if (isOtherUnit(newValue)) {
                     try {
-                        UnitDialog unitDialog = new UnitDialog(dialogContainer, att, this);
+                        UnitDialog unitDialog = new UnitDialog(att, this);
                         unitDialog.show();
 
                     } catch (JEVisException e) {

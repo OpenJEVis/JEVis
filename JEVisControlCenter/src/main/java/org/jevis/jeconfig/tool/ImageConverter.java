@@ -19,16 +19,16 @@
  */
 package org.jevis.jeconfig.tool;
 
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javax.swing.ImageIcon;
 import org.jevis.api.JEVisException;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ImageConverter {

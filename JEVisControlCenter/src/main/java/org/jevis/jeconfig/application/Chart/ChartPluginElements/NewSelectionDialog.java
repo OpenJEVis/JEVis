@@ -1,18 +1,15 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.*;
+import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.tabs.ChartTab;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.tabs.CommonSettingTab;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
@@ -22,24 +19,26 @@ import org.jevis.jeconfig.dialog.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewSelectionDialog extends JFXDialog {
+public class NewSelectionDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(NewSelectionDialog.class);
     private final JEVisDataSource ds;
     private final DataModel dataModel;
     private Response response = Response.CANCEL;
 
-    public NewSelectionDialog(StackPane dialogContainer, JEVisDataSource ds, DataModel dataModel) {
+    public NewSelectionDialog(JEVisDataSource ds, DataModel dataModel) {
         super();
 
-        this.setDialogContainer(dialogContainer);
-        this.setTransitionType(DialogTransition.NONE);
-        this.setOverlayClose(false);
+        setTitle(I18n.getInstance().getString("plugin.graph.newselectiondialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.graph.newselectiondialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
+
         this.ds = ds;
         this.dataModel = dataModel;
-
-        VBox mainBox = new VBox();
-        mainBox.setPadding(new Insets(12));
-        mainBox.setSpacing(8);
 
         TabPane tabPane = new TabPane();
 
@@ -53,7 +52,7 @@ public class NewSelectionDialog extends JFXDialog {
         CommonSettingTab commonSettingTab = new CommonSettingTab(this.dataModel);
 
         for (ChartModel chartModel : this.dataModel.getChartModels()) {
-            ChartTab chartTab = new ChartTab(dialogContainer, ds, chartModel);
+            ChartTab chartTab = new ChartTab(ds, chartModel);
             chartTab.setClosable(true);
 
             chartTab.setOnClosed(event -> this.dataModel.getChartModels().remove(chartModel));
@@ -70,7 +69,7 @@ public class NewSelectionDialog extends JFXDialog {
                 chartModel.setChartName(getNextChartName());
                 chartModel.setChartId(getNextChartId());
                 this.dataModel.getChartModels().add(chartModel);
-                ChartTab newChartTab = new ChartTab(getDialogContainer(), ds, chartModel);
+                ChartTab newChartTab = new ChartTab(ds, chartModel);
                 newChartTab.setOnClosed(event -> this.dataModel.getChartModels().remove(chartModel));
 
                 tabPane.getTabs().add(tabPane.getTabs().size() - 2, newChartTab);
@@ -81,8 +80,18 @@ public class NewSelectionDialog extends JFXDialog {
         tabPane.getTabs().add(addTab);
         tabPane.getTabs().add(commonSettingTab);
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
-        ok.setOnAction(event -> {
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+
+        okButton.setOnAction(event -> {
             try {
                 response = Response.OK;
                 this.close();
@@ -91,25 +100,12 @@ public class NewSelectionDialog extends JFXDialog {
             }
         });
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setOnAction(event -> {
+        cancelButton.setOnAction(event -> {
             response = Response.CANCEL;
             this.close();
         });
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        HBox buttonBar = new HBox(8, spacer, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-
-        mainBox.getChildren().addAll(tabPane, buttonBar);
-        mainBox.setMinHeight(dialogContainer.getHeight() - 120);
-        mainBox.setMinWidth(1024);
-
-        VBox.setVgrow(tabPane, Priority.ALWAYS);
-
-        this.setContent(mainBox);
+        this.getDialogPane().setContent(tabPane);
     }
 
     private int getNextChartId() {

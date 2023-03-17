@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox;
 import org.jevis.jeconfig.application.Chart.data.AnalysisHandler;
@@ -56,7 +55,7 @@ public class DeleteAnalysisDialog {
                         Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.dialog.delete.error"), cancel);
                         alert.showAndWait();
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Error: could not delete current analysis", e);
                 }
             }
