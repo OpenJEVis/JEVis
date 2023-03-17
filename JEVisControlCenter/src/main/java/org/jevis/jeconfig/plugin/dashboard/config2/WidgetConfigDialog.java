@@ -7,11 +7,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.tabs.ChartTab;
 import org.jevis.jeconfig.application.Chart.data.ChartData;
@@ -26,14 +27,13 @@ public class WidgetConfigDialog extends Alert {
 
     private static final Logger logger = LogManager.getLogger(WidgetConfigDialog.class);
     private final TabPane tabPane = new TabPane();
-    private final StackPane dialogContainer;
     private DataModelDataHandler dataModelDataHandler;
     //private WidgetTreePlugin widgetTreePlugin;
     private final Widget widget;
     private ChartModel chartModel;
 
     /**
-     * Create an new Widget Config Dialog.
+     * Create a new Widget Config Dialog.
      */
     public WidgetConfigDialog(Widget widget) {
         super(AlertType.INFORMATION);
@@ -42,6 +42,8 @@ public class WidgetConfigDialog extends Alert {
         setTitle(I18n.getInstance().getString("dashboard.widget.editor.title"));
         setHeaderText(I18n.getInstance().getString("dashboard.widget.editor.header"));
         setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
 
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(this.tabPane);
@@ -50,8 +52,7 @@ public class WidgetConfigDialog extends Alert {
 
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
-        dialogContainer = new StackPane(borderPane);
-        getDialogPane().setContent(dialogContainer);
+        getDialogPane().setContent(borderPane);
 
         Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
         TopMenu.applyActiveTheme(stage.getScene());
@@ -79,7 +80,7 @@ public class WidgetConfigDialog extends Alert {
             this.dataModelDataHandler = dataModelDataHandler;
 
             chartModel = dataModelDataHandler.getChartModel();
-            ChartTab chartTab = new ChartTab(dialogContainer, dataModelDataHandler.getJeVisDataSource(), chartModel);
+            ChartTab chartTab = new ChartTab(dataModelDataHandler.getJeVisDataSource(), chartModel);
             chartTab.setText(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
             chartTab.setClosable(false);
             chartTab.setMenuVisible(true);
@@ -107,7 +108,7 @@ public class WidgetConfigDialog extends Alert {
             this.dataModelDataHandler = dataModelDataHandler;
 
             chartModel = dataModelDataHandler.getChartModel();
-            ChartTab chartTab = new ChartTab(dialogContainer, dataModelDataHandler.getJeVisDataSource(), chartModel);
+            ChartTab chartTab = new ChartTab(dataModelDataHandler.getJeVisDataSource(), chartModel);
 
             chartTab.setText(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
             chartTab.setClosable(false);

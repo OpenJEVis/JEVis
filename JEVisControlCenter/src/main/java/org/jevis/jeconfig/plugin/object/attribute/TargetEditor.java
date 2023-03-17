@@ -17,7 +17,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -44,7 +43,6 @@ public class TargetEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(TargetEditor.class);
     private final MODE mode;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final StackPane dialogContainer;
     public JEVisAttribute _attribute;
     private final HBox box = new HBox();
     private final boolean _hasChanged = false;
@@ -54,8 +52,7 @@ public class TargetEditor implements AttributeEditor {
     private JFXButton _treeButton;
     private boolean initialized = false;
 
-    public TargetEditor(StackPane dialogContainer, JEVisAttribute att, MODE mode, JEVisTree tree) {
-        this.dialogContainer = dialogContainer;
+    public TargetEditor(JEVisAttribute att, MODE mode, JEVisTree tree) {
         _attribute = att;
         this.mode = mode;
         this.tree = tree;
@@ -190,13 +187,13 @@ public class TargetEditor implements AttributeEditor {
                 }
 
                 if (_attribute.getObject().getJEVisClassName().equals("Alarm Configuration")) {
-                    treeSelectionDialog = new TreeSelectionDialog(dialogContainer, _attribute.getDataSource(), classes, SelectionMode.MULTIPLE, openList, showAttributes);
+                    treeSelectionDialog = new TreeSelectionDialog(_attribute.getDataSource(), classes, SelectionMode.MULTIPLE, openList, showAttributes);
                 } else {
-                    treeSelectionDialog = new TreeSelectionDialog(dialogContainer, _attribute.getDataSource(), classes, SelectionMode.SINGLE, openList, showAttributes);
+                    treeSelectionDialog = new TreeSelectionDialog(_attribute.getDataSource(), classes, SelectionMode.SINGLE, openList, showAttributes);
                 }
 
                 TreeSelectionDialog finalSelectTargetDialog = treeSelectionDialog;
-                treeSelectionDialog.setOnDialogClosed(event -> {
+                treeSelectionDialog.setOnCloseRequest(event -> {
                     try {
                         if (finalSelectTargetDialog.getResponse() == Response.OK) {
                             logger.trace("Selection Done");

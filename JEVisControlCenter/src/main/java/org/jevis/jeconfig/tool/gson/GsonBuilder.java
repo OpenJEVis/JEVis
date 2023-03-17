@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.tool.gson;
 
 import com.google.gson.*;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import org.hildan.fxgson.FxGson;

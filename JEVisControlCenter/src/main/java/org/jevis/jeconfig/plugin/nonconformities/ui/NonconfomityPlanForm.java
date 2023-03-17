@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.jfoenix.controls.JFXTextField;
-import javafx.collections.ListChangeListener;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;

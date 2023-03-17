@@ -1,19 +1,15 @@
 package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -23,6 +19,8 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.CommonMethods;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.control.KPIVariable;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.joda.time.DateTime;
@@ -32,16 +30,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class KPIWizard extends JFXDialog {
+public class KPIWizard extends Dialog {
     private static final Logger logger = LogManager.getLogger(KPIWizard.class);
     private final List<KPIVariable> variables = new ArrayList<>();
     private ObjectRelations objectRelations;
     private int index = 0;
 
-    public KPIWizard(StackPane dialogContainer, JEVisObject object) {
+    public KPIWizard(JEVisObject object) {
         super();
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+        setTitle(I18n.getInstance().getString("plugin.configuration.kpiwizard.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.configuration.kpiwizard.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         JEVisClass calcClass = null;
         JEVisClass dataClass = null;
@@ -82,15 +86,16 @@ public class KPIWizard extends JFXDialog {
             index++;
         });
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
 
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
@@ -99,7 +104,7 @@ public class KPIWizard extends JFXDialog {
         JEVisClass finalDataClass = dataClass;
         JEVisClass finalCleanDataClass = cleanDataClass;
         JEVisClass finalOutputClass = outputClass;
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             if (!name.getText().equals("") && checkMatchingListContent()) {
                 try {
                     JEVisObject nearestBuilding = CommonMethods.getFirstParentalObjectOfClass(object, "Building");
@@ -214,13 +219,13 @@ public class KPIWizard extends JFXDialog {
 
         });
 
-        cancel.setOnAction(event -> close());
+        cancelButton.setOnAction(event -> close());
 
-        VBox vBox = new VBox(6, name, formula, add, scrollPane, separator, buttonBar);
+        VBox vBox = new VBox(6, name, formula, add, scrollPane, separator);
         vBox.setFillWidth(true);
         vBox.setPadding(new Insets(6));
 
-        setContent(vBox);
+        getDialogPane().setContent(vBox);
     }
 
     private boolean checkMatchingListContent() {

@@ -8,7 +8,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,7 +45,6 @@ public class ChartTab extends Tab {
     private final JEVisDataSource ds;
     private final NumberSpinner minFractionDigits;
     private final NumberSpinner maxFractionDigits;
-    private final StackPane dialogContainer;
     private final Label minFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.minfractiondigits"));
     private final Label maxFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.maxfractiondigits"));
     private final Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
@@ -94,13 +96,12 @@ public class ChartTab extends Tab {
     private JEVisClass mathDataClass;
     private JEVisClass baseDataClass;
 
-    public ChartTab(StackPane dialogContainer, JEVisDataSource ds, ChartModel chartModel) {
+    public ChartTab(JEVisDataSource ds, ChartModel chartModel) {
         super();
         this.ds = ds;
         this.chartModel = chartModel;
-        this.dialogContainer = dialogContainer;
         this.tableMenu = new ToolBar(newButton, copyButton, deleteButton);
-        this.chartTable = new Table(dialogContainer, ds, chartModel);
+        this.chartTable = new Table(ds, chartModel);
         boolean hasCustomIntervalEnabled = chartModel.getChartData().stream().anyMatch(ChartData::isIntervalEnabled);
         setIntervalStartColumnVisible(hasCustomIntervalEnabled);
         setIntervalEndColumnVisible(hasCustomIntervalEnabled);
@@ -198,12 +199,12 @@ public class ChartTab extends Tab {
 
             TreeSelectionDialog selectTargetDialog;
             if (!isHeatMap) {
-                selectTargetDialog = new TreeSelectionDialog(dialogContainer, ds, filterClasses, SelectionMode.MULTIPLE);
+                selectTargetDialog = new TreeSelectionDialog(ds, filterClasses, SelectionMode.MULTIPLE);
             } else {
-                selectTargetDialog = new TreeSelectionDialog(dialogContainer, ds, filterClasses, SelectionMode.SINGLE);
+                selectTargetDialog = new TreeSelectionDialog(ds, filterClasses, SelectionMode.SINGLE);
             }
 
-            selectTargetDialog.setOnDialogClosed(event -> {
+            selectTargetDialog.setOnCloseRequest(event -> {
                 try {
                     if (selectTargetDialog.getResponse() == Response.OK) {
 

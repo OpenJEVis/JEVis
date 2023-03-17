@@ -21,16 +21,24 @@ package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -41,27 +49,48 @@ import java.util.List;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class NewObjectUnderDialog extends JFXDialog {
+public class NewObjectUnderDialog extends Dialog {
 
     //    private VBox root = new VBox();
-    private final JFXButton ok = new JFXButton("OK");
+    private final JFXButton okButton = new JFXButton("OK");
     private final JFXButton clear = new JFXButton("Clear");
     private final String ICON = "1404313956_evolution-tasks.png";
-    private final StackPane dialogContainer;
     private final JEVisDataSource _ds;
     private Response response = Response.CANCEL;
     private JEVisTree tree;
     private final SimpleTargetPlugin stp = new SimpleTargetPlugin();
     private MODE mode = MODE.OBJECT;
 
-    public NewObjectUnderDialog(StackPane dialogContainer, JEVisDataSource ds, String title, List<UserSelection> userSelection, MODE mode) {
-        this.dialogContainer = dialogContainer;
+    public NewObjectUnderDialog(JEVisDataSource ds, String title, List<UserSelection> userSelection, MODE mode) {
         this._ds = ds;
         this.mode = mode;
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+        setTitle(I18n.getInstance().getString("plugin.configuration.newobjectunder.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.configuration.newobjectunder.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
-        setContent(build(ds, title, userSelection));
+        okButton.setDefaultButton(true);
+//        ok.setDisable(true);
+
+        JFXButton cancelButton = new JFXButton("Cancel");
+        cancelButton.setCancelButton(true);
+        cancelButton.setOnAction(event -> close());
+
+        okButton.setOnAction(event -> {
+            response = Response.OK;
+            close();
+        });
+
+        ButtonType okType = new ButtonType(okButton.getText(), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(cancelButton.getText(), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(okType, cancelType);
+
+        getDialogPane().setContent(build(ds, title, userSelection));
     }
 
     public void allowMultiSelect(boolean allowMulti) {
@@ -72,10 +101,9 @@ public class NewObjectUnderDialog extends JFXDialog {
         VBox root = new VBox(0);
 //        root.setPadding(new Insets(10));
         Node header = DialogHeader.getDialogHeader(ICON, title);
-        HBox buttonPanel = new HBox(8);
         VBox content = new VBox();
 
-        tree = JEVisTreeFactory.buildBasicDefault(dialogContainer, ds, false);
+        tree = JEVisTreeFactory.buildBasicDefault(ds, false);
         if (mode == MODE.ATTRIBUTE) {
 //            tree.getFilter().showAttributes(true);
         }
@@ -84,9 +112,7 @@ public class NewObjectUnderDialog extends JFXDialog {
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         content.getChildren().setAll(tree);
 
-
         JFXCheckBox advanced = new JFXCheckBox("Advanced");
-
 
         tree.openUserSelection(uselection);
         stp.setUserSelection(uselection);
@@ -135,7 +161,7 @@ public class NewObjectUnderDialog extends JFXDialog {
 
             @Override
             public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
-                ok.setDisable(false);
+                okButton.setDisable(false);
             }
         });
 
@@ -146,33 +172,18 @@ public class NewObjectUnderDialog extends JFXDialog {
             }
         });
 
-        ok.setDefaultButton(true);
-//        ok.setDisable(true);
 
-        JFXButton cancel = new JFXButton("Cancel");
-        cancel.setCancelButton(true);
-        cancel.setOnAction(event -> close());
-
-        ok.setOnAction(event -> {
-            response = Response.OK;
-            close();
-        });
 
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        buttonPanel.getChildren().setAll(advanced, spacer, ok, cancel);
-        buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonPanel.setPadding(new Insets(5));
-
-
 //        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL_TOP_LEFT), content, buttonPanel);
-        root.getChildren().setAll(header, content, buttonPanel);
+        root.getChildren().setAll(header, content);
         VBox.setVgrow(header, Priority.NEVER);
         VBox.setVgrow(content, Priority.ALWAYS);
         VBox.setVgrow(tree, Priority.ALWAYS);
-        VBox.setVgrow(buttonPanel, Priority.NEVER);
+
         return root;
     }
 

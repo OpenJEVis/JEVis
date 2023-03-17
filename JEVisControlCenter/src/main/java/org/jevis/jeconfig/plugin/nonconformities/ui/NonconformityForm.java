@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
-import javafx.scene.control.*;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.TabPane;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;

@@ -30,7 +30,6 @@ import javafx.scene.Node;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -264,8 +263,6 @@ public class PluginManager {
     }
 
     public Node getView() {
-        StackPane box = new StackPane();
-
 
         this.tabPane.setSide(Side.LEFT);
 
@@ -376,11 +373,10 @@ public class PluginManager {
             }
         });
 
-        box.getChildren().addAll(this.tabPane);
         selectedPluginProperty.setValue(_plugins.get(0));
         JEVisHelp.getInstance().setActivePlugin(_plugins.getClass().getSimpleName());
 
-        return box;
+        return tabPane;
     }
 
     Plugin getSelectedPlugin() {

@@ -58,7 +58,6 @@ import java.util.*;
 public class DashboardControl {
 
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
-    private final StackPane dialogPane;
     private double zoomFactor = 1.0d;
     private final double defaultZoom = 1.0d;
     private final DashBordPlugIn dashBordPlugIn;
@@ -71,7 +70,6 @@ public class DashboardControl {
     private java.io.File newBackgroundFile;
     private final Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
     private SideConfigPanel sideConfigPanel;
-
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
     private final ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
     private final TimeFrame previousActiveTimeFrame = null;
@@ -112,9 +110,8 @@ public class DashboardControl {
 
 
     public DashboardControl(DashBordPlugIn plugin) {
-        this.configManager = new ConfigManager(plugin.getDialogPane(), plugin.getDataSource());
+        this.configManager = new ConfigManager(plugin.getDataSource());
         this.dashBordPlugIn = plugin;
-        this.dialogPane = dashBordPlugIn.getDialogPane();
         this.jevisDataSource = plugin.getDataSource();
 
         //TaskWindow taskWindow = new TaskWindow(runningUpdateTaskList);
@@ -1045,9 +1042,9 @@ public class DashboardControl {
     }
 
     public void showLoadDialog() {
-        LoadDashboardDialog loadDashboardDialog = new LoadDashboardDialog(dashBordPlugIn.getDialogPane(), jevisDataSource, this);
+        LoadDashboardDialog loadDashboardDialog = new LoadDashboardDialog(jevisDataSource, this);
         loadDashboardDialog.show();
-        loadDashboardDialog.setOnDialogClosed(event -> {
+        loadDashboardDialog.setOnCloseRequest(event -> {
             if (loadDashboardDialog.getResponse() == Response.NEW) {
                 createNewDashboard();
             } else if (loadDashboardDialog.getResponse() == Response.LOAD) {
@@ -1319,9 +1316,5 @@ public class DashboardControl {
 
     public ObjectProperty<Side> getConfigSideProperty() {
         return configSideProperty;
-    }
-
-    public StackPane getDialogPane() {
-        return dialogPane;
     }
 }

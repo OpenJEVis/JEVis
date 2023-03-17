@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.nonconformities.data;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;

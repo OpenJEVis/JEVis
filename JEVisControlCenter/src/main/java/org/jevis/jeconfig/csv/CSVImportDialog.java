@@ -91,8 +91,6 @@ public class CSVImportDialog {
     private final JFXComboBox<Seperator> seperatorComboBox = new JFXComboBox<>(FXCollections.observableArrayList(Seperator.values()));
     private final JFXComboBox<Enclosed> enclosedComboBox = new JFXComboBox<>(FXCollections.observableArrayList(Enclosed.values()));
     private final NotificationPane notificationPane = new NotificationPane();
-    private final StackPane dialogContainer = new StackPane(notificationPane);
-
     final ToggleGroup textDiGroup = new ToggleGroup();
     ObservableList<String> formatOptions;
     private final JFXTextField otherSeperatorField = new JFXTextField();
@@ -274,7 +272,7 @@ public class CSVImportDialog {
         BorderPane root = new BorderPane();
         notificationPane.setContent(root);
         Layouts.setAnchor(notificationPane, 0);
-        Scene scene = new Scene(dialogContainer);
+        Scene scene = new Scene(notificationPane);
         TopMenu.applyActiveTheme(scene);
 
         stage.setTitle(I18n.getInstance().getString("csv.title"));
@@ -399,7 +397,7 @@ public class CSVImportDialog {
 
                 if (table == null || rebuildColumns) {
                     final CSVParser parser = parseCSV();
-                    table = new CSVTable(dialogContainer, _ds, parser);
+                    table = new CSVTable(_ds, parser);
                     tableRootPane.getChildren().setAll(table);
                     Layouts.setAnchor(table, 0);
                 } else {

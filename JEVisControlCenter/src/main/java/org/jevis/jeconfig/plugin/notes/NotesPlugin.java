@@ -20,6 +20,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,10 +30,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.GlobalToolBar;
-import org.jevis.jeconfig.Icon;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
@@ -66,7 +64,6 @@ public class NotesPlugin implements Plugin {
 
     private final JEVisDataSource ds;
     private final String title;
-    private final StackPane stackPane = new StackPane();
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
     private final int iconSize = 20;
@@ -120,8 +117,6 @@ public class NotesPlugin implements Plugin {
         tableView.setItems(filteredData);
 
         createColumns();
-
-        stackPane.getChildren().add(borderPane);
     }
 
     private GridPane searchPanel() {
@@ -826,7 +821,7 @@ public class NotesPlugin implements Plugin {
         });
 
         newB.setOnAction(event -> {
-            NotePane notePane = new NotePane(allTags, ds, stackPane);
+            NotePane notePane = new NotePane(allTags, ds);
 
             JFXButton okButton = new JFXButton(I18n.getInstance().getString("plugin.note.pane.ok"));
             JFXButton cancelButton = new JFXButton(I18n.getInstance().getString("plugin.note.pane.cancel"));
@@ -844,8 +839,13 @@ public class NotesPlugin implements Plugin {
             vBox.setPadding(new Insets(12));
 
 
-            JFXDialog jfxDialog = new JFXDialog(stackPane, vBox, JFXDialog.DialogTransition.CENTER);
-            jfxDialog.setOverlayClose(false);
+            Dialog Dialog = new Dialog();
+            Dialog.setResizable(true);
+            Stage stage = (Stage) Dialog.getDialogPane().getScene().getWindow();
+            TopMenu.applyActiveTheme(stage.getScene());
+            stage.setAlwaysOnTop(true);
+
+            Dialog.getDialogPane().setContent(vBox);
 
             okButton.setOnAction(event1 -> {
                 JEVisObject jeVisObject = notePane.commit();
@@ -859,13 +859,13 @@ public class NotesPlugin implements Plugin {
                         filter();
                     });
                 }
-                jfxDialog.close();
+                Dialog.close();
             });
             cancelButton.setOnAction(event1 -> {
-                jfxDialog.close();
+                Dialog.close();
             });
 
-            jfxDialog.show();
+            Dialog.show();
         });
 
         delete.setOnAction(event -> {
@@ -1140,7 +1140,7 @@ public class NotesPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return stackPane;
+        return borderPane;
     }
 
 

@@ -89,7 +89,6 @@ public class AlarmPlugin implements Plugin {
     private final JEVisDataSource ds;
     private final String title;
     private final BorderPane borderPane = new BorderPane();
-    private final StackPane dialogContainer = new StackPane(borderPane);
     private final ToolBar toolBar = new ToolBar();
     private final int iconSize = 20;
     private final Image checkAllImage = ResourceLoader.getImage("jetxee-check-sign-and-cross-sign-3.png");
@@ -910,7 +909,7 @@ public class AlarmPlugin implements Plugin {
                                 if (item.getAlarmType().equals(AlarmType.L1) || item.getAlarmType().equals(AlarmType.L2)) {
                                     JEVisAttribute limitConfigAttribute = item.getObject().getAttribute(LIMITS_CONFIGURATION.getAttributeName());
 
-                                    LimitEditor limitEditor = new LimitEditor(dialogContainer, limitConfigAttribute);
+                                    LimitEditor limitEditor = new LimitEditor(limitConfigAttribute);
                                     HBox hbox = (HBox) limitEditor.getEditor();
                                     JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
                                     jfxButton.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
@@ -921,7 +920,7 @@ public class AlarmPlugin implements Plugin {
 
                                     JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());
 
-                                    AlarmEditor alarmConfiguration = new AlarmEditor(dialogContainer, alarmConfigAttribute);
+                                    AlarmEditor alarmConfiguration = new AlarmEditor(alarmConfigAttribute);
                                     HBox hbox = (HBox) alarmConfiguration.getEditor();
                                     JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
                                     jfxButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
@@ -1211,7 +1210,7 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return dialogContainer;
+        return borderPane;
     }
 
 

@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.object.attribute;
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.DefaultProperty;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.layout.StackPane;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -12,8 +11,8 @@ public class StringEditor extends BasicEditor {
 
     private final JEVisAttribute attribute;
 
-    public StringEditor(StackPane dialogContainer, JEVisAttribute att) {
-        super(dialogContainer, att);
+    public StringEditor(JEVisAttribute att) {
+        super(att);
         this.attribute = att;
     }
 

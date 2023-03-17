@@ -8,7 +8,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import net.sourceforge.jeval.Evaluator;
@@ -36,7 +35,6 @@ public class FormulaBox extends HBox {
 
     private static final Logger logger = LogManager.getLogger(FormulaBox.class);
     private final List<String> variables = new ArrayList<>();
-    private StackPane dialogContainer;
     Label errorArea = new Label();
     //    JFXTextArea textArea = new TextArea();
     JFXTextArea textArea = new JFXTextArea();
@@ -391,9 +389,9 @@ public class FormulaBox extends HBox {
                 classes.add(calcObj.getDataSource().getJEVisClass(className));
             }
 
-            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(dialogContainer, calcObj.getDataSource(), classes, SelectionMode.SINGLE, openList, true);
+            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(calcObj.getDataSource(), classes, SelectionMode.SINGLE, openList, true);
             final JEVisObject out = outputObj;
-            selectionDialog.setOnDialogClosed(event -> {
+            selectionDialog.setOnCloseRequest(event -> {
                 try {
                     if (selectionDialog.getResponse() == Response.OK) {
                         for (UserSelection us : selectionDialog.getUserSelection()) {
@@ -466,9 +464,5 @@ public class FormulaBox extends HBox {
             ex.printStackTrace();
         }
 
-    }
-
-    public void setDialogContainer(StackPane dialogContainer) {
-        this.dialogContainer = dialogContainer;
     }
 }

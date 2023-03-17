@@ -37,6 +37,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -46,6 +47,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ImageConverter;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
@@ -79,6 +81,8 @@ public class NewAnalysisDialog {
 
 
         Dialog<ButtonType> dialog = new Dialog();
+        dialog.initOwner(JEConfig.getStage());
+        dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle(I18n.getInstance().getString("dialog.analyses.title"));
         dialog.setHeaderText(I18n.getInstance().getString("dialog.analyses.header"));
         dialog.getDialogPane().getButtonTypes().setAll();

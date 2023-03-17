@@ -7,6 +7,7 @@ package org.jevis.jeconfig.dialog;
 
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextInputDialog;
+import javafx.stage.Modality;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 
@@ -21,6 +22,7 @@ public class FindDialog {
     public Response show(String title, String titleLong, String message) {
         Dialog dialog = new TextInputDialog("");
         dialog.initOwner(JEConfig.getStage());
+        dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle(titleLong);
         dialog.setHeaderText("");
 

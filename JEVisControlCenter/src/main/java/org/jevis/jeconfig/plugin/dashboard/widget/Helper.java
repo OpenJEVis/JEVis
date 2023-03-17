@@ -1,8 +1,5 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
-import org.jevis.api.JEVisException;
-import org.joda.time.Interval;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 

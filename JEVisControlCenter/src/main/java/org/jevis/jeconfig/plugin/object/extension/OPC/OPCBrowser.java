@@ -2,17 +2,12 @@ package org.jevis.jeconfig.plugin.object.extension.OPC;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -50,7 +45,6 @@ public class OPCBrowser {
 
     JFXTextField port = new JFXTextField();
     JFXButton connect = new JFXButton();
-    StackPane dialogContainer = new StackPane();
     JFXComboBox<String> comboRootFolder = new JFXComboBox();
     JFXComboBox<String> comboMode = new JFXComboBox<>();
 
@@ -60,7 +54,7 @@ public class OPCBrowser {
     private EndpointDescription endpointDescription;
 
 
-    JFXDialog opcUaBrowserDialog;
+    Dialog opcUaBrowserDialog;
 
 
     public OPCBrowser(JEVisObject opcServerObj) {
@@ -91,16 +85,13 @@ public class OPCBrowser {
         try {
             stage.initOwner(JEConfig.getStage());
 
-            dialogContainer.getChildren().add(vBox);
-
-
             Node header = DialogHeader.getDialogHeader(ImageConverter.convertToImageView(opcServerObj.getJEVisClass().getIcon(), 64, 64), I18n.getInstance().getString("plugin.object.opcua.mode.title"));
 
             vBox.getChildren().add(header);
 
             vBox.setSpacing(10);
 
-            Scene scene = new Scene(dialogContainer);
+            Scene scene = new Scene(vBox);
             TopMenu.applyActiveTheme(scene);
             stage.setScene(scene);
             //TODo better be dynamic
@@ -169,7 +160,7 @@ public class OPCBrowser {
                     opcClient.connect();
 
 
-                    NodeTreeTable nodeTable = new NodeTreeTable(opcClient, opcServerObj, comboRootFolder.getValue(),ROOT_FOLDER_TREND_BACNET, dialogContainer, comboMode.getValue());
+                    NodeTreeTable nodeTable = new NodeTreeTable(opcClient, opcServerObj, comboRootFolder.getValue(), ROOT_FOLDER_TREND_BACNET, comboMode.getValue());
                     if (vBox.getChildren().size() > 2) {
                         vBox.getChildren().set(2, nodeTable.getView());
                         VBox.setVgrow(nodeTable.getView(), Priority.ALWAYS);

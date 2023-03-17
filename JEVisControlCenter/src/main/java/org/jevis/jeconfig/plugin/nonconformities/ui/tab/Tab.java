@@ -1,17 +1,12 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui.tab;
 
-import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.controlsfx.control.NotificationPane;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
-import org.jevis.jeconfig.plugin.nonconformities.ui.NonconformityForm;
 
 public abstract class Tab extends javafx.scene.control.Tab{
    NotificationPane notificationPane = new NotificationPane();

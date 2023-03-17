@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.nonconformities.data;
 
 
-import com.beust.jcommander.Strings;
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

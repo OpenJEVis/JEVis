@@ -58,11 +58,11 @@ public class NotePane extends StackPane {
     private JEVisObject parentObject;
     DateTime date = new DateTime();
 
-    public NotePane(ObservableList<String> allTags, JEVisDataSource dataSource, StackPane parentContainer) {
+    public NotePane(ObservableList<String> allTags, JEVisDataSource dataSource) {
         GridPane gridPane = new GridPane();
         this.dataSource = dataSource;
 
-        jeVisTree = JEVisTreeFactory.buildBasicDefault(this, dataSource, false);
+        jeVisTree = JEVisTreeFactory.buildBasicDefault(dataSource, false);
 
         pickerDate.setPrefWidth(120d);
         pickerTime.setPrefWidth(110d);
@@ -108,10 +108,9 @@ public class NotePane extends StackPane {
             JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
             allFilter.add(allDataFilter);
             //allFilter.add(allAttributesFilter);
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(
-                    parentContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, dataSource, openList);
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE, dataSource, openList);
 
-            selectTargetDialog.setOnDialogClosed(treeevent -> {
+            selectTargetDialog.setOnCloseRequest(treeevent -> {
                 try {
                     if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
                         for (UserSelection us : selectTargetDialog.getUserSelection()) {
@@ -124,7 +123,7 @@ public class NotePane extends StackPane {
                 }
             });
 
-            selectTargetDialog.setPrefSize(800, 1200);
+            selectTargetDialog.getDialogPane().setPrefSize(800, 1200);
             selectTargetDialog.show();
         });
 

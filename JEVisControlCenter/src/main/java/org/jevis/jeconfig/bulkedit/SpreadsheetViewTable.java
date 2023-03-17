@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.bulkedit;
 
-import java.util.Set;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -13,8 +12,9 @@ import org.controlsfx.control.spreadsheet.GridBase;
 import org.controlsfx.control.spreadsheet.SpreadsheetCell;
 import org.controlsfx.control.spreadsheet.SpreadsheetView;
 
+import java.util.Set;
+
 /**
- *
  * @author Zeyd Bilal Calis
  */
 //Diese Klasse abgeleitet von der SpreadsheetView. Mit Hilfe des ClipBoardSpecific Methode
