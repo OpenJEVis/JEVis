@@ -27,16 +27,17 @@ public class NonconformitiesPlugin implements Plugin {
     public NonconformitiesPlugin(JEVisDataSource ds, String name) {
         this.ds = ds;
         this.nameProperty.set(name);
+
+        nonconformitiesController = new NonconformitiesController(this);
+        rootPane.setCenter(nonconformitiesController.getContent());
+        toolbar = new NonconformitiesToolbar(nonconformitiesController);
     }
 
     private void initGUI() {
         if (isInit) return;
-
-        nonconformitiesController = new NonconformitiesController(this);
-        rootPane.setCenter(nonconformitiesController.getContent());
-        nonconformitiesController.loadActionView();
-        toolbar = new NonconformitiesToolbar(nonconformitiesController);
         isInit = true;
+
+        nonconformitiesController.loadActionView();
         nonconformitiesController.loadNonconformityPlans();
     }
 
@@ -147,6 +148,6 @@ public class NonconformitiesPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 4;
+        return 5;
     }
 }

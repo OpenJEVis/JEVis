@@ -832,7 +832,7 @@ public class MeterPlugin extends TablePlugin {
 
     @Override
     public int getPrefTapPos() {
-        return 5;
+        return 3;
     }
 
     private void handleRename(KeyEvent event) {
