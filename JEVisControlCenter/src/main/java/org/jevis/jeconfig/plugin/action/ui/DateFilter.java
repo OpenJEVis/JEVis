@@ -41,7 +41,27 @@ public class DateFilter {
 
     public boolean show(ActionData data) {
         try {
-            if (dateField == DateField.ALLES) return true;
+            if (dateField == DateField.ALL) {
+                //System.out.println("Filter is all");
+                boolean oneIsTrue = false;
+                // System.out.println("data.doneDate.get(): " + data.doneDate.get());
+                if (data.doneDate.get() != null && data.doneDate.get().isBefore(getUntilDate()) && data.doneDate.get().isAfter(getFromDate())) {
+                    //System.out.println("done date true");
+                    return true;
+                }
+                // System.out.println("data.createDate.get(): " + data.createDate.get());
+                if (data.doneDate.get() != null && data.createDate.get().isBefore(getUntilDate()) && data.createDate.get().isAfter(getFromDate())) {
+                    // System.out.println("create date true");
+                    return true;
+                }
+                // System.out.println("data.plannedDate.get(): " + data.plannedDate.get());
+                if (data.plannedDate.get() != null && data.plannedDate.get().isBefore(getUntilDate()) && data.plannedDate.get().isAfter(getFromDate())) {
+                    //  System.out.println("palnned date true");
+                    return true;
+                }
+                return false;
+            }
+
             if (getDate(data).isAfter(getUntilDate())) return false;
             if (getDate(data).isBefore(getFromDate())) return false;
             return true;
@@ -60,6 +80,6 @@ public class DateFilter {
     }
 
     public static enum DateField {
-        ALLES, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT
+        ALL, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT
     }
 }
