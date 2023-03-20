@@ -108,17 +108,28 @@ public class TableSumPanel extends GridPane {
                         new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
                 add(label, newColumn, 0);
                 add(field, newColumn, 1);
-
-                Platform.runLater(() -> {
-
-                });
             }
         }
+
+        for (String s : actionPlan.getStatustags()) {
+            if (!columns.containsKey(s)) {
+                Label label = new Label(s);
+                JFXTextField field = new JFXTextField();
+                field.setAlignment(Pos.CENTER_RIGHT);
+                int newColumn = columns.size() + 2;
+                columns.put(s, field);
+                this.getColumnConstraints().add(newColumn,
+                        new ColumnConstraints(100, 160, 300, Priority.NEVER, HPos.RIGHT, true));
+                add(label, newColumn, 0);
+                add(field, newColumn, 1);
+            }
+        }
+
     }
 
 
     private void updateData() {
-        //System.out.println("UpdateSumTable:" + actionPlan.getName() + " data:" + data.size());
+        //System.out.println("UpdateSumTable:" + actionPlan + " data:" + data.size());
 
 
         Platform.runLater(() -> {
@@ -141,7 +152,7 @@ public class TableSumPanel extends GridPane {
                 mediumSum.put(s, new SimpleDoubleProperty(0));
             });
 
-            actionPlan.getActionData().forEach(actionData -> {
+            data.forEach(actionData -> {
                 if (mediumSum.containsKey(actionData.mediaTagsProperty().get())) {
                     DoubleProperty value = mediumSum.get(actionData.mediaTagsProperty().get());
                     if (!actionData.consumption.get().diffProperty().getValue().isNaN()) {
@@ -151,9 +162,44 @@ public class TableSumPanel extends GridPane {
 
                 }
             });
+            /*
             columns.forEach((s, jfxTextField) -> {
                 jfxTextField.setText(DoubleConverter.getInstance().getDoubleConverter().toString(mediumSum.get(s).get()) + " kWh");
                 mediumSum.put(s, new SimpleDoubleProperty(0));
+            });
+
+             */
+
+
+            /* Staus sum */
+            Map<String, DoubleProperty> statusMap = new HashMap<>();
+            columns.forEach((s, jfxTextField) -> {
+                statusMap.put(s, new SimpleDoubleProperty(0));
+            });
+
+            data.forEach(actionData -> {
+                //System.out.println("Entry: " + actionData.statusTagsProperty().get() + "  in: " + statusMap.keySet());
+                if (statusMap.containsKey(actionData.statusTagsProperty().get())) {
+                    DoubleProperty value = statusMap.get(actionData.statusTagsProperty().get());
+                    value.setValue(value.get() + 1);
+                }
+            });
+
+            columns.forEach((s, jfxTextField) -> {
+                //System.out.println("Reset field: " + s);
+                jfxTextField.setText("");
+            });
+
+            mediumSum.forEach((s, doubleProperty) -> {
+                JFXTextField jfxTextField = columns.get(s);
+                jfxTextField.setText(DoubleConverter.getInstance().getDoubleConverter().toString(doubleProperty.get()) + " kWh");
+                //System.out.println("set Medium: " + s + "=" + doubleProperty.get());
+            });
+
+            statusMap.forEach((s, doubleProperty) -> {
+                JFXTextField jfxTextField = columns.get(s);
+                jfxTextField.setText(DoubleConverter.getInstance().getDoubleConverter().toString(doubleProperty.get()));
+                //System.out.println("set status: " + s + "=" + doubleProperty.get());
             });
 
 
