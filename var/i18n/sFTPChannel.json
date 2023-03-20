@@ -3,7 +3,8 @@
   "names": {
     "de": "sFTP Kanal",
     "ru": "sFTP Channel",
-    "en": "sFTP Channel"
+    "en": "sFTP Channel",
+    "ar": "قناة sFTP"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Datum und Zeit der letzten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
         "ru": "Last Readout description",
-        "en": "Date and Time of last readout in time zone setup in the server object"
+        "en": "Date and Time of last readout in time zone setup in the server object",
+        "ar": "تاريخ ووقت آخر قراءة في المنطقة الزمنية المحددة في كائن الخادم"
       },
       "names": {
         "de": "Letze Auslesung",
         "ru": "Last Readout",
-        "en": "Last Readout"
+        "en": "Last Readout",
+        "ar": "القراءة الأخيرة"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Path description",
         "ru": "Path description",
-        "en": "Path description"
+        "en": "Path description",
+        "ar": "مسار"
       },
       "names": {
         "de": "Pfad",
         "ru": "Path",
-        "en": "Path"
+        "en": "Path",
+        "ar": "مسار"
       }
     }
   ]

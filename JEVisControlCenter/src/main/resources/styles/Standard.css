@@ -7,6 +7,15 @@
     -fx-default-button-background: #4dadf7;
     -fx-default-button-text-fill: #FFFFFF;
     -fx-tree-background: f4f4f4;
+
+    -fx-table-color-even: #f1f1f1;
+    -fx-table-color-odd: #ffffff;
+    -fx-table-color-empty: #eeeeee;
+    -fx-table-color-selected: #51aaa5;
+    -fx-table-color-hover: #b5bbb7;
+    -fx-table-color-background: -fx-table-color-even;
+    -fx-table-color-header: white;
+
 }
 
 .jfx-tab-pane .tab-header-background {
@@ -42,84 +51,6 @@
     -fx-font-size: 14;
 }
 
-/* neu */
-.tree-table-view, .table-view{
-    -fx-background-color: rgba(0, 100, 100, 0.5);
-}
-
-/* When the TreeView is _not_ focused, we show alternate selection colors */
-.tree-cell:filled:selected:focused, .tree-cell:filled:selected {
-    -fx-background-color: lightgray;
-    -fx-text-fill: -fx-selection-bar-text;
-}
-
-.table-row-cell{
-    -fx-background-color: white;
-    -fx-text-fill: black !important;
-}
-
-.table-row-cell:odd{
-    -fx-background-color: lightblue;
-        -fx-highlight-text-fill: black;
-}
-
-.table-row-cell: hover {
-     -fx-background-color: #0096c9;
-     -fx-highlight-text-fill: white;
-}
-
-.table-row-cell: selected{
-      -fx-background-color: #0096c9;
-      -fx-highlight-text-fill: white;
-}
-
-.table-row-cell:empty {
-    -fx-background-color: white;
-}
-
-.table-cell:filled:selected:focused, .table-cell:filled:selected {
-    -fx-background-color: lightgray;
-    -fx-text-fill: black;
-}
-
-.table-cell:filled:selected:default{
-    -fx-background-color: lightgray;
-    -fx-text-fill: black;
-}
-
-.tree-table-row-cell:odd{
-    -fx-background-color: #f5f5f0;
-    -fx-highlight-text-fill: black;
-}
-
-.tree-table-row-cell: hover {
-     -fx-background-color: #0096c9;
-     -fx-highlight-text-fill: white;
- }
-
- .tree-table-row-cell: selected{
-     -fx-background-color: #0096c9;
-     -fx-highlight-text-fill: white;
- }
-
-.tree-table-row-cell:focused{
-    -fx-highlight-text-fill: black;
-    -fx-background-color: #008dbd;
-}
-
-.tree-cell{
-    -fx-background-color: transparent;
-}
-
-.tree-cell:filled:selected:focused, .tree-cell:filled:selected {
-    -fx-background-color: lightgray;
-    -fx-text-fill: black;
-}
-
-.tree-cell:filled:selected:default{
-    -fx-background-color: lightgray;
-    -fx-text-fill: black;
-}
 
 .search-box{
     -fx-background-color: #E2E2E2;
@@ -172,3 +103,218 @@
 .ToolBarDatePicker.jfx-date-picker {
     -jfx-default-color: #535360;
 }
+
+.hyperlink {
+    -fx-underline: #51aaa5;
+}
+
+.nonconformityOK{
+    -fx-border-color: black ;
+    -fx-border-width: 0 ;
+}
+.nonconformityError{
+    -fx-border-color: red ;
+    -fx-border-width: 2 ;
+}
+
+
+
+/*-------------------------------------------------------------------------------------------------------------
+                                         JEVis Default Table & Tree-TableView
+-------------------------------------------------------------------------------------------------------------*/
+
+
+/* off for now
+.scroll-pane{
+    -fx-background-color: -fx-base;
+}
+ */
+
+.table-view,
+.tree-table-view{
+    -fx-background-color: -fx-table-color-background;
+    -fx-font-size: 15px;
+    -fx-font-family: "Calibri";
+
+
+    -fx-border-style: solid;
+    -fx-border-width: 0.013333em;
+    /*-fx-border-color: #CECDC #CECDCD #CECDCD #CECDC;*/
+    -fx-border-color: black;
+
+    /*-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 2, 0, 0, 0);*/
+}
+
+.table-view:focused,
+.tree-table-view:focused{
+    -fx-background-color: -fx-table-color-background;
+}
+
+/*.tree-table-view .filler*/
+/*.table-view .filler,*/
+
+.table-view .column-header,
+.tree-table-view .column-header{
+    -fx-background-color: transparent;
+    -fx-border-style: solid;
+    -fx-border-width: 0.083333em, 0.083333em;
+    -fx-border-color: transparent #CECDCD #CECDCD transparent;
+}
+
+.table-view .filler,
+.tree-table-view .filler{
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header-background,
+.tree-table-view .column-header-background{
+    -fx-background-color: -fx-table-color-empty;
+    -fx-background-color: -fx-table-color-header;
+}
+
+.table-view .column-header-background .label,
+.tree-table-view .column-header-background .label{
+    -fx-background-color: transparent;
+    /*-fx-background-color: #FFFFFF00;*/
+    -fx-text-fill: #000000;
+    -fx-font-weight: normal;
+}
+
+.table-row-cell:odd,
+.tree-table-row-cell:odd {
+    -fx-background-color: -fx-table-color-odd;
+}
+
+.table-row-cell:even,
+.tree-table-row-cell:even {
+    -fx-background-color: -fx-table-color-even;
+}
+
+.table-row-cell:odd:filled:selected,
+.table-row-cell:even:filled:selected,
+.tree-table-row-cell:odd:filled:selected,
+.tree-table-row-cell:even:filled:selected {
+    -fx-background-color: -fx-table-color-selected;
+    -fx-text-fill: #000000;
+    -fx-background-insets: 0;
+    -fx-background-radius: 1;
+
+/*
+    -fx-border-color: white;*/
+    -fx-table-cell-border-color:white;
+
+}
+
+.table-row-cell:empty,
+.tree-table-row-cell:empty{
+    -fx-background-color: -fx-table-color-background;
+}
+
+.table-row-cell:odd:filled:hover,
+.table-row-cell:even:filled:hover,
+.tree-table-row-cell:odd:filled:hover,
+.tree-table-row-cell:even:filled:hover{
+    -fx-background-color: -fx-table-color-hover;
+}
+
+
+.table-view .show-hide-columns-button,
+.tree-table-view .show-hide-columns-button{
+    -fx-background-color: -fx-table-color-header;
+    -fx-border-color: transparent;
+    -fx-border-color: #CECDCD #CECDCD #CECDCD #CECDCD;
+}
+
+
+.table-view .show-hide-column-image,
+.tree-table-view .show-hide-column-image {
+    -fx-background-color: -fx-mark-color;
+    -fx-padding: 0.25em; /* 3px */
+    -fx-shape: "M398.902,298.045c0.667,0,1.333,0,2,0c0,0.667,0,1.333,0,2c0.667,0,1.333,0,2,0c0,0.667,0,1.333,0,2c-0.667,0-1.333,0-2,0c0,0.666,0,1.332,0,1.999c-0.667,0-1.333,0-2,0c0-0.667,0-1.333,0-1.999c-0.666,0-1.333,0-1.999,0c0-0.667,0-1.334,0-2c0.666,0,1.333,0,1.999,0C398.902,299.378,398.902,298.711,398.902,298.045z";
+}
+
+
+.scroll-pane > .virtual-flow > .scroll-bar > .increment-button,
+.scroll-pane > .virtual-flow > .scroll-bar > .decrement-button,
+.tree-table-view > .virtual-flow > .scroll-bar > .increment-button,
+.tree-table-view > .virtual-flow > .scroll-bar > .decrement-button,
+.table-view > .virtual-flow > .scroll-bar > .increment-button,
+.table-view > .virtual-flow > .scroll-bar > .decrement-button {
+    -fx-opacity: 1;
+}
+
+
+.scroll-pane > .virtual-flow > .scroll-bar:vertical,
+.scroll-pane > .virtual-flow > .scroll-bar:vertical > .track,
+.scroll-pane > .virtual-flow > .scroll-bar:vertical > .track-background,
+.scroll-pane > .virtual-flow > .scroll-bar:horizontal,
+.scroll-pane > .virtual-flow > .scroll-bar:horizontal > .track,
+.scroll-pane > .virtual-flow > .scroll-bar:horizontal > .track-background,
+.tree-table-view > .virtual-flow > .scroll-bar:vertical,
+.tree-table-view > .virtual-flow > .scroll-bar:vertical > .track,
+.tree-table-view > .virtual-flow > .scroll-bar:vertical > .track-background,
+.tree-table-view > .virtual-flow > .scroll-bar:horizontal,
+.tree-table-view > .virtual-flow > .scroll-bar:horizontal > .track,
+.tree-table-view > .virtual-flow > .scroll-bar:horizontal > .track-background,
+.table-view > .virtual-flow > .scroll-bar:vertical,
+.table-view > .virtual-flow > .scroll-bar:vertical > .track,
+.table-view > .virtual-flow > .scroll-bar:vertical > .track-background,
+.table-view > .virtual-flow > .scroll-bar:horizontal,
+.table-view > .virtual-flow > .scroll-bar:horizontal > .track,
+.table-view > .virtual-flow > .scroll-bar:horizontal > .track-background {
+    -fx-background-color: transparent;
+}
+
+
+/*-------------------------------------------------------------------------------------------------------------
+                                         JEVis Default ScrollPane
+-------------------------------------------------------------------------------------------------------------*/
+
+/*
+
+
+
+ .scroll-bar:horizontal .track,
+ .scroll-bar:vertical .track{
+	-fx-background-color:transparent;
+	-fx-border-color:transparent;
+	-fx-background-radius: 0em;
+	-fx-border-radius:2em;
+}
+
+ .scroll-bar:horizontal .increment-button ,
+ .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:transparent;
+	-fx-background-radius: 0em;
+	-fx-padding:0 0 10 0;
+
+}
+
+
+
+ .scroll-bar:vertical .increment-button ,
+ .scroll-bar:vertical .decrement-button {
+
+    -fx-background-color:transparent;
+	-fx-background-radius: 0em;
+	-fx-padding:0 10 0 0;
+
+}
+
+
+  .scroll-bar .increment-arrow,
+  .scroll-bar .decrement-arrow {
+	-fx-shape: " ";
+	-fx-padding:0;
+}
+
+ .scroll-bar:horizontal .thumb,
+ .scroll-bar:vertical .thumb {
+    -fx-background-color:derive(black,90%);
+	-fx-background-insets: 2, 0, 0;
+	-fx-background-radius: 2em;
+
+}
+*/
+
+

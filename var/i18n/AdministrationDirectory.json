@@ -3,12 +3,14 @@
   "names": {
     "de": "Administration",
     "ru": "Administration Directory",
-    "en": "Administration Directory"
+    "en": "Administration Directory",
+    "ar": "دليل الإدارة"
   },
   "descriptions": {
     "de": "In einem Administrationsverzeichnis werden administrative Informationen, wie z.B. Gruppen- und Benutzerrechten verwaltet.",
     "ru": "In an Administration Directory administrative data, such as group and user rights are managed.",
-    "en": "In an Administration Directory administrative data, such as group and user rights are managed."
+    "en": "In an Administration Directory administrative data, such as group and user rights are managed.",
+    "ar": "تتم إدارة المعلومات الإدارية مثل حقوق المجموعة والمستخدم في دليل الإدارة."
   },
   "types": []
 }

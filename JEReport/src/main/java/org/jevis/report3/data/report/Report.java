@@ -12,7 +12,6 @@ import org.jevis.api.JEVisFile;
 import org.jevis.report3.TemplateTransformator;
 import org.jxls.common.Context;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -40,7 +39,7 @@ public class Report {
 
         try {
             templateTransformator.transform(template.getBytes(), context);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             logger.fatal("error while transformation of the template", ex);
         }
         return templateTransformator.getOutputBytes();

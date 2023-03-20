@@ -3,12 +3,14 @@
   "names": {
     "de": "Text Daten",
     "ru": "Data",
-    "en": "Text Data"
+    "en": "Text Data",
+    "ar": "سلسلة البيانات"
   },
   "descriptions": {
     "de": "In Text Daten werden Text-Datenreihen gespeichert.",
     "ru": "Storage of numerical data.",
-    "en": "Storage of text data."
+    "en": "Storage of text data.",
+    "ar": "يتم تخزين سلسلة البيانات النصية في بيانات نصية"
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Wert der Datenreihe",
         "ru": "Value of the data series",
-        "en": "Value of the data series"
+        "en": "Value of the data series",
+        "ar": "قيمة سلسلة البيانات"
       },
       "names": {
         "de": "Wert",
         "ru": "Value",
-        "en": "Value"
+        "en": "Value",
+        "ar": "القيمة"
       }
     },
     {

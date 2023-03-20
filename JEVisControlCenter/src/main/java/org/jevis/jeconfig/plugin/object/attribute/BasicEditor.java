@@ -16,7 +16,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,7 +43,6 @@ import java.text.ParseException;
 public abstract class BasicEditor implements AttributeEditor {
 
     private static final Logger logger = LogManager.getLogger(BasicEditor.class);
-    private final StackPane dialogContainer;
     private final JEVisAttribute attribute;
     private final BooleanProperty changedProperty = new SimpleBooleanProperty(false);
     private final double height = 28;
@@ -59,8 +57,7 @@ public abstract class BasicEditor implements AttributeEditor {
     /**
      * @param att
      */
-    public BasicEditor(StackPane dialogContainer, JEVisAttribute att) {
-        this.dialogContainer = dialogContainer;
+    public BasicEditor(JEVisAttribute att) {
         this.attribute = att;
         this.orgSample = att.getLatestSample();
     }
@@ -108,7 +105,7 @@ public abstract class BasicEditor implements AttributeEditor {
             } else {
                 selectedUnit = this.attribute.getInputUnit();
             }
-            FavUnitList favUnitList = new FavUnitList(dialogContainer, this.attribute, selectedUnit, true);
+            FavUnitList favUnitList = new FavUnitList(this.attribute, selectedUnit, true);
             hbox.getChildren().add(favUnitList);
         } catch (Exception ex) {
             logger.error(ex, ex);

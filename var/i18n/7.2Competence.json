@@ -3,12 +3,14 @@
   "names": {
     "de": "7.2 Kompetenz",
     "ru": "7.2 Competence",
-    "en": "7.2 Competence"
+    "en": "7.2 Competence",
+    "ar": "7.2 الكفاءة"
   },
   "descriptions": {
     "de": "Die Organisation muss:\na) für Personen, die unter ihrer Aufsicht Tätigkeiten verrichten, welche die energiebezogene Leistung und das EnMS der Organisation beeinflussen, die erforderliche Kompetenz bestimmen;\nb) sicherstellen, dass diese Personen auf Grundlage angemessener Ausbildung, Schulung, Fertigkeiten oder Erfahrung kompetent sind;\nc) wenn erforderlich, Maßnahmen einleiten, um die benötigte Kompetenz zu erwerben, und die Wirksamkeit der getroffenen Maßnahmen zu bewerten;\nd) angemessene dokumentierte Information (siehe 7.5) als Nachweis der Kompetenz aufbewahren.\nANMERKUNG Geeignete Maßnahmen können zum Beispiel sein: Schulung, Mentoring oder Versetzung von gegenwärtig angestellten Personen, oder Anstellung oder Beauftragung kompetenter Personen.",
     "ru": "The organization shall:  \na) determine the necessary competence of person(s) doing work under its control that affects its  energy performance and EnMS;    \nb) ensure that these persons are competent on the basis of appropriate education, training, skills  or experience;    \nc) where applicable, take actions to acquire the necessary competence, and evaluate the  effectiveness of the actions taken;   \nd) retain appropriate documented information ( see 7.5) as evidence of competence.  \nNOTE Applicable actions can include, for example, the provision of training to, the mentoring of, or the  reassignment of currently employed persons; or the hiring or contracting of competent persons.   ",
-    "en": "The organization shall:  \na) determine the necessary competence of person(s) doing work under its control that affects its  energy performance and EnMS;    \nb) ensure that these persons are competent on the basis of appropriate education, training, skills  or experience;    \nc) where applicable, take actions to acquire the necessary competence, and evaluate the  effectiveness of the actions taken;   \nd) retain appropriate documented information ( see 7.5) as evidence of competence.  \nNOTE Applicable actions can include, for example, the provision of training to, the mentoring of, or the  reassignment of currently employed persons; or the hiring or contracting of competent persons.   "
+    "en": "The organization shall:  \na) determine the necessary competence of person(s) doing work under its control that affects its  energy performance and EnMS;    \nb) ensure that these persons are competent on the basis of appropriate education, training, skills  or experience;    \nc) where applicable, take actions to acquire the necessary competence, and evaluate the  effectiveness of the actions taken;   \nd) retain appropriate documented information ( see 7.5) as evidence of competence.  \nNOTE Applicable actions can include, for example, the provision of training to, the mentoring of, or the  reassignment of currently employed persons; or the hiring or contracting of competent persons.   ",
+    "ar": "يجب على المنظمة:\nأ) تحديد الكفاءة المطلوبة للأشخاص الذين يؤدون أنشطة تحت إشرافهم والتي تؤثر على الأداء المرتبط بالطاقة ونظام إدارة الطاقة في المنظمة ؛\nب) التأكد من أن هؤلاء الأشخاص يتمتعون بالكفاءة على أساس التعليم أو التدريب أو المهارات أو الخبرة المناسبة ؛\nج) اتخاذ الإجراءات اللازمة ، إذا لزم الأمر ، لاكتساب الكفاءة المطلوبة وتقييم فعالية الإجراء المتخذ ؛\nد) الاحتفاظ بالمعلومات الموثقة المناسبة (انظر 7.5) كدليل على الكفاءة.\nملحوظة: قد تشمل الإجراءات المناسبة ، على سبيل المثال ، التدريب أو التوجيه أو نقل الموظفين الحاليين أو تعيين الأفراد الأكفاء أو الاحتفاظ بهم."
   },
   "types": [
     {
@@ -16,25 +18,29 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
-      "type": "Created by",
+      "type": "Created, by",
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الإنشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

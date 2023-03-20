@@ -3,7 +3,8 @@
   "names": {
     "de": "Managementbewertung",
     "ru": "Management Review",
-    "en": "Management Review"
+    "en": "Management Review",
+    "ar": "مراجعة الإدارة"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Content description",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Content",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Management Review File description",
         "ru": "Management Review File description",
-        "en": "Management Review File description"
+        "en": "Management Review File description",
+        "ar": "ملف مراجعة الإدارة"
       },
       "names": {
         "de": "Management Review File",
         "ru": "Management Review File",
-        "en": "Management Review File"
+        "en": "Management Review File",
+        "ar": "ملف مراجعة الإدارة"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Management Review PDF description",
         "ru": "Management Review PDF description",
-        "en": "Management Review PDF description"
+        "en": "Management Review PDF description",
+        "ar": "مراجعة الإدارة PDF"
       },
       "names": {
         "de": "Management Review PDF",
         "ru": "Management Review PDF",
-        "en": "Management Review PDF"
+        "en": "Management Review PDF",
+        "ar": "مراجعة الإدارة PDF"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Participants description",
         "ru": "Participants description",
-        "en": "Participants description"
+        "en": "Participants description",
+        "ar": "مشاركون"
       },
       "names": {
         "de": "Participants",
         "ru": "Participants",
-        "en": "Participants"
+        "en": "Participants",
+        "ar": "مشاركون"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Review Date description",
         "ru": "Review Date description",
-        "en": "Review Date description"
+        "en": "Review Date description",
+        "ar": "تاريخ المراجعة"
       },
       "names": {
         "de": "Review Date",
         "ru": "Review Date",
-        "en": "Review Date"
+        "en": "Review Date",
+        "ar": "تاريخ المراجعة"
       }
     }
   ]

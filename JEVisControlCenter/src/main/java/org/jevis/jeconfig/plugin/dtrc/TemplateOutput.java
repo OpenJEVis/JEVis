@@ -8,6 +8,9 @@ public class TemplateOutput {
     private String name;
     private String variableName;
     private String unit;
+    private Boolean showTooltip = false;
+    private Boolean showAnalysisLink = false;
+    private String tooltip;
     private Boolean showLabel;
 
     private Boolean link = false;
@@ -20,6 +23,8 @@ public class TemplateOutput {
     private Boolean nameBold = false;
     private Boolean resultBold = false;
     private Boolean separator = false;
+
+    private TemplateFormula templateFormula;
 
     public TemplateOutput() {
         id = UUID.randomUUID().toString();
@@ -55,6 +60,30 @@ public class TemplateOutput {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public Boolean getShowTooltip() {
+        return showTooltip;
+    }
+
+    public void setShowTooltip(Boolean showTooltip) {
+        this.showTooltip = showTooltip;
+    }
+
+    public String getTooltip() {
+        return tooltip;
+    }
+
+    public void setTooltip(String tooltip) {
+        this.tooltip = tooltip;
+    }
+
+    public Boolean getShowAnalysisLink() {
+        return showAnalysisLink;
+    }
+
+    public void setShowAnalysisLink(Boolean showAnalysisLink) {
+        this.showAnalysisLink = showAnalysisLink;
     }
 
     public Boolean getShowLabel() {
@@ -135,6 +164,14 @@ public class TemplateOutput {
 
     public void setSeparator(Boolean separator) {
         this.separator = separator;
+    }
+
+    public TemplateFormula getTemplateFormula() {
+        return templateFormula;
+    }
+
+    public void setTemplateFormula(TemplateFormula templateFormula) {
+        this.templateFormula = templateFormula;
     }
 
     @Override

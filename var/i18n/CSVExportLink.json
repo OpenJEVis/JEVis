@@ -3,7 +3,8 @@
   "names": {
     "de": "CSV Datenverknüpfung",
     "ru": "CSV Export Link",
-    "en": "CSV Expor Link"
+    "en": "CSV Expor Link",
+    "ar": "ارتباط بيانات CSV"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Spaltennummer",
         "ru": "Column ID",
-        "en": "Column ID"
+        "en": "Column ID",
+        "ar": "رقم العمود"
       },
       "names": {
         "de": "Spaltennummer",
         "ru": "Column ID",
-        "en": "Column ID"
+        "en": "Column ID",
+        "ar": "رقم العمود"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Dezimaltrennzeichen",
         "ru": "Decimal Separator",
-        "en": "Decimal Separator"
+        "en": "Decimal Separator",
+        "ar": "الفاصل العشري"
       },
       "names": {
         "de": "Dezimaltrennzeichen",
         "ru": "Decimal Separator",
-        "en": "Decimal Separator"
+        "en": "Decimal Separator",
+        "ar": "الفاصل العشري"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Datenquelle",
         "ru": "Data Source",
-        "en": "Data Source"
+        "en": "Data Source",
+        "ar": "JEVis ID"
       },
       "names": {
         "de": "Datenquelle",
         "ru": "Data Source",
-        "en": "Data Source"
+        "en": "Data Source",
+        "ar": "مصدر البيانات"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Opional",
         "ru": "Opional",
-        "en": "Opional"
+        "en": "Opional",
+        "ar": "اختياري"
       },
       "names": {
         "de": "Opional",
         "ru": "Opional",
-        "en": "Opional"
+        "en": "Opional",
+        "ar": "اختياري"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Spaltenname",
         "ru": "Column Name",
-        "en": "Column Name"
+        "en": "Column Name",
+        "ar": "اسم متغير النموذج"
       },
       "names": {
         "de": "Spaltenname",
         "ru": "Column Name",
-        "en": "Column Name"
+        "en": "Column Name",
+        "ar": "اسم العمود"
       }
     }
   ]

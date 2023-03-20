@@ -4,7 +4,6 @@ import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.ToolBar;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;

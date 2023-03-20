@@ -3,12 +3,14 @@
   "names": {
     "de": "Statischer Grenzwertalarm",
     "ru": "Static Limit Alarm",
-    "en": "Static Limit Alarm"
+    "en": "Static Limit Alarm",
+    "ar": "إنذار حد ثابت"
   },
   "descriptions": {
     "de": "Die Klasse Statischer Grenzwertalarm enthält Daten von Elementen eines Alarms mit einem statischen Grenzwert.",
     "ru": "The class Static Limit Alarm contains data of elements of an alarm with a static limit.",
-    "en": "The class Static Limit Alarm contains data of elements of an alarm with a static limit."
+    "en": "The class Static Limit Alarm contains data of elements of an alarm with a static limit.",
+    "ar": "تحتوي فئة Static Limit Alarm على بيانات من عناصر إنذار بحد ثابت."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Alarm Log description",
         "ru": "Alarm Log description",
-        "en": "Alarm Log description"
+        "en": "Alarm Log description",
+        "ar": "سجل التنبيه"
       },
       "names": {
         "de": "Alarmprotokoll",
         "ru": "Alarm Log",
-        "en": "Alarm Log"
+        "en": "Alarm Log",
+        "ar": "سجل التنبيه"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Enable description",
         "ru": "Enable description",
-        "en": "Enable description"
+        "en": "Enable description",
+        "ar": "تمكين الوصف"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Enable",
-        "en": "Enable"
+        "en": "Enable",
+        "ar": "مفعل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Limit description",
         "ru": "Limit description",
-        "en": "Limit description"
+        "en": "Limit description",
+        "ar": "وصف الحد"
       },
       "names": {
         "de": "Grenze",
         "ru": "Limit",
-        "en": "Limit"
+        "en": "Limit",
+        "ar": "الحدود"
       }
     },
     {
@@ -55,54 +63,62 @@
       "descriptions": {
         "de": "Bedingung Beschreibung",
         "ru": "Condition description",
-        "en": "Condition description"
+        "en": "Condition description",
+        "ar": "المشغل أو العامل"
       },
       "names": {
         "de": "Bedingung",
         "ru": "Condition",
-        "en": "Condition"
+        "en": "Condition",
+        "ar": "الشرط"
       },
       "enums" : {
         "<" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Kleiner (Wert<Vergleichswert)",
-            "en" : "Less (value<comparison value)"
+            "de": "Kleiner (Wert<Vergleichswert)",
+            "en": "Less (value<comparison value)",
+            "ar": "أقل من (القيمة <قيمة المقارنة)"
           }
         },
         "<=" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Kleiner-Gleich (Wert<=Vergleichswert)",
-            "en" : "Less than or equal (value<=comparison value)"
+            "de": "Kleiner-Gleich (Wert<=Vergleichswert)",
+            "en": "Less than or equal (value<=comparison value)",
+            "ar": "أقل من أو يساوي (القيمة <= قيمة المقارنة)"
           }
         },
         ">" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Größer (Wert>Vergleichswert)",
-            "en" : "Greater (value>comparison value)"
+            "de": "Größer (Wert>Vergleichswert)",
+            "en": "Greater (value>comparison value)",
+            "ar": "أكبر من (القيمة> قيمة المقارنة)"
           }
         },
         ">=" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Größer-Gleich (Wert>=Vergleichswert)",
-            "en" : "Greater or equal (value>=comparison value)"
+            "de": "Größer-Gleich (Wert>=Vergleichswert)",
+            "en": "Greater or equal (value>=comparison value)",
+            "ar": "أكبر من أو يساوي (القيمة> = قيمة المقارنة)"
           }
         },
         "=" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Gleich (Wert=Vergleichswert)",
-            "en" : "Equal (value=comparison value)"
+            "de": "Gleich (Wert=Vergleichswert)",
+            "en": "Equal (value=comparison value)",
+            "ar": "يساوي (القيمة = قيمة المقارنة)"
           }
         },
         "!=" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Ungleich (Wert≠Vergleichswert)",
-            "en" : "Unequal (value≠comparison value)"
+            "de": "Ungleich (Wert≠Vergleichswert)",
+            "en": "Unequal (value≠comparison value)",
+            "ar": "لا يساوي (القيمة ≠ قيمة المقارنة)"
           }
         }
       }
@@ -112,12 +128,14 @@
       "descriptions": {
         "de": "Status description",
         "ru": "Status description",
-        "en": "Status description"
+        "en": "Status description",
+        "ar": "الحالة"
       },
       "names": {
         "de": "Zustand",
         "ru": "Status",
-        "en": "Status"
+        "en": "Status",
+        "ar": "الحالة"
       }
     }
   ]

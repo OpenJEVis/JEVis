@@ -3,7 +3,8 @@
   "names": {
     "de": "04 Bewertung der Leistung",
     "ru": "04 Check",
-    "en": "04 Check"
+    "en": "04 Check",
+    "ar": "04 تقييم الأداء"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Auditdatum Beschreibung",
         "ru": "Audit Date description",
-        "en": "Audit Date description"
+        "en": "Audit Date description",
+        "ar": "تاريخ مراجعة"
       },
       "names": {
         "de": "Auditdatum",
         "ru": "Audit Date",
-        "en": "Audit Date"
+        "en": "Audit Date",
+        "ar": "تاريخ مراجعة"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Auditor Beschreibung",
         "ru": "Auditor description",
-        "en": "Auditor description"
+        "en": "Auditor description",
+        "ar": "وصف المدقق"
       },
       "names": {
         "de": "Auditor",
         "ru": "Auditor",
-        "en": "Auditor"
+        "en": "Auditor",
+        "ar": "مدقق حسابات"
       }
     }
   ]

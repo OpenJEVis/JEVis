@@ -2,7 +2,8 @@ package org.jevis.jeconfig;
 
 
 public class Icon {
-
+    public static final String CREATE_NEW_FOLDER = "/icons/MaterialDesignSVG/outlined/create_new_folder.svg";
+    public static final String POST_ADD = "/icons/MaterialDesignSVG/outlined/post_add.svg";
     public static final String CSS_TOOLBAR = "toolbarSVG";
 
     public static final String CSS_PLUGIN = "pluginSVG";
@@ -13,6 +14,9 @@ public class Icon {
     public static final String REFRESH = "/icons/MaterialDesignSVG/outlined/autorenew.svg";
     public static final String COPY = "/icons/MaterialDesignSVG/outlined/content_copy_alt.svg";
     public static final String PASTE = "/icons/MaterialDesignSVG/outlined/content_paste.svg";
+    public static final String PREVIEW = "/icons/MaterialDesignSVG/outlined/preview.svg";
+    public static final String PLAYLIST_ADD = "/icons/MaterialDesignSVG/outlined/playlist_add.svg";
+    public static final String PLAYLIST_REMOVE = "/icons/MaterialDesignSVG/outlined/playlist_remove.svg";
     public static final String CUT = "/icons/MaterialDesignSVG/outlined/content_cut.svg";
     public static final String COPY_PROPERTIES = "/icons/MaterialDesignSVG/outlined/colorize.svg";
     public static final String PASTE_PROPERTIES = "/icons/MaterialDesignSVG/outlined/brush.svg";
@@ -121,5 +125,9 @@ public class Icon {
 
     public static final String HOME = "/icons/MaterialDesignSVG/outlined/home.svg";
     public static final String SELECT_CHECK_BOX = "/icons/MaterialDesignSVG/outlined/select_check_box.svg";
+    public static final String ARROW_UP = "/icons/MaterialDesignSVG/outlined/arrow_upward.svg";
+    public static final String ARROW_DOWN = "/icons/MaterialDesignSVG/outlined/arrow_downward.svg";
 
+    public static final String FILTER_ALT = "/icons/MaterialDesignSVG/outlined/filter_alt.svg";
+    public static final String FILTER_ALT_OFF = "/icons/MaterialDesignSVG/outlined/filter_alt_off.svg";
 }

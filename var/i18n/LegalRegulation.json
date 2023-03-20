@@ -3,7 +3,8 @@
   "names": {
     "de": "Gesetzliche Anforderung",
     "ru": "Legal Regulation",
-    "en": "Legal Regulation"
+    "en": "Legal Regulation",
+    "ar": "التنظيم القانوني"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Content Summary description",
         "ru": "Content Summary description",
-        "en": "Content Summary description"
+        "en": "Content Summary description",
+        "ar": "ملخص المحتوى"
       },
       "names": {
         "de": "Content Summary",
         "ru": "Content Summary",
-        "en": "Content Summary"
+        "en": "Content Summary",
+        "ar": "ملخص المحتوى"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Date of Review description",
         "ru": "Date of Review description",
-        "en": "Date of Review description"
+        "en": "Date of Review description",
+        "ar": "تاريخ وصف المراجعة"
       },
       "names": {
         "de": "Date of Review",
         "ru": "Date of Review",
-        "en": "Date of Review"
+        "en": "Date of Review",
+        "ar": "تاريخ مراجعة"
       }
     },
     {
@@ -38,12 +43,16 @@
       "descriptions": {
         "de": "Issue Date description",
         "ru": "Issue Date description",
-        "en": "Issue Date description"
+        "en": "Issue Date description",
+        "ar": تاريخ
+        المشكلة
+        ""
       },
       "names": {
         "de": "Issue Date",
         "ru": "Issue Date",
-        "en": "Issue Date"
+        "en": "Issue Date",
+        "ar": "تاريخ المشكلة"
       }
     },
     {
@@ -51,12 +60,14 @@
       "descriptions": {
         "de": "Last Amended description",
         "ru": "Last Amended description",
-        "en": "Last Amended description"
+        "en": "Last Amended description",
+        "ar": "آخر تعديل"
       },
       "names": {
         "de": "Last Amended",
         "ru": "Last Amended",
-        "en": "Last Amended"
+        "en": "Last Amended",
+        "ar": "آخر تعديل"
       }
     },
     {
@@ -64,12 +75,14 @@
       "descriptions": {
         "de": "Regulation Designation description",
         "ru": "Regulation Designation description",
-        "en": "Regulation Designation description"
+        "en": "Regulation Designation description",
+        "ar": "تسمية اللائحة"
       },
       "names": {
         "de": "Regulation Designation",
         "ru": "Regulation Designation",
-        "en": "Regulation Designation"
+        "en": "Regulation Designation",
+        "ar": ""
       }
     },
     {
@@ -77,12 +90,14 @@
       "descriptions": {
         "de": "Relevance to ISO 50001 description",
         "ru": "Relevance to ISO 50001 description",
-        "en": "Relevance to ISO 50001 description"
+        "en": "Relevance to ISO 50001 description",
+        "ar": "الصلة بمعيار ISO 50001"
       },
       "names": {
         "de": "Relevance to ISO 50001",
         "ru": "Relevance to ISO 50001",
-        "en": "Relevance to ISO 50001"
+        "en": "Relevance to ISO 50001",
+        "ar": "الصلة بمعيار ISO 50001"
       }
     },
     {
@@ -90,12 +105,14 @@
       "descriptions": {
         "de": "Significance to the Company description",
         "ru": "Significance to the Company description",
-        "en": "Significance to the Company description"
+        "en": "Significance to the Company description",
+        "ar": "أهمية بالنسبة للشركة"
       },
       "names": {
         "de": "Significance to the Company",
         "ru": "Significance to the Company",
-        "en": "Significance to the Company"
+        "en": "Significance to the Company",
+        "ar": "أهمية بالنسبة للشركة"
       }
     }
   ]

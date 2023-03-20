@@ -5,14 +5,16 @@
     "ru": "источник данных",
     "uk": "джерело даних",
     "th": "แหล่งข้อมูล",
-    "en": "Data Source"
+    "en": "Data Source",
+    "ar": "مصدر البيانات"
   },
   "descriptions": {
     "de": "Eine Datenquelle ist eine generische Klasse, welche für spezielle Daten Quellen, z.B. Datenserver oder Speichermedien, abgeleitet wird.",
     "ru": "Источник данных - это универсальный класс, который предназначен для специальных источников данных, например, Сервер данных или носитель.",
     "uk": "Джерело даних - це загальний клас, який для спеціальних джерел даних, напр. Сервер даних або носій інформації.",
     "th": "แหล่งข้อมูลเป็นคลาสทั่วไปสำหรับแหล่งข้อมูลพิเศษเช่น เซิร์ฟเวอร์ข้อมูลหรือสื่อบันทึกข้อมูล",
-    "en": "A data source is a generic class which is derived for special data sources, e.g. Data server or storage media."
+    "en": "A data source is a generic class which is derived for special data sources, e.g. Data server or storage media.",
+    "ar": "مصدر البيانات هو فئة عامة مشتقة من مصادر بيانات محددة ، مثل خوادم البيانات أو وسائط التخزين."
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "Позволяет читать источник данных.",
         "uk": "Вмикає зчитування джерела даних.",
         "th": "เปิดใช้งานการอ่านของแหล่งข้อมูล",
-        "en": "Enables the reading of the data source."
+        "en": "Enables the reading of the data source.",
+        "ar": "ينشط قراءة مصدر البيانات."
       },
       "names": {
         "de": "Aktiviert",
         "ru": "включен",
         "uk": "включений",
         "th": "เปิดการใช้งาน",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -39,14 +43,16 @@
         "ru": "Определяет часовой пояс сервера данных",
         "uk": "Визначає часовий пояс сервера даних",
         "th": "กำหนดเขตเวลาของเซิร์ฟเวอร์ข้อมูล",
-        "en": "Defines the timezone of the Data Server"
+        "en": "Defines the timezone of the Data Server",
+        "ar": "يحدد المنطقة الزمنية لخادم البيانات"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "часовой пояс",
         "uk": "часовий пояс",
         "th": "โซนเวลา",
-        "en": "Timezone"
+        "en": "Timezone",
+        "ar": "وحدة زمنية"
       }
     },
     {
@@ -56,14 +62,16 @@
         "ru": "Последний раз источник данных был получен.",
         "uk": "Востаннє було отримано джерело даних.",
         "th": "ครั้งสุดท้ายที่มีการดึงแหล่งข้อมูล",
-        "en": "The data source has been read last at this time."
+        "en": "The data source has been read last at this time.",
+        "ar": "آخر مرة تم فيها استرداد مصدر البيانات."
       },
       "names": {
         "de": "Letzter Zyklus",
         "ru": "Последний цикл",
         "uk": "Останній цикл",
         "th": "รอบสุดท้าย",
-        "en": "Last cycle"
+        "en": "Last cycle",
+        "ar": "الدورة الماضية"
       }
     },
     {
@@ -73,14 +81,16 @@
         "ru": "Указывает интервал, в котором повторяется чтение сервера данных.",
         "uk": "Вказує інтервал, через який повторне читання сервера даних.",
         "th": "ระบุช่วงเวลาที่การอ่านเซิร์ฟเวอร์ข้อมูลซ้ำแล้วซ้ำอีก",
-        "en": "Defines the interval in which the readout of the Data Server is repeated"
+        "en": "Defines the interval in which the readout of the Data Server is repeated",
+        "ar": "يحدد الفاصل الزمني الذي يتم فيه تكرار قراءة خادم البيانات."
       },
       "names": {
         "de": "Taktzeit",
         "ru": "время цикла",
         "uk": "час циклу",
         "th": "รอบเวลา",
-        "en": "Cycle Time"
+        "en": "Cycle Time",
+        "ar": "وقت الدورة"
       }
     },
     {
@@ -90,14 +100,16 @@
         "ru": "Это поле определяет, когда будет указана точка данных. Указано в часах.",
         "uk": "Це поле визначає, коли буде вказано точку даних. Вказано в годинах.",
         "th": "ฟิลด์นี้จะกำหนดเวลาที่จะแสดงรายการจุดข้อมูล ระบุเป็นชั่วโมง",
-        "en": "This field defines when a data point will be listed. Specified in hours."
+        "en": "This field defines when a data point will be listed. Specified in hours.",
+        "ar": "يحدد هذا الحقل وقت إدراج نقطة البيانات. محدد بالساعات."
       },
       "names": {
         "de": "Kürzest berichtet",
         "ru": "Последний раз сообщалось.",
         "uk": "Найкоротший повідомив",
         "th": "รายงานสั้นที่สุด",
-        "en": "Latest back reported"
+        "en": "Latest back reported",
+        "ar": "ذكرت آخر مرة"
       }
     }
   ]

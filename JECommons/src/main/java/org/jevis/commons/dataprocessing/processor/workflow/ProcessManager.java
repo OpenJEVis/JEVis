@@ -31,6 +31,8 @@ public class ProcessManager {
 
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
+    private final ObjectHandler objectHandler;
+    private final int processingSize;
     private String name;
     private Long id;
     private List<ProcessStep> processSteps = new ArrayList<>();
@@ -42,6 +44,8 @@ public class ProcessManager {
 
         this.name = cleanObject.getName();
         this.id = cleanObject.getID();
+        this.objectHandler = objectHandler;
+        this.processingSize = processingSize;
 
         JEVisClass cleanDataClass;
         JEVisClass forecastDataClass;
@@ -153,11 +157,7 @@ public class ProcessManager {
 
                 logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
 
-                resourceManager.setIntervals(null);
-                resourceManager.setNotesMap(null);
-                resourceManager.setRawSamplesDown(null);
-                resourceManager.setSampleCache(null);
-                resourceManager.setRawIntervals(null);
+                reinitializeCleanData();
             } while (!isFinished);
         } else if (resourceManager.getForecastDataObject() != null) {
             while (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
@@ -170,6 +170,23 @@ public class ProcessManager {
                 resourceManager.getMathDataObject().finishCurrentRun(resourceManager.getMathDataObject().getMathDataObject());
             }
         }
+    }
+
+    private void reinitializeCleanData() {
+        processSteps.clear();
+
+        JEVisObject cleanObject = resourceManager.getCleanDataObject().getCleanObject();
+
+        resourceManager.setIntervals(null);
+        resourceManager.setNotesMap(null);
+        resourceManager.setUserDataMap(null);
+        resourceManager.setRawSamplesDown(null);
+        resourceManager.setSampleCache(null);
+        resourceManager.setRawIntervals(null);
+        resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+        resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+
+        addDefaultSteps();
     }
 
     private void reRun() throws Exception {

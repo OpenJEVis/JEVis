@@ -1,19 +1,20 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXAlert;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +24,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox;
 import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
@@ -33,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SaveAnalysisDialog extends JFXDialog {
+public class SaveAnalysisDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(SaveAnalysisDialog.class);
     private final JEVisDataSource ds;
     private final ObjectRelations objectRelations;
@@ -41,9 +44,15 @@ public class SaveAnalysisDialog extends JFXDialog {
     private JEVisObject currentAnalysisDirectory = null;
     private Response response = Response.CANCEL;
 
-    public SaveAnalysisDialog(StackPane dialogContainer, JEVisDataSource ds, DataSettings dataSettings, ChartPlugin chartPlugin, ToolBarView toolBarView) {
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+    public SaveAnalysisDialog(JEVisDataSource ds, DataSettings dataSettings, ChartPlugin chartPlugin, ToolBarView toolBarView) {
+        setTitle(I18n.getInstance().getString("plugin.graph.saveanalysis.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.graph.saveanalysis.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
@@ -122,10 +131,17 @@ public class SaveAnalysisDialog extends JFXDialog {
             }
         }));
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
-        cancel.setOnAction(event -> close());
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+        cancelButton.setOnAction(event -> close());
 
         GridPane gridLayout = new GridPane();
         gridLayout.setPadding(new Insets(10, 10, 10, 10));
@@ -141,17 +157,9 @@ public class SaveAnalysisDialog extends JFXDialog {
         GridPane.setFillWidth(name, true);
         name.setMinWidth(350);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        getDialogPane().setContent(gridLayout);
 
-        Separator separator = new Separator(Orientation.HORIZONTAL);
-        separator.setPadding(new Insets(8, 0, 8, 0));
-
-        VBox vBox = new VBox(6, gridLayout, separator, buttonBar);
-        setContent(vBox);
-
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             List<String> check = new ArrayList<>();
             AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
             try {
@@ -188,7 +196,7 @@ public class SaveAnalysisDialog extends JFXDialog {
                     response = Response.OK;
                 }
             } else {
-                JFXAlert dialogOverwrite = new JFXAlert(this.getScene().getWindow());
+                JFXAlert dialogOverwrite = new JFXAlert(this.getDialogPane().getScene().getWindow());
                 dialogOverwrite.setResizable(true);
                 dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
                 Label message = new Label(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));

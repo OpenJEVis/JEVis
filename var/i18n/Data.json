@@ -5,14 +5,16 @@
     "ru": "данные",
     "uk": "Дані",
     "th": "ข้อมูล",
-    "en": "Data"
+    "en": "Data",
+    "ar": "البيانات"
   },
   "descriptions": {
     "de": "In Daten werden numerische Datenreihen gespeichert.",
     "ru": "Численные ряды данных хранятся в данных.",
     "uk": "Зберігання числових даних.",
     "th": "Data เก็บชุดข้อมูลตัวเลข",
-    "en": "Storage of numerical data."
+    "en": "Storage of numerical data.",
+    "ar": "يخزن البيانات سلسلة بيانات رقمية."
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "Значение ряда данных",
         "uk": "Значення ряду даних",
         "th": "ค่าของชุดข้อมูล",
-        "en": "Value of the data series"
+        "en": "Value of the data series",
+        "ar": "قيمة سلسلة البيانات"
       },
       "names": {
         "de": "Wert",
         "ru": "ценность",
         "uk": "Значення",
         "th": "ความคุ้มค่า",
-        "en": "Value"
+        "en": "Value",
+        "ar": "القيمة"
       }
     },
     {
@@ -39,14 +43,16 @@
         "ru": "Период ряда данных",
         "uk": "Період серії даних",
         "th": "ช่วงเวลาของชุดข้อมูล",
-        "en": "Period of the data series"
+        "en": "Period of the data series",
+        "ar": "فترة سلسلة البيانات"
       },
       "names": {
         "de": "Periode",
         "ru": "период",
         "uk": "період",
         "th": "งวด",
-        "en": "Period"
+        "en": "Period",
+        "ar": "فترة"
       }
     }
   ]

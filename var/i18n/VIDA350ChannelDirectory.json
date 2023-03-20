@@ -3,12 +3,14 @@
   "names": {
     "de": "VIDA350 Kanalverzeichnis",
     "ru": "VIDA350 Channel Directory",
-    "en": "VIDA350 Channel Directory"
+    "en": "VIDA350 Channel Directory",
+    "ar": "دليل قناة VIDA350"
   },
   "descriptions": {
     "de": "Die Klasse VIDA350 Kanalverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Daten dar.\n\nDie Klasse ist eindeutig, was bedeutet, dass es nicht möglich ist, ein Objekt dieser Klasse parallel zu einem bereits existierenden Objekt derselben Klasse anzulegen.",
     "ru": "The class VIDA350 Directory represents a specific directory for the management of data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
-    "en": "The class VIDA350 Directory represents a specific directory for the management of data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+    "en": "The class VIDA350 Directory represents a specific directory for the management of data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ar": "تمثل فئة دليل القناة VIDA350 دليلاً محددًا لإدارة البيانات.\n\nالفئة فريدة ، مما يعني أنه لا يمكن إنشاء كائن من هذه الفئة بالتوازي مع كائن موجود من نفس الفئة."
   },
   "types": []
 }

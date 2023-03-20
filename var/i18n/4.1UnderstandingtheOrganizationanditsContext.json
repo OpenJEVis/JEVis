@@ -3,12 +3,14 @@
   "names": {
     "de": "4.1 Verstehen der Organisation und ihres Kontextes",
     "ru": "4.1 Understanding the Organization and its Context",
-    "en": "4.1 Understanding the Organization and its Context"
+    "en": "4.1 Understanding the Organization and its Context",
+    "ar": "4.1 فهم المنظمة وسياقها"
   },
   "descriptions": {
     "de": "Die Organisation muss externe und interne Themen bestimmen, die für ihren Zweck relevant sind und sich auf ihre Fähigkeit auswirken, die beabsichtigten Ergebnisse ihres EnMS zu erreichen und ihre energiebezogene Leistung zu verbessern.\n\nBei der Bestimmung des Kontexts der Organisation muss die Organisation die Informationen berücksichtigen, die aus der energetischen Bewertung stammen (siehe 6.3).",
     "ru": "The organization shall determine external and internal issues that are relevant to its purpose and that  affect its ability to achieve the intended outcome(s) of its EnMS and to improve its energy performance.   \nWhen determining organizational context, the organization shall consider the information obtained  from the energy review (see 6.3). ",
-    "en": "The organization shall determine external and internal issues that are relevant to its purpose and that  affect its ability to achieve the intended outcome(s) of its EnMS and to improve its energy performance.   \nWhen determining organizational context, the organization shall consider the information obtained  from the energy review (see 6.3). "
+    "en": "The organization shall determine external and internal issues that are relevant to its purpose and that  affect its ability to achieve the intended outcome(s) of its EnMS and to improve its energy performance.   \nWhen determining organizational context, the organization shall consider the information obtained  from the energy review (see 6.3). ",
+    "ar": "يجب على المنظمة تحديد القضايا الخارجية والداخلية ذات الصلة بغرضها والتأثير على قدرتها على تحقيق النتائج المرجوة من نظام إدارة الطاقة وتحسين أدائها المتعلق بالطاقة.\n\nعند تحديد سياق المنظمة ، يجب على المنظمة النظر في المعلومات المستمدة من تقييم الطاقة (انظر 6.3)."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung der Organisation und ihres Kontexts.",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "وصف المنظمة وسياقها."
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الإنشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "العنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "العنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "رقم إصدار المستند"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

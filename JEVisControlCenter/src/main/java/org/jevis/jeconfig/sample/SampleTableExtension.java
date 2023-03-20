@@ -21,7 +21,6 @@ package org.jevis.jeconfig.sample;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -31,9 +30,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
@@ -47,6 +47,7 @@ import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
 import org.jevis.jeconfig.dialog.ConfirmDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
@@ -72,7 +73,6 @@ public class SampleTableExtension implements SampleEditorExtension {
 
     private final static String TITLE = "Editor";
     private final BorderPane borderPane = new BorderPane();
-    private final StackPane dialogContainer = new StackPane(borderPane);
     private final Window owner;
     private DateTimeZone dateTimeZone;
     private JEVisAttribute _att;
@@ -278,10 +278,15 @@ public class SampleTableExtension implements SampleEditorExtension {
             DateTime firstDate = minMax[0];
             DateTime endDate = minMax[1];
             try {
-                JFXDialog dialog = new JFXDialog();
-                dialog.setDialogContainer(dialogContainer);
-                dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
-                dialog.setOverlayClose(false);
+                Dialog dialog = new Dialog();
+                dialog.setTitle(I18n.getInstance().getString("plugin.configuration.addvaluesinbetween.title"));
+                dialog.setHeaderText(I18n.getInstance().getString("plugin.configuration.addvaluesinbetween.header"));
+                dialog.setResizable(true);
+                dialog.initOwner(JEConfig.getStage());
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+                TopMenu.applyActiveTheme(stage.getScene());
+                stage.setAlwaysOnTop(true);
 
                 Label valueLabel = new Label(I18n.getInstance().getString("plugin.graph.table.value"));
                 JFXTextField valueField = new JFXTextField();
@@ -310,10 +315,16 @@ public class SampleTableExtension implements SampleEditorExtension {
                 gridPane.add(noteLabel, 0, row);
                 gridPane.add(noteField, 1, row, 2, 1);
 
-                final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-                ok.setDefaultButton(true);
-                final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-                cancel.setCancelButton(true);
+                ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+                ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+                Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+                okButton.setDefaultButton(true);
+
+                Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+                cancelButton.setCancelButton(true);
 
                 final JFXCheckBox more = new JFXCheckBox(I18n.getInstance().getString("graph.tabs.charts"));
                 more.setSelected(false);
@@ -323,7 +334,7 @@ public class SampleTableExtension implements SampleEditorExtension {
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, Priority.ALWAYS);
 
-                HBox buttonBar = new HBox(6, more, spacer, cancel, ok);
+                HBox buttonBar = new HBox(6, more, spacer);
                 buttonBar.setAlignment(Pos.CENTER_RIGHT);
                 buttonBar.setPadding(new Insets(12));
                 buttonBar.setMinWidth(240);
@@ -332,9 +343,9 @@ public class SampleTableExtension implements SampleEditorExtension {
                 separator.setPadding(new Insets(8, 0, 8, 0));
 
                 VBox vBox = new VBox(6, gridPane, separator, buttonBar);
-                dialog.setContent(vBox);
+                dialog.getDialogPane().setContent(vBox);
 
-                ok.setOnAction(evt -> {
+                okButton.setOnAction(evt -> {
                     try {
                         BigDecimal d = new BigDecimal(dv.validate(valueField.getText(), I18n.getInstance().getLocale()).toString());
 
@@ -395,7 +406,7 @@ public class SampleTableExtension implements SampleEditorExtension {
                     dialog.close();
                 });
 
-                cancel.setOnAction(e -> dialog.close());
+                cancelButton.setOnAction(e -> dialog.close());
 
                 dialog.show();
 
@@ -475,7 +486,7 @@ public class SampleTableExtension implements SampleEditorExtension {
 
     @Override
     public Node getView() {
-        return dialogContainer;
+        return borderPane;
     }
 
     @Override

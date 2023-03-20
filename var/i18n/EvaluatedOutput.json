@@ -3,7 +3,8 @@
   "names": {
     "de": "Bewerteter Ausgang",
     "ru": "Evaluated Output",
-    "en": "Evaluated Output"
+    "en": "Evaluated Output",
+    "ar": "الناتج الذي تم تقييمه"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "01 January description",
         "ru": "01 January description",
-        "en": "01 January description"
+        "en": "01 January description",
+        "ar": "01 كانون الثاني "
       },
       "names": {
         "de": "01 January",
         "ru": "01 January",
-        "en": "01 January"
+        "en": "01 January",
+        "ar": "01 كانون الثاني "
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "02 February description",
         "ru": "02 February description",
-        "en": "02 February description"
+        "en": "02 February description",
+        "ar": "02 شباط"
       },
       "names": {
         "de": "02 February",
         "ru": "02 February",
-        "en": "02 February"
+        "en": "02 February",
+        "ar": "02 شباط"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "03 March description",
         "ru": "03 March description",
-        "en": "03 March description"
+        "en": "03 March description",
+        "ar": "03 آذار "
       },
       "names": {
         "de": "03 March",
         "ru": "03 March",
-        "en": "03 March"
+        "en": "03 March",
+        "ar": "03 آذار "
       }
     },
     {
@@ -51,12 +58,16 @@
       "descriptions": {
         "de": "04 April description",
         "ru": "04 April description",
-        "en": "04 April description"
+        "en": "04 April description",
+        "ar": "04 نيسان"
       },
       "names": {
         "de": "04 April",
         "ru": "04 April",
-        "en": "04 April"
+        "en": "04 April",
+        "ar": 04
+        نيسان
+        ""
       }
     },
     {
@@ -64,12 +75,14 @@
       "descriptions": {
         "de": "05 May description",
         "ru": "05 May description",
-        "en": "05 May description"
+        "en": "05 May description",
+        "ar": ""
       },
       "names": {
         "de": "05 May",
         "ru": "05 May",
-        "en": "05 May"
+        "en": "05 May",
+        "ar": "05 أيار"
       }
     },
     {
@@ -77,12 +90,14 @@
       "descriptions": {
         "de": "06 June description",
         "ru": "06 June description",
-        "en": "06 June description"
+        "en": "06 June description",
+        "ar": "06 حزيران"
       },
       "names": {
         "de": "06 June",
         "ru": "06 June",
-        "en": "06 June"
+        "en": "06 June",
+        "ar": "06 حزيران"
       }
     },
     {
@@ -90,12 +105,14 @@
       "descriptions": {
         "de": "07 July description",
         "ru": "07 July description",
-        "en": "07 July description"
+        "en": "07 July description",
+        "ar": "07 تموز"
       },
       "names": {
         "de": "07 July",
         "ru": "07 July",
-        "en": "07 July"
+        "en": "07 July",
+        "ar": "07 تموز"
       }
     },
     {
@@ -103,12 +120,14 @@
       "descriptions": {
         "de": "08 August description",
         "ru": "08 August description",
-        "en": "08 August description"
+        "en": "08 August description",
+        "ar": "08 آب"
       },
       "names": {
         "de": "08 August",
         "ru": "08 August",
-        "en": "08 August"
+        "en": "08 August",
+        "ar": "08 آب"
       }
     },
     {
@@ -116,12 +135,14 @@
       "descriptions": {
         "de": "09 September description",
         "ru": "09 September description",
-        "en": "09 September description"
+        "en": "09 September description",
+        "ar": "09 أيلول"
       },
       "names": {
         "de": "09 September",
         "ru": "09 September",
-        "en": "09 September"
+        "en": "09 September",
+        "ar": "09 أيلول"
       }
     },
     {
@@ -129,12 +150,14 @@
       "descriptions": {
         "de": "10 October description",
         "ru": "10 October description",
-        "en": "10 October description"
+        "en": "10 October description",
+        "ar": "1010 تشرين الأول"
       },
       "names": {
         "de": "10 October",
         "ru": "10 October",
-        "en": "10 October"
+        "en": "10 October",
+        "ar": "10 تشرين الأول"
       }
     },
     {
@@ -142,12 +165,14 @@
       "descriptions": {
         "de": "11 November description",
         "ru": "11 November description",
-        "en": "11 November description"
+        "en": "11 November description",
+        "ar": "11 تشرين الثاني "
       },
       "names": {
         "de": "11 November",
         "ru": "11 November",
-        "en": "11 November"
+        "en": "11 November",
+        "ar": "11 تشرين الثاني "
       }
     },
     {
@@ -155,12 +180,14 @@
       "descriptions": {
         "de": "12 December description",
         "ru": "12 December description",
-        "en": "12 December description"
+        "en": "12 December description",
+        "ar": "12 كانون الأول "
       },
       "names": {
         "de": "12 December",
         "ru": "12 December",
-        "en": "12 December"
+        "en": "12 December",
+        "ar": "12 كانون الأول "
       }
     },
     {
@@ -168,12 +195,14 @@
       "descriptions": {
         "de": "Year description",
         "ru": "Year description",
-        "en": "Year description"
+        "en": "Year description",
+        "ar": "سنة"
       },
       "names": {
         "de": "Year",
         "ru": "Year",
-        "en": "Year"
+        "en": "Year",
+        "ar": "سنة"
       }
     }
   ]

@@ -3,7 +3,8 @@
   "names": {
     "de": "Export Daten Event",
     "ru": "Export Data Event",
-    "en": "Export Data Event"
+    "en": "Export Data Event",
+    "ar": "حدث بيانات التصدير"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Operator",
         "ru": "Operator",
-        "en": "Operator"
+        "en": "Operator",
+        "ar": "المشغل"
       },
       "names": {
         "de": "Operator",
         "ru": "Operator",
-        "en": "Operator"
+        "en": "Operator",
+        "ar": "المشغل"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Vergleichsdatenpunkt",
         "ru": "JEVis ID",
-        "en": "JEVis ID"
+        "en": "JEVis ID",
+        "ar": "معرف JEVis"
       },
       "names": {
         "de": "Vergleichsdatenpunkt",
         "ru": "JEVis ID",
-        "en": "JEVis ID"
+        "en": "JEVis ID",
+        "ar": "نقطة بيانات المقارنة"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Grenze",
         "ru": "Limit",
-        "en": "Limit"
+        "en": "Limit",
+        "ar": "حد"
       },
       "names": {
         "de": "Grenze",
         "ru": "Limit",
-        "en": "Limit"
+        "en": "Limit",
+        "ar": "حدود"
       }
     }
   ]

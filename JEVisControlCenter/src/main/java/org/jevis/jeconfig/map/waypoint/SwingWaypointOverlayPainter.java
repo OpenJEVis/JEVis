@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.map.waypoint;
 
-import org.jevis.jeconfig.map.waypoint.SwingWaypoint;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.WaypointPainter;
 

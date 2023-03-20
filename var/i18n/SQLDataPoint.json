@@ -3,7 +3,8 @@
   "names": {
     "de": "SQL Datenpunkt",
     "ru": "SQL Data Point",
-    "en": "SQL Data Point"
+    "en": "SQL Data Point",
+    "ar": "نقطة بيانات SQL"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Target Attribute description",
         "ru": "Target Attribute description",
-        "en": "Target Attribute description"
+        "en": "Target Attribute description",
+        "ar": "السمات المستهدفة"
       },
       "names": {
         "de": "Zielattribut",
         "ru": "Target Attribute",
-        "en": "Target Attribute"
+        "en": "Target Attribute",
+        "ar": "السمة الهدف"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Target ID description",
         "ru": "Target ID description",
-        "en": "Target ID description"
+        "en": "Target ID description",
+        "ar": "هوية الهدف"
       },
       "names": {
         "de": "Ziel ID",
         "ru": "Target ID",
-        "en": "Target ID"
+        "en": "Target ID",
+        "ar": "هوية الهدف"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Timestamp Column description",
         "ru": "Timestamp Column description",
-        "en": "Timestamp Column description"
+        "en": "Timestamp Column description",
+        "ar": "وصف عمود الطابع الزمني"
       },
       "names": {
         "de": "Zeitstempel Spalte",
         "ru": "Timestamp Column",
-        "en": "Timestamp Column"
+        "en": "Timestamp Column",
+        "ar": "عمود الطابع الزمني"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Timestamp Type description",
         "ru": "Timestamp Type description",
-        "en": "Timestamp Type description"
+        "en": "Timestamp Type description",
+        "ar": "وصف نوع الطابع الزمني"
       },
       "names": {
         "de": "Zeitstempel Typ",
         "ru": "Timestamp Type",
-        "en": "Timestamp Type"
+        "en": "Timestamp Type",
+        "ar": "نوع الطابع الزمني"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Value Column description",
         "ru": "Value Column description",
-        "en": "Value Column description"
+        "en": "Value Column description",
+        "ar": "عمود القيمة"
       },
       "names": {
         "de": "Wert Spalte",
         "ru": "Value Column",
-        "en": "Value Column"
+        "en": "Value Column",
+        "ar": "عمود القيمة"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Value Type description",
         "ru": "Value Type description",
-        "en": "Value Type description"
+        "en": "Value Type description",
+        "ar": "نوع القيمة"
       },
       "names": {
         "de": "Wert Typ",
         "ru": "Value Type",
-        "en": "Value Type"
+        "en": "Value Type",
+        "ar": "نوع القيمة"
       }
     }
   ]

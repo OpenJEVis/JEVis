@@ -1,20 +1,20 @@
 package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -24,11 +24,10 @@ import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EquipmentDialog extends JFXDialog {
+public class EquipmentDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(EquipmentDialog.class);
     private final JEVisClass jeVisClass;
     private final List<JEVisClass> possibleParents = new ArrayList<>();
-    private final StackPane dialogContainer;
     private final JEVisDataSource ds;
     private final List<AttributeEditor> attributeEditors = new ArrayList<>();
     private Response response;
@@ -36,13 +35,18 @@ public class EquipmentDialog extends JFXDialog {
     private JEVisObject newObject;
     private String name;
 
-    public EquipmentDialog(StackPane dialogContainer, JEVisDataSource ds, JEVisClass jeVisClass) {
+    public EquipmentDialog(JEVisDataSource ds, JEVisClass jeVisClass) {
         super();
-        this.dialogContainer = dialogContainer;
         this.ds = ds;
         this.jeVisClass = jeVisClass;
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+        setTitle(I18n.getInstance().getString("plugin.equipment.equipmentdialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.equipment.equipmentdialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         try {
             for (JEVisClass aClass : ds.getJEVisClasses()) {
@@ -92,26 +96,24 @@ public class EquipmentDialog extends JFXDialog {
         HBox targetBox = new HBox(parentVBox, treeButton, targetSpace, nameVBox, nameField);
         targetBox.setSpacing(4);
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.ok"));
-        HBox.setHgrow(ok, Priority.NEVER);
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
-        HBox.setHgrow(cancel, Priority.NEVER);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator sep1 = new Separator(Orientation.HORIZONTAL);
 
-        HBox buttonRow = new HBox(spacer, cancel, ok);
-        buttonRow.setPadding(new Insets(4));
-        buttonRow.setSpacing(10);
-        buttonRow.setAlignment(Pos.CENTER_RIGHT);
-
         VBox.setVgrow(targetBox, Priority.NEVER);
         VBox.setVgrow(gp, Priority.ALWAYS);
-        VBox.setVgrow(buttonRow, Priority.NEVER);
         vBox.setFillWidth(true);
-        vBox.getChildren().setAll(DialogHeader.getDialogHeader("building_equipment.png", I18n.getInstance().getString("plugin.equipment.title")), targetBox, gp, sep1, buttonRow);
-        setContent(vBox);
+        vBox.getChildren().setAll(DialogHeader.getDialogHeader("building_equipment.png", I18n.getInstance().getString("plugin.equipment.title")), targetBox, gp, sep1);
+        getDialogPane().setContent(vBox);
 
         treeButton.setOnAction(event3 -> {
             List<JEVisTreeFilter> allFilter = new ArrayList<>();
@@ -124,11 +126,11 @@ public class EquipmentDialog extends JFXDialog {
             JEVisTreeFilter allCurrentClassFilter = SelectTargetDialog.buildMultiClassFilter(first, possibleParents);
             allFilter.add(allCurrentClassFilter);
 
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE, ds, null);
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE, ds, null);
 
             List<UserSelection> openList = new ArrayList<>();
 
-            selectTargetDialog.setOnDialogClosed(event1 -> {
+            selectTargetDialog.setOnCloseRequest(event1 -> {
                 if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
                     logger.trace("Selection Done");
 
@@ -158,12 +160,12 @@ public class EquipmentDialog extends JFXDialog {
             });
         });
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             for (AttributeEditor attributeEditor : attributeEditors) {
                 if (attributeEditor.hasChanged()) {
                     try {
                         attributeEditor.commit();
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -180,12 +182,12 @@ public class EquipmentDialog extends JFXDialog {
             close();
         });
 
-        cancel.setOnAction(event -> {
+        cancelButton.setOnAction(event -> {
             response = Response.CANCEL;
             if (newObject != null) {
                 try {
                     ds.deleteObject(newObject.getID(), true);
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -234,7 +236,7 @@ public class EquipmentDialog extends JFXDialog {
 
         newObject = selectedMeter;
 
-        setContent(vBox);
+        getDialogPane().setContent(vBox);
 
         updateGrid();
 
@@ -288,7 +290,7 @@ public class EquipmentDialog extends JFXDialog {
                     VBox typeBox = new VBox(typeName);
                     typeBox.setAlignment(Pos.CENTER);
 
-                    AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(dialogContainer, attribute.getType(), attribute);
+                    AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
                     attributeEditor.setReadOnly(false);
                     attributeEditors.add(attributeEditor);
                     VBox editorBox = new VBox(attributeEditor.getEditor());

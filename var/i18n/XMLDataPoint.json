@@ -3,7 +3,8 @@
   "names": {
     "de": "XML Datenpunkt",
     "ru": "XML Data Point",
-    "en": "XML Data Point"
+    "en": "XML Data Point",
+    "ar": "نقطة بيانات XML"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Mapping Identifier description",
         "ru": "Mapping Identifier description",
-        "en": "Mapping Identifier description"
+        "en": "Mapping Identifier description",
+        "ar": "معرف التعيين"
       },
       "names": {
         "de": "Mapping Bezeichner",
         "ru": "Mapping Identifier",
-        "en": "Mapping Identifier"
+        "en": "Mapping Identifier",
+        "ar": "معرّف التعيين"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Target description",
         "ru": "Target description",
-        "en": "Target description"
+        "en": "Target description",
+        "ar": "هدف"
       },
       "names": {
         "de": "Ziel",
         "ru": "Target",
-        "en": "Target"
+        "en": "Target",
+        "ar": "هدف"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Value Identifier description",
         "ru": "Value Identifier description",
-        "en": "Value Identifier description"
+        "en": "Value Identifier description",
+        "ar": "معرف القيمة"
       },
       "names": {
         "de": "Wert Bezeichner",
         "ru": "Value Identifier",
-        "en": "Value Identifier"
+        "en": "Value Identifier",
+        "ar": "معرف القيمة"
       }
     }
   ]

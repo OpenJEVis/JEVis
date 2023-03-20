@@ -3,7 +3,8 @@
   "names": {
     "de": "SQL Kanal",
     "ru": "SQL Channel",
-    "en": "SQL Channel"
+    "en": "SQL Channel",
+    "ar": "قناة SQL"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Last Readout description",
         "ru": "Last Readout description",
-        "en": "Last Readout description"
+        "en": "Last Readout description",
+        "ar": "آخر قراءة"
       },
       "names": {
         "de": "Letzte Auslesung",
         "ru": "Last Readout",
-        "en": "Last Readout"
+        "en": "Last Readout",
+        "ar": "القراءة الأخيرة"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Query description",
         "ru": "Query description",
-        "en": "Query description"
+        "en": "Query description",
+        "ar": "استفسار"
       },
       "names": {
         "de": "Anfrage",
         "ru": "Query",
-        "en": "Query"
+        "en": "Query",
+        "ar": "استفسار"
       }
     }
   ]

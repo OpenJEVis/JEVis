@@ -244,8 +244,10 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 }
             } else {
                 final DataPoint dataPoint = findNearestDataPointWithinPickingDistance(getChart(), mouseLocation, null);
-                Double v = dataPoint.getX();
-                updateTable(v);
+                if (dataPoint != null) {
+                    Double v = dataPoint.getX();
+                    updateTable(v);
+                }
             }
         } catch (Exception e) {
             logger.error("Error while updating table", e);

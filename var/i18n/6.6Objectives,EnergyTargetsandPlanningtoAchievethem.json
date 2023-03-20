@@ -3,10 +3,12 @@
   "names": {
     "de": "6.6 Ziele, Energieziele und Planung zu deren Erreichung",
     "ru": "6.6 Objectives, Energy Targets and Planning to Achieve them",
-    "en": "6.6 Objectives, Energy Targets and Planning to Achieve them"
+    "en": "6.6 Objectives, Energy Targets and Planning to Achieve them",
+    "ar": "6.6 الغايات وأهداف الطاقة والتخطيط لتحقيقها"
   },
   "descriptions": {
-    "de": "6.6.1\nDie Organisation muss Ziele für relevante Funktionen und Ebenen festlegen.\nDie Organisation muss Energieziele festlegen.\n\n6.6.2\nDie Ziele und die Energieziele müssen:\na) im Einklang mit der Energiepolitik stehen (siehe 5.2);\nb) messbar sein (sofern machbar);\nc) anwendbare Anforderungen berücksichtigen; \nd) SEUs berücksichtigen (siehe 6.3);\ne) Chancen (siehe 6.3) zur Verbesserung der energiebezogenen Leistung berücksichtigen;\nf) überwacht werden;\ng) vermittelt werden;\nh) soweit erforderlich, aktualisiert werden.\nDie Organisation muss dokumentierte Informationen zu den Zielen und Energiezielen aufbewahren.\n\n6.6.3\nBei der Planung zum Erreichen der Ziele und Energieziele, muss die Organisation bestimmen Aktionspläne festlegen und aufrechterhalten, die einschließen:\n— was getan wird;\n— welche Ressourcen erforderlich sind;\n— wer verantwortlich ist;\n— wann es abgeschlossen wird;\n— wie die Ergebnisse bewertet werden, einschließlich der Verfahren zur Verifizierung der Verbesserung der energiebezogenen Leistung (siehe 6.7).\nDie Organisation muss berücksichtigen, wie die Maßnahmen zum Erreichen ihrer Ziele und Energieziele in die organisationseigenen Geschäftsprozesse integriert werden können. Die Aktionspläne müssen als dokumentierte Information aufbewahrt werden."
+    "de": "6.6.1\nDie Organisation muss Ziele für relevante Funktionen und Ebenen festlegen.\nDie Organisation muss Energieziele festlegen.\n\n6.6.2\nDie Ziele und die Energieziele müssen:\na) im Einklang mit der Energiepolitik stehen (siehe 5.2);\nb) messbar sein (sofern machbar);\nc) anwendbare Anforderungen berücksichtigen; \nd) SEUs berücksichtigen (siehe 6.3);\ne) Chancen (siehe 6.3) zur Verbesserung der energiebezogenen Leistung berücksichtigen;\nf) überwacht werden;\ng) vermittelt werden;\nh) soweit erforderlich, aktualisiert werden.\nDie Organisation muss dokumentierte Informationen zu den Zielen und Energiezielen aufbewahren.\n\n6.6.3\nBei der Planung zum Erreichen der Ziele und Energieziele, muss die Organisation bestimmen Aktionspläne festlegen und aufrechterhalten, die einschließen:\n— was getan wird;\n— welche Ressourcen erforderlich sind;\n— wer verantwortlich ist;\n— wann es abgeschlossen wird;\n— wie die Ergebnisse bewertet werden, einschließlich der Verfahren zur Verifizierung der Verbesserung der energiebezogenen Leistung (siehe 6.7).\nDie Organisation muss berücksichtigen, wie die Maßnahmen zum Erreichen ihrer Ziele und Energieziele in die organisationseigenen Geschäftsprozesse integriert werden können. Die Aktionspläne müssen als dokumentierte Information aufbewahrt werden.",
+    "ar": "6.6.1\nيجب على المنظمة تحديد أهداف للوظائف والمستويات ذات الصلة.\nيجب على المنظمة تحديد أهداف الطاقة.\n\n6.6.2\nيجب أن تكون الأهداف وأهداف الطاقة:\nأ) أن تكون متسقة مع سياسة الطاقة (انظر 5.2) ؛\nب) قابلة للقياس (إذا كان ذلك ممكناً) ؛\nج) النظر في المتطلبات المعمول بها ؛\nد) النظر في استخدامات الطاقة الخاصة (انظر 6.3) ؛\nهـ) النظر في الفرص (انظر 6.3) لتحسين أداء الطاقة ؛\nو) أن تخضع للمراقبة ؛\nز) بوساطة ؛\nح) تحديثها حسب الضرورة.\nيجب على المنظمة الاحتفاظ بمعلومات موثقة عن الأهداف وأهداف الطاقة.\n\n6.6.3\nعند التخطيط لتحقيق الأهداف وأهداف الطاقة ، يجب على المنظمة إنشاء والحفاظ على خطط عمل محددة تشمل:\n- ما تم إنجازه؛\n- ما هي الموارد المطلوبة ؛\n- من المسؤول؛\n- متى ستكتمل ؛\n- كيف سيتم تقييم النتائج ، بما في ذلك إجراءات التحقق من التحسن في أداء الطاقة (انظر 6.7).\nيجب على المنظمة النظر في كيفية دمج التدابير لتحقيق أهدافها وأهداف الطاقة في عمليات الأعمال الخاصة بالمنظمة. يجب الاحتفاظ بخطط العمل كمعلومات موثقة."
   },
   "types": [
     {
@@ -14,12 +16,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -27,12 +31,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -40,12 +46,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الانشاء"
       }
     },
     {
@@ -53,12 +61,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -66,12 +76,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -79,12 +91,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -92,12 +106,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -105,12 +121,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

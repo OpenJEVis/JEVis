@@ -108,7 +108,6 @@ public class ChartPlugin implements Plugin {
     private final ScrollPane sp = new ScrollPane();
     private final VBox vBox = new VBox();
     private final BorderPane border = new BorderPane(sp);
-    private final StackPane dialogContainer = new StackPane(border);
     private final Tooltip tp = new Tooltip("");
     private final HashMap<Integer, Chart> allCharts = new HashMap<>();
     private final Image taskImage = JEConfig.getImage("Analysis.png");
@@ -202,7 +201,7 @@ public class ChartPlugin implements Plugin {
 //        border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
 
         dataSettings.currentAnalysisProperty().addListener((observableValue, jeVisObject, t1) -> {
-            if (t1 != null && !t1.equals(jeVisObject)) {
+            if (t1 != null) {
 
                 dataSettings.setWorkDays(new WorkDays(t1));
                 analysisHandler.loadDataModel(t1, dataModel);
@@ -391,9 +390,9 @@ public class ChartPlugin implements Plugin {
 
     private void openDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(dialogContainer, this, ds, toolBarView.getAnalysesComboBox().getObservableListAnalyses());
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(this, ds, toolBarView.getAnalysesComboBox().getObservableListAnalyses());
 
-        dialog.setOnDialogClosed(event -> {
+        dialog.setOnCloseRequest(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();
             if (dialog.getResponse() == Response.NEW) {
 
@@ -414,7 +413,7 @@ public class ChartPlugin implements Plugin {
         dialog.show();
         Platform.runLater(() -> dialog.getFilterInput().requestFocus());
 
-        JEVisHelp.getInstance().registerHotKey((Stage) dialog.getScene().getWindow());
+        JEVisHelp.getInstance().registerHotKey((Stage) dialog.getDialogPane().getScene().getWindow());
         JEVisHelp.getInstance().setActiveSubModule(LoadAnalysisDialog.class.getSimpleName());
 
     }
@@ -429,7 +428,7 @@ public class ChartPlugin implements Plugin {
         try {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
-                    SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(dialogContainer, ds, dataSettings, this, toolBarView);
+                    SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(ds, dataSettings, this, toolBarView);
                     saveAnalysisDialog.show();
                     break;
                 case Constants.Plugin.Command.DELETE:
@@ -438,7 +437,7 @@ public class ChartPlugin implements Plugin {
                 case Constants.Plugin.Command.EXPAND:
                     break;
                 case Constants.Plugin.Command.NEW:
-                    new NewAnalysisDialog(dialogContainer, ds, dataModel, this, toolBarView.getChanged());
+                    new NewAnalysisDialog(ds, dataModel, this, toolBarView.getChanged());
                     break;
                 case Constants.Plugin.Command.RELOAD:
                     try {
@@ -492,7 +491,7 @@ public class ChartPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return dialogContainer;
+        return border;
     }
 
     @Override
@@ -541,6 +540,7 @@ public class ChartPlugin implements Plugin {
         });
 
         allCharts.clear();
+        dataRowMap.clear();
 
         Integer horizontalPies = dataModel.getHorizontalPies();
         Integer horizontalTables = dataModel.getHorizontalTables();
@@ -786,6 +786,13 @@ public class ChartPlugin implements Plugin {
 //        });
     }
 
+    Map<Chart, List<ChartDataRow>> dataRowMap = new TreeMap<Chart, List<ChartDataRow>>() {
+        @Override
+        public Comparator<? super Chart> comparator() {
+            return new ChartComparator();
+        }
+    };
+
     private void finalUpdates() throws InterruptedException {
 
         AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
@@ -803,6 +810,8 @@ public class ChartPlugin implements Plugin {
 
                 StringBuilder allFormulas = new StringBuilder();
                 for (Map.Entry<Integer, Chart> entry : allCharts.entrySet()) {
+                    dataRowMap.put(entry.getValue(), entry.getValue().getChartDataRows());
+
                     List<Chart> notActive = new ArrayList<>(allCharts.values());
                     notActive.remove(entry.getValue());
                     ChartType chartType = entry.getValue().getChartType();
@@ -838,6 +847,10 @@ public class ChartPlugin implements Plugin {
             Thread.sleep(500);
             finalUpdates();
         }
+    }
+
+    public Map<Chart, List<ChartDataRow>> getDataRowMap() {
+        return dataRowMap;
     }
 
     private void formatCharts() {
@@ -1068,8 +1081,8 @@ public class ChartPlugin implements Plugin {
 
         if (noOfCharts == 1 || dataModel.isAutoSize()) {
             /**
-             * If all children take more space then the maximum available size
-             * set all on min size. after this the free space will be reallocate
+             * If all children take more space than the maximum available size
+             * set all on min size. after this the free space will be reallocated
              */
             totalPrefHeight = calculationTotalPrefSize(vBox);
 
@@ -1307,6 +1320,7 @@ public class ChartPlugin implements Plugin {
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
                     dataSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
+                    dataSettings.setCurrentAnalysis(null);
                     dataSettings.setCurrentAnalysis(analysisRequest.getObject());
 
                     Platform.runLater(() -> toolBarView.setChanged(false));
@@ -1452,10 +1466,6 @@ public class ChartPlugin implements Plugin {
         return allCharts;
     }
 
-    public StackPane getDialogContainer() {
-        return dialogContainer;
-    }
-
     public ToolBarView getToolBarView() {
         return toolBarView;
     }
@@ -1593,5 +1603,14 @@ public class ChartPlugin implements Plugin {
 
     public FavoriteAnalysisHandler getFavoriteAnalysisHandler() {
         return favoriteAnalysisHandler;
+    }
+
+    static class ChartComparator implements Comparator<Chart> {
+        private final AlphanumComparator alphanumComparator = new AlphanumComparator();
+
+        @Override
+        public int compare(Chart o1, Chart o2) {
+            return o1.getChartName().compareTo(o2.getChartName());
+        }
     }
 }

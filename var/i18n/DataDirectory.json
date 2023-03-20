@@ -5,14 +5,16 @@
     "ru": "Каталог данных",
     "uk": "Каталог даних",
     "th": "ไดเรกทอรีข้อมูล",
-    "en": "Data Directory"
+    "en": "Data Directory",
+    "ar": "دليل البيانات"
   },
   "descriptions": {
     "de": "Im Datenverzeichnis werden die Datenreihen verwaltet.",
     "ru": "Управление сериями данных осуществляется в каталоге данных.",
     "uk": "В каталозі даних йде управління серією даних.",
     "th": "ในไดเรกทอรีข้อมูลชุดข้อมูลได้รับการจัดการ",
-    "en": "In the Data Directory data series are managed."
+    "en": "In the Data Directory data series are managed.",
+    "ar": "تدار سلسلة البيانات في دليل البيانات."
   },
   "types": []
 }

@@ -3,12 +3,14 @@
   "names": {
     "de": "Loytec XML-DL CEA709 Kanalverzeichnis",
     "ru": "Loytec XML-DL CEA709 Channel Directory",
-    "en": "Loytec XML-DL CEA709 Channel Directory"
+    "en": "Loytec XML-DL CEA709 Channel Directory",
+    "ar": "دليل قناة Loytec XML-DL CEA709"
   },
   "descriptions": {
     "de": "Das Loytec XML-DL CEA709 Kanalverzeichnis enthält Loytec XML-DL Channels, die die CEA709 Technologie verwenden.",
     "ru": "The Loytec XML-DL CEA709 Channel Directory contains Loytec XML-DL Channels that use CEA709 technology.",
-    "en": "The Loytec XML-DL CEA709 Channel Directory contains Loytec XML-DL Channels that use CEA709 technology."
+    "en": "The Loytec XML-DL CEA709 Channel Directory contains Loytec XML-DL Channels that use CEA709 technology.",
+    "ar": "يحتوي دليل قناة Loytec XML-DL CEA709 على قنوات Loytec XML-DL التي تستخدم تقنية CEA709."
   },
   "types": []
 }

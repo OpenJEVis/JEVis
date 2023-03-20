@@ -3,7 +3,8 @@
   "names": {
     "de": "OPC UA Kanal",
     "ru": "OPC UA Канал",
-    "en": "OPC UA Channel"
+    "en": "OPC UA Channel",
+    "ar": "قناة OPC UA"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Datenziel für die Messdaten im JEVis.",
         "ru": "Пункт назначения данных измерений в JEVis.",
-        "en": "Data destination for the measurement data in JEVis."
+        "en": "Data destination for the measurement data in JEVis.",
+        "ar": "هدف ID"
       },
       "names": {
         "de": "Ziel ID",
         "ru": "Идентификатор цели",
-        "en": "Target ID"
+        "en": "Target ID",
+        "ar": "هدف ID"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Datenziel für die Messdaten im JEVis. Beispiel: 'i=11506'.",
         "ru": "Пункт назначения данных измерений в JEVis. Пример: 'i=11506'.",
-        "en": "Data destination for the measurement data in JEVis. Example: 'i=11506'"
+        "en": "Data destination for the measurement data in JEVis. Example: 'i=11506'",
+        "ar": "وجهة البيانات لبيانات القياس في JEVis. مثال: \"i = 11506\"."
       },
       "names": {
         "de": "Funktions UPC UA Knoten ID",
         "ru": "Функция OPC UA Примечание ID",
-        "en": "Function OPC UA Note ID"
+        "en": "Function OPC UA Note ID",
+        "ar": "عقدة OPC UA الوظيفية ID"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Zeitlichesinterval für die OPC Funktion in millisekunden.",
         "ru": "Временной интервал для функции OPC в миллисекундах.",
-        "en": "Timing interval for the OPC function in milliseconds"
+        "en": "Timing interval for the OPC function in milliseconds",
+        "ar": "الفاصل الزمني لوظيفة OPC بالميلي ثانية."
       },
       "names": {
         "de": "Funktion Intervall",
         "ru": "Функциональный интервал",
-        "en": "Function Interval"
+        "en": "Function Interval",
+        "ar": "وظيفة الفاصل"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Statusprotokoll des Auslesevorgangs. ",
         "ru": "Журнал состояния процесса считывания.",
-        "en": "Status log of the readout process."
+        "en": "Status log of the readout process.",
+        "ar": ""
       },
       "names": {
         "de": "Status Log",
         "ru": "Журнал статуса",
-        "en": "Status Log"
+        "en": "Status Log",
+        "ar": ""
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "OPC UA Knoten ID. Beispiel: 'ns=1;s=SM_E_10'",
         "ru": "OPC UA Node ID. Пример: 'ns=1;s=SM_E_10'.",
-        "en": "OPC UA Node ID. Example: 'ns=1;s=SM_E_10'"
+        "en": "OPC UA Node ID. Example: 'ns=1;s=SM_E_10'",
+        "ar": ""
       },
       "names": {
         "de": "OPC UA Knoten ID",
         "ru": "OPC UA Примечание ID",
-        "en": "OPC UA Node ID"
+        "en": "OPC UA Node ID",
+        "ar": ""
       }
     }
   ]

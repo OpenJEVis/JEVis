@@ -3,12 +3,14 @@
   "names": {
     "de": "6.2 Maßnahmen zum Umgang mit Risiken und Chancen",
     "ru": "6.2 Actions to Address Risks and Opportunities",
-    "en": "6.2 Actions to Address Risks and Opportunities"
+    "en": "6.2 Actions to Address Risks and Opportunities",
+    "ar": "6.2 إجراءات لمعالجة المخاطر والفرص"
   },
   "descriptions": {
     "de": "6.2.1\nBei Planungen für das EnMS muss die Organisation die in 4.1, 4.2 genannten Themen und die Ergebnisse der energetischen Bewertung (siehe 6.3) berücksichtigen sowie die Risiken und Chancen bestimmen, die betrachtet werden müssen, um:\n— sicherzustellen, dass das EnMS seine beabsichtigten Ergebnisse erzielen kann, einschließlich der Verbesserung der energiebezogenen Leistung;\n— unerwünschte Auswirkungen zu verhindern oder zu verringern;\n— fortlaufende Verbesserung des EnMS und der energiebezogenen Leistung zu erreichen.\n\n6.2.2\nDie Organisation muss planen:\na) Maßnahmen zum Umgang mit diesen Risiken und Chancen;\nb) wie\n\t1) die Maßnahmen in die Prozesse der Organisation integriert und dort umgesetzt werden;\n\t2) die Wirksamkeit dieser Maßnahmen bewertet wird.\n",
     "ru": "6.2.1 When planning for the EnMS, the organization shall consider the issues referred to in 4.1, 4.2, and  outputs of energy review (see 6.3) and determine the risks and opportunities that need to be addressed  to:  \n",
-    "en": "6.2.1 When planning for the EnMS, the organization shall consider the issues referred to in 4.1, 4.2, and  outputs of energy review (see 6.3) and determine the risks and opportunities that need to be addressed  to:  \n"
+    "en": "6.2.1 When planning for the EnMS, the organization shall consider the issues referred to in 4.1, 4.2, and  outputs of energy review (see 6.3) and determine the risks and opportunities that need to be addressed  to:  \n",
+    "ar": "6.2.1\nعند التخطيط لنظام إدارة الطاقة (EnMS) ، يجب على المنظمة النظر في القضايا المذكورة في 4.1 و 4.2 ونتائج تقييم الطاقة (انظر 6.3) وتحديد المخاطر والفرص التي يجب أخذها في الاعتبار من أجل:\n- التأكد من أن نظام إدارة الطاقة يمكنه تحقيق النتائج المرجوة منه ، بما في ذلك تحسين أداء الطاقة ؛\n- منع أو تقليل الآثار غير المرغوب فيها ؛\n- تحقيق التحسين المستمر لنظام إدارة الطاقة والأداء المتصل بالطاقة.\n\n6.2.2\nيجب على المنظمة التخطيط:\nأ) تدابير التعامل مع هذه المخاطر والفرص ؛\nب) كيف\n1) يتم دمج الإجراءات في عمليات المنظمة وتنفيذها هناك ؛\n2) تقييم فعالية هذه التدابير."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "وصف نطاق نظام الإدارة"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الإنشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ نشر المستند"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "نشر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

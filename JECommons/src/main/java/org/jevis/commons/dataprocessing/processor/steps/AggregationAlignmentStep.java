@@ -165,7 +165,24 @@ public class AggregationAlignmentStep implements ProcessStep {
                     }
                 }
 
-                Double currentValue = calcSumSampleDownscale(currentInterval.getRawSamples(), currentInterval.isDifferential(), lastInterval);
+                Double currentValue = 0d;
+
+                if (currentInterval.getRawSamples().size() > 0) {
+                    if (!currentInterval.isDifferential()) {
+                        for (JEVisSample sample : currentInterval.getRawSamples()) {
+                            currentValue += sample.getValueAsDouble();
+                        }
+                    } else {
+                        Double firstValue = 0d;
+                        if (!currentInterval.equals(lastInterval) && lastInterval != null && !lastInterval.getRawSamples().isEmpty()) {
+                            firstValue = lastInterval.getRawSamples().get(lastInterval.getRawSamples().size() - 1).getValueAsDouble();
+                        } else if (!currentInterval.getRawSamples().isEmpty()) {
+                            firstValue = currentInterval.getRawSamples().get(0).getValueAsDouble();
+                        }
+                        currentValue = currentInterval.getRawSamples().get(currentInterval.getRawSamples().size() - 1).getValueAsDouble() - firstValue;
+                    }
+                }
+
                 currentInterval.getResult().setValue(getScaledValue(listMultipliers, currentInterval.getDate(), currentValue, offset).doubleValue());
 
                 try {

@@ -6,13 +6,11 @@ package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -21,6 +19,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,6 +40,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.*;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.ReportAggregationBox;
 import org.jevis.jeconfig.application.control.ReportFixedPeriodBox;
@@ -76,7 +77,7 @@ public class AlarmWizardDialog {
     private ReportType reportType = ReportType.STANDARD;
 
     private GridPane gridPane;
-    private JFXDialog reportWizardDialog;
+    private Dialog alarmWizardDialog;
     private JEVisObject allAttributesRootObject;
     //                String lastCellColumnName = CellReference.convertNumToColString(sheetWidth);
 //                String lastCellCommentText = "jx:area(lastCell=\"" + lastCellColumnName + 3 + "\")";
@@ -113,7 +114,7 @@ public class AlarmWizardDialog {
         JEVisClass finalReportLinkClass = reportLinkClass;
         JEVisClass finalReportAttributeClass = reportAttributeClass;
         JEVisClass finalReportPeriodConfigurationClass = reportPeriodConfigurationClass;
-        reportWizardDialog.setOnDialogClosed(event -> {
+        alarmWizardDialog.setOnCloseRequest(event -> {
             if (getSelections() != null) {
 
                 JEVisObject reportLinkDirectory = getReportLinkDirectory();
@@ -132,7 +133,7 @@ public class AlarmWizardDialog {
                                 object.commit();
 
                                 JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
-                                JEVisSample jevisIdSample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
+                                JEVisSample jevisIdSample = jeVis_id.buildSample(new DateTime(), rl.getJEVisId());
                                 jevisIdSample.commit();
 
                                 JEVisAttribute optionalAttribute = object.getAttribute("Optional");
@@ -220,14 +221,20 @@ public class AlarmWizardDialog {
             }
         });
 
-        reportWizardDialog.show();
+        alarmWizardDialog.show();
     }
 
     private void init() {
-        reportWizardDialog = new JFXDialog();
-        reportWizardDialog.setDialogContainer(JEConfig.getStackPane());
-        reportWizardDialog.setOverlayClose(false);
-        reportWizardDialog.setMinSize(1000, 800);
+        alarmWizardDialog = new Dialog();
+        alarmWizardDialog.setTitle(I18n.getInstance().getString("plugin.configuration.alarmwizarddialog.title"));
+        alarmWizardDialog.setHeaderText(I18n.getInstance().getString("plugin.configuration.alarmwizarddialog.header"));
+        alarmWizardDialog.setResizable(true);
+        alarmWizardDialog.initOwner(JEConfig.getStage());
+        alarmWizardDialog.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) alarmWizardDialog.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
+        alarmWizardDialog.getDialogPane().setMinSize(1000, 800);
 
         Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("plugin.object.report.dialog.header"));
 
@@ -272,17 +279,18 @@ public class AlarmWizardDialog {
         hbox.getChildren().add(gridPane);
         HBox.setHgrow(gridPane, Priority.ALWAYS);
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        ok.setOnAction(event -> reportWizardDialog.close());
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
-        cancel.setOnAction(event -> reportWizardDialog.close());
+        alarmWizardDialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        Button okButton = (Button) alarmWizardDialog.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+        okButton.setOnAction(event -> alarmWizardDialog.close());
+
+        Button cancelButton = (Button) alarmWizardDialog.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+        cancelButton.setOnAction(event -> alarmWizardDialog.close());
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
@@ -292,12 +300,11 @@ public class AlarmWizardDialog {
         vBox.getChildren().add(reportTypeComboBox);
         vBox.getChildren().add(addMultiple);
         vBox.getChildren().add(separator);
-        vBox.getChildren().add(buttonBar);
 
 
         scrollPane.setContent(vBox);
 
-        reportWizardDialog.setContent(scrollPane);
+        alarmWizardDialog.getDialogPane().setContent(scrollPane);
 
         vBox.setFillWidth(true);
     }
@@ -350,9 +357,9 @@ public class AlarmWizardDialog {
         allFilter.add(basicFilter);
         allFilter.add(allAttributeFilter);
 
-        SelectTargetDialog selectionDialog = new SelectTargetDialog(reportWizardDialog.getDialogContainer(), allFilter, basicFilter, null, SelectionMode.MULTIPLE, ds, new ArrayList<>());
+        SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.MULTIPLE, ds, new ArrayList<>());
 
-        selectionDialog.setOnDialogClosed(event -> {
+        selectionDialog.setOnCloseRequest(event -> {
             if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
                 logger.trace("Selection Done");
 
@@ -384,9 +391,9 @@ public class AlarmWizardDialog {
         allFilter.add(basicFilter);
         allFilter.add(allAttributeFilter);
 
-        SelectTargetDialog selectionDialog = new SelectTargetDialog(reportWizardDialog.getDialogContainer(), allFilter, basicFilter, null, SelectionMode.SINGLE, ds, new ArrayList<>());
+        SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE, ds, new ArrayList<>());
 
-        selectionDialog.setOnDialogClosed(event -> {
+        selectionDialog.setOnCloseRequest(event -> {
             if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
                 logger.trace("Selection Done");
 
@@ -559,8 +566,8 @@ public class AlarmWizardDialog {
         });
 
         AtomicReference<String> targetString = new AtomicReference<>();
-        if (reportLink.getjEVisID() != null) {
-            targetString.set(reportLink.getjEVisID().toString());
+        if (reportLink.getJEVisId() != null) {
+            targetString.set(reportLink.getJEVisId().toString());
         }
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
@@ -569,12 +576,12 @@ public class AlarmWizardDialog {
         allFilter.add(basicFilter);
         allFilter.add(allAttributeFilter);
 
-        if (reportLink.getjEVisID() != null) {
+        if (reportLink.getJEVisId() != null) {
             String target = "";
             if (reportLink.getReportAttribute() != null) {
-                target = reportLink.getjEVisID() + ":" + reportLink.getReportAttribute().getAttributeName();
+                target = reportLink.getJEVisId() + ":" + reportLink.getReportAttribute().getAttributeName();
             } else {
-                target = reportLink.getjEVisID().toString();
+                target = reportLink.getJEVisId().toString();
             }
             TargetHelper th = new TargetHelper(ds, target);
             if (th.isValid() && th.targetObjectAccessible()) {
@@ -602,9 +609,9 @@ public class AlarmWizardDialog {
                     openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
             }
 
-            SelectTargetDialog selectionDialog = new SelectTargetDialog(reportWizardDialog.getDialogContainer(), allFilter, basicFilter, null, SelectionMode.SINGLE, ds, openList);
+            SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE, ds, openList);
 
-            selectionDialog.setOnDialogClosed(event1 -> {
+            selectionDialog.setOnCloseRequest(event1 -> {
                 if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
                     logger.trace("Selection Done");
 
@@ -615,7 +622,7 @@ public class AlarmWizardDialog {
                         if (index > 0) newTarget += ";";
 
                         newTarget += us.getSelectedObject().getID();
-                        reportLink.setjEVisID(us.getSelectedObject().getID());
+                        reportLink.setJEVisId(us.getSelectedObject().getID());
 
                         Platform.runLater(() -> updateName(reportLink));
 
@@ -706,9 +713,9 @@ public class AlarmWizardDialog {
     private void updateName(ReportLink reportLink) {
         JEVisObject object = null;
         try {
-            object = ds.getObject(reportLink.getjEVisID());
+            object = ds.getObject(reportLink.getJEVisId());
         } catch (JEVisException e) {
-            logger.error("Could not update name for object with id: {}", reportLink.getjEVisID(), e);
+            logger.error("Could not update name for object with id: {}", reportLink.getJEVisId(), e);
         }
 
         if (object != null) {
@@ -719,7 +726,7 @@ public class AlarmWizardDialog {
                     reportLink.setName(object.getName());
                 }
             } catch (JEVisException e) {
-                logger.error("Could not set new Report Link Name for object with id: {}", reportLink.getjEVisID(), e);
+                logger.error("Could not set new Report Link Name for object with id: {}", reportLink.getJEVisId(), e);
             }
 
             try {
@@ -733,7 +740,7 @@ public class AlarmWizardDialog {
                     reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object));
                 }
             } catch (JEVisException e) {
-                logger.error("Could not set new Variable Name for object with id: {}", reportLink.getjEVisID(), e);
+                logger.error("Could not set new Variable Name for object with id: {}", reportLink.getJEVisId(), e);
             }
         }
     }

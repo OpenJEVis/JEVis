@@ -27,7 +27,6 @@ import javafx.concurrent.Task;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,15 +47,13 @@ import java.util.List;
 public class CSVTable extends TableView<CSVLine> {
 
     private static final Logger logger = LogManager.getLogger(CSVTable.class);
-    private final StackPane dialogContainer;
     private CSVParser parser;
     private final JEVisDataSource ds;
     private List<CSVColumnHeader> header = new ArrayList<>();
     private String customNote = "";
 
-    public CSVTable(StackPane dialogContainer, JEVisDataSource ds, CSVParser parser) {
+    public CSVTable(JEVisDataSource ds, CSVParser parser) {
         super();
-        this.dialogContainer = dialogContainer;
         this.parser = parser;
         this.ds = ds;
         setItems(FXCollections.observableArrayList(parser.getRows()));
@@ -89,7 +86,7 @@ public class CSVTable extends TableView<CSVLine> {
         for (int i = 0; i < parser.getColumnCount(); i++) {
             String columnName = "Column " + i;
             TableColumn<CSVLine, String> column = new TableColumn(columnName);
-            final CSVColumnHeader header = new CSVColumnHeader(dialogContainer, this, i);
+            final CSVColumnHeader header = new CSVColumnHeader(this, i);
             this.header.add(header);
             column.setSortable(false);//layout problem
             column.setPrefWidth(310);

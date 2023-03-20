@@ -4,12 +4,14 @@
     "de": "Monitoring",
     "ru": "Папка объект мониторинга",
     "uk": "Папка об'єкт моніторингу",
-    "en": "Monitoring Directory"
+    "en": "Monitoring Directory",
+    "ar": "دليل الكائنات المراقبة"
   },
   "descriptions": {
     "de": "Im Monitoring-Verzeichnis werden überwachte Objekte, wie z.B. Gebäude, verwaltet.",
     "ru": "In the Monitoring Directory the monitored objects, such as buildings, are managed.",
-    "en": "In the Monitoring Directory the monitored objects, such as buildings, are managed."
+    "en": "In the Monitoring Directory the monitored objects, such as buildings, are managed.",
+    "ar": "الكائنات المراقبة ، مثل المباني ، تدار في دليل المراقبة."
   },
   "types": []
 }

@@ -5,14 +5,16 @@
     "ru": "постройки",
     "uk": "Будівля",
     "th": "อาคาร",
-    "en": "Building"
+    "en": "Building",
+    "ar": "بناء"
   },
   "descriptions": {
     "de": "Gebäude.",
     "ru": "",
     "uk": "",
     "th": "",
-    "en": "Building."
+    "en": "Building.",
+    "ar": "بناء"
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "Почтовый адрес здания",
         "uk": "Поштова адреса будівлі",
         "th": "ที่อยู่ทางไปรษณีย์ของอาคาร",
-        "en": "Postal address of the building"
+        "en": "Postal address of the building",
+        "ar": "العنوان البريدي للمبنى"
       },
       "names": {
         "de": "Adresse",
         "ru": "Адрес",
         "uk": "Адреса",
         "th": "ที่อยู่",
-        "en": "Address"
+        "en": "Address",
+        "ar": "عنوان"
       }
     },
     {
@@ -39,14 +43,16 @@
         "ru": "Площадь здания",
         "uk": "Опалювальна площа",
         "th": "ฐานของอาคา",
-        "en": "Floor space of the building"
+        "en": "Floor space of the building",
+        "ar": "منطقة البناء"
       },
       "names": {
         "de": "Gebäudefläche",
         "ru": "строительная площадка",
         "uk": "Будівельна площа",
         "th": "พื้นที่อาคาร",
-        "en": "Building Area"
+        "en": "Building Area",
+        "ar": "منطقة البناء"
       }
     },
     {
@@ -56,14 +62,16 @@
         "ru": "GPS-положение здания",
         "uk": "GPS координати будівлі",
         "th": "ตำแหน่ง GPS ของอาคาร",
-        "en": "GPS position of the building"
+        "en": "GPS position of the building",
+        "ar": "موقع"
       },
       "names": {
         "de": "GPS-Position",
         "ru": "GPS-положение",
         "uk": "GPS координати",
         "th": "จีพีเอสตำแหน่ง",
-        "en": "GPS Position"
+        "en": "GPS Position",
+        "ar": "موقع GPS"
       }
     },
     {
@@ -73,14 +81,16 @@
         "ru": "год постройки или последняя модернизация здания",
         "uk": "Рік побудови або реконструкції",
         "th": "ปีของการก่อสร้างหรือปีของการดัดแปลงครั้งสุดท้ายของอาคาร",
-        "en": "Year of construction or year of the last retrofitting of the building"
+        "en": "Year of construction or year of the last retrofitting of the building",
+        "ar": "سنة البناء أو سنة آخر تحديث للمبنى"
       },
       "names": {
         "de": "Baujahr",
         "ru": "год постройки",
         "uk": "Рік побудови",
         "th": "ปีที่ก่อสร้าง",
-        "en": "Year of Construction"
+        "en": "Year of Construction",
+        "ar": "سنة البناء"
       }
     },
     {
@@ -90,14 +100,16 @@
         "ru": "Начало дня в точке расположения",
         "uk": "Робочий день починається у цей час",
         "th": "วันทำงานของไซต์นี้เริ่มต้นในเวลานี้",
-        "en": "The workday at this site starts at this time"
+        "en": "The workday at this site starts at this time",
+        "ar": "بداية اليوم في الموقع"
       },
       "names": {
         "de": "Tagesbeginn",
         "ru": "начало дня",
         "uk": "Початок робочого дня",
         "th": "วันทำงานเริ่มต้น",
-        "en": "Workday Beginning"
+        "en": "Workday Beginning",
+        "ar": "بداية اليوم"
       }
     },
     {
@@ -107,14 +119,16 @@
         "ru": "Конец дня на площадке",
         "uk": "Робочий день закінчується у цей час",
         "th": "วันทำงานของไซต์นี้สิ้นสุดในเวลานี้",
-        "en": "The workday at this site ends at this time"
+        "en": "The workday at this site ends at this time",
+        "ar": "نهاية اليوم في الموقع"
       },
       "names": {
         "de": "Tagesende",
         "ru": "конец дня",
         "uk": "Кінець робочого дня",
         "th": "สิ้นสุดวันทำงาน",
-        "en": "Workday End"
+        "en": "Workday End",
+        "ar": "نهاية اليوم"
       }
     },
     {
@@ -124,14 +138,16 @@
         "ru": "Определяет часовой пояс сервера данных",
         "uk": "Визначає часовий пояс сервера даних",
         "th": "กำหนดเขตเวลาของเซิร์ฟเวอร์ข้อมูล",
-        "en": "Defines the timezone of the Data Server"
+        "en": "Defines the timezone of the Data Server",
+        "ar": "المنطقة الزمنية"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "часовой пояс",
         "uk": "часовий пояс",
         "th": "โซนเวลา",
-        "en": "Timezone"
+        "en": "Timezone",
+        "ar": "المنطقة الزمنية"
       }
     },
     {
@@ -141,14 +157,16 @@
         "ru": "Календарь на праздники и праздники",
         "uk": "Календар свят та свят",
         "th": "ปฏิทินสำหรับวันหยุดและวันหยุด",
-        "en": "Calendar for holidays and holidays"
+        "en": "Calendar for holidays and holidays",
+        "ar": "تقويم الإجازات والعطلات"
       },
       "names": {
         "de": "Kalender",
         "ru": "календарь",
         "uk": "календар",
         "th": "ปฏิทิน",
-        "en": "Calendar"
+        "en": "Calendar",
+        "ar": "تقويم"
       }
     },
     {
@@ -158,14 +176,16 @@
         "ru": "Пользовательский календарь для праздников и праздников",
         "uk": "Спеціальний календар для свят та свят",
         "th": "ปฏิทินที่กำหนดเองสำหรับวันหยุดและวันหยุด",
-        "en": "Custom calendar for holidays and holidays"
+        "en": "Custom calendar for holidays and holidays",
+        "ar": "عطلات مخصصة"
       },
       "names": {
         "de": "Benutzer Kalender",
         "ru": "Пользовательский календарь",
         "uk": "Календар, визначений користувачем",
         "th": "ปฏิทินที่กำหนดโดยผู้ใช้",
-        "en": "Userdefined Calendar"
+        "en": "Userdefined Calendar",
+        "ar": "تقويم من اجل المستخدم"
       }
     }
   ]

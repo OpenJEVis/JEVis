@@ -13,7 +13,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.HiddenSidesPane;
@@ -42,16 +41,13 @@ public class DashBordPlugIn implements Plugin {
     private boolean isInitialized = false;
     private final StringProperty uuidProperty = new SimpleStringProperty("Dashboard");
     private final NotificationPane notificationPane;
-
-
     private final DashboardControl dashboardControl;
     private JEVisDataSource jeVisDataSource;
     private final DashBoardPane dashBoardPane;
     private final ScrollPane widgetControlPane;
     private final DashBoardToolbar toolBar;
     private final BorderPane rootPane = new BorderPane();
-    private final StackPane dialogPane = new StackPane(rootPane);
-    private final HiddenSidesPane hiddenSidesPane = new HiddenSidesPane(dialogPane, new Region(), new Region(), new Region(), new Region());
+    private final HiddenSidesPane hiddenSidesPane = new HiddenSidesPane(rootPane, new Region(), new Region(), new Region(), new Region());
     private final ScrollPane scrollPane = new ScrollPane();
     /**
      * pane which gets the zoomed size of the dashboard so the layout of the ScrollPane is ok
@@ -77,6 +73,7 @@ public class DashBordPlugIn implements Plugin {
 
         scrollPane.setFitToHeight(true);
         scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: -fx-base;");
         zoomPane.getChildren().add(dashBoardPane);
         this.scrollPane.setContent(zoomPane);
 
@@ -87,7 +84,7 @@ public class DashBordPlugIn implements Plugin {
 
         this.rootPane.setCenter(this.scrollPane);
 
-        notificationPane = new NotificationPane(dialogPane);
+        notificationPane = new NotificationPane(rootPane);
         notificationPane.setStyle("-fx-focus-color: transparent;");
         rootPane.setStyle("-fx-focus-color: transparent;");
         notificationPane.getStyleClass().add(NotificationPane.STYLE_CLASS_DARK);
@@ -332,12 +329,6 @@ public class DashBordPlugIn implements Plugin {
     public int getPrefTapPos() {
         return 1;
     }
-
-
-    public StackPane getDialogPane() {
-        return dialogPane;
-    }
-
 
     public HiddenSidesPane getHiddenSidesPane() {
         return hiddenSidesPane;

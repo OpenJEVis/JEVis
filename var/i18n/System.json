@@ -3,12 +3,14 @@
   "names": {
     "de": "System",
     "ru": "System",
-    "en": "System"
+    "en": "System",
+    "ar": "النظام"
   },
   "descriptions": {
     "de": "System stellt das oberste Objekt eines JEVis Systems dar und enthält grundlegende Systemeigenschaften.",
     "ru": "JEVis Root Node whit system informations",
-    "en": "System represents the root object of a JEVis system which contains general system information."
+    "en": "System represents the root object of a JEVis system which contains general system information.",
+    "ar": "يمثل النظام أهم عنصر في نظام JEVis ويحتوي على خصائص النظام الأساسية."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Definiert den DNS Domain-Namen des JEVis Servers",
         "ru": "Domain Name description",
-        "en": "Defines the DNS domain name of the JEVis server"
+        "en": "Defines the DNS domain name of the JEVis server",
+        "ar": "يحدد اسم مجال DNS لخادم JEVis"
       },
       "names": {
         "de": "Domain Name",
         "ru": "Domain Name",
-        "en": "Domain Name"
+        "en": "Domain Name",
+        "ar": "أسماء المجال"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Definiert den Hostname des JEVis Servers",
         "ru": "Hostname description",
-        "en": "Defines the hostname of the JEVis server"
+        "en": "Defines the hostname of the JEVis server",
+        "ar": "يحدد اسم مضيف خادم JEVis"
       },
       "names": {
         "de": "Hostname",
         "ru": "Hostname",
-        "en": "Hostname"
+        "en": "Hostname",
+        "ar": "اسم المضيف"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Definiert die systemweite Standardsprache",
         "ru": "Language description",
-        "en": "Defines the system-wide standard language"
+        "en": "Defines the system-wide standard language",
+        "ar": "يحدد اللغة الافتراضية على مستوى النظام"
       },
       "names": {
         "de": "Sprache",
         "ru": "Language",
-        "en": "Language"
+        "en": "Language",
+        "ar": "لغة"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Definiert die lokale IP-Adresse des JEVis Servers",
         "ru": "Local IP description",
-        "en": "Defines the local IP address of the JEVis server"
+        "en": "Defines the local IP address of the JEVis server",
+        "ar": "يحدد عنوان IP المحلي لخادم JEVis"
       },
       "names": {
         "de": "Lokale IP",
         "ru": "Local IP",
-        "en": "Local IP"
+        "en": "Local IP",
+        "ar": "عنوان IP المحلي"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Definiert die öffentliche IP-Adresse des JEVis Servers",
         "ru": "Public IP description",
-        "en": "Defines the public IP of the JEVis server"
+        "en": "Defines the public IP of the JEVis server",
+        "ar": "يحدد عنوان IP العام لخادم JEVis"
       },
       "names": {
         "de": "Öffentliche IP",
         "ru": "Public IP",
-        "en": "Public IP"
+        "en": "Public IP",
+        "ar": "IP العام"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Definiert die Zeitzone des JEVis Servers",
         "ru": "TimeZone description",
-        "en": "Defines the time zone of the JEVis server"
+        "en": "Defines the time zone of the JEVis server",
+        "ar": "تحدد المنطقة الزمنية لخادم JEVis"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "Time Zone",
-        "en": "Time Zone"
+        "en": "Time Zone",
+        "ar": "المنطقة الزمنية"
       }
     }
   ]

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
@@ -277,6 +278,26 @@ public class PeriodHelper {
 
     public static boolean isGreaterThenDays(org.joda.time.Period period) {
         return IntStream.of(period.getYears(), period.getMonths(), period.getWeeks(), period.getDays()).anyMatch(i -> i > 0);
+    }
+
+    public static boolean isGreaterThenDays(AggregationPeriod aggregationPeriod) {
+        switch (aggregationPeriod) {
+            default:
+            case NONE:
+            case MINUTELY:
+            case QUARTER_HOURLY:
+            case HOURLY:
+                return false;
+            case DAILY:
+            case WEEKLY:
+            case MONTHLY:
+            case QUARTERLY:
+            case YEARLY:
+            case THREEYEARS:
+            case FIVEYEARS:
+            case TENYEARS:
+                return true;
+        }
     }
 
     public static String getFormatString(org.joda.time.Period period, boolean isCounter) {

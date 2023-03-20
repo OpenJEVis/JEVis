@@ -1,13 +1,17 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.tabs;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,12 +45,13 @@ public class ChartTab extends Tab {
     private final JEVisDataSource ds;
     private final NumberSpinner minFractionDigits;
     private final NumberSpinner maxFractionDigits;
-    private final StackPane dialogContainer;
     private final Label minFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.minfractiondigits"));
     private final Label maxFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.maxfractiondigits"));
     private final Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
     private final ChartTypeComboBox chartTypeComboBox;
     private final Label labelGroupingInterval = new Label(I18n.getInstance().getString("graph.tabs.tab.groupinginterval"));
+    private final Label labelFixYAxisToZero = new Label(I18n.getInstance().getString("graph.tabs.tab.fixyaxistozero"));
+    private final JFXCheckBox fixYAxisToZero = new JFXCheckBox();
     private final Table chartTable;
     private final GridPane chartSettings = new GridPane();
     private final VBox vBox = new VBox();
@@ -71,6 +76,11 @@ public class ChartTab extends Tab {
             this.chartModel.setGroupingInterval(newValue.doubleValue());
         }
     };
+    private final ChangeListener<Boolean> fixYAxisToZeroChangeListener = ((observable, oldValue, newValue) -> {
+        if (chartModel != null && !newValue.equals(oldValue)) {
+            this.chartModel.setFixYAxisToZero(newValue);
+        }
+    });
     private final ChangeListener<BigDecimal> minFractionDigitsChangeListener = (observable, oldValue, newValue) -> {
         if (chartModel != null && !newValue.equals(oldValue)) {
             chartModel.setMinFractionDigits(newValue.intValue());
@@ -86,13 +96,12 @@ public class ChartTab extends Tab {
     private JEVisClass mathDataClass;
     private JEVisClass baseDataClass;
 
-    public ChartTab(StackPane dialogContainer, JEVisDataSource ds, ChartModel chartModel) {
+    public ChartTab(JEVisDataSource ds, ChartModel chartModel) {
         super();
         this.ds = ds;
         this.chartModel = chartModel;
-        this.dialogContainer = dialogContainer;
         this.tableMenu = new ToolBar(newButton, copyButton, deleteButton);
-        this.chartTable = new Table(dialogContainer, ds, chartModel);
+        this.chartTable = new Table(ds, chartModel);
         boolean hasCustomIntervalEnabled = chartModel.getChartData().stream().anyMatch(ChartData::isIntervalEnabled);
         setIntervalStartColumnVisible(hasCustomIntervalEnabled);
         setIntervalEndColumnVisible(hasCustomIntervalEnabled);
@@ -176,7 +185,11 @@ public class ChartTab extends Tab {
 
         newButton.setOnAction(actionEvent -> {
             boolean isHeatMap = chartModel.getChartType() == ChartType.HEAT_MAP;
+            boolean isPieChart = chartModel.getChartType() == ChartType.PIE;
             if (isHeatMap && chartModel.getChartData().size() > 0) {
+                return;
+            }
+            if (isPieChart && chartModel.getChartData().size() > 9) {
                 return;
             }
 
@@ -186,12 +199,12 @@ public class ChartTab extends Tab {
 
             TreeSelectionDialog selectTargetDialog;
             if (!isHeatMap) {
-                selectTargetDialog = new TreeSelectionDialog(dialogContainer, ds, filterClasses, SelectionMode.MULTIPLE);
+                selectTargetDialog = new TreeSelectionDialog(ds, filterClasses, SelectionMode.MULTIPLE);
             } else {
-                selectTargetDialog = new TreeSelectionDialog(dialogContainer, ds, filterClasses, SelectionMode.SINGLE);
+                selectTargetDialog = new TreeSelectionDialog(ds, filterClasses, SelectionMode.SINGLE);
             }
 
-            selectTargetDialog.setOnDialogClosed(event -> {
+            selectTargetDialog.setOnCloseRequest(event -> {
                 try {
                     if (selectTargetDialog.getResponse() == Response.OK) {
 
@@ -249,6 +262,7 @@ public class ChartTab extends Tab {
     }
 
     private void updateChartSettings(ChartModel chartModel, GridPane chartSettings) {
+        disableListener();
 
         int row = 0;
         chartSettings.getChildren().clear();
@@ -284,8 +298,10 @@ public class ChartTab extends Tab {
         if (chartModel.getChartType() == ChartType.BUBBLE) {
             chartSettings.add(labelGroupingInterval, 0, row);
             chartSettings.add(groupingInterval, 1, row);
-
             row++;
+
+            chartSettings.add(labelFixYAxisToZero, 0, row);
+            chartSettings.add(fixYAxisToZero, 1, row);
         }
 
         boolean isCustomPeriodEnabled = chartModel.getChartData().stream().anyMatch(ChartData::isIntervalEnabled);
@@ -423,18 +439,22 @@ public class ChartTab extends Tab {
                 setCssColumnVisible(true);
                 break;
         }
+
+        enableListener();
     }
 
     private void enableListener() {
         groupingInterval.numberProperty().addListener(groupingIntervalChangeListener);
         minFractionDigits.numberProperty().addListener(minFractionDigitsChangeListener);
         maxFractionDigits.numberProperty().addListener(maxFractionChangeListener);
+        fixYAxisToZero.selectedProperty().addListener(fixYAxisToZeroChangeListener);
     }
 
     private void disableListener() {
         groupingInterval.numberProperty().removeListener(groupingIntervalChangeListener);
         minFractionDigits.numberProperty().removeListener(minFractionDigitsChangeListener);
-        maxFractionDigits.numberProperty().addListener(maxFractionChangeListener);
+        maxFractionDigits.numberProperty().removeListener(maxFractionChangeListener);
+        fixYAxisToZero.selectedProperty().removeListener(fixYAxisToZeroChangeListener);
     }
 
     private void initializeClasses(JEVisDataSource ds) {

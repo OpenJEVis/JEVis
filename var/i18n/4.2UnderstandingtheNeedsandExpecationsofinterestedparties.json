@@ -3,12 +3,14 @@
   "names": {
     "de": "4.2 Understanding the Needs and Expecations of interested parties",
     "ru": "4.2 Understanding the Needs and Expecations of interested parties",
-    "en": "4.2 Understanding the Needs and Expecations of interested parties"
+    "en": "4.2 Understanding the Needs and Expecations of interested parties",
+    "ar": "4.2 فهم احتياجات وتوقعات الأطراف المعنية"
   },
   "descriptions": {
     "de": "Die Organisation muss:\na) die interessierten Parteien, die für ihre energiebezogene Leistung und ihr Energiemanagementsystem\nrelevant sind, bestimmen;\nb) die Risiken und Chancen für ein Abweichen von der energiebezogenen Leistung bestimmen;\nc) die relevanten Anforderungen dieser interessierten Parteien bestimmen;\nd) bestimmen, welche der erkannten Erfordernisse und Erwartungen die Organisation mit ihrem EnMS behandelt.\n\nDie Organisation muss:\n— sicherstellen, dass sie Zugang zu den geltenden gesetzlichen und anderen Anforderungen bezüglich\nihres Energieeinsatzes, Energieverbrauchs und ihrer Energieeffizienz hat;\n— bestimmen, wie diese Anforderungen auf ihren Energieeinsatz, Energieverbrauch und ihre Energieeffizienz anzuwenden sind;\n— sicherstellen, dass diesen Anforderungen Rechnung getragen wird;\n— ihre gesetzlichen und anderen Anforderungen in festgelegten Abständen überprüfen.\n\nANMERKUNG Siehe ISO 19600 für zusätzliche Hilfestellung. ",
     "ru": "The organization shall determine:  \na) the interested parties that are relevant to energy performance and the EnMS ;  \nb) the risk and opportunities for deviating from energy performance;  \nc) the relevant requirements of these interested parties;  \nd) which of the identified needs and expectations the organization addresses through its EnMS.  \nThe organization shall:  \n",
-    "en": "The organization shall determine:  \na) the interested parties that are relevant to energy performance and the EnMS ;  \nb) the risk and opportunities for deviating from energy performance;  \nc) the relevant requirements of these interested parties;  \nd) which of the identified needs and expectations the organization addresses through its EnMS.  \nThe organization shall:  \n"
+    "en": "The organization shall determine:  \na) the interested parties that are relevant to energy performance and the EnMS ;  \nb) the risk and opportunities for deviating from energy performance;  \nc) the relevant requirements of these interested parties;  \nd) which of the identified needs and expectations the organization addresses through its EnMS.  \nThe organization shall:  \n",
+    "ar": "يجب على المنظمة:\nأ) الجهات المعنية المسؤولة عن أداء الطاقة ونظام إدارة الطاقة لديها\nذات صلة ، تحديد ؛\nب) تحديد المخاطر والفرص للانحراف عن الأداء المرتبط بالطاقة ؛\nج) تحديد المتطلبات ذات الصلة لتلك الأطراف المعنية ؛\nد) تحديد أي من الاحتياجات والتوقعات المحددة تتعامل معها المنظمة مع نظام إدارة الطاقة الخاص بها.\n\nعلى المنظمة أن:\n- ضمان وصولهم إلى المتطلبات القانونية المعمول بها والمتطلبات الأخرى المتعلقة\nاستخدام الطاقة واستهلاك الطاقة وكفاءة الطاقة ؛\n- تحديد كيفية تطبيق هذه المتطلبات على استخدامهم للطاقة ، واستهلاك الطاقة وكفاءة الطاقة ؛\n- التأكد من استيفاء هذه المتطلبات ؛\n- مراجعة متطلباتهم القانونية وغيرها على فترات زمنية محددة.\n\nملاحظة: انظر ISO 19600 للحصول على إرشادات إضافية."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "مؤلف المستند"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الإنشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": ""
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "Version"
       }
     }
   ]

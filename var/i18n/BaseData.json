@@ -5,14 +5,16 @@
     "ru": "базовые данные",
     "uk": "базові дані",
     "th": "ข้อมูลพื้นฐาน",
-    "en": "Base Data"
+    "en": "Base Data",
+    "ar": "البيانات الأساسية"
   },
   "descriptions": {
     "de": "In Stammdaten werden numerische Datenreihen gespeichert.",
     "ru": "Ряды числовых данных хранятся в основных данных.",
     "uk": "Числові ряди даних зберігаються в основних даних.",
     "th": "ชุดข้อมูลตัวเลขจะถูกเก็บไว้ในข้อมูลหลัก",
-    "en": "Storage of numerical data."
+    "en": "Storage of numerical data.",
+    "ar": "يتم تخزين سلاسل البيانات الرقمية في البيانات الرئيسية."
   },
   "types": [
     {
@@ -22,14 +24,50 @@
         "ru": "Значение ряда данных",
         "uk": "Значення ряду даних",
         "th": "ค่าของชุดข้อมูล",
-        "en": "Value of the data series"
+        "en": "Value of the data series",
+        "ar": "قيمة سلسلة البيانات"
       },
       "names": {
         "de": "Wert",
         "ru": "ценность",
         "uk": "Значення",
         "th": "ความคุ้มค่า",
-        "en": "Value"
+        "en": "Value",
+        "ar": "قيمة"
+      }
+    },
+    {
+      "type": "Conversion to Differential",
+      "descriptions": {
+        "de": "Aktiviert/Deaktiviert die Umwandlung von kumulative Daten zu differenziellen Daten",
+        "ru": "Разрешает/запрещает преобразование накопленных данных в дифференциальные данные.",
+        "uk": "Ввімкнути / Вимкнути перетворення сукупних даних на диференціальні значення",
+        "th": "เปิดใช้งาน / ปิดใช้งานการแปลงข้อมูลสะสมเป็นข้อมูลส่วนต่าง",
+        "en": "Enables/Disables the conversion of cumulative data to differential values."
+      },
+      "names": {
+        "de": "Umwandlung zu Differenz",
+        "ru": "Преобразование в разницу",
+        "uk": "Перетворення на диференціальні значення",
+        "th": "การแปลงไปสู่ความแตกต่าง",
+        "en": "Conversion to Differential"
+      }
+    },
+    {
+      "type": "Value is a Quantity",
+      "descriptions": {
+        "de": "Definiert ob es sich bei den Wert um eine Mengenangabe handelt, wie z.B. kWh.",
+        "ru": "Определяет, является ли это значение количеством, например, кВтч.",
+        "uk": "Значення кількісно описує",
+        "th": "กำหนดว่าค่าเป็นการบ่งบอกปริมาณเช่น กิโลวัตต์ต่อชั่วโมง",
+        "en": "Defines if the value represents a quantity, such as kWh."
+      },
+      "names": {
+        "de": "Mengeneinheit",
+        "ru": "агрегат",
+        "uk": "Значення це кількість",
+        "th": "หน่วย",
+        "en": "Value is a Quantity"
       }
     }
   ]

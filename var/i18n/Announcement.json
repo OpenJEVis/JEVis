@@ -3,7 +3,8 @@
   "names": {
     "de": "Bekanntmachung",
     "ru": "Announcement",
-    "en": "Announcement"
+    "en": "Announcement",
+    "ar": "إعلان"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Announcement File description",
         "ru": "Announcement File description",
-        "en": "Announcement File description"
+        "en": "Announcement File description",
+        "ar": "ملف الاعلان"
       },
       "names": {
         "de": "Announcement File",
         "ru": "Announcement File",
-        "en": "Announcement File"
+        "en": "Announcement File",
+        "ar": "ملف الاعلان"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Content description",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Content",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Created by description",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Created by",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Date of Creation description",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Date of Creation",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الانشاء"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Document Number description",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Document Number",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Release Date description",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Release Date",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Released by description",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Released by",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "Title description",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Title",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "Version description",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

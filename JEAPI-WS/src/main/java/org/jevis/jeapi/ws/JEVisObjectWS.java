@@ -305,7 +305,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public JEVisAttribute getAttribute(JEVisType type) throws JEVisException {
-        //TODO not optimal, getAttribute() will not cached if we call all this in a loop we do N Webserive calls
+        //TODO not optimal, getAttribute() will not cached if we call all this in a loop we do no Webservice calls
         for (JEVisAttribute att : getAttributes()) {
             if (att.getName().equals(type.getName())) {
                 return att;

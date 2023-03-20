@@ -3,11 +3,13 @@
   "names": {
     "de": "Messstellen (Strom)",
     "ru": "Measurement (electricity)",
-    "en": "Measurement (electricity)"
+    "en": "Measurement (electricity)",
+    "ar": "دليل قياس الكهرباء"
   },
   "descriptions": {
     "de": "Dient der Verwaltung von Messstellen (Strom).",
     "ru": "For managing measurements (electricity).",
-    "en": "For managing measurements (electricity)."
+    "en": "For managing measurements (electricity).",
+    "ar": "تستخدم لإدارة نقاط القياس (الحالية)."
   }
 }

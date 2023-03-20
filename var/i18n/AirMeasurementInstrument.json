@@ -3,12 +3,14 @@
   "names": {
     "de": "Luftzähler",
     "ru": "Air Measurement Instrument",
-    "en": "Air Measurement Instrument"
+    "en": "Air Measurement Instrument",
+    "ar": "أداة قياس الهواء"
   },
   "descriptions": {
     "de": "Stellt einen Luftzähler in einem Messaufbau dar.",
     "ru": "Represents an air meter in a test setup.",
-    "en": "Represents an air meter in a test setup."
+    "en": "Represents an air meter in a test setup.",
+    "ar": "يمثل عداد الهواء في إعداد القياس"
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Gibt den Rohrdurchmesser des Luftzählers an.",
         "ru": "Specifies the pipe diameter of the air meter.",
-        "en": "Specifies the pipe diameter of the air meter."
+        "en": "Specifies the pipe diameter of the air meter.",
+        "ar": "قطر الدائرة"
       },
       "names": {
         "de": "Durchmesser",
         "ru": "Diameter",
-        "en": "Diameter"
+        "en": "Diameter",
+        "ar": "قطر الدائرة"
       }
     }
   ]

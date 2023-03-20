@@ -952,4 +952,45 @@ public class ChartUnits {
         }
         return factor;
     }
+
+    public boolean areComplementary(String inputUnit, String outputUnit) {
+
+        switch (inputUnit) {
+            case "Wh":
+            case "W":
+                return (inputUnit.equals("Wh") && outputUnit.equals("W"))
+                        || (inputUnit.equals("W") && outputUnit.equals("Wh"));
+            case "kWh":
+            case "kW":
+                return (inputUnit.equals("kWh") && outputUnit.equals("kW"))
+                        || (inputUnit.equals("kW") && outputUnit.equals("kWh"));
+            case "MWh":
+            case "MW":
+                return (inputUnit.equals("MWh") && outputUnit.equals("MW"))
+                        || (inputUnit.equals("MW") && outputUnit.equals("MWh"));
+            case "GWh":
+            case "GW":
+                return (inputUnit.equals("GWh") && outputUnit.equals("GW"))
+                        || (inputUnit.equals("GW") && outputUnit.equals("GWh"));
+            case "vah":
+            case "va":
+                return (inputUnit.equals("vah") && outputUnit.equals("va"))
+                        || (inputUnit.equals("va") && outputUnit.equals("vah"));
+            case "kvah":
+            case "kva":
+                return (inputUnit.equals("kvah") && outputUnit.equals("kva"))
+                        || (inputUnit.equals("kva") && outputUnit.equals("kvah"));
+            case "varh":
+            case "var":
+                return (inputUnit.equals("varh") && outputUnit.equals("var"))
+                        || (inputUnit.equals("var") && outputUnit.equals("varh"));
+            case "kvarh":
+            case "kvar":
+                return (inputUnit.equals("kvarh") && outputUnit.equals("kvar"))
+                        || (inputUnit.equals("kvar") && outputUnit.equals("kvarh"));
+        }
+
+
+        return false;
+    }
 }

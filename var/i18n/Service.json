@@ -3,12 +3,14 @@
   "names": {
     "de": "Dienst",
     "ru": "Service",
-    "en": "Service"
+    "en": "Service",
+    "ar": "خدمة"
   },
   "descriptions": {
     "de": "Die Klasse Dienst repräsentiert eine JEVis-Backend-Anwendung, die am JEVis-System registriert ist. Eine Service-Klasse liefert alle Informationen für eine Anwendung, die mit dem JEVis-System interagiert.",
     "ru": "The class Service represents a JEVis back-end application which is registered at the JEVis system. A Service class provide all information for an application which interacts with the JEVis system. ",
-    "en": "The class Service represents a JEVis back-end application which is registered at the JEVis system. A Service class provide all information for an application which interacts with the JEVis system. "
+    "en": "The class Service represents a JEVis back-end application which is registered at the JEVis system. A Service class provide all information for an application which interacts with the JEVis system. ",
+    "ar": "تمثل فئة الخدمة تطبيق JEVis الخلفي المسجل في نظام JEVis. توفر فئة الخدمة جميع المعلومات الخاصة بالتطبيق الذي يتفاعل مع نظام JEVis."
   },
   "types": []
 }

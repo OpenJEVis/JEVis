@@ -3,7 +3,8 @@
   "names": {
     "de": "XLS Parser",
     "ru": "XLS Parser",
-    "en": "XLS Parser"
+    "en": "XLS Parser",
+    "ar": "محلل XLS"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Datapoint Index description",
         "ru": "Datapoint Index description",
-        "en": "Datapoint Index description"
+        "en": "Datapoint Index description",
+        "ar": "مؤشر نقطة البيانات"
       },
       "names": {
         "de": "Datenpunkt Index",
         "ru": "Datapoint Index",
-        "en": "Datapoint Index"
+        "en": "Datapoint Index",
+        "ar": "مؤشر نقطة البيانات"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Date Format description",
         "ru": "Date Format description",
-        "en": "Date Format description"
+        "en": "Date Format description",
+        "ar": "تنسيق التاريخ"
       },
       "names": {
         "de": "Datumsformat",
         "ru": "Date Format",
-        "en": "Date Format"
+        "en": "Date Format",
+        "ar": "صيغة التاريخ"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Date Index description",
         "ru": "Date Index description",
-        "en": "Date Index description"
+        "en": "Date Index description",
+        "ar": "مؤشر التاريخ"
       },
       "names": {
         "de": "Datum Index",
         "ru": "Date Index",
-        "en": "Date Index"
+        "en": "Date Index",
+        "ar": "مؤشر التاريخ"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Decimal Separator description",
         "ru": "Decimal Separator description",
-        "en": "Decimal Separator description"
+        "en": "Decimal Separator description",
+        "ar": "الفاصل العشري"
       },
       "names": {
         "de": "Dezimaltrennzeichen",
         "ru": "Decimal Separator",
-        "en": "Decimal Separator"
+        "en": "Decimal Separator",
+        "ar": "الفاصل العشري"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Delimiter description",
         "ru": "Delimiter description",
-        "en": "Delimiter description"
+        "en": "Delimiter description",
+        "ar": "المحددات"
       },
       "names": {
         "de": "Begrenzungszeichen",
         "ru": "Delimiter",
-        "en": "Delimiter"
+        "en": "Delimiter",
+        "ar": "المحدد"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Number Of Headlines description",
         "ru": "Number Of Headlines description",
-        "en": "Number Of Headlines description"
+        "en": "Number Of Headlines description",
+        "ar": "عدد العناوين"
       },
       "names": {
         "de": "Anzahl Kopfzeilen",
         "ru": "Number Of Headlines",
-        "en": "Number Of Headlines"
+        "en": "Number Of Headlines",
+        "ar": "عدد العناوين"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Quote description",
         "ru": "Quote description",
-        "en": "Quote description"
+        "en": "Quote description",
+        "ar": "الاقتباس"
       },
       "names": {
         "de": "Zitat",
         "ru": "Quote",
-        "en": "Quote"
+        "en": "Quote",
+        "ar": "الاقتباس"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "Thousand Separator description",
         "ru": "Thousand Separator description",
-        "en": "Thousand Separator description"
+        "en": "Thousand Separator description",
+        "ar": "الفاصل بالآلاف"
       },
       "names": {
         "de": "Tausendertrennzeichen",
         "ru": "Thousand Separator",
-        "en": "Thousand Separator"
+        "en": "Thousand Separator",
+        "ar": "فاصل الآلاف"
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "Time Format description",
         "ru": "Time Format description",
-        "en": "Time Format description"
+        "en": "Time Format description",
+        "ar": "تنسيق الوقت"
       },
       "names": {
         "de": "Zeitformat",
         "ru": "Time Format",
-        "en": "Time Format"
+        "en": "Time Format",
+        "ar": "تنسيق الوقت"
       }
     },
     {
@@ -129,12 +148,14 @@
       "descriptions": {
         "de": "Time Index description",
         "ru": "Time Index description",
-        "en": "Time Index description"
+        "en": "Time Index description",
+        "ar": "مؤشر الوقت"
       },
       "names": {
         "de": "Zeit Index",
         "ru": "Time Index",
-        "en": "Time Index"
+        "en": "Time Index",
+        "ar": "مؤشر الوقت"
       }
     }
   ]
