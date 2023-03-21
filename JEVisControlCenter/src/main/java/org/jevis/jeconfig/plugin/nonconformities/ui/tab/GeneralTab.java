@@ -3,10 +3,16 @@ package org.jevis.jeconfig.plugin.nonconformities.ui.tab;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
+import com.sun.javafx.scene.control.skin.TextAreaSkin;
 import javafx.collections.ListChangeListener;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.SkinBase;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -53,7 +59,7 @@ public class GeneralTab extends Tab {
     private Label l_Title = new Label();
     private Label l_NoteEnergiefluss = new Label();
     private Label l_doneDate = new Label();
-    private Label l_plannedDate = new Label();
+    private Label l_deadLine = new Label();
     private Label l_Cause = new Label();
     private Label l_ImmediateMeasures = new Label();
     private Label l_CorrectiveActions = new Label();
@@ -76,6 +82,15 @@ public class GeneralTab extends Tab {
 
     @Override
     public void initTab(NonconformityData nonconformityData) {
+
+        addTabEvent(f_ImmediateMeasures);
+
+        addTabEvent(f_Cause);
+
+        addTabEvent(f_Description);
+
+        addTabEvent(f_CorrectiveActions);
+
 
         GridPane gridPane = new GridPane();
         notificationPane.setContent(gridPane);
@@ -100,33 +115,35 @@ public class GeneralTab extends Tab {
 
 
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_Nr);
-        add(gridPane, 1, 2, 1, 1, Priority.NEVER, l_Responsible);
-        add(gridPane,1 , 3, 1, 1, Priority.NEVER, l_plannedDate);
-        add(gridPane,1,4,1,1,Priority.NEVER,l_CreateDate);
-        add(gridPane,1,5,1,1,Priority.NEVER,l_action);
+        add(gridPane, 1, 2, 1, 1, Priority.NEVER, l_Title);
+        add(gridPane, 1, 3, 1, 1, Priority.NEVER, l_Responsible);
+        add(gridPane, 1, 4, 1, 1, Priority.NEVER, l_CreateDate);
+        add(gridPane, 1, 5, 1, 1, Priority.NEVER, l_deadLine);
+        add(gridPane, 1, 6, 1, 1, Priority.NEVER, l_doneDate);
+
+
 
 
         add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_Nr);
-        add(gridPane, 2, 2, 1, 1, Priority.SOMETIMES, f_Responsible);
-        add(gridPane, 2, 3, 1, 1, Priority.SOMETIMES, f_deadlineDate);
+        add(gridPane, 2, 2, 1, 1, Priority.SOMETIMES, f_Title);
+        add(gridPane, 2, 3, 1, 1, Priority.SOMETIMES, f_Responsible);
         add(gridPane, 2, 4, 1, 1, Priority.SOMETIMES, f_createDate);
-        add(gridPane, 2, 5, 1, 1, Priority.SOMETIMES, f_action);
+        add(gridPane, 2, 5, 1, 1, Priority.SOMETIMES, f_deadlineDate);
+        add(gridPane, 2, 6, 1, 1, Priority.SOMETIMES, f_doneDate);
 
 
-        add(gridPane, 3, 1, 1, 1, Priority.NEVER, l_Title);
-        add(gridPane, 3, 2, 1, 1, Priority.NEVER, l_Creator);
-        add(gridPane, 3, 3, 1, 1, Priority.NEVER, l_doneDate);
-        add(gridPane, 3, 4, 1, 1, Priority.NEVER, l_mediaTags);
-        add(gridPane, 3, 5, 1, 1, Priority.SOMETIMES, l_fieldTags);
-        add(gridPane, 3, 6, 1, 1, Priority.SOMETIMES, l_SEU);
+        add(gridPane, 3, 1, 1, 1, Priority.NEVER, l_mediaTags);
+        add(gridPane, 3, 2, 1, 1, Priority.NEVER, l_fieldTags);
+        add(gridPane, 3, 3, 1, 1, Priority.NEVER, l_SEU);
+        add(gridPane, 3, 4, 1, 1, Priority.NEVER, l_Creator);
+        add(gridPane, 3, 5, 1, 1, Priority.SOMETIMES, l_action);
 
+        add(gridPane, 4, 1, 1, 1, Priority.NEVER, f_mediaTags);
+        add(gridPane, 4, 2, 1, 1, Priority.NEVER, f_fieldTags);
+        add(gridPane, 4, 3, 1, 1, Priority.NEVER, f_SEU);
+        add(gridPane, 4, 4, 1, 1, Priority.NEVER, f_Creator);
+        add(gridPane, 4, 5, 1, 1, Priority.SOMETIMES, f_action);
 
-        add(gridPane, 4, 1, 1, 1, Priority.NEVER, f_Title);
-        add(gridPane, 4, 2, 1, 1, Priority.NEVER, f_Creator);
-        add(gridPane, 4, 3, 1, 1, Priority.SOMETIMES, f_doneDate);
-        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, f_mediaTags);
-        add(gridPane, 4, 5, 1, 1, Priority.NEVER, f_fieldTags);
-        add(gridPane, 4, 6, 1, 1, Priority.NEVER, f_SEU);
 
         add(gridPane, 1, 7, 2, 1, Priority.SOMETIMES, l_Description);
         add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, f_Description);
@@ -177,6 +194,21 @@ public class GeneralTab extends Tab {
 
 
 
+    }
+
+    private void addTabEvent(TextArea f_Cause) {
+        f_Cause.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode() == KeyCode.TAB) {
+                    Node node = (Node) keyEvent.getSource();
+                    if (node instanceof TextArea) {
+                        TextAreaSkin skin = (TextAreaSkin) ((TextArea) node).getSkin();
+                        skin.getBehavior().traverseNext();
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -241,7 +273,7 @@ public class GeneralTab extends Tab {
         l_CreateDate.setText(fake.createDateProperty().getName());
         l_doneDate.setText(fake.doneDateProperty().getName());
         l_mediaTags.setText(fake.mediumProperty().getName());
-        l_plannedDate.setText(fake.deadLineProperty().getName());
+        l_deadLine.setText(fake.deadLineProperty().getName());
         l_Title.setText(fake.titleProperty().getName());
         l_Description.setText(fake.descriptionProperty().getName());
         l_Cause.setText(fake.causeProperty().getName());
@@ -294,4 +326,6 @@ public class GeneralTab extends Tab {
     public TextArea getF_ImmediateMeasures() {
         return f_ImmediateMeasures;
     }
+
+
 }
