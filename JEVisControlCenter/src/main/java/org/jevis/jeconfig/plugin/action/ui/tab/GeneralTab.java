@@ -25,7 +25,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.ui.CheckBoxData;
-import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
+import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -199,8 +199,8 @@ public class GeneralTab extends Tab {
         });
 
 
-        Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, DoubleConverter.getInstance().getDoubleConverter());
-        Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, DoubleConverter.getInstance().getDoubleConverter());
+        Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, NumerFormating.getInstance().getDoubleConverter());
+        Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, NumerFormating.getInstance().getDoubleConverter());
 
         // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
         JFXTextField l_savingsUnitLabel = new JFXTextField("€");

@@ -59,7 +59,7 @@ public class ActionTable extends TableView<ActionData> {
     private boolean showSumRow = false;
     private String containsTextFilter = "";
 
-    NumberFormat currencyFormat = DoubleConverter.getInstance().getCurrencyFormat();
+    NumberFormat currencyFormat = NumerFormating.getInstance().getCurrencyFormat();
 
     public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data) {
         this.data = data;
@@ -182,7 +182,7 @@ public class ActionTable extends TableView<ActionData> {
 
                         if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
                             ActionData actionData = (ActionData) getTableRow().getItem();
-                            setText(currencyFormat.format(item) + " " + actionData.enpi.get().unitProperty().get());
+                            setText(NumerFormating.getInstance().getDoubleFormate().format(item) + " " + actionData.enpi.get().unitProperty().get());
                         } else {
                             setText(null);
                         }
@@ -207,9 +207,9 @@ public class ActionTable extends TableView<ActionData> {
                         if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
                             ActionData actionData = (ActionData) getTableRow().getItem();
                             if (item.equals(-0d)) {
-                                setText(currencyFormat.format(0d) + " " + actionData.consumption.get().unitProperty().get());
+                                setText(NumerFormating.getInstance().getDoubleFormate().format(0d) + " " + actionData.consumption.get().unitProperty().get());
                             } else {
-                                setText(currencyFormat.format(item) + " " + actionData.consumption.get().unitProperty().get());
+                                setText(NumerFormating.getInstance().getDoubleFormate().format(item) + " " + actionData.consumption.get().unitProperty().get());
                             }
                         } else {
                             setText(null);

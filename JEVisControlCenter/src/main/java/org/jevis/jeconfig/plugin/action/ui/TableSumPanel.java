@@ -36,7 +36,7 @@ public class TableSumPanel extends GridPane {
     Label l_sumSavingsYear = new Label(fakeNames.npv.get().einsparung.getName());
     Label l_sumSavingEnergy = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
     ObservableList<ActionData> data;
-    NumberFormat currencyFormat = DoubleConverter.getInstance().getCurrencyFormat();
+    NumberFormat currencyFormat = NumerFormating.getInstance().getCurrencyFormat();
     NumberStringConverter nsc = new NumberStringConverter() {
         @Override
         public String toString(Number value) {
@@ -192,13 +192,13 @@ public class TableSumPanel extends GridPane {
 
             mediumSum.forEach((s, doubleProperty) -> {
                 JFXTextField jfxTextField = columns.get(s);
-                jfxTextField.setText(DoubleConverter.getInstance().getDoubleConverter().toString(doubleProperty.get()) + " kWh");
+                jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()) + " kWh");
                 //System.out.println("set Medium: " + s + "=" + doubleProperty.get());
             });
 
             statusMap.forEach((s, doubleProperty) -> {
                 JFXTextField jfxTextField = columns.get(s);
-                jfxTextField.setText(DoubleConverter.getInstance().getDoubleConverter().toString(doubleProperty.get()));
+                jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()));
                 //System.out.println("set status: " + s + "=" + doubleProperty.get());
             });
 

@@ -17,8 +17,8 @@ import javafx.scene.text.TextAlignment;
 import javafx.util.converter.NumberStringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
-import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
 import org.jevis.jeconfig.plugin.action.ui.NPVTableView;
+import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 
 import java.text.DecimalFormat;
 
@@ -114,8 +114,8 @@ public class CapitalTab extends Tab {
         });
 
 
-        NumberStringConverter nsc = DoubleConverter.getInstance().getCurrencyConverter();
-        NumberStringConverter nscNoUnit = DoubleConverter.getInstance().getDoubleConverter();
+        NumberStringConverter nsc = NumerFormating.getInstance().getCurrencyConverter();
+        NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
 
         //l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.get() + " Jahre");
         data.npv.get().overXYear.addListener(observable -> l_periodOverX.setText("Amortisation über " + observable.toString() + " Year"));
