@@ -38,6 +38,16 @@ public class TableSumPanel extends GridPane {
 
     public TableSumPanel(ObservableList<NonconformityData> data) {
         this.data = data;
+        data.addListener(new ListChangeListener<NonconformityData>() {
+            @Override
+            public void onChanged(Change<? extends NonconformityData> change) {
+                while (change.next()) {
+                    if (change.wasAdded() || change.wasRemoved()) {
+                        updateData();
+                    }
+                }
+            }
+        });
         setHgap(5);
         setVgap(5);
         setPadding(new Insets(20, 10, 10, 20));

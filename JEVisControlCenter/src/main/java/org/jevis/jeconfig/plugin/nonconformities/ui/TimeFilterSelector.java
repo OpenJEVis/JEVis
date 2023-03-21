@@ -21,6 +21,8 @@ import org.joda.time.DateTime;
 
 import java.time.Month;
 import java.time.format.TextStyle;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.jevis.jeconfig.plugin.nonconformities.ui.DateFilter.DateField.*;
 
@@ -31,7 +33,7 @@ public class TimeFilterSelector extends GridPane {
 
 
     //TODo locale name from Column
-    JFXComboBox<DateFilter.DateField> fDateField = new JFXComboBox<>(FXCollections.observableArrayList(ALLES, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT));
+    JFXComboBox<DateFilter.DateField> fDateField = new JFXComboBox<>(FXCollections.observableArrayList(ALL, IMPLEMENTATION, COMPLETED, CREATED));
     JFXComboBox<Month> fFromMonth = generateMonthBox();
     JFXComboBox<Month> fToMonth = generateMonthBox();
     JFXComboBox<Integer> fFromYear = generateYearBox();
@@ -62,16 +64,16 @@ public class TimeFilterSelector extends GridPane {
                         super.updateItem(item, empty);
                         if (item != null) {
                             switch (item) {
-                                case ALLES:
+                                case ALL:
                                     setText(I18n.getInstance().getString("plugin.action.tfiler.all"));
                                     break;
-                                case ABGESCHLOSSEN:
+                                case COMPLETED:
                                     setText(fakeNames.doneDateProperty().getName());
                                     break;
-                                case UMSETZUNG:
+                                case IMPLEMENTATION:
                                     setText(fakeNames.deadLineProperty().getName());
                                     break;
-                                case ERSTELLT:
+                                case CREATED:
                                     setText(fakeNames.createDateProperty().getName());
                                     break;
                                 default:
@@ -92,15 +94,6 @@ public class TimeFilterSelector extends GridPane {
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                lFrom.setDisable(newValue == ALLES);
-                lTo.setDisable(newValue == ALLES);
-                lDatum.setDisable(newValue == ALLES);
-                fFromMonth.setDisable(newValue == ALLES);
-                fToMonth.setDisable(newValue == ALLES);
-                fToMonth.setDisable(newValue == ALLES);
-                fToYear.setDisable(newValue == ALLES);
-                fFromYear.setDisable(newValue == ALLES);
-
                 updateValue();
             }
         };
@@ -126,29 +119,27 @@ public class TimeFilterSelector extends GridPane {
     }
 
     private void initValues(NonconformityPlan nonconformityPlan) {
+
         logger.debug("MonthSelector.initValues: {} {}",nonconformityPlan, nonconformityPlan.getActionData().size());
         DateTime minDate = null;
         DateTime maxDate = null;
+        
 
-        for (NonconformityData nonconformityData : nonconformityPlan.getActionData()) {
-            if (minDate == null) {
-                if (getDate(nonconformityData) != null) {
-                    minDate = getDate(nonconformityData);
-                    maxDate = getDate(nonconformityData);
-                }
+       List<DateTime> dateTimes = nonconformityPlan.getNonconformityList().stream().map(data -> getDate(data)).flatMap(Collection::stream).collect(Collectors.toList());
 
-            } else {
-                if (getDate(nonconformityData) != null && getDate(nonconformityData).isBefore(minDate)) {
-                    minDate = getDate(nonconformityData);
-                }
+        Optional<DateTime> optionalDateTimeMax = dateTimes.stream().max(DateTime::compareTo);
+        Optional<DateTime> optionalDateTimeMin = dateTimes.stream().min(DateTime::compareTo);
 
-                if (getDate(nonconformityData) != null && getDate(nonconformityData).isAfter(maxDate)) {
-                    maxDate = getDate(nonconformityData);
-                }
-
+        if (maxDate == null) {
+            if (optionalDateTimeMax.isPresent()) {
+                maxDate = optionalDateTimeMax.get();
             }
         }
-
+        if (minDate == null) {
+            if (optionalDateTimeMin.isPresent()) {
+                minDate = optionalDateTimeMin.get();
+            }
+        }
         if (minDate != null) {
             fFromMonth.setValue(Month.of(minDate.getMonthOfYear()));
             fFromYear.setValue(minDate.getYear());
@@ -166,16 +157,38 @@ public class TimeFilterSelector extends GridPane {
 
     }
 
-    private DateTime getDate(NonconformityData data) {
+    private List<DateTime> getDate(NonconformityData data) {
+        List<DateTime> dateTimes = new ArrayList<>();
         DateFilter.DateField dateField = fDateField.getValue();
-        if (dateField == ABGESCHLOSSEN) {
-            return data.getDoneDate();
-        } else if (dateField == DateFilter.DateField.ERSTELLT) {
-            return data.getCreateDate();
-        } else if (dateField == UMSETZUNG) {
-            return data.getDeadLine();
+        if (dateField == COMPLETED) {
+            setDoneDate(data, dateTimes);
+        } else if (dateField == DateFilter.DateField.CREATED) {
+            setCreateDate(data, dateTimes);
+        } else if (dateField == IMPLEMENTATION) {
+            setDeadLine(data, dateTimes);
+        } else if (dateField == ALL) {
+            setDoneDate(data, dateTimes);
+            setCreateDate(data, dateTimes);
+            setDeadLine(data, dateTimes);
         }
         return null;
+    }
+    private static void setDeadLine(NonconformityData data, List<DateTime> dateTimes) {
+        if (data.getDeadLine() != null) {
+            dateTimes.add(data.getDeadLine());
+        }
+    }
+
+    private static void setCreateDate(NonconformityData data, List<DateTime> dateTimes) {
+        if (data.getCreateDate() != null) {
+            dateTimes.add(data.getCreateDate());
+        }
+    }
+
+    private static void setDoneDate(NonconformityData data, List<DateTime> dateTimes) {
+        if (data.getDoneDate() != null) {
+            dateTimes.add(data.getDoneDate());
+        }
     }
 
     public DateFilter getValueProperty() {
@@ -222,6 +235,7 @@ public class TimeFilterSelector extends GridPane {
             DateFilter dateRange = new DateFilter(fDateField.getValue(), from, until);
             valueProperty.set(dateRange);
         } catch (Exception ex) {
+            ex.printStackTrace();
             logger.error(ex);
         }
     }
