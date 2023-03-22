@@ -107,7 +107,7 @@ public class GapsAndLimits {
             case WEEKOFYEAR:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
                     for (JEVisSample sample : sampleCache) {
-                        if (sample.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
+                        if (sample.getTimestamp().getWeekOfWeekyear() == lastDate.getWeekOfWeekyear()) {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 boundListSamples.add(sample);
                             }
@@ -118,7 +118,7 @@ public class GapsAndLimits {
                     for (JEVisSample jeVisSample : rawSamples) {
                         if (jeVisSample.getTimestamp().equals(firstDate) || (jeVisSample.getTimestamp().isAfter(firstDate) && jeVisSample.getTimestamp().isBefore(lastDate))
                                 || jeVisSample.getTimestamp().equals(lastDate)) {
-                            if (jeVisSample.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
+                            if (jeVisSample.getTimestamp().getWeekOfWeekyear() == lastDate.getWeekOfWeekyear()) {
                                 if ((jeVisSample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (jeVisSample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                     if (!isDifferentialForDate(jeVisSample.getTimestamp())) {
                                         boundListSamples.add(jeVisSample);

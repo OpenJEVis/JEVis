@@ -173,7 +173,7 @@ public class TreeSelectionDialog extends Dialog {
                     selectionShow.show();
                 }
             } catch (Exception e) {
-
+                logger.error(e);
             }
         });
 
@@ -181,10 +181,7 @@ public class TreeSelectionDialog extends Dialog {
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(event -> this.close());
 
-        HBox buttonBar = new HBox(8, filterVBox, filterTextField, classVBox, filterBox);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-
-        box.getChildren().addAll(new TreeViewPath(treeView), treeView, buttonBar);
+        box.getChildren().addAll(new TreeViewPath(treeView), treeView);
         VBox.setVgrow(treeView, Priority.ALWAYS);
         box.setMinHeight(768);
         box.setMinWidth(1024);
