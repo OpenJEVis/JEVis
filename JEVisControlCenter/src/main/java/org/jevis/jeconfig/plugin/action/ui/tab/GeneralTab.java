@@ -236,17 +236,17 @@ public class GeneralTab extends Tab {
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_ActionNr);
         add(gridPane, 1, 2, 1, 1, Priority.NEVER, l_Title);
         add(gridPane, 1, 3, 1, 1, Priority.NEVER, l_Responsible);
-        add(gridPane, 1, 4, 1, 1, Priority.NEVER, l_plannedDate);
-        add(gridPane, 1, 5, 1, 1, Priority.NEVER, l_doneDate);
-        add(gridPane, 1, 6, 1, 1, Priority.NEVER, l_CreateDate);
+        add(gridPane, 1, 4, 1, 1, Priority.NEVER, l_CreateDate);
+        add(gridPane, 1, 5, 1, 1, Priority.NEVER, l_plannedDate);
+        add(gridPane, 1, 6, 1, 1, Priority.NEVER, l_doneDate);
         // add(gridPane, 1, 7, 1, 1, Priority.NEVER, l_distributor);
 
         add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_ActionNr);
         add(gridPane, 2, 2, 1, 1, Priority.SOMETIMES, f_Title);
         add(gridPane, 2, 3, 1, 1, Priority.SOMETIMES, f_Responsible);
-        add(gridPane, 2, 4, 1, 1, Priority.SOMETIMES, f_plannedDate);
-        add(gridPane, 2, 5, 1, 1, Priority.SOMETIMES, f_doneDate);
-        add(gridPane, 2, 6, 1, 1, Priority.SOMETIMES, f_CreateDate);
+        add(gridPane, 2, 4, 1, 1, Priority.SOMETIMES, f_CreateDate);
+        add(gridPane, 2, 5, 1, 1, Priority.SOMETIMES, f_plannedDate);
+        add(gridPane, 2, 6, 1, 1, Priority.SOMETIMES, f_doneDate);
         //add(gridPane, 2, 7, 1, 1, Priority.NEVER, f_distributor);
 
         add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, l_Description);
@@ -260,17 +260,17 @@ public class GeneralTab extends Tab {
         add(gridPane, 4, 1, 1, 1, Priority.SOMETIMES, l_statusTags);
         add(gridPane, 4, 2, 1, 1, Priority.SOMETIMES, l_fieldTags);
         add(gridPane, 4, 3, 1, 1, Priority.SOMETIMES, l_seu);
-        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, l_Investment);
+        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, l_FromUser);
         add(gridPane, 4, 5, 1, 1, Priority.SOMETIMES, l_changeKost);
-        add(gridPane, 4, 6, 1, 1, Priority.SOMETIMES, l_FromUser);
+        add(gridPane, 4, 6, 1, 1, Priority.SOMETIMES, l_Investment);
         add(gridPane, 4, 7, 1, 1, Priority.SOMETIMES, l_Attachment);
 
         add(gridPane, 5, 1, 1, 1, Priority.SOMETIMES, f_statusTags);
         add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags);//f_fieldTags2);
         add(gridPane, 5, 3, 1, 1, Priority.SOMETIMES, f_sueTags);
-        add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, investBox);
+        add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, f_FromUser);
         add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, savingsBox);//f_Investment
-        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, f_FromUser);//f_savings
+        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, investBox);//f_savings
         add(gridPane, 5, 7, 1, 1, Priority.SOMETIMES, f_Attachment);
 
         add(gridPane, 4, 8, 2, 1, Priority.SOMETIMES, l_NoteEnergiefluss);
