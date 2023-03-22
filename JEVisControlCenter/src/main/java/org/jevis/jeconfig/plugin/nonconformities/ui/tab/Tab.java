@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui.tab;
 
+import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
@@ -35,16 +36,19 @@ public abstract class Tab extends javafx.scene.control.Tab{
         notificationPane.setOnHiding(event -> {
             this.getTabPane().getTabs().forEach(tab -> {
                 NotificationPane content = (NotificationPane) tab.getContent();
-                GridPane gridPane = (GridPane) content.getContent();
-                gridPane.getChildren().forEach(node -> {
-                    if (node instanceof JFXTextField) {
-                        JFXTextField textField = (JFXTextField) node;
-                        textField.getStyleClass().set(0, "nonconformityOK");
-                    } else if (node instanceof TextArea) {
-                        TextArea textArea = (TextArea) node;
-                        textArea.getStyleClass().set(0, "nonconformityOK");
-                    }
-                });
+//                GridPane gridPane = (GridPane) content.getContent();
+//                gridPane.getChildren().forEach(node -> {
+//                    if (node instanceof JFXTextField) {
+//                        JFXTextField textField = (JFXTextField) node;
+//                        textField.getStyleClass().set(0, "nonconformityOK");
+//                    } else if (node instanceof TextArea) {
+//                        TextArea textArea = (TextArea) node;
+//                        textArea.getStyleClass().set(0, "nonconformityOK");
+//                    } else if (node instanceof JFXDatePicker) {
+//                        JFXDatePicker jfxDatePicker = (JFXDatePicker) node;
+//                        jfxDatePicker.getStyleClass().set(0, "nonconformityOK");
+//                    }
+//                });
                 content.hide();
             });
 

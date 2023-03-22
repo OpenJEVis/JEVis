@@ -328,4 +328,7 @@ public class GeneralTab extends Tab {
     }
 
 
+    public JFXDatePicker getF_doneDate() {
+        return f_doneDate;
+    }
 }
