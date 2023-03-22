@@ -10,6 +10,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -65,17 +66,6 @@ public class TableSumPanel extends GridPane {
         // addRow(1, l_sumLabel, f_sumInvestment, f_sumSavingsYear);
 
 
-        this.getColumnConstraints().add(0, new ColumnConstraints(100, 150, 300, Priority.NEVER, HPos.RIGHT, true));
-        this.getColumnConstraints().add(1, new ColumnConstraints(100, 175, 300, Priority.NEVER, HPos.RIGHT, true));
-        //this.getColumnConstraints().add(2, new ColumnConstraints(180, 180, 300, Priority.NEVER, HPos.RIGHT, true));
-        //this.getColumnConstraints().add(3, new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
-        //this.getColumnConstraints().add(4, new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
-
-        getChildren().clear();
-        addRow(0, new Region(), l_sumSavingsYear); //l_sumInvestment
-        addRow(1, l_sumLabel, f_sumSavingsYear); //f_sumInvestment
-        updateLayout();
-
         actionPlan.getMediumTags().addListener((ListChangeListener<String>) c -> {
             while (c.next()) {
                 updateLayout();
@@ -96,32 +86,57 @@ public class TableSumPanel extends GridPane {
     }
 
     private void updateLayout() {
+        System.out.println("UpdateLayout");
+        columns.clear();
+        getChildren().clear();
+        getColumnConstraints().clear();
+
+        this.getColumnConstraints().add(0, new ColumnConstraints(100, 150, 300, Priority.NEVER, HPos.RIGHT, true));
+        this.getColumnConstraints().add(1, new ColumnConstraints(100, 175, 300, Priority.NEVER, HPos.RIGHT, true));
+
+        addRow(0, new Region(), l_sumSavingsYear); //l_sumInvestment
+        addRow(1, l_sumLabel, f_sumSavingsYear); //f_sumInvestment
+        //updateLayout();
+
+
+        //this.getColumnConstraints().clear();
         ObservableList<String> mediums = actionPlan.getMediumTags();
+
         for (String s : mediums) {
             if (!columns.containsKey(s)) {
+                System.out.println("-addMedium: " + s);
                 Label label = new Label(s);
                 JFXTextField field = new JFXTextField();
+                System.out.println("- " + field);
                 field.setAlignment(Pos.CENTER_RIGHT);
+                field.setTooltip(new Tooltip("m:" + (columns.size() + 2) + ""));
                 int newColumn = columns.size() + 2;
                 columns.put(s, field);
                 this.getColumnConstraints().add(newColumn,
-                        new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
+                        new ColumnConstraints(100, 100, 300, Priority.NEVER, HPos.RIGHT, true));//160
                 add(label, newColumn, 0);
                 add(field, newColumn, 1);
+            } else {
+                System.out.println("-is there allready");
             }
         }
 
         for (String s : actionPlan.getStatustags()) {
             if (!columns.containsKey(s)) {
+                System.out.println("-addStatus: " + s);
                 Label label = new Label(s);
                 JFXTextField field = new JFXTextField();
+                System.out.println("- " + field);
+                field.setTooltip(new Tooltip("s:" + (columns.size() + 2) + ""));
                 field.setAlignment(Pos.CENTER_RIGHT);
                 int newColumn = columns.size() + 2;
                 columns.put(s, field);
                 this.getColumnConstraints().add(newColumn,
-                        new ColumnConstraints(100, 160, 300, Priority.NEVER, HPos.RIGHT, true));
+                        new ColumnConstraints(100, 100, 300, Priority.NEVER, HPos.RIGHT, true));//170
                 add(label, newColumn, 0);
                 add(field, newColumn, 1);
+            } else {
+                System.out.println("-is there allready");
             }
         }
 
@@ -133,17 +148,19 @@ public class TableSumPanel extends GridPane {
 
 
         Platform.runLater(() -> {
-            double sumInvest = 0;
-            double sumEinsparrung = 0;
-            for (ActionData actionData : data) {
-                sumInvest += actionData.npv.get().getInvestment();
-                sumEinsparrung += actionData.npv.get().einsparung.get();
 
-            }
-            f_sumInvestment.setText(nsc.toString(sumInvest));
-            f_sumSavingsYear.setText(nsc.toString(sumEinsparrung));
-            f_sumSavingEnergy.setText("");
         });
+
+        double sumInvest = 0;
+        double sumEinsparrung = 0;
+        for (ActionData actionData : data) {
+            sumInvest += actionData.npv.get().getInvestment();
+            sumEinsparrung += actionData.npv.get().einsparung.get();
+
+        }
+        f_sumInvestment.setText(nsc.toString(sumInvest));
+        f_sumSavingsYear.setText(nsc.toString(sumEinsparrung));
+        f_sumSavingEnergy.setText("");
 
 
         if (actionPlan != null) {
@@ -153,11 +170,17 @@ public class TableSumPanel extends GridPane {
             });
 
             data.forEach(actionData -> {
+                System.out.println("------------");
+                System.out.println("mediumSum: ad: " + actionData + "   isIn: " + mediumSum.containsKey(actionData.mediaTagsProperty().get()));
                 if (mediumSum.containsKey(actionData.mediaTagsProperty().get())) {
+
                     DoubleProperty value = mediumSum.get(actionData.mediaTagsProperty().get());
                     if (!actionData.consumption.get().diffProperty().getValue().isNaN()) {
+                        System.out.println("Add: " + actionData.consumption.get().diffProperty().get());
+                        ;
                         value.setValue(value.get() + actionData.consumption.get().diffProperty().get());
                     }
+                    System.out.println("new sum: " + value.get());
 
 
                 }
@@ -173,9 +196,15 @@ public class TableSumPanel extends GridPane {
 
             /* Staus sum */
             Map<String, DoubleProperty> statusMap = new HashMap<>();
-            columns.forEach((s, jfxTextField) -> {
+            actionPlan.getStatustags().forEach(s -> {
                 statusMap.put(s, new SimpleDoubleProperty(0));
             });
+            /*
+            columns.forEach((s, jfxTextField) -> {
+
+            });
+
+             */
 
             data.forEach(actionData -> {
                 //System.out.println("Entry: " + actionData.statusTagsProperty().get() + "  in: " + statusMap.keySet());
@@ -185,20 +214,29 @@ public class TableSumPanel extends GridPane {
                 }
             });
 
+            /*
             columns.forEach((s, jfxTextField) -> {
                 //System.out.println("Reset field: " + s);
                 jfxTextField.setText("");
             });
+             */
 
             mediumSum.forEach((s, doubleProperty) -> {
+                //System.out.println("Fill GUI: " + s + "  double: " + doubleProperty + " field: " + columns.get(s));
                 JFXTextField jfxTextField = columns.get(s);
-                jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()) + " kWh");
-                //System.out.println("set Medium: " + s + "=" + doubleProperty.get());
+
+                Platform.runLater(() -> {
+                    jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()) + " kWh");
+                });
             });
 
             statusMap.forEach((s, doubleProperty) -> {
+                // System.out.println("Fill GUIs: " + s + "  double: " + doubleProperty + " field: " + columns.get(s));
                 JFXTextField jfxTextField = columns.get(s);
-                jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()));
+                Platform.runLater(() -> {
+                    jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()));
+                });
+
                 //System.out.println("set status: " + s + "=" + doubleProperty.get());
             });
 

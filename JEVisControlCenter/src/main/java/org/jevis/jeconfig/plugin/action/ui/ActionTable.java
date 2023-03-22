@@ -91,6 +91,7 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> desciptionPropertyCol = new TableColumn(fakeForName.desciptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().desciptionProperty());
         desciptionPropertyCol.setCellFactory(buildShotTextFactory());
+        desciptionPropertyCol.setId("Desciption");
 
         TableColumn<ActionData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.action.filter.plan"));
         planNameCol.setCellValueFactory(param -> param.getValue().getActionPlan().getName());
@@ -99,6 +100,7 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> notePropertyCol = new TableColumn(fakeForName.noteProperty().getName());
         notePropertyCol.setCellValueFactory(param -> param.getValue().noteProperty());
         notePropertyCol.setCellFactory(buildShotTextFactory());
+        notePropertyCol.setId("Note");
 
         TableColumn<ActionData, String> mediaTagsPropertyCol = new TableColumn(fakeForName.mediaTagsProperty().getName());
         mediaTagsPropertyCol.setCellValueFactory(param -> param.getValue().mediaTagsProperty());
@@ -154,6 +156,7 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> titlePropertyCol = new TableColumn(fakeForName.titleProperty().getName());
         titlePropertyCol.setCellValueFactory(param -> param.getValue().titleProperty());
         titlePropertyCol.setCellFactory(buildShotTextFactory());
+        titlePropertyCol.setId("Title");
 
         TableColumn<ActionData, Double> investPropertyCol = new TableColumn(fakeForName.npv.get().investment.getName());
         investPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().investment.asObject());
@@ -282,9 +285,15 @@ public class ActionTable extends TableView<ActionData> {
     public void autoFitTable() {
         for (TableColumn<ActionData, ?> column : this.getColumns()) {
             try {
-                if (getSkin() != null) {
-                    columnToFitMethod.invoke(getSkin(), column, -1);
+                if (column.getId().equals("Note") || column.getId().equals("Title") || column.getId().equals("Desciption")) {
+                    /*ignore this columns for now, there are to big to autoresize*/
+                } else {
+                    if (getSkin() != null) {
+                        columnToFitMethod.invoke(getSkin(), column, -1);
+                    }
                 }
+
+
             } catch (Exception e) {
             }
         }
