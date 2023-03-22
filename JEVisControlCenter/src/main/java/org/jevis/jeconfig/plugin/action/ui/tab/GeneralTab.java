@@ -177,7 +177,12 @@ public class GeneralTab extends Tab {
         });
 
         f_doneDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            if (newValue.isAfter(LocalDate.now())) {
+                data.doneDateProperty().set(new DateTime());
+            } else {
+                data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            }
+
         });
 
 
@@ -320,6 +325,7 @@ public class GeneralTab extends Tab {
         l_NoteEnergiefluss.setWrapText(true);
 
         setContent(scrollPane);
+
     }
 
     private void add(GridPane pane, int column, int row, int colspan, int rowspan, Priority priority, Node node) {
