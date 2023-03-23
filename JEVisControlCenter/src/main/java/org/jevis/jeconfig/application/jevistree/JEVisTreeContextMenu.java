@@ -19,19 +19,17 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -41,6 +39,7 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
@@ -63,14 +62,117 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class JEVisTreeContextMenu extends ContextMenu {
     private static final Logger logger = LogManager.getLogger(JEVisTreeContextMenu.class);
-    private final StackPane dialogContainer;
 
     private JEVisObject obj;
     private JEVisTree tree;
 
-    public JEVisTreeContextMenu(StackPane dialogContainer) {
+    public JEVisTreeContextMenu() {
         super();
-        this.dialogContainer = dialogContainer;
+    }
+
+    public static void goToSource(JEVisTree tree, JEVisObject obj) {
+        try {
+            AtomicBoolean foundTarget = new AtomicBoolean(false);
+            JEVisDataSource ds = obj.getDataSource();
+
+            if (tree.getCalculationIDs().get(obj.getID()) != null) {
+                logger.info("target is a calculation");
+                try {
+                    JEVisObject calculationObject = ds.getObject(tree.getCalculationIDs().get(obj.getID()));
+                    JEVisClass outputClass = ds.getJEVisClass("Output");
+
+                    for (JEVisObject object : calculationObject.getChildren(outputClass, false)) {
+                        try {
+                            if (object.getAttribute("Output").hasSample()) {
+                                TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute("Output"));
+                                if ((targetHelper.isObject() || targetHelper.isAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
+                                    logger.info("found target");
+                                    foundTarget.set(true);
+
+                                    List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
+                                    toOpen.add(object);
+                                    TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                logger.info("target is not a calculation");
+                try {
+                    if (tree.getTargetAndChannel().get(obj.getID()) != null) {
+                        JEVisObject object = ds.getObject(tree.getTargetAndChannel().get(obj.getID()));
+                        logger.info("found target");
+                        foundTarget.set(true);
+                        List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
+                        toOpen.add(object);
+                        TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            if (!foundTarget.get()) {
+
+                GridPane gridPane = new GridPane();
+                gridPane.setPadding(new Insets(8));
+                gridPane.setHgap(8);
+                gridPane.setVgap(8);
+
+                gridPane.add(new Label(I18n.getInstance().getString("jevistree.menu.gotosrc.error")), 0, 0);
+                gridPane.add(new Separator(), 0, 1);
+
+                Dialog dialog = new Dialog();
+                dialog.setResizable(true);
+                dialog.initOwner(JEConfig.getStage());
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+                TopMenu.applyActiveTheme(stage.getScene());
+                stage.setAlwaysOnTop(true);
+
+                ButtonType okType = new ButtonType(I18n.getInstance().getString("jevistree.menu.gotosrc.close"), ButtonBar.ButtonData.OK_DONE);
+
+                dialog.getDialogPane().getButtonTypes().addAll(okType);
+
+                Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+                okButton.setDefaultButton(true);
+
+                dialog.getDialogPane().setContent(gridPane);
+
+                okButton.setOnAction(event -> {
+                    dialog.close();
+                });
+
+                dialog.show();
+            }
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private JEVisObject getObject() {
+        return ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
+    }
+
+
+    private MenuItem buildGoToSource() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.gotosrc"), JEConfig.getSVGImage(Icon.GO_TO_SOURCE, 20, 20));
+        menu.setOnAction(t -> {
+                    goToSource(tree, obj);
+                }
+
+        );
+        return menu;
     }
 
     public void setTree(JEVisTree tree) {
@@ -126,7 +228,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                         getItems().add(new SeparatorMenuItem());
                         getItems().add(buildReCalcClean());
                     } else if (obj.getJEVisClassName().equals("Periodic Report")) {
-                        getItems().add(buildReportWizzard());
+                        getItems().add(buildReportWizard());
                     }
 
                     if (obj.getAttribute("Value") != null) {
@@ -140,99 +242,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
             }
 
         });
-    }
-
-    private JEVisObject getObject() {
-        return ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
-    }
-
-
-    private MenuItem buildGoToSource() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.gotosrc"), JEConfig.getSVGImage(Icon.GO_TO_SOURCE, 20, 20));
-        menu.setOnAction(t -> {
-                    goToSource(tree, obj);
-                }
-
-        );
-        return menu;
-    }
-
-    public static void goToSource(JEVisTree tree, JEVisObject obj) {
-        try {
-            AtomicBoolean foundTarget = new AtomicBoolean(false);
-            JEVisDataSource ds = obj.getDataSource();
-
-            if (tree.getCalculationIDs().get(obj.getID()) != null) {
-                logger.info("target is a calculation");
-                try {
-                    JEVisObject calculationObject = ds.getObject(tree.getCalculationIDs().get(obj.getID()));
-                    JEVisClass outputClass = ds.getJEVisClass("Output");
-
-                    for (JEVisObject object : calculationObject.getChildren(outputClass, false)) {
-                        try {
-                            if (object.getAttribute("Output").hasSample()) {
-                                TargetHelper targetHelper = new TargetHelper(ds, object.getAttribute("Output"));
-                                if ((targetHelper.isObject() || targetHelper.isAttribute()) && targetHelper.getObject().get(0).getID().equals(obj.getID())) {
-                                    logger.info("found target");
-                                    foundTarget.set(true);
-
-                                    List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
-                                    toOpen.add(object);
-                                    TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
-                                    break;
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                logger.info("target is not a calculation");
-                try {
-                    if (tree.getTargetAndChannel().get(obj.getID()) != null) {
-                        JEVisObject object = ds.getObject(tree.getTargetAndChannel().get(obj.getID()));
-                        logger.info("found target");
-                        foundTarget.set(true);
-                        List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
-                        toOpen.add(object);
-                        TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            if (!foundTarget.get()) {
-
-                JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.menu.gotosrc.close"));
-                GridPane gridPane = new GridPane();
-                gridPane.setPadding(new Insets(8));
-                gridPane.setHgap(8);
-                gridPane.setVgap(8);
-
-                gridPane.add(new Label(I18n.getInstance().getString("jevistree.menu.gotosrc.error")), 0, 0);
-                gridPane.add(new Separator(), 0, 1);
-                gridPane.add(ok, 0, 2);
-                GridPane.setHalignment(ok, HPos.RIGHT);
-                JFXDialog jfxDialog = new JFXDialog(JEConfig.getStackPane(), gridPane, JFXDialog.DialogTransition.CENTER);
-
-                ok.setDefaultButton(true);
-                ok.setOnAction(event -> {
-                    jfxDialog.close();
-                });
-
-                jfxDialog.show();
-            }
-
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
 
@@ -300,7 +309,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildKPIWizard() {
         MenuItem menu = new MenuItem("KPI Wizard", JEConfig.getSVGImage(Icon.WIZARD_WAND, 20, 20));
         menu.setOnAction(t -> {
-                    KPIWizard wizard = new KPIWizard(dialogContainer, obj);
+            KPIWizard wizard = new KPIWizard(obj);
                     wizard.show();
                 }
         );
@@ -402,7 +411,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    TreeHelper.createCalcInput(dialogContainer, obj, null, null, null);
+                    TreeHelper.createCalcInput(obj, null, null, null);
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }
@@ -436,7 +445,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             public void handle(ActionEvent event) {
                 try {
                     JEVisSample lastValue = obj.getAttribute("Value").getLatestSample();
-                    EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, obj.getDataSource());
+                    EnterDataDialog enterDataDialog = new EnterDataDialog(obj.getDataSource());
                     enterDataDialog.setTarget(false, obj.getAttribute("Value"));
                     enterDataDialog.setSample(lastValue);
                     enterDataDialog.setShowValuePrompt(true);
@@ -460,7 +469,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                 Platform.runLater(() -> {
                     try {
-                        TreeHelper.EventExportTree(dialogContainer, obj);
+                        TreeHelper.EventExportTree(obj);
                     } catch (JEVisException ex) {
                         logger.fatal(ex);
                     }
@@ -562,7 +571,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         return menu;
     }
 
-    private MenuItem buildReportWizzard() {
+    private MenuItem buildReportWizard() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("plugin.object.report.dialog.wizard"), JEConfig.getSVGImage(Icon.WIZARD_HAT, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override

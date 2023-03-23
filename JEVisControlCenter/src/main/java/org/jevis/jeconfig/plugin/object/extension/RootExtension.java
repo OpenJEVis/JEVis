@@ -35,7 +35,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
@@ -62,12 +61,10 @@ public class RootExtension implements ObjectEditorExtension {
 
     private static final String TITLE = I18n.getInstance().getString("plugin.object.root.title");
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final StackPane dialogContainer;
     private final JEVisObject _obj;
     private final BorderPane _view = new BorderPane();
 
-    public RootExtension(StackPane dialogContainer, JEVisObject obj) {
-        this.dialogContainer = dialogContainer;
+    public RootExtension(JEVisObject obj) {
         this._obj = obj;
     }
 
@@ -247,9 +244,9 @@ public class RootExtension implements ObjectEditorExtension {
                 JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllObjects();
                 allFilter.add(basicFilter);
 
-                SelectTargetDialog dia = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.MULTIPLE, _obj.getDataSource(), new ArrayList<>());
+                SelectTargetDialog dia = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.MULTIPLE, _obj.getDataSource(), new ArrayList<>());
 
-                dia.setOnDialogClosed(event -> {
+                dia.setOnCloseRequest(event -> {
                     try {
                         if (dia.getResponse() == SelectTargetDialog.Response.OK) {
                             for (UserSelection selection : dia.getUserSelection()) {

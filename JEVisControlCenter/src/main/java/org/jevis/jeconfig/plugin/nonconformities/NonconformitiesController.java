@@ -9,20 +9,19 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
+import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformtiesOverviewData;
 import org.jevis.jeconfig.plugin.nonconformities.ui.*;
 import org.joda.time.DateTime;
@@ -307,14 +306,11 @@ public class NonconformitiesController {
         return dialogEvent -> {
             String errorText = data.checkForRequirements();
             logger.debug(errorText);
-            if (errorText.equals(NonconformityData.IMMEDIATE_ACTION)) {
+            if (!errorText.equals(NonconformityData.REQUIREMENTS_MET)) {
                 nonconformityForm.showNotification(errorText,Icon.Warning);
                 dialogEvent.consume();
 
-            } else if (errorText.equals(NonconformityData.DONE_DATE_ACTION)) {
-                nonconformityForm.showNotification(errorText,Icon.Warning);
-                dialogEvent.consume();
-            } else {
+            }  else {
                 data.commit();
             }
         };

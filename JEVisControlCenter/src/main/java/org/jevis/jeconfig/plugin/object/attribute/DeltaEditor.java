@@ -21,7 +21,6 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -30,12 +29,12 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,6 +50,8 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonDeltaConfig;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonTools;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -65,8 +66,6 @@ public class DeltaEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(DeltaEditor.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _readOnly = new SimpleBooleanProperty(false);
-
-    private final StackPane dialogContainer;
     private final HBox box = new HBox(12);
     private final boolean delete = false;
     private final DoubleValidator dv = DoubleValidator.getInstance();
@@ -76,8 +75,7 @@ public class DeltaEditor implements AttributeEditor {
     private JsonDeltaConfig deltaConfig;
     private boolean initialized = false;
 
-    public DeltaEditor(StackPane dialogContainer, JEVisAttribute att) {
-        this.dialogContainer = dialogContainer;
+    public DeltaEditor(JEVisAttribute att) {
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
@@ -207,28 +205,36 @@ public class DeltaEditor implements AttributeEditor {
             deltaConfig = createDefaultConfig();
         }
 
-        JFXDialog dialog = new JFXDialog();
-        dialog.setDialogContainer(dialogContainer);
-        dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
+        Dialog dialog = new Dialog();
+        dialog.setTitle(I18n.getInstance().getString("plugin.configuration.deltaeditor.title"));
+        dialog.setHeaderText(I18n.getInstance().getString("plugin.configuration.deltaeditor.header"));
+        dialog.setResizable(true);
+        dialog.initOwner(JEConfig.getStage());
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         GridPane gp = createContent(deltaConfig);
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox vBox = new VBox(6, gp, separator, buttonBar);
-        dialog.setContent(vBox);
+        VBox vBox = new VBox(6, gp, separator);
+        dialog.getDialogPane().setContent(vBox);
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             try {
                 _newSample = _attribute.buildSample(new DateTime(), deltaConfig.toString());
                 _changed.setValue(true);
@@ -239,7 +245,7 @@ public class DeltaEditor implements AttributeEditor {
             dialog.close();
         });
 
-        cancel.setOnAction(event -> dialog.close());
+        cancelButton.setOnAction(event -> dialog.close());
 
         dialog.show();
     }
@@ -294,7 +300,7 @@ public class DeltaEditor implements AttributeEditor {
             e.printStackTrace();
         }
 
-        GapFillingEditor maxConfig = new GapFillingEditor(dialogContainer, maxConfigAtt);
+        GapFillingEditor maxConfig = new GapFillingEditor(maxConfigAtt);
         maxConfig.getValueChangedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 List<JsonGapFillingConfig> jsonGapFillingConfigs = maxConfig.parseJson(maxConfigAtt.getLatestSample().getValueAsString());

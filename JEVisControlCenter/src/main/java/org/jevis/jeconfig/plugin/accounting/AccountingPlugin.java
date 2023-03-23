@@ -26,6 +26,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -104,11 +106,9 @@ public class AccountingPlugin extends TablePlugin {
     private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, toolBarIconSize, toolBarIconSize));
     private final ToggleButton importPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.IMPORT, toolBarIconSize, toolBarIconSize));
     private final BorderPane borderPane = new BorderPane();
-    private final StackPane dialogPane = new StackPane(borderPane);
     private final TabPane motherTabPane = new TabPane();
     private final TabPane enterDataTabPane = new TabPane();
     private final JFXComboBox<JEVisObject> configComboBox = new JFXComboBox<>();
-    private final StackPane enterDataStackPane = new StackPane(enterDataTabPane);
     private final Tab enterDataTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
     private final Tab energySupplierTab = new Tab();
     private final Tab energyMeteringOperatorsTab = new Tab();
@@ -186,8 +186,7 @@ public class AccountingPlugin extends TablePlugin {
     private boolean guiUpdate = false;
     private final TemplateHandler templateHandler = new TemplateHandler();
     private final OutputView viewTab;
-    private final StackPane contractsTabDialogContainer = new StackPane();
-    private final Tab contractsTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"), contractsTabDialogContainer);
+    private final Tab contractsTab = new Tab(I18n.getInstance().getString("plugin.accounting.tab.config"));
     private final JFXTextField contractNumberField = new JFXTextField();
     private final JFXComboBox<ContractType> contractTypeBox = new JFXComboBox<>();
     private final JFXTextField marketLocationNumberField = new JFXTextField();
@@ -219,10 +218,8 @@ public class AccountingPlugin extends TablePlugin {
         viewTab.setFontSize(fontSize);
         viewTab.showDatePicker(false);
         viewTab.showInputs(false);
-        viewTab.setContractsDialogContainer(contractsTabDialogContainer);
-        viewTab.setViewDialogContainer(dialogPane);
 
-        enterDataTab.setContent(enterDataStackPane);
+        enterDataTab.setContent(enterDataTabPane);
 
         enterDataTab.setClosable(false);
         energySupplierTab.setClosable(false);
@@ -455,7 +452,7 @@ public class AccountingPlugin extends TablePlugin {
         contractsGP.add(trcs, 1, contractsRow);
         contractsRow++;
 
-        contractsTabDialogContainer.getChildren().add(new VBox(4, contractsGP));
+        contractsTab.setContent(new VBox(4, contractsGP));
         viewTab.setContractsGP(contractsGP);
         viewTab.setTimeframeField(timeframeField);
 
@@ -957,7 +954,7 @@ public class AccountingPlugin extends TablePlugin {
                     try {
                         JEVisClass templateClass = ds.getJEVisClass(ACCOUNTING_CONFIGURATION);
 
-                        SaveUnderDialog saveUnderDialog = new SaveUnderDialog(dialogPane, ds, ACCOUNTING_CONFIGURATION_DIRECTORY, ath.getTemplateObject(), templateClass, ath.getTitle(), (target, sameObject) -> {
+                        SaveUnderDialog saveUnderDialog = new SaveUnderDialog(ds, ACCOUNTING_CONFIGURATION_DIRECTORY, ath.getTemplateObject(), templateClass, ath.getTitle(), (target, sameObject) -> {
 
                             try {
                                 ath.setTitle(target.getName());
@@ -1000,16 +997,29 @@ public class AccountingPlugin extends TablePlugin {
 
                     Label really = new Label(I18n.getInstance().getString("jevistree.dialog.delete.message"));
 
-                    JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-                    ok.setDefaultButton(true);
-                    JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-                    cancel.setCancelButton(true);
+                    Dialog dialog = new Dialog();
+                    dialog.setResizable(true);
+                    dialog.initOwner(JEConfig.getStage());
+                    dialog.initModality(Modality.APPLICATION_MODAL);
+                    Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+                    TopMenu.applyActiveTheme(stage.getScene());
+                    stage.setAlwaysOnTop(true);
 
-                    JFXDialog dialog = new JFXDialog(enterDataStackPane, new VBox(12, really, new HBox(6, cancel, ok)), JFXDialog.DialogTransition.CENTER);
-                    dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
-                    cancel.setOnAction(event -> dialog.close());
+                    ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+                    ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                    dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+                    Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+                    okButton.setDefaultButton(true);
+
+                    Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+                    cancelButton.setCancelButton(true);
+
+                    dialog.getDialogPane().setContent(really);
+                    cancelButton.setOnAction(event -> dialog.close());
                     JEVisObject finalObjectToDelete = objectToDelete;
-                    ok.setOnAction(event -> {
+                    okButton.setOnAction(event -> {
                         try {
                             if (finalObjectToDelete != null) {
                                 ds.deleteObject(finalObjectToDelete.getID(), false);
@@ -1072,21 +1082,35 @@ public class AccountingPlugin extends TablePlugin {
                     JFXTextField nameField = new JFXTextField();
                     nameField.setPromptText(I18n.getInstance().getString("newobject.name.prompt"));
 
-                    JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-                    ok.setDefaultButton(true);
-                    JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-                    cancel.setCancelButton(true);
-
-                    VBox vBox = new VBox(12, nameField, box, new HBox(6, cancel, ok));
+                    VBox vBox = new VBox(12, nameField, box);
                     vBox.setPadding(INSETS);
 
-                    JFXDialog dialog = new JFXDialog(enterDataStackPane, vBox, JFXDialog.DialogTransition.CENTER);
-                    dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
-                    cancel.setOnAction(event -> dialog.close());
+                    Dialog dialog = new Dialog();
+                    dialog.setResizable(true);
+                    dialog.initOwner(JEConfig.getStage());
+                    dialog.initModality(Modality.APPLICATION_MODAL);
+                    Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+                    TopMenu.applyActiveTheme(stage.getScene());
+                    stage.setAlwaysOnTop(true);
+
+                    ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+                    ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                    dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+                    Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+                    okButton.setDefaultButton(true);
+
+                    Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+                    cancelButton.setCancelButton(true);
+
+                    dialog.getDialogPane().setContent(vBox);
+
+                    cancelButton.setOnAction(event -> dialog.close());
                     JEVisObject finalDirectory = directory;
                     JFXComboBox<JEVisObject> finalSelected = selected;
                     JFXComboBox<ComboBoxItem> finalSelectedOther = selectedOther;
-                    ok.setOnAction(event -> {
+                    okButton.setOnAction(event -> {
                         try {
                             JEVisObject jeVisObject = finalDirectory.buildObject(nameField.getText(), box.getSelectionModel().getSelectedItem());
                             jeVisObject.commit();
@@ -1171,7 +1195,7 @@ public class AccountingPlugin extends TablePlugin {
 
     @Override
     public Node getContentNode() {
-        return dialogPane;
+        return borderPane;
     }
 
 
@@ -1292,7 +1316,7 @@ public class AccountingPlugin extends TablePlugin {
         JFXButton esRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         esRename.setOnAction(event -> {
             if (energySupplierBox.getSelectionModel().getSelectedItem() != null) {
-                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, energySupplierBox.getSelectionModel().getSelectedItem());
+                RenameDialog renameDialog = new RenameDialog(energySupplierBox.getSelectionModel().getSelectedItem());
                 renameDialog.show();
             }
         });
@@ -1332,7 +1356,7 @@ public class AccountingPlugin extends TablePlugin {
         JFXButton emoRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         emoRename.setOnAction(event -> {
             if (energyMeteringOperatorBox.getSelectionModel().getSelectedItem() != null) {
-                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, energyMeteringOperatorBox.getSelectionModel().getSelectedItem());
+                RenameDialog renameDialog = new RenameDialog(energyMeteringOperatorBox.getSelectionModel().getSelectedItem());
                 renameDialog.show();
             }
         });
@@ -1372,7 +1396,7 @@ public class AccountingPlugin extends TablePlugin {
         JFXButton egoRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         egoRename.setOnAction(event -> {
             if (energyGridOperatorBox.getSelectionModel().getSelectedItem() != null) {
-                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, energyGridOperatorBox.getSelectionModel().getSelectedItem());
+                RenameDialog renameDialog = new RenameDialog(energyGridOperatorBox.getSelectionModel().getSelectedItem());
                 renameDialog.show();
             }
         });
@@ -1404,7 +1428,7 @@ public class AccountingPlugin extends TablePlugin {
         JFXButton cvRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         cvRename.setOnAction(event -> {
             if (energyContractorBox.getSelectionModel().getSelectedItem() != null) {
-                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, energyContractorBox.getSelectionModel().getSelectedItem().getObject());
+                RenameDialog renameDialog = new RenameDialog(energyContractorBox.getSelectionModel().getSelectedItem().getObject());
                 renameDialog.show();
             }
         });
@@ -1436,7 +1460,7 @@ public class AccountingPlugin extends TablePlugin {
         JFXButton gdRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         gdRename.setOnAction(event -> {
             if (governmentalDuesBox.getSelectionModel().getSelectedItem() != null) {
-                RenameDialog renameDialog = new RenameDialog(enterDataStackPane, governmentalDuesBox.getSelectionModel().getSelectedItem());
+                RenameDialog renameDialog = new RenameDialog(governmentalDuesBox.getSelectionModel().getSelectedItem());
                 renameDialog.show();
             }
         });
@@ -1465,28 +1489,39 @@ public class AccountingPlugin extends TablePlugin {
 
         if (changed && !guiUpdate) {
             Label saved = new Label(I18n.getInstance().getString("plugin.dashboard.dialog.changed.text"));
-            JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
-            ok.setDefaultButton(true);
-            JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-            cancel.setCancelButton(true);
-
-            HBox buttonBox = new HBox(6, cancel, ok);
-            buttonBox.setAlignment(Pos.CENTER_RIGHT);
 
             Separator separator = new Separator(Orientation.HORIZONTAL);
             separator.setPadding(new Insets(8, 0, 8, 0));
 
-            VBox vBox = new VBox(6, saved, separator, buttonBox);
+            VBox vBox = new VBox(6, saved, separator);
             vBox.setPadding(INSETS);
 
-            JFXDialog dialog = new JFXDialog(enterDataStackPane, vBox, JFXDialog.DialogTransition.CENTER);
-            dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
-            cancel.setOnAction(event -> {
+            Dialog dialog = new Dialog();
+            dialog.setResizable(true);
+            dialog.initOwner(JEConfig.getStage());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+            TopMenu.applyActiveTheme(stage.getScene());
+            stage.setAlwaysOnTop(true);
+
+            ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+            Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+            okButton.setDefaultButton(true);
+
+            Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+            cancelButton.setCancelButton(true);
+
+            dialog.getDialogPane().setContent(vBox);
+            cancelButton.setOnAction(event -> {
                 dialog.close();
                 updateGrid(gridPane, newValue, contractorPreview);
             });
 
-            ok.setOnAction(event -> {
+            okButton.setOnAction(event -> {
                 for (AttributeEditor attributeEditor : attributeEditors) {
                     try {
                         attributeEditor.commit();
@@ -1740,7 +1775,7 @@ public class AccountingPlugin extends TablePlugin {
                     VBox editorBox = new VBox();
 
                     if (!isContractorAttribute) {
-                        AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(enterDataStackPane, attribute.getType(), attribute);
+                        AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
                         attributeEditor.setReadOnly(false);
                         if (attribute.getType().getGUIDisplayType().equals("Period")) {
                             PeriodEditor periodEditor = (PeriodEditor) attributeEditor;
@@ -1831,7 +1866,7 @@ public class AccountingPlugin extends TablePlugin {
 
     @Override
     public int getPrefTapPos() {
-        return 8;
+        return 9;
     }
 
     private org.apache.poi.ss.usermodel.Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {

@@ -5,10 +5,10 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +19,7 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.DataTypeBox;
 import org.jevis.jeconfig.application.control.DayBox;
@@ -36,11 +37,10 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeterDialog extends JFXDialog {
+public class MeterDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(MeterDialog.class);
     private final JEVisClass jeVisClass;
     private final List<JEVisClass> possibleParents = new ArrayList<>();
-    private final StackPane dialogContainer;
     private final JEVisDataSource ds;
     private Response response;
     private GridPane gp;
@@ -63,13 +63,20 @@ public class MeterDialog extends JFXDialog {
     private int row;
     private int column;
 
-    public MeterDialog(StackPane dialogContainer, JEVisDataSource ds, JEVisClass jeVisClass) {
+    public MeterDialog(JEVisDataSource ds, JEVisClass jeVisClass) {
         super();
-        this.dialogContainer = dialogContainer;
+
         this.ds = ds;
         this.jeVisClass = jeVisClass;
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+
+        setTitle(I18n.getInstance().getString("plugin.meters.meterdialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.meters.meterdialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         dataTypeBox.getSelectionModel().select(EnterDataTypes.DAY);
         monthBox.setRelations(yearBox, dayBox, null);
@@ -148,35 +155,34 @@ public class MeterDialog extends JFXDialog {
         HBox targetBox = new HBox(parentVBox, treeButton, targetSpace, nameVBox, nameField);
         targetBox.setSpacing(4);
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.ok"));
-        HBox.setHgrow(ok, Priority.NEVER);
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
-        HBox.setHgrow(cancel, Priority.NEVER);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator sep1 = new Separator(Orientation.HORIZONTAL);
 
-        HBox buttonRow = new HBox(spacer, cancel, ok);
-        buttonRow.setPadding(new Insets(4));
-        buttonRow.setSpacing(10);
-
         VBox.setVgrow(targetBox, Priority.NEVER);
         VBox.setVgrow(gp, Priority.ALWAYS);
-        VBox.setVgrow(buttonRow, Priority.NEVER);
         vBox.setFillWidth(true);
-        vBox.getChildren().setAll(DialogHeader.getDialogHeader("measurement_instrument.png", I18n.getInstance().getString("plugin.meters.title")), targetBox, gp, sep1, buttonRow);
+        vBox.getChildren().setAll(DialogHeader.getDialogHeader("measurement_instrument.png", I18n.getInstance().getString("plugin.meters.title")), targetBox, gp, sep1);
 
         treeButton.setOnAction(event -> {
             List<JEVisTreeFilter> allFilter = new ArrayList<>();
             JEVisTreeFilter allCurrentClassFilter = SelectTargetDialog.buildMultiClassFilter(jeVisClass, possibleParents);
             allFilter.add(allCurrentClassFilter);
 
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE, ds, null);
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE, ds, null);
 
             List<UserSelection> openList = new ArrayList<>();
 
-            selectTargetDialog.setOnDialogClosed(event1 -> {
+            selectTargetDialog.setOnCloseRequest(event1 -> {
                 if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
                     logger.trace("Selection Done");
 
@@ -207,7 +213,7 @@ public class MeterDialog extends JFXDialog {
             selectTargetDialog.show();
         });
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             for (AttributeEditor attributeEditor : attributeEditors) {
                 if (attributeEditor.hasChanged()) {
                     try {
@@ -229,7 +235,7 @@ public class MeterDialog extends JFXDialog {
             close();
         });
 
-        cancel.setOnAction(event -> {
+        cancelButton.setOnAction(event -> {
             response = Response.CANCEL;
             if (newObject != null) {
                 try {
@@ -241,7 +247,7 @@ public class MeterDialog extends JFXDialog {
             close();
         });
 
-        setContent(vBox);
+        getDialogPane().setContent(vBox);
     }
 
     public void showReplaceWindow(JEVisObject selectedMeter) {
@@ -263,29 +269,22 @@ public class MeterDialog extends JFXDialog {
         HBox targetBox = new HBox(nameVBox, nameField);
         targetBox.setSpacing(4);
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.ok"));
-        HBox.setHgrow(ok, Priority.NEVER);
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
-        HBox.setHgrow(cancel, Priority.NEVER);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        Separator sep1 = new Separator(Orientation.HORIZONTAL);
-
-        HBox buttonRow = new HBox(spacer, cancel, ok);
-        buttonRow.setPadding(new Insets(4));
-        buttonRow.setSpacing(10);
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
 
         VBox.setVgrow(targetBox, Priority.NEVER);
         VBox.setVgrow(gp, Priority.ALWAYS);
-        VBox.setVgrow(buttonRow, Priority.NEVER);
         vBox.setFillWidth(true);
-        vBox.getChildren().setAll(DialogHeader.getDialogHeader("measurement_instrument.png", I18n.getInstance().getString("plugin.meters.title")), targetBox, gp, sep1, buttonRow);
+        vBox.getChildren().setAll(DialogHeader.getDialogHeader("measurement_instrument.png", I18n.getInstance().getString("plugin.meters.title")), targetBox, gp);
 
         newObject = selectedMeter;
         updateGrid(true);
 
-        ok.setOnAction(event -> {
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+        okButton.setOnAction(event -> {
             for (AttributeEditor attributeEditor : attributeEditors) {
                 if (attributeEditor.hasChanged()) {
                     try {
@@ -383,12 +382,14 @@ public class MeterDialog extends JFXDialog {
             close();
         });
 
-        cancel.setOnAction(event -> {
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+        cancelButton.setOnAction(event -> {
             response = Response.CANCEL;
             close();
         });
 
-        setContent(vBox);
+        getDialogPane().setContent(vBox);
         show();
     }
 
@@ -425,7 +426,7 @@ public class MeterDialog extends JFXDialog {
                     VBox typeBox = new VBox(typeName);
                     typeBox.setAlignment(Pos.CENTER);
 
-                    AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(dialogContainer, attribute.getType(), attribute);
+                    AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
                     attributeEditor.setReadOnly(false);
                     attributeEditors.add(attributeEditor);
                     VBox editorBox = new VBox(attributeEditor.getEditor());

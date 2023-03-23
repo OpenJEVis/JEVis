@@ -36,7 +36,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
@@ -107,7 +110,6 @@ public class JEConfig extends Application {
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
     private static Statusbar statusBar;
-    private static final StackPane dialogContainer = new StackPane();
 
     public static final String xpathExpression = "//path/@d";
 
@@ -492,12 +494,12 @@ public class JEConfig extends Application {
 
                 VBox vbox = new VBox();
 
-                BorderPane border = new BorderPane(dialogContainer);
+                BorderPane border = new BorderPane();
 
                 vbox.setStyle("-fx-background-color: black;");
                 border.setTop(vbox);
 
-                menu = new TopMenu(dialogContainer);
+                menu = new TopMenu();
 
                 pluginManager = new PluginManager(_mainDS);
                 pluginManager.setMenuBar(menu);
@@ -510,7 +512,7 @@ public class JEConfig extends Application {
 
 
                 Platform.runLater(() -> {
-                    dialogContainer.getChildren().add(pluginManager.getView());
+                    border.setCenter(pluginManager.getView());
                     vbox.getChildren().addAll(menu, pluginManager.getToolbar());
                 });
 
@@ -677,16 +679,6 @@ public class JEConfig extends Application {
         _primaryStage = primaryStage;
         initGUI(primaryStage);
     }
-
-    /**
-     * StackPane for JFXDialogs without parents
-     *
-     * @return
-     */
-    public static StackPane getStackPane() {
-        return dialogContainer;
-    }
-
 
     public static final class OsUtils {
         private static String OS = null;

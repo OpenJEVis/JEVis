@@ -15,8 +15,8 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
+import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformtiesOverviewData;
 import org.jevis.jeconfig.plugin.nonconformities.data.TableFilter;
 import org.joda.time.DateTime;
@@ -91,18 +91,18 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         TableColumn<NonconformityData, String> fromUserCol = new TableColumn(fakeForName.creatorProperty().getName());
         fromUserCol.setCellValueFactory(param -> param.getValue().creatorProperty());
         fromUserCol.setCellFactory(buildShotTextFactory());
-        fromUserCol.setStyle("-fx-alignment: CENTER;");
+        fromUserCol.setStyle("-fx-alignment: LEFT;");
         fromUserCol.setMinWidth(BIG_WIDTH);
 
 
         TableColumn<NonconformityData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsiblePersonProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsiblePersonProperty());
-        responsiblePropertyCol.setStyle("-fx-alignment: CENTER;");
+        responsiblePropertyCol.setStyle("-fx-alignment: LEFT;");
         responsiblePropertyCol.setMinWidth(BIG_WIDTH);
 
         TableColumn<NonconformityData, String> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
         actionNrPropertyCol.setCellValueFactory(param ->param.getValue().getPrefixPlusNumber());
-        actionNrPropertyCol.setStyle("-fx-alignment: CENTER;");
+        actionNrPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         actionNrPropertyCol.setMinWidth(SMALL_WIDTH);
 
 
@@ -110,23 +110,23 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         TableColumn<NonconformityData, String> desciptionPropertyCol = new TableColumn(fakeForName.descriptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().descriptionProperty());
-        desciptionPropertyCol.setStyle("-fx-alignment: CENTER;");
+        desciptionPropertyCol.setStyle("-fx-alignment: LEFT;");
         desciptionPropertyCol.setCellFactory(buildShotTextFactory());
 
 
         TableColumn<NonconformityData, String> causePropertyCol = new TableColumn(fakeForName.causeProperty().getName());
         causePropertyCol.setCellValueFactory(param -> param.getValue().causeProperty());
-        causePropertyCol.setStyle("-fx-alignment: CENTER;");
+        causePropertyCol.setStyle("-fx-alignment: LEFT;");
         causePropertyCol.setCellFactory(buildShotTextFactory());
 
         TableColumn<NonconformityData, String> immediateMeasuresPropertyCol = new TableColumn(fakeForName.immediateMeasuresProperty().getName());
         immediateMeasuresPropertyCol.setCellValueFactory(param -> param.getValue().immediateMeasuresProperty());
-        immediateMeasuresPropertyCol.setStyle("-fx-alignment: CENTER;");
+        immediateMeasuresPropertyCol.setStyle("-fx-alignment: LEFT;");
         immediateMeasuresPropertyCol.setCellFactory(buildShotTextFactory());
 
         TableColumn<NonconformityData, String> correctiveActionsCol = new TableColumn(fakeForName.correctiveActionsProperty().getName());
         correctiveActionsCol.setCellValueFactory(param -> param.getValue().correctiveActionsProperty());
-        correctiveActionsCol.setStyle("-fx-alignment: CENTER;");
+        correctiveActionsCol.setStyle("-fx-alignment: LEFT;");
         correctiveActionsCol.setCellFactory(buildShotTextFactory());
 
         TableColumn<NonconformityData, String> mediaTagsPropertyCol = new TableColumn(fakeForName.mediumProperty().getName());
@@ -159,32 +159,32 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         TableColumn<NonconformityData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.nonconformities.location"));
         planNameCol.setCellValueFactory(param -> param.getValue().getNonconformityPlan().getName());
         planNameCol.setCellFactory(buildShotTextFactory());
-        planNameCol.setStyle("-fx-alignment: CENTER;");
+        planNameCol.setStyle("-fx-alignment: LEFT;");
         planNameCol.setMinWidth(BIG_WIDTH);
 
 
         TableColumn<NonconformityData, DateTime> doneDatePropertyCol = new TableColumn(fakeForName.doneDateProperty().getName());
         doneDatePropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
         doneDatePropertyCol.setCellFactory(buildDateTimeFactory());
-        doneDatePropertyCol.setStyle("-fx-alignment: CENTER;");
+        doneDatePropertyCol.setStyle("-fx-alignment: LEFT;");
         doneDatePropertyCol.setMinWidth(DATE_TIME_WIDTH);
 
         TableColumn<NonconformityData, DateTime> createDatePropertyCol = new TableColumn(fakeForName.createDateProperty().getName());
         createDatePropertyCol.setCellValueFactory(param -> param.getValue().createDateProperty());
         createDatePropertyCol.setCellFactory(buildDateTimeFactory());
-        createDatePropertyCol.setStyle("-fx-alignment: CENTER;");
+        createDatePropertyCol.setStyle("-fx-alignment: LEFT;");
         createDatePropertyCol.setMinWidth(DATE_TIME_WIDTH);
 
         TableColumn<NonconformityData, DateTime> plannedDatePropertyCol = new TableColumn(fakeForName.deadLineProperty().getName());
         plannedDatePropertyCol.setCellValueFactory(param -> param.getValue().deadLineProperty());
         plannedDatePropertyCol.setCellFactory(buildDateTimeFactory());
-        plannedDatePropertyCol.setStyle("-fx-alignment: CENTER;");
+        plannedDatePropertyCol.setStyle("-fx-alignment: LEFT;");
         plannedDatePropertyCol.setMinWidth(DATE_TIME_WIDTH);
 
 
         TableColumn<NonconformityData, String> titlePropertyCol = new TableColumn(fakeForName.titleProperty().getName());
         titlePropertyCol.setCellValueFactory(param -> param.getValue().titleProperty());
-        titlePropertyCol.setStyle("-fx-alignment: CENTER;");
+        titlePropertyCol.setStyle("-fx-alignment: LEFT;");
         titlePropertyCol.setCellFactory(buildShotTextFactory());
         titlePropertyCol.setMinWidth(BIG_WIDTH);
 

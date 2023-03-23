@@ -150,6 +150,6 @@ public class ActionPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 4;
+        return 7;
     }
 }

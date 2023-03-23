@@ -1,7 +1,10 @@
 package org.jevis.jeconfig.plugin.object.extension.OPC;
 
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -17,6 +20,8 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.eclipse.milo.opcua.stack.core.UaException;
@@ -25,6 +30,7 @@ import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
@@ -64,7 +70,7 @@ public class NodeTreeTable {
     private boolean rootSet = false;
     private final JFXButton importDataStructureJFXButton;
     private final JFXButton selectTargetJFXButton;
-    private JFXDialog setValueDialog;
+    private Dialog setValueDialog;
 
     private int jevisObjectcount;
 
@@ -72,7 +78,6 @@ public class NodeTreeTable {
     private JEVisDataSource ds;
     private final ObservableList<Node> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
-    private final StackPane dialogContainer;
     private static final String LOYTEC_XML_DL_DIRECTORY = "Loytec XML-DL CEA709 Channel Directory";
     private static final String LOYTEC_XML_DL_BACNET_DIRECTORY = "Loytec XML-DL Bacnet Channel Directory";
     private static final String DATA_DIRECTORY = "Data Directory";
@@ -92,14 +97,13 @@ public class NodeTreeTable {
     private final String mode;
 
 
-    public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, String backNetRootFolder, StackPane dialogContainer, String mode) {
+    public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, String backNetRootFolder, String mode) {
 
         this.mode = mode;
         this.opcClient = opcClient;
         this.trendRoot = trendRoot;
         this.backNetRootFolder = backNetRootFolder;
         this.opcUARootFolder = opcUaRootFolder;
-        this.dialogContainer = dialogContainer;
         selectTargetJFXButton = buildTargetButton();
         importDataStructureJFXButton = buildImportDataStructureButton();
         try {
@@ -139,7 +143,7 @@ public class NodeTreeTable {
             });
             MenuItem cMsetValue = new MenuItem(I18n.getInstance().getString("plugin.object.opcua.setvalue"));
             cMsetValue.setOnAction(event -> {
-                setSetValueDialog(opcClient, dialogContainer);
+                setSetValueDialog(opcClient);
             });
             contextMenu.getItems().addAll(cMcopyNodeId, cMsetValue);
             opcUATreeTableView.setContextMenu(contextMenu);
@@ -317,13 +321,19 @@ public class NodeTreeTable {
         view.getChildren().add(opcUATreeTableView);
     }
 
-    private void setSetValueDialog(OPCClient opcClient, StackPane dialogContainer) {
+    private void setSetValueDialog(OPCClient opcClient) {
         try {
             String dataType = opcClient.getDataType(NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().getStringNodeID()));
 
 
-            setValueDialog = new JFXDialog();
-            setValueDialog.setDialogContainer(dialogContainer);
+            setValueDialog = new Dialog();
+            setValueDialog.setResizable(true);
+            setValueDialog.initOwner(JEConfig.getStage());
+            setValueDialog.initModality(Modality.APPLICATION_MODAL);
+            Stage stage = (Stage) setValueDialog.getDialogPane().getScene().getWindow();
+            TopMenu.applyActiveTheme(stage.getScene());
+            stage.setAlwaysOnTop(true);
+
             GridPane gridPane = new GridPane();
             gridPane.setPadding(new Insets(10));
             gridPane.setHgap(10);
@@ -347,18 +357,20 @@ public class NodeTreeTable {
                 hbox.getChildren().addAll(valueLabel, valueField);
             }
 
+            ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-            final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-            ok.setDefaultButton(true);
-            final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-            cancel.setCancelButton(true);
+            setValueDialog.getDialogPane().getButtonTypes().setAll(cancelType, okType);
 
-            HBox buttonBar = new HBox(20, cancel, ok);
+            Button okButton = (Button) setValueDialog.getDialogPane().lookupButton(okType);
+            okButton.setDefaultButton(true);
 
-            cancel.setOnAction(event1 -> setValueDialog.close());
+            Button cancelButton = (Button) setValueDialog.getDialogPane().lookupButton(cancelType);
+            cancelButton.setCancelButton(true);
 
+            cancelButton.setOnAction(event1 -> setValueDialog.close());
 
-            ok.setOnAction(event1 -> {
+            okButton.setOnAction(event1 -> {
                 try {
 
 
@@ -396,13 +408,12 @@ public class NodeTreeTable {
             });
 
             gridPane.add(hbox, 0, 0);
-            gridPane.add(buttonBar, 0, 3);
 
-            setValueDialog.setContent(gridPane);
+            setValueDialog.getDialogPane().setContent(gridPane);
 
             setValueDialog.show();
 
-        } catch (UaException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -698,10 +709,10 @@ public class NodeTreeTable {
                 List<JEVisTreeFilter> allFilter = new ArrayList<>();
                 JEVisTreeFilter dataDirectoryFilter = SelectTargetDialog.buildClassFilter(ds, "Data Directory");
                 allFilter.add(dataDirectoryFilter);
-                SelectTargetDialog selectionDialog = new SelectTargetDialog(dialogContainer, allFilter, dataDirectoryFilter, null, SelectionMode.SINGLE, ds, new ArrayList<UserSelection>());
+                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, dataDirectoryFilter, null, SelectionMode.SINGLE, ds, new ArrayList<UserSelection>());
                 selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
 
-                selectionDialog.setOnDialogClosed(event -> {
+                selectionDialog.setOnCloseRequest(event -> {
 
                     if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
                         logger.trace("Selection Done");

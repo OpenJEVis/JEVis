@@ -12,7 +12,10 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
@@ -96,7 +99,6 @@ public class TablePlugin implements Plugin {
     protected final AlphanumComparator alphanumComparator = new AlphanumComparator();
     protected final JFXTextField filterInput = new JFXTextField("");
     protected final BorderPane borderPane = new BorderPane();
-    protected final StackPane dialogContainer = new StackPane(borderPane);
 
     public TablePlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -371,9 +373,9 @@ public class TablePlugin implements Plugin {
                                         }
                                     }
 
-                                    SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, getDataSource(), openList);
+                                    SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE, getDataSource(), openList);
 
-                                    selectTargetDialog.setOnDialogClosed(event1 -> {
+                                    selectTargetDialog.setOnCloseRequest(event1 -> {
                                         try {
                                             if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
                                                 logger.trace("Selection Done");
@@ -446,7 +448,7 @@ public class TablePlugin implements Plugin {
                     TargetHelper th = new TargetHelper(getDataSource(), targetSample.getValueAsString());
                     if (th.isValid() && th.targetObjectAccessible()) {
 
-                        EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, getDataSource());
+                        EnterDataDialog enterDataDialog = new EnterDataDialog(getDataSource());
                         enterDataDialog.setShowDetailedTarget(false);
 
                         if (th.isAttribute()) {
@@ -1005,7 +1007,7 @@ public class TablePlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return dialogContainer;
+        return borderPane;
     }
 
     @Override

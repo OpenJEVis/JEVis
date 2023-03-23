@@ -17,12 +17,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.tool.Layouts;
 
@@ -61,6 +64,10 @@ public class LocalNameDialog {
     public Response show() {
         Dialog<ButtonType> dialog = new Dialog();
         dialog.initOwner(JEConfig.getStage());
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
         dialog.setTitle(I18n.getInstance().getString("jevistree.dialog.translate.title"));
         dialog.setHeaderText(I18n.getInstance().getString("jevistree.dialog.translate.header"));
         dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
@@ -68,8 +75,6 @@ public class LocalNameDialog {
         dialog.getDialogPane().setPrefHeight(300);
 
         /** build form **/
-
-
 
 
         Label objLocalNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
@@ -174,20 +179,17 @@ public class LocalNameDialog {
         gridPane.setHgap(8);
         Layouts.setAnchor(gridPane, 5);
 
-        gridPane.addRow(0, objLocalNameLabel,imageViewFlag, objectLocalNameTest);
+        gridPane.addRow(0, objLocalNameLabel, imageViewFlag, objectLocalNameTest);
         gridPane.add(table, 0, 1, 3, 1);
 
         GridPane.setHgrow(objectLocalNameTest, Priority.ALWAYS);
         GridPane.setHgrow(table, Priority.ALWAYS);
 
-
         dialog.getDialogPane().setContent(root);
-
 
         final ButtonType ok = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.ok"), ButtonBar.ButtonData.FINISH);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
-
+        dialog.getDialogPane().getButtonTypes().setAll(ok, cancel);
 
         dialog.showAndWait()
                 .ifPresent(response -> {
@@ -202,18 +204,18 @@ public class LocalNameDialog {
                                 }
 
                             });
-                            if(commitLangMap.containsKey(I18n.getInstance().getLocale().getLanguage())) {
+                            if (commitLangMap.containsKey(I18n.getInstance().getLocale().getLanguage())) {
                                 commitLangMap.replace(I18n.getInstance().getLocale().getLanguage(), newName);
-                            }else {
+                            } else {
 
                                 commitLangMap.put(I18n.getInstance().getLocale().getLanguage(), newName);
                             }
                             object.setLocalNames(commitLangMap);
-                            if(!object.getLocalName("en").isEmpty()){
+                            if (!object.getLocalName("en").isEmpty()) {
                                 object.setName(object.getLocalName("en"));
-                            }else if(!object.getLocalName("de").isEmpty()){
+                            } else if (!object.getLocalName("de").isEmpty()) {
                                 object.setName(object.getLocalName("de"));
-                            }else {
+                            } else {
                                 Optional<String> firstKey = object.getLocalNameList().keySet().stream().findFirst();
                                 if (firstKey.isPresent()) {
                                     object.setName(object.getLocalName(firstKey.get()));
@@ -276,8 +278,8 @@ public class LocalNameDialog {
         picker.setButtonCell(cellFactory.call(null));
 
         if (selected != null && !selected.equals("empty")) {
-          int index =  langList.indexOf(langList.stream().filter(locale -> locale.getLanguage().equals(selected.getLanguage())).findAny().get());
-          picker.getSelectionModel().select(index);
+            int index = langList.indexOf(langList.stream().filter(locale -> locale.getLanguage().equals(selected.getLanguage())).findAny().get());
+            picker.getSelectionModel().select(index);
         }
 
         return picker;

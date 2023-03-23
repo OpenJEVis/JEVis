@@ -1,6 +1,9 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -9,10 +12,14 @@ import javafx.collections.ObservableList;
 import javafx.event.EventTarget;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +37,7 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.control.DataTypeBox;
 import org.jevis.jeconfig.application.control.DayBox;
 import org.jevis.jeconfig.application.control.MonthBox;
@@ -50,11 +58,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class EnterDataDialog extends JFXDialog implements EventTarget {
+public class EnterDataDialog extends Dialog implements EventTarget {
     private static final Logger logger = LogManager.getLogger(EnterDataDialog.class);
     public static final String CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME = "Conversion to Differential";
     public static String ICON = "Startup Wizard_18228.png";
-    private final StackPane dialogContainer;
     private final JEVisDataSource ds;
     private final ObjectRelations objectRelations;
 
@@ -99,11 +106,16 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
     private final GridPane gridPane = new GridPane();
     private boolean showDetailedTarget = true;
 
-    public EnterDataDialog(StackPane dialogContainer, JEVisDataSource dataSource) {
+    public EnterDataDialog(JEVisDataSource dataSource) {
         super();
-        this.dialogContainer = dialogContainer;
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+        setTitle(I18n.getInstance().getString("plugin.configuration.enterdata.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.configuration.enterdata.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         this.ds = dataSource;
         this.objectRelations = new ObjectRelations(ds);
@@ -136,9 +148,9 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                     openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
             }
 
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE, ds, openList);
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE, ds, openList);
 
-            selectTargetDialog.setOnDialogClosed(event1 -> {
+            selectTargetDialog.setOnCloseRequest(event1 -> {
                 if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
                     logger.trace("Selection Done");
 
@@ -166,27 +178,29 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
                 e.printStackTrace();
             }
             if (value != null) {
-                DataDialog dataDialog = new DataDialog(dialogContainer, value);
+                DataDialog dataDialog = new DataDialog(value);
                 dataDialog.show();
             }
         });
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, showMore, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox vBox = new VBox(6, gridPane, separator, buttonBar);
-        setContent(vBox);
+        VBox vBox = new VBox(6, gridPane, separator);
+        getDialogPane().setContent(vBox);
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
 //            event.consume();
             if (selectedObject != null) {
                 try {
@@ -392,7 +406,7 @@ public class EnterDataDialog extends JFXDialog implements EventTarget {
             }
         });
 
-        cancel.setOnAction(event -> close());
+        cancelButton.setOnAction(event -> close());
     }
 
     private void updateView() {

@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import javafx.beans.property.SimpleObjectProperty;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;

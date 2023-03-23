@@ -3,11 +3,9 @@ package org.jevis.jeconfig.plugin.object.extension.OPC;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import org.apache.poi.xslf.usermodel.XSLFTableCell;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.structured.ReferenceDescription;
-
 import org.jevis.jeopc.Nodes;
 
 public class Node {

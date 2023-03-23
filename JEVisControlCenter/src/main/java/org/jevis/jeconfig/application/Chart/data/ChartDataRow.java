@@ -574,7 +574,7 @@ public class ChartDataRow extends ChartData {
     }
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) {
-        if (getUnit() != null) {
+        if (getUnit() != null && !inputList.isEmpty()) {
             try {
                 String outputUnit = UnitManager.getInstance().format(getUnit()).replace("·", "");
                 if (outputUnit.equals("")) outputUnit = getUnit().getLabel();

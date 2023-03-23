@@ -63,10 +63,8 @@ public class ReportSheet extends Tab {
         initHeader();
 
         ScrollPane scrollPane = new ScrollPane(gridPane);
-        double width = reportWizardDialog.getDialogContainer().getWidth() * 2 / 3;
-        double height = reportWizardDialog.getDialogContainer().getHeight() * 2 / 3;
-        scrollPane.setMinWidth(width);
-        scrollPane.setMinHeight(height);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
@@ -294,9 +292,9 @@ public class ReportSheet extends Tab {
                     openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
             }
 
-            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(reportWizardDialog.getDialogContainer(), ds, classes, SelectionMode.SINGLE, openList, true);
+            TreeSelectionDialog selectionDialog = new TreeSelectionDialog(ds, classes, SelectionMode.SINGLE, openList, true);
 
-            selectionDialog.setOnDialogClosed(event1 -> {
+            selectionDialog.setOnCloseRequest(event1 -> {
                 if (selectionDialog.getResponse() == Response.OK) {
                     logger.trace("Selection Done");
 

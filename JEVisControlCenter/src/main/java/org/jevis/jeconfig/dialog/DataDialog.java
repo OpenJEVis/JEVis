@@ -3,7 +3,6 @@ package org.jevis.jeconfig.dialog;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -16,6 +15,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
@@ -31,6 +32,7 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -41,7 +43,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataDialog extends JFXDialog {
+public class DataDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(DataDialog.class);
     private final String ICON = "1404313956_evolution-tasks.png";
     private final AlphanumComparator ac = new AlphanumComparator();
@@ -65,9 +67,17 @@ public class DataDialog extends JFXDialog {
     private Response response = Response.CANCEL;
     private int ROWS_PER_PAGE = 25;
 
-    public DataDialog(StackPane dialogContainer, JEVisAttribute attribute) {
+    public DataDialog(JEVisAttribute attribute) {
         super();
-        this.setOverlayClose(false);
+        setTitle(I18n.getInstance().getString("plugin.enterdata.history.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.enterdata.history.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
+
         this.attribute = attribute;
         DateTime lastTs = attribute.getTimestampFromLastSample();
         logger.debug("Attribute {} of object {}:{} last ts - {}", attribute.getName(), attribute.getObject().getName(), attribute.getObject().getID(), lastTs);
@@ -80,12 +90,9 @@ public class DataDialog extends JFXDialog {
             lastTs = DateTime.now();
         }
 
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
-
         tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         tableView.setMinWidth(450);
-        double height = dialogContainer.getHeight() * 0.75;
+        double height = 718;
         tableView.setMinHeight(height);
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.setEditable(true);
@@ -147,8 +154,19 @@ public class DataDialog extends JFXDialog {
         tableView.getSortOrder().setAll(dateColumn);
         noteColumn.setVisible(false);
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
-        ok.setOnAction(actionEvent -> save());
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+
+        okButton.setOnAction(actionEvent -> save());
+        cancelButton.setOnAction(actionEvent -> close());
 
         saved.addListener((observableValue, aBoolean, t1) -> {
             if (observableValue.getValue()) {
@@ -156,9 +174,6 @@ public class DataDialog extends JFXDialog {
                 this.close();
             }
         });
-
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setOnAction(event -> this.close());
 
         JFXComboBox<String> dateConfig = new JFXComboBox<>();
         dateConfig.getItems().addAll("Auto", "Man");
@@ -186,9 +201,6 @@ public class DataDialog extends JFXDialog {
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        HBox buttonBar = new HBox(8, messageLabel, spacer, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
 
         pagination.setPageFactory(new Callback<Integer, Node>() {
             @Override
@@ -247,14 +259,14 @@ public class DataDialog extends JFXDialog {
         HBox hBox = new HBox(8, pagination, vBoxRight);
         hBox.setPadding(new Insets(12));
 
-        VBox vBox = new VBox(8, toolBar, hBox, buttonBar);
+        VBox vBox = new VBox(8, toolBar, hBox);
         vBox.setPadding(new Insets(12));
 
         ScrollPane scrollPane = new ScrollPane(vBox);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        setContent(scrollPane);
+        getDialogPane().setContent(scrollPane);
 
         updateTable();
 
@@ -294,8 +306,13 @@ public class DataDialog extends JFXDialog {
         deleteView.getColumns().setAll(deleteColumn, commitDeleteColumn);
         deleteView.getItems().setAll(deleteList);
 
-        JFXDialog confirmationDialog = new JFXDialog();
-        confirmationDialog.setDialogContainer(getDialogContainer());
+        Dialog confirmationDialog = new Dialog();
+        confirmationDialog.setTitle(I18n.getInstance().getString("plugin.enterdata.history.confirmation.title"));
+        confirmationDialog.setHeaderText(I18n.getInstance().getString("plugin.enterdata.history.confirmation.header"));
+        confirmationDialog.setResizable(true);
+        Stage stage = (Stage) confirmationDialog.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         Label headerText = new Label(I18n.getInstance().getString("dialog.data.confirm.message"));
 
@@ -360,7 +377,7 @@ public class DataDialog extends JFXDialog {
 
         vBox.getChildren().add(buttonBar);
 
-        confirmationDialog.setContent(vBox);
+        confirmationDialog.getDialogPane().setContent(vBox);
 
         confirmationDialog.show();
     }

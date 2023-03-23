@@ -1,16 +1,13 @@
 package org.jevis.jeconfig.dialog;
 
 import com.ibm.icu.text.NumberFormat;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.control.Separator;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -21,6 +18,8 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.Charts.Chart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.charts.BaseLoad;
@@ -33,13 +32,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BaseLoadDialog extends JFXDialog {
+public class BaseLoadDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(BaseLoadDialog.class);
     final NumberFormat nf = NumberFormat.getNumberInstance();
 
-    public BaseLoadDialog(StackPane dialogContainer, JEVisDataSource ds, BaseLoadSetting settings, HashMap<Integer, Chart> model) {
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+    public BaseLoadDialog(JEVisDataSource ds, BaseLoadSetting settings, HashMap<Integer, Chart> model) {
+        setTitle(I18n.getInstance().getString("plugin.graph.baseloaddialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.graph.baseloaddialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         this.nf.setMinimumFractionDigits(model.values().stream().findFirst().get().getChartModel().getMinFractionDigits());
         this.nf.setMaximumFractionDigits(model.values().stream().findFirst().get().getChartModel().getMaxFractionDigits());
@@ -208,21 +213,23 @@ public class BaseLoadDialog extends JFXDialog {
 
         BaseLoadTable baseLoadTable = new BaseLoadTable(FXCollections.observableList(data));
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox vBox = new VBox(6, baseLoadTable, separator, buttonBar);
+        VBox vBox = new VBox(6, baseLoadTable, separator);
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             try {
 
 
@@ -232,9 +239,9 @@ public class BaseLoadDialog extends JFXDialog {
             close();
         });
 
-        cancel.setOnAction(event -> close());
+        cancelButton.setOnAction(event -> close());
 
-        setContent(vBox);
+        getDialogPane().setContent(vBox);
     }
 
 }

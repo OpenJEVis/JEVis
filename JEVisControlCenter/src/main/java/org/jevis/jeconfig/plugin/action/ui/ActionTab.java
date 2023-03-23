@@ -92,7 +92,6 @@ public class ActionTab extends Tab {
                 @Override
                 public void onChanged(Change<? extends ActionPlanData> c) {
                     while (c.next()) {
-                        System.out.println("!!!!!! ActionTab: " + c);
                         if (c.wasAdded() || c.wasRemoved()) {
                             try {
 
@@ -117,8 +116,6 @@ public class ActionTab extends Tab {
             planFilterButton.setDisable(true);
         }
 
-
-        //planButton.setVisible(false);
 
         fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
             actionTable.setTextFilter(newValue);

@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
-import javafx.scene.control.*;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.TabPane;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
@@ -74,10 +75,15 @@ public class NonconformityForm extends Dialog {
 
     }
     public void showNotification(String text, String path_icon) {
+        basicTab.getF_ImmediateMeasures().getStyleClass().set(0,"nonconformityOK");
+        basicTab.getF_action().getStyleClass().set(0,"nonconformityOK");
+        basicTab.getF_doneDate().getStyleClass().set(0,"nonconformityOK");
         if (text.equals(NonconformityData.IMMEDIATE_ACTION)) {
             basicTab.getF_ImmediateMeasures().getStyleClass().set(0,"nonconformityError");
         } else if (text.equals(NonconformityData.DONE_DATE_ACTION)) {
             basicTab.getF_action().getStyleClass().set(0,"nonconformityError");
+        } else if (text.equals(NonconformityData.DONE_DATE_AFTER_NOW)) {
+            basicTab.getF_doneDate().getStyleClass().set(0,"nonconformityError");
         }
 
         tabPane.getSelectionModel().select(basicTab);

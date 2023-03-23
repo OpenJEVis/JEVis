@@ -58,7 +58,7 @@ public class NewObject {
                                     }
 
 
-                                } catch (JEVisException ex) {
+                                } catch (Exception ex) {
                                     logger.catching(ex);
 
                                     if (ex.getMessage().equals("Can not create User with this name. The User has to be unique on the System")) {

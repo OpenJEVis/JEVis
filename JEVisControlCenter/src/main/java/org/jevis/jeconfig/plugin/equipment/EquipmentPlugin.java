@@ -16,7 +16,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +52,6 @@ public class EquipmentPlugin extends TablePlugin {
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.EquipmentPlugin");
     private final Image taskImage = JEConfig.getImage("building_equipment.png");
     private final BorderPane borderPane = new BorderPane();
-    private final StackPane dialogContainer = new StackPane(borderPane);
     private final ToolBar toolBar = new ToolBar();
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getSVGImage(Icon.SWAP, toolBarIconSize, toolBarIconSize));
     private boolean initialized = false;
@@ -173,8 +171,8 @@ public class EquipmentPlugin extends TablePlugin {
             JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
             TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
 
-            EquipmentDialog meterDialog = new EquipmentDialog(dialogContainer, ds, selectedItem.getJeVisClass());
-            meterDialog.setOnDialogClosed(event1 -> {
+            EquipmentDialog meterDialog = new EquipmentDialog(ds, selectedItem.getJeVisClass());
+            meterDialog.setOnCloseRequest(event1 -> {
                 if (meterDialog.getResponse() == Response.OK) {
                     handleRequest(Constants.Plugin.Command.RELOAD);
                 }
@@ -408,8 +406,8 @@ public class EquipmentPlugin extends TablePlugin {
             case Constants.Plugin.Command.EXPAND:
                 break;
             case Constants.Plugin.Command.NEW:
-                EquipmentDialog equipmentDialog = new EquipmentDialog(dialogContainer, ds, ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
-                equipmentDialog.setOnDialogClosed(event -> {
+                EquipmentDialog equipmentDialog = new EquipmentDialog(ds, ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
+                equipmentDialog.setOnCloseRequest(event -> {
                     if (equipmentDialog.getResponse() == Response.OK) {
                         handleRequest(Constants.Plugin.Command.RELOAD);
                     }
@@ -464,7 +462,7 @@ public class EquipmentPlugin extends TablePlugin {
 
     @Override
     public Node getContentNode() {
-        return dialogContainer;
+        return borderPane;
     }
 
     private void loadTabs(Map<JEVisClass, List<JEVisObject>> allEquipment, List<JEVisClass> classes) throws InterruptedException {

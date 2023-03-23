@@ -5,11 +5,11 @@
  */
 package org.jevis.jeconfig.map;
 
-import java.util.List;
 import javafx.scene.paint.Color;
 
+import java.util.List;
+
 /**
- *
  * @author broder
  */
 public class GPSRoute {

@@ -1,16 +1,14 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -19,15 +17,23 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 
-public class UnitDialog extends JFXDialog {
+public class UnitDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(UnitDialog.class);
 
-    public UnitDialog(StackPane parent, JEVisAttribute attribute, JFXTextField ubutton) throws JEVisException {
+    public UnitDialog(JEVisAttribute attribute, JFXTextField ubutton) throws JEVisException {
         super();
-        setDialogContainer(parent);
-        setTransitionType(DialogTransition.NONE);
+        setTitle(I18n.getInstance().getString("plugin.configuration.unitdialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.configuration.unitdialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         JEVisDataSource ds = attribute.getDataSource();
 
@@ -53,9 +59,14 @@ public class UnitDialog extends JFXDialog {
         gp.add(unitUI.getUnitButton(), 1, 2);
         gp.add(unitUI.getSymbolField(), 1, 3);
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
-        ok.setDefaultButton(true);
-        ok.setOnAction(event -> {
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+        okButton.setOnAction(event -> {
             try {
                 attribute.setDisplayUnit(unitUI.getUnit());
                 attribute.setInputUnit(unitUI.getUnit());
@@ -67,24 +78,27 @@ public class UnitDialog extends JFXDialog {
             close();
         });
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setCancelButton(true);
-        cancel.setOnAction(event -> close());
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+        cancelButton.setOnAction(event -> close());
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         gp.add(separator, 0, 4, 2, 1);
 
-        gp.add(cancel, 0, 5);
-        gp.add(ok, 1, 5);
-
-        setContent(gp);
-        setMinSize(270, 140);
+        getDialogPane().setContent(gp);
+        getDialogPane().setMinSize(270, 140);
     }
 
-    public UnitDialog(StackPane parent, JEVisAttribute attribute, JFXComboBox<JEVisUnit> unitListView) throws JEVisException {
+    public UnitDialog(JEVisAttribute attribute, JFXComboBox<JEVisUnit> unitListView) throws JEVisException {
         super();
-        setDialogContainer(parent);
-        setTransitionType(DialogTransition.NONE);
+        setTitle(I18n.getInstance().getString("plugin.configuration.unitdialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.configuration.unitdialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         JEVisDataSource ds = attribute.getDataSource();
 
@@ -110,9 +124,14 @@ public class UnitDialog extends JFXDialog {
         gp.add(unitUI.getUnitButton(), 1, 2);
         gp.add(unitUI.getSymbolField(), 1, 3);
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
-        ok.setDefaultButton(true);
-        ok.setOnAction(event -> {
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+        okButton.setOnAction(event -> {
             try {
                 attribute.setDisplayUnit(unitUI.getUnit());
                 attribute.setInputUnit(unitUI.getUnit());
@@ -130,9 +149,9 @@ public class UnitDialog extends JFXDialog {
             close();
         });
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setCancelButton(true);
-        cancel.setOnAction(event -> {
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+        cancelButton.setOnAction(event -> {
             Platform.runLater(() -> {
                 unitListView.getSelectionModel().selectFirst();
             });
@@ -142,10 +161,7 @@ public class UnitDialog extends JFXDialog {
         Separator separator = new Separator(Orientation.HORIZONTAL);
         gp.add(separator, 0, 4, 2, 1);
 
-        gp.add(cancel, 0, 5);
-        gp.add(ok, 1, 5);
-
-        setContent(gp);
-        setMinSize(270, 140);
+        getDialogPane().setContent(gp);
+        getDialogPane().setMinSize(270, 140);
     }
 }
