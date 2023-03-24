@@ -36,7 +36,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -1487,20 +1486,24 @@ public class TreeHelper {
             }
 
             if (permissionsOK) {
-                CopyObjectDialog dia = new CopyObjectDialog();
-                CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent, mode);
+                CopyObjectDialog dia = new CopyObjectDialog(dragObj, targetParent, mode);
 
-                boolean recursion = dia.isRecursion();
-                recursion = !isOwnChild && recursion;
-                logger.warn("Warning recursion detected disable recursion: {}", recursion);
+                boolean finalIsOwnChild = isOwnChild;
+                dia.setOnCloseRequest(dialogEvent -> {
+                    if (dia.getResponse() == CopyObjectDialog.Response.MOVE) {
+                        moveObject(dragObj, targetParent);
+                    } else if (dia.getResponse() == CopyObjectDialog.Response.LINK) {
+                        buildLink(dragObj, targetParent, dia.getCreateName());
+                    } else if (dia.getResponse() == CopyObjectDialog.Response.COPY) {
+                        boolean recursion = dia.isRecursion();
+                        recursion = !finalIsOwnChild && recursion;
+                        logger.warn("Warning recursion detected disable recursion: {}", recursion);
 
-                if (re == CopyObjectDialog.Response.MOVE) {
-                    moveObject(dragObj, targetParent);
-                } else if (re == CopyObjectDialog.Response.LINK) {
-                    buildLink(dragObj, targetParent, dia.getCreateName());
-                } else if (re == CopyObjectDialog.Response.COPY) {
-                    copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), recursion, dia.getCreateCount());
-                }
+                        copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), recursion, dia.getCreateCount());
+                    }
+                });
+
+                dia.showAndWait();
             } else {
                 Platform.runLater(() -> {
                     Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
@@ -1568,12 +1571,12 @@ public class TreeHelper {
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
         Map<String, String> commitLangMap = toCopyObj.getLocalNameList();
-        if (commitLangMap.containsValue(I18n.getInstance().getLocale().getLanguage())) {
+        if (commitLangMap.containsKey(I18n.getInstance().getLocale().getLanguage())) {
             commitLangMap.replace((I18n.getInstance().getLocale().getLanguage()), newName);
-        }else {
+        } else {
             commitLangMap.put(I18n.getInstance().getLocale().getLanguage(), newName);
         }
-        newObject.setLocalNames(toCopyObj.getLocalNameList());
+        newObject.setLocalNames(commitLangMap);
         newObject.commit();
 
         for (JEVisAttribute originalAtt : toCopyObj.getAttributes()) {
