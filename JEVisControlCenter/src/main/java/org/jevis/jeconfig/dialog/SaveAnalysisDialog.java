@@ -193,6 +193,12 @@ public class SaveAnalysisDialog extends Dialog {
                 Alert dialogOverwrite = new Alert(Alert.AlertType.CONFIRMATION);
                 dialogOverwrite.setResizable(true);
                 dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
+                dialogOverwrite.initOwner(JEConfig.getStage());
+                dialogOverwrite.initModality(Modality.APPLICATION_MODAL);
+                Stage stageOverwrite = (Stage) dialogOverwrite.getDialogPane().getScene().getWindow();
+                TopMenu.applyActiveTheme(stageOverwrite.getScene());
+                stageOverwrite.setAlwaysOnTop(true);
+
                 Label message = new Label(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
 
                 ButtonType okOverwriteType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
