@@ -306,14 +306,11 @@ public class NonconformitiesController {
         return dialogEvent -> {
             String errorText = data.checkForRequirements();
             logger.debug(errorText);
-            if (errorText.equals(NonconformityData.IMMEDIATE_ACTION)) {
+            if (!errorText.equals(NonconformityData.REQUIREMENTS_MET)) {
                 nonconformityForm.showNotification(errorText,Icon.Warning);
                 dialogEvent.consume();
 
-            } else if (errorText.equals(NonconformityData.DONE_DATE_ACTION)) {
-                nonconformityForm.showNotification(errorText,Icon.Warning);
-                dialogEvent.consume();
-            } else {
+            }  else {
                 data.commit();
             }
         };

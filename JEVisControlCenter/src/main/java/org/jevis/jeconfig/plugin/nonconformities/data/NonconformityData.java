@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class NonconformityData{
+public class NonconformityData {
 
     //private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(NonconformityData.class);
@@ -69,19 +69,17 @@ public class NonconformityData{
     private final SimpleStringProperty responsiblePerson = new SimpleStringProperty("Responsible Person", I18n.getInstance().getString("plugin.nonconformities.responsibleperson"), "");
 
 
-
-
     @Expose
     @SerializedName("Check List")
     private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
 
     @Expose
     @SerializedName("Create Date")
-    private final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date", I18n.getInstance().getString("plugin.nonconformities.createdate"),  new DateTime());
+    private final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date", I18n.getInstance().getString("plugin.nonconformities.createdate"), new DateTime());
 
     @Expose
     @SerializedName("Planned Date")
-    private final SimpleObjectProperty<DateTime> deadLine = new SimpleObjectProperty<>("deadline", I18n.getInstance().getString("plugin.nonconformities.planneddate"),null);
+    private final SimpleObjectProperty<DateTime> deadLine = new SimpleObjectProperty<>("deadline", I18n.getInstance().getString("plugin.nonconformities.planneddate"), null);
 
 
     @Expose
@@ -130,6 +128,7 @@ public class NonconformityData{
 
     public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.immediatemeasures");
     public static final String DONE_DATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.donedate");
+    public static final String DONE_DATE_AFTER_NOW = I18n.getInstance().getString("plugin.nonconformities.error.donedateafter");
     public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.ok");
 
     public NonconformityData(JEVisObject obj, NonconformityPlan nonconformityPlan) {
@@ -182,7 +181,6 @@ public class NonconformityData{
             registerChanges(seu);
 
 
-
             registerChanges(getCheckListData().isImmediateActionRequiredProperty());
             registerChanges(getCheckListData().isEffectOnOngoingProcessesProperty());
             registerChanges(getCheckListData().isRoutinelyAffectedProperty());
@@ -226,6 +224,8 @@ public class NonconformityData{
             return IMMEDIATE_ACTION;
         } else if (getDoneDate() != null && getAction().isEmpty()) {
             return DONE_DATE_ACTION;
+        } else if (getDoneDate() != null && getDoneDate().isAfter(DateTime.now())) {
+            return DONE_DATE_AFTER_NOW;
         } else {
             return REQUIREMENTS_MET;
         }
@@ -245,8 +245,7 @@ public class NonconformityData{
                     try {
                         try {
                             Gson gson = GsonBuilder.createDefaultBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create();
-                            logger.info("Json: {}",gson.toJson(NonconformityData.this));
-
+                            logger.info("Json: {}", gson.toJson(NonconformityData.this));
 
 
                             if (object != null) {
@@ -284,7 +283,6 @@ public class NonconformityData{
     }
 
 
-
     public SimpleStringProperty creatorProperty() {
         return creator;
     }
@@ -298,7 +296,6 @@ public class NonconformityData{
     public SimpleStringProperty descriptionProperty() {
         return description;
     }
-
 
 
     public SimpleObjectProperty<DateTime> createDateProperty() {
@@ -316,11 +313,9 @@ public class NonconformityData{
     }
 
 
-
     public SimpleObjectProperty<DateTime> doneDateProperty() {
         return doneDate;
     }
-
 
 
     public SimpleObjectProperty<DateTime> deadLineProperty() {
@@ -502,7 +497,6 @@ public class NonconformityData{
     }
 
 
-
     public List<String> getFieldTags() {
         return fieldTags.get();
     }
@@ -511,9 +505,6 @@ public class NonconformityData{
         return fieldTags;
     }
 
-//    public void setFieldTags(List<String> fieldTags) {
-//        this.fieldTags.set(fieldTags);
-//    }
 
     public String getAction() {
         return action.get();
@@ -575,6 +566,7 @@ public class NonconformityData{
         return stringProperty;
 
     }
+
     public StringProperty getfieldAsString() {
 
 
@@ -592,13 +584,9 @@ public class NonconformityData{
         });
 
 
-
-
         return stringProperty;
 
     }
-
-
 
 
 }
